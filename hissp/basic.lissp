@@ -1,0 +1,64 @@
+(operator/setitem (globals) #' _define
+                  (\ (name value)
+                      (operator/setitem (globals) (hissp.munger/munge name) value)))
+
+(_define #' _tuple
+         (\ (& * elements)
+             elements))
+
+(_define #' ! (types/SimpleNamespace))
+
+(setattr ! #' defmacro
+         (\ (name args & * body)
+             (_tuple
+              #' setattr
+              #' (.setdefault (globals) (quote xBANG_) (types/SimpleNamespace))
+              (_tuple #' quote (hissp.munger/munge name))
+              (_tuple #' \ args & * body))))
+
+(!.defmacro alias (short long)
+            (_tuple
+             #' operator/setitem
+             #' (.setdefault (globals) (quote xQUERY_) (dict))
+             (_tuple #' quote short)
+             (_tuple #' quote long)))
+
+(!.alias alias !.alias)
+(alias defmacro !.defmacro)
+
+(defmacro define (name value)
+  (_tuple
+   #' operator/setitem
+   #' (globals)
+   (_tuple #' quote (hissp.munger/munge name))
+   value))
+
+(alias define !.define)
+
+(define _if
+  (\ (b & * then-else)
+      ((operator/getitem then-else (operator/not_ b)))))
+
+(defmacro if* (b then otherwise)
+  (_tuple
+   #'(\ (b & * then-else)
+      ((operator/getitem then-else (operator/not_ b))))
+   b
+   (_tuple #' \ () then)
+   (_tuple #' \ () otherwise)))
+
+(alias if* !.if*)
+
+(define test
+  (\ (b)
+      (_if b
+          (\ () (print #' yes))
+          (\ () (print #' no)))))
+
+(define test2
+  (\ (b)
+      (if* b
+             (print #' yes)
+             (print #' no))))
+
+(print #' basic)
