@@ -1,3 +1,6 @@
+# Copyright 2019 Matthew Egan Odendahl
+# SPDX-License-Identifier: Apache-2.0
+
 import re
 from contextlib import suppress
 from typing import TypeVar, Hashable, Mapping, Dict, Match
