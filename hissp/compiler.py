@@ -103,7 +103,6 @@ class Compiler:
     def _elements(self, form) -> str:
         return ",".join(map(self.quoted, form))
 
-    @trace
     def basic(self, form) -> str:
         result = repr(form)
         ast.literal_eval(result)  # Does it round-trip?

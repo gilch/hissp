@@ -46,17 +46,35 @@ class TestCompileGeneral(TestCase):
     def test_compile_literal(self, form):
         self.assertEqual(form, eval(compiler.Compiler().quoted(form)))
 
-    @given(st.characters())
-    def test_x_quote(self, char):
+    @given(
+        st.characters(
+            blacklist_characters='(){}[];".',
+            whitelist_categories=["Lu", "Ll", "Lt", "Lm", "Lo", "Nl", "Sm"],
+        )
+    )
+    def test_un_x_quote(self, char):
         x = munger.x_quote(char)
         self.assertTrue(("x" + x).isidentifier())
-        match = re.fullmatch("X(.*?)X", x)
+        match = re.fullmatch("x(.*?)_", x)
         if match:
             self.assertEqual(char, munger.un_x_quote(match))
 
     @given(st.text(min_size=1))
-    def test_munge(self, s: str):
+    def test_demunge(self, s: str):
         x = compiler.munge(s)
-        self.assertTrue(x.isidentifier())
-        if not s.isidentifier():
+        self.assertEqual(x, munger.munge(munger.demunge(x)))
+        if "x" not in s:
             self.assertEqual(s, munger.demunge(x))
+
+    def test_munge_basic(self):
+        self.assertEqual(
+            munger.munge("~!@#$%^&*+`-=|\:'<>?,/"),
+            "xTILDE_xBANG_xAT_xHASH_xDOLLAR_xPERCENT_xCARET_xET_xSTAR_xPLUS_xGRAVE_xH_"
+            "xEQ_xBAR_xBSLASH_xCOLON_xQUOTE_xLT_xGT_xQUERY_xCOMMA_xSLASH_",
+        )
+
+    @given(
+        st.text(st.characters(["Lu", "Ll", "Lt", "Lm", "Lo", "Nl", "Sm"]), min_size=1)
+    )
+    def test_munge_symbol(self, s):
+        self.assertTrue(munger.munge(s).isidentifier())
