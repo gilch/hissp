@@ -50,7 +50,7 @@ def parse(tokens: Iterator[Token], depth=0) -> Iterator[tuple]:
         elif k == "close":
             return
         elif k == "string":
-            yield ast.literal_eval(v.replace("\n", r"\n"))
+            yield 'quote', ast.literal_eval(v.replace("\n", r"\n"))
         elif k in {"comment", "whitespace"}:
             continue
         elif k == "macro":
