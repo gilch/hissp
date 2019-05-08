@@ -87,7 +87,8 @@ class Compiler:
             return self.special(form, head, tail)
         return self.call(form)
 
-    def special(self, form, head, tail):
+    def special(self, form: tuple, head: str, tail: list) -> str:
+        """Try to compile as special form, else self.macro()."""
         if head == "quote":
             if len(form) != 2:
                 raise SyntaxError
@@ -96,14 +97,13 @@ class Compiler:
             return self.fn(form)
         return self.macro(form, head, tail)
 
-    def macro(self, form, head, tail):
-        try:  # Check local macros.
-            macro = vars(self.ns[MACROS])[head]
-        except LookupError:
-            if MACRO in head:
-                return self.form(eval(self.symbol(head))(*tail))
-            return self.call(form)
-        return self.form(macro(*tail))
+    def macro(self, form: tuple, head: str, tail: list) -> str:
+        """Try to compile as macro, else normal call."""
+        with suppress(LookupError):
+            return self.form(vars(self.ns[MACROS])[head](*tail))
+        if MACRO in head:
+            return self.form(eval(self.symbol(head))(*tail))
+        return self.call(form)
 
     def quoted(self, form) -> str:
         """Compile forms that evaluate to themselves."""
