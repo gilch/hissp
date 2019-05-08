@@ -18,8 +18,8 @@ STARS = STAR * 2
 AND = munge("&")
 BLANK = munge("?")
 
-MACRO = munge("!.")
-SMACRO = SLASH + MACRO
+MACROS = munge("!")  # Module Macro container !
+MACRO = munge("/!.")  # Macro from foreign module foo.bar/!.baz
 
 # repr() always reverses.
 REPR = frozenset({type(None), bool, bytes, str})
@@ -51,7 +51,7 @@ class Compiler:
     """
 
     def __init__(self, ns=None, evaluate=True):
-        self.ns = ns or {"__name__": "<compiler>", BLANK: {}}
+        self.ns = ns or {"__name__": "<compiler>"}
         self.evaluate = evaluate
 
     def compile(self, forms: Iterable) -> str:
@@ -84,15 +84,20 @@ class Compiler:
         """Calls, macros, special forms."""
         head, *tail = form
         if type(head) is str:
-            head = self.alias(head)
             if head == "quote":
                 if len(form) != 2:
                     raise SyntaxError
                 return self.quoted(form[1])
             if head == LAMBDA:
                 return self.fn(form)
-            if SMACRO in head or head.startswith(MACRO):
-                return self.macro(head, tail)
+            try:  # Check local macros.
+                macro = vars(self.ns[MACROS])[head]
+            except LookupError:
+                pass
+            else:
+                return self.form(macro(*tail))
+            if MACRO in head:
+                return self.form(eval(self.symbol(head))(*tail))
         return self.call(form)
 
     def quoted(self, form) -> str:
@@ -207,14 +212,6 @@ class Compiler:
             return "()"
         return self.form(body[0])
 
-    def macro(self, head: str, tail: tuple) -> str:
-        expansion = f"{self.symbol(head)}({(','.join(map(self.quoted, tail)))})"
-        try:
-            expansion = eval(compile(expansion, f"<macro {head}>", "eval"), self.ns)
-        except Exception as e:
-            raise CompileError(f"\nexpand:\n{expansion}") from e
-        return self.form(expansion)
-
     @trace
     def call(self, form: tuple) -> str:
         r"""
@@ -286,16 +283,12 @@ class Compiler:
 
     @trace
     def symbol(self, symbol: str) -> str:
-        symbol = self.alias(symbol)
         if SLASH in symbol and not symbol.startswith(SLASH):
             parts = symbol.split(SLASH, 1)
             return "__import__({0!r}{fromlist}).{1}".format(
                 parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
             )
         return symbol
-
-    def alias(self, symbol: str) -> str:
-        return self.ns[BLANK].get(symbol, symbol)
 
 
 T = TypeVar("T")

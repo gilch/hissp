@@ -23,26 +23,12 @@
            (_tuple #' quote name)
            (_tuple #' \ args & * body))))
 
-(!.defmacro alias (short long)
-            (_tuple
-             #' operator/setitem
-             #' (.setdefault (builtins/globals)
-                             #' ?
-                             (builtins/dict))
-             (_tuple #' quote short)
-             (_tuple #' quote long)))
-
-(!.alias alias !.alias)
-(alias defmacro !.defmacro)
-
 (defmacro define (name value)
   (_tuple
    #' operator/setitem
    #' (builtins/globals)
    (_tuple #' quote name)
    value))
-
-(alias define !.define)
 
 (define _if
   (\ (b & * then-else)
@@ -55,8 +41,6 @@
    b
    (_tuple #' \ () then)
    (_tuple #' \ () otherwise)))
-
-(alias if* !.if*)
 
 (define test
   (\ (b)
