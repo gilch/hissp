@@ -21,7 +21,7 @@ BLANK = munge("?")
 MACROS = munge("!")  # Module Macro container !
 MACRO = munge("/!.")  # Macro from foreign module foo.bar/!.baz
 
-# repr() always reverses.
+# repr() always round-trips.
 REPR = frozenset({type(None), bool, bytes, str})
 # Needs (), and some invalid reprs, like 'nan'
 BASIC = frozenset({int, float, complex})
@@ -84,21 +84,26 @@ class Compiler:
         """Calls, macros, special forms."""
         head, *tail = form
         if type(head) is str:
-            if head == "quote":
-                if len(form) != 2:
-                    raise SyntaxError
-                return self.quoted(form[1])
-            if head == LAMBDA:
-                return self.fn(form)
-            try:  # Check local macros.
-                macro = vars(self.ns[MACROS])[head]
-            except LookupError:
-                pass
-            else:
-                return self.form(macro(*tail))
+            return self.special(form, head, tail)
+        return self.call(form)
+
+    def special(self, form, head, tail):
+        if head == "quote":
+            if len(form) != 2:
+                raise SyntaxError
+            return self.quoted(form[1])
+        if head == LAMBDA:
+            return self.fn(form)
+        return self.macro(form, head, tail)
+
+    def macro(self, form, head, tail):
+        try:  # Check local macros.
+            macro = vars(self.ns[MACROS])[head]
+        except LookupError:
             if MACRO in head:
                 return self.form(eval(self.symbol(head))(*tail))
-        return self.call(form)
+            return self.call(form)
+        return self.form(macro(*tail))
 
     def quoted(self, form) -> str:
         """Compile forms that evaluate to themselves."""
