@@ -9,9 +9,22 @@ from functools import wraps
 from itertools import chain, takewhile
 from typing import TypeVar, Iterable, Tuple
 
-from hissp.munger import munge
+from hissp.munger import munge, demunge
 
-BASIC = frozenset((type(None), bool, int, float, complex, bytes, str))
+SLASH = munge("/")
+LAMBDA = munge("\\")
+STAR = munge("*")
+STARS = STAR * 2
+AND = munge("&")
+BLANK = munge("?")
+
+MACRO = munge("!.")
+SMACRO = SLASH + MACRO
+
+# repr() always reverses.
+REPR = frozenset({type(None), bool, bytes, str})
+# Needs (), and some invalid reprs, like 'nan'
+BASIC = frozenset({int, float, complex})
 
 
 class CompileError(SyntaxError):
@@ -38,7 +51,7 @@ class Compiler:
     """
 
     def __init__(self, ns=None, evaluate=True):
-        self.ns = ns or {"__name__": "<compiler>", munge("?"): {}}
+        self.ns = ns or {"__name__": "<compiler>", BLANK: {}}
         self.evaluate = evaluate
 
     def compile(self, forms: Iterable) -> str:
@@ -76,9 +89,9 @@ class Compiler:
                 if len(form) != 2:
                     raise SyntaxError
                 return self.quoted(form[1])
-            if head == "\\":
+            if head == LAMBDA:
                 return self.fn(form)
-            if "/!." in head or head.startswith("!."):
+            if SMACRO in head or head.startswith(MACRO):
                 return self.macro(head, tail)
         return self.call(form)
 
@@ -95,6 +108,8 @@ class Compiler:
             return "{%s}" % ",".join(
                 f"{self.quoted(k)}:{self.quoted(v)}" for k, v in form.items()
             )
+        if case in REPR:  # reversible reprs
+            return repr(form)
         if case in BASIC:
             with suppress(ValueError):  # Some repr()s don't round-trip.
                 return self.basic(form)
@@ -104,7 +119,7 @@ class Compiler:
         return ",".join(map(self.quoted, form))
 
     def basic(self, form) -> str:
-        result = repr(form)
+        result = f"({repr(form)})"  # Need (). E.g. (1).real
         ast.literal_eval(result)  # Does it round-trip?
         return result
 
@@ -121,68 +136,68 @@ class Compiler:
         (\ (<parameters>)
           <body>)
 
-        The parameter tuple is further divided into (<single> & <paired>)
+        The parameters tuple is divided into (<single> & <paired>)
 
         Parameter types are the same as Python's.
         For example,
         >>> transpile(
-        ... ('\\', ('a','b',
-        ...         '&', 'e',1, 'f',2,
-        ...         '*','args', 'h',4, 'i','?', 'j',1,
-        ...         '**','kwargs'),
-        ...   42)
+        ... (LAMBDA, ('a','b',
+        ...         AND, 'e',1, 'f',2,
+        ...         STAR,'args', 'h',4, 'i',BLANK, 'j',1,
+        ...         STARS,'kwargs',),
+        ...   42,),
         ... )
-        '(lambda a,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:42)'
+        '(lambda a,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))'
 
-        The special names * and ** designate the remainder of the positional
-        and keyword parameters, respectively.
+        The special names * and ** designate the remainder of the
+        positional and keyword parameters, respectively.
         Note this body has an implicit PROGN.
         >>> transpile(
-        ... ('\\', ('&','*','args','**','kwargs'),
-        ...   ('print','args'),
-        ...   ('print','kwargs'))
+        ... (LAMBDA, (AND,STAR,'args',STARS,'kwargs',),
+        ...   ('print','args',),
+        ...   ('print','kwargs',),),
         ... )
-        '(lambda *args,**kwargs:((print)(args),(print)(kwargs))[-1])'
+        '(lambda *args,**kwargs:(print(args),print(kwargs))[-1])'
 
         You can omit the right of a pair with ? (except the final **kwargs).
         Also note that the body can be empty.
         >>> transpile(
-        ... ('\\', ('&','a',1, '*','?', 'b','?', 'c',2))
+        ... (LAMBDA, (AND,'a',1, STAR,BLANK, 'b',BLANK, 'c',2,),),
         ... )
         '(lambda a=(1),*,b,c=(2):())'
 
         The '&' may be omitted if there are no paired parameters.
-        >>> transpile(('\\', ('a','b','c','&')))
+        >>> transpile((LAMBDA, ('a','b','c',AND,),),)
         '(lambda a,b,c:())'
-        >>> transpile(('\\', ('a','b','c')))
+        >>> transpile((LAMBDA, ('a','b','c',),),)
         '(lambda a,b,c:())'
-        >>> transpile(('\\', ('&')))
+        >>> transpile((LAMBDA, (AND,),),)
         '(lambda :())'
-        >>> transpile(('\\', ()))
+        >>> transpile((LAMBDA, (),),)
         '(lambda :())'
 
         & is required if there are any paired parameters, even if there
         are no single parameters.
-        >>> transpile(('\\', ('&','**','kwargs')))
+        >>> transpile((LAMBDA, (AND,STARS,'kwargs',),),)
         '(lambda **kwargs:())'
         """
         fn, parameters, *body = form
-        assert fn == "\\"
+        assert fn == LAMBDA
         return f"(lambda {','.join(self.parameters(parameters))}:{self.body(body)})"
 
     @trace
     def parameters(self, parameters: tuple) -> Iterable[str]:
         parameters = iter(parameters)
-        yield from (munge(a) for a in takewhile(lambda a: a != "&", parameters))
+        yield from takewhile(lambda a: a != AND, parameters)
         for k, v in pairs(parameters):
-            if k == "*":
-                yield "*" if v == "?" else f"*{munge(v)}"
-            elif k == "**":
-                yield f"**{munge(v)}"
-            elif v == "?":
-                yield munge(k)
+            if k == STAR:
+                yield "*" if v == BLANK else f"*{v}"
+            elif k == STARS:
+                yield f"**{v}"
+            elif v == BLANK:
+                yield k
             else:
-                yield f"{munge(k)}={self.form(v)}"
+                yield f"{k}={self.form(v)}"
 
     @trace
     def body(self, body: list) -> str:
@@ -212,31 +227,31 @@ class Compiler:
         (<callable> <args> & <kwargs>)
         For example,
         >>> transpile(
-        ... ('print',1,2,3,'&','sep',('quote',":"), 'end',('quote',"\n\n"))
+        ... ('print',1,2,3,AND,'sep',('quote',":",), 'end',('quote',"\n\n",),)
         ... )
-        "(print)(1,2,3,sep=(':'),end=('\\n\\n'))"
+        "print((1),(2),(3),sep=':',end='\\n\\n')"
 
         Either <args> or <kwargs> may be empty.
-        >>> transpile(('foo','&'))
-        '(foo)()'
-        >>> transpile(('foo','bar','&'))
-        '(foo)(bar)'
-        >>> transpile(('foo','&','bar','baz'))
-        '(foo)(bar=(baz))'
+        >>> transpile(('foo',AND,),)
+        'foo()'
+        >>> transpile(('foo','bar',AND,),)
+        'foo(bar)'
+        >>> transpile(('foo',AND,'bar','baz',),)
+        'foo(bar=baz)'
 
         The & is optional if the <kwargs> part is empty.
-        >>> transpile(('foo',))
-        '(foo)()'
-        >>> transpile(('foo','bar'))
-        '(foo)(bar)'
+        >>> transpile(('foo',),)
+        'foo()'
+        >>> transpile(('foo','bar',),)
+        'foo(bar)'
 
         The <kwargs> part has implicit pairs; there must be an even number.
 
         Use the special keywords * and ** for iterable and mapping unpacking
         >>> transpile(
-        ... ('print','&','*',[1,2], 'a',3, '*',[4], '**',{'sep':':','end':'\n\n'})
+        ... ('print',AND,STAR,[1,2], 'a',3, STAR,[4], STARS,{'sep':':','end':'\n\n'},),
         ... )
-        "(print)(*([1,2]),a=(3),*([4]),**({'sep':':','end':'\\n\\n'}))"
+        "print(*([(1),(2)]),a=(3),*([(4)]),**({'sep':':','end':'\\n\\n'}))"
 
         Unlike other keywords, these can be repeated, but a '*' is not
         allowed to follow '**', as in Python.
@@ -245,44 +260,42 @@ class Compiler:
         (.<method name> <object> <args> & <kwargs>)
         Like Clojure, a method on the first object is assumed if the
         function name starts with a dot.
-        >>> transpile(('.conjugate', 1j))
+        >>> transpile(('.conjugate', 1j,),)
         '(1j).conjugate()'
         >>> eval(_)
         -1j
-        >>> transpile(('.decode', b'\xfffoo', '&', 'errors',('quote','ignore')))
-        "(b'\\xfffoo').decode(errors=('ignore'))"
+        >>> transpile(('.decode', b'\xfffoo', AND, 'errors',('quote','ignore',),),)
+        "b'\\xfffoo'.decode(errors='ignore')"
         >>> eval(_)
         'foo'
         """
         form = iter(form)
         head = next(form)
         args = chain(
-            map(self.form, takewhile(lambda a: a != "&", form)),
+            map(self.form, takewhile(lambda a: a != AND, form)),
             (
-                f"{k}({self.form(v)})"
-                if k in "**" and k
-                else f"{munge(k)}=({self.form(v)})"
+                f"{demunge(k)}({self.form(v)})"
+                if k in {STAR, STARS}
+                else f"{k}={self.form(v)}"
                 for k, v in pairs(form)
             ),
         )
         if type(head) is str and head.startswith("."):
-            return f"{next(args)}.{munge(head[1:])}({','.join(args)})"
+            return f"{next(args)}.{head[1:]}({','.join(args)})"
         return f"{self.form(head)}({','.join(args)})"
 
     @trace
     def symbol(self, symbol: str) -> str:
         symbol = self.alias(symbol)
-        if "/" in symbol and not symbol.startswith("/"):
-            parts = symbol.split("/", 1)
+        if SLASH in symbol and not symbol.startswith(SLASH):
+            parts = symbol.split(SLASH, 1)
             return "__import__({0!r}{fromlist}).{1}".format(
-                parts[0],
-                munge(parts[1]),
-                fromlist=",fromlist='?'" if "." in parts[0] else "",
+                parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
             )
-        return munge(symbol)
+        return symbol
 
     def alias(self, symbol: str) -> str:
-        return self.ns[munge("?")].get(symbol, symbol)
+        return self.ns[BLANK].get(symbol, symbol)
 
 
 T = TypeVar("T")
@@ -294,5 +307,5 @@ def pairs(it: Iterable[T]) -> Iterable[Tuple[T, T]]:
         yield k, next(it)
 
 
-def transpile(*forms):
-    return Compiler().compile(forms)
+def transpile(form):
+    return Compiler(evaluate=False).compile([form])

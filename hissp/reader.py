@@ -4,8 +4,9 @@
 import ast
 import re
 from pprint import pprint
-
 from typing import NewType, Tuple, Iterator
+
+from hissp.munger import munge
 
 TOKENS = re.compile(
     r"""(?x)
@@ -60,7 +61,7 @@ def parse(tokens: Iterator[Token], depth=0) -> Iterator[tuple]:
             try:
                 yield ast.literal_eval(v)
             except (ValueError, SyntaxError):
-                yield v
+                yield munge(v)
         else:
             assert False, "unknown token: " + repr(k)
     if depth:

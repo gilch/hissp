@@ -74,7 +74,7 @@ class TestCompileGeneral(TestCase):
         )
 
     @given(
-        st.text(st.characters(["Lu", "Ll", "Lt", "Lm", "Lo", "Nl", "Sm"]), min_size=1)
+        st.text(st.characters(["Sm"]), min_size=1)
     )
     def test_munge_symbol(self, s):
         self.assertTrue(munger.munge(s).isidentifier())
