@@ -2,14 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ast
+import os
 import pickle
 import pickletools
 from contextlib import suppress
 from functools import wraps
+from importlib import resources
 from itertools import chain, takewhile
-from typing import TypeVar, Iterable, Tuple
+from pathlib import Path, PurePath
+from types import ModuleType
+from typing import TypeVar, Iterable, Tuple, Union
 
 from hissp.munger import munge, demunge
+from hissp.reader import reads
 
 SLASH = munge("/")
 LAMBDA = munge("\\")
@@ -50,7 +55,8 @@ class Compiler:
     The Hissp compiler.
     """
 
-    def __init__(self, ns=None, evaluate=True):
+    def __init__(self, qualname="<repl>", ns=None, evaluate=True):
+        self.qualname = qualname
         self.ns = ns or {"__name__": "<compiler>"}
         self.evaluate = evaluate
 
@@ -99,9 +105,13 @@ class Compiler:
 
     def macro(self, form: tuple, head: str, tail: list) -> str:
         """Try to compile as macro, else normal call."""
-        with suppress(LookupError):
+        parts = head.split(MACRO, 1)
+        if parts[0] == self.qualname:
+            # Local qualified macro. Recursive macros might do need it.
+            return self.form(vars(self.ns[MACROS])[parts[1]](*tail))
+        with suppress(LookupError):  # Local unqualified macro.
             return self.form(vars(self.ns[MACROS])[head](*tail))
-        if MACRO in head:
+        if MACRO in head:  # Qualified macro.
             return self.form(eval(self.symbol(head))(*tail))
         return self.call(form)
 
@@ -150,7 +160,7 @@ class Compiler:
 
         Parameter types are the same as Python's.
         For example,
-        >>> transpile(
+        >>> readerless(
         ... (LAMBDA, ('a','b',
         ...         AND, 'e',1, 'f',2,
         ...         STAR,'args', 'h',4, 'i',BLANK, 'j',1,
@@ -162,7 +172,7 @@ class Compiler:
         The special names * and ** designate the remainder of the
         positional and keyword parameters, respectively.
         Note this body has an implicit PROGN.
-        >>> transpile(
+        >>> readerless(
         ... (LAMBDA, (AND,STAR,'args',STARS,'kwargs',),
         ...   ('print','args',),
         ...   ('print','kwargs',),),
@@ -171,24 +181,24 @@ class Compiler:
 
         You can omit the right of a pair with ? (except the final **kwargs).
         Also note that the body can be empty.
-        >>> transpile(
+        >>> readerless(
         ... (LAMBDA, (AND,'a',1, STAR,BLANK, 'b',BLANK, 'c',2,),),
         ... )
         '(lambda a=(1),*,b,c=(2):())'
 
         The '&' may be omitted if there are no paired parameters.
-        >>> transpile((LAMBDA, ('a','b','c',AND,),),)
+        >>> readerless((LAMBDA, ('a','b','c',AND,),),)
         '(lambda a,b,c:())'
-        >>> transpile((LAMBDA, ('a','b','c',),),)
+        >>> readerless((LAMBDA, ('a','b','c',),),)
         '(lambda a,b,c:())'
-        >>> transpile((LAMBDA, (AND,),),)
+        >>> readerless((LAMBDA, (AND,),),)
         '(lambda :())'
-        >>> transpile((LAMBDA, (),),)
+        >>> readerless((LAMBDA, (),),)
         '(lambda :())'
 
         & is required if there are any paired parameters, even if there
         are no single parameters.
-        >>> transpile((LAMBDA, (AND,STARS,'kwargs',),),)
+        >>> readerless((LAMBDA, (AND,STARS,'kwargs',),),)
         '(lambda **kwargs:())'
         """
         fn, parameters, *body = form
@@ -228,29 +238,29 @@ class Compiler:
         Like Python, it has three parts.
         (<callable> <args> & <kwargs>)
         For example,
-        >>> transpile(
+        >>> readerless(
         ... ('print',1,2,3,AND,'sep',('quote',":",), 'end',('quote',"\n\n",),)
         ... )
         "print((1),(2),(3),sep=':',end='\\n\\n')"
 
         Either <args> or <kwargs> may be empty.
-        >>> transpile(('foo',AND,),)
+        >>> readerless(('foo',AND,),)
         'foo()'
-        >>> transpile(('foo','bar',AND,),)
+        >>> readerless(('foo','bar',AND,),)
         'foo(bar)'
-        >>> transpile(('foo',AND,'bar','baz',),)
+        >>> readerless(('foo',AND,'bar','baz',),)
         'foo(bar=baz)'
 
         The & is optional if the <kwargs> part is empty.
-        >>> transpile(('foo',),)
+        >>> readerless(('foo',),)
         'foo()'
-        >>> transpile(('foo','bar',),)
+        >>> readerless(('foo','bar',),)
         'foo(bar)'
 
         The <kwargs> part has implicit pairs; there must be an even number.
 
         Use the special keywords * and ** for iterable and mapping unpacking
-        >>> transpile(
+        >>> readerless(
         ... ('print',AND,STAR,[1,2], 'a',3, STAR,[4], STARS,{'sep':':','end':'\n\n'},),
         ... )
         "print(*([(1),(2)]),a=(3),*([(4)]),**({'sep':':','end':'\\n\\n'}))"
@@ -262,11 +272,11 @@ class Compiler:
         (.<method name> <object> <args> & <kwargs>)
         Like Clojure, a method on the first object is assumed if the
         function name starts with a dot.
-        >>> transpile(('.conjugate', 1j,),)
+        >>> readerless(('.conjugate', 1j,),)
         '(1j).conjugate()'
         >>> eval(_)
         -1j
-        >>> transpile(('.decode', b'\xfffoo', AND, 'errors',('quote','ignore',),),)
+        >>> readerless(('.decode', b'\xfffoo', AND, 'errors',('quote','ignore',),),)
         "b'\\xfffoo'.decode(errors='ignore')"
         >>> eval(_)
         'foo'
@@ -305,5 +315,23 @@ def pairs(it: Iterable[T]) -> Iterable[Tuple[T, T]]:
         yield k, next(it)
 
 
-def transpile(form):
+def readerless(form):
     return Compiler(evaluate=False).compile([form])
+
+
+def transpile(
+    package: resources.Package,
+    resource: Union[str, PurePath],
+    out: Union[None, str, bytes, Path] = None,
+):
+    code = resources.read_text(package, resource)
+    path: Path
+    with resources.path(package, resource) as path:
+        out = out or path.with_suffix(".py")
+        if isinstance(package, ModuleType):
+            package = package.__package__
+        if isinstance(package, os.PathLike):
+            resource = resource.stem
+        qualname = f"{package}.{resource.split('.')[0]}"
+        with open(out, "w") as f:
+            f.write(Compiler(qualname).compile(reads(code)))

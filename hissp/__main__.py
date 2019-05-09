@@ -1,11 +1,9 @@
 # Copyright 2019 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
-
-import sys
 import traceback
 
 from hissp.compiler import Compiler
-from hissp.reader import reads, read
+from hissp.reader import reads
 
 
 def repl():
@@ -37,8 +35,4 @@ def _get_more(line):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        repl()
-    elif len(sys.argv) == 2:
-        with open(sys.argv[1].rstrip(".lisp") + ".py", "w") as f:
-            f.write(Compiler().compile(read(sys.argv[1])))
+    repl()

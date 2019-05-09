@@ -51,7 +51,7 @@ def parse(tokens: Iterator[Token], depth=0) -> Iterator[tuple]:
         elif k == "close":
             return
         elif k == "string":
-            yield 'quote', ast.literal_eval(v.replace("\n", r"\n"))
+            yield "quote", ast.literal_eval(v.replace("\n", r"\n"))
         elif k in {"comment", "whitespace"}:
             continue
         elif k == "macro":
@@ -92,8 +92,3 @@ def reads(code, verbose=False):
         res = list(res)
         pprint(res)
     return res
-
-
-def read(file, verbose=False):
-    with open(file) as f:
-        return reads(f.read(), verbose)
