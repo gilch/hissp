@@ -373,7 +373,7 @@ is the special form and which is the macro.
 
 * Does Hissp have tail-call optimization?
 
-No but you can increase the recursion limit with `sys/setrecursionlimit`.
+No, but you can increase the recursion limit with `sys/setrecursionlimit`.
 Better not increase it too much if you don't like segfaults, but
 you can trampoline instead. See Drython's `loop()` function. Or use it.
 Clojure does it about the same way.
@@ -416,15 +416,61 @@ Early optimization is the root of all evil.
 
 * What about catching them?
 
-`contextlib/suppress`. It works as a decorator.
-Or try not raising them in the first place.
+Try not raising them in the first place?
+Or `contextlib/suppress`.
+ 
+* But there's no `with` statement either!
 
-* But I need to handle it if and only if it was raised, for multiple exception types.
+Use `contextlib/ContextDecorator`
+as a mixin and any context manager works as a decorator.
 
-OK, you got me.
-You could nest `suppress` and set a flag to see if it was suppressed or not.
-But at this point you're better off defining a helper function in Python.
-See Drython for how to do it.
+* Any context manager? But you don't get the return value of `__enter__()`!
+And what if it's not re-entrant?
+
+`suppress` work with these restrictions, but point taken.
+You can certainly call `.__enter__` yourself.
+
+* But I need to handle the exception if and only if it was raised,
+ for multiple exception types, or I need to get the exception object.
+
+Use `exec()` with callbacks in its locals.
+
+* Isn't this slow?! You can't get away with calling this an "exceptional case" this time.
+The happy path would still require compiling an exec() string!
+
+Not if you define it as a function in advance.
+Then it only happens once on module import.
+Something like,
+```
+(exec "
+def try_statement(block, target, handler):
+    try:
+        block()
+    except target() as ex:
+        handler(ex)")
+```
+Once on import is honestly not bad. Even the standard library does it,
+like for named tuples.
+But at this point,
+unless you really want a single-file script with no dependencies,
+you're better off defining the helper function in Python and importing it.
+You could handle the finally/else blocks similarly.
+See Drython for how to do it. Or just use Drython.
+
+* Isn't Hissp slower than Python? Isn't Python slow enough already?
+
+"Slow" only matters if it's in a bottleneck.
+Hissp will often be slower than Python,
+because it compiles to a functional subset of Python that relies on
+defining and calling functions more.
+Because Python is a multiparadigm language,
+it is not fully optimized for the functional style,
+though some implementations may do better than CPython here.
+
+Early optimization is the root of all evil.
+As always don't fix it until it matters,
+then profile to find the bottleneck and fix only that part.
+You can always re-write that part in Python (or C).
 
 * Yield?
 
@@ -432,7 +478,12 @@ We've got itertools. Compose generators functional-style. You don't need yield.
 
 * But I need it for co-routines. Or async/await stuff. How do I accept a send?
 
-Implement `__await__`? Continuation passing style in the iterator?
+Make a `collections.abc/Geneartor` subclass with a `send()` method.
+
+Generator-based coroutines have been deprecated.
+Don't implement them with generators anymore.
+Note there are also `collections.abc/Awaitable` and `collections.abc/Coroutine`
+abstract base classes too.
 
 ## Contributing
 There are many ways to contribute to an open-source project,
