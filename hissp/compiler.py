@@ -151,7 +151,7 @@ class Compiler:
 
     def fn(self, form: tuple) -> str:
         r"""
-        Function definition special form.
+        Anonymous Function special form.
 
         (\ (<parameters>)
           <body>)

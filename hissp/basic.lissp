@@ -30,7 +30,7 @@
    (_tuple #' quote name)
    value))
 
-(defmacro if* (b then otherwise)
+(defmacro if-else (b then otherwise)
   (_tuple
    #' (\ (b & * then-else)
        ((operator/getitem then-else (operator/not_ b))))
@@ -40,9 +40,9 @@
 
 (define test2
   (\ (b)
-   (if* b
-        (print #' yes)
-        (print #' no))))
+   (if-else b
+            (print #' yes)
+            (print #' no))))
 
 (print #' basic)
 
@@ -56,4 +56,5 @@
   (_tuple #' \ (_tuple #' & & * pairs)
    & * body)))
 
-
+;; Cond?
+;; ` , ,@
