@@ -1,3 +1,12 @@
+(rough draft)
+
+# TODOs before public release?
+* implement customizable reader macros
+* set up Sphinx docs/tests.
+  * can we doctest using the Hissp REPL?
+* setup.py for PyPI
+* automated tests?
+
 # Hissp
 
 It's Python with a *Lissp*.
@@ -38,7 +47,7 @@ Be as simple as possible, but no simpler.
 Hissp includes what it needs to achieve its goals, but no more.
 There are only two special forms: quote and lambda.
 
-Hissp compiles to a functional *subset* of Python.
+Hissp compiles to a *functional subset* of Python.
 This subset has a direct and easy-to-understand correspondence to the Hissp code,
 which makes it straightforward to debug, once you understand Hissp.
 But it is definitely not meant to be idiomatic Python.
@@ -101,7 +110,7 @@ This requires incremental compilation of forms, like the REPL.
 #### Modularity
 The Hissp language is made of tuples, not text.
 The basic reader included with the project just implements convenient way to write them.
-It's possible to write Hissp in readerless mode by writing the tuples in Python.
+It's possible to write Hissp in "readerless mode" by writing the tuples in Python.
 
 It's also possible for an external project to provide an alternative
 reader with different syntax, as long as the output is Hissp tuples.
@@ -291,19 +300,19 @@ has that symbol. If it does it is called at compile time as a macro.
 Qualified symbols can also be macros if looked up directly from their module's `_macro_`.
 E.g. `(hissp.basic.._macro_.define FOO 0xf00)`
 
-The `hissp.basic.._macro_.defmacro` macro defines a function in the module's bang space,
+The `hissp.basic.._macro_.defmacro` macro defines a function in the module's macro space,
 creating `_macro_` if it doesn't exist yet.
-But the compiler doesn't care how it gets there.
-Bang functions are macros regardless. This means "importing" a macro is as simple
-as adding it to the current module's bang space.
+But the compiler doesn't care how it gets there:
+`_macro_` functions are macros regardless. This means "importing" a macro is as simple
+as adding it to the current module's macro space.
 
 ## FAQ (Frequently Anticipated Questions)
 
-* Anticipated? Didn't you mean "asked"?
+> Anticipated? Didn't you mean "asked"?
 
 Well, this project is still pretty new.
 
-* Can Hissp really do anything Python can when it only compiles to a subset of it?
+> Can Hissp really do anything Python can when it only compiles to a subset of it?
 
 Yes.
 
@@ -311,13 +320,13 @@ Short proof: Hissp has strings and can call `exec()`.
 
 But you usually won't need it because you can import anything written in Python.
 
-* What's 1 + 1?
+> What's 1 + 1?
 
 Two.
 
-* I mean how do you write it in Hissp without operators? Please don't say `eval()`.
+> I mean how do you write it in Hissp without operators? Please don't say `eval()`.
 
-We have all the operators because we have all the functions.
+We have all the operators because we have all the standard library functions.
 ```
 (operator..add 1 1)
 ```
@@ -328,24 +337,24 @@ You can, of course, abbreviate these, E.g.
 ```
 Yes, `+` is a valid symbol. It gets munged to `xPLUS_`.
 
-* There are no statements?! How can you get anything done?
+> There are no statements?! How can you get anything done?
 
 There are expression statements only (each top-level form). That's plenty.
 
-* But there's no assignment statement!
+> But there's no assignment statement!
 
 That's not a question.
 Use the `hissp.basic.._macro_.define` and `hissp.basic.._macro_.let` macros for globals
 and locals, respectively.
 Look at their expansions and you'll see they don't use assignment statements either.
 
-* But there's no `macroexpand`.
+> But there's no `macroexpand`.
 
 Invoke the macro indirectly so the compiler sees it as a normal function.
 `((getattr hissp.basic.._macro_ "define") \' foo \' "bar")`
 One could, of course, write a function or macro to automate this.
 
-* There's no `for`? What about loops?
+> There's no `for`? What about loops?
 
 Try recursion. `list()`, `map()` and `filter()` plus lambda can do
 anything list comprehensions can. Ditch the `list()` for lazy generators.
@@ -353,8 +362,8 @@ Replace `list()` with `set()` for set comps. Dict comps are a little trickier.
 Use `dict()` on an iterable of pairs. `zip()` is an easy way to make them,
 or just have the map's lambda return pairs.
 
-* That's comprehensions, what about plain for loops?
-You don't really think I should build a list, just to throw it away?
+> That's comprehensions, but what about `for` statements?
+You don't really think I should build a list just to throw it away?
 
 Side effects are not good functional style.
 Avoid them for as long as possible.
@@ -367,14 +376,14 @@ because a true value acts like `break` in `any()`.
 Obviously, you can use this to your advantage if you *want* a break.
 Also see `itertools`, `iter`.
 
-* There's no if statement. Branching is fundamental!
+> There's no if statement. Branching is fundamental!
 
 No it's not. You already learned how to for loop above.
 Isn't looping zero or one times like skipping a branch or not?
 Note that `False` and `True` are special cases of `0` and `1` in Python.
 `range(False)` is zero times, but `range(True)` is one time.
 
-* What about if/else ternary expressions?
+> What about if/else ternary expressions?
 
 ```python
 (lambda b, *then_else: then_else[not b]())(
@@ -389,76 +398,76 @@ but Hissp doesn't need it. Smalltalk pretty much does it this way.
 Once you have `if` you can make a `cond`. Lisps actually differ on which
 is the special form and which is the macro.
 
-* Does Hissp have tail-call optimization?
+> Does Hissp have tail-call optimization?
 
 No, but you can increase the recursion limit with `sys..setrecursionlimit`.
 Better not increase it too much if you don't like segfaults, but
 you can trampoline instead. See Drython's `loop()` function. Or use it.
 Clojure does it about the same way.
 
-* How do I make a tuple?
+> How do I make a tuple?
 
 Use `tuple()`.
 
-* But I have to already have an iterable, which is why I wanted a tuple in the first place!
+> But I have to already have an iterable, which is why I wanted a tuple in the first place!
 
 `lambda *a:a`
 
 You can also make an empty list with `[]` or `(list)`, and then `.append` to it.
 Finally, the template syntax makes tuples. Unquote calls/symbols if needed.
 
-* How do I make a class?
+> How do I make a class?
 
 Use `type()`. (Or whatever metaclass.)
 
-* Very funny. That just tells me what type something is.
+> Very funny. That just tells me what type something is.
 
 No, seriously, you have to give it all three arguments. Look it up.
 
-* How do I use a decorator?
+> How do I use a decorator?
 
-You apply it to the function--call it with the function as its argument.
+You apply it to the function (or class)--call it with the function as its argument.
 Decorators are just higher-order functions.
 
-* How do I raise exceptions?
+> How do I raise exceptions?
 
 `(operator..truediv 1 0)` seems to work.
 Exceptions tend to raise themselves if you're not careful.
 
-* But I need a raise statement for a specific exception message.
+> But I need a raise statement for a specific exception message.
 
  Exceptions are not good functional style.
  You probably don't need them.
  If you must, you can still use `exec()`
  
-* Isn't that slow? 
+> Isn't that slow? 
 
 If the exceptions are only for exceptional cases, then does it matter?
 Early optimization is the root of all evil.
 
-* What about catching them?
+> What about catching them?
 
 Try not raising them in the first place?
 Or `contextlib..suppress`.
  
-* But there's no `with` statement either!
+> But there's no `with` statement either!
 
 Use `contextlib..ContextDecorator`
 as a mixin and any context manager works as a decorator.
 
-* Any context manager? But you don't get the return value of `__enter__()`!
+> Any context manager? But you don't get the return value of `__enter__()`!
 And what if it's not re-entrant?
 
 `suppress` work with these restrictions, but point taken.
 You can certainly call `.__enter__` yourself, but you have to call
 `.__exit__` too. Even if there was an exception.
 
-* But I need to handle the exception if and only if it was raised,
+> But I need to handle the exception if and only if it was raised,
  for multiple exception types, or I need to get the exception object.
 
 Use `exec()` with callbacks in its locals.
 
-* Isn't this slow?! You can't get away with calling this an "exceptional case" this time.
+> Isn't this slow?! You can't get away with calling this an "exceptional case" this time.
 The happy path would still require compiling an exec() string!
 
 Not if you define it as a function in advance.
@@ -480,7 +489,7 @@ you're better off defining the helper function in Python and importing it.
 You could handle the finally/else blocks similarly.
 See Drython for how to do it. Or just use Drython.
 
-* Isn't Hissp slower than Python? Isn't Python slow enough already?
+> Isn't Hissp slower than Python? Isn't Python slow enough already?
 
 "Slow" only matters if it's in a bottleneck.
 Hissp will often be slower than Python,
@@ -495,11 +504,11 @@ As always don't fix it until it matters,
 then profile to find the bottleneck and fix only that part.
 You can always re-write that part in Python (or C).
 
-* Yield?
+> Yield?
 
 We've got itertools. Compose generators functional-style. You don't need yield.
 
-* But I need it for co-routines. Or async/await stuff. How do I accept a send?
+> But I need it for co-routines. Or async/await stuff. How do I accept a send?
 
 Make a `collections.abc..Geneartor` subclass with a `send()` method.
 
@@ -518,11 +527,34 @@ but do check there first!
 
 Bug reports are welcome.
 
-PRs to help improve documentation, structure, or compatibility will also be considered.
+PRs to help improve documentation,
+structure, or compatibility will also be considered.
 
 ### Patches
 PRs must be aligned with the philosophy and goals of the project to be
 considered for inclusion.
+
+Changes to the source code must be properly formatted and have full test
+coverage before the PR can be accepted.
+Manual tests may suffice for configuration files.
+Our Python source uses Black formatting.
+Disable this using `# fmt: off` tags for "readerless mode" Hissp snippets
+which should be formatted lisp-style (play with parinfer until you get it),
+or anywhere the extra effort of manual formatting is worth it.
+In readerless mode, Hissp tuples shall always include the trailing `,`.
+Follow PEP 8 even when Black has no opinion.
+Our .lissp source uses Emacs lisp-mode for indentation.
+It must also pass Parlinter.
+
+Documentation is expected to have correct (American English) spelling
+and grammar. All Doctests must pass.
+
+We merge to master without squashing.
+Commits must be small enough to be reviewable.
+We don't accept PRs on faith.
+
+PRs do not have to be *perfect* to be submitted,
+but must be perfect enough to pass peer review before they are merged in.
 
 Note section 5 of the LICENSE.
 You must have the legal rights to the patch to submit them under those terms:
@@ -534,9 +566,11 @@ The git repository itself will normally suffice as a record of
 authorship for copyright purposes.
 Don't update the original boilerplate notices on each file.
 But commits authored by or owned by someone else must be clearly labeled as such.
+No plagiarism will be permitted,
+even if you're copying something from the public domain.
 We may maintain a NOTICE file per section 4.(d) of the LICENSE if needed.
 
-### Disputes
+### Conduct
 To encourage participation,
 we strive to maintain an environment conducive to cooperation and
 collaborative effort. To that end, note that
@@ -545,7 +579,7 @@ Spamming, doxing, harassment, etc. will not be tolerated.
 Belligerent users may be blocked at the discretion of the project
 maintainer, even on the first offense.
 Issues that become heated or veer too far off topic may be closed or locked.
-
+#### good faith
 Software Engineers are an eccentric bunch who come from various
 generational and world cultures.
 Tone is notoriously hard to convey in writing and for many English is
@@ -553,22 +587,23 @@ not their first language.
 Therefore, before you reply in anger, please
 [assume good faith](https://en.wikipedia.org/wiki/Wikipedia:Assume_good_faith)
 until there is very obvious evidence to the contrary.
-
+#### professional detachment
 You are free to criticize code, documentation, PRs, philosophy, ideas,
-and so on, if relevant to the project,
-but discussion here should be focused on the work, not on each other.
-This is not the place for status games.
+and so on, if relevant to the project, but not each other.
+Discussion here should be focused on the work, not the people doing it.
+This is not the forum for status games.
 Contributions alone demonstrate competence.
 Issue posts stereotyping, psychoanalyzing, or otherwise categorizing people 
 beyond legitimate project roles
 (or other such veiled insults, even if spun in a "positive" light)
-or similar attempts to categorize oneself
-(e.g. to claim more authority than due)
+including similar attempts to aggrandize oneself
+(even if spun as self-deprecating)
 are, at the very least, off-topic, and subject to moderator action.
-
-While consensus is preferable,
+#### disputes
+While consensus based on stated project goals is usually preferable,
 the maintainer is the final arbiter for the project.
-If you disagree with his decision,
+He may reinterpret goals, instate rules, and reject contributions.
+Even if you disagree with his decision,
 you may always make a fork as permitted by the LICENSE.
 Just don't call it Hissp (see section 6 of the LICENSE).
 
