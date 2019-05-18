@@ -8,7 +8,7 @@ Hissp is a Lisp that compiles to a functional subset of Python.
 #### Radical Extensibility
 Python is already a really nice language, so why do we need Hissp?
 
-The answer is *Metaprogramming*: code that writes code.
+The answer is *metaprogramming*: code that writes code.
 When you can shape the language itself to fit your problem domain,
 the inexpressible becomes ordinary.
 
@@ -136,12 +136,12 @@ but don't worry if you don't understand it all yet.
 This will all be explained in more detail later on.
 ```
 $ python -m hissp
-## (builtins/print 1 2j 3.0 [4,'5',6] & sep ":")
+## (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
 
 >>>  __import__('builtins').print((1),(2j),(3.0),[(4),'5',(6)],sep=':')
 1:2j:3.0:[4, '5', 6]
 
-## (hissp.basic/!.define tuple* (\ (& * xs) xs))
+## (hissp.basic..!.define tuple* (lambda (: :* xs) xs))
 
 >>>  __import__('operator').setitem(__import__('builtins').globals(),'tuplexSTAR_',(lambda *xs:xs))
 ```
@@ -184,7 +184,7 @@ which makes it easy to tell if an identifier contains munged characters.
 It also cannot introduce a leading underscore,
 which can have special meaning in Python.
 
-Reader macros consist of a symbol beginning with a `#` followed by another form.
+Reader macros consist of a symbol beginning with a `\ ` followed by another form.
 The function named by the symbol is invoked on the form,
 and the reader inserts the resulting object into the output code.
 
@@ -194,7 +194,7 @@ Here's a little more Hissp-specific example.
 Note the lack of commas between arguments.
 ```
 $ python -m hissp
-## (builtins/print 1 2j 3.0 [4,'5',6] & sep ":")
+## (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
 
 >>>  __import__('builtins').print((1),(2j),(3.0),[(4),'5',(6)],sep=':')
 1:2j:3.0:[4, '5', 6]
@@ -206,14 +206,14 @@ That `[4,'5',6]` is read as a single literal. Note the lack of spaces.
 The double-quoted string literal is an exception. It may have spaces.
 And unlike Python, it is allowed to contain literal newlines.
 
-The `builtins/print` is an example of a *qualified symbol*.
-These are of the form `<package>/<item>`, and are important to make
+The `builtins..print` is an example of a *qualified symbol*.
+These are of the form `<package>..<item>`, and are important to make
 macros work properly across modules.
 Note that package names may contain dots, as in Python.
 
-The `&` separates the single arguments from the paired arguments,
+The `:` separates the single arguments from the paired arguments,
 which either pair a value with a unique key like `sep ":"` or with the
-special unpacking names `*` and `**`, like `* args` or `** kwargs`,
+special unpacking keywords `:*` and `:**`, like `:* args` or `:** kwargs`,
 which, like Python, can be repeated.
 
 Hissp's two special forms deserve special consideration.
@@ -222,7 +222,7 @@ Unlike a normal function call, special forms are evaluated at compile time.
 
 The first special form is `quote`. It returns its argument unevaluated.
 ```
-## (quote builtins/print)
+## (quote builtins..print)
 
 >>>  'builtinsxSLASH_print'
 'builtinsxSLASH_print'
@@ -232,7 +232,7 @@ Hissp has no separate symbol type. A quoted symbol is just a string.
 
 Here's the earlier example quoted.
 ```
-## (quote (builtins/print 1 2j 3.0 [4,'5',6] & sep ":"))
+## (quote (builtins..print 1 2j 3.0 [4,'5',6] : sep ":"))
 
 >>>  ('builtinsxSLASH_print',(1),(2j),(3.0),[(4),'5',(6)],'xET_','sep',('quote',':',),)
 ('builtinsxSLASH_print', 1, 2j, 3.0, [4, '5', 6], 'xET_', 'sep', ('quote', ':'))
@@ -242,30 +242,29 @@ Many literal types simply evaluate to themselves and so are unaffected by quotin
 The exceptions are strings and tuples, which can represent identifiers and calls.
 
 Quoting is important enough to have a special reader macro.
-`#' foo` is the same as `(quote foo)`.
+`\' foo` is the same as `(quote foo)`.
 
-The second special form is *lambda*, which is spelled `\ `
-(or equivalently, `xBSLASH_`, for readerless mode).
+The second special form is `lambda`
 The first argument of a lambda is the pararmeters tuple.
-Like calls, the `&` (or `xET_`) separates the single from the paired (if any).
+Like calls, the `:` separates the single from the paired (if any).
 After the paramters tuple, the rest of the arguments are the function body.
 
 ```
-## (\ (a b
-       & e 1  f 2
-       * args  h 4  i ?  j 1
-       ** kwargs)
+## (lambda (a b
+            : e 1  f 2
+            :* args  h 4  i :  j 1
+            :** kwargs)
     42)
 
 >>>  (lambda a,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
 <function <lambda> at 0x0000019D826B38C8>
 
-## (\ (& * ?  x ?))
+## (lambda (: :* :  x :))
 
 >>>  (lambda *,x:())
 <function <lambda> at 0x0000019D8269FD08>
 
-## (\ (a b c)
+## (lambda (a b c)
     (print a)
     (print b)
     c)
@@ -290,9 +289,9 @@ to be evaluated, the compiler checks if the module's `!` (`xBANG_`) namespace
 has that symbol. If it does it is called at compile time as a macro.
 
 Qualified symbols can also be macros if looked up directly from their module's `!`.
-E.g. `(hissp.basic/!.define FOO 0xf00)`
+E.g. `(hissp.basic..!.define FOO 0xf00)`
 
-The `hissp.basic/!.defmacro` macro defines a function in the module's bang space,
+The `hissp.basic..!.defmacro` macro defines a function in the module's bang space,
 creating `!` if it doesn't exist yet.
 But the compiler doesn't care how it gets there.
 Bang functions are macros regardless. This means "importing" a macro is as simple
@@ -320,11 +319,11 @@ Two.
 
 We have all the operators because we have all the functions.
 ```
-(operator/add 1 1)
+(operator..add 1 1)
 ```
 You can, of course, abbreviate these, E.g.
 ```
-(hissp.basic/!.define + operator/add)
+(hissp.basic..!.define + operator..add)
 (+ 1 1)
 ```
 Yes, `+` is a valid symbol. It gets munged to `xPLUS_`.
@@ -336,14 +335,14 @@ There are expression statements only (each top-level form). That's plenty.
 * But there's no assignment statement!
 
 That's not a question.
-Use the `hissp.basic/!.define` and `hissp.basic/!.let` macros for globals
+Use the `hissp.basic..!.define` and `hissp.basic..!.let` macros for globals
 and locals, respectively.
 Look at their expansions and you'll see they don't use assignment statements either.
 
 * But there's no `macroexpand`.
 
 Invoke the macro indirectly so the compiler sees it as a normal function.
-`((getattr hissp.basic/! "define") #' foo #' "bar")`
+`((getattr hissp.basic..! "define") \' foo \' "bar")`
 One could, of course, write a function or macro to automate this.
 
 * There's no `for`? What about loops?
@@ -383,7 +382,7 @@ lambda: print('yes'),
 lambda: print('no')
 )
 ```
-There's a `hissp.basic/!.if-else` macro that basically expands to this.
+There's a `hissp.basic..!.if-else` macro that basically expands to this.
 I know it's a special form in other Lisps (or `cond` is),
 but Hissp doesn't need it. Smalltalk pretty much does it this way.
 Once you have `if` you can make a `cond`. Lisps actually differ on which
@@ -391,7 +390,7 @@ is the special form and which is the macro.
 
 * Does Hissp have tail-call optimization?
 
-No, but you can increase the recursion limit with `sys/setrecursionlimit`.
+No, but you can increase the recursion limit with `sys..setrecursionlimit`.
 Better not increase it too much if you don't like segfaults, but
 you can trampoline instead. See Drython's `loop()` function. Or use it.
 Clojure does it about the same way.
@@ -422,7 +421,7 @@ Decorators are just higher-order functions.
 
 * How do I raise exceptions?
 
-`(operator/truediv 1 0)` seems to work.
+`(operator..truediv 1 0)` seems to work.
 Exceptions tend to raise themselves if you're not careful.
 
 * But I need a raise statement for a specific exception message.
@@ -439,11 +438,11 @@ Early optimization is the root of all evil.
 * What about catching them?
 
 Try not raising them in the first place?
-Or `contextlib/suppress`.
+Or `contextlib..suppress`.
  
 * But there's no `with` statement either!
 
-Use `contextlib/ContextDecorator`
+Use `contextlib..ContextDecorator`
 as a mixin and any context manager works as a decorator.
 
 * Any context manager? But you don't get the return value of `__enter__()`!
@@ -500,11 +499,11 @@ We've got itertools. Compose generators functional-style. You don't need yield.
 
 * But I need it for co-routines. Or async/await stuff. How do I accept a send?
 
-Make a `collections.abc/Geneartor` subclass with a `send()` method.
+Make a `collections.abc..Geneartor` subclass with a `send()` method.
 
 Generator-based coroutines have been deprecated.
 Don't implement them with generators anymore.
-Note there are `collections.abc/Awaitable` and `collections.abc/Coroutine`
+Note there are `collections.abc..Awaitable` and `collections.abc..Coroutine`
 abstract base classes too.
 
 ## Contributing

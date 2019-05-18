@@ -15,7 +15,7 @@ TOKENS = re.compile(
 |(?P<string>"(?:\\.|\\\n|[^"]|\\")*")
 |(?P<comment>;.*)
 |(?P<whitespace>[\n ]+)
-|(?P<macro>[#][^ \n"()]*(?=[\n ("]))
+|(?P<macro>\\[^ \n"()]*(?=[\n ("]))
 |(?P<symbol>[^ \n"()#]+)
 """
 )
@@ -69,7 +69,7 @@ def parse(tokens: Iterator[Token], depth=0) -> Iterator[tuple]:
 
 
 def parse_macro(tag: str, form) -> Iterator[tuple]:
-    if tag == "#'":
+    if tag == r"\'":
         return ("quote", form)
     # elif tag == "#`":
     #     if isinstance(form, tuple):

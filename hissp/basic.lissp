@@ -1,60 +1,59 @@
 ;; Copyright 2019 Matthew Egan Odendahl
 ;; SPDX-License-Identifier: Apache-2.0
 
-(operator/setitem (globals) #' _define
-                  (\ (name value)
-                   (operator/setitem (globals)
-                                     name
-                                     value)))
+(operator..setitem (globals) \' _define
+                   (lambda (name value)
+                     (operator..setitem (globals)
+                                        name
+                                        value)))
 
-(_define #' _tuple
-         (\ (& * elements)
-          elements))
+(_define \' _tuple
+         (lambda (: :* elements)
+           elements))
 
-(_define #' ! (types/SimpleNamespace))
+(_define \' ! (types..SimpleNamespace))
 
-(setattr ! #' defmacro
-         (\ (name args & * body)
-          (_tuple
-           #' builtins/setattr
-           #' (.setdefault (builtins/globals)
-                           #' !
-                           (types/SimpleNamespace))
-           (_tuple #' quote name)
-           (_tuple #' \ args & * body))))
+(setattr ! \' defmacro
+         (lambda (name args : :* body)
+           (_tuple \' builtins..setattr
+                   \' (.setdefault (builtins..globals)
+                                   \' !
+                                   (types..SimpleNamespace))
+                   (_tuple \' quote name)
+                   (_tuple \' lambda args : :* body))))
 
 (defmacro define (name value)
   (_tuple
-   #' operator/setitem
-   #' (builtins/globals)
-   (_tuple #' quote name)
+   \' operator..setitem
+   \' (builtins..globals)
+   (_tuple \' quote name)
    value))
 
 (defmacro if-else (b then otherwise)
   (_tuple
-   #' (\ (b & * then-else)
-       ((operator/getitem then-else (operator/not_ b))))
+   \' (lambda (b : :* then-else)
+        ((operator..getitem then-else (operator..not_ b))))
    b
-   (_tuple #' \ () then)
-   (_tuple #' \ () otherwise)))
+   (_tuple \' lambda () then)
+   (_tuple \' lambda () otherwise)))
 
 (define test2
-  (\ (b)
-   (if-else b
-            (print #' yes)
-            (print #' no))))
+    (lambda (b)
+      (if-else b
+               (print \' yes)
+               (print \' no))))
 
-(print #' basic)
+(print \' basic)
 
-(defmacro do (& * body)
- (_tuple
-  (_tuple #' \ ()
-   & * body)))
+(defmacro do (: :* body)
+  (_tuple
+   (_tuple \' lambda ()
+           : :* body)))
 
-(defmacro let (pairs & * body)
- (_tuple
-  (_tuple #' \ (_tuple #' & & * pairs)
-   & * body)))
+(defmacro let (pairs : :* body)
+  (_tuple
+   (_tuple \' lambda (_tuple \' : : :* pairs)
+           : :* body)))
 
 ;; Cond?
 ;; ` , ,@

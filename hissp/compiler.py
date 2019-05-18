@@ -13,18 +13,11 @@ from pathlib import Path, PurePath
 from types import ModuleType
 from typing import TypeVar, Iterable, Tuple, Union
 
-from hissp.munger import munge, demunge
+from hissp.munger import munge
 from hissp.reader import reads
 
-SLASH = munge("/")
-LAMBDA = munge("\\")
-STAR = munge("*")
-STARS = STAR * 2
-AND = munge("&")
-BLANK = munge("?")
-
 MACROS = munge("!")  # Module Macro container !
-MACRO = munge("/!.")  # Macro from foreign module foo.bar/!.baz
+MACRO = munge("..!.")  # Macro from foreign module foo.bar..!.baz
 
 NUMBER = frozenset({int, float, complex})
 
@@ -79,7 +72,7 @@ class Compiler:
         """
         if type(form) is tuple and form:
             return self.tuple(form)
-        if type(form) is str:
+        if type(form) is str and not form.startswith(":"):
             return self.symbol(form)
         return self.quoted(form)
 
@@ -96,8 +89,8 @@ class Compiler:
             if len(form) != 2:
                 raise SyntaxError
             return self.quoted(form[1])
-        if head == LAMBDA:
-            return self.fn(form)
+        if head == "lambda":
+            return self.function(form)
         return self.macro(form, head, tail)
 
     def macro(self, form: tuple, head: str, tail: list) -> str:
@@ -146,11 +139,11 @@ class Compiler:
         dumps = pickletools.optimize(pickle.dumps(form))
         return f"__import__('pickle').loads(  # {form!r}\n    {dumps}\n)"
 
-    def fn(self, form: tuple) -> str:
+    def function(self, form: tuple) -> str:
         r"""
-        Anonymous Function special form.
+        Anonymous function special form.
 
-        (\ (<parameters>)
+        (lambda (<parameters>)
           <body>)
 
         The parameters tuple is divided into (<single> & <paired>)
@@ -158,60 +151,60 @@ class Compiler:
         Parameter types are the same as Python's.
         For example,
         >>> readerless(
-        ... (LAMBDA, ('a','b',
-        ...         AND, 'e',1, 'f',2,
-        ...         STAR,'args', 'h',4, 'i',BLANK, 'j',1,
-        ...         STARS,'kwargs',),
+        ... ('lambda', ('a','b',
+        ...         ':', 'e',1, 'f',2,
+        ...         ':*','args', 'h',4, 'i',':', 'j',1,
+        ...         ':**','kwargs',),
         ...   42,),
         ... )
         '(lambda a,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))'
 
-        The special names * and ** designate the remainder of the
+        The special keywords :* and :** designate the remainder of the
         positional and keyword parameters, respectively.
         Note this body has an implicit PROGN.
         >>> readerless(
-        ... (LAMBDA, (AND,STAR,'args',STARS,'kwargs',),
+        ... ('lambda', (':',':*','args',':**','kwargs',),
         ...   ('print','args',),
         ...   ('print','kwargs',),),
         ... )
         '(lambda *args,**kwargs:(print(args),print(kwargs))[-1])'
 
-        You can omit the right of a pair with ? (except the final **kwargs).
+        You can omit the right of a pair with : (except the final **kwargs).
         Also note that the body can be empty.
         >>> readerless(
-        ... (LAMBDA, (AND,'a',1, STAR,BLANK, 'b',BLANK, 'c',2,),),
+        ... ('lambda', (':','a',1, ':*',':', 'b',':', 'c',2,),),
         ... )
         '(lambda a=(1),*,b,c=(2):())'
 
-        The '&' may be omitted if there are no paired parameters.
-        >>> readerless((LAMBDA, ('a','b','c',AND,),),)
+        The ':' may be omitted if there are no paired parameters.
+        >>> readerless(('lambda', ('a','b','c',':',),),)
         '(lambda a,b,c:())'
-        >>> readerless((LAMBDA, ('a','b','c',),),)
+        >>> readerless(('lambda', ('a','b','c',),),)
         '(lambda a,b,c:())'
-        >>> readerless((LAMBDA, (AND,),),)
+        >>> readerless(('lambda', (':',),),)
         '(lambda :())'
-        >>> readerless((LAMBDA, (),),)
+        >>> readerless(('lambda', (),),)
         '(lambda :())'
 
-        & is required if there are any paired parameters, even if there
+        : is required if there are any paired parameters, even if there
         are no single parameters.
-        >>> readerless((LAMBDA, (AND,STARS,'kwargs',),),)
+        >>> readerless(('lambda', (':',':**','kwargs',),),)
         '(lambda **kwargs:())'
         """
         fn, parameters, *body = form
-        assert fn == LAMBDA
+        assert fn == "lambda"
         return f"(lambda {','.join(self.parameters(parameters))}:{self.body(body)})"
 
     @trace
     def parameters(self, parameters: tuple) -> Iterable[str]:
         parameters = iter(parameters)
-        yield from takewhile(lambda a: a != AND, parameters)
+        yield from takewhile(lambda a: a != ":", parameters)
         for k, v in pairs(parameters):
-            if k == STAR:
-                yield "*" if v == BLANK else f"*{v}"
-            elif k == STARS:
+            if k == ":*":
+                yield "*" if v == ":" else f"*{v}"
+            elif k == ":**":
                 yield f"**{v}"
-            elif v == BLANK:
+            elif v == ":":
                 yield k
             else:
                 yield f"{k}={self.form(v)}"
@@ -236,16 +229,16 @@ class Compiler:
         (<callable> <args> & <kwargs>)
         For example,
         >>> readerless(
-        ... ('print',1,2,3,AND,'sep',('quote',":",), 'end',('quote',"\n\n",),)
+        ... ('print',1,2,3,':','sep',('quote',":",), 'end',('quote',"\n\n",),)
         ... )
         "print((1),(2),(3),sep=':',end='\\n\\n')"
 
         Either <args> or <kwargs> may be empty.
-        >>> readerless(('foo',AND,),)
+        >>> readerless(('foo',':',),)
         'foo()'
-        >>> readerless(('foo','bar',AND,),)
+        >>> readerless(('foo','bar',':',),)
         'foo(bar)'
-        >>> readerless(('foo',AND,'bar','baz',),)
+        >>> readerless(('foo',':','bar','baz',),)
         'foo(bar=baz)'
 
         The & is optional if the <kwargs> part is empty.
@@ -258,7 +251,7 @@ class Compiler:
 
         Use the special keywords * and ** for iterable and mapping unpacking
         >>> readerless(
-        ... ('print',AND,STAR,[1,2], 'a',3, STAR,[4], STARS,{'sep':':','end':'\n\n'},),
+        ... ('print',':',':*',[1,2], 'a',3, ':*',[4], ':**',{'sep':':','end':'\n\n'},),
         ... )
         "print(*([1, 2]),a=(3),*([4]),**({'sep': ':', 'end': '\\n\\n'}))"
 
@@ -273,7 +266,7 @@ class Compiler:
         '(1j).conjugate()'
         >>> eval(_)
         -1j
-        >>> readerless(('.decode', b'\xfffoo', AND, 'errors',('quote','ignore',),),)
+        >>> readerless(('.decode', b'\xfffoo', ':', 'errors',('quote','ignore',),),)
         "b'\\xfffoo'.decode(errors='ignore')"
         >>> eval(_)
         'foo'
@@ -281,10 +274,10 @@ class Compiler:
         form = iter(form)
         head = next(form)
         args = chain(
-            map(self.form, takewhile(lambda a: a != AND, form)),
+            map(self.form, takewhile(lambda a: a != ":", form)),
             (
-                f"{demunge(k)}({self.form(v)})"
-                if k in {STAR, STARS}
+                f"{k[1:]}({self.form(v)})"
+                if k in {":*", ":**"}
                 else f"{k}={self.form(v)}"
                 for k, v in pairs(form)
             ),
@@ -295,9 +288,8 @@ class Compiler:
 
     @trace
     def symbol(self, symbol: str) -> str:
-        # TODO: :keywords?
-        if SLASH in symbol and not symbol.startswith(SLASH):
-            parts = symbol.split(SLASH, 1)
+        if ".." in symbol and not symbol.startswith(".."):
+            parts = symbol.split("..", 1)
             return "__import__({0!r}{fromlist}).{1}".format(
                 parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
             )
