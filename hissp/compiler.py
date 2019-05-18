@@ -13,11 +13,12 @@ from pathlib import Path, PurePath
 from types import ModuleType
 from typing import TypeVar, Iterable, Tuple, Union
 
-from hissp.munger import munge
 from hissp.reader import reads
 
-MACROS = munge("!")  # Module Macro container !
-MACRO = munge("..!.")  # Macro from foreign module foo.bar..!.baz
+# Module Macro container
+MACROS = "_macro_"
+# Macro from foreign module foo.bar.._macro_.baz
+MACRO = f"..{MACROS}."
 
 NUMBER = frozenset({int, float, complex})
 
@@ -97,7 +98,7 @@ class Compiler:
         """Try to compile as macro, else normal call."""
         parts = head.split(MACRO, 1)
         if parts[0] == self.qualname:
-            # Local qualified macro. Recursive macros might do need it.
+            # Local qualified macro. Recursive macros might need it.
             return self.form(vars(self.ns[MACROS])[parts[1]](*tail))
         with suppress(LookupError):  # Local unqualified macro.
             return self.form(vars(self.ns[MACROS])[head](*tail))

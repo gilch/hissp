@@ -11,13 +11,13 @@
          (lambda (: :* elements)
            elements))
 
-(_define \' ! (types..SimpleNamespace))
+(_define \' _macro_ (types..SimpleNamespace))
 
-(setattr ! \' defmacro
+(setattr _macro_ \' defmacro
          (lambda (name args : :* body)
            (_tuple \' builtins..setattr
                    \' (.setdefault (builtins..globals)
-                                   \' !
+                                   \' _macro_
                                    (types..SimpleNamespace))
                    (_tuple \' quote name)
                    (_tuple \' lambda args : :* body))))

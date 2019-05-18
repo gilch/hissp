@@ -141,7 +141,7 @@ $ python -m hissp
 >>>  __import__('builtins').print((1),(2j),(3.0),[(4),'5',(6)],sep=':')
 1:2j:3.0:[4, '5', 6]
 
-## (hissp.basic..!.define tuple* (lambda (: :* xs) xs))
+## (hissp.basic.._macro_.define tuple* (lambda (: :* xs) xs))
 
 >>>  __import__('operator').setitem(__import__('builtins').globals(),'tuplexSTAR_',(lambda *xs:xs))
 ```
@@ -285,14 +285,14 @@ Like special forms, macro calls do not have to evaluate their arguments.
 
 Macros are simply functions that take Hissp code, and return Hissp code.
 When an unqualified symbol is in the function position of a tuple about
-to be evaluated, the compiler checks if the module's `!` (`xBANG_`) namespace
+to be evaluated, the compiler checks if the module's `_macro_` namespace
 has that symbol. If it does it is called at compile time as a macro.
 
-Qualified symbols can also be macros if looked up directly from their module's `!`.
-E.g. `(hissp.basic..!.define FOO 0xf00)`
+Qualified symbols can also be macros if looked up directly from their module's `_macro_`.
+E.g. `(hissp.basic.._macro_.define FOO 0xf00)`
 
-The `hissp.basic..!.defmacro` macro defines a function in the module's bang space,
-creating `!` if it doesn't exist yet.
+The `hissp.basic.._macro_.defmacro` macro defines a function in the module's bang space,
+creating `_macro_` if it doesn't exist yet.
 But the compiler doesn't care how it gets there.
 Bang functions are macros regardless. This means "importing" a macro is as simple
 as adding it to the current module's bang space.
@@ -323,7 +323,7 @@ We have all the operators because we have all the functions.
 ```
 You can, of course, abbreviate these, E.g.
 ```
-(hissp.basic..!.define + operator..add)
+(hissp.basic.._macro_.define + operator..add)
 (+ 1 1)
 ```
 Yes, `+` is a valid symbol. It gets munged to `xPLUS_`.
@@ -335,14 +335,14 @@ There are expression statements only (each top-level form). That's plenty.
 * But there's no assignment statement!
 
 That's not a question.
-Use the `hissp.basic..!.define` and `hissp.basic..!.let` macros for globals
+Use the `hissp.basic.._macro_.define` and `hissp.basic.._macro_.let` macros for globals
 and locals, respectively.
 Look at their expansions and you'll see they don't use assignment statements either.
 
 * But there's no `macroexpand`.
 
 Invoke the macro indirectly so the compiler sees it as a normal function.
-`((getattr hissp.basic..! "define") \' foo \' "bar")`
+`((getattr hissp.basic.._macro_ "define") \' foo \' "bar")`
 One could, of course, write a function or macro to automate this.
 
 * There's no `for`? What about loops?
@@ -383,7 +383,7 @@ lambda: print('yes'),
 lambda: print('no')
 )
 ```
-There's a `hissp.basic..!.if-else` macro that basically expands to this.
+There's a `hissp.basic.._macro_.if-else` macro that basically expands to this.
 I know it's a special form in other Lisps (or `cond` is),
 but Hissp doesn't need it. Smalltalk pretty much does it this way.
 Once you have `if` you can make a `cond`. Lisps actually differ on which
