@@ -350,7 +350,8 @@ One could, of course, write a function or macro to automate this.
 Try recursion. `list()`, `map()` and `filter()` plus lambda can do
 anything list comprehensions can. Ditch the `list()` for lazy generators.
 Replace `list()` with `set()` for set comps. Dict comps are a little trickier.
-Use `dict()` on an iterable of pairs. `zip()` is an easy way to make them.
+Use `dict()` on an iterable of pairs. `zip()` is an easy way to make them,
+or just have the map's lambda return pairs.
 
 * That's comprehensions, what about plain for loops?
 You don't really think I should build a list, just to throw it away?
@@ -449,7 +450,8 @@ as a mixin and any context manager works as a decorator.
 And what if it's not re-entrant?
 
 `suppress` work with these restrictions, but point taken.
-You can certainly call `.__enter__` yourself.
+You can certainly call `.__enter__` yourself, but you have to call
+`.__exit__` too. Even if there was an exception.
 
 * But I need to handle the exception if and only if it was raised,
  for multiple exception types, or I need to get the exception object.
