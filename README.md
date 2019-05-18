@@ -304,11 +304,19 @@ as adding it to the current module's bang space.
 
 Well, this project is still pretty new.
 
+* Can Hissp really do anything Python can when it only compiles to a subset of it?
+
+Yes.
+
+Short proof: Hissp has strings and can call `exec()`.
+
+But you usually won't need it because you can import anything written in Python.
+
 * What's 1 + 1?
 
 Two.
 
-* I mean how do you write it in Hissp without operators?
+* I mean how do you write it in Hissp without operators? Please don't say `eval()`.
 
 We have all the operators because we have all the functions.
 ```
@@ -344,9 +352,19 @@ Try recursion. `list()`, `map()` and `filter()` plus lambda can do
 anything list comprehensions can. Ditch the `list()` for lazy generators.
 Replace `list()` with `set()` for set comps. Dict comps are a little trickier.
 Use `dict()` on an iterable of pairs. `zip()` is an easy way to make them.
+
+* That's comprehensions, what about plain for loops?
+You don't really think I should build a list, just to throw it away?
+
+Side effects are not good functional style.
+Avoid them for as long as possible.
+Still, you do need them eventually if you want your program to do anything.
+
 Use `any()` for side-effects to avoid building a list.
-Make sure the lambda returns `None`s, because a true value acts like `break` in `any()`.
-Obviously, you can use this to your advantage if you want a break.
+Usually, you'd combine with `map()`, just like the comprehensions.
+Make sure the lambda returns `None`s (or something false),
+because a true value acts like `break` in `any()`.
+Obviously, you can use this to your advantage if you *want* a break.
 Also see `itertools`, `iter`.
 
 * There's no if statement. Branching is fundamental!
@@ -366,7 +384,7 @@ lambda: print('no')
 )
 ```
 There's a `hissp.basic/!.if-else` macro that basically expands to this.
-I know it's a special form in other Lisps (or cond is),
+I know it's a special form in other Lisps (or `cond` is),
 but Hissp doesn't need it. Smalltalk pretty much does it this way.
 Once you have `if` you can make a `cond`. Lisps actually differ on which
 is the special form and which is the macro.
@@ -392,6 +410,10 @@ Finally, the template syntax makes tuples. Unquote calls/symbols if needed.
 * How do I make a class?
 
 Use `type()`. (Or whatever metaclass.)
+
+* Very funny. That just tells me what type something is.
+
+No, seriously, you have to give it all three arguments. Look it up.
 
 * How do I use a decorator?
 
@@ -446,7 +468,7 @@ Something like,
 def try_statement(block, target, handler):
     try:
         block()
-    except target() as ex:
+    except target as ex:
         handler(ex)")
 ```
 Once on import is honestly not bad. Even the standard library does it,
@@ -482,7 +504,7 @@ Make a `collections.abc/Geneartor` subclass with a `send()` method.
 
 Generator-based coroutines have been deprecated.
 Don't implement them with generators anymore.
-Note there are also `collections.abc/Awaitable` and `collections.abc/Coroutine`
+Note there are `collections.abc/Awaitable` and `collections.abc/Coroutine`
 abstract base classes too.
 
 ## Contributing
