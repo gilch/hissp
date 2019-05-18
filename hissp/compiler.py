@@ -15,6 +15,7 @@ from typing import TypeVar, Iterable, Tuple, Union
 
 from hissp.reader import reads
 
+PAIR_WORDS = {":*": "*", ":**": "**", ":_": ""}
 # Module Macro container
 MACROS = "_macro_"
 # Macro from foreign module foo.bar.._macro_.baz
@@ -154,7 +155,7 @@ class Compiler:
         >>> readerless(
         ... ('lambda', ('a','b',
         ...         ':', 'e',1, 'f',2,
-        ...         ':*','args', 'h',4, 'i',':', 'j',1,
+        ...         ':*','args', 'h',4, 'i',':_', 'j',1,
         ...         ':**','kwargs',),
         ...   42,),
         ... )
@@ -170,10 +171,10 @@ class Compiler:
         ... )
         '(lambda *args,**kwargs:(print(args),print(kwargs))[-1])'
 
-        You can omit the right of a pair with : (except the final **kwargs).
+        You can omit the right of a pair with :_ (except the final **kwargs).
         Also note that the body can be empty.
         >>> readerless(
-        ... ('lambda', (':','a',1, ':*',':', 'b',':', 'c',2,),),
+        ... ('lambda', (':','a',1, ':*',':_', 'b',':_', 'c',2,),),
         ... )
         '(lambda a=(1),*,b,c=(2):())'
 
@@ -202,10 +203,10 @@ class Compiler:
         yield from takewhile(lambda a: a != ":", parameters)
         for k, v in pairs(parameters):
             if k == ":*":
-                yield "*" if v == ":" else f"*{v}"
+                yield "*" if v == ":_" else f"*{v}"
             elif k == ":**":
                 yield f"**{v}"
-            elif v == ":":
+            elif v == ":_":
                 yield k
             else:
                 yield f"{k}={self.form(v)}"
@@ -276,12 +277,7 @@ class Compiler:
         head = next(form)
         args = chain(
             map(self.form, takewhile(lambda a: a != ":", form)),
-            (
-                f"{k[1:]}({self.form(v)})"
-                if k in {":*", ":**"}
-                else f"{k}={self.form(v)}"
-                for k, v in pairs(form)
-            ),
+            (f"{(PAIR_WORDS.get(k, k+'='))}{self.form(v)}" for k, v in pairs(form)),
         )
         if type(head) is str and head.startswith("."):
             return f"{next(args)}.{head[1:]}({','.join(args)})"
