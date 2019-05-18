@@ -26,10 +26,7 @@ BLANK = munge("?")
 MACROS = munge("!")  # Module Macro container !
 MACRO = munge("/!.")  # Macro from foreign module foo.bar/!.baz
 
-# repr() always round-trips.
-REPR = frozenset({type(None), bool, bytes, str})
-# Needs (), and some invalid reprs, like 'nan'
-BASIC = frozenset({int, float, complex})
+NUMBER = frozenset({int, float, complex})
 
 
 class CompileError(SyntaxError):
@@ -116,38 +113,38 @@ class Compiler:
         return self.call(form)
 
     def quoted(self, form) -> str:
-        """Compile forms that evaluate to themselves."""
-        case = type(form)
-        if case is list:
-            return f"[{self._elements(form)}]"
-        if case is set:
-            return f"""{{{self._elements(form) or "*''"}}}"""
-        if case is tuple:
-            return f"({self._elements(form)},)" if form else "()"
-        if case is dict:
-            return "{%s}" % ",".join(
-                f"{self.quoted(k)}:{self.quoted(v)}" for k, v in form.items()
-            )
-        if case in REPR:  # reversible reprs
-            return repr(form)
-        if case in BASIC:
-            with suppress(ValueError):  # Some repr()s don't round-trip.
-                return self.basic(form)
+        r"""
+        Compile forms that evaluate to themselves.
+
+        Emits a literal if possible, otherwise falls back to pickle.
+        >>> readerless(-4.2j)
+        '((-0-4.2j))'
+        >>> print(readerless(float('nan')))
+        __import__('pickle').loads(  # nan
+            b'\x80\x03G\x7f\xf8\x00\x00\x00\x00\x00\x00.'
+        )
+        >>> readerless([{'foo':2},(),1j,2.0,{3}])
+        "[{'foo': 2}, (), 1j, 2.0, {3}]"
+        >>> spam = []
+        >>> spam.append(spam)
+        >>> print(readerless(spam))
+        __import__('pickle').loads(  # [[...]]
+            b'\x80\x03]q\x00h\x00a.'
+        )
+        """
+        # Number literals may need (). E.g. (1).real
+        literal = f"({form!r})" if type(form) in NUMBER else repr(form)
+        with suppress(ValueError):
+            if ast.literal_eval(literal) == form:
+                return literal
+        # Wasn't made with ast.literal_eval(). Fall back to pickle.
         return self.pickle(form)
-
-    def _elements(self, form) -> str:
-        return ",".join(map(self.quoted, form))
-
-    def basic(self, form) -> str:
-        result = f"({repr(form)})"  # Need (). E.g. (1).real
-        ast.literal_eval(result)  # Does it round-trip?
-        return result
 
     @trace
     def pickle(self, form) -> str:
         """The final fallback for self.quoted()."""
-        dumps = pickletools.optimize(pickle.dumps(form, -1))
-        return f"__import__('pickle').loads(  # {form!r}\n{dumps})"
+        dumps = pickletools.optimize(pickle.dumps(form))
+        return f"__import__('pickle').loads(  # {form!r}\n    {dumps}\n)"
 
     def fn(self, form: tuple) -> str:
         r"""
@@ -263,7 +260,7 @@ class Compiler:
         >>> readerless(
         ... ('print',AND,STAR,[1,2], 'a',3, STAR,[4], STARS,{'sep':':','end':'\n\n'},),
         ... )
-        "print(*([(1),(2)]),a=(3),*([(4)]),**({'sep':':','end':'\\n\\n'}))"
+        "print(*([1, 2]),a=(3),*([4]),**({'sep': ':', 'end': '\\n\\n'}))"
 
         Unlike other keywords, these can be repeated, but a '*' is not
         allowed to follow '**', as in Python.
@@ -298,6 +295,7 @@ class Compiler:
 
     @trace
     def symbol(self, symbol: str) -> str:
+        # TODO: :keywords?
         if SLASH in symbol and not symbol.startswith(SLASH):
             parts = symbol.split(SLASH, 1)
             return "__import__({0!r}{fromlist}).{1}".format(
