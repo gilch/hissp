@@ -3,8 +3,11 @@
 
 import ast
 import re
+from importlib import import_module
 from pprint import pprint
 from typing import NewType, Tuple, Iterator
+
+from functools import reduce
 
 from hissp.munger import munge
 
@@ -69,21 +72,15 @@ def parse(tokens: Iterator[Token], depth=0) -> Iterator[tuple]:
 
 
 def parse_macro(tag: str, form) -> Iterator[tuple]:
-    if tag == r"\'":
+    assert tag.startswith("\\")
+    tag = tag[1:]
+    if tag == "'":
         return ("quote", form)
-    # elif tag == "#`":
-    #     if isinstance(form, tuple):
-    #         yield (("quote", e) for e in form),
-    #     else:
-    #         yield ("quote", form)
-    # elif tag == "#,":
-    #     assert form[0] == "quote"
-    #     yield form[1],
-    # elif tag == "#,@":
-    #     assert form[0] == "quote"
-    #     yield form[1]
-    else:
-        raise ValueError(f"Unknown reader macro {tag}")
+    if ".." in tag and not tag.startswith(".."):
+        module, function = tag.split("..", 1)
+        function = munge(function)
+        return reduce(getattr, function.split("."), import_module(module))(form)
+    raise ValueError(f"Unknown reader macro {tag}")
 
 
 def reads(code, verbose=False):
