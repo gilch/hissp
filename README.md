@@ -1,7 +1,14 @@
 (rough draft)
 
 # TODOs before public release?
-* implement customizable reader macros
+* reader macros
+  * implement customizable reader macros
+  * `\.` eval at read time
+  * `\_` drop form
+  * ```\` ``` quasi quote
+  * `\,` unquote
+  * `\,@` splice
+  * `\#` gensym
 * set up Sphinx docs/tests.
   * can we doctest using the Hissp REPL?
 * setup.py for PyPI
