@@ -1,41 +1,55 @@
 ;; Copyright 2019 Matthew Egan Odendahl
 ;; SPDX-License-Identifier: Apache-2.0
 
+;; bootstrap _define helper function using builtins
 (operator..setitem (globals) \' _define
                    (lambda (name value)
                      (operator..setitem (globals)
                                         name
                                         value)))
 
+;; boostrap _tuple helper function using _define
 (_define \' _tuple
          (lambda (: :* elements)
            elements))
 
+;; macro namespace
 (_define \' _macro_ (types..SimpleNamespace))
 
-(setattr _macro_ \' defmacro
-         (lambda (name args : :* body)
+;; define require-as macro
+(setattr _macro_ \' require-as
+         (lambda (macro name)
            (_tuple \' builtins..setattr
                    \' (.setdefault (builtins..globals)
                                    \' _macro_
                                    (types..SimpleNamespace))
                    (_tuple \' quote name)
-                   (_tuple \' lambda args : :* body))))
+                   macro)))
+
+;; create defmacro
+(require-as (lambda (name args : :* body)
+              (_tuple \' hissp.basic.._macro_.require-as
+                      (_tuple \' lambda args : :* body)
+                      name))
+            defmacro)
+
+(defmacro tuple* (: :* xs)
+  (_tuple \'(lambda (: :* a) a) : :* xs))
 
 (defmacro define (name value)
-  (_tuple
+  (tuple*
    \' operator..setitem
    \' (builtins..globals)
-   (_tuple \' quote name)
+   (tuple* \' quote name)
    value))
 
 (defmacro if-else (b then otherwise)
-  (_tuple
+  (tuple*
    \' (lambda (b : :* then-else)
         ((operator..getitem then-else (operator..not_ b))))
    b
-   (_tuple \' lambda () then)
-   (_tuple \' lambda () otherwise)))
+   (tuple* \' lambda () then)
+   (tuple* \' lambda () otherwise)))
 
 (define test2
     (lambda (b)
@@ -46,13 +60,13 @@
 (print \' basic)
 
 (defmacro do (: :* body)
-  (_tuple
-   (_tuple \' lambda ()
+  (tuple*
+   (tuple* \' lambda ()
            : :* body)))
 
 (defmacro let (pairs : :* body)
-  (_tuple
-   (_tuple \' lambda (_tuple ":" : :* pairs)
+  (tuple*
+   (tuple* \' lambda (tuple* ":" : :* pairs)
            : :* body)))
 
 (let (x 1

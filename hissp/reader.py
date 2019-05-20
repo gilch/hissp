@@ -2,13 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ast
+import os
 import re
-from importlib import import_module
-from pprint import pprint
-from typing import NewType, Tuple, Iterator
-
 from functools import reduce
+from importlib import import_module, resources
+from pathlib import Path, PurePath
+from pprint import pprint
+from types import ModuleType
+from typing import Iterator, NewType, Tuple, Union
 
+from hissp.compiler import Compiler, readerless
 from hissp.munger import munge
 
 TOKENS = re.compile(
@@ -76,6 +79,8 @@ def parse_macro(tag: str, form) -> Iterator[tuple]:
     tag = tag[1:]
     if tag == "'":
         return ("quote", form)
+    if tag == ".":
+        return eval(readerless(form),{})
     if ".." in tag and not tag.startswith(".."):
         module, function = tag.split("..", 1)
         function = munge(function)
@@ -89,3 +94,21 @@ def reads(code, verbose=False):
         res = list(res)
         pprint(res)
     return res
+
+
+def transpile(
+    package: resources.Package,
+    resource: Union[str, PurePath],
+    out: Union[None, str, bytes, Path] = None,
+):
+    code = resources.read_text(package, resource)
+    path: Path
+    with resources.path(package, resource) as path:
+        out = out or path.with_suffix(".py")
+        if isinstance(package, ModuleType):
+            package = package.__package__
+        if isinstance(package, os.PathLike):
+            resource = resource.stem
+        qualname = f"{package}.{resource.split('.')[0]}"
+        with open(out, "w") as f:
+            f.write(Compiler(qualname).compile(reads(code)))

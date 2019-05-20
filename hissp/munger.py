@@ -3,7 +3,7 @@
 
 import re
 from contextlib import suppress
-from typing import TypeVar, Hashable, Mapping, Dict, Match
+from typing import Dict, Hashable, Mapping, Match, TypeVar
 
 import unicodedata
 

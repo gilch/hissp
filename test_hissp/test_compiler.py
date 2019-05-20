@@ -7,8 +7,7 @@ from unittest import TestCase
 import hypothesis.strategies as st
 from hypothesis import given
 
-from hissp import compiler
-from hissp import munger
+from hissp import compiler, munger
 
 quoted = (
     st.none()
