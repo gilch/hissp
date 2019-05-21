@@ -6,6 +6,7 @@ import os
 import re
 from functools import reduce
 from importlib import import_module, resources
+from itertools import chain
 from pathlib import Path, PurePath
 from pprint import pprint
 from types import ModuleType
@@ -74,18 +75,51 @@ def parse(tokens: Iterator[Token], depth=0) -> Iterator[tuple]:
         SyntaxError("Ran out of tokens before completing form.")
 
 
+class _Unquote(tuple):
+    def __repr__(self):
+        return f"_Unquote{super().__repr__()}"
+
+
 def parse_macro(tag: str, form) -> Iterator[tuple]:
     assert tag.startswith("\\")
     tag = tag[1:]
     if tag == "'":
-        return ("quote", form)
+        return "quote", form
     if tag == ".":
-        return eval(readerless(form),{})
+        return eval(readerless(form), {})
+    if tag == "`":
+        return template(form)
+    if tag == ",":
+        return _Unquote([":_", form])
+    if tag == ",@":
+        return _Unquote([":*", form])
     if ".." in tag and not tag.startswith(".."):
         module, function = tag.split("..", 1)
         function = munge(function)
         return reduce(getattr, function.split("."), import_module(module))(form)
     raise ValueError(f"Unknown reader macro {tag}")
+
+
+def template(form):
+    case = type(form)
+    if case is tuple and form:
+        return (("lambda", (":", ":*", "a"), "a"), ":", *chain(*_template(form)))
+    if case is str:
+        return "quote", form
+    return form
+
+
+def _template(forms):
+    for form in forms:
+        case = type(form)
+        if case is str:
+            yield ":_", ("quote", form)
+        elif case is _Unquote:
+            yield form
+        elif case is tuple:
+            yield ":_", template(form)
+        else:
+            yield ":_", form
 
 
 def reads(code, verbose=False):

@@ -8,48 +8,37 @@
                                         name
                                         value)))
 
-;; boostrap _tuple helper function using _define
-(_define \' _tuple
-         (lambda (: :* elements)
-           elements))
-
 ;; macro namespace
 (_define \' _macro_ (types..SimpleNamespace))
 
 ;; define require-as macro
 (setattr _macro_ \' require-as
          (lambda (macro name)
-           (_tuple \' builtins..setattr
-                   \' (.setdefault (builtins..globals)
-                                   \' _macro_
-                                   (types..SimpleNamespace))
-                   (_tuple \' quote name)
-                   macro)))
+           \`(builtins..setattr
+              (.setdefault (builtins..globals)
+                           \' _macro_
+                           (types..SimpleNamespace))
+              (quote \, name)
+              \, macro)))
 
 ;; create defmacro
 (require-as (lambda (name args : :* body)
-              (_tuple \' hissp.basic.._macro_.require-as
-                      (_tuple \' lambda args : :* body)
-                      name))
+              \` (hissp.basic.._macro_.require-as
+                  (lambda \, args \,@ body)
+                  \, name))
             defmacro)
 
-(defmacro tuple* (: :* xs)
-  (_tuple \'(lambda (: :* a) a) : :* xs))
-
 (defmacro define (name value)
-  (tuple*
-   \' operator..setitem
-   \' (builtins..globals)
-   (tuple* \' quote name)
-   value))
+  \`(operator..setitem (builtins..globals)
+                       \' \, name
+                       \, value))
 
 (defmacro if-else (b then otherwise)
-  (tuple*
-   \' (lambda (b : :* then-else)
-        ((operator..getitem then-else (operator..not_ b))))
-   b
-   (tuple* \' lambda () then)
-   (tuple* \' lambda () otherwise)))
+  \`((lambda (b : :* then-else)
+       ((operator..getitem then-else (operator..not_ b))))
+     \, b
+     (lambda () \, then)
+     (lambda () \, otherwise)))
 
 (define test2
     (lambda (b)
@@ -57,20 +46,22 @@
                (print \' yes)
                (print \' no))))
 
-(print \' basic)
 
-(defmacro do (: :* body)
-  (tuple*
-   (tuple* \' lambda ()
-           : :* body)))
+(defmacro progn (: :* body)
+  \`((lambda ()
+       \,@ body)))
 
 (defmacro let (pairs : :* body)
-  (tuple*
-   (tuple* \' lambda (tuple* ":" : :* pairs)
-           : :* body)))
+  \`((lambda (: \,@ pairs)
+       \,@ body)))
 
-(let (x 1
-      y 2)
-  (print x y))
+(progn
+  (define spam 40)
+  (print \' basic)
+  (test2 1)
+  (test2 0)
+  (let (x spam
+        y 2)
+    (print x y)))
+
 ;; Cond?
-;; ` , ,@
