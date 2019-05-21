@@ -5,7 +5,7 @@
   * implement customizable reader macros
   * `\.` eval at read time
   * `\_` drop form
-  * ```\` ``` quasi quote
+  * ```\` ``` template quote
   * `\,` unquote
   * `\,@` splice
   * `\#` gensym

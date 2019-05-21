@@ -22,8 +22,8 @@ TOKENS = re.compile(
 |(?P<string>"(?:\\.|\\\n|[^"]|\\")*")
 |(?P<comment>;.*)
 |(?P<whitespace>[\n ]+)
-|(?P<macro>\\[^ \n"()]*(?=[\n ("]))
-|(?P<symbol>[^ \n"()#]+)
+|(?P<macro>\\[^ \n"()\\]*(?=[\n ("\\]))
+|(?P<symbol>[^ \n"()\\]+)
 """
 )
 
