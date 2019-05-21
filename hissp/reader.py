@@ -104,7 +104,7 @@ def template(form):
     case = type(form)
     if case is tuple and form:
         return (("lambda", (":", ":*", "a"), "a"), ":", *chain(*_template(form)))
-    if case is str:
+    if case is str and not form.startswith(':'):
         return "quote", form
     return form
 
@@ -112,7 +112,7 @@ def template(form):
 def _template(forms):
     for form in forms:
         case = type(form)
-        if case is str:
+        if case is str and not form.startswith(':'):
             yield ":_", ("quote", form)
         elif case is _Unquote:
             yield form
