@@ -95,11 +95,13 @@ class Compiler:
         if parts[0] == self.qualname:
             # Local qualified macro. Recursive macros might need it.
             return self.form(vars(self.ns[MACROS])[parts[1]](*tail))
-        with suppress(LookupError):  # Local unqualified macro.
-            return self.form(vars(self.ns[MACROS])[head](*tail))
-        if MACRO in head:  # Qualified macro.
-            return self.form(eval(self.symbol(head))(*tail))
-        return self.call(form)
+        try:  # Local unqualified macro.
+            macro = vars(self.ns[MACROS])[head]
+        except LookupError:
+            if MACRO in head:  # Qualified macro.
+                return self.form(eval(self.symbol(head))(*tail))
+            return self.call(form)
+        self.form(macro(*tail))
 
     def quoted(self, form) -> str:
         r"""
