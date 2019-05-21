@@ -2,62 +2,62 @@
 ;; SPDX-License-Identifier: Apache-2.0
 
 ;; bootstrap _define helper function using builtins
-(operator..setitem (globals) \' _define
+(operator..setitem (globals) '_define
                    (lambda (name value)
                      (operator..setitem (globals)
                                         name
                                         value)))
 
 ;; macro namespace
-(_define \' _macro_ (types..SimpleNamespace))
+(_define '_macro_ (types..SimpleNamespace))
 
 ;; define require-as macro
-(setattr _macro_ \' require-as
+(setattr _macro_ 'require-as
          (lambda (macro name)
-           \`(builtins..setattr
-              (.setdefault (builtins..globals)
-                           \' _macro_
-                           (types..SimpleNamespace))
-              (quote \, name)
-              \, macro)))
+           `(builtins..setattr
+             (.setdefault (builtins..globals)
+                          '_macro_
+                          (types..SimpleNamespace))
+             (quote ,name)
+             ,macro)))
 
 ;; create defmacro
 (require-as (lambda (name args : :* body)
-              \` (hissp.basic.._macro_.require-as
-                  (lambda \, args \,@ body)
-                  \, name))
+              `(hissp.basic.._macro_.require-as
+                  (lambda ,args ,@body)
+                  ,name))
             defmacro)
 
 (defmacro define (name value)
-  \`(operator..setitem (builtins..globals)
-                       \' \, name
-                       \, value))
+  `(operator..setitem (builtins..globals)
+                      ',name
+                      ,value))
 
 (defmacro if-else (b then otherwise)
-  \`((lambda (b : :* then-else)
-       ((operator..getitem then-else (operator..not_ b))))
-     \, b
-     (lambda () \, then)
-     (lambda () \, otherwise)))
+  `((lambda (b : :* then-else)
+      ((operator..getitem then-else (operator..not_ b))))
+    ,b
+    (lambda () ,then)
+    (lambda () ,otherwise)))
 
 (define test2
     (lambda (b)
       (if-else b
-               (print \' yes)
-               (print \' no))))
+               (print 'yes)
+               (print 'no))))
 
 
 (defmacro progn (: :* body)
-  \`((lambda ()
-       \,@ body)))
+  `((lambda ()
+      ,@body)))
 
 (defmacro let (pairs : :* body)
-  \`((lambda (: \,@ pairs)
-       \,@ body)))
+  `((lambda (: ,@pairs)
+      ,@body)))
 
 (progn
   (define spam 40)
-  (print \' basic)
+  (print 'basic)
   (test2 1)
   (test2 0)
   (let (x spam

@@ -5,9 +5,9 @@
   * implement customizable reader macros
   * `\.` eval at read time
   * `\_` drop form
-  * ```\` ``` template quote
-  * `\,` unquote
-  * `\,@` splice
+  * ``` ` ``` template quote
+  * `,` unquote
+  * `,@` splice
   * `\#` gensym
 * set up Sphinx docs/tests.
   * can we doctest using the Hissp REPL?

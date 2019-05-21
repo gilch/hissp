@@ -22,7 +22,10 @@ TOKENS = re.compile(
 |(?P<string>"(?:\\.|\\\n|[^"]|\\")*")
 |(?P<comment>;.*)
 |(?P<whitespace>[\n ]+)
-|(?P<macro>\\[^ \n"()\\]*(?=[\n ("\\]))
+|(?P<macro>
+   ,@
+  |['`,]
+  |\\[^ \n"()\\]*(?=[\n ("\\]))
 |(?P<symbol>[^ \n"()\\]+)
 """
 )
@@ -81,18 +84,18 @@ class _Unquote(tuple):
 
 
 def parse_macro(tag: str, form) -> Iterator[tuple]:
-    assert tag.startswith("\\")
-    tag = tag[1:]
     if tag == "'":
         return "quote", form
-    if tag == ".":
-        return eval(readerless(form), {})
     if tag == "`":
         return template(form)
     if tag == ",":
         return _Unquote([":_", form])
     if tag == ",@":
         return _Unquote([":*", form])
+    assert tag.startswith("\\")
+    tag = tag[1:]
+    if tag == ".":
+        return eval(readerless(form), {})
     if ".." in tag and not tag.startswith(".."):
         module, function = tag.split("..", 1)
         function = munge(function)
@@ -104,7 +107,7 @@ def template(form):
     case = type(form)
     if case is tuple and form:
         return (("lambda", (":", ":*", "a"), "a"), ":", *chain(*_template(form)))
-    if case is str and not form.startswith(':'):
+    if case is str and not form.startswith(":"):
         return "quote", form
     return form
 
@@ -112,7 +115,7 @@ def template(form):
 def _template(forms):
     for form in forms:
         case = type(form)
-        if case is str and not form.startswith(':'):
+        if case is str and not form.startswith(":"):
             yield ":_", ("quote", form)
         elif case is _Unquote:
             yield form
