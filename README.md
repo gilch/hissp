@@ -33,7 +33,7 @@ When you can shape the language itself to fit your problem domain,
 the inexpressible becomes ordinary.
 
 Lisp is a programmable programming language,
-extensible though its legendary macro system which hooks into the compiler itself.
+extensible though its renowned macro system which hooks into the compiler itself.
 
 Adding features that historically require a new version of the Python language,
 like `with` statements, would be almost as easy as writing a new function in Lisp.
@@ -53,7 +53,7 @@ a simplified kind of AST that is easier to manipulate,
 but still more reliable than text manipulation.
 Hissp code is just another kind of data.
 
-#### Simplicity
+#### Minimalism
 Be as simple as possible, but no simpler.
 Hissp includes what it needs to achieve its goals, but no more.
 There are only two special forms: quote and lambda.
@@ -116,7 +116,7 @@ Functions are generally preferable to macros when functions can do the job.
 They're more reusable and composable.
 Therefore it makes sense for macros to delegate to functions where possible.
 But such a macro should work in the same module.
-This requires incremental compilation of forms, like the REPL.
+This requires incremental compilation and evaluation of forms, like the REPL.
 
 #### Modularity
 The Hissp language is made of tuples, not text.
@@ -196,17 +196,27 @@ Symbols are allowed to contain many special characters, but because
 symbols are meant to be used as Python identifiers,
 the reader automatically munges invalid identifier characters to x-quoted words,
 like `/` to `xSLASH_`.
-This format was chosen because it contains both lower-case, upper-case,
-and an underscore.
-This makes it distinct from standard Python naming conventions:
-`lower_case_with_underscores`, `UPPER_CASE_WITH_UNDERSCORES`. and `CapWords`,
-which makes it easy to tell if an identifier contains munged characters.
+This format was chosen because it contains an underscore
+and both lower-case and upper-case letters,
+which makes it distinct from standard Python naming conventions:
+`lower_case_with_underscores`, `UPPER_CASE_WITH_UNDERSCORES`. and `CapWords`.
+This makes it easy to tell if an identifier contains munged characters.
 It also cannot introduce a leading underscore,
 which can have special meaning in Python.
+
+A symbol that begins with a `:` is a "keyword".
+Keywords are never interpreted as identifiers,
+so they don't need to be quoted or munged.
 
 Reader macros consist of a symbol beginning with a `\ ` followed by another form.
 The function named by the symbol is invoked on the form,
 and the reader inserts the resulting object into the output code.
+
+There are also four built-in reader macros that don't start with `\ `:
+* ``` ` ``` template quote
+* `,` unquote
+* `,@` splice unquote
+* `'` quote
 
 #### Calls and the compiler
 
@@ -244,8 +254,8 @@ The first special form is `quote`. It returns its argument unevaluated.
 ```
 ## (quote builtins..print)
 
->>>  'builtinsxSLASH_print'
-'builtinsxSLASH_print'
+>>>  'builtins..print'
+'builtins..print'
 ```
 The distinction between symbols and strings only applies to the reader.
 Hissp has no separate symbol type. A quoted symbol is just a string.
@@ -254,20 +264,20 @@ Here's the earlier example quoted.
 ```
 ## (quote (builtins..print 1 2j 3.0 [4,'5',6] : sep ":"))
 
->>>  ('builtinsxSLASH_print',(1),(2j),(3.0),[(4),'5',(6)],'xET_','sep',('quote',':',),)
-('builtinsxSLASH_print', 1, 2j, 3.0, [4, '5', 6], 'xET_', 'sep', ('quote', ':'))
+>>>  ('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':'))
+('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':'))
 ```
 This reveals how to write the example in readerless mode.
 Many literal types simply evaluate to themselves and so are unaffected by quoting.
 The exceptions are strings and tuples, which can represent identifiers and calls.
 
 Quoting is important enough to have a special reader macro.
-`\' foo` is the same as `(quote foo)`.
+`'foo` is the same as `(quote foo)`.
 
 The second special form is `lambda`
 The first argument of a lambda is the pararmeters tuple.
 Like calls, the `:` separates the single from the paired (if any).
-After the paramters tuple, the rest of the arguments are the function body.
+After the parameters tuple, the rest of the arguments are the function body.
 
 ```
 ## (lambda (a b
@@ -279,7 +289,7 @@ After the paramters tuple, the rest of the arguments are the function body.
 >>>  (lambda a,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
 <function <lambda> at 0x0000019D826B38C8>
 
-## (lambda (: :* :  x :))
+## (lambda (: :* :_  x :_))
 
 >>>  (lambda *,x:())
 <function <lambda> at 0x0000019D8269FD08>
@@ -295,8 +305,7 @@ After the paramters tuple, the rest of the arguments are the function body.
 
 Normal call forms evaluate their arguments before calling the function,
 as Python does.
-Special forms are different.
-Quote arguments are not evaluated at all.
+Special forms are different--`quote`'s argument is not evaluated at all.
 The body of a lambda is not evaluated until the function is invoked,
 and its parameter tuple is partly evaluated (if there are defaults) and
 partly quoted.
@@ -306,7 +315,8 @@ Like special forms, macro calls do not have to evaluate their arguments.
 Macros are simply functions that take Hissp code, and return Hissp code.
 When an unqualified symbol is in the function position of a tuple about
 to be evaluated, the compiler checks if the module's `_macro_` namespace
-has that symbol. If it does it is called at compile time as a macro.
+has that symbol. If it does it is called at compile time as a macro and
+the result is inserted into the code in its place.
 
 Qualified symbols can also be macros if looked up directly from their module's `_macro_`.
 E.g. `(hissp.basic.._macro_.define FOO 0xf00)`
@@ -329,7 +339,8 @@ Yes.
 
 Short proof: Hissp has strings and can call `exec()`.
 
-But you usually won't need it because you can import anything written in Python.
+But you usually won't need it because you can import anything written in Python
+by using qualified symbols.
 
 > What's 1 + 1?
 
@@ -337,6 +348,9 @@ Two.
 
 > I mean how do you write it in Hissp without operators? Please don't say `eval()`.
 
+Well, using `eval()` would give you the familiar infix notation.
+
+But you don't need it.
 We have all the operators because we have all the standard library functions.
 ```
 (operator..add 1 1)
@@ -347,6 +361,8 @@ You can, of course, abbreviate these, E.g.
 (+ 1 1)
 ```
 Yes, `+` is a valid symbol. It gets munged to `xPLUS_`.
+The result is all of the operators you might want,
+using the same prefix notation used by all the calls.
 
 > There are no statements?! How can you get anything done?
 
@@ -362,7 +378,7 @@ Look at their expansions and you'll see they don't use assignment statements eit
 > But there's no `macroexpand`.
 
 Invoke the macro indirectly so the compiler sees it as a normal function.
-`((getattr hissp.basic.._macro_ "define") \' foo \' "bar")`
+`((getattr hissp.basic.._macro_ "define") 'foo '"bar")`
 One could, of course, write a function or macro to automate this.
 
 > There's no `for`? What about loops?
@@ -392,7 +408,7 @@ Also see `itertools`, `iter`.
 No it's not. You already learned how to for loop above.
 Isn't looping zero or one times like skipping a branch or not?
 Note that `False` and `True` are special cases of `0` and `1` in Python.
-`range(False)` is zero times, but `range(True)` is one time.
+`range(False)` would loop zero times, but `range(True)` loops one time.
 
 > What about if/else ternary expressions?
 
@@ -411,7 +427,9 @@ is the special form and which is the macro.
 
 > Does Hissp have tail-call optimization?
 
-No, but you can increase the recursion limit with `sys..setrecursionlimit`.
+No, because Python doesn't.
+If a Python implementation gets it, Hissp will too.
+But you can increase the recursion limit with `sys..setrecursionlimit`.
 Better not increase it too much if you don't like segfaults, but
 you can trampoline instead. See Drython's `loop()` function. Or use it.
 Clojure does it about the same way.
@@ -425,7 +443,7 @@ Use `tuple()`.
 `lambda *a:a`
 
 You can also make an empty list with `[]` or `(list)`, and then `.append` to it.
-Finally, the template syntax makes tuples. Unquote calls/symbols if needed.
+Finally, the template syntax ``` `()``` makes tuples. Unquote `,` calls/symbols if needed.
 
 > How do I make a class?
 
@@ -449,9 +467,10 @@ Exceptions tend to raise themselves if you're not careful.
 
  Exceptions are not good functional style.
  You probably don't need them.
- If you must, you can still use `exec()`
- 
-> Isn't that slow? 
+ If you must, you can still use `exec()`.
+( Or use Drython's `Raise()`.) 
+
+> Use exec? Isn't that slow? 
 
 If the exceptions are only for exceptional cases, then does it matter?
 Early optimization is the root of all evil.
@@ -498,7 +517,7 @@ But at this point,
 unless you really want a single-file script with no dependencies,
 you're better off defining the helper function in Python and importing it.
 You could handle the finally/else blocks similarly.
-See Drython for how to do it. Or just use Drython.
+See Drython's `Try()` for how to do it. Or just use Drython.
 
 > Isn't Hissp slower than Python? Isn't Python slow enough already?
 
@@ -522,6 +541,8 @@ We've got itertools. Compose generators functional-style. You don't need yield.
 > But I need it for co-routines. Or async/await stuff. How do I accept a send?
 
 Make a `collections.abc..Geneartor` subclass with a `send()` method.
+
+Or use Drython's `Yield()`.
 
 Generator-based coroutines have been deprecated.
 Don't implement them with generators anymore.
