@@ -1,0 +1,27 @@
+(hissp.basic.._macro_.from-require hissp.basic
+                                   progn
+                                   let
+                                   define
+                                   if-else)
+
+(define TestBasic
+    (type 'TestBasic `(,unittest..TestCase)
+          (dict :
+                test_basic (lambda (self)
+                              (.fail self)))))
+
+
+(define test2
+    (lambda (b)
+      (if-else b
+               (print 'yes)
+               (print 'no))))
+
+(progn
+  (define spam 40)
+  (print 'basic)
+  (test2 1)
+  (test2 0)
+  (let (x spam
+        y 2)
+    (print x y)))

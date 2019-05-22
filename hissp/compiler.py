@@ -98,10 +98,12 @@ class Compiler:
         try:  # Local unqualified macro.
             macro = vars(self.ns[MACROS])[head]
         except LookupError:
-            if MACRO in head:  # Qualified macro.
-                return self.form(eval(self.symbol(head))(*tail))
-            return self.call(form)
-        return self.form(macro(*tail))
+            pass
+        else:
+            return self.form(macro(*tail))
+        if MACRO in head:  # Qualified macro.
+            return self.form(eval(self.symbol(head))(*tail))
+        return self.call(form)
 
     def quoted(self, form) -> str:
         r"""

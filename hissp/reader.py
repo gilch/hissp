@@ -139,8 +139,8 @@ class Parser:
         if ".." in symbol or symbol.startswith('.') or symbol in {'quote', 'lambda'}:
             return symbol
         if symbol in vars(self.ns.get("_macro_", lambda:())):
-            return f"{self.qualname}._macro_.{symbol}"
-        return f"{self.qualname}.{symbol}"
+            return f"{self.qualname}.._macro_.{symbol}"
+        return f"{self.qualname}..{symbol}"
 
     def reads(self, code: str) -> Iterable:
         res = self.parse(lex(code))
