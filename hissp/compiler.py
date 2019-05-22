@@ -41,7 +41,7 @@ class Compiler:
     The Hissp compiler.
     """
 
-    def __init__(self, qualname="<repl>", ns=None, evaluate=True):
+    def __init__(self, qualname="_repl", ns=None, evaluate=True):
         self.qualname = qualname
         self.ns = ns or {"__name__": "<compiler>"}
         self.evaluate = evaluate
@@ -60,7 +60,7 @@ class Compiler:
         try:
             eval(compile(form, "<Hissp>", "eval"), self.ns)
         except Exception as e:
-            raise CompileError("\n" + form) from e
+            raise CompileError(f"\n{form!r}") from e
 
     def form(self, form) -> str:
         """
@@ -101,7 +101,7 @@ class Compiler:
             if MACRO in head:  # Qualified macro.
                 return self.form(eval(self.symbol(head))(*tail))
             return self.call(form)
-        self.form(macro(*tail))
+        return self.form(macro(*tail))
 
     def quoted(self, form) -> str:
         r"""
@@ -298,5 +298,7 @@ def pairs(it: Iterable[T]) -> Iterable[Tuple[T, T]]:
         yield k, next(it)
 
 
-def readerless(form):
-    return Compiler(evaluate=False).compile([form])
+def readerless(form, ns=None):
+    ns = ns or {"__name__": "<compiler>"}
+    return Compiler(evaluate=False, ns=ns).compile([form])
+

@@ -13,6 +13,10 @@
   * can we doctest using the Hissp REPL?
 * setup.py for PyPI
 * automated tests?
+* document compiler use:
+```
+(hissp.reader..transpile "hissp" "basic.lissp")
+```
 
 # Hissp
 

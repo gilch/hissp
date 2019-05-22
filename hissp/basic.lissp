@@ -16,7 +16,7 @@
          (lambda (macro name)
            `(builtins..setattr
              (.setdefault (builtins..globals)
-                          '_macro_
+                          ','_macro_
                           (types..SimpleNamespace))
              (quote ,name)
              ,macro)))
@@ -34,8 +34,8 @@
                       ,value))
 
 (defmacro if-else (b then otherwise)
-  `((lambda (b : :* then-else)
-      ((operator..getitem then-else (operator..not_ b))))
+  `((lambda (,'b : :* ,'then-else)
+      ((operator..getitem ,'then-else (operator..not_ ,'b))))
     ,b
     (lambda () ,then)
     (lambda () ,otherwise)))

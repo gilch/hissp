@@ -2,12 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 import traceback
 
-from hissp.compiler import Compiler
-from hissp.reader import reads
+from hissp.reader import Parser
 
 
 def repl():
-    compiler = Compiler(evaluate=False)
+    parser = Parser()
     while True:
         try:
             try:
@@ -15,11 +14,11 @@ def repl():
             except EOFError:
                 raise SystemExit
             buffer = _get_more(line)
-            forms = reads("\n".join(buffer))
-            code = compiler.compile(forms)
+            forms = parser.reads("\n".join(buffer))
+            code = parser.compiler.compile(forms)
             print(">>> ", code.replace("\n", "\n... "))
             bytecode = compile(code, "<repl>", "single")
-            exec(bytecode, compiler.ns)
+            exec(bytecode, parser.compiler.ns)
         except SystemExit:
             print("Exit Hissp.")
             raise
