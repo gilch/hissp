@@ -1,15 +1,8 @@
 ;; Copyright 2019 Matthew Egan Odendahl
 ;; SPDX-License-Identifier: Apache-2.0
 
-;; bootstrap _define helper function using builtins
-(operator..setitem (globals) '_define
-                   (lambda (name value)
-                     (operator..setitem (globals)
-                                        name
-                                        value)))
-
-;; macro namespace
-(_define '_macro_ (types..SimpleNamespace))
+;; bootstrap macro namespace using builtins
+(operator..setitem (globals) '_macro_ (types..SimpleNamespace)
 
 ;; define require-as macro
 (setattr _macro_ 'require-as
@@ -40,12 +33,6 @@
     (lambda () ,then)
     (lambda () ,otherwise)))
 
-(define test2
-    (lambda (b)
-      (if-else b
-               (print 'yes)
-               (print 'no))))
-
 
 (defmacro progn (: :* body)
   `((lambda ()
@@ -54,6 +41,14 @@
 (defmacro let (pairs : :* body)
   `((lambda (: ,@pairs)
       ,@body)))
+
+;; some basic tests follow
+
+(define test2
+    (lambda (b)
+      (if-else b
+               (print 'yes)
+               (print 'no))))
 
 (progn
   (define spam 40)
