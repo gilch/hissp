@@ -161,7 +161,12 @@ class Parser:
         return self.compiler.compile(hissp)
 
 
-def transpile(
+def transpile(package: resources.Package, *modules: Union[str, PurePath]):
+    for module in modules:
+        transpile_module(package, module + ".hissp")
+
+
+def transpile_module(
     package: resources.Package,
     resource: Union[str, PurePath],
     out: Union[None, str, bytes, Path] = None,
@@ -176,4 +181,5 @@ def transpile(
             resource = resource.stem
         qualname = f"{package}.{resource.split('.')[0]}"
         with open(out, "w") as f:
+            print('writing to', out)
             f.write(Parser(qualname, evaluate=True).compile(code))

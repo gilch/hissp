@@ -1,3 +1,3 @@
 from hissp.reader import transpile
 
-transpile("test_hissp", "test_basic.hissp")
+transpile(__package__, "test_basic")

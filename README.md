@@ -21,17 +21,16 @@ or
 ```python
 from hissp.reader import transpile
 
-for module in ['spam', 'eggs']:
-    transpile(__package__, module + ".hissp")
+transpile(__package__, "spam", "eggs")
 ```
 Consider putting the above in `__init__.py` to auto-compile
-on each hissp module in the package on package import during development.
+each hissp module in the package on package import during development.
 You can disable it again on release, if desired,
 but this gives you fine-grained control over what gets compiled when.
 Note that you usually would want to recompile the whole project
 rather than only the changed files like Python does,
 because macros run at compile time.
-A changed macro normally doesn't affect the code that uses it until it is recompiled.
+Changing a macro normally doesn't affect the code that uses it until it is recompiled.
 
 # Hissp
 
