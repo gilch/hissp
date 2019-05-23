@@ -17,6 +17,20 @@
 ```
 (hissp.reader..transpile "hissp" "basic.lissp")
 ```
+or
+```python
+from hissp.reader import transpile
+
+transpile("test_hissp", "test_basic.hissp")
+```
+Consider putting the above in `__init__.py` to auto-compile
+on each hissp module in the package on package import during development.
+You can disable it again on release, if desired,
+but this gives you fine-grained control over what gets compiled when.
+Note that you usually would want to recompile the whole project
+rather than only the changed files like Python does,
+because macros run at compile time.
+A changed macro normally doesn't affect the code that uses it until it is recompiled.
 
 # Hissp
 
