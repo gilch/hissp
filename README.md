@@ -21,7 +21,8 @@ or
 ```python
 from hissp.reader import transpile
 
-transpile("test_hissp", "test_basic.hissp")
+for module in ['spam', 'eggs']:
+    transpile(__package__, module + ".hissp")
 ```
 Consider putting the above in `__init__.py` to auto-compile
 on each hissp module in the package on package import during development.
