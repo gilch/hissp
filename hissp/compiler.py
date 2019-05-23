@@ -212,10 +212,11 @@ class Compiler:
     @trace
     def body(self, body: list) -> str:
         if len(body) > 1:
-            return f"({','.join(map(self.form, body))})[-1]"
+            return f"({_join_args(*map(self.form, body))})[-1]"
         if not body:
             return "()"
-        return self.form(body[0])
+        result = self.form(body[0])
+        return "\n  " * ("\n" in result) + result
 
     @trace
     def call(self, form: tuple) -> str:
@@ -278,8 +279,10 @@ class Compiler:
             (f"{(PAIR_WORDS.get(k, k+'='))}{self.form(v)}" for k, v in pairs(form)),
         )
         if type(head) is str and head.startswith("."):
-            return f"{next(args)}.{head[1:]}({','.join(args)})"
-        return f"{self.form(head)}({','.join(args)})"
+            return "{}.{}({})".format(next(args), head[1:], _join_args(*args)).replace(
+                "\n", "\n  "
+            )
+        return "{}({})".format(self.form(head), _join_args(*args)).replace("\n", "\n  ")
 
     @trace
     def symbol(self, symbol: str) -> str:
@@ -289,6 +292,10 @@ class Compiler:
                 parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
             )
         return symbol
+
+
+def _join_args(*args):
+    return (("\n" if args else "") + ",\n".join(args)).replace("\n", "\n  ")
 
 
 T = TypeVar("T")
@@ -303,4 +310,3 @@ def pairs(it: Iterable[T]) -> Iterable[Tuple[T, T]]:
 def readerless(form, ns=None):
     ns = ns or {"__name__": "<compiler>"}
     return Compiler(evaluate=False, ns=ns).compile([form])
-
