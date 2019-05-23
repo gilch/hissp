@@ -32,6 +32,8 @@ TOKENS = re.compile(
 
 Token = NewType("Token", Tuple[str, str])
 
+DROP = object()
+
 
 def lex(code: str) -> Iterator[Token]:
     pos = 0
@@ -66,7 +68,10 @@ class Parser:
         self.compiler = Compiler(self.qualname, self.ns, evaluate)
         self.verbose = verbose
 
-    def parse(self, tokens: Iterator[Token], depth=0) -> Iterator[tuple]:
+    def parse(self, tokens: Iterator[Token], depth: int = 0) -> Iterator:
+        yield from (form for form in self._parse(tokens, depth) if form is not DROP)
+
+    def _parse(self, tokens: Iterator[Token], depth: int) -> Iterator:
         for k, v in tokens:
             if k == "open":
                 yield (*self.parse(tokens, depth + 1),)
@@ -89,7 +94,7 @@ class Parser:
         if depth:
             SyntaxError("Ran out of tokens before completing form.")
 
-    def parse_macro(self, tag: str, form) -> Iterator:
+    def parse_macro(self, tag: str, form):
         if tag == "'":
             return "quote", form
         if tag == "`":
@@ -98,8 +103,11 @@ class Parser:
             return _Unquote([":_", form])
         if tag == ",@":
             return _Unquote([":*", form])
+
         assert tag.startswith("\\")
         tag = tag[1:]
+        if tag == "_":
+            return DROP
         if tag == ".":
             return eval(readerless(form), {})
         if ".." in tag and not tag.startswith(".."):
@@ -107,7 +115,6 @@ class Parser:
             function = munge(function)
             return reduce(getattr, function.split("."), import_module(module))(form)
         raise ValueError(f"Unknown reader macro {tag}")
-
 
     def template(self, form):
         case = type(form)
@@ -136,9 +143,9 @@ class Parser:
                 yield ":_", form
 
     def qualify(self, symbol: str) -> str:
-        if ".." in symbol or symbol.startswith('.') or symbol in {'quote', 'lambda'}:
+        if ".." in symbol or symbol.startswith(".") or symbol in {"quote", "lambda"}:
             return symbol
-        if symbol in vars(self.ns.get("_macro_", lambda:())):
+        if symbol in vars(self.ns.get("_macro_", lambda: ())):
             return f"{self.qualname}.._macro_.{symbol}"
         return f"{self.qualname}..{symbol}"
 
