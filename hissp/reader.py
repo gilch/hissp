@@ -69,7 +69,7 @@ class Parser:
         self.verbose = verbose
 
     def parse(self, tokens: Iterator[Token], depth: int = 0) -> Iterator:
-        yield from (form for form in self._parse(tokens, depth) if form is not DROP)
+        return (form for form in self._parse(tokens, depth) if form is not DROP)
 
     def _parse(self, tokens: Iterator[Token], depth: int) -> Iterator:
         for k, v in tokens:
@@ -163,7 +163,7 @@ class Parser:
 
 def transpile(package: resources.Package, *modules: Union[str, PurePath]):
     for module in modules:
-        transpile_module(package, module + ".hissp")
+        transpile_module(package, module + ".lissp")
 
 
 def transpile_module(

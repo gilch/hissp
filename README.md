@@ -15,7 +15,7 @@
 * automated tests?
 * document compiler use:
 ```
-(hissp.reader..transpile "hissp" "basic.lissp")
+(hissp.reader..transpile "hissp" "basic")
 ```
 or
 ```python
