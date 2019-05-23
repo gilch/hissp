@@ -94,15 +94,15 @@ class Compiler:
         parts = head.split(MACRO, 1)
         if parts[0] == self.qualname:
             # Local qualified macro. Recursive macros might need it.
-            return self.form(vars(self.ns[MACROS])[parts[1]](*tail))
-        try:  # Local unqualified macro.
+            return f"# {head}\n" + self.form(vars(self.ns[MACROS])[parts[1]](*tail))
+        try:  # Is it a local unqualified macro?
             macro = vars(self.ns[MACROS])[head]
-        except LookupError:
+        except LookupError:  # Nope.
             pass
-        else:
-            return self.form(macro(*tail))
-        if MACRO in head:  # Qualified macro.
-            return self.form(eval(self.symbol(head))(*tail))
+        else:  # Yes.
+            return f"# {head}\n" + self.form(macro(*tail))
+        if MACRO in head:  # Qualified macro, not local.
+            return f"# {head}\n" + self.form(eval(self.symbol(head))(*tail))
         return self.call(form)
 
     def quoted(self, form) -> str:
@@ -216,7 +216,7 @@ class Compiler:
         if not body:
             return "()"
         result = self.form(body[0])
-        return "\n  " * ("\n" in result) + result
+        return ("\n" * ("\n" in result) + result).replace("\n", "\n  ")
 
     @trace
     def call(self, form: tuple) -> str:
@@ -279,10 +279,8 @@ class Compiler:
             (f"{(PAIR_WORDS.get(k, k+'='))}{self.form(v)}" for k, v in pairs(form)),
         )
         if type(head) is str and head.startswith("."):
-            return "{}.{}({})".format(next(args), head[1:], _join_args(*args)).replace(
-                "\n", "\n  "
-            )
-        return "{}({})".format(self.form(head), _join_args(*args)).replace("\n", "\n  ")
+            return "{}.{}({})".format(next(args), head[1:], _join_args(*args))
+        return "{}({})".format(self.form(head), _join_args(*args))
 
     @trace
     def symbol(self, symbol: str) -> str:
