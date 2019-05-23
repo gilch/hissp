@@ -563,6 +563,12 @@ Don't implement them with generators anymore.
 Note there are `collections.abc..Awaitable` and `collections.abc..Coroutine`
 abstract base classes too.
 
+>  How do I add a docstring to a module/class/function?
+
+Assign a string to the `__doc__` attribute of the module/class/function object.
+That means defining a global in the module,
+or a key in the dict argument to `type()` also works.
+
 ## Contributing
 There are many ways to contribute to an open-source project,
 even without writing code.
