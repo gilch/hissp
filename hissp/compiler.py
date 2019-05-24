@@ -162,12 +162,16 @@ class Compiler:
         The special keywords :* and :** designate the remainder of the
         positional and keyword parameters, respectively.
         Note this body has an implicit PROGN.
-        >>> readerless(
+        >>> print(readerless(
         ... ('lambda', (':',':*','args',':**','kwargs',),
         ...   ('print','args',),
         ...   ('print','kwargs',),),
-        ... )
-        '(lambda *args,**kwargs:(print(args),print(kwargs))[-1])'
+        ... ))
+        (lambda *args,**kwargs:(
+          print(
+            args),
+          print(
+            kwargs))[-1])
 
         You can omit the right of a pair with :_ (except the final **kwargs).
         Also note that the body can be empty.
@@ -229,32 +233,44 @@ class Compiler:
         Like Python, it has three parts.
         (<callable> <args> & <kwargs>)
         For example,
-        >>> readerless(
+        >>> print(readerless(
         ... ('print',1,2,3,':','sep',('quote',":",), 'end',('quote',"\n\n",),)
-        ... )
-        "print((1),(2),(3),sep=':',end='\\n\\n')"
+        ... ))
+        print(
+          (1),
+          (2),
+          (3),
+          sep=':',
+          end='\n\n')
 
         Either <args> or <kwargs> may be empty.
         >>> readerless(('foo',':',),)
         'foo()'
-        >>> readerless(('foo','bar',':',),)
-        'foo(bar)'
-        >>> readerless(('foo',':','bar','baz',),)
-        'foo(bar=baz)'
+        >>> print(readerless(('foo','bar',':',),))
+        foo(
+          bar)
+        >>> print(readerless(('foo',':','bar','baz',),))
+        foo(
+          bar=baz)
 
         The & is optional if the <kwargs> part is empty.
         >>> readerless(('foo',),)
         'foo()'
-        >>> readerless(('foo','bar',),)
-        'foo(bar)'
+        >>> print(readerless(('foo','bar',),),)
+        foo(
+          bar)
 
         The <kwargs> part has implicit pairs; there must be an even number.
 
         Use the special keywords * and ** for iterable and mapping unpacking
-        >>> readerless(
+        >>> print(readerless(
         ... ('print',':',':*',[1,2], 'a',3, ':*',[4], ':**',{'sep':':','end':'\n\n'},),
-        ... )
-        "print(*([1, 2]),a=(3),*([4]),**({'sep': ':', 'end': '\\n\\n'}))"
+        ... ))
+        print(
+          *[1, 2],
+          a=(3),
+          *[4],
+          **{'sep': ':', 'end': '\n\n'})
 
         Unlike other keywords, these can be repeated, but a '*' is not
         allowed to follow '**', as in Python.
@@ -268,7 +284,7 @@ class Compiler:
         >>> eval(_)
         -1j
         >>> readerless(('.decode', b'\xfffoo', ':', 'errors',('quote','ignore',),),)
-        "b'\\xfffoo'.decode(errors='ignore')"
+        "b'\\xfffoo'.decode(\n  errors='ignore')"
         >>> eval(_)
         'foo'
         """
