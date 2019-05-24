@@ -1,44 +1,40 @@
-(rough draft)
-
-# TODOs before public release?
-* reader macros
-  * implement customizable reader macros
-  * `\.` eval at read time
-  * `\_` drop form
-  * ``` ` ``` template quote
-  * `,` unquote
-  * `,@` splice
-  * `\#` gensym
-* set up Sphinx docs/tests.
-  * can we doctest using the Hissp REPL?
-* setup.py for PyPI
-* automated tests?
-* document compiler use:
-```
-(hissp.reader..transpile "hissp" "basic")
-```
-or
-```python
-from hissp.reader import transpile
-
-transpile(__package__, "spam", "eggs")
-```
-Consider putting the above in `__init__.py` to auto-compile
-each hissp module in the package on package import during development.
-You can disable it again on release, if desired,
-but this gives you fine-grained control over what gets compiled when.
-Note that you usually would want to recompile the whole project
-rather than only the changed files like Python does,
-because macros run at compile time.
-Changing a macro normally doesn't affect the code that uses it until it is recompiled.
-
 # Hissp
 
 It's Python with a *Lissp*.
 
 Hissp is a Lisp that compiles to a functional subset of Python.
 
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
+
+- [Hissp](#hissp)
+    - [Table of Contents](#table-of-contents)
+    - [Philosophy and Goals](#philosophy-and-goals)
+        - [Minimalism](#minimalism)
+        - [Interoperability](#interoperability)
+        - [Useful error messages](#useful-error-messages)
+        - [Syntax compatible with Emacs' `lisp-mode` and Parlinter](#syntax-compatible-with-emacs-lisp-mode-and-parlinter)
+        - [Standalone output](#standalone-output)
+        - [REPL](#repl)
+        - [Same-module macro helpers](#same-module-macro-helpers)
+        - [Modularity](#modularity)
+    - [Show me some Code!](#show-me-some-code)
+        - [The obligatory Hello, World!](#the-obligatory-hello-world)
+        - [Calls. Hissp is literally all calls.](#calls-hissp-is-literally-all-calls)
+            - [Literals and the Reader](#literals-and-the-reader)
+            - [Calls and the compiler](#calls-and-the-compiler)
+    - [FAQ (Frequently Anticipated Questions)](#faq-frequently-anticipated-questions)
+    - [Contributing](#contributing)
+        - [Patches](#patches)
+        - [Conduct](#conduct)
+            - [good faith](#good-faith)
+            - [professional detachment](#professional-detachment)
+            - [disputes](#disputes)
+
+<!-- markdown-toc end -->
+
 ## Philosophy and Goals
+
 #### Radical Extensibility
 Python is already a really nice language, so why do we need Hissp?
 
@@ -61,18 +57,20 @@ Even `eval()` sees use in the standard library.
 It's easy enough to understand,
 but may be even harder to get right.
 
-Hissp makes metaprogramming much easier.
+Hissp's primary goal is to makes metaprogramming much easier.
 Hissp code is made of specially formatted tuples:
 a simplified kind of AST that is easier to manipulate,
 but still more reliable than text manipulation.
 Hissp code is just another kind of data.
 
-#### Minimalism
-Be as simple as possible, but no simpler.
-Hissp includes what it needs to achieve its goals, but no more.
-There are only two special forms: quote and lambda.
+#### Minimal implementation
+Be as small as reasonably possible, but no smaller.
+We're not code golfing here; readability still counts.
+But this project has *limited scope*:
+The Hissp compiler includes what it needs to achieve its goals,
+but no more. Bloat is not allowed.
 
-Hissp compiles to a *functional subset* of Python.
+Hissp compiles to an upythonic *functional subset* of Python.
 This subset has a direct and easy-to-understand correspondence to the Hissp code,
 which makes it straightforward to debug, once you understand Hissp.
 But it is definitely not meant to be idiomatic Python.
@@ -106,7 +104,6 @@ A language is not very usable without tools.
 Hissp's basic reader should work with Emacs.
 
 #### Standalone output
-Batteries not included because Python already has them.
 One can, of course, write Hissp code that depends on any Python library.
 But the compiler does not depend on embedding calls out to any special
 Hissp helper functions to work.
@@ -137,7 +134,14 @@ The Hissp language is made of tuples, not text.
 The basic reader included with the project just implements convenient way to write them.
 It's possible to write Hissp in "readerless mode" by writing the tuples in Python.
 
-It's also possible for an external project to provide an alternative
+Batteries are not included because Python already has them.
+Hissp's standard library is Python's.
+There are only two special forms: quote and lambda.
+Hissp does include a few basic macros and reader macros,
+just enough to write native unit tests,
+but you are not obligated to use them when writing Hissp.
+
+It's possible for an external project to provide an alternative
 reader with different syntax, as long as the output is Hissp tuples.
 
 Because Hissp produces standalone output, it's not locked into any one Lisp paradigm.
@@ -145,8 +149,9 @@ It could work with a Clojure-like, Scheme-like, or Common-Lisp-like
 reader, function, and macro libraries.
 
 It is a goal of the project to support a more Clojure-like reader and
-function/macro library.
-But this will be an external project in another repository.
+a complete function/macro library.
+But while this informs the design of the compiler,
+it will be an external project in another repository.
 
 ## Show me some Code!
 Or, the Hissp tutorial.
@@ -172,12 +177,22 @@ This will all be explained in more detail later on.
 $ python -m hissp
 ## (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
 
->>>  __import__('builtins').print((1),(2j),(3.0),[(4),'5',(6)],sep=':')
+>>>  __import__('builtins').print(
+...   (1),
+...   (2j),
+...   (3.0),
+...   [4, '5', 6],
+...   sep=':')
 1:2j:3.0:[4, '5', 6]
 
 ## (hissp.basic.._macro_.define tuple* (lambda (: :* xs) xs))
 
->>>  __import__('operator').setitem(__import__('builtins').globals(),'tuplexSTAR_',(lambda *xs:xs))
+>>>  # hissp.basic.._macro_.define
+... __import__('operator').setitem(
+...   __import__('builtins').globals(),
+...   'tuplexSTAR_',
+...   (lambda *xs:xs))
+
 ```
 
 ### Calls. Hissp is literally all calls.
@@ -194,9 +209,12 @@ This is called "readerless mode".
 It's also possible to use alternative readers with alternate syntax,
 but it must represent the same underlying tuples to be Hissp.
 
-Using the basic reader, any valid Python literal is a valid Hissp literal,
-provided it does not contain `"`, `(`, `)`, or spaces,
-because then it would be read as multiple items.
+Using the basic reader,
+any valid Python literal (as defined by `ast..literal_eval`)
+is a valid Hissp literal,
+provided it does not contain `"`, `(`, `)`, or spaces
+(because then it would be read as multiple items) 
+or start with a `'`.
 
 In addition to the Python literals,
 the basic reader has symbol literals, string literals,
@@ -240,7 +258,12 @@ Note the lack of commas between arguments.
 $ python -m hissp
 ## (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
 
->>>  __import__('builtins').print((1),(2j),(3.0),[(4),'5',(6)],sep=':')
+>>>  __import__('builtins').print(
+...   (1),
+...   (2j),
+...   (3.0),
+...   [4, '5', 6],
+...   sep=':')
 1:2j:3.0:[4, '5', 6]
 ```
 This is the basic Hissp REPL.
@@ -250,9 +273,13 @@ That `[4,'5',6]` is read as a single literal. Note the lack of spaces.
 The double-quoted string literal is an exception. It may have spaces.
 And unlike Python, it is allowed to contain literal newlines.
 
-The `builtins..print` is an example of a *qualified symbol*.
+The `builtins..print` is an example of a *qualified symbol*,
+which is a kind of implicit import.
 These are of the form `<package>..<item>`, and are important to make
 macros work properly across modules.
+You don't have to qualify builtins normally, but in a macroexpansion,
+this allows the macro to work even if the builtin name has been
+shadowed by a local variable in that context.
 Note that package names may contain dots, as in Python.
 
 The `:` separates the single arguments from the paired arguments,
@@ -329,7 +356,7 @@ Like special forms, macro calls do not have to evaluate their arguments.
 Macros are simply functions that take Hissp code, and return Hissp code.
 When an unqualified symbol is in the function position of a tuple about
 to be evaluated, the compiler checks if the module's `_macro_` namespace
-has that symbol. If it does it is called at compile time as a macro and
+has that symbol. If it does, it is called at compile time as a macro and
 the result is inserted into the code in its place.
 
 Qualified symbols can also be macros if looked up directly from their module's `_macro_`.
@@ -378,6 +405,13 @@ Yes, `+` is a valid symbol. It gets munged to `xPLUS_`.
 The result is all of the operators you might want,
 using the same prefix notation used by all the calls.
 
+> How do I start the REPL again?
+
+Launch the Hissp package using Python from the command line
+```
+$ python -m hissp
+```
+
 > There are no statements?! How can you get anything done?
 
 There are expression statements only (each top-level form). That's plenty.
@@ -394,6 +428,11 @@ Look at their expansions and you'll see they don't use assignment statements eit
 Invoke the macro indirectly so the compiler sees it as a normal function.
 `((getattr hissp.basic.._macro_ "define") 'foo '"bar")`
 One could, of course, write a function or macro to automate this.
+
+But you can just look at the compiled output.
+It's indented, so it's not that hard to read.
+The compiler also helpfully includes a comment in the compiled output
+whenever it expands a macro.
 
 > There's no `for`? What about loops?
 
@@ -417,7 +456,7 @@ because a true value acts like `break` in `any()`.
 Obviously, you can use this to your advantage if you *want* a break.
 Also see `itertools`, `iter`.
 
-> There's no if statement. Branching is fundamental!
+> There's no `if` statement. Branching is fundamental!
 
 No it's not. You already learned how to for loop above.
 Isn't looping zero or one times like skipping a branch or not?
@@ -442,7 +481,8 @@ is the special form and which is the macro.
 > Does Hissp have tail-call optimization?
 
 No, because Python doesn't.
-If a Python implementation gets it, Hissp will too.
+If a Python implementation gets it, Hissp will too,
+when run on that implementation.
 But you can increase the recursion limit with `sys..setrecursionlimit`.
 Better not increase it too much if you don't like segfaults, but
 you can trampoline instead. See Drython's `loop()` function. Or use it.
@@ -467,10 +507,11 @@ Use `type()`. (Or whatever metaclass.)
 
 No, seriously, you have to give it all three arguments. Look it up.
 
-> How do I use a decorator?
+> Well now I need a dict!
 
-You apply it to the function (or class)--call it with the function as its argument.
-Decorators are just higher-order functions.
+Use `dict()`. Obviously.
+You don't even need to make pairs if the keys are identifiers.
+Just use kwargs.
 
 > How do I raise exceptions?
 
@@ -498,6 +539,11 @@ Or `contextlib..suppress`.
 
 Use `contextlib..ContextDecorator`
 as a mixin and any context manager works as a decorator.
+
+> How do I use a decorator?
+
+You apply it to the function (or class)--call it with the function as its argument.
+Decorators are just higher-order functions.
 
 > Any context manager? But you don't get the return value of `__enter__()`!
 And what if it's not re-entrant?
@@ -563,11 +609,31 @@ Don't implement them with generators anymore.
 Note there are `collections.abc..Awaitable` and `collections.abc..Coroutine`
 abstract base classes too.
 
->  How do I add a docstring to a module/class/function?
+> How do I add a docstring to a module/class/function?
 
 Assign a string to the `__doc__` attribute of the module/class/function object.
 That means defining a global in the module,
 or a key in the dict argument to `type()` also works.
+
+> The REPL is nice and all, but how do I compile a module?
+
+```
+(hissp.reader..transpile "hissp" "basic")
+```
+or
+```python
+from hissp.reader import transpile
+
+transpile(__package__, "spam", "eggs")
+```
+Consider putting the above in `__init__.py` to auto-compile
+each Hissp module in the package on package import during development.
+You can disable it again on release, if desired,
+but this gives you fine-grained control over what gets compiled when.
+Note that you usually would want to recompile the whole project
+rather than only the changed files like Python does,
+because macros run at compile time.
+Changing a macro normally doesn't affect the code that uses it until it is recompiled.
 
 ## Contributing
 There are many ways to contribute to an open-source project,
