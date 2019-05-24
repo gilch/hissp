@@ -4,6 +4,7 @@
 import ast
 import os
 import re
+from contextlib import contextmanager, nullcontext
 from functools import reduce
 from importlib import import_module, resources
 from itertools import chain
@@ -61,12 +62,18 @@ class _Unquote(tuple):
         return f"_Unquote{super().__repr__()}"
 
 
+def gensym_counter(count=[0]):
+    count[0] += 1
+    return count[0]
+
+
 class Parser:
     def __init__(self, qualname="_repl", ns=None, verbose=False, evaluate=False):
         self.qualname = qualname
         self.ns = ns or {"__name__": "<compiler>"}
         self.compiler = Compiler(self.qualname, self.ns, evaluate)
         self.verbose = verbose
+        self.gensym_stack = []
 
     def parse(self, tokens: Iterator[Token], depth: int = 0) -> Iterator:
         return (form for form in self._parse(tokens, depth) if form is not DROP)
@@ -82,8 +89,9 @@ class Parser:
             elif k in {"comment", "whitespace"}:
                 continue
             elif k == "macro":
-                form = next(self.parse(tokens))
-                yield self.parse_macro(v, form)
+                with self.gensym_context() if v == "`" else nullcontext():
+                    form = next(self.parse(tokens))
+                    yield self.parse_macro(v, form)
             elif k == "symbol":
                 try:
                     yield ast.literal_eval(v)
@@ -108,6 +116,8 @@ class Parser:
         tag = tag[1:]
         if tag == "_":
             return DROP
+        if tag == "#":
+            return self.gensym(form)
         if tag == ".":
             return eval(readerless(form), {})
         if ".." in tag and not tag.startswith(".."):
@@ -143,7 +153,7 @@ class Parser:
                 yield ":_", form
 
     def qualify(self, symbol: str) -> str:
-        if ".." in symbol or symbol.startswith(".") or symbol in {"quote", "lambda"}:
+        if re.search(r"\.\.|^\.|^quote$|^lambda$|xAUTO\d+_$", symbol):
             return symbol
         if symbol in vars(self.ns.get("_macro_", lambda: ())):
             return f"{self.qualname}.._macro_.{symbol}"
@@ -159,6 +169,21 @@ class Parser:
     def compile(self, code: str) -> str:
         hissp = self.reads(code)
         return self.compiler.compile(hissp)
+
+    def gensym(self, form: str):
+        try:
+            count = self.gensym_stack[-1]
+        except LookupError:
+            count = gensym_counter()
+        return f"_{munge(form)}xAUTO{count}_"
+
+    @contextmanager
+    def gensym_context(self):
+        self.gensym_stack.append(gensym_counter())
+        try:
+            yield
+        finally:
+            self.gensym_stack.pop()
 
 
 def transpile(package: resources.Package, *modules: Union[str, PurePath]):
@@ -181,5 +206,5 @@ def transpile_module(
             resource = resource.stem
         qualname = f"{package}.{resource.split('.')[0]}"
         with open(out, "w") as f:
-            print('writing to', out)
+            print("writing to", out)
             f.write(Parser(qualname, evaluate=True).compile(code))
