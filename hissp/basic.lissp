@@ -1,0 +1,51 @@
+;; Copyright 2019 Matthew Egan Odendahl
+;; SPDX-License-Identifier: Apache-2.0
+
+;; bootstrap macro namespace using builtins
+(operator..setitem (globals) '_macro_ (types..SimpleNamespace))
+
+;; define require-as macro
+(setattr _macro_ 'require-as
+         (lambda (macro name)
+           `(builtins..setattr
+             (.setdefault (builtins..globals)
+                          ','_macro_
+                          (types..SimpleNamespace))
+             (quote ,name)
+             ,macro)))
+
+;; create defmacro
+(require-as (lambda (name args : :* body)
+              `(hissp.basic.._macro_.require-as
+                (lambda ,args ,@body)
+                ,name))
+            defmacro)
+
+(defmacro define (name value)
+  `(operator..setitem (builtins..globals)
+                      ',name
+                      ,value))
+
+(defmacro if-else (b then otherwise)
+  `((lambda (,'b : :* ,'then-else)
+      ((operator..getitem ,'then-else (operator..not_ ,'b))))
+    ,b
+    (lambda () ,then)
+    (lambda () ,otherwise)))
+
+
+(defmacro progn (: :* body)
+  `((lambda ()
+      ,@body)))
+
+(defmacro let (pairs : :* body)
+  `((lambda (: ,@pairs)
+      ,@body)))
+
+(defmacro from-require (package : :* macros)
+  `(progn ,@(map (lambda (macro)
+                   `(require-as ,(.join '.._macro_. `(,package ,macro)) ,macro))
+                 macros)))
+
+
+;; Cond?
