@@ -27,7 +27,7 @@ TOKENS = re.compile(
 |(?P<macro>
    ,@
   |['`,]
-  |\\[^ \n"()\\]*(?=[\n ("\\]))
+  |[^ \n"()\\]*\\)
 |(?P<symbol>[^ \n"()\\]+)
 """
 )
@@ -113,8 +113,8 @@ class Parser:
         if tag == ",@":
             return _Unquote([":*", form])
 
-        assert tag.startswith("\\")
-        tag = tag[1:]
+        assert tag.endswith("\\")
+        tag = tag[:-1]
         if tag == "_":
             return DROP
         if tag == "#":
