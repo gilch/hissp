@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ast
+import builtins
 import os
 import re
 from contextlib import contextmanager, nullcontext
@@ -153,6 +154,8 @@ class Parser:
                 yield ":_", form
 
     def qualify(self, symbol: str) -> str:
+        if symbol in {e for e in dir(builtins) if not e.startswith("_")}:
+            return f"builtins..{symbol}"
         if re.search(r"\.\.|^\.|^quote$|^lambda$|xAUTO\d+_$", symbol):
             return symbol
         if symbol in vars(self.ns.get("_macro_", lambda: ())):
