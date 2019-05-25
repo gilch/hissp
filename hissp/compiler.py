@@ -146,7 +146,7 @@ class Compiler:
         (lambda (<parameters>)
           <body>)
 
-        The parameters tuple is divided into (<single> & <paired>)
+        The parameters tuple is divided into (<single> : <paired>)
 
         Parameter types are the same as Python's.
         For example,
@@ -228,10 +228,10 @@ class Compiler:
         Call form.
 
         Any tuple that is not quoted, empty, or a special form or macro is
-        a call.
+        a runtime call.
 
         Like Python, it has three parts.
-        (<callable> <args> & <kwargs>)
+        (<callable> <args> : <kwargs>)
         For example,
         >>> print(readerless(
         ... ('print',1,2,3,':','sep',('quote',":",), 'end',('quote',"\n\n",),)
@@ -253,7 +253,7 @@ class Compiler:
         foo(
           bar=baz)
 
-        The & is optional if the <kwargs> part is empty.
+        The : is optional if the <kwargs> part is empty.
         >>> readerless(('foo',),)
         'foo()'
         >>> print(readerless(('foo','bar',),),)
@@ -262,7 +262,7 @@ class Compiler:
 
         The <kwargs> part has implicit pairs; there must be an even number.
 
-        Use the special keywords * and ** for iterable and mapping unpacking
+        Use the special keywords :* and :** for iterable and mapping unpacking.
         >>> print(readerless(
         ... ('print',':',':*',[1,2], 'a',3, ':*',[4], ':**',{'sep':':','end':'\n\n'},),
         ... ))
