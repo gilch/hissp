@@ -1,0 +1,5 @@
+[run]
+source=.
+omit=
+  ".hypothesis"
+branch=True
