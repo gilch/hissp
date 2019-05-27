@@ -433,16 +433,16 @@ Like calls, the `:` separates the single from the paired (if any).
 After the parameters tuple, the rest of the arguments are the function body.
 
 ```python
-#> (lambda (a b
-#..         : e 1  f 2
-#..         :* args  h 4  i :  j 1
+#> (lambda (a b  ; single/positional
+#..         : e 1  f 2  ; paired/kwargs
+#..         :* args  h 4  i :_  j 1  ; *args and kwonly
 #..         :** kwargs)
 #.. 42)
 
 >>> (lambda a,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
 <function <lambda> at ...>
 
-#> (lambda (: :* :_  x :_))
+#> (lambda (: :* :_  x :_))  ; Only kwonly. Empty body returns ().
 
 >>> (lambda *,x:())
 <function <lambda> at ...>
