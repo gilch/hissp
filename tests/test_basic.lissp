@@ -11,7 +11,7 @@
     (type 'TestBasic `(,unittest..TestCase)
           (dict :
                 test_basic (lambda (self)
-                              (.fail self)))))
+                             (.fail self)))))
 
 
 (define test2

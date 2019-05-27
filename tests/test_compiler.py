@@ -57,4 +57,3 @@ class TestCompileGeneral(TestCase):
         match = re.fullmatch("x(.*?)_", x)
         if match:
             self.assertEqual(char, munger.un_x_quote(match))
-
