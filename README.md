@@ -820,6 +820,16 @@ Some tips:
 Make a function that accepts the syntax you want as its parameter and
 returns its transformation as Hissp code.
 
+> Why the weird prompts at the REPL?
+
+The REPL is designed so that you can copy/paste it into doctests
+or Jupyter notebook cells running an IPython kernel and it should just work.
+IPython will ignore the Hissp because its `#>`/`#..`
+prompts makes it look like a Python comment,
+and it's already set up to ignore the initial `>>> `/`...`.
+But doctest expects these,
+because that's what the Python shell looks like.
+
 ## Contributing
 There are many ways to contribute to an open-source project,
 even without writing code.
