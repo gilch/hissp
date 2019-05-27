@@ -60,6 +60,8 @@ class Compiler:
         try:
             eval(compile(form, "<Hissp>", "eval"), self.ns)
         except Exception as e:
+            print('Exception when evaluating form:')
+            print(form)
             raise CompileError(f"\n{form!r}") from e
 
     def form(self, form) -> str:
