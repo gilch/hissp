@@ -1,8 +1,14 @@
+<!--
+Copyright 2019 Matthew Egan Odendahl
+SPDX-License-Identifier: Apache-2.0
+-->
 # Hissp
 
 It's Python with a *Lissp*.
 
 Hissp is a Lisp that compiles to a functional subset of Python.
+It's the Python you know and love, with a powerful, streamlined skin.
+
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
@@ -40,35 +46,40 @@ Python is already a really nice language, so why do we need Hissp?
 
 The answer is *metaprogramming*: code that writes code.
 When you can shape the language itself to fit your problem domain,
-the inexpressible becomes ordinary.
+the incomprehensible becomes obvious.
+
+Python really is a great language to work with.
+"Executable pseudocode" is not far off.
+But it is too complex to be good at metaprogramming.
+The use of `exec()` is frowned upon.
+It's easy enough to understand, but hard to get right.
+Python Abstract Syntax Tree (AST)
+manipulation is a somewhat more reliable technique,
+but not for the faint of heart.
+Python AST is not simple, because Python isn't.
+
+Hissp is a streamlined skin on Python:
+a simplified AST that you can program in directly.
+Hissp code is made of specially formatted tuples:
+easier to manipulate than Python AST,
+but still more reliable than text manipulation.
+In Hissp, code is just another kind of data.
 
 Lisp is a programmable programming language,
-extensible though its renowned macro system which hooks into the compiler itself.
+extensible though its renowned macro system
+which hooks into the compiler itself.
+Macros are Lisp's secret weapon.
+And Hissp brings this power to Python.
 
 Adding features that historically required a new version of the Python language,
 like `with` statements, would be almost as easy as writing a new function in Lisp.
 
-Python can certainly do metaprogramming.
-But it's more difficult than necessary.
-Python AST manipulation is certainly a powerful technique,
-but not for the faint of heart.
-Python AST is not simple, because Python isn't.
-Even `eval()` sees use in the standard library.
-It's easy enough to understand,
-but may be even harder to get right.
-
-Hissp's primary goal is to make metaprogramming much easier.
-Hissp code is made of specially formatted tuples:
-a simplified kind of AST that is easier to manipulate,
-but still more reliable than text manipulation.
-Hissp code is just another kind of data.
-
 #### Minimal implementation
-Be as small as reasonably possible, but no smaller.
-We're not code golfing here; readability still counts.
-But this project has *limited scope*:
 The Hissp compiler includes what it needs to achieve its goals,
 but no more. Bloat is not allowed.
+A goal of Hissp is to be as small as reasonably possible, but no smaller.
+We're not code golfing here; readability still counts.
+But this project has *limited scope*.
 
 Hissp compiles to an upythonic *functional subset* of Python.
 This subset has a direct and easy-to-understand correspondence to the Hissp code,
@@ -78,8 +89,7 @@ That would require a much more complex compiler,
 because idiomatic Python is not simple.
 
 #### Interoperability
-OK, but there are lots of other Lisps.
-Why not use one of them? Why base one on Python?
+Why base a Lisp on Python when there are already lots of other Lisps?
 
 Python has a rich selection of libraries for a variety of domains
 and Hissp can use most of them as easily as the standard library.
@@ -87,12 +97,18 @@ This gives Hissp a massive advantage over other Lisps with less selection.
 If you don't care to work with the Python ecosystem,
 perhaps Hissp is not the Lisp for you.
 
-Note that Hissp is written in Python 3.7.
+Note that the Hissp compiler is written in Python 3.7.
 (Supporting older versions is not a goal,
 because that would complicate the compiler.
 This may limit the available libraries.)
+But because the compiler's target functional subset is so small,
+the compiled output should still run fine on Python 3.5,
+provided you aren't using any newer library features.
+Running on even older versions (even Python 2)
+may be possible if you avoid using certain newer Python language features.
+(Keyword-only arguments, for example.)
 
-Python can also use packages written in Hissp,
+Python code can also import and use packages written in Hissp,
 because they compile to Python.
 
 #### Useful error messages
@@ -113,13 +129,15 @@ only Python itself.
 Hissp includes some very basic Lisp macros to get you started.
 Their expansions have no external requirements either.
 
+Libraries built on Hissp need not have this limitation.
+
 #### REPL
 A Lisp tradition, and Hissp is no exception.
 Even though it's a compiled language,
 Hissp has an interactive shell like Python does.
 The REPL displays the compiled Python and evaluates it.
 Printed values use the normal Python reprs.
-(Translating those to Hissp is not a goal.)
+(Translating those to Hissp is not a goal. Hissp is still Python.)
 
 #### Same-module macro helpers
 Not all Lisps support this, but Clojure is a notable exception.
@@ -130,9 +148,9 @@ But such a macro should work in the same module.
 This requires incremental compilation and evaluation of forms, like the REPL.
 
 #### Modularity
-The Hissp language is made of tuples, not text.
+The Hissp language is made of tuples (and values), not text.
 The basic reader included with the project just implements convenient way to write them.
-It's possible to write Hissp in "readerless mode" by writing the tuples in Python.
+It's possible to write Hissp in "readerless mode" by writing these tuples in Python.
 
 Batteries are not included because Python already has them.
 Hissp's standard library is Python's.
@@ -142,10 +160,10 @@ just enough to write native unit tests,
 but you are not obligated to use them when writing Hissp.
 
 It's possible for an external project to provide an alternative
-reader with different syntax, as long as the output is Hissp tuples.
+reader with different syntax, as long as the output is Hissp code (tuples).
 
 Because Hissp produces standalone output, it's not locked into any one Lisp paradigm.
-It could work with a Clojure-like, Scheme-like, or Common-Lisp-like
+It could work with a Clojure-like, Scheme-like, or Common-Lisp-like, etc.,
 reader, function, and macro libraries.
 
 It is a goal of the project to support a more Clojure-like reader and
@@ -203,9 +221,9 @@ Hissp has only two types of expressions or forms: literals, and calls.
 #### Literals and the Reader
 Literals are handled at the reader level.
 
-Hissp code is made of tuples, not text.
+Hissp code is made of tuples (and values), not text.
 "The reader" refer's to Hissp's basic parser.
-It's the reader's job to translate the `.lissp` code files into Hissp tuples.
+It's the reader's job to translate the `.lissp` code files into Hissp code.
 One could skip the reader altogether and write the tuples in Python directly.
 This is called "readerless mode".
 It's also possible to use alternative readers with alternate syntax,
@@ -254,6 +272,7 @@ For example,
 ...     b'\x80\x03G\x7f\xf0\x00\x00\x00\x00\x00\x00.'
 ... )
 inf
+
 ```
 This inserts an actual `inf` object at read time into the Hissp code.
 Since this isn't a valid literal, it has to compile to a pickle.
@@ -277,6 +296,7 @@ If you need more than one argument for a reader macro, use the built in
 ...     b'\x80\x03cfractions\nFraction\nX\x03\x00\x00\x001/2\x85R.'
 ... )
 Fraction(1, 2)
+
 ```
 
 The `_\ ` macro omits the next form.
@@ -304,6 +324,36 @@ gensym.
 ...   '_hissxAUTO3_',
 ...   '_hissxAUTO3_')
 ('_hissxAUTO3_', '_hissxAUTO3_')
+
+```
+
+In readerless mode, these reader macros correspond to functions used to
+make the Hissp itself.
+For example, one could make a quoting "readerless macro" like this
+
+```python
+>>> def q(form):
+...     return 'quote', form
+>>> from hissp.compiler import readerless
+>>> readerless(
+...     ('print', q('hi'),),
+... )
+"print(\n  'hi')"
+>>> print(_)
+print(
+  'hi')
+>>> eval(_)
+hi
+
+```
+Which is equivalent to
+```python
+#> (print 'hi)
+#..
+>>> print(
+...   'hi')
+hi
+
 ```
 
 #### Calls and the compiler
@@ -323,6 +373,7 @@ $ python -m hissp
 ...   [4, '5', 6],
 ...   sep=':')
 1:2j:3.0:[4, '5', 6]
+
 ```
 This is the basic Hissp REPL.
 It shows the Python compilation and its result.
@@ -355,6 +406,7 @@ The first special form is `quote`. It returns its argument unevaluated.
 
 >>> 'builtins..print'
 'builtins..print'
+
 ```
 The distinction between symbols and strings only applies to the reader.
 Hissp has no separate symbol type.
@@ -366,6 +418,7 @@ Here's the earlier example quoted.
 
 >>> ('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':'))
 ('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':'))
+
 ```
 This reveals how to write the example in readerless mode.
 Many literal types simply evaluate to themselves and so are unaffected by quoting.
@@ -387,12 +440,12 @@ After the parameters tuple, the rest of the arguments are the function body.
 #.. 42)
 
 >>> (lambda a,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
-<function <lambda> at 0x0000019D826B38C8>
+<function <lambda> at ...>
 
 #> (lambda (: :* :_  x :_))
 
 >>> (lambda *,x:())
-<function <lambda> at 0x0000019D8269FD08>
+<function <lambda> at ...>
 
 #> (lambda (a b c)
 #.. (print a)
@@ -405,7 +458,8 @@ After the parameters tuple, the rest of the arguments are the function body.
 ...   print(
 ...     b),
 ...   c)[-1])
-<function <lambda> at 0x000001CF441552F0>
+<function <lambda> at ...>
+
 ```
 
 Normal call forms evaluate their arguments before calling the function,
@@ -483,11 +537,15 @@ There are expression statements only (each top-level form). That's plenty.
 > But there's no assignment statement!
 
 That's not a question.
+
+For any complaint of the form "Hissp doesn't have feature X",
+the answer is usually "Write a macro to implement X."
+
 Use the `hissp.basic.._macro_.define` and `hissp.basic.._macro_.let` macros for globals
 and locals, respectively.
 Look at their expansions and you'll see they don't use assignment statements either.
 
-> But there's no `macroexpand`.
+> But there's no `macroexpand`. How do I look at expansions?
 
 Invoke the macro indirectly so the compiler sees it as a normal function.
 `((getattr hissp.basic.._macro_ "define") 'foo '"bar")`
@@ -506,6 +564,11 @@ Replace `list()` with `set()` for set comps. Dict comps are a little trickier.
 Use `dict()` on an iterable of pairs. `zip()` is an easy way to make them,
 or just have the map's lambda return pairs.
 
+> This is so much harder than comprehensions!
+
+Not really. But you can always write a macro if you want different syntax.
+You can pretty easily implement comprehensions this way.
+
 > That's comprehensions, but what about `for` statements?
 You don't really think I should build a list just to throw it away?
 
@@ -517,8 +580,9 @@ Use `any()` for side-effects to avoid building a list.
 Usually, you'd combine with `map()`, just like the comprehensions.
 Make sure the lambda returns `None`s (or something false),
 because a true value acts like `break` in `any()`.
-Obviously, you can use this to your advantage if you *want* a break.
-Also see `itertools`, `iter`.
+Obviously, you can use this to your advantage if you *want* a break,
+which seems to happen pretty often when writing loops.
+See also `itertools`, `iter`.
 
 > There's no `if` statement. Branching is fundamental!
 
@@ -701,6 +765,61 @@ rather than only the changed files like Python does,
 because macros run at compile time.
 Changing a macro normally doesn't affect the code that uses it until it is recompiled.
 
+> How do I import things?
+
+Just use a qualified symbol. You don't need imports.
+
+> But it's in a deeply nested package with a long name. It's tedious!
+
+So assign it to a global.
+Just don't do this in the macroexpansions where it might end up in another module.
+
+> But I need the module object itself!
+The package `__init__.py` doesn't import it or it's not in a package.
+
+Use `importlib..import_module`.
+```python
+#> (importlib..import_module 'collections.abc)
+#..
+>>> __import__('importlib').import_module(
+...   'collections.abc')
+<module 'collections.abc' from ...>
+
+```
+
+> How do I import a macro?
+
+The same way you import anything else.
+Put it in the `_macro_`
+namespace if you want it to be an active module-local macro.
+The compiler doesn't care how it gets there, but
+there's a nice `hissp.basic.._macro_.from-require`
+macro if you want to use that.
+
+> How do I write a macro?
+
+Make a function that accepts the syntax you want as parameters and
+returns its transformation as Hissp code
+(the template reader syntax makes this easy).
+Put it in the `_macro_` namespace.
+There's a nice `hissp.basic.._macro_.defmacro` to do this for you.
+It will even create the namespace if it doesn't exist yet.
+
+Some tips:
+* Hissp macros are very similar to Clojure or Common Lisp macros.
+  * Tutorals on writing macros in these languages are mostly applicable to Hissp.
+* Output qualified symbols so it works in other modules.
+  * The template reader syntax does this for you automatically.
+  * You have to do this yourself in readerless mode.
+  * You can interpolate an unqualified symbol into a template by unquoting it,
+    same as any other value.
+* Use gensyms (`#\spam`) to avoid accidental capture of identifiers.
+
+> How do I write a reader macro?
+
+Make a function that accepts the syntax you want as its parameter and
+returns its transformation as Hissp code.
+
 ## Contributing
 There are many ways to contribute to an open-source project,
 even without writing code.
@@ -718,6 +837,10 @@ structure, or compatibility will also be considered.
 PRs must be aligned with the philosophy and goals of the project to be
 considered for inclusion.
 
+PRs do not have to be *perfect* to be submitted,
+but must be perfect enough to pass peer review before they are merged in.
+Small, focused changes are more likely to be reviewed.
+
 Changes to the source code must be properly formatted and have full test
 coverage before the PR can be accepted.
 Manual tests may suffice for configuration files.
@@ -733,13 +856,19 @@ It must also pass Parlinter.
 Documentation is expected to have correct (American English) spelling
 and grammar. All Doctests must pass.
 
+You can use pytest to run unittests and doctests at the same time.
+Make sure you install the dev requirements first.
+Hissp has no dependencies, but its test suite does.
+```
+$ pip install -r requirements-dev.txt
+```
+```
+$ pytest --doctest-modules --cov=hissp --doctest-glob README.md .
+```
+
 We merge to master without squashing.
 Commits must be small enough to be reviewable.
 We don't accept PRs on faith.
-
-PRs do not have to be *perfect* to be submitted,
-but must be perfect enough to pass peer review before they are merged in.
-Small, focused changes are more likely to be reviewed.
 
 Note section 5 of the LICENSE.
 You must have the legal rights to the patch to submit them under those terms:
