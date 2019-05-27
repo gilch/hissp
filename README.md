@@ -175,6 +175,8 @@ but don't worry if you don't understand it all yet.
 This will all be explained in more detail later on.
 ```
 $ python -m hissp
+```
+```python
 #> (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
 
 >>> __import__('builtins').print(
@@ -246,7 +248,7 @@ The function named by the symbol is invoked on the form,
 and the reader inserts the resulting object into the output code.
 
 For example,
-```
+```python
 #> builtins..float\inf
 >>> __import__('pickle').loads(  # inf
 ...     b'\x80\x03G\x7f\xf0\x00\x00\x00\x00\x00\x00.'
@@ -268,7 +270,7 @@ There are currently three of them: `.\ `, `_\ `, and `#\ `.
 
 If you need more than one argument for a reader macro, use the built in
 `.\ ` macro, which evaluates a form at read time. For example,
-```
+```python
 #> .\(fractions..Fraction 1 2)
 
 >>> __import__('pickle').loads(  # Fraction(1, 2)
@@ -310,6 +312,8 @@ Here's a little more Hissp-specific example.
 Note the lack of commas between arguments.
 ```
 $ python -m hissp
+```
+```python
 #> (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
 
 >>> __import__('builtins').print(
@@ -346,7 +350,7 @@ These are calls that are built into the compiler.
 Unlike a normal function call, special forms are evaluated at compile time.
 
 The first special form is `quote`. It returns its argument unevaluated.
-```
+```python
 #> (quote builtins..print)
 
 >>> 'builtins..print'
@@ -357,7 +361,7 @@ Hissp has no separate symbol type.
 A quoted symbol just emits a string.
 
 Here's the earlier example quoted.
-```
+```python
 #> (quote (builtins..print 1 2j 3.0 [4,'5',6] : sep ":"))
 
 >>> ('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':'))
@@ -375,7 +379,7 @@ The first argument of a lambda is the pararmeters tuple.
 Like calls, the `:` separates the single from the paired (if any).
 After the parameters tuple, the rest of the arguments are the function body.
 
-```
+```python
 #> (lambda (a b
 #..         : e 1  f 2
 #..         :* args  h 4  i :  j 1
@@ -453,11 +457,11 @@ Well, using `eval()` would give you the familiar infix notation.
 
 But you don't need it.
 We have all the operators because we have all the standard library functions.
-```
+```lisp
 (operator..add 1 1)
 ```
 You can, of course, abbreviate these, E.g.
-```
+```lisp
 (hissp.basic.._macro_.define + operator..add)
 (+ 1 1)
 ```
@@ -625,7 +629,7 @@ The happy path would still require compiling an exec() string!
 Not if you define it as a function in advance.
 Then it only happens once on module import.
 Something like,
-```
+```lisp
 (exec "
 def try_statement(block, target, handler):
     try:
@@ -679,7 +683,7 @@ or a key in the dict argument to `type()` also works.
 
 > The REPL is nice and all, but how do I compile a module?
 
-```
+```lisp
 (hissp.reader..transpile "hissp" "basic")
 ```
 or
