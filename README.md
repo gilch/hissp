@@ -60,8 +60,8 @@ Python AST is not simple, because Python isn't.
 
 Hissp is a streamlined skin on Python:
 a simplified AST that you can program in directly.
-Hissp code is made of specially formatted tuples:
-easier to manipulate than Python AST,
+Hissp code is made of specially formatted tuples&mdash;easier
+to manipulate than Python AST,
 but still more reliable than text manipulation.
 In Hissp, code is just another kind of data.
 
@@ -464,7 +464,7 @@ After the parameters tuple, the rest of the arguments are the function body.
 
 Normal call forms evaluate their arguments before calling the function,
 as Python does.
-Special forms are different--`quote`'s argument is not evaluated at all.
+Special forms are different&mdash;`quote`'s argument is not evaluated at all.
 The body of a lambda is not evaluated until the function is invoked,
 and its parameter tuple is partly evaluated (if there are defaults) and
 partly quoted.
