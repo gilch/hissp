@@ -1,6 +1,7 @@
 # Copyright 2019 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 import traceback
+from functools import partial
 
 from hissp.reader import Parser
 
@@ -10,13 +11,13 @@ def repl():
     while True:
         try:
             try:
-                line = input("\n## ")
+                line = input("\n#> ")
             except EOFError:
                 raise SystemExit
             buffer = _get_more(line)
             forms = parser.reads("\n".join(buffer))
             code = parser.compiler.compile(forms)
-            print(">>> ", code.replace("\n", "\n... "))
+            print(">>>", code.replace("\n", "\n... "))
             bytecode = compile(code, "<repl>", "single")
             exec(bytecode, parser.compiler.ns)
         except SystemExit:
@@ -28,8 +29,8 @@ def repl():
 
 def _get_more(line):
     buffer = [line]
-    if "(" in line:
-        buffer.extend(iter(input, ""))
+    if "(" in line or '"' in line:
+        buffer.extend(iter(partial(input, "#.."), ""))
     return buffer
 
 

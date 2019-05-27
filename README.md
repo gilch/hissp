@@ -45,7 +45,7 @@ the inexpressible becomes ordinary.
 Lisp is a programmable programming language,
 extensible though its renowned macro system which hooks into the compiler itself.
 
-Adding features that historically require a new version of the Python language,
+Adding features that historically required a new version of the Python language,
 like `with` statements, would be almost as easy as writing a new function in Lisp.
 
 Python can certainly do metaprogramming.
@@ -57,7 +57,7 @@ Even `eval()` sees use in the standard library.
 It's easy enough to understand,
 but may be even harder to get right.
 
-Hissp's primary goal is to makes metaprogramming much easier.
+Hissp's primary goal is to make metaprogramming much easier.
 Hissp code is made of specially formatted tuples:
 a simplified kind of AST that is easier to manipulate,
 but still more reliable than text manipulation.
@@ -175,9 +175,9 @@ but don't worry if you don't understand it all yet.
 This will all be explained in more detail later on.
 ```
 $ python -m hissp
-## (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
+#> (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
 
->>>  __import__('builtins').print(
+>>> __import__('builtins').print(
 ...   (1),
 ...   (2j),
 ...   (3.0),
@@ -185,9 +185,9 @@ $ python -m hissp
 ...   sep=':')
 1:2j:3.0:[4, '5', 6]
 
-## (hissp.basic.._macro_.define tuple* (lambda (: :* xs) xs))
+#> (hissp.basic.._macro_.define tuple* (lambda (: :* xs) xs))
 
->>>  # hissp.basic.._macro_.define
+>>> # hissp.basic.._macro_.define
 ... __import__('operator').setitem(
 ...   __import__('builtins').globals(),
 ...   'tuplexSTAR_',
@@ -247,8 +247,8 @@ and the reader inserts the resulting object into the output code.
 
 For example,
 ```
-## builtins..float\inf
->>>  __import__('pickle').loads(  # inf
+#> builtins..float\inf
+>>> __import__('pickle').loads(  # inf
 ...     b'\x80\x03G\x7f\xf0\x00\x00\x00\x00\x00\x00.'
 ... )
 inf
@@ -269,9 +269,9 @@ There are currently three of them: `.\ `, `_\ `, and `#\ `.
 If you need more than one argument for a reader macro, use the built in
 `.\ ` macro, which evaluates a form at read time. For example,
 ```
-## .\(fractions..Fraction 1 2)
+#> .\(fractions..Fraction 1 2)
 
->>>  __import__('pickle').loads(  # Fraction(1, 2)
+>>> __import__('pickle').loads(  # Fraction(1, 2)
 ...     b'\x80\x03cfractions\nFraction\nX\x03\x00\x00\x001/2\x85R.'
 ... )
 Fraction(1, 2)
@@ -291,14 +291,14 @@ The final builtin `#\ ` creates a gensym based on the given symbol.
 Within a template, the same gensym literal always makes the same
 gensym.
 ```python
-## '(#\hiss #\hiss)  ; Note different numbers.
+#> '(#\hiss #\hiss)  ; Note different numbers.
 
->>>  ('_hissxAUTO1_', '_hissxAUTO2_')
+>>> ('_hissxAUTO1_', '_hissxAUTO2_')
 ('_hissxAUTO1_', '_hissxAUTO2_')
 
-## `(#\hiss #\hiss)  ; Note template quote, and the same number.
+#> `(#\hiss #\hiss)  ; Note template quote, and the same number.
 
->>>  (lambda *a:a)(
+>>> (lambda *a:a)(
 ...   '_hissxAUTO3_',
 ...   '_hissxAUTO3_')
 ('_hissxAUTO3_', '_hissxAUTO3_')
@@ -310,9 +310,9 @@ Here's a little more Hissp-specific example.
 Note the lack of commas between arguments.
 ```
 $ python -m hissp
-## (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
+#> (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
 
->>>  __import__('builtins').print(
+>>> __import__('builtins').print(
 ...   (1),
 ...   (2j),
 ...   (3.0),
@@ -347,19 +347,20 @@ Unlike a normal function call, special forms are evaluated at compile time.
 
 The first special form is `quote`. It returns its argument unevaluated.
 ```
-## (quote builtins..print)
+#> (quote builtins..print)
 
->>>  'builtins..print'
+>>> 'builtins..print'
 'builtins..print'
 ```
 The distinction between symbols and strings only applies to the reader.
-Hissp has no separate symbol type. A quoted symbol is just a string.
+Hissp has no separate symbol type.
+A quoted symbol just emits a string.
 
 Here's the earlier example quoted.
 ```
-## (quote (builtins..print 1 2j 3.0 [4,'5',6] : sep ":"))
+#> (quote (builtins..print 1 2j 3.0 [4,'5',6] : sep ":"))
 
->>>  ('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':'))
+>>> ('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':'))
 ('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':'))
 ```
 This reveals how to write the example in readerless mode.
@@ -375,27 +376,32 @@ Like calls, the `:` separates the single from the paired (if any).
 After the parameters tuple, the rest of the arguments are the function body.
 
 ```
-## (lambda (a b
-            : e 1  f 2
-            :* args  h 4  i :  j 1
-            :** kwargs)
-    42)
+#> (lambda (a b
+#..         : e 1  f 2
+#..         :* args  h 4  i :  j 1
+#..         :** kwargs)
+#.. 42)
 
->>>  (lambda a,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
+>>> (lambda a,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
 <function <lambda> at 0x0000019D826B38C8>
 
-## (lambda (: :* :_  x :_))
+#> (lambda (: :* :_  x :_))
 
->>>  (lambda *,x:())
+>>> (lambda *,x:())
 <function <lambda> at 0x0000019D8269FD08>
 
-## (lambda (a b c)
-    (print a)
-    (print b)
-    c)
-
->>>  (lambda a,b,c:(print(a),print(b),c)[-1])
-<function <lambda> at 0x0000019D8269F0D0>
+#> (lambda (a b c)
+#.. (print a)
+#.. (print b)
+#.. c)
+#..
+>>> (lambda a,b,c:(
+...   print(
+...     a),
+...   print(
+...     b),
+...   c)[-1])
+<function <lambda> at 0x000001CF441552F0>
 ```
 
 Normal call forms evaluate their arguments before calling the function,
@@ -512,7 +518,7 @@ Also see `itertools`, `iter`.
 
 > There's no `if` statement. Branching is fundamental!
 
-No it's not. You already learned how to for loop above.
+No it's not. You already learned how to `for` loop above.
 Isn't looping zero or one times like skipping a branch or not?
 Note that `False` and `True` are special cases of `0` and `1` in Python.
 `range(False)` would loop zero times, but `range(True)` loops one time.
@@ -577,7 +583,7 @@ Exceptions tend to raise themselves if you're not careful.
  Exceptions are not good functional style.
  You probably don't need them.
  If you must, you can still use `exec()`.
-( Or use Drython's `Raise()`.) 
+(Or use Drython's `Raise()`.) 
 
 > Use exec? Isn't that slow? 
 
@@ -593,18 +599,20 @@ Or `contextlib..suppress`.
 
 Use `contextlib..ContextDecorator`
 as a mixin and any context manager works as a decorator.
+Or use Drython's `With()`.
 
 > How do I use a decorator?
 
-You apply it to the function (or class)--call it with the function as its argument.
+You apply it to the function (or class):
+call it with the function as its argument.
 Decorators are just higher-order functions.
 
 > Any context manager? But you don't get the return value of `__enter__()`!
 And what if it's not re-entrant?
 
 `suppress` work with these restrictions, but point taken.
-You can certainly call `.__enter__` yourself, but you have to call
-`.__exit__` too. Even if there was an exception.
+You can certainly call `.__enter__()` yourself, but you have to call
+`.__exit__()` too. Even if there was an exception.
 
 > But I need to handle the exception if and only if it was raised,
  for multiple exception types, or I need to get the exception object.
@@ -711,7 +719,7 @@ coverage before the PR can be accepted.
 Manual tests may suffice for configuration files.
 Our Python source uses Black formatting.
 Disable this using `# fmt: off` tags for "readerless mode" Hissp snippets
-which should be formatted lisp-style (play with parinfer until you get it),
+which should be formatted Lisp-style (play with Parinfer until you get it),
 or anywhere the extra effort of manual formatting is worth it.
 In readerless mode, Hissp tuples shall always include the trailing `,`.
 Follow PEP 8 even when Black has no opinion.
@@ -727,6 +735,7 @@ We don't accept PRs on faith.
 
 PRs do not have to be *perfect* to be submitted,
 but must be perfect enough to pass peer review before they are merged in.
+Small, focused changes are more likely to be reviewed.
 
 Note section 5 of the LICENSE.
 You must have the legal rights to the patch to submit them under those terms:
