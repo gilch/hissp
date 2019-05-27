@@ -1,2 +1,5 @@
 # For unit tests.
 hypothesis
+coverage
+pytest
+pytest-cov

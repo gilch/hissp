@@ -9,7 +9,7 @@ import unicodedata
 
 
 def munge(s: str) -> str:
-    if s.startswith(':') or s.isidentifier():
+    if s.startswith(":") or s.isidentifier():
         return s
     return "".join(map(x_quote, s))
 
@@ -74,4 +74,4 @@ def un_x_quote(match: Match[str]) -> str:
 
 
 def demunge(s: str) -> str:
-    return re.sub("x([A-Zhx]+?)_", un_x_quote, s)
+    return re.sub("x([0-9A-Zhx]+?)_", un_x_quote, s)
