@@ -124,6 +124,8 @@ class Parser:
         if ".." in tag and not tag.startswith(".."):
             module, function = tag.split("..", 1)
             function = munge(function)
+            if type(form) is tuple and form[0] == "quote" and len(form) == 2:
+                form = form[1]
             return reduce(getattr, function.split("."), import_module(module))(form)
         raise ValueError(f"Unknown reader macro {tag}")
 
