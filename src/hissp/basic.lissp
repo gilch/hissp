@@ -13,39 +13,80 @@
                           (types..SimpleNamespace))
              (quote ,name)
              ,macro)))
+(setattr _macro_.require-as '__doc__ "
+Adds the macro to the module-local _macro_'s using the specified name.
+")
+(setattr _macro_.require-as '__qualname__ '_macro_.require-as)
 
-;; create defmacro
-(require-as (lambda (name args : :* body)
-              `(hissp.basic.._macro_.require-as
-                (lambda ,args ,@body)
-                ,name))
+;; bootstrap defmacro
+(require-as (lambda (name parameters : :* body)
+              `(require-as (lambda ,parameters ,@ body)
+                           ,name))
             defmacro)
 
+(defmacro let (pairs : :* body)
+  `((lambda (: ,@pairs)
+      ,@body)))
+(setattr _macro_.let '__doc__ "
+  Creates locals. Pairs are implied. Locals are not visible until the body.
+  ")
+(setattr _macro_.let '__qualname__ '_macro_.let)
+
+(defmacro defmacro (name parameters docstring : :* body)
+  `(require-as (let (#\macro (lambda ,parameters ,@body))
+                 (setattr #\macro ','__doc__ ,docstring)
+                 (setattr #\macro ','__qualname__ (.join "." '(,'_macro_ ,name)))
+                 #\macro)
+               ,name))
+(setattr _macro_.defmacro '__doc__ "
+  Creates a new module-local macro with a docstring.
+  The docstring can be None.
+  ")
+(setattr _macro_.defmacro '__qualname__ '_macro_.defmacro)
+
+(defmacro cascade (thing : :* calls)
+  "
+  Evaluates the given thing then uses it as the first argument to a sequence of calls.
+  Returns the evaluated thing.
+  "
+  (let (thing-sym `#\thing)
+    `((lambda (: ,thing-sym ,thing)
+        ,@(map (lambda (call)
+                 `(,(operator..getitem call 0)
+                   ,thing-sym
+                   ,@(operator..getitem call (slice 1 None))))
+               calls)
+        ,thing-sym))))
+
 (defmacro define (name value)
+  None
   `(operator..setitem (builtins..globals)
                       ',name
                       ,value))
 
-(defmacro if-else (b then otherwise)
-  `((lambda (,'b : :* ,'then-else)
-      ((operator..getitem ,'then-else (operator..not_ ,'b))))
-    ,b
+(defmacro if-else (test then otherwise)
+  None
+  `((lambda (,'test : :* ,'then-else)
+      ((operator..getitem ,'then-else (operator..not_ ,'test))))
+    ,test
     (lambda () ,then)
     (lambda () ,otherwise)))
 
 
 (defmacro progn (: :* body)
+  None
   `((lambda ()
       ,@body)))
 
-(defmacro let (pairs : :* body)
-  `((lambda (: ,@pairs)
-      ,@body)))
-
-(defmacro from-require (package : :* macros)
-  `(progn ,@(map (lambda (macro)
-                   `(require-as ,(.join '.._macro_. `(,package ,macro)) ,macro))
-                 macros)))
+(defmacro from-require (: :* package/macros)
+  None
+  `(progn
+     ,@(itertools..starmap
+        (lambda (package : :* macros)
+          `(progn ,@(map (lambda (macro)
+                           `(require-as ,(.join '.._macro_. `(,package ,macro)) ,macro))
+                         macros)))
+        package/macros)))
 
 
 ;; Cond?

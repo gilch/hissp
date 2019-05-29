@@ -1,30 +1,38 @@
 ;; Copyright 2019 Matthew Egan Odendahl
 ;; SPDX-License-Identifier: Apache-2.0
 
-(hissp.basic.._macro_.from-require hissp.basic
-                                   progn
-                                   let
-                                   define
-                                   if-else)
+(hissp.basic.._macro_.from-require
+ (hissp.basic define let cascade if-else progn))
 
 (define TestBasic
     (type 'TestBasic `(,unittest..TestCase)
           (dict :
-                test_basic (lambda (self)
-                             (.fail self)))))
+                test_let
+                (lambda (self)
+                  (let (x 1
+                        y 2)
+                    (.assertEqual self x 1)
+                    (.assertEqual self y 2)))
 
+                test_cascade
+                (lambda (self)
+                  (.assertEqual self
+                                (cascade []
+                                         (.append 1)
+                                         (.extend [2,3]))
+                                [1,2,3]))
 
-(define test2
-    (lambda (b)
-      (if-else b
-               (print 'yes)
-               (print 'no))))
+                test_if-else
+                (lambda (self)
+                  (.assertEqual self (if-else False 'yes 'no) 'no)
+                  (.assertEqual self (if-else True 'yes 'no) 'yes))
 
-(progn
-  (define spam 40)
-  (print 'basic)
-  (test2 1)
-  (test2 0)
-  (let (x spam
-        y 2)
-    (print x y)))
+                test_progn
+                (lambda (self)
+                  (.assertEqual self
+                                (let (x [])
+                                  (progn
+                                    (.append x 1)
+                                    (.extend x "bc")
+                                    x))
+                                [1,'b','c'])))))
