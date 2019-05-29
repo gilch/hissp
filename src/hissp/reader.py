@@ -90,7 +90,11 @@ class Parser:
             elif k in {"comment", "whitespace"}:
                 continue
             elif k == "macro":
-                with self.gensym_context() if v == "`" else nullcontext():
+                with {
+                    "`": self.gensym_context,
+                    ",": self.unquote_context,
+                    ",@": self.unquote_context,
+                }.get(v, nullcontext)():
                     form = next(self.parse(tokens))
                     yield self.parse_macro(v, form)
             elif k == "symbol":
@@ -189,6 +193,14 @@ class Parser:
             yield
         finally:
             self.gensym_stack.pop()
+
+    @contextmanager
+    def unquote_context(self):
+        gensym_number = self.gensym_stack.pop()
+        try:
+            yield
+        finally:
+            self.gensym_stack.append(gensym_number)
 
 
 def transpile(package: resources.Package, *modules: Union[str, PurePath]):
