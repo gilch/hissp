@@ -133,7 +133,7 @@ class Parser:
         case = type(form)
         if case is tuple and form:
             return (
-                ("lambda", (":", ":*", "a"), "a"),
+                ("lambda", (":", ":*", "xAUTO0_"), "xAUTO0_"),
                 ":",
                 *chain(*self._template(form)),
             )
