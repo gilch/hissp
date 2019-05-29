@@ -180,11 +180,7 @@ class Parser:
         return self.compiler.compile(hissp)
 
     def gensym(self, form: str):
-        try:
-            count = self.gensym_stack[-1]
-        except LookupError:
-            count = gensym_counter()
-        return f"_{munge(form)}xAUTO{count}_"
+        return f"_{munge(form)}xAUTO{self.gensym_stack[-1]}_"
 
     @contextmanager
     def gensym_context(self):
