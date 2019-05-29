@@ -2,12 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 import traceback
 from functools import partial
+from types import SimpleNamespace
 
+import hissp.basic
 from hissp.reader import Parser
 
 
 def repl():
     parser = Parser()
+    parser.compiler.ns['_macro_'] = SimpleNamespace(**vars(hissp.basic._macro_))
     while True:
         try:
             try:

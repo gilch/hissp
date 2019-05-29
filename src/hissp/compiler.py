@@ -24,14 +24,14 @@ class CompileError(SyntaxError):
 
 def trace(method):
     @wraps(method)
-    def tracer(self, form):
+    def tracer(self, *args, **kwargs):
         try:
-            return method(self, form)
+            return method(self, *args, **kwargs)
         except CompileError as e:
-            e.msg = f"\n{method.__name__}:\n{form!r}" + e.msg
+            e.msg = f"\nself.{method.__name__}(*{args},**{kwargs})\n" + e.msg
             raise e
         except Exception as e:
-            raise CompileError(f"\n{method.__name__}:\n{form!r}") from e
+            raise CompileError(f"\nself.{method.__name__}(*{args},**{kwargs})\n") from e
 
     return tracer
 
@@ -91,6 +91,7 @@ class Compiler:
             return self.function(form)
         return self.macro(form, head, tail)
 
+    @trace
     def macro(self, form: tuple, head: str, tail: list) -> str:
         """Try to compile as macro, else normal call."""
         parts = head.split(MACRO, 1)
