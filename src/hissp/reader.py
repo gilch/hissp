@@ -74,16 +74,27 @@ class Parser:
         self.ns = ns or {"__name__": "<compiler>"}
         self.compiler = Compiler(self.qualname, self.ns, evaluate)
         self.verbose = verbose
+        self.reinit()
+
+    def reinit(self):
         self.gensym_stack = []
+        self.depth = 0
 
-    def parse(self, tokens: Iterator[Token], depth: int = 0) -> Iterator:
-        return (form for form in self._parse(tokens, depth) if form is not DROP)
+    def parse(self, tokens: Iterator[Token]) -> Iterator:
+        return (form for form in self._parse(tokens) if form is not DROP)
 
-    def _parse(self, tokens: Iterator[Token], depth: int) -> Iterator:
+    def _parse(self, tokens: Iterator[Token]) -> Iterator:
         for k, v in tokens:
             if k == "open":
-                yield (*self.parse(tokens, depth + 1),)
+                depth = self.depth
+                self.depth += 1
+                yield (*self.parse(tokens),)
+                if self.depth != depth:
+                    raise SyntaxError("Unclosed '('.")
             elif k == "close":
+                self.depth -= 1
+                if self.depth < 0:
+                    raise SyntaxError("Unopened ')'.")
                 return
             elif k == "string":
                 yield "quote", ast.literal_eval(v.replace("\n", r"\n"))
@@ -104,7 +115,7 @@ class Parser:
                     yield munge(v)
             else:
                 assert False, "unknown token: " + repr(k)
-        if depth:
+        if self.depth:
             SyntaxError("Ran out of tokens before completing form.")
 
     def parse_macro(self, tag: str, form):
@@ -170,6 +181,7 @@ class Parser:
 
     def reads(self, code: str) -> Iterable:
         res = self.parse(lex(code))
+        self.reinit()
         if self.verbose:
             res = list(res)
             pprint(res)
