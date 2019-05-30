@@ -48,7 +48,7 @@ class TestCompileGeneral(TestCase):
     @given(
         st.characters(
             blacklist_characters='(){}[];".',
-            whitelist_categories=["Lu", "Ll", "Lt", "Lm", "Lo", "Nl", "Sm"],
+            whitelist_categories=["Lu", "Ll", "Lt", "Nl", "Sm"],
         )
     )
     def test_un_x_quote(self, char):
