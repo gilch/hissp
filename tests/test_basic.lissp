@@ -26,21 +26,21 @@
                 (lambda (self)
                   (.assertEqual self (if-else False :yes :no) :no)
                   (.assertEqual self (if-else True :yes :no) :yes)
-                  (let (x [])
+                  (let (xs [])
                     (if-else False
-                             (.append x :yes)
-                             (.append x :no))
+                             (.append xs :yes)
+                             (.append xs :no))
                     (if-else True
-                             (.append x :yes)
-                             (.append x :no))
-                    (.assertEqual self x [':no',':yes'])))
+                             (.append xs :yes)
+                             (.append xs :no))
+                    (.assertEqual self xs [':no',':yes'])))
 
                 test_progn
                 (lambda (self)
                   (.assertEqual self
-                                (let (x [])
+                                (let (xs [])
                                   (progn
-                                    (.append x 1)
-                                    (.extend x "bc")
-                                    x))
+                                    (.append xs 1)
+                                    (.extend xs "bc")
+                                    xs))
                                 [1,'b','c'])))))
