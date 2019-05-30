@@ -24,8 +24,16 @@
 
                 test_if-else
                 (lambda (self)
-                  (.assertEqual self (if-else False 'yes 'no) 'no)
-                  (.assertEqual self (if-else True 'yes 'no) 'yes))
+                  (.assertEqual self (if-else False :yes :no) :no)
+                  (.assertEqual self (if-else True :yes :no) :yes)
+                  (let (x [])
+                    (if-else False
+                             (.append x :yes)
+                             (.append x :no))
+                    (if-else True
+                             (.append x :yes)
+                             (.append x :no))
+                    (.assertEqual self x [':no',':yes'])))
 
                 test_progn
                 (lambda (self)
