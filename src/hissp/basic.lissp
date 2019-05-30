@@ -78,15 +78,18 @@ Adds the macro to the module-local _macro_'s using the specified name.
   `((lambda ()
       ,@body)))
 
-(defmacro from-require (: :* package/macros)
+(defmacro from-require (: :* package+macros)
   None
   `(progn
+     (.setdefault (globals)
+                  ','_macro_
+                  (types..SimpleNamespace))
      ,@(itertools..starmap
         (lambda (package : :* macros)
           `(progn ,@(map (lambda (macro)
-                           `(require-as ,(.join '.._macro_. `(,package ,macro)) ,macro))
+                           `(setattr ,'_macro_ ',macro ,(.format "{}.._macro_.{}" package macro)))
                          macros)))
-        package/macros)))
+        package+macros)))
 
 
 ;; Cond?
