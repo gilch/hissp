@@ -91,5 +91,8 @@ Adds the macro to the module-local _macro_'s using the specified name.
                          macros)))
         package+macros)))
 
-
-;; Cond?
+(defmacro deftype (name bases : :* body)
+  None
+  `(define ,name
+       (type ',name ((lambda (: :* xAUTO0_) xAUTO0_) ,@bases)
+             (dict : ,@body))))
