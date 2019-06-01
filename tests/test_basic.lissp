@@ -2,45 +2,43 @@
 ;; SPDX-License-Identifier: Apache-2.0
 
 (hissp.basic.._macro_.from-require
- (hissp.basic define let cascade if-else progn))
+ (hissp.basic deftype let cascade if-else progn))
 
-(define TestBasic
-    (type 'TestBasic `(,unittest..TestCase)
-          (dict :
-                test_let
-                (lambda (self)
-                  (let (x 1
-                        y 2)
-                    (.assertEqual self x 1)
-                    (.assertEqual self y 2)))
+(deftype TestBasic (unittest..TestCase)
+  test_let
+  (lambda (self)
+    (let (x 1
+          y 2)
+      (.assertEqual self x 1)
+      (.assertEqual self y 2)))
 
-                test_cascade
-                (lambda (self)
-                  (.assertEqual self
-                                (cascade []
-                                         (.append 1)
-                                         (.extend [2,3]))
-                                [1,2,3]))
+  test_cascade
+  (lambda (self)
+    (.assertEqual self
+                  (cascade []
+                           (.append 1)
+                           (.extend [2,3]))
+                  [1,2,3]))
 
-                test_if-else
-                (lambda (self)
-                  (.assertEqual self (if-else False :yes :no) :no)
-                  (.assertEqual self (if-else True :yes :no) :yes)
+  test_if-else
+  (lambda (self)
+    (.assertEqual self (if-else False :yes :no) :no)
+    (.assertEqual self (if-else True :yes :no) :yes)
+    (let (xs [])
+      (if-else False
+               (.append xs :yes)
+               (.append xs :no))
+      (if-else True
+               (.append xs :yes)
+               (.append xs :no))
+      (.assertEqual self xs [':no',':yes'])))
+
+  test_progn
+  (lambda (self)
+    (.assertEqual self
                   (let (xs [])
-                    (if-else False
-                             (.append xs :yes)
-                             (.append xs :no))
-                    (if-else True
-                             (.append xs :yes)
-                             (.append xs :no))
-                    (.assertEqual self xs [':no',':yes'])))
-
-                test_progn
-                (lambda (self)
-                  (.assertEqual self
-                                (let (xs [])
-                                  (progn
-                                    (.append xs 1)
-                                    (.extend xs "bc")
-                                    xs))
-                                [1,'b','c'])))))
+                    (progn
+                      (.append xs 1)
+                      (.extend xs "bc")
+                      xs))
+                  [1,'b','c'])))
