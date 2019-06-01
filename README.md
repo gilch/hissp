@@ -486,7 +486,7 @@ But the compiler doesn't care how it gets there:
 `_macro_` functions are macros regardless. This means "importing" a macro is as simple
 as adding it to the current module's macro space.
 
-## FAQ (Frequently Anticipated Questions)
+## FAQ (Frequently Anticipated Questions (and complaints))
 
 > Anticipated? Didn't you mean "asked"?
 
@@ -501,27 +501,93 @@ Short proof: Hissp has strings and can call `exec()`.
 But you usually won't need it because you can import anything written in Python
 by using qualified symbols.
 
+Hissp macros and reader macros can return any type of object.
+If you return a string the compiler will assume it's either a qualified symbol
+or plain identifier (and embed it verbatim).
+But the string *could* contain almost arbitrary Python code instead,
+like a SQL injection attack.
+
+Howerver, the whole point of Hissp is syntactic macros.
+If you wanted to do string metaprogramming you could have just used `exec()`,
+so you're giving up a lot of Hissp's power.
+Expressions are relatively safe if you're careful,
+but note that statements would only work at the top level.
+
+In principle, you never *need* to do this.
+It's dirty. It's risky.
+It's worse than `eval()`/`exec()`, which are at least explicit about it.
+Even if you think you need it, you still probably don't.
+But it can be very useful as an optimization.
+
 > What's 1 + 1?
 
 Two.
 
 > I mean how do you write it in Hissp without operators? Please don't say `eval()`.
 
-Well, using `eval()` would give you the familiar infix notation.
-
-But you don't need it.
 We have all the operators because we have all the standard library functions.
 ```lisp
 (operator..add 1 1)
 ```
-You can, of course, abbreviate these, E.g.
+
+> That's really verbose though.
+
+You can, of course, abbreviate these.
 ```lisp
-(hissp.basic.._macro_.define + operator..add)
-(+ 1 1)
+#> (define + operator..add)
+#..
+>>> # define
+... __import__('operator').setitem(
+...   __import__('builtins').globals(),
+...   'xPLUS_',
+...   __import__('operator').add)
+
+#> (+ 1 1)
+#..
+>>> xPLUS_(
+...   (1),
+...   (1))
+2
 ```
 Yes, `+` is a valid symbol. It gets munged to `xPLUS_`.
 The result is all of the operators you might want,
 using the same prefix notation used by all the calls.
+
+> I want infix notation!
+
+Hissp is a Lisp. It's all calls! Get used to it.
+
+Fully parenthesized prefix notation is explicit and consistent.
+It's very readable if properly indented.
+Don't confuse "easy" with "familiar".
+Also, you don't have to be restricted to one or two arguments.
+
+> ...
+
+Fine. You can write macros for any syntax you please.
+
+Also recall that (reader) macros can return arbitrary Python snippets
+and the compiler will embed them verbatim.
+You should generally avoid doing this,
+because then you're metaprogramming with strings instead of AST.
+You're giving up a lot of Hissp's power.
+But optimizing complex formulas is maybe one of the few times it's OK to do that.
+
+Recall the `.\ ` reader macro executes a form and embeds its result into the Hissp.
+
+```lisp
+#> (define quadratic
+#.. (lambda (a b c)
+#..   .\"(-b + (b**2 - 4*a*c)**0.5)/(2*a)"))
+#..
+>>> # define
+... __import__('operator').setitem(
+...   __import__('builtins').globals(),
+...   'quadratic',
+...   (lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a)))
+```
+
+But for a top-level `define` like this, you could have just used `exec()`.
 
 > How do I start the REPL again?
 
@@ -544,6 +610,8 @@ the answer is usually "Write a macro to implement X."
 Use the `hissp.basic.._macro_.define` and `hissp.basic.._macro_.let` macros for globals
 and locals, respectively.
 Look at their expansions and you'll see they don't use assignment statements either.
+
+See also `builtins..setattr` and `operator..setitem`.
 
 > But there's no `macroexpand`. How do I look at expansions?
 
@@ -581,8 +649,9 @@ Usually, you'd combine with `map()`, just like the comprehensions.
 Make sure the lambda returns `None`s (or something false),
 because a true value acts like `break` in `any()`.
 Obviously, you can use this to your advantage if you *want* a break,
-which seems to happen pretty often when writing loops.
-See also `itertools`, `iter`.
+which seems to happen pretty often when writing imperative loops.
+
+See also `itertools`, `builtins..iter`.
 
 > There's no `if` statement. Branching is fundamental!
 
@@ -606,10 +675,36 @@ but Hissp doesn't need it. Smalltalk pretty much does it this way.
 Once you have `if` you can make a `cond`. Lisps actually differ on which
 is the special form and which is the macro.
 
+> You have to define three lambdas just for an `if`?!
+  isn't this really slow? It really ought to be a special form.
+
+It's not *that* slow.
+Like most things, it's really only an issue in a bottleneck.
+If you find one, there's no runtime overhead for using `.\ ` to inject some Python.
+
+Also recall that macros are allowed to return strings of Python code.
+All the usual caveats for text-substitution macros apply.
+Use parentheses.
+```lisp
+(defmacro !if (test then otherwise)
+  "Compiles to if/else expression."
+  (.format "(({}) if ({}) else ({}))"
+           : :* (map hissp.compiler..readerless
+                     `(,then ,test ,otherwise))))
+```
+Early optimization is the root of all evil.
+Don't use text macros unless you really need them.
+Even if you think you need one, you probably don't.
+
+Syntactic macros are powerful not just because they can delay evaluation,
+but because they can read and re-write code.
+Using a text macro like the above can hide information that a syntactic
+rewriting macro needs to work properly.
+
 > Does Hissp have tail-call optimization?
 
-No, because Python doesn't.
-If a Python implementation gets it, Hissp will too,
+No, because CPython doesn't.
+If a Python implementation has it, Hissp will too,
 when run on that implementation.
 But you can increase the recursion limit with `sys..setrecursionlimit`.
 Better not increase it too much if you don't like segfaults, but
@@ -625,6 +720,7 @@ Use `tuple()`.
 `lambda *a:a`
 
 You can also make an empty list with `[]` or `(list)`, and then `.append` to it.
+(Try the `cascade` macro.)
 Finally, the template syntax ``` `()``` makes tuples. Unquote `,` calls/symbols if needed.
 
 > How do I make a class?
@@ -641,6 +737,17 @@ Use `dict()`. Obviously.
 You don't even need to make pairs if the keys are identifiers.
 Just use kwargs.
 
+> That seems too verbose. In Python it's easier.
+
+You mostly don't need classes though.
+Classes conflate data structures with the functions that act on them,
+and tend to encourage fragmented mutable state which doesn't scale well.
+They're most useful for their magic methods to overload operators and such.
+But Hissp mostly doesn't need that since it has no operators to speak of.
+
+As always, you can write a function or macro to reduce boilerplate.
+There's actually a `hissp.basic.._macro_.deftype` macro for making a top-level type.
+
 > How do I raise exceptions?
 
 `(operator..truediv 1 0)` seems to work.
@@ -648,9 +755,9 @@ Exceptions tend to raise themselves if you're not careful.
 
 > But I need a raise statement for a specific exception message.
 
- Exceptions are not good functional style.
- You probably don't need them.
- If you must, you can still use `exec()`.
+Exceptions are not good functional style.
+You probably don't need them.
+If you must, you can still use `exec()`.
 (Or use Drython's `Raise()`.) 
 
 > Use exec? Isn't that slow? 
@@ -726,7 +833,9 @@ You can always re-write that part in Python (or C).
 
 > Yield?
 
-We've got itertools. Compose generators functional-style. You don't need yield.
+We've got itertools.
+Compose iterators functional-style.
+You don't need yield.
 
 > But I need it for co-routines. Or async/await stuff. How do I accept a send?
 
@@ -763,7 +872,8 @@ but this gives you fine-grained control over what gets compiled when.
 Note that you usually would want to recompile the whole project
 rather than only the changed files like Python does,
 because macros run at compile time.
-Changing a macro normally doesn't affect the code that uses it until it is recompiled.
+Changing a macro in one file normally doesn't affect the code that uses
+it in other files until they are recompiled.
 
 > How do I import things?
 

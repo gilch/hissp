@@ -4,7 +4,9 @@
 import ast
 import pickle
 import pickletools
-from contextlib import suppress
+import re
+from contextlib import contextmanager, suppress
+from contextvars import ContextVar
 from functools import wraps
 from itertools import chain, takewhile
 from typing import Iterable, Tuple, TypeVar
@@ -16,6 +18,12 @@ MACROS = "_macro_"
 MACRO = f"..{MACROS}."
 
 NUMBER = frozenset({int, float, complex})
+
+# Sometimes macros need the current ns when expanding,
+# instead of its defining ns.
+# Rather than pass in an implicit argument, it's available here.
+# readerless() uses this automatically.
+NS = ContextVar("NS", default=None)
 
 
 class CompileError(SyntaxError):
@@ -95,17 +103,18 @@ class Compiler:
     def macro(self, form: tuple, head: str, tail: list) -> str:
         """Try to compile as macro, else normal call."""
         parts = head.split(MACRO, 1)
-        if parts[0] == self.qualname:
-            # Local qualified macro. Recursive macros might need it.
-            return f"# {head}\n" + self.form(vars(self.ns[MACROS])[parts[1]](*tail))
-        try:  # Is it a local unqualified macro?
-            macro = vars(self.ns[MACROS])[head]
-        except LookupError:  # Nope.
-            pass
-        else:  # Yes.
-            return f"# {head}\n" + self.form(macro(*tail))
-        if MACRO in head:  # Qualified macro, not local.
-            return f"# {head}\n" + self.form(eval(self.symbol(head))(*tail))
+        with self.macro_context():
+            if parts[0] == self.qualname:
+                # Local qualified macro. Recursive macros might need it.
+                return f"# {head}\n" + self.form(vars(self.ns[MACROS])[parts[1]](*tail))
+            try:  # Is it a local unqualified macro?
+                macro = vars(self.ns[MACROS])[head]
+            except LookupError:  # Nope.
+                pass
+            else:  # Yes.
+                return f"# {head}\n" + self.form(macro(*tail))
+            if MACRO in head:  # Qualified macro, not local.
+                return f"# {head}\n" + self.form(eval(self.symbol(head))(*tail))
         return self.call(form)
 
     def quoted(self, form) -> str:
@@ -303,12 +312,22 @@ class Compiler:
 
     @trace
     def symbol(self, symbol: str) -> str:
-        if ".." in symbol and not symbol.startswith(".."):
+        if re.search(r"^..|[ ()]", symbol):
+            return symbol
+        if ".." in symbol:
             parts = symbol.split("..", 1)
             return "__import__({0!r}{fromlist}).{1}".format(
                 parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
             )
         return symbol
+
+    @contextmanager
+    def macro_context(self):
+        token = NS.set(self.ns)
+        try:
+            yield
+        finally:
+            NS.reset(token)
 
 
 def _join_args(*args):
@@ -325,5 +344,5 @@ def pairs(it: Iterable[T]) -> Iterable[Tuple[T, T]]:
 
 
 def readerless(form, ns=None):
-    ns = ns or {"__name__": "<compiler>"}
+    ns = ns or NS.get() or {"__name__": "<compiler>"}
     return Compiler(evaluate=False, ns=ns).compile([form])
