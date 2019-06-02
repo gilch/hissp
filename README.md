@@ -24,9 +24,8 @@ It's the Python you know and love, with a powerful, streamlined skin.
 **Table of Contents**
 
 - [Hissp](#hissp)
-    - [Table of Contents](#table-of-contents)
     - [Philosophy and Goals](#philosophy-and-goals)
-        - [Minimalism](#minimalism)
+        - [Minimal implementation](#minimal-implementation)
         - [Interoperability](#interoperability)
         - [Useful error messages](#useful-error-messages)
         - [Syntax compatible with Emacs' `lisp-mode` and Parlinter](#syntax-compatible-with-emacs-lisp-mode-and-parlinter)
@@ -39,7 +38,7 @@ It's the Python you know and love, with a powerful, streamlined skin.
         - [Calls. Hissp is literally all calls.](#calls-hissp-is-literally-all-calls)
             - [Literals and the Reader](#literals-and-the-reader)
             - [Calls and the compiler](#calls-and-the-compiler)
-    - [FAQ (Frequently Anticipated Questions)](#faq-frequently-anticipated-questions)
+    - [FAQ (Frequently Anticipated Questions (and complaints))](#faq-frequently-anticipated-questions-and-complaints)
     - [Contributing](#contributing)
         - [Patches](#patches)
         - [Conduct](#conduct)
@@ -969,7 +968,7 @@ returns its transformation as Hissp code.
 
 The REPL is designed so that you can copy/paste it into doctests
 or Jupyter notebook cells running an IPython kernel and it should just work.
-IPython will ignore the Hissp because its `#>`/`#..`
+IPython will ignore the Lissp because its `#>`/`#..`
 prompts makes it look like a Python comment,
 and it's already set up to ignore the initial `>>> `/`...`.
 But doctest expects these,
