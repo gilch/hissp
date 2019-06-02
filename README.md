@@ -206,7 +206,7 @@ This will all be explained in more detail later on.
 ```
 $ python -m hissp
 ```
-```pydocstring
+```python
 #> (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
 #..
 >>> __import__('builtins').print(
@@ -304,7 +304,7 @@ The function named by the symbol is invoked on the form,
 and the reader embeds the resulting object into the output Hissp.
 
 For example,
-```pydocstring
+```python
 #> builtins..float\inf
 >>> __import__('pickle').loads(  # inf
 ...     b'\x80\x03G\x7f\xf0\x00\x00\x00\x00\x00\x00.'
@@ -327,7 +327,7 @@ There are currently three of them: `.\ `, `_\ `, and `#\ `.
 
 If you need more than one argument for a reader macro, use the built in
 `.\ ` macro, which evaluates a form at read time. For example,
-```pydocstring
+```python
 #> .\(fractions..Fraction 1 2)
 #..
 >>> __import__('pickle').loads(  # Fraction(1, 2)
@@ -350,7 +350,7 @@ There are also four more built-in reader macros that don't end with `\ `:
 The final builtin `#\ ` creates a gensym based on the given symbol.
 Within a template, the same gensym literal always makes the same
 gensym.
-```pydocstring
+```python
 #> `(#\hiss #\hiss)
 #..
 >>> (lambda *xAUTO0_:xAUTO0_)(
@@ -364,7 +364,7 @@ In readerless mode, these reader macros correspond to functions used to
 make the Hissp itself.
 For example, one could make a quoting "readerless macro" like this
 
-```pydocstring
+```python
 >>> def q(form):
 ...     return 'quote', form
 >>> from hissp.compiler import readerless
@@ -380,7 +380,7 @@ hi
 
 ```
 Which is equivalent to
-```pydocstring
+```python
 #> (print 'hi)
 #..
 >>> print(
@@ -396,7 +396,7 @@ Note the lack of commas between arguments.
 ```
 $ python -m hissp
 ```
-```pydocstring
+```python
 #> (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
 #..
 >>> __import__('builtins').print(
@@ -434,7 +434,7 @@ These are calls that are built into the compiler.
 Unlike a normal function call, special forms are evaluated at compile time.
 
 The first special form is `quote`. It returns its argument unevaluated.
-```pydocstring
+```python
 #> (quote builtins..print)
 #..
 >>> 'builtins..print'
@@ -446,7 +446,7 @@ Hissp has no separate symbol type.
 A quoted symbol just emits a string.
 
 Here's the earlier example quoted.
-```pydocstring
+```python
 #> (quote (builtins..print 1 2j 3.0 [4,'5',6] : sep ":"))
 #..
 >>> ('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':'))
@@ -465,7 +465,7 @@ The first argument of a lambda is the pararmeters tuple.
 Like calls, the `:` separates the single from the paired (if any).
 After the parameters tuple, the rest of the arguments are the function body.
 
-```pydocstring
+```python
 #> (lambda (a b  ; single/positional
 #..         : e 1  f 2  ; paired/kwargs
 #..         :* args  h 4  i :_  j 1  ; *args and kwonly
@@ -566,7 +566,7 @@ We have all the operators because we have all the standard library functions.
 > That's really verbose though.
 
 You can, of course, abbreviate these.
-```pydocstring
+```python
 #> (define + operator..add)
 #..
 >>> # define
@@ -609,7 +609,7 @@ But optimizing complex formulas is maybe one of the few times it's OK to do that
 
 Recall the `.\ ` reader macro executes a form and embeds its result into the Hissp.
 
-```pydocstring
+```python
 #> (define quadratic
 #.. (lambda (a b c)
 #..   .\"(-b + (b**2 - 4*a*c)**0.5)/(2*a)"))
@@ -923,7 +923,7 @@ Just don't do this in the macroexpansions where it might end up in another modul
 The package `__init__.py` doesn't import it or it's not in a package.
 
 Use `importlib..import_module`.
-```pydocstring
+```python
 #> (importlib..import_module 'collections.abc)
 #..
 >>> __import__('importlib').import_module(
