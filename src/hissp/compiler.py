@@ -312,7 +312,7 @@ class Compiler:
 
     @trace
     def symbol(self, symbol: str) -> str:
-        if re.search(r"^..|[ ()]", symbol):
+        if re.search(r"^\.\.|[ ()]", symbol):  # Python injection?
             return symbol
         if ".." in symbol:
             parts = symbol.split("..", 1)
