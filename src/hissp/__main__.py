@@ -19,15 +19,20 @@ def repl():
                 raise SystemExit
             buffer = _get_more(line)
             forms = parser.reads("\n".join(buffer))
-            code = parser.compiler.compile(forms)
-            print(">>>", code.replace("\n", "\n... "))
-            bytecode = compile(code, "<repl>", "single")
-            exec(bytecode, parser.compiler.ns)
+            evaluate(forms, parser)
         except SystemExit:
             print("Exit Hissp.")
             raise
         except BaseException as be:
             traceback.print_exception(type(be), be, be.__traceback__.tb_next)
+
+
+def evaluate(forms, parser):
+    code = parser.compiler.compile(forms)
+    print(">>>", code.replace("\n", "\n... "))
+    bytecode = compile(code, "<repl>", "single")
+    exec(bytecode, parser.compiler.ns)
+    return code
 
 
 def _get_more(line):
