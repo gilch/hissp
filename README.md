@@ -2,6 +2,16 @@
 Copyright 2019 Matthew Egan Odendahl
 SPDX-License-Identifier: Apache-2.0
 -->
+<!-- Hidden doctest for REPL-consistent behavior.
+#> (operator..setitem (globals) '_macro_ (copy..copy hissp.basic.._macro_))
+#..
+>>> __import__('operator').setitem(
+...   globals(),
+...   '_macro_',
+...   __import__('copy').copy(
+...     __import__('hissp.basic',fromlist='?')._macro_))
+
+-->
 # Hissp
 
 It's Python with a *Lissp*.
@@ -117,11 +127,11 @@ Any errors that prevent compilation should be easy to find.
 
 #### Syntax compatible with Emacs' `lisp-mode` and Parlinter
 A language is not very usable without tools.
-Hissp's basic reader should work with Emacs.
+Hissp's basic reader syntax (Lissp) should work with Emacs.
 
 #### Standalone output
 One can, of course, write Hissp code that depends on any Python library.
-But the compiler does not depend on embedding calls out to any special
+But the compiler does not depend on emitting calls out to any special
 Hissp helper functions to work.
 You do not need Hissp installed to run the final compiled Python output,
 only Python itself.
@@ -149,8 +159,10 @@ This requires incremental compilation and evaluation of forms, like the REPL.
 
 #### Modularity
 The Hissp language is made of tuples (and values), not text.
-The basic reader included with the project just implements convenient way to write them.
-It's possible to write Hissp in "readerless mode" by writing these tuples in Python.
+The basic reader included with the project just implements convenient
+way to write them.
+It's possible to write Hissp in "readerless mode"
+by writing these tuples in Python.
 
 Batteries are not included because Python already has them.
 Hissp's standard library is Python's.
@@ -194,9 +206,9 @@ This will all be explained in more detail later on.
 ```
 $ python -m hissp
 ```
-```python
+```pydocstring
 #> (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
-
+#..
 >>> __import__('builtins').print(
 ...   (1),
 ...   (2j),
@@ -206,7 +218,7 @@ $ python -m hissp
 1:2j:3.0:[4, '5', 6]
 
 #> (hissp.basic.._macro_.define tuple* (lambda (: :* xs) xs))
-
+#..
 >>> # hissp.basic.._macro_.define
 ... __import__('operator').setitem(
 ...   __import__('builtins').globals(),
@@ -221,13 +233,31 @@ Hissp has only two types of expressions or forms: literals, and calls.
 #### Literals and the Reader
 Literals are handled at the reader level.
 
-Hissp code is made of tuples (and values), not text.
 "The reader" refer's to Hissp's basic parser.
 It's the reader's job to translate the `.lissp` code files into Hissp code.
-One could skip the reader altogether and write the tuples in Python directly.
+
+It's important to distinguish these two things,
+because they each have their own type of macro:
+
+* *Lissp* code is made of text, and the basic reader parses it into Hissp.
+You can hook into this process with a *reader macro*,
+which can embed arbitrary Python objects into the Hissp.
+
+* *Hissp* code is made of tuples (and values), not text.
+Lissp is to Hissp as the written word is to the spoken word.
+It's ephemeral; it only lives in memory.
+The compiler compiles Hissp to a *functional subset of Python*.
+You can hook into this process with a *compiler macro*.
+Without context suggesting otherwise,
+the term *macro* refers to a *compiler macro*.
+
+Lissp is a fairly direct *representation* of Hissp, but it's not the only one.
+One could skip the reader altogether and write the Hissp in Python directly as tuples.
 This is called "readerless mode".
+Reader macros are an artifact of the reader and don't exist in readerless mode at all,
+but compiler macros do work.
 It's also possible to use alternative readers with alternate syntax,
-but it must represent the same underlying tuples to be Hissp.
+but it must *represent* the same underlying tuples to be Hissp.
 
 Using the basic reader,
 any valid Python literal (as defined by `ast..literal_eval`)
@@ -260,13 +290,21 @@ A symbol that begins with a `:` is a "keyword".
 Keywords are never interpreted as identifiers,
 so they don't need to be quoted or munged.
 
-Reader macros consist of a symbol ending with a `\ `
+The basic reader's macro syntax is limited to tagged forms,
+like EDN and Clojure, but unlike Common Lisp
+(which could dispatch on any character),
+because it's meant to be compatible with existing tooling for syntax
+highlighting and structural editing,
+which wouldn't work if you change the grammar.
+(An alternate reader for Hissp need not have this limitation.)
+
+Reader macros in Lissp consist of a symbol ending with a `\ `
 followed by another form.
 The function named by the symbol is invoked on the form,
-and the reader inserts the resulting object into the output code.
+and the reader embeds the resulting object into the output Hissp.
 
 For example,
-```python
+```pydocstring
 #> builtins..float\inf
 >>> __import__('pickle').loads(  # inf
 ...     b'\x80\x03G\x7f\xf0\x00\x00\x00\x00\x00\x00.'
@@ -289,9 +327,9 @@ There are currently three of them: `.\ `, `_\ `, and `#\ `.
 
 If you need more than one argument for a reader macro, use the built in
 `.\ ` macro, which evaluates a form at read time. For example,
-```python
+```pydocstring
 #> .\(fractions..Fraction 1 2)
-
+#..
 >>> __import__('pickle').loads(  # Fraction(1, 2)
 ...     b'\x80\x03cfractions\nFraction\nX\x03\x00\x00\x001/2\x85R.'
 ... )
@@ -312,18 +350,13 @@ There are also four more built-in reader macros that don't end with `\ `:
 The final builtin `#\ ` creates a gensym based on the given symbol.
 Within a template, the same gensym literal always makes the same
 gensym.
-```python
-#> '(#\hiss #\hiss)  ; Note different numbers.
-
->>> ('_hissxAUTO1_', '_hissxAUTO2_')
-('_hissxAUTO1_', '_hissxAUTO2_')
-
-#> `(#\hiss #\hiss)  ; Note template quote, and the same number.
-
->>> (lambda *a:a)(
-...   '_hissxAUTO3_',
-...   '_hissxAUTO3_')
-('_hissxAUTO3_', '_hissxAUTO3_')
+```pydocstring
+#> `(#\hiss #\hiss)
+#..
+>>> (lambda *xAUTO0_:xAUTO0_)(
+...   '_hissxAUTO15_',
+...   '_hissxAUTO15_')
+('_hissxAUTO15_', '_hissxAUTO15_')
 
 ```
 
@@ -331,7 +364,7 @@ In readerless mode, these reader macros correspond to functions used to
 make the Hissp itself.
 For example, one could make a quoting "readerless macro" like this
 
-```python
+```pydocstring
 >>> def q(form):
 ...     return 'quote', form
 >>> from hissp.compiler import readerless
@@ -347,7 +380,7 @@ hi
 
 ```
 Which is equivalent to
-```python
+```pydocstring
 #> (print 'hi)
 #..
 >>> print(
@@ -363,9 +396,9 @@ Note the lack of commas between arguments.
 ```
 $ python -m hissp
 ```
-```python
+```pydocstring
 #> (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
-
+#..
 >>> __import__('builtins').print(
 ...   (1),
 ...   (2j),
@@ -401,9 +434,9 @@ These are calls that are built into the compiler.
 Unlike a normal function call, special forms are evaluated at compile time.
 
 The first special form is `quote`. It returns its argument unevaluated.
-```python
+```pydocstring
 #> (quote builtins..print)
-
+#..
 >>> 'builtins..print'
 'builtins..print'
 
@@ -413,9 +446,9 @@ Hissp has no separate symbol type.
 A quoted symbol just emits a string.
 
 Here's the earlier example quoted.
-```python
+```pydocstring
 #> (quote (builtins..print 1 2j 3.0 [4,'5',6] : sep ":"))
-
+#..
 >>> ('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':'))
 ('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':'))
 
@@ -432,18 +465,18 @@ The first argument of a lambda is the pararmeters tuple.
 Like calls, the `:` separates the single from the paired (if any).
 After the parameters tuple, the rest of the arguments are the function body.
 
-```python
+```pydocstring
 #> (lambda (a b  ; single/positional
 #..         : e 1  f 2  ; paired/kwargs
 #..         :* args  h 4  i :_  j 1  ; *args and kwonly
 #..         :** kwargs)
 #.. 42)
-
+#..
 >>> (lambda a,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
 <function <lambda> at ...>
 
 #> (lambda (: :* :_  x :_))  ; Only kwonly. Empty body returns ().
-
+#..
 >>> (lambda *,x:())
 <function <lambda> at ...>
 
@@ -503,9 +536,9 @@ by using qualified symbols.
 
 Hissp macros and reader macros can return any type of object.
 If you return a string the compiler will assume it's either a qualified symbol
-or plain identifier (and embed it verbatim).
-But the string *could* contain almost arbitrary Python code instead,
-like a SQL injection attack.
+or plain identifier (and emit it verbatim).
+But, like a SQL injection attack,
+the string *could* contain almost arbitrary Python code instead.
 
 Howerver, the whole point of Hissp is syntactic macros.
 If you wanted to do string metaprogramming you could have just used `exec()`,
@@ -533,7 +566,7 @@ We have all the operators because we have all the standard library functions.
 > That's really verbose though.
 
 You can, of course, abbreviate these.
-```lisp
+```pydocstring
 #> (define + operator..add)
 #..
 >>> # define
@@ -548,6 +581,7 @@ You can, of course, abbreviate these.
 ...   (1),
 ...   (1))
 2
+
 ```
 Yes, `+` is a valid symbol. It gets munged to `xPLUS_`.
 The result is all of the operators you might want,
@@ -567,7 +601,7 @@ Also, you don't have to be restricted to one or two arguments.
 Fine. You can write macros for any syntax you please.
 
 Also recall that (reader) macros can return arbitrary Python snippets
-and the compiler will embed them verbatim.
+and the compiler will emit them verbatim.
 You should generally avoid doing this,
 because then you're metaprogramming with strings instead of AST.
 You're giving up a lot of Hissp's power.
@@ -575,7 +609,7 @@ But optimizing complex formulas is maybe one of the few times it's OK to do that
 
 Recall the `.\ ` reader macro executes a form and embeds its result into the Hissp.
 
-```lisp
+```pydocstring
 #> (define quadratic
 #.. (lambda (a b c)
 #..   .\"(-b + (b**2 - 4*a*c)**0.5)/(2*a)"))
@@ -585,6 +619,7 @@ Recall the `.\ ` reader macro executes a form and embeds its result into the His
 ...   __import__('builtins').globals(),
 ...   'quadratic',
 ...   (lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a)))
+
 ```
 
 But for a top-level `define` like this, you could have just used `exec()`.
@@ -888,7 +923,7 @@ Just don't do this in the macroexpansions where it might end up in another modul
 The package `__init__.py` doesn't import it or it's not in a package.
 
 Use `importlib..import_module`.
-```python
+```pydocstring
 #> (importlib..import_module 'collections.abc)
 #..
 >>> __import__('importlib').import_module(

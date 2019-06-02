@@ -11,6 +11,7 @@ from importlib import import_module, resources
 from itertools import chain
 from pathlib import Path, PurePath
 from pprint import pprint
+from textwrap import dedent
 from types import ModuleType
 from typing import Any, Iterable, Iterator, NewType, Tuple, Union
 
@@ -47,11 +48,13 @@ def lex(code: str) -> Iterator[Token]:
             line = len(good)
             column = len(good[-1])
             raise SyntaxError(
-                f"""\
-Unexpected token at {line}:{column}
-{lines[line-1]}
-{" "*column}^
-"""
+                dedent(
+                    f"""\
+                    Unexpected token at {line}:{column}
+                    {lines[line-1]}
+                    {" "*column}^
+                    """
+                )
             )
         assert match.end() > pos, match.groups()
         pos = match.end()

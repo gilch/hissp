@@ -3,3 +3,4 @@ hypothesis
 coverage
 pytest
 pytest-cov
+sybil
