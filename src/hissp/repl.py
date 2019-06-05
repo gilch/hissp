@@ -16,12 +16,13 @@ def repl():
             try:
                 line = input("\n#> ")
             except EOFError:
-                raise SystemExit
+                print("Ssee ya!")
+                break
             buffer = _get_more(line)
             forms = parser.reads("\n".join(buffer))
             evaluate(forms, parser)
         except SystemExit:
-            print("Exit Hissp.")
+            print("Lissp REPL Exit.")
             raise
         except BaseException as be:
             traceback.print_exception(type(be), be, be.__traceback__.tb_next)
@@ -37,7 +38,7 @@ def evaluate(forms, parser):
 
 def _get_more(line):
     buffer = [line]
-    if "(" in line or '"' in line:
+    if "(" in line or '"' in line or ";" in line:
         buffer.extend(iter(partial(input, "#.."), ""))
     return buffer
 
