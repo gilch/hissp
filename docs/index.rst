@@ -11,6 +11,7 @@ Welcome to Hissp's documentation!
    :caption: Contents:
 
    modules
+   tutorial
 
 
 

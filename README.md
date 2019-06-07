@@ -2,14 +2,15 @@
 Copyright 2019 Matthew Egan Odendahl
 SPDX-License-Identifier: Apache-2.0
 -->
-<!-- Hidden doctest for REPL-consistent behavior.
-#> (operator..setitem (globals) '_macro_ (copy..copy hissp.basic.._macro_))
+<!-- Hidden doctest requires basic macros for REPL-consistent behavior.
+#> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.basic.._macro_)))
 #..
 >>> __import__('operator').setitem(
 ...   globals(),
 ...   '_macro_',
-...   __import__('copy').copy(
-...     __import__('hissp.basic',fromlist='?')._macro_))
+...   __import__('types').SimpleNamespace(
+...     **vars(
+...       __import__('hissp.basic',fromlist='?')._macro_)))
 
 -->
 # Hissp
@@ -1017,7 +1018,7 @@ Hissp has no dependencies, but its test suite does.
 $ pip install -r requirements-dev.txt
 ```
 ```
-$ pytest --doctest-modules --cov=hissp --doctest-glob README.md .
+$ pytest --doctest-modules --cov=hissp
 ```
 
 We merge to master without squashing.

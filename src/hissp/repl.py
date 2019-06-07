@@ -10,7 +10,7 @@ from hissp.reader import Parser
 
 def repl():
     parser = Parser()
-    parser.compiler.ns['_macro_'] = SimpleNamespace(**vars(hissp.basic._macro_))
+    parser.compiler.ns["_macro_"] = SimpleNamespace(**vars(hissp.basic._macro_))
     while True:
         try:
             try:
@@ -41,7 +41,3 @@ def _get_more(line):
     if "(" in line or '"' in line or ";" in line:
         buffer.extend(iter(partial(input, "#.."), ""))
     return buffer
-
-
-if __name__ == "__main__":
-    repl()
