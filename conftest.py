@@ -1,5 +1,7 @@
 import re
+from collections.abc import Container
 from doctest import ELLIPSIS
+from fnmatch import fnmatch
 from textwrap import dedent, indent
 
 from sybil import Sybil
@@ -53,6 +55,14 @@ class ParseLissp(DocTestParser):
         return super().evaluate(example)
 
 
+class Globs(Container):
+    def __init__(self, *globs):
+        self.globs = globs
+
+    def __contains__(self, item):
+        return any(fnmatch(item, glob) for glob in self.globs)
+
+
 pytest_collect_file = Sybil(
-    parsers=[ParseLissp(optionflags=ELLIPSIS)], pattern="*.rst", filenames={"README.md"}
+    parsers=[ParseLissp(optionflags=ELLIPSIS)], filenames=Globs("*.md", "*.rst")
 ).pytest()
