@@ -28,7 +28,10 @@ TOKENS = re.compile(
 |(?P<macro>
    ,@
   |['`,]
-  |[^ \n"(){}[\]\\]*\\)
+   # Ends in ``\``, but not bytes, dict, set, list, str.
+  |(?:[Bb](?!')
+     |[^ \n"(){}[\]\\Bb]
+     )[^ \n"(){}[\]\\]*\\)
 |(?P<symbol>[^ \n"()]+)
 """
 )
