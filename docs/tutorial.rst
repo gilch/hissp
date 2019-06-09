@@ -376,6 +376,19 @@ but used in another.
 Compound Expressions
 --------------------
 
+Literals are just the basic building blocks.
+To do anything iteresting with them, you have to combine them.
+
+Empty
+#####
+
+The empty tuple ``()`` might as well be a literal::
+
+    #> ()
+    #..
+    >>> ()
+    ()
+
 Lambdas
 #######
 
@@ -597,6 +610,21 @@ Structured Literals
 .. TODO explain?
 
 ::
+You can quote it if you want, it doesn't matter::
+
+    #> '()
+    #..
+    >>> ()
+    ()
+
+But a quoted tuple doesn't have to be empty::
+
+    #> '(1 2 3)
+    #..
+    >>> (1, 2, 3)
+    (1, 2, 3)
+
+?
 
     #> [1,2,3]
     >>> [1, 2, 3]
