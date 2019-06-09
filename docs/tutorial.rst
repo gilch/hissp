@@ -185,7 +185,7 @@ Read time
   The pre-compile phase that translates Lissp to Hissp:
   when the reader runs.
 
-Let's see our "Hello World" example in Lissp::
+Let's see our "Hello World" example in Lissp:
 
 >>> from hissp.reader import Parser
 >>> next(Parser().reads("""
@@ -217,7 +217,7 @@ But let's just start it from the command line::
 
     $ python -m hissp
 
-You should see the Lissp prompt ``#> `` appear.
+You should see the Lissp prompt ``#>`` appear.
 
 The basic REPL shows the Python translation of the read Lissp
 and evaluates it.
@@ -339,7 +339,7 @@ which can have special meaning in Python.
 Key Symbols
 ~~~~~~~~~~~
 
-Symbols that begin with a ``:`` are called *key symbols*[#key]_.
+Symbols that begin with a ``:`` are called *key symbols* [#key]_.
 These are for when you want a symbol but it's not meant to be used as
 an identifier. Thus, they do not get munged::
 
@@ -377,10 +377,93 @@ Compound Expressions
 --------------------
 
 lambda
-~~~~~~
-    @ kwparam/kwonly
+######
+The anonymous function special form::
+
+    (lambda (<parameters>)
+      <body>)
+
+The parameters tuple is divided into ``(<single> : <paired>)``
+
+Parameter types are the same as Python's.
+For example::
+
+    #> (lambda (a b  ; positional
+    #..         : e 1  f 2  ; default
+    #..         :* args  h 4  i :_  j 1  ; kwonly
+    #..         :** kwargs)
+    #..  42)
+    #..
+    >>> (lambda a,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
+    <function <lambda> at ...>
+
+The special keywords ``:*`` and ``:**`` designate the remainder of the
+positional and keyword parameters, respectively.
+Note this body has multiple expressions::
+
+    #> (lambda (: :* args :** kwargs)
+    #..  (print args)
+    #..  (print kwargs)  ; Body expressions evaluate in order.
+    #..  :return-value)  ; The last one is returned.
+    #..
+    >>> (lambda *args,**kwargs:(
+    ...   print(
+    ...     args),
+    ...   print(
+    ...     kwargs),
+    ...   ':return-value')[-1])
+    <function <lambda> at ...>
+
+    #> (_ 1 : b :c)  ; The ``_`` works in the Python shell too.
+    #..
+    >>> _(
+    ...   (1),
+    ...   b=':c')
+    (1,)
+    {'b': ':c'}
+    ':return-value'
+
+You can omit the right of a pair with ``:_``
+(except the final ``**kwargs``).
+Also note that the body can be empty::
+
+    #> (lambda (: a 1 :* :_  b :_  c 2))
+    #..
+    >>> (lambda a=(1),*,b,c=(2):())
+    <function <lambda> at ...>
+
+The ``:`` may be omitted if there are no paired parameters::
+
+    #> (lambda (a b c :))  ; No pairs after ':'.
+    #..
+    >>> (lambda a,b,c:())
+    <function <lambda> at ...>
+
+    #> (lambda (a b c))  ; The ':' was omitted.
+    #..
+    >>> (lambda a,b,c:())
+    <function <lambda> at ...>
+
+    #> (lambda (:))
+    #..
+    >>> (lambda :())
+    <function <lambda> at ...>
+
+    #> (lambda ())
+    #..
+    >>> (lambda :())
+    <function <lambda> at ...>
+
+The ``:`` is required if there are any paired parameters, even if
+there are no single parameters::
+
+    #> (lambda (: :** kwargs))
+    #..
+    >>> (lambda **kwargs:())
+    <function <lambda> at ...>
+
 calls
-~~~~~
+#####
   ! nil
     @ star stars single kwarg method
 
@@ -414,7 +497,7 @@ calls
 
 
 Structured Literals
-~~~~~~~~~~~~~~~~~~~
+###################
 
 .. TODO explain?
 
@@ -447,8 +530,10 @@ Structured Literals
    Literal data structures may not contain tuples.
 
 Literal data structures can be very useful as inputs to
+
  * macros, especially reader macros, which can only take one argument,
  * and arrays, which contain only simple types.
+
 .. Caution::
    Unlike Python, literal data structures may contain only static data
    discernible at read time. They are each read as a *single object*.

@@ -299,8 +299,8 @@ class Compiler:
           *[4],
           **{'sep': ':', 'end': '\n\n'})
 
-        Unlike other keywords, these can be repeated, but a '*' is not
-        allowed to follow '**', as in Python.
+        Unlike other keywords, these can be repeated,
+        but (as in Python) a '*' is not allowed to follow '**'.
 
         Method calls are similar to function calls.
         (.<method name> <object> <args> & <kwargs>)
