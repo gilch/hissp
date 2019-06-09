@@ -138,8 +138,8 @@ Our ``q()`` worked, but we forgot the comma in ``('name')``.
    it's best to think of commas as *terminators*,
    rather than *separators*, to avoid this kind of problem.
    In Python, (except for the empty tuple ``()``)
-   it is the *comma* that creates a tuple. *Not* the parentheses!
-   The parentheses just control evaluation order.
+   it is the *comma* that creates a tuple, **not** the parentheses.
+   The parentheses only control evaluation order.
    There are some contexts where tuples don't require parentheses at all.
 
 Lissp
@@ -232,12 +232,12 @@ Most literals work just like Python::
     1
 
     #> ;; Use two ';'s if it starts the line.
-    #..-1.0
+    #..-1.0  ; float
     #..
     >>> (-1.0)
     -1.0
 
-    #> 1e10
+    #> 1e10  ; exponent notation
     >>> (10000000000.0)
     10000000000.0
 
@@ -245,12 +245,16 @@ Most literals work just like Python::
     >>> ((2+3j))
     (2+3j)
 
+    #> ...
+    >>> ...
+    Ellipsis
+
     #> True
     >>> True
     True
 
     #> None
-    >>> None
+    >>> None ; These don't print.
 
 Comments, as one might expect, are ignored by the reader,
 and do not appear in the Hissp output.
@@ -308,6 +312,12 @@ Recall that the argument of the ``quote`` special form is seen as data::
 This shows us how that Lissp would get translated to Hissp.
 Notice that symbols become strings in Hissp.
 
+Symbols with an internal ``.`` can access attributes::
+
+    #> int.__name__
+    >>> int.__name__
+    'int'
+
 Munging
 ~~~~~~~
 
@@ -358,7 +368,7 @@ Qualified Symbols
 ~~~~~~~~~~~~~~~~~
 
 You can refer to variables defined in any module by using a
-qualified symbol::
+*qualified symbol*::
 
     #> (operator..add 40 2)
     #..
@@ -535,8 +545,7 @@ The ``:`` is optional if the ``<kwargs>`` part is empty::
 The ``<kwargs>`` part has implicit pairs; there must be an even number.
 
 Use the special key symbols ``:*`` for iterable unpacking,
-``:_`` for no unpacking nor kwarg after the ``:``,
-and ``:**`` for mapping unpacking::
+``:_`` to pass by position and ``:**`` for mapping unpacking::
 
     #> (print : :* '(1 2)  :_ 3  :* '(4)  :** (dict : sep :  end "\n."))
     #..
@@ -604,123 +613,13 @@ function name starts with a dot::
   ! examples from basic macros
 
 
-Structured Literals
-###################
-
-.. TODO explain?
-
-::
-You can quote it if you want, it doesn't matter::
-
-    #> '()
-    #..
-    >>> ()
-    ()
-
-But a quoted tuple doesn't have to be empty::
-
-    #> '(1 2 3)
-    #..
-    >>> (1, 2, 3)
-    (1, 2, 3)
-
-?
-
-    #> [1,2,3]
-    >>> [1, 2, 3]
-    [1, 2, 3]
-
-    #> {'foo':2}
-    >>> {'foo': 2}
-    {'foo': 2}
-
-
-.. Caution::
-   Unlike Python's *displays*,
-   spaces are **not** allowed in Lissp's literal data structures,
-   nor are double quotes,
-   because this causes them to be read as multiple forms.
-   It's better to avoid them,
-   but if you must have them in an inner string, use the escape codes ``\40``,
-   or ``\42`` instead, respectively.
-
-   Triple single-quoted strings may appear in literal data structures,
-   but newlines are not allowed for the same reason. Use ``\n`` instead.
-
-   Parentheses are reserved for Hissp forms and may not appear in
-   literal data structures, even in nested strings
-   (Use ``\50\51`` if you must).
-   Literal data structures may not contain tuples.
-
-Literal data structures can be very useful as inputs to
-
- * macros, especially reader macros, which can only take one argument,
- * and arrays, which contain only simple types.
-
-.. Caution::
-   Unlike Python, literal data structures may contain only static data
-   discernible at read time. They are each read as a *single object*.
-   If you want to interpolate runtime data, use function calls
-   and templates instead::
-
-        #> (list `(,@(.upper "abc") ,@[1,2,3] ,(.title "zed")))
-        #..
-        >>> list(
-        ...   (lambda *xAUTO0_:xAUTO0_)(
-        ...     *'abc'.upper(),
-        ...     *[1, 2, 3],
-        ...     'zed'.title()))
-        ['A', 'B', 'C', 1, 2, 3, 'Zed']
-
-   If this is still too verbose for your taste,
-   remember you can use helper functions or metaprogramming to simplify::
-
-        #> (define enlist
-        #.. (lambda (: :* args)
-        #..  (list args)))
-        #..
-        >>> # define
-        ... __import__('operator').setitem(
-        ...   __import__('builtins').globals(),
-        ...   'enlist',
-        ...   (lambda *args:
-        ...     list(
-        ...       args)))
-
-        #> (enlist : :*(.upper "abc")  :_ [1,2,3]  :_ (.title "zed"))
-        #..
-        >>> enlist(
-        ...   *'abc'.upper(),
-        ...   [1, 2, 3],
-        ...   'zed'.title())
-        ['A', 'B', 'C', [1, 2, 3], 'Zed']
-
-        #> (enlist 'A 'B 'C 1 2 3 (.title "zed"))
-        #..
-        >>> enlist(
-        ...   'A',
-        ...   'B',
-        ...   'C',
-        ...   (1),
-        ...   (2),
-        ...   (3),
-        ...   'zed'.title())
-        ['A', 'B', 'C', 1, 2, 3, 'Zed']
-
-
-Only single-quoted or triple single-quoted strings are allowed
-inside of literal data structures.
-(And only double-quoted strings outside.)
-
 Reader Macros
 =============
 
 Reader macros in Lissp consist of a symbol ending with a ``\``
 followed by another form.
 The function named by the symbol is invoked on the form,
-and the reader embeds the resulting object into the output Hissp.
-
-For example::
+and the reader embeds the resulting object into the output Hissp::
 
     #> builtins..float\inf
     >>> __import__('pickle').loads(  # inf
@@ -739,35 +638,118 @@ it may be worth it if constructing the object normally has even more.
 Naturally, the object must be picklable to emit a pickle.
 
 Unqualified reader macros are reserved for the basic Hissp reader.
-There are currently three of them: `.\ `, `_\ `, and `#\ `.
+There are currently three of them: ``.\``, ``_\``, and ``#\``.
 
 If you need more than one argument for a reader macro, use the built in
-`.\ ` macro, which evaluates a form at read time. For example,
-```python
-#> .\(fractions..Fraction 1 2)
-#..
->>> __import__('pickle').loads(  # Fraction(1, 2)
-...     b'\x80\x03cfractions\nFraction\nX\x03\x00\x00\x001/2\x85R.'
-... )
-Fraction(1, 2)
+``.\`` macro, which evaluates a form at read time::
 
-```
+    #> .\(fractions..Fraction 1 2)
+    #..
+    >>> __import__('pickle').loads(  # Fraction(1, 2)
+    ...     b'\x80\x03cfractions\nFraction\nX\x03\x00\x00\x001/2\x85R.'
+    ... )
+    Fraction(1, 2)
 
-The `_\ ` macro omits the next form.
+
+The ``_\`` macro omits the next form.
 It's a way to comment out code,
 even if it takes multiple lines.
 
 Templates
 ---------
 
-* ````` template quote
-* `,` unquote
-* `,@` splice unquote
-* `'` quote
+Besides ``'``, which we've already seen,
+Lissp has three other built-in reader macros that don't require a ``\``:
 
-The final builtin reader macro ``#\`` creates a gensym based on the given symbol.
-Within a template, the same gensym literal always makes the same
-gensym::
+* ````` template quote
+* ``,`` unquote
+* ``,@`` splice unquote
+
+The template quote works much like a normal quote::
+
+    #> '(1 2 3)  ; quote
+    #..
+    >>> (1, 2, 3)
+    (1, 2, 3)
+
+    #> `(1 2 3)  ; template quote
+    #..
+    >>> (lambda *xAUTO0_:xAUTO0_)(
+    ...   (1),
+    ...   (2),
+    ...   (3))
+    (1, 2, 3)
+
+Notice the results are the same,
+but the template quote becomes the code that evaluates to the result,
+instead of the quoted result itself.
+
+This gives you the ability to *interpolate*
+data into the tuple at the time it is evaluated,
+much like a template or format string::
+
+    #> '(1 2 (operator..add 1 2))  ; normal quote
+    #..
+    >>> (1, 2, ('operator..add', 1, 2))
+    (1, 2, ('operator..add', 1, 2))
+
+    #> `(1 2 ,(operator..add 1 2))  ; template and unquote
+    #..
+    >>> (lambda *xAUTO0_:xAUTO0_)(
+    ...   (1),
+    ...   (2),
+    ...   __import__('operator').add(
+    ...     (1),
+    ...     (2)))
+    (1, 2, 3)
+
+The splice unquote is similar, but unpacks its result::
+
+    #> `(:a ,@"bcd" :e)
+    #..
+    >>> (lambda *xAUTO0_:xAUTO0_)(
+    ...   ':a',
+    ...   *'bcd',
+    ...   ':e')
+    (':a', 'b', 'c', 'd', ':e')
+
+Templates are *reader syntax*: because they're reader macros,
+they only exist in Lissp, not Hissp. The Hissp is what they return.
+
+If you quote and pretty-print an example, you can see that intermediate step::
+
+    #> (pprint..pprint '`(:a ,@"bcd" ,(opearator..mul 2 3)))
+    #..
+    >>> __import__('pprint').pprint(
+    ...   (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':_', ':a', ':*', ('quote', 'bcd'), ':_', ('opearator..mul', 2, 3)))
+    (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'),
+     ':',
+     ':_',
+     ':a',
+     ':*',
+     ('quote', 'bcd'),
+     ':_',
+     ('opearator..mul', 2, 3))
+
+
+So you see, templates are not doing anything new.
+It's just syntactic sugar based on what Hissp already has.
+
+Judicious use of sugar can make code much easier to read and write.
+While all Turing-complete languages have the same theoretical *power*,
+they are not equally *expressive*.
+Metaprogramming makes a language more expressive: you can say more with less.
+Reader macros are a kind of metaprogramming.
+Because you can make your own reader macros, you can make your own sugar.
+
+Templates are extremely valuable tools for metaprogramming.
+Most macros will use at least one internally.
+
+Gensyms
+#######
+The final builtin reader macro ``#\`` creates a *generated symbol*
+(gensym) based on the given symbol.
+Within a template, the same gensym name always makes the same gensym::
 
     #> `(#\hiss #\hiss)
     #..
@@ -775,6 +757,118 @@ gensym::
     ...   '_hissxAUTO17_',
     ...   '_hissxAUTO17_')
     ('_hissxAUTO17_', '_hissxAUTO17_')
+
+Gensyms are mainly used to prevent accidental name collisions in generated code.
+
+Data Structures
+---------------
+
+Python's data structure notation works in Lissp as well::
+
+    #> [1,2,3]
+    >>> [1, 2, 3]
+    [1, 2, 3]
+
+    #> {'foo':2}
+    >>> {'foo': 2}
+    {'foo': 2}
+
+Only single-quoted or triple single-quoted strings are allowed
+inside of literal data structures.
+(And only double-quoted strings outside.)
+
+Tuples are different.
+Since they normally represent code,
+you must quote them to use them as data.
+
+.. sidebar:: Except for the empty tuple.
+
+   You can quote it if you want, it doesn't matter::
+
+       #> '()
+       #..
+       >>> ()
+       ()
+
+   But a quoted tuple doesn't have to be empty::
+
+       #> '(1 2 3)
+       #..
+       >>> (1, 2, 3)
+       (1, 2, 3)
+
+
+Literal data structures can be very useful as inputs to macros,
+(especially reader macros, which can only take one argument)
+and arrays, which contain only simple types.
+
+.. Caution::
+   Unlike Python's *displays*,
+   spaces are **not** allowed in Lissp's literal data structures,
+   nor are double quotes,
+   because this causes them to be read as multiple forms.
+   It's better to avoid these characters in single-quoted stings.
+   But if you must have them, use the escape codes ``\40``
+   or ``\42`` instead, respectively.
+
+   Triple single-quoted strings may appear in literal data structures,
+   but newlines are not allowed for the same reason. Use ``\n`` instead.
+
+   Parentheses are reserved for Hissp forms and may not appear in
+   literal data structures, even in nested strings
+   (Use ``\50\51`` if you must.)
+   Literal data structures may not contain tuples.
+
+Unlike Python, literal data structures may contain only static data
+discernible at read time. They are each read as a *single object*.
+If you want to interpolate runtime data, use function calls
+and templates instead::
+
+    #> (list `(,@(.upper "abc") ,@[1,2,3] ,(.title "zed")))
+    #..
+    >>> list(
+    ...   (lambda *xAUTO0_:xAUTO0_)(
+    ...     *'abc'.upper(),
+    ...     *[1, 2, 3],
+    ...     'zed'.title()))
+    ['A', 'B', 'C', 1, 2, 3, 'Zed']
+
+If this is still too verbose for your taste,
+remember you can use helper functions or metaprogramming to simplify::
+
+    #> (define enlist
+    #.. (lambda (: :* args)
+    #..  (list args)))
+    #..
+    >>> # define
+    ... __import__('operator').setitem(
+    ...   __import__('builtins').globals(),
+    ...   'enlist',
+    ...   (lambda *args:
+    ...     list(
+    ...       args)))
+
+    #> (enlist : :*(.upper "abc")  :_ [1,2,3]  :_ (.title "zed"))
+    #..
+    >>> enlist(
+    ...   *'abc'.upper(),
+    ...   [1, 2, 3],
+    ...   'zed'.title())
+    ['A', 'B', 'C', [1, 2, 3], 'Zed']
+
+    #> (enlist 'A 'B 'C 1 2 3 (.title "zed"))
+    #..
+    >>> enlist(
+    ...   'A',
+    ...   'B',
+    ...   'C',
+    ...   (1),
+    ...   (2),
+    ...   (3),
+    ...   'zed'.title())
+    ['A', 'B', 'C', 1, 2, 3, 'Zed']
+
+
 
 Macros
 ======
