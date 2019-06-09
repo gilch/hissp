@@ -92,8 +92,6 @@ class Compiler:
     def special(self, form: tuple, head: str, tail: list) -> str:
         """Try to compile as special form, else self.macro()."""
         if head == "quote":
-            if len(form) != 2:
-                raise SyntaxError
             return self.quoted(form[1])
         if head == "lambda":
             return self.function(form)

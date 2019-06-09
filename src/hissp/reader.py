@@ -103,7 +103,7 @@ class Parser:
                     raise SyntaxError("Unopened ')'.")
                 return
             elif k == "string":
-                yield "quote", ast.literal_eval(v.replace("\n", r"\n"))
+                yield "quote", ast.literal_eval(v.replace("\n", r"\n")), {":str": True}
             elif k in {"comment", "whitespace"}:
                 continue
             elif k == "macro":
@@ -153,6 +153,8 @@ class Parser:
     def template(self, form):
         case = type(form)
         if case is tuple and form:
+            if form[0] == 'quote' and len(form) == 3 and form[2].get(':str'):
+                return 'quote', form
             return (
                 ("lambda", (":", ":*", "xAUTO0_"), "xAUTO0_"),
                 ":",
