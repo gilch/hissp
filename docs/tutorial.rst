@@ -376,8 +376,9 @@ but used in another.
 Compound Expressions
 --------------------
 
-lambda
-######
+Lambdas
+#######
+
 The anonymous function special form::
 
     (lambda (<parameters>)
@@ -462,8 +463,102 @@ there are no single parameters::
     >>> (lambda **kwargs:())
     <function <lambda> at ...>
 
-calls
+Calls
 #####
+
+Any tuple that is not quoted, empty, or a special form or macro is
+a runtime call.
+
+Like Python, it has three parts::
+
+    (<callable> <args> : <kwargs>)
+
+For example::
+
+    #> (print 1 2 3 : sep ":"  end "\n.")
+    #..
+    >>> print(
+    ...   (1),
+    ...   (2),
+    ...   (3),
+    ...   sep=':',
+    ...   end='\n.')
+    1:2:3
+    .
+
+Either ``<args>`` or ``<kwargs>`` may be empty::
+
+    #> (int :)
+    #..
+    >>> int()
+    0
+
+    #> (print :foo :bar :)
+    #..
+    >>> print(
+    ...   ':foo',
+    ...   ':bar')
+    :foo :bar
+
+    #> (print : end "X")
+    #..
+    >>> print(
+    ...   end='X')
+    X
+
+The ``:`` is optional if the ``<kwargs>`` part is empty::
+
+    #> (int)
+    #..
+    >>> int()
+    0
+
+    #> (float "inf")
+    #..
+    >>> float(
+    ...   'inf')
+    inf
+
+The ``<kwargs>`` part has implicit pairs; there must be an even number.
+
+Use the special key symbols ``:*`` for iterable unpacking,
+``:_`` for no unpacking nor kwarg after the ``:``,
+and ``:**`` for mapping unpacking::
+
+    #> (print : :* '(1 2)  :_ 3  :* '(4)  :** (dict : sep :  end "\n."))
+    #..
+    >>> print(
+    ...   *(1, 2),
+    ...   (3),
+    ...   *(4,),
+    ...   **dict(
+    ...     sep=':',
+    ...     end='\n.'))
+    1:2:3:4
+    .
+
+Unlike other keywords, these can be repeated,
+but (as in Python) a '*' is not allowed to follow '**'.
+
+Method calls are similar to function calls::
+
+    (.<method name> <object> <args> & <kwargs>)
+
+Like Clojure, a method on the first object is assumed if the
+function name starts with a dot::
+
+    #> (.conjugate 1j)
+    #..
+    >>> (1j).conjugate()
+    -1j
+
+    #> (.decode b'\xfffoo' : errors 'ignore)
+    #..
+    >>> b'\xfffoo'.decode(
+    ...   errors='ignore')
+    'foo'
+
+
   ! nil
     @ star stars single kwarg method
 
