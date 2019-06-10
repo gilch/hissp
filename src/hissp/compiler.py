@@ -92,8 +92,6 @@ class Compiler:
     def special(self, form: tuple, head: str, tail: list) -> str:
         """Try to compile as special form, else self.macro()."""
         if head == "quote":
-            if len(form) != 2:
-                raise SyntaxError
             return self.quoted(form[1])
         if head == "lambda":
             return self.function(form)
@@ -121,7 +119,8 @@ class Compiler:
         r"""
         Compile forms that evaluate to themselves.
 
-        Emits a literal if possible, otherwise falls back to pickle.
+        Emits a literal if possible, otherwise falls back to pickle:
+
         >>> readerless(-4.2j)
         '((-0-4.2j))'
         >>> print(readerless(float('nan')))
@@ -136,6 +135,7 @@ class Compiler:
         __import__('pickle').loads(  # [[...]]
             b'\x80\x03]q\x00h\x00a.'
         )
+
         """
         # Number literals may need (). E.g. (1).real
         literal = f"({form!r})" if type(form) in NUMBER else repr(form)
@@ -162,6 +162,7 @@ class Compiler:
 
         Parameter types are the same as Python's.
         For example,
+
         >>> readerless(
         ... ('lambda', ('a','b',
         ...         ':', 'e',1, 'f',2,
@@ -173,7 +174,8 @@ class Compiler:
 
         The special keywords :* and :** designate the remainder of the
         positional and keyword parameters, respectively.
-        Note this body has an implicit PROGN.
+        Note this body has an implicit PROGN:
+
         >>> print(readerless(
         ... ('lambda', (':',':*','args',':**','kwargs',),
         ...   ('print','args',),
@@ -185,14 +187,17 @@ class Compiler:
           print(
             kwargs))[-1])
 
-        You can omit the right of a pair with :_ (except the final **kwargs).
+        You can omit the right of a pair with ``:_``
+        (except the final ``**kwargs``).
         Also note that the body can be empty.
+
         >>> readerless(
         ... ('lambda', (':','a',1, ':*',':_', 'b',':_', 'c',2,),),
         ... )
         '(lambda a=(1),*,b,c=(2):())'
 
         The ':' may be omitted if there are no paired parameters.
+
         >>> readerless(('lambda', ('a','b','c',':',),),)
         '(lambda a,b,c:())'
         >>> readerless(('lambda', ('a','b','c',),),)
@@ -202,10 +207,12 @@ class Compiler:
         >>> readerless(('lambda', (),),)
         '(lambda :())'
 
-        : is required if there are any paired parameters, even if there
-        are no single parameters.
+        ``:`` is required if there are any paired parameters, even if
+        there are no single parameters:
+
         >>> readerless(('lambda', (':',':**','kwargs',),),)
         '(lambda **kwargs:())'
+
         """
         fn, parameters, *body = form
         assert fn == "lambda"
@@ -244,9 +251,11 @@ class Compiler:
 
         Like Python, it has three parts.
         (<callable> <args> : <kwargs>)
-        For example,
+        For example:
+
         >>> print(readerless(
-        ... ('print',1,2,3,':','sep',('quote',":",), 'end',('quote',"\n\n",),)
+        ... ('print',1,2,3,
+        ...          ':','sep',('quote',":",), 'end',('quote',"\n\n",),)
         ... ))
         print(
           (1),
@@ -255,7 +264,8 @@ class Compiler:
           sep=':',
           end='\n\n')
 
-        Either <args> or <kwargs> may be empty.
+        Either <args> or <kwargs> may be empty:
+
         >>> readerless(('foo',':',),)
         'foo()'
         >>> print(readerless(('foo','bar',':',),))
@@ -265,7 +275,8 @@ class Compiler:
         foo(
           bar=baz)
 
-        The : is optional if the <kwargs> part is empty.
+        The : is optional if the <kwargs> part is empty:
+
         >>> readerless(('foo',),)
         'foo()'
         >>> print(readerless(('foo','bar',),),)
@@ -274,7 +285,9 @@ class Compiler:
 
         The <kwargs> part has implicit pairs; there must be an even number.
 
-        Use the special keywords :* and :** for iterable and mapping unpacking.
+        Use the special keywords ``:*`` and ``:**`` for iterable and
+        mapping unpacking:
+
         >>> print(readerless(
         ... ('print',':',':*',[1,2], 'a',3, ':*',[4], ':**',{'sep':':','end':'\n\n'},),
         ... ))
@@ -284,13 +297,14 @@ class Compiler:
           *[4],
           **{'sep': ':', 'end': '\n\n'})
 
-        Unlike other keywords, these can be repeated, but a '*' is not
-        allowed to follow '**', as in Python.
+        Unlike other keywords, these can be repeated,
+        but (as in Python) a '*' is not allowed to follow '**'.
 
         Method calls are similar to function calls.
-        (.<method name> <object> <args> & <kwargs>)
+        (.<method name> <object> <args> : <kwargs>)
         Like Clojure, a method on the first object is assumed if the
-        function name starts with a dot.
+        function name starts with a dot:
+
         >>> readerless(('.conjugate', 1j,),)
         '(1j).conjugate()'
         >>> eval(_)
@@ -299,6 +313,7 @@ class Compiler:
         "b'\\xfffoo'.decode(\n  errors='ignore')"
         >>> eval(_)
         'foo'
+
         """
         form = iter(form)
         head = next(form)

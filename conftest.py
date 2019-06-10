@@ -1,49 +1,71 @@
 import re
+from collections.abc import Container
+from doctest import ELLIPSIS
+from fnmatch import fnmatch
 from textwrap import dedent, indent
 
-from sybil import Region, Sybil
+from sybil import Sybil
+from sybil.parsers.doctest import DocTestParser
 
-from hissp.__main__ import evaluate
 from hissp.reader import Parser
 
-LISSP_START = re.compile(r"(?=#> )")
-LISSP_END = re.compile(r"\n\n")
-LISSP = re.compile(r"#> .*\n(?:#\.\..*\n)*")
-PYTHON = re.compile(r">>> .*(?:\n\.\.\..*)*")
-STRIP_LISSP = re.compile(r"(?m)^#(?:> |\.\.)")
-STRIP_PYTHON = re.compile(r"(?m)^(?:>>> |\.\.\. )")
+LISSP = re.compile(r" *#> .*\n(?: *#\.\..*\n)*")
+STRIP_LISSP = re.compile(r"(?m)^ *#(?:> |\.\.)")
 
 
-def parse_markdown_lisp(document):
-    for start_match, end_match, source in document.find_region_sources(
-        LISSP_START, LISSP_END
-    ):
-        lissp = LISSP.match(source)
-        python = PYTHON.match(source[lissp.end() :])
-        assert lissp, "\n" + source
-        assert python, "\n" + source
-        lissp = STRIP_LISSP.sub("", lissp.group())
-        python = STRIP_PYTHON.sub("", python.group())
-        parsed = lissp, python
-        yield Region(
-            start_match.start(), end_match.end(), parsed, evaluate_lissp_region
+class ParseLissp(DocTestParser):
+    """
+    Like Sybil's DocTestParser, but also checks the Lissp compilation.
+    """
+
+    def __init__(self, *a, **kw):
+        super().__init__(*a, **kw)
+        self._EXAMPLE_RE = _EXAMPLE_RE = re.compile(
+            r"""
+        (?P<lissp>
+             (?:^   [ ]* [#]>[ ] .*)
+             (?:\n  [ ]* [#]\.\. .*)*)?
+             \n?
+         """
+            + self._EXAMPLE_RE.pattern,
+            re.MULTILINE | re.VERBOSE,
         )
 
+    def lissp(self, source):
+        lissp = LISSP.match(source)
+        if not lissp:
+            return
+        assert lissp, "\n" + source
+        lissp = STRIP_LISSP.sub("", lissp.group())
+        return lissp
 
-def evaluate_lissp_region(example, parser=Parser()):
-    lissp, python = example.parsed
-    parser.compiler.ns = example.namespace
-    lissp = parser.reads(lissp)
-    got = evaluate(lissp, parser)
-    assert got == python, dedent(
-        f"""
-        EXPECTED:
-        {indent(python, "  ")}
-        GOT:
-        {indent(got, "  ")}
-        .
-        """
-    )
+    def evaluate(self, example, parser=Parser()):
+        lissp = self.lissp(example.document.text[example.start : example.end])
+        if lissp:
+            python = example.parsed.source
+            parser.compiler.ns = example.namespace
+            hissp = parser.reads(lissp)
+            compiled = parser.compiler.compile(hissp) + "\n"
+            assert compiled == python, dedent(
+                f"""
+                EXPECTED PYTHON:
+                {indent(python, "  ")}
+                ACTUALLY COMPILED TO:
+                {indent(compiled, "  ")}
+                .
+                """
+            )
+        return super().evaluate(example)
 
 
-pytest_collect_file = Sybil(parsers=[parse_markdown_lisp], pattern="*.md").pytest()
+class Globs(Container):
+    def __init__(self, *globs):
+        self.globs = globs
+
+    def __contains__(self, item):
+        return any(fnmatch(item, glob) for glob in self.globs)
+
+
+pytest_collect_file = Sybil(
+    parsers=[ParseLissp(optionflags=ELLIPSIS)], filenames=Globs("*.md", "*.rst")
+).pytest()

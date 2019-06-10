@@ -2,7 +2,7 @@
 ;; SPDX-License-Identifier: Apache-2.0
 
 ;; bootstrap macro namespace using builtins
-(operator..setitem (globals) '_macro_ (types..SimpleNamespace))
+(operator..setitem (globals) '_macro_ (types..ModuleType '_macro_))
 
 ;; define require-as macro
 (setattr _macro_ 'require-as
@@ -10,11 +10,15 @@
            `(builtins..setattr
              (.setdefault (builtins..globals)
                           ','_macro_
-                          (types..SimpleNamespace))
+                          (types..ModuleType '_macro_))
              (quote ,name)
              ,macro)))
 (setattr _macro_.require-as '__doc__ "
-Adds the macro to the module-local _macro_'s using the specified name.
+Require a macro callable as an unqualified name.
+
+Adds the macro to the current module's _macro_ space under the specified
+name, which makes it available unqualified in this module. (And
+available qualified with this module's name.)
 ")
 (setattr _macro_.require-as '__qualname__ '_macro_.require-as)
 
@@ -28,8 +32,8 @@ Adds the macro to the module-local _macro_'s using the specified name.
   `((lambda (: ,@pairs)
       ,@body)))
 (setattr _macro_.let '__doc__ "
-  Creates locals. Pairs are implied. Locals are not visible until the body.
-  ")
+Creates locals. Pairs are implied. Locals are not in scope until the body.
+")
 (setattr _macro_.let '__qualname__ '_macro_.let)
 
 (defmacro defmacro (name parameters docstring : :* body)
@@ -39,15 +43,17 @@ Adds the macro to the module-local _macro_'s using the specified name.
                  #\macro)
                ,name))
 (setattr _macro_.defmacro '__doc__ "
-  Creates a new module-local macro with a docstring.
-  The docstring can be None.
-  ")
+Creates a new macro for the current module.
+
+The docstring argument is required, but can be None.
+")
 (setattr _macro_.defmacro '__qualname__ '_macro_.defmacro)
 
 (defmacro cascade (thing : :* calls)
-  "
-  Evaluates the given thing then uses it as the first argument to a sequence of calls.
-  Returns the evaluated thing.
+  "Call multiple methods on one object.
+
+  Evaluates the given thing then uses it as the first argument to a
+  sequence of calls. Used for initialization. Evaluates to the thing.
   "
   (let (thing-sym `#\thing)
     `((lambda (: ,thing-sym ,thing)
@@ -59,13 +65,16 @@ Adds the macro to the module-local _macro_'s using the specified name.
         ,thing-sym))))
 
 (defmacro define (name value)
-  None
+  "Assigns a global in the current module."
   `(operator..setitem (builtins..globals)
                       ',name
                       ,value))
 
 (defmacro if-else (test then otherwise)
-  None
+  "Basic ternary branching construct.
+
+  Like Python's conditional expressions, the else-clause is required.
+  "
   `((lambda (,'test : :* ,'then-else)
       ((operator..getitem ,'then-else (operator..not_ ,'test))))
     ,test
@@ -74,25 +83,57 @@ Adds the macro to the module-local _macro_'s using the specified name.
 
 
 (defmacro progn (: :* body)
-  None
+  "Evaluates each form in sequence for side effects.
+
+  Evaluates to the same value as its last form (or ``()`` if empty).
+  "
   `((lambda ()
       ,@body)))
 
 (defmacro from-require (: :* package+macros)
-  None
+  "Adds macros for the current module from ``package``
+
+   For example::
+
+    (from-require (foo.package spammacro eggsmacro)
+                  (bar.package baconmacro bannanamacro))
+
+  "
   `(progn
      (.setdefault (globals)
                   ','_macro_
-                  (types..SimpleNamespace))
+                  (types..ModuleType '_macro_))
      ,@(itertools..starmap
         (lambda (package : :* macros)
           `(progn ,@(map (lambda (macro)
-                           `(setattr ,'_macro_ ',macro ,(.format "{}.._macro_.{}" package macro)))
+                           `(setattr ,'_macro_
+                                     ',macro
+                                     ,(.format "{}.._macro_.{}"
+                                               package
+                                               macro)))
                          macros)))
         package+macros)))
 
 (defmacro deftype (name bases : :* body)
-  None
+  "Defines a type (class) in the current module.
+
+  Key-value pairs are implied in the body.
+  "
   `(define ,name
        (type ',name ((lambda (: :* xAUTO0_) xAUTO0_) ,@bases)
              (dict : ,@body))))
+
+;; I would have written this at the top, but we didn't have ``define`` yet.
+(define __doc__ "
+Hissp's basic macros.
+
+These are automatically made available as unqualified macros in the
+basic REPL. To use them in a Hissp module, either use the
+fully-qualified names, or add them to the module's _macro_'s.
+
+For example::
+
+  (hissp.basic.._macro_.from-require
+   (hissp.basic cascade if-else let progn))
+
+")
