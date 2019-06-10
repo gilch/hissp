@@ -130,7 +130,7 @@ class Parser:
         if tag == "`":
             return self.template(form)
         if tag == ",":
-            return _Unquote([":_", form])
+            return _Unquote([":?", form])
         if tag == ",@":
             return _Unquote([":*", form])
 
@@ -162,7 +162,7 @@ class Parser:
             )
         if case is str and not form.startswith(":"):
             return "quote", self.qualify(form)
-        if case is _Unquote and form[0] == ":_":
+        if case is _Unquote and form[0] == ":?":
             return form[1]
         return form
 
@@ -170,13 +170,13 @@ class Parser:
         for form in forms:
             case = type(form)
             if case is str and not form.startswith(":"):
-                yield ":_", ("quote", self.qualify(form))
+                yield ":?", ("quote", self.qualify(form))
             elif case is _Unquote:
                 yield form
             elif case is tuple:
-                yield ":_", self.template(form)
+                yield ":?", self.template(form)
             else:
-                yield ":_", form
+                yield ":?", form
 
     def qualify(self, symbol: str) -> str:
         if symbol in {e for e in dir(builtins) if not e.startswith("_")}:
