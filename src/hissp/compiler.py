@@ -301,7 +301,7 @@ class Compiler:
         but (as in Python) a '*' is not allowed to follow '**'.
 
         Method calls are similar to function calls.
-        (.<method name> <object> <args> & <kwargs>)
+        (.<method name> <object> <args> : <kwargs>)
         Like Clojure, a method on the first object is assumed if the
         function name starts with a dot:
 

@@ -23,7 +23,7 @@ Unlike most programming languages,
 Hissp is not made of text, but data: Abstract Syntax Trees (AST).
 
 Abstract Syntax Tree
-  An type of intermediate tree data structure used by most compilers
+  A type of intermediate tree data structure used by most compilers
   after parsing a programming language.
 
 You've been writing AST all along, albeit indirectly.
@@ -32,9 +32,9 @@ you must have an understanding of how to *parse* it, mentally.
 At least on an intuitive, subconscious level.
 
 Python itself has an AST representation used by its compiler
-which is accessible to Python programs.
-(See the :py:module`ast` module.)
-but, because it represents all of the possible Python syntax,
+(the :obj:`ast` module)
+which is accessible to Python programs,
+but because it represents all of the possible Python syntax,
 which is considerable, it difficult to use effectively for metaprogramming.
 
 The Hissp compiler, in contrast, compiles Hissp code to a simplified
@@ -73,10 +73,10 @@ The ``readerless()`` function takes a Hissp program as input,
 and returns its Python translation as a string.
 
 Let's break this down.
-
 Notice that the first element of each tuple designates its function.
+
 In the case of ``('print',('quote','Hello'),'name',)``,
-it's just representing an ordinary function call.
+the first element represents an ordinary ``print`` function call.
 The remaining elements are the arguments.
 
 The interpretation of the ``lambda`` form is different.
@@ -89,7 +89,7 @@ but the ``('quote','Hello')`` expression was translated to a string.
 That's the interpretation of ``quote``:
 its argument is seen as "data" rather than code by the compiler.
 
-Together ``lambda`` and ``quote`` are the only "special forms"
+Together, ``lambda`` and ``quote`` are the only "special forms"
 (forms with a "special" interpretation) known to the compiler.
 There are ways to define more forms with special interpretations,
 called "macros". This is how Hissp gets much of its expressive power.
@@ -122,6 +122,11 @@ Let's use it.
 ...      ('print',q('Hello'),'name',),)
 ... )
 "(lambda n,a,m,e:\n  print(\n    'Hello',\n    name))"
+>>> print(_)
+(lambda n,a,m,e:
+  print(
+    'Hello',
+    name))
 >>> eval(_)('World')
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -156,11 +161,9 @@ But we can do much better than that.
 
 Hissp is made of data structures.
 They're ephemeral; they only live in memory.
-
 If Hissp is the spoken word, we need a written word.
 And to "speak" the written word back into Hissp, we need a "reader".
-
-Hissp comes with a `hissp.reader` module that interprets a lightweight
+Hissp comes with a ``hissp.reader`` module that interprets a lightweight
 language called *Lissp* as Hissp code.
 
 Lissp is made of text.
@@ -195,7 +198,7 @@ Let's see our "Hello World" example in Lissp:
 ('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
 
 There are no commas to miss, because there are no commas at all.
-Much easier, yes?
+Easier.
 
 As you can see, the Hissp structure is exactly the same as before.
 But now you don't have to quote identifiers either.
@@ -212,12 +215,15 @@ REPL
   Acronym for Read, Evaluate, Print, Loop.
   The interactive shell.
 
-You can launch the REPL from Python code (which is useful for debugging),
+You can launch the REPL from Python code (which is useful for debugging,
+like :obj:`code.iteract`),
 But let's just start it from the command line::
 
     $ python -m hissp
 
 You should see the Lissp prompt ``#>`` appear.
+
+You can quit with `(exit)` or EOF [#EOF]_, same as Python's shell.
 
 The basic REPL shows the Python translation of the read Lissp
 and evaluates it.
@@ -452,8 +458,7 @@ For example::
     <function <lambda> at ...>
 
 The special keywords ``:*`` and ``:**`` designate the remainder of the
-positional and keyword parameters, respectively.
-Note this body has multiple expressions::
+positional and keyword parameters, respectively::
 
     #> (lambda (: :* args :** kwargs)
     #..  (print args)
@@ -468,7 +473,7 @@ Note this body has multiple expressions::
     ...   ':return-value')[-1])
     <function <lambda> at ...>
 
-    #> (_ 1 : b :c)  ; The ``_`` works in the Python shell too.
+    #> (_ 1 : b :c)
     #..
     >>> _(
     ...   (1),
@@ -498,12 +503,12 @@ The ``:`` may be omitted if there are no paired parameters::
     >>> (lambda a,b,c:())
     <function <lambda> at ...>
 
-    #> (lambda (:))
+    #> (lambda (:))  ; Colon isn't doing anything.
     #..
     >>> (lambda :())
     <function <lambda> at ...>
 
-    #> (lambda ())
+    #> (lambda ())  ; You can omit it.
     #..
     >>> (lambda :())
     <function <lambda> at ...>
@@ -594,9 +599,9 @@ but (as in Python) a '*' is not allowed to follow '**'.
 
 Method calls are similar to function calls::
 
-    (.<method name> <object> <args> & <kwargs>)
+    (.<method name> <self> <args> : <kwargs>)
 
-Like Clojure, a method on the first object is assumed if the
+Like Clojure, a method on the first "argument" (``<self>``) is assumed if the
 function name starts with a dot::
 
     #> (.conjugate 1j)
@@ -616,7 +621,7 @@ Reader Macros
 
 Reader macros in Lissp consist of a symbol ending with a ``\``
 followed by another form.
-The function named by the symbol is invoked on the form,
+The function named by the qualified symbol is invoked on the form,
 and the reader embeds the resulting object into the output Hissp::
 
     #> builtins..float\inf
@@ -776,6 +781,10 @@ Only single-quoted or triple single-quoted strings are allowed
 inside of literal data structures.
 (And only double-quoted strings outside.)
 
+You can nest these to create small, JSON-like data structures
+which can be very useful as inputs to macros,
+(especially reader macros, which can only take one argument).
+
 Tuples are different.
 Since they normally represent code,
 you must quote them to use them as data.
@@ -794,9 +803,6 @@ you must quote them to use them as data.
        >>> ()
        ()
 
-Literal data structures can be very useful as inputs to macros,
-(especially reader macros, which can only take one argument)
-and arrays, which contain only simple types.
 
 .. Caution::
    Unlike Python's *displays*,
@@ -852,17 +858,18 @@ remember you can use helper functions or metaprogramming to simplify::
     ...   'zed'.title())
     ['A', 'B', 'C', [1, 2, 3], 'Zed']
 
-    #> (enlist 'A 'B 'C 1 2 3 (.title "zed"))
+    #> (enlist 'A 'B 'C (enlist 1 2 3) (.title "zed"))
     #..
     >>> enlist(
     ...   'A',
     ...   'B',
     ...   'C',
-    ...   (1),
-    ...   (2),
-    ...   (3),
+    ...   enlist(
+    ...     (1),
+    ...     (2),
+    ...     (3)),
     ...   'zed'.title())
-    ['A', 'B', 'C', 1, 2, 3, 'Zed']
+    ['A', 'B', 'C', [1, 2, 3], 'Zed']
 
 
 
@@ -918,8 +925,10 @@ namespace with all of the basic macros::
     >>> eggs
     ':spam'
 
+The compiler helpfully includes a comment whenever it expands a macro.
+Note the shorter comment emitted by the unqualified expansion.
 
-You can define your own macros by putting a callable into the ``_macro_`` namespace.
+You can define your own macro by putting a callable into the ``_macro_`` namespace.
 Let's try it::
 
     #> (setattr _macro_ 'hello (lambda () '(print 'hello)))
@@ -935,8 +944,6 @@ Let's try it::
     ... print(
     ...   'hello')
     hello
-
-The compiler helpfully includes a comment whenever it expands a macro.
 
 A zero-argument macro isn't that useful.
 We can do better. Let's use a template::
@@ -965,9 +972,10 @@ We can do better. Let's use a template::
 Not what you expected?
 
 A template quote automatically qualifies any unqualified symbols it contains
-with ``builtins`` (if applicable) or the current ``__package__``::
+with ``builtins`` (if applicable) or the current ``__package__``
+(which is ``_repl``)::
 
-    #> `int  ; Works on symbols too.
+    #> `int  ; Works directly on symbols too.
     >>> 'builtins..int'
     'builtins..int'
 
@@ -1012,7 +1020,7 @@ symbol. (Like a quoted symbol)::
     ...   'inf')
     ('builtins..float', 'inf')
 
-Let's try again::
+Let's try again. (Yes, reader macros stack.)::
 
     #> (setattr _macro_ 'greet (lambda (name) `(print ','Hello ,name)))
     #..
@@ -1132,10 +1140,14 @@ it in other files until they are recompiled.
 
 .. rubric:: Footnotes
 
-.. [#key] The equivalent concept is called a *keyword* in other Lisps,
-          but that means something else in Python.
+.. [#EOF] End Of File. Usually Ctrl-D, but enter Ctrl-Z on Windows.
+          This doesn't quit Python if the REPL was launched from Python,
+          unlike ``(exit)``.
 
 .. [#meta] Data about data.
 
+.. [#key] The equivalent concept is called a *keyword* in other Lisps,
+          but that means something else in Python.
+
 .. [#capture] When symbol capture is done on purpose, these are known as *anaphoric macros*.
-When it's done on accident, these are known as *bugs*.
+   (When it's done on accident, these are known as *bugs*.)
