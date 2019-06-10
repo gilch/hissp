@@ -24,7 +24,7 @@ class ParseLissp(DocTestParser):
             r"""
         (?P<lissp>
              (?:^   [ ]* [#]>[ ] .*)
-             (?:\n  [ ]* [#]\.\. .*)*)
+             (?:\n  [ ]* [#]\.\. .*)*)?
              \n?
          """
             + self._EXAMPLE_RE.pattern,
@@ -33,25 +33,28 @@ class ParseLissp(DocTestParser):
 
     def lissp(self, source):
         lissp = LISSP.match(source)
+        if not lissp:
+            return
         assert lissp, "\n" + source
         lissp = STRIP_LISSP.sub("", lissp.group())
         return lissp
 
     def evaluate(self, example, parser=Parser()):
         lissp = self.lissp(example.document.text[example.start : example.end])
-        python = example.parsed.source
-        parser.compiler.ns = example.namespace
-        hissp = parser.reads(lissp)
-        compiled = parser.compiler.compile(hissp) + "\n"
-        assert compiled == python, dedent(
-            f"""
-            EXPECTED PYTHON:
-            {indent(python, "  ")}
-            ACTUALLY COMPILED TO:
-            {indent(compiled, "  ")}
-            .
-            """
-        )
+        if lissp:
+            python = example.parsed.source
+            parser.compiler.ns = example.namespace
+            hissp = parser.reads(lissp)
+            compiled = parser.compiler.compile(hissp) + "\n"
+            assert compiled == python, dedent(
+                f"""
+                EXPECTED PYTHON:
+                {indent(python, "  ")}
+                ACTUALLY COMPILED TO:
+                {indent(compiled, "  ")}
+                .
+                """
+            )
         return super().evaluate(example)
 
 
