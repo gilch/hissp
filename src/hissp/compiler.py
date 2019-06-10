@@ -11,7 +11,7 @@ from functools import wraps
 from itertools import chain, takewhile
 from typing import Iterable, Tuple, TypeVar
 
-PAIR_WORDS = {":*": "*", ":**": "**", ":_": ""}
+PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
 # Module Macro container
 MACROS = "_macro_"
 # Macro from foreign module foo.bar.._macro_.baz
@@ -166,7 +166,7 @@ class Compiler:
         >>> readerless(
         ... ('lambda', ('a','b',
         ...         ':', 'e',1, 'f',2,
-        ...         ':*','args', 'h',4, 'i',':_', 'j',1,
+        ...         ':*','args', 'h',4, 'i',':?', 'j',1,
         ...         ':**','kwargs',),
         ...   42,),
         ... )
@@ -187,12 +187,12 @@ class Compiler:
           print(
             kwargs))[-1])
 
-        You can omit the right of a pair with ``:_``
+        You can omit the right of a pair with ``:?``
         (except the final ``**kwargs``).
         Also note that the body can be empty.
 
         >>> readerless(
-        ... ('lambda', (':','a',1, ':*',':_', 'b',':_', 'c',2,),),
+        ... ('lambda', (':','a',1, ':*',':?', 'b',':?', 'c',2,),),
         ... )
         '(lambda a=(1),*,b,c=(2):())'
 
@@ -224,10 +224,10 @@ class Compiler:
         yield from takewhile(lambda a: a != ":", parameters)
         for k, v in pairs(parameters):
             if k == ":*":
-                yield "*" if v == ":_" else f"*{v}"
+                yield "*" if v == ":?" else f"*{v}"
             elif k == ":**":
                 yield f"**{v}"
-            elif v == ":_":
+            elif v == ":?":
                 yield k
             else:
                 yield f"{k}={self.form(v)}"

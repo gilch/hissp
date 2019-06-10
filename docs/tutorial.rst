@@ -450,7 +450,7 @@ For example::
 
     #> (lambda (a b  ; positional
     #..         : e 1  f 2  ; default
-    #..         :* args  h 4  i :_  j 1  ; kwonly
+    #..         :* args  h 4  i :?  j 1  ; kwonly
     #..         :** kwargs)
     #..  42)
     #..
@@ -482,11 +482,11 @@ positional and keyword parameters, respectively::
     {'b': ':c'}
     ':return-value'
 
-You can omit the right of a pair with ``:_``
+You can omit the right of a pair with ``:?``
 (except the final ``**kwargs``).
 Also note that the body can be empty::
 
-    #> (lambda (: a 1 :* :_  b :_  c 2))
+    #> (lambda (: a 1 :* :?  b :?  c 2))
     #..
     >>> (lambda a=(1),*,b,c=(2):())
     <function <lambda> at ...>
@@ -580,9 +580,9 @@ The ``:`` is optional if the ``<kwargs>`` part is empty::
 The ``<kwargs>`` part has implicit pairs; there must be an even number.
 
 Use the special key symbols ``:*`` for iterable unpacking,
-``:_`` to pass by position and ``:**`` for mapping unpacking::
+``:?`` to pass by position and ``:**`` for mapping unpacking::
 
-    #> (print : :* '(1 2)  :_ 3  :* '(4)  :** (dict : sep :  end "\n."))
+    #> (print : :* '(1 2)  :? 3  :* '(4)  :** (dict : sep :  end "\n."))
     #..
     >>> print(
     ...   *(1, 2),
@@ -724,14 +724,14 @@ If you quote and pretty-print an example, you can see that intermediate step::
     #> (pprint..pprint '`(:a ,@"bcd" ,(opearator..mul 2 3)))
     #..
     >>> __import__('pprint').pprint(
-    ...   (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':_', ':a', ':*', ('quote', 'bcd', {':str': True}), ':_', ('opearator..mul', 2, 3)))
+    ...   (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':?', ':a', ':*', ('quote', 'bcd', {':str': True}), ':?', ('opearator..mul', 2, 3)))
     (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'),
      ':',
-     ':_',
+     ':?',
      ':a',
      ':*',
      ('quote', 'bcd', {':str': True}),
-     ':_',
+     ':?',
      ('opearator..mul', 2, 3))
 
 
@@ -850,7 +850,7 @@ remember you can use helper functions or metaprogramming to simplify::
     ...     list(
     ...       args)))
 
-    #> (enlist : :*(.upper "abc")  :_ [1,2,3]  :_ (.title "zed"))
+    #> (enlist : :*(.upper "abc")  :? [1,2,3]  :? (.title "zed"))
     #..
     >>> enlist(
     ...   *'abc'.upper(),
