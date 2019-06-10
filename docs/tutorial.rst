@@ -1115,6 +1115,21 @@ with the full power of Python's ecosystem. The sky's the limit.
 Packages
 ========
 
+Consider putting the following in ``__init__.py`` to auto-compile
+each Hissp module in the package on package import during development::
+
+    from hissp.reader import transpile
+
+    transpile(__package__, "spam", "eggs")
+
+You can disable it again on release, if desired,
+but this gives you fine-grained control over what gets compiled when.
+Note that you usually *would* want to recompile the whole project
+rather than only the changed files like Python does,
+because macros run at compile time.
+Changing a macro in one file normally doesn't affect the code that uses
+it in other files until they are recompiled.
+
 .. rubric:: Footnotes
 
 .. [#key] The equivalent concept is called a *keyword* in other Lisps,
