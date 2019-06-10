@@ -253,8 +253,8 @@ Most literals work just like Python::
     >>> True
     True
 
-    #> None
-    >>> None ; These don't print.
+    #> None ; These don't print.
+    >>> None
 
 Comments, as one might expect, are ignored by the reader,
 and do not appear in the Hissp output.
@@ -279,9 +279,15 @@ Strings are implicitly quoted::
     #.. (lambda (name)
     #..  (print "Hello" name)))
     #..
-    >>> ('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
-    ('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
+    >>> ('lambda', ('name',), ('print', ('quote', 'Hello', {':str': True}), 'name'))
+    ('lambda', ('name',), ('print', ('quote', 'Hello', {':str': True}), 'name'))
 
+The reader also adds a little *metadata* [#meta]_ in the quote form
+(the ``{':str': True}`` bit)
+indicating that it was read from a double-quoted string literal,
+rather than a symbol.
+Metadata has no effect on how a ``quote`` form is compiled,
+but may be used macros and reader macros.
 
 
 Symbols
@@ -299,7 +305,7 @@ Symbols should be used for *identifiers* (variable names and the like).
 
 The distinction between a quoted symbol and a double-quoted string
 exists only in Lissp a the reader level.
-It's two ways of writing the same thing in Hissp
+It's two ways of writing the same thing in Hissp.
 Recall that the argument of the ``quote`` special form is seen as data::
 
     #> (quote
@@ -323,7 +329,7 @@ Munging
 
 Symbols have another important difference from double-quoted strings::
 
-    #> 'foo->bar?  ; xH_ stands for "Hyphen"
+    #> 'foo->bar?  ; xH_ is for "Hyphen"; xGT_ for "Greater Than/riGhT".
     >>> 'fooxH_xGT_barxQUERY_'
     'fooxH_xGT_barxQUERY_'
 
@@ -345,6 +351,30 @@ This makes it easy to tell if an identifier contains munged characters,
 which makes demunging possible in the normal case.
 It also cannot introduce a leading underscore,
 which can have special meaning in Python.
+It might have been simpler to use the character's ``ord()``,
+but it's important that the munged symbols still be human-readable.
+
+Munging happens at *read time*, which means you can use a munged symbol both
+as an identifier and as a string representing that identifier::
+
+    #> (define spam (lambda ()))
+    #..
+    >>> # define
+    ... __import__('operator').setitem(
+    ...   __import__('builtins').globals(),
+    ...   'spam',
+    ...   (lambda :()))
+
+    #> (setattr spam '!@#$ 'eggs)
+    #..
+    >>> setattr(
+    ...   spam,
+    ...   'xBANG_xAT_xHASH_xDOLLAR_',
+    ...   'eggs')
+
+    #> spam.!@#$
+    >>> spam.xBANG_xAT_xHASH_xDOLLAR_
+    'eggs'
 
 Key Symbols
 ~~~~~~~~~~~
@@ -581,38 +611,6 @@ function name starts with a dot::
     'foo'
 
 
-  ! nil
-    @ star stars single kwarg method
-
-- literal
-  ! comment
-  ! string
-    # symbol. (Quote macro again?)
-    # key symbol
-    # qualified symbol
-    # double-quoted
-  ! python literal
-    # simple
-- tuple
-  ! nil
-  ! lambda
-    @ kwparam/kwonly
-  ! call
-    @ star stars single kwarg method
-- reader_macro
-  ! template
-    @ unquote
-    @ splice
-  ! built-in
-    @ gensym
-    @ drop
-    @ eval
-  ! qualified tag
-      # compound literals
-- macro
-  ! examples from basic macros
-
-
 Reader Macros
 =============
 
@@ -651,7 +649,7 @@ If you need more than one argument for a reader macro, use the built in
     Fraction(1, 2)
 
 
-The ``_\`` macro omits the next form.
+The ``_\`` macro omits the next expression.
 It's a way to comment out code,
 even if it takes multiple lines.
 
@@ -721,13 +719,13 @@ If you quote and pretty-print an example, you can see that intermediate step::
     #> (pprint..pprint '`(:a ,@"bcd" ,(opearator..mul 2 3)))
     #..
     >>> __import__('pprint').pprint(
-    ...   (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':_', ':a', ':*', ('quote', 'bcd'), ':_', ('opearator..mul', 2, 3)))
+    ...   (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':_', ':a', ':*', ('quote', 'bcd', {':str': True}), ':_', ('opearator..mul', 2, 3)))
     (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'),
      ':',
      ':_',
      ':a',
      ':*',
-     ('quote', 'bcd'),
+     ('quote', 'bcd', {':str': True}),
      ':_',
      ('opearator..mul', 2, 3))
 
@@ -754,10 +752,11 @@ Within a template, the same gensym name always makes the same gensym::
     #> `(#\hiss #\hiss)
     #..
     >>> (lambda *xAUTO0_:xAUTO0_)(
-    ...   '_hissxAUTO17_',
-    ...   '_hissxAUTO17_')
-    ('_hissxAUTO17_', '_hissxAUTO17_')
+    ...   '_hissxAUTO20_',
+    ...   '_hissxAUTO20_')
+    ('_hissxAUTO20_', '_hissxAUTO20_')
 
+But each new template increments the counter.
 Gensyms are mainly used to prevent accidental name collisions in generated code.
 
 Data Structures
@@ -790,13 +789,10 @@ you must quote them to use them as data.
        >>> ()
        ()
 
-   But a quoted tuple doesn't have to be empty::
-
-       #> '(1 2 3)
+       #> ()
        #..
-       >>> (1, 2, 3)
-       (1, 2, 3)
-
+       >>> ()
+       ()
 
 Literal data structures can be very useful as inputs to macros,
 (especially reader macros, which can only take one argument)
@@ -873,7 +869,258 @@ remember you can use helper functions or metaprogramming to simplify::
 Macros
 ======
 
+Hissp macros are callables that are evaluated by the compiler at
+*compile time*.
+
+They take Hissp code as arguments, and return Hissp code as a result,
+called a *macroexpansion* (even if it gets smaller).
+The expansion is inserted in the macro invocation's place in the code,
+and then evaluated as normal.
+If another macro invocation appears in the expansion,
+it is expanded as well (this pattern is known as a *recursive macro*),
+which is an ability that the reader macros lack.
+
+The compiler recognizes a callable as a macro if it is invoked directly
+from a ``_macro_`` namespace::
+
+    #> (hissp.basic.._macro_.define spam :eggs) ; qualified macro
+    #..
+    >>> # hissp.basic.._macro_.define
+    ... __import__('operator').setitem(
+    ...   __import__('builtins').globals(),
+    ...   'spam',
+    ...   ':eggs')
+
+    #> spam
+    >>> spam
+    ':eggs'
+
+The compiler will also check the current module's ``_macro_`` namespace
+(if present)
+for matching macro names when compiling an unqualified invocation.
+
+The REPL automatically includes a ``_macro_``
+namespace with all of the basic macros::
+
+    #> _macro_.define
+    >>> _macro_.define
+    <function _macro_.define at ...>
+
+    #> (define eggs :spam)  ; unqualified macro
+    #..
+    >>> # define
+    ... __import__('operator').setitem(
+    ...   __import__('builtins').globals(),
+    ...   'eggs',
+    ...   ':spam')
+
+    #> eggs
+    >>> eggs
+    ':spam'
+
+
+You can define your own macros by putting a callable into the ``_macro_`` namespace.
+Let's try it::
+
+    #> (setattr _macro_ 'hello (lambda () '(print 'hello)))
+    #..
+    >>> setattr(
+    ...   _macro_,
+    ...   'hello',
+    ...   (lambda :('print', ('quote', 'hello'))))
+
+    #> (hello)
+    #..
+    >>> # hello
+    ... print(
+    ...   'hello')
+    hello
+
+The compiler helpfully includes a comment whenever it expands a macro.
+
+A zero-argument macro isn't that useful.
+We can do better. Let's use a template::
+
+    #> (setattr _macro_ 'greet (lambda (name) `(print 'Hello ,name)))
+    #..
+    >>> setattr(
+    ...   _macro_,
+    ...   'greet',
+    ...   (lambda name:
+    ...     (lambda *xAUTO0_:xAUTO0_)(
+    ...       'builtins..print',
+    ...       (lambda *xAUTO0_:xAUTO0_)(
+    ...         'quote',
+    ...         '_repl..Hello'),
+    ...       name)))
+
+    #> (greet 'Bob)
+    #..
+    >>> # greet
+    ... __import__('builtins').print(
+    ...   '_repl..Hello',
+    ...   'Bob')
+    _repl..Hello Bob
+
+Not what you expected?
+
+A template quote automatically qualifies any unqualified symbols it contains
+with ``builtins`` (if applicable) or the current ``__package__``::
+
+    #> `int  ; Works on symbols too.
+    >>> 'builtins..int'
+    'builtins..int'
+
+    #> `(int spam)
+    #..
+    >>> (lambda *xAUTO0_:xAUTO0_)(
+    ...   'builtins..int',
+    ...   '_repl..spam')
+    ('builtins..int', '_repl..spam')
+
+Qualified symbols are especially important
+when a macro expands in a module it was not defined in.
+This prevents accidental name collisions
+when the unqualified name was already in use.
+And the qualified symbol automatically imports any required helpers.
+
+You can force an import from a particular location by using
+a qualified symbol in the template in the first place.
+Usually if you want an unqualified symbol in the template,
+it's a sign that you need to use a gensym instead.
+Gensyms are never qualified.
+If you don't think it needs to be a gensym,
+that's a sign that the macro could maybe be an ordinary function
+instead.
+
+If you *want* to *capture* [#capture]_ a symbol (collide on purpose),
+you can still put unqualified symbols into templates
+by interpolating in an expression that evaluates to an unqualified
+symbol. (Like a quoted symbol)::
+
+    #> `(float inf)
+    #..
+    >>> (lambda *xAUTO0_:xAUTO0_)(
+    ...   'builtins..float',
+    ...   '_repl..inf')
+    ('builtins..float', '_repl..inf')
+
+    #> `(float ,'inf)
+    #..
+    >>> (lambda *xAUTO0_:xAUTO0_)(
+    ...   'builtins..float',
+    ...   'inf')
+    ('builtins..float', 'inf')
+
+Let's try again::
+
+    #> (setattr _macro_ 'greet (lambda (name) `(print ','Hello ,name)))
+    #..
+    >>> setattr(
+    ...   _macro_,
+    ...   'greet',
+    ...   (lambda name:
+    ...     (lambda *xAUTO0_:xAUTO0_)(
+    ...       'builtins..print',
+    ...       (lambda *xAUTO0_:xAUTO0_)(
+    ...         'quote',
+    ...         'Hello'),
+    ...       name)))
+
+    #> (greet 'Bob)
+    #..
+    >>> # greet
+    ... __import__('builtins').print(
+    ...   'Hello',
+    ...   'Bob')
+    Hello Bob
+
+Using a symbol here is a bit sloppy.
+If you really meant it to be text, rather than an identifier,
+a double-quoted string might have been a better idea::
+
+    #> (setattr _macro_ 'greet (lambda (name) `(print "Hello" ,name)))
+    #..
+    >>> setattr(
+    ...   _macro_,
+    ...   'greet',
+    ...   (lambda name:
+    ...     (lambda *xAUTO0_:xAUTO0_)(
+    ...       'builtins..print',
+    ...       ('quote', 'Hello', {':str': True}),
+    ...       name)))
+
+    #> (greet 'Bob)
+    #..
+    >>> # greet
+    ... __import__('builtins').print(
+    ...   'Hello',
+    ...   'Bob')
+    Hello Bob
+
+While the ``{':str': True}`` means nothing to the compiler,
+it does prevent the template reader macro from qualifying it like a symbol.
+
+There's really no need to use a macro when a function will do.
+The above are for illustrative purposes only.
+But there are times when a function will not do::
+
+    #> (setattr _macro_ '# (lambda (: :* body) `(lambda (,'#) (,@body))))
+    #..
+    >>> setattr(
+    ...   _macro_,
+    ...   'xHASH_',
+    ...   (lambda *body:
+    ...     (lambda *xAUTO0_:xAUTO0_)(
+    ...       'lambda',
+    ...       (lambda *xAUTO0_:xAUTO0_)(
+    ...         'xHASH_'),
+    ...       (lambda *xAUTO0_:xAUTO0_)(
+    ...         *body))))
+
+    #> (any (map (# print (.upper #) ":" #)
+    #..          "abc"))
+    #..
+    >>> any(
+    ...   map(
+    ...     # xHASH_
+    ...     (lambda xHASH_:
+    ...       print(
+    ...         xHASH_.upper(),
+    ...         ':',
+    ...         xHASH_)),
+    ...     'abc'))
+    A : a
+    B : b
+    C : c
+    False
+
+This macro is a metaprogram that creates a one-argument lambda.
+This is an example of intentional capture.
+The anaphor [#capture]_ is ``#``.
+Try doing that in Python.
+You can get pretty close with higher-order functions,
+but you can't delay the evaluation of the ``.upper()``
+without a lambda,
+which really negates the whole point of creating a shorter lambda.
+
+One of the main uses of macros is delaying evaluation.
+You can do that much with a lambda in Python.
+But advanced macros can inject anaphors,
+delay evaluation,
+and do a find-and-replace on symbols in code all at once.
+You have full programmatic control over the *code itself*,
+with the full power of Python's ecosystem. The sky's the limit.
+
+Packages
+========
+
 .. rubric:: Footnotes
 
 .. [#key] The equivalent concept is called a *keyword* in other Lisps,
           but that means something else in Python.
+
+.. [#meta] Data about data.
+
+.. [#capture] When symbol capture is done on purpose, these are known as *anaphoric macros*.
+When it's done on accident, these are known as *bugs*.

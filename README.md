@@ -449,11 +449,15 @@ Here's the earlier example quoted.
 ```python
 #> (quote (builtins..print 1 2j 3.0 [4,'5',6] : sep ":"))
 #..
->>> ('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':'))
-('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':'))
+>>> ('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':', {':str': True}))
+('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':', {':str': True}))
 
 ```
 This reveals how to write the example in readerless mode.
+Notice the reader adds some metadata ``{':str': True}``
+to quoted strings that were read from double-quoted strings.
+Arguments to ``quote`` after the first have no effect on compilation,
+but may be useful to macros and reader macros.
 Many literal types simply evaluate to themselves and so are unaffected by quoting.
 The exceptions are strings and tuples, which can represent identifiers and calls.
 

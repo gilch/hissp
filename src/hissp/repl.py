@@ -16,7 +16,7 @@ def repl():
             try:
                 line = input("\n#> ")
             except EOFError:
-                print("Ssee ya!")
+                print("Ssss.")
                 break
             buffer = _get_more(line)
             forms = parser.reads("\n".join(buffer))
