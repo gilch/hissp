@@ -14,6 +14,7 @@ from pprint import pprint
 from textwrap import dedent
 from types import ModuleType
 from typing import Any, Iterable, Iterator, NewType, Tuple, Union
+from unittest.mock import ANY
 
 from hissp.compiler import Compiler, readerless
 from hissp.munger import munge
@@ -145,7 +146,7 @@ class Parser:
         if ".." in tag and not tag.startswith(".."):
             module, function = tag.split("..", 1)
             function = munge(function)
-            if type(form) is tuple and form[0] == "quote" and len(form) == 2:
+            if is_string(form):
                 form = form[1]
             return reduce(getattr, function.split("."), import_module(module))(form)
         raise ValueError(f"Unknown reader macro {tag}")
@@ -153,7 +154,7 @@ class Parser:
     def template(self, form):
         case = type(form)
         if case is tuple and form:
-            if form[0] == 'quote' and len(form) == 3 and form[2].get(':str'):
+            if is_string(form):
                 return 'quote', form
             return (
                 ("lambda", (":", ":*", "xAUTO0_"), "xAUTO0_"),
@@ -165,6 +166,7 @@ class Parser:
         if case is _Unquote and form[0] == ":?":
             return form[1]
         return form
+
 
     def _template(self, forms: Iterable) -> Iterable[Tuple[str, Any]]:
         for form in forms:
@@ -218,6 +220,8 @@ class Parser:
         finally:
             self.gensym_stack.append(gensym_number)
 
+def is_string(form):
+    return form == ("quote", ANY, ANY) and form[2].get(':str')
 
 def transpile(package: resources.Package, *modules: Union[str, PurePath]):
     for module in modules:
