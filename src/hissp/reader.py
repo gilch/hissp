@@ -23,9 +23,15 @@ TOKENS = re.compile(
     r"""(?x)
  (?P<open>\()
 |(?P<close>\))
-|(?P<string>"(?:\\.|\\\n|[^"]|\\")*")
+|(?P<string>
+  " # Open quote.
+    (?:|[^"\\]  # Any non-magic character.
+       |\\(?:.|\n)  # Backslash only if paired, including with newline.
+    )*  # Zero or more times.
+  " # Close quote.
+ )
 |(?P<comment>;.*)
-|(?P<whitespace>[\n ]+)
+|(?P<whitespace>[\n ]+)  # Tabs are not allowed outside of strings.
 |(?P<macro>
    ,@
   |['`,]
@@ -104,7 +110,9 @@ class Parser:
                     raise SyntaxError("Unopened ')'.")
                 return
             elif k == "string":
-                yield "quote", ast.literal_eval(v.replace("\n", r"\n")), {":str": True}
+                yield "quote", ast.literal_eval(
+                    v.replace("\\\n", "").replace("\n", r"\n")
+                ), {":str": True}
             elif k in {"comment", "whitespace"}:
                 continue
             elif k == "macro":
@@ -155,7 +163,7 @@ class Parser:
         case = type(form)
         if case is tuple and form:
             if is_string(form):
-                return 'quote', form
+                return "quote", form
             return (
                 ("lambda", (":", ":*", "xAUTO0_"), "xAUTO0_"),
                 ":",
@@ -166,7 +174,6 @@ class Parser:
         if case is _Unquote and form[0] == ":?":
             return form[1]
         return form
-
 
     def _template(self, forms: Iterable) -> Iterable[Tuple[str, Any]]:
         for form in forms:
@@ -220,8 +227,10 @@ class Parser:
         finally:
             self.gensym_stack.append(gensym_number)
 
+
 def is_string(form):
-    return form == ("quote", ANY, ANY) and form[2].get(':str')
+    return form == ("quote", ANY, ANY) and form[2].get(":str")
+
 
 def transpile(package: resources.Package, *modules: Union[str, PurePath]):
     for module in modules:

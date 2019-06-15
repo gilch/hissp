@@ -43,6 +43,22 @@
                       xs))
                   [1,'b','c']))
 
+  test_string_newline
+  (lambda (self)
+    (.assertEqual self
+                  "\
+foo\
+bar\nbaz"
+                  "foobar
+baz")
+    (.assertEqual self
+                  "
+
+foo
+bar
+"
+                  "\n\nfoo\nbar\n"))
+
   test_string_reader_macro
   (lambda (self)
     (.assertEqual self
