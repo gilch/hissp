@@ -30,7 +30,7 @@ setuptools.setup(
         "Topic :: Software Development :: Compilers",
         "Topic :: Software Development :: Libraries",
     ],
-    keywords="lisp macro metaprogramming compiler transpiler DSL emacs clojure scheme",
+    keywords="lisp macro metaprogramming compiler DSL AST transpiler emacs clojure scheme",
     packages=setuptools.find_packages("src"),
     package_dir={"": "src"},
     python_requires=">=3.7",
