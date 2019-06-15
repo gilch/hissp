@@ -35,10 +35,10 @@ TOKENS = re.compile(
 |(?P<macro>
    ,@
   |['`,]
-   # Ends in ``\``, but not bytes, dict, set, list, str.
+   # Ends in ``#``, but not bytes, dict, set, list, str.
   |(?:[Bb](?!')
-     |[^ \n"(){}[\]\\Bb]
-     )[^ \n"(){}[\]\\]*\\)
+     |[^ \n"(){}[\]#Bb]
+     )[^ \n"(){}[\]#]*[#])
 |(?P<symbol>[^ \n"()]+)
 """
 )
@@ -143,11 +143,11 @@ class Parser:
         if tag == ",@":
             return _Unquote([":*", form])
 
-        assert tag.endswith("\\")
+        assert tag.endswith("#")
         tag = tag[:-1]
         if tag == "_":
             return DROP
-        if tag == "#":
+        if tag == "$":
             return self.gensym(form)
         if tag == ".":
             return eval(readerless(form), {})

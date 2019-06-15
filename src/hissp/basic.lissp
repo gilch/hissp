@@ -37,10 +37,10 @@ Creates locals. Pairs are implied. Locals are not in scope until the body.
 (setattr _macro_.let '__qualname__ '_macro_.let)
 
 (defmacro defmacro (name parameters docstring : :* body)
-  `(require-as (let (#\macro (lambda ,parameters ,@body))
-                 (setattr #\macro ','__doc__ ,docstring)
-                 (setattr #\macro ','__qualname__ (.join "." '(,'_macro_ ,name)))
-                 #\macro)
+  `(require-as (let ($#macro (lambda ,parameters ,@body))
+                 (setattr $#macro ','__doc__ ,docstring)
+                 (setattr $#macro ','__qualname__ (.join "." '(,'_macro_ ,name)))
+                 $#macro)
                ,name))
 (setattr _macro_.defmacro '__doc__ "
 Creates a new macro for the current module.
@@ -55,7 +55,7 @@ The docstring argument is required, but can be None.
   Evaluates the given thing then uses it as the first argument to a
   sequence of calls. Used for initialization. Evaluates to the thing.
   "
-  (let (thing-sym `#\thing)
+  (let (thing-sym `$#thing)
     `((lambda (: ,thing-sym ,thing)
         ,@(map (lambda (call)
                  `(,(operator..getitem call 0)

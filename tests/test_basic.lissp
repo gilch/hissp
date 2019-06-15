@@ -62,5 +62,5 @@ bar
   test_string_reader_macro
   (lambda (self)
     (.assertEqual self
-                  fractions..Fraction\ "1/3"
-                  .\ (fractions..Fraction 1 3))))
+                  fractions..Fraction#"1/3"
+                  .#(fractions..Fraction 1 3))))
