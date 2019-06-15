@@ -371,15 +371,15 @@ as an identifier and as a string representing that identifier::
     ...   'spam',
     ...   (lambda :()))
 
-    #> (setattr spam '!@#$ 'eggs)
+    #> (setattr spam '!@%$ 'eggs)
     #..
     >>> setattr(
     ...   spam,
-    ...   'xBANG_xAT_xHASH_xDOLLAR_',
+    ...   'xBANG_xAT_xPERCENT_xDOLLAR_',
     ...   'eggs')
 
-    #> spam.!@#$
-    >>> spam.xBANG_xAT_xHASH_xDOLLAR_
+    #> spam.!@%$
+    >>> spam.xBANG_xAT_xPERCENT_xDOLLAR_
     'eggs'
 
 Key Symbols
@@ -619,12 +619,12 @@ function name starts with a dot::
 Reader Macros
 =============
 
-Reader macros in Lissp consist of a symbol ending with a ``\``
+Reader macros in Lissp consist of a symbol ending with a ``#``
 followed by another form.
 The function named by the qualified symbol is invoked on the form,
 and the reader embeds the resulting object into the output Hissp::
 
-    #> builtins..float\inf
+    #> builtins..float#inf
     >>> __import__('pickle').loads(  # inf
     ...     b'\x80\x03G\x7f\xf0\x00\x00\x00\x00\x00\x00.'
     ... )
@@ -641,12 +641,12 @@ it may be worth it if constructing the object normally has even more.
 Naturally, the object must be picklable to emit a pickle.
 
 Unqualified reader macros are reserved for the basic Hissp reader.
-There are currently three of them: ``.\``, ``_\``, and ``#\``.
+There are currently three of them: ``.#``, ``_#``, and ``$#``.
 
 If you need more than one argument for a reader macro, use the built in
-``.\`` macro, which evaluates a form at read time::
+``.#`` macro, which evaluates a form at read time::
 
-    #> .\(fractions..Fraction 1 2)
+    #> .#(fractions..Fraction 1 2)
     #..
     >>> __import__('pickle').loads(  # Fraction(1, 2)
     ...     b'\x80\x03cfractions\nFraction\nX\x03\x00\x00\x001/2\x85R.'
@@ -654,7 +654,7 @@ If you need more than one argument for a reader macro, use the built in
     Fraction(1, 2)
 
 
-The ``_\`` macro omits the next expression.
+The ``_#`` macro omits the next expression.
 It's a way to comment out code,
 even if it takes multiple lines.
 
@@ -662,7 +662,7 @@ Templates
 ---------
 
 Besides ``'``, which we've already seen,
-Lissp has three other built-in reader macros that don't require a ``\``:
+Lissp has three other built-in reader macros that don't require a ``#``:
 
 * ````` template quote
 * ``,`` unquote
@@ -750,11 +750,11 @@ Most macros will use at least one internally.
 
 Gensyms
 #######
-The final builtin reader macro ``#\`` creates a *generated symbol*
+The final builtin reader macro ``$#`` creates a *generated symbol*
 (gensym) based on the given symbol.
 Within a template, the same gensym name always makes the same gensym::
 
-    #> `(#\hiss #\hiss)
+    #> `($#hiss $#hiss)
     #..
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   '_hissxAUTO20_',

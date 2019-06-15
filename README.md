@@ -298,14 +298,14 @@ highlighting and structural editing,
 which wouldn't work if you change the grammar.
 (An alternate reader for Hissp need not have this limitation.)
 
-Reader macros in Lissp consist of a symbol ending with a `\ `
+Reader macros in Lissp consist of a symbol ending with a `#`
 followed by another form.
 The function named by the symbol is invoked on the form,
 and the reader embeds the resulting object into the output Hissp.
 
 For example,
 ```python
-#> builtins..float\inf
+#> builtins..float#inf
 >>> __import__('pickle').loads(  # inf
 ...     b'\x80\x03G\x7f\xf0\x00\x00\x00\x00\x00\x00.'
 ... )
@@ -323,12 +323,12 @@ it may be worth it if constructing the object normally has even more.
 Naturally, the object must be picklable to emit a pickle.
 
 Unqualified reader macros are reserved for the basic Hissp reader.
-There are currently three of them: `.\ `, `_\ `, and `#\ `.
+There are currently three of them: `.#`, `_#`, and `$#`.
 
 If you need more than one argument for a reader macro, use the built in
-`.\ ` macro, which evaluates a form at read time. For example,
+`.#` macro, which evaluates a form at read time. For example,
 ```python
-#> .\(fractions..Fraction 1 2)
+#> .#(fractions..Fraction 1 2)
 #..
 >>> __import__('pickle').loads(  # Fraction(1, 2)
 ...     b'\x80\x03cfractions\nFraction\nX\x03\x00\x00\x001/2\x85R.'
@@ -337,21 +337,21 @@ Fraction(1, 2)
 
 ```
 
-The `_\ ` macro omits the next form.
+The `_#` macro omits the next form.
 It's a way to comment out code,
 even if it takes multiple lines.
 
-There are also four more built-in reader macros that don't end with `\ `:
+There are also four more built-in reader macros that don't end with `#`:
 * ``` ` ``` template quote
 * `,` unquote
 * `,@` splice unquote
 * `'` quote
 
-The final builtin `#\ ` creates a gensym based on the given symbol.
+The final builtin `$#` creates a gensym based on the given symbol.
 Within a template, the same gensym literal always makes the same
 gensym.
 ```python
-#> `(#\hiss #\hiss)
+#> `($#hiss $#hiss)
 #..
 >>> (lambda *xAUTO0_:xAUTO0_)(
 ...   '_hissxAUTO15_',
@@ -611,12 +611,12 @@ because then you're metaprogramming with strings instead of AST.
 You're giving up a lot of Hissp's power.
 But optimizing complex formulas is maybe one of the few times it's OK to do that.
 
-Recall the `.\ ` reader macro executes a form and embeds its result into the Hissp.
+Recall the `.#` reader macro executes a form and embeds its result into the Hissp.
 
 ```python
 #> (define quadratic
 #.. (lambda (a b c)
-#..   .\"(-b + (b**2 - 4*a*c)**0.5)/(2*a)"))
+#..   .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)"))
 #..
 >>> # define
 ... __import__('operator').setitem(
@@ -719,7 +719,7 @@ is the special form and which is the macro.
 
 It's not *that* slow.
 Like most things, it's really only an issue in a bottleneck.
-If you find one, there's no runtime overhead for using `.\ ` to inject some Python.
+If you find one, there's no runtime overhead for using `.#` to inject some Python.
 
 Also recall that macros are allowed to return strings of Python code.
 All the usual caveats for text-substitution macros apply.
@@ -962,7 +962,7 @@ Some tips:
   * You have to do this yourself in readerless mode.
   * You can interpolate an unqualified symbol into a template by unquoting it,
     same as any other value.
-* Use gensyms (`#\spam`) to avoid accidental capture of identifiers.
+* Use gensyms (`$#spam`) to avoid accidental capture of identifiers.
 
 > How do I write a reader macro?
 

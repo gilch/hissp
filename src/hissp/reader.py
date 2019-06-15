@@ -14,6 +14,7 @@ from pprint import pprint
 from textwrap import dedent
 from types import ModuleType
 from typing import Any, Iterable, Iterator, NewType, Tuple, Union
+from unittest.mock import ANY
 
 from hissp.compiler import Compiler, readerless
 from hissp.munger import munge
@@ -22,16 +23,22 @@ TOKENS = re.compile(
     r"""(?x)
  (?P<open>\()
 |(?P<close>\))
-|(?P<string>"(?:\\.|\\\n|[^"]|\\")*")
+|(?P<string>
+  " # Open quote.
+    (?:|[^"\\]  # Any non-magic character.
+       |\\(?:.|\n)  # Backslash only if paired, including with newline.
+    )*  # Zero or more times.
+  " # Close quote.
+ )
 |(?P<comment>;.*)
-|(?P<whitespace>[\n ]+)
+|(?P<whitespace>[\n ]+)  # Tabs are not allowed outside of strings.
 |(?P<macro>
    ,@
   |['`,]
-   # Ends in ``\``, but not bytes, dict, set, list, str.
+   # Ends in ``#``, but not bytes, dict, set, list, str.
   |(?:[Bb](?!')
-     |[^ \n"(){}[\]\\Bb]
-     )[^ \n"(){}[\]\\]*\\)
+     |[^ \n"(){}[\]#Bb]
+     )[^ \n"(){}[\]#]*[#])
 |(?P<symbol>[^ \n"()]+)
 """
 )
@@ -103,7 +110,9 @@ class Parser:
                     raise SyntaxError("Unopened ')'.")
                 return
             elif k == "string":
-                yield "quote", ast.literal_eval(v.replace("\n", r"\n")), {":str": True}
+                yield "quote", ast.literal_eval(
+                    v.replace("\\\n", "").replace("\n", r"\n")
+                ), {":str": True}
             elif k in {"comment", "whitespace"}:
                 continue
             elif k == "macro":
@@ -134,18 +143,18 @@ class Parser:
         if tag == ",@":
             return _Unquote([":*", form])
 
-        assert tag.endswith("\\")
+        assert tag.endswith("#")
         tag = tag[:-1]
         if tag == "_":
             return DROP
-        if tag == "#":
+        if tag == "$":
             return self.gensym(form)
         if tag == ".":
             return eval(readerless(form), {})
         if ".." in tag and not tag.startswith(".."):
             module, function = tag.split("..", 1)
             function = munge(function)
-            if type(form) is tuple and form[0] == "quote" and len(form) == 2:
+            if is_string(form):
                 form = form[1]
             return reduce(getattr, function.split("."), import_module(module))(form)
         raise ValueError(f"Unknown reader macro {tag}")
@@ -153,8 +162,8 @@ class Parser:
     def template(self, form):
         case = type(form)
         if case is tuple and form:
-            if form[0] == 'quote' and len(form) == 3 and form[2].get(':str'):
-                return 'quote', form
+            if is_string(form):
+                return "quote", form
             return (
                 ("lambda", (":", ":*", "xAUTO0_"), "xAUTO0_"),
                 ":",
@@ -217,6 +226,10 @@ class Parser:
             yield
         finally:
             self.gensym_stack.append(gensym_number)
+
+
+def is_string(form):
+    return form == ("quote", ANY, ANY) and form[2].get(":str")
 
 
 def transpile(package: resources.Package, *modules: Union[str, PurePath]):
