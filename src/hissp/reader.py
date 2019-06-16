@@ -11,7 +11,6 @@ from importlib import import_module, resources
 from itertools import chain
 from pathlib import Path, PurePath
 from pprint import pprint
-from textwrap import dedent
 from types import ModuleType
 from typing import Any, Iterable, Iterator, NewType, Tuple, Union
 from unittest.mock import ANY
@@ -48,24 +47,15 @@ Token = NewType("Token", Tuple[str, str])
 DROP = object()
 
 
-def lex(code: str) -> Iterator[Token]:
+def lex(code: str, file: str = "<?>") -> Iterator[Token]:
     pos = 0
     while pos < len(code):
         match = TOKENS.match(code, pos)
         if match is None:
-            lines = code.split("\n")
             good = code[0:pos].split("\n")
             line = len(good)
             column = len(good[-1])
-            raise SyntaxError(
-                dedent(
-                    f"""\
-                    Unexpected token at {line}:{column}
-                    {lines[line-1]}
-                    {" "*column}^
-                    """
-                )
-            )
+            raise SyntaxError("Unexpected token", (file, line, column, code))
         assert match.end() > pos, match.groups()
         pos = match.end()
         yield Token((match.lastgroup, match.group()))
@@ -82,11 +72,14 @@ def gensym_counter(count=[0]):
 
 
 class Parser:
-    def __init__(self, qualname="_repl", ns=None, verbose=False, evaluate=False):
+    def __init__(
+        self, qualname="_repl", ns=None, verbose=False, evaluate=False, filename="<?>"
+    ):
         self.qualname = qualname
         self.ns = ns or {"__name__": "<compiler>"}
         self.compiler = Compiler(self.qualname, self.ns, evaluate)
         self.verbose = verbose
+        self.filename = filename
         self.reinit()
 
     def reinit(self):
@@ -197,7 +190,7 @@ class Parser:
         return f"{self.qualname}..{symbol}"
 
     def reads(self, code: str) -> Iterable:
-        res = self.parse(lex(code))
+        res = self.parse(lex(code, self.filename))
         self.reinit()
         if self.verbose:
             res = list(res)
@@ -253,4 +246,4 @@ def transpile_module(
         qualname = f"{package}.{resource.split('.')[0]}"
         with open(out, "w") as f:
             print("writing to", out)
-            f.write(Parser(qualname, evaluate=True).compile(code))
+            f.write(Parser(qualname, evaluate=True, filename=str(out)).compile(code))
