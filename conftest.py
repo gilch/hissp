@@ -46,7 +46,7 @@ class ParseLissp(DocTestParser):
             parser.compiler.ns = example.namespace
             hissp = parser.reads(lissp)
             compiled = parser.compiler.compile(hissp) + "\n"
-            assert compiled == python, dedent(
+            assert norm_gensym_eq(compiled, python), dedent(
                 f"""
                 EXPECTED PYTHON:
                 {indent(python, "  ")}
@@ -57,6 +57,10 @@ class ParseLissp(DocTestParser):
             )
         return super().evaluate(example)
 
+
+def norm_gensym_eq(compiled, python):
+    """The special gensym suffix ``xAUTO..._`` will match any number."""
+    return re.fullmatch(re.sub(r'xAUTO\\\.\\\.\\\._', r'xAUTO\\d+_', re.escape(python)), compiled)
 
 class Globs(Container):
     def __init__(self, *globs):

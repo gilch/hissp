@@ -757,11 +757,13 @@ Within a template, the same gensym name always makes the same gensym::
     #> `($#hiss $#hiss)
     #..
     >>> (lambda *xAUTO0_:xAUTO0_)(
-    ...   '_hissxAUTO21_',
-    ...   '_hissxAUTO21_')
-    ('_hissxAUTO21_', '_hissxAUTO21_')
+    ...   '_hissxAUTO..._',
+    ...   '_hissxAUTO..._')
+    ('_hissxAUTO..._', '_hissxAUTO..._')
 
 But each new template increments the counter.
+(The numbers have been elided to make the doctests work, but they're the same
+as well. E.g. ``_hissxAUTO42_``. Try it.)
 Gensyms are mainly used to prevent accidental name collisions in generated code.
 
 Data Structures
