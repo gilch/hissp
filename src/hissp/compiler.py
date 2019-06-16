@@ -337,7 +337,7 @@ class Compiler:
             parts = symbol.split("..", 1)
             if parts[0] == self.qualname:  # This module. No import required.
                 chain = parts[1].split('.', 1)
-                chain[0] = f"globals()[{chain[0]}]"  # Avoid local shadowing.
+                chain[0] = f"globals()[{self.quoted(chain[0])}]"  # Avoid local shadowing.
                 return '.'.join(chain)
             return "__import__({0!r}{fromlist}).{1}".format(
                 parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""

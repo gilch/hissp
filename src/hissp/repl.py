@@ -1,16 +1,23 @@
 # Copyright 2019 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 import traceback
+from contextlib import suppress
 from functools import partial
 from types import SimpleNamespace
 
-import hissp.basic
 from hissp.reader import Parser
+from hissp.reader import transpile
 
 
-def repl():
+def repl(macros=None):
     parser = Parser()
-    parser.compiler.ns["_macro_"] = SimpleNamespace(**vars(hissp.basic._macro_))
+    if not macros:
+        with suppress():
+            transpile("hissp", "basic")
+        from hissp import basic
+
+        macros = basic
+    parser.compiler.ns["_macro_"] = SimpleNamespace(**vars(macros._macro_))
     while True:
         try:
             try:

@@ -354,9 +354,9 @@ gensym.
 #> `($#hiss $#hiss)
 #..
 >>> (lambda *xAUTO0_:xAUTO0_)(
-...   '_hissxAUTO15_',
-...   '_hissxAUTO15_')
-('_hissxAUTO15_', '_hissxAUTO15_')
+...   '_hissxAUTO16_',
+...   '_hissxAUTO16_')
+('_hissxAUTO16_', '_hissxAUTO16_')
 
 ```
 
