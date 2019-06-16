@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import setuptools
 
 with open("README.md") as f:
