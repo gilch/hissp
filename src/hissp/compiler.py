@@ -9,6 +9,7 @@ from contextlib import contextmanager, suppress
 from contextvars import ContextVar
 from functools import wraps
 from itertools import chain, takewhile
+from pprint import pformat
 from typing import Iterable, Tuple, TypeVar
 
 PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
@@ -32,14 +33,16 @@ class CompileError(SyntaxError):
 
 def trace(method):
     @wraps(method)
-    def tracer(self, *args, **kwargs):
+    def tracer(self, expr):
         try:
-            return method(self, *args, **kwargs)
+            return method(self, expr)
         except CompileError as e:
-            e.msg = f"\nself.{method.__name__}(*{args},**{kwargs})\n" + e.msg
+            e.msg = f"\nIn compile {method.__name__}:\n{pformat(expr)}\n" + e.msg
             raise e
         except Exception as e:
-            raise CompileError(f"\nself.{method.__name__}(*{args},**{kwargs})\n") from e
+            raise CompileError(
+                f"\nIn compile {method.__name__}:\n{pformat(expr)}\n\n{type(e).__name__}: {e}"
+            ) from e
 
     return tracer
 
@@ -86,20 +89,21 @@ class Compiler:
         """Calls, macros, special forms."""
         head, *tail = form
         if type(head) is str:
-            return self.special(form, head, tail)
+            return self.special(form)
         return self.call(form)
 
-    def special(self, form: tuple, head: str, tail: list) -> str:
+    def special(self, form: tuple) -> str:
         """Try to compile as special form, else self.macro()."""
-        if head == "quote":
+        if form[0] == "quote":
             return self.quoted(form[1])
-        if head == "lambda":
+        if form[0] == "lambda":
             return self.function(form)
-        return self.macro(form, head, tail)
+        return self.invocation(form)
 
     @trace
-    def macro(self, form: tuple, head: str, tail: list) -> str:
+    def invocation(self, form: tuple) -> str:
         """Try to compile as macro, else normal call."""
+        head, *tail = form
         parts = head.split(MACRO, 1)
         with self.macro_context():
             if parts[0] == self.qualname:
@@ -331,6 +335,10 @@ class Compiler:
             return symbol
         if ".." in symbol:
             parts = symbol.split("..", 1)
+            if parts[0] == self.qualname:  # This module. No import required.
+                chain = parts[1].split('.', 1)
+                chain[0] = f"globals()[{chain[0]}]"  # Avoid local shadowing.
+                return '.'.join(chain)
             return "__import__({0!r}{fromlist}).{1}".format(
                 parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
             )
