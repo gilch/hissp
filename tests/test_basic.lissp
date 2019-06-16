@@ -12,6 +12,10 @@
   `(entuple 'entuple))
 
 (deftype TestBasic (unittest..TestCase)
+  test_same_gensym
+  (lambda (self)
+    (.assertEqual self : :* `($#test $#test)))
+
   test_qualified_symbol
   (lambda (self)
     (.assertEqual self
