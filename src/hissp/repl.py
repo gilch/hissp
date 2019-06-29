@@ -12,7 +12,7 @@ from hissp.reader import transpile
 def repl(macros=None):
     parser = Parser()
     if not macros:
-        with suppress():
+        with suppress(FileNotFoundError):
             transpile("hissp", "basic")
         from hissp import basic
 

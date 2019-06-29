@@ -630,9 +630,15 @@ But for a top-level `define` like this, you could have just used `exec()`.
 
 > How do I start the REPL again?
 
-Launch the Hissp package using Python from the command line
+If you installed the distribution using pip,
+you can use the provided `hissp` console script.
 ```
-$ python -m hissp
+$ hissp
+```
+You can also launch the Hissp package directly
+using an appropriate Python interpreter from the command line
+```
+$ python3 -m hissp
 ```
 
 > There are no statements?! How can you get anything done?
