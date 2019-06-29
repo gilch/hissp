@@ -15,6 +15,9 @@ import sys
 
 sys.path.insert(0, os.path.abspath("../src"))
 
+# Compile hissp modules so autodoc can find them.
+from hissp.reader import transpile
+transpile("hissp", "basic")
 
 # -- Project information -----------------------------------------------------
 
