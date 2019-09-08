@@ -19,15 +19,15 @@ SPDX-License-Identifier: Apache-2.0
 
 It's Python with a *Lissp*.
 
-Hissp is a Lisp that compiles to a functional subset of Python.
-It's the Python you know and love, with a powerful, streamlined skin.
-
+Hissp is a modular Lisp implementation that compiles to a functional subset of
+Python&mdash;Syntactic macro metaprogramming with full access to the Python ecosystem.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
 - [Hissp](#hissp)
     - [Philosophy and Goals](#philosophy-and-goals)
+        - [Radical Extensibility](#radical-extensibility)
         - [Minimal implementation](#minimal-implementation)
         - [Interoperability](#interoperability)
         - [Useful error messages](#useful-error-messages)
@@ -40,7 +40,7 @@ It's the Python you know and love, with a powerful, streamlined skin.
         - [The obligatory Hello, World!](#the-obligatory-hello-world)
         - [Calls. Hissp is literally all calls.](#calls-hissp-is-literally-all-calls)
             - [Literals and the Reader](#literals-and-the-reader)
-            - [Calls and the compiler](#calls-and-the-compiler)
+            - [Invocations and the compiler](#invocations-and-the-compiler)
     - [FAQ (Frequently Anticipated Questions (and complaints))](#faq-frequently-anticipated-questions-and-complaints)
 
 <!-- markdown-toc end -->
@@ -72,7 +72,7 @@ but still more reliable than text manipulation.
 In Hissp, code is just another kind of data.
 
 Lisp is a programmable programming language,
-extensible though its renowned macro system
+extensible though its acclaimed macro system
 which hooks into the compiler itself.
 Macros are Lisp's secret weapon.
 And Hissp brings this power to Python.
@@ -87,7 +87,7 @@ A goal of Hissp is to be as small as reasonably possible, but no smaller.
 We're not code golfing here; readability still counts.
 But this project has *limited scope*.
 
-Hissp compiles to an upythonic *functional subset* of Python.
+Hissp compiles to an unpythonic *functional subset* of Python.
 This subset has a direct and easy-to-understand correspondence to the Hissp code,
 which makes it straightforward to debug, once you understand Hissp.
 But it is definitely not meant to be idiomatic Python.
@@ -155,20 +155,22 @@ This requires incremental compilation and evaluation of forms, like the REPL.
 
 #### Modularity
 The Hissp language is made of tuples (and values), not text.
-The basic reader included with the project just implements convenient
+The basic reader included with the project just implements a convenient
 way to write them.
 It's possible to write Hissp in "readerless mode"
 by writing these tuples in Python.
 
 Batteries are not included because Python already has them.
 Hissp's standard library is Python's.
-There are only two special forms: quote and lambda.
+There are only two special forms: ``quote`` and ``lambda``.
 Hissp does include a few basic macros and reader macros,
 just enough to write native unit tests,
 but you are not obligated to use them when writing Hissp.
 
 It's possible for an external project to provide an alternative
 reader with different syntax, as long as the output is Hissp code (tuples).
+One example of this is [Hebigo](https://github.com/gilch/hebigo),
+which has a more Python-like indentation-based syntax.
 
 Because Hissp produces standalone output, it's not locked into any one Lisp paradigm.
 It could work with a Clojure-like, Scheme-like, or Common-Lisp-like, etc.,
@@ -224,7 +226,7 @@ $ python -m hissp
 ```
 
 ### Calls. Hissp is literally all calls.
-Hissp has only two types of expressions or forms: literals, and calls.
+Hissp has only two types of expressions: literals (values), and invocations (tuples).
 
 #### Literals and the Reader
 Literals are handled at the reader level.
@@ -252,7 +254,7 @@ One could skip the reader altogether and write the Hissp in Python directly as t
 This is called "readerless mode".
 Reader macros are an artifact of the reader and don't exist in readerless mode at all,
 but compiler macros do work.
-It's also possible to use alternative readers with alternate syntax,
+It's also possible to use alternative readers with alternate syntax (like [Hebigo](https://github.com/gilch/hebigo)),
 but it must *represent* the same underlying tuples to be Hissp.
 
 Using the basic reader,
@@ -385,7 +387,7 @@ hi
 
 ```
 
-#### Calls and the compiler
+#### Invocations and the compiler
 
 Here's a little more Hissp-specific example.
 Note the lack of commas between arguments.
@@ -408,8 +410,8 @@ This is the basic Hissp REPL.
 It shows the Python compilation and its result.
 
 That `[4,'5',6]` is read as a single literal. Note the lack of spaces.
-The double-quoted string literal is an exception. It may have spaces.
-And unlike Python, it is allowed to contain literal newlines.
+The double-quoted string literal is an exception to the no-spaces rule for literals.
+And unlike Python, they are also allowed to contain literal newlines.
 
 The `builtins..print` is an example of a *qualified symbol*,
 which is a kind of implicit import.
@@ -426,7 +428,7 @@ special unpacking keywords `:*` and `:**`, like `:* args` or `:** kwargs`,
 which, like Python, can be repeated.
 
 Hissp's two special forms deserve special consideration.
-These are calls that are built into the compiler.
+These are built into the compiler.
 Unlike a normal function call, special forms are evaluated at compile time.
 
 The first special form is `quote`. It returns its argument unevaluated.
@@ -455,14 +457,15 @@ to quoted strings that were read from double-quoted strings.
 Arguments to ``quote`` after the first have no effect on compilation,
 but may be useful to macros and reader macros.
 Many literal types simply evaluate to themselves and so are unaffected by quoting.
-The exceptions are strings and tuples, which can represent identifiers and calls.
+The exceptions are strings and tuples, which can represent identifiers
+(or other raw Python expressions) and invocations, respectively.
 
 Quoting is important enough to have a special reader macro.
 `'foo` is the same as `(quote foo)`.
 
-The second special form is `lambda`
-The first argument of a lambda is the pararmeters tuple.
-Like calls, the `:` separates the single from the paired (if any).
+The second special form is `lambda`.
+The first argument of a lambda form is the pararmeters tuple.
+Like function calls, the `:` separates the single from the paired (if any).
 After the parameters tuple, the rest of the arguments are the function body.
 
 ```python
@@ -495,23 +498,23 @@ After the parameters tuple, the rest of the arguments are the function body.
 
 ```
 
-Normal call forms evaluate their arguments before calling the function,
+Normal function call forms evaluate their arguments before calling the function,
 as Python does.
 Special forms are different&mdash;`quote`'s argument is not evaluated at all.
 The body of a lambda is not evaluated until the function is invoked,
-and its parameter tuple is partly evaluated (if there are defaults) and
-partly quoted.
+and its parameter tuple is partly evaluated (if there are parameter defaults) and
+partly not.
 While there are only two special forms, the compiler is extensible via macros.
-Like special forms, macro calls do not have to evaluate their arguments.
+Like special forms, macro invocations do not have to evaluate their arguments.
 
 Macros are simply functions that take Hissp code, and return Hissp code.
-When an unqualified symbol is in the function position of a tuple about
+When an unqualified symbol is in the function position, `[0]`, of a tuple about
 to be evaluated, the compiler checks if the module's `_macro_` namespace
 has that symbol. If it does, it is called at compile time as a macro and
 the result is inserted into the code in its place.
 
 Qualified symbols can also be macros if looked up directly from their module's `_macro_`.
-E.g. `(hissp.basic.._macro_.define FOO 0xf00)`
+E.g. `(hissp.basic.._macro_.define FOO 0xf00)`.
 
 The `hissp.basic.._macro_.defmacro` macro defines a function in the module's macro space,
 creating `_macro_` if it doesn't exist yet.
@@ -537,8 +540,11 @@ by using qualified symbols.
 Hissp macros and reader macros can return any type of object.
 If you return a string the compiler will assume it's either a qualified symbol
 or plain identifier (and emit it verbatim).
-But, like a SQL injection attack,
-the string *could* contain almost arbitrary Python code instead.
+But, the string *could* contain almost arbitrary Python code instead.
+(Think of it like a SQL injection attack.)
+The compiler actually checks for parentheses and spaces in strings,
+and if it finds any,
+it will assume it's a Python injection and will avoid processing them like symbols.
 
 Howerver, the whole point of Hissp is syntactic macros.
 If you wanted to do string metaprogramming you could have just used `exec()`,
@@ -600,8 +606,8 @@ Also, you don't have to be restricted to one or two arguments.
 
 Fine. You can write macros for any syntax you please.
 
-Also recall that (reader) macros can return arbitrary Python snippets
-and the compiler will emit them verbatim.
+Also recall that both reader and compiler macros can return arbitrary Python snippets
+and the compiler will emit them verbatim if it contains a space or parentheses.
 You should generally avoid doing this,
 because then you're metaprogramming with strings instead of AST.
 You're giving up a lot of Hissp's power.
@@ -654,6 +660,8 @@ Look at their expansions and you'll see they don't use assignment statements eit
 
 See also `builtins..setattr` and `operator..setitem`.
 
+Also, Python 3.8 is adding assignment expressions. Those are expressions.
+
 > But there's no `macroexpand`. How do I look at expansions?
 
 Invoke the macro indirectly so the compiler sees it as a normal function.
@@ -667,11 +675,13 @@ whenever it expands a macro.
 
 > There's no `for`? What about loops?
 
-Try recursion. `list()`, `map()` and `filter()` plus lambda can do
+Sometimes recursion is good enough try it.
+`list()`, `map()` and `filter()` plus lambda can do
 anything list comprehensions can. Ditch the `list()` for lazy generators.
 Replace `list()` with `set()` for set comps. Dict comps are a little trickier.
 Use `dict()` on an iterable of pairs. `zip()` is an easy way to make them,
 or just have the map's lambda return pairs.
+Remember, you can make data tuples with template quotes.
 
 > This is so much harder than comprehensions!
 
@@ -747,7 +757,8 @@ rewriting macro needs to work properly.
 No, because CPython doesn't.
 If a Python implementation has it, Hissp will too,
 when run on that implementation.
-But you can increase the recursion limit with `sys..setrecursionlimit`.
+
+You can increase the recursion limit with `sys..setrecursionlimit`.
 Better not increase it too much if you don't like segfaults, but
 you can trampoline instead. See Drython's `loop()` function. Or use it.
 Clojure does it about the same way.
@@ -856,11 +867,14 @@ unless you really want a single-file script with no dependencies,
 you're better off defining the helper function in Python and importing it.
 You could handle the finally/else blocks similarly.
 See Drython's `Try()` for how to do it. Or just use Drython.
+Hebigo also implements one.
+If Hebigo is installed, you can import and use Hebigo's macros, even in Lissp,
+because they also take and return Hissp.
 
 > Isn't Hissp slower than Python? Isn't Python slow enough already?
 
-"Slow" only matters if it's in a bottleneck.
-Hissp will often be slower than Python,
+"Slow" usually only matters if it's in a bottleneck.
+Hissp will often be slower than Python
 because it compiles to a functional subset of Python that relies on
 defining and calling functions more.
 Because Python is a multiparadigm language,
@@ -892,8 +906,8 @@ abstract base classes too.
 > How do I add a docstring to a module/class/function?
 
 Assign a string to the `__doc__` attribute of the module/class/function object.
-That means defining a global in the module,
-or a key in the dict argument to `type()` also works.
+That means defining a `__doc__` global in the module.
+That key in the dict argument to `type()` also works.
 
 > The REPL is nice and all, but how do I compile a module?
 
