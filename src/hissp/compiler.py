@@ -10,7 +10,9 @@ from contextvars import ContextVar
 from functools import wraps
 from itertools import chain, takewhile
 from pprint import pformat
+from traceback import format_exc
 from typing import Iterable, Tuple, TypeVar
+from warnings import warn
 
 PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
 # Module Macro container
@@ -47,6 +49,10 @@ def trace(method):
     return tracer
 
 
+class PostCompileWarning(Warning):
+    pass
+
+
 class Compiler:
     """
     The Hissp compiler.
@@ -61,19 +67,18 @@ class Compiler:
         result = []
         for form in forms:
             form = self.form(form)
-            self.eval(form)
-            result.append(form)
+            result.extend(self.eval(form))
         return "\n\n".join(result)
 
     def eval(self, form):
-        if not self.evaluate:
-            return
         try:
-            eval(compile(form, "<Hissp>", "eval"), self.ns)
+            if self.evaluate:
+                eval(compile(form, "<Hissp>", "eval"), self.ns)
         except Exception as e:
-            print("Exception when evaluating form:")
-            print(form)
-            raise CompileError(f"\n{form!r}") from e
+            trace = format_exc()
+            warn(f"\n {e} when evaluating form:\n{form}\n\n{trace}", PostCompileWarning)
+            return form, '# '+trace.replace('\n', '\n# ')
+        return form,
 
     def form(self, form) -> str:
         """
