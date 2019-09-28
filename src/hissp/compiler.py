@@ -39,8 +39,9 @@ def trace(method):
         try:
             return method(self, expr)
         except Exception as e:
-            self.error = method, e
-            return f"(>   >  > >>{pformat(expr)}<< <  <   <)"
+            self.error = True
+            message = f"\nCompile {method.__name__} {type(e).__name__}:\n {e}".replace('\n','\n# ')
+            return f"(>   >  > >>{pformat(expr)}<< <  <   <){message}"
 
     return tracer
 
@@ -58,18 +59,15 @@ class Compiler:
         self.qualname = qualname
         self.ns = ns or {"__name__": "<compiler>"}
         self.evaluate = evaluate
-        self.error = None
+        self.error = False
 
     def compile(self, forms: Iterable) -> str:
         result = []
         for form in forms:
             form = self.form(form)
             if self.error:
-                method, e = self.error
-                self.error = None
-                raise CompileError(
-                    f"\nIn compile {method.__name__}:\n{form}\n\n{type(e).__name__}: {e}"
-                )
+                self.error = False
+                raise CompileError('\n'+form)
             result.extend(self.eval(form))
         return "\n\n".join(result)
 
