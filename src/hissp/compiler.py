@@ -38,13 +38,10 @@ def trace(method):
     def tracer(self, expr):
         try:
             return method(self, expr)
-        except CompileError as e:
-            e.msg = f"\nIn compile {method.__name__}:\n{pformat(expr)}\n" + e.msg
-            raise e
         except Exception as e:
-            raise CompileError(
-                f"\nIn compile {method.__name__}:\n{pformat(expr)}\n\n{type(e).__name__}: {e}"
-            ) from e
+            self.error = True
+            message = f"\nCompile {method.__name__} {type(e).__name__}:\n {e}".replace('\n','\n# ')
+            return f"(>   >  > >>{pformat(expr)}<< <  <   <){message}"
 
     return tracer
 
@@ -62,11 +59,15 @@ class Compiler:
         self.qualname = qualname
         self.ns = ns or {"__name__": "<compiler>"}
         self.evaluate = evaluate
+        self.error = False
 
     def compile(self, forms: Iterable) -> str:
         result = []
         for form in forms:
             form = self.form(form)
+            if self.error:
+                self.error = False
+                raise CompileError('\n'+form)
             result.extend(self.eval(form))
         return "\n\n".join(result)
 
@@ -75,11 +76,12 @@ class Compiler:
             if self.evaluate:
                 eval(compile(form, "<Hissp>", "eval"), self.ns)
         except Exception as e:
-            trace = format_exc()
-            warn(f"\n {e} when evaluating form:\n{form}\n\n{trace}", PostCompileWarning)
-            return form, '# '+trace.replace('\n', '\n# ')
+            exc = format_exc()
+            warn(f"\n {e} when evaluating form:\n{form}\n\n{exc}", PostCompileWarning)
+            return form, '# '+exc.replace('\n', '\n# ')
         return form,
 
+    @trace
     def form(self, form) -> str:
         """
         Translate Hissp form to the equivalent Python code as a string.
@@ -90,6 +92,7 @@ class Compiler:
             return self.symbol(form)
         return self.quoted(form)
 
+    @trace
     def tuple(self, form: tuple) -> str:
         """Calls, macros, special forms."""
         head, *tail = form
@@ -97,6 +100,7 @@ class Compiler:
             return self.special(form)
         return self.call(form)
 
+    @trace
     def special(self, form: tuple) -> str:
         """Try to compile as special form, else self.macro()."""
         if form[0] == "quote":
@@ -124,6 +128,7 @@ class Compiler:
                 return f"# {head}\n" + self.form(eval(self.symbol(head))(*tail))
         return self.call(form)
 
+    @trace
     def quoted(self, form) -> str:
         r"""
         Compile forms that evaluate to themselves.
@@ -160,6 +165,7 @@ class Compiler:
         dumps = pickletools.optimize(pickle.dumps(form))
         return f"__import__('pickle').loads(  # {form!r}\n    {dumps}\n)"
 
+    @trace
     def function(self, form: tuple) -> str:
         r"""
         Anonymous function special form.
