@@ -1,1 +1,1 @@
-from .repl import repl
+from . import repl
