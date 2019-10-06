@@ -55,6 +55,7 @@ def cmd(ns):
     case = len(sys.argv)
     if case == 2:
         ns['__file__'] = filename = os.path.abspath(sys.argv[1])
+        ns['__package__'] = None
         with open(filename) as f:
             Parser(
                 ns=ns, filename=filename, evaluate=True
