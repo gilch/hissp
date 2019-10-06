@@ -73,10 +73,10 @@ def gensym_counter(count=[0]):
 
 class Parser:
     def __init__(
-        self, qualname="_repl", ns=None, verbose=False, evaluate=False, filename="<?>"
+        self, qualname="__main__", ns=None, verbose=False, evaluate=False, filename="<?>"
     ):
         self.qualname = qualname
-        self.ns = ns or {"__name__": "<compiler>"}
+        self.ns = ns or {"__name__": qualname}
         self.compiler = Compiler(self.qualname, self.ns, evaluate)
         self.verbose = verbose
         self.filename = filename

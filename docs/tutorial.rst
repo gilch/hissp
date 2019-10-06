@@ -960,22 +960,22 @@ We can do better. Let's use a template::
     ...       'builtins..print',
     ...       (lambda *xAUTO0_:xAUTO0_)(
     ...         'quote',
-    ...         '_repl..Hello'),
+    ...         '__main__..Hello'),
     ...       name)))
 
     #> (greet 'Bob)
     #..
     >>> # greet
     ... __import__('builtins').print(
-    ...   '_repl..Hello',
+    ...   '__main__..Hello',
     ...   'Bob')
-    _repl..Hello Bob
+    __main__..Hello Bob
 
 Not what you expected?
 
 A template quote automatically qualifies any unqualified symbols it contains
-with ``builtins`` (if applicable) or the current ``__package__``
-(which is ``_repl``)::
+with ``builtins`` (if applicable) or the current ``__name__``
+(which is ``__main__``)::
 
     #> `int  ; Works directly on symbols too.
     >>> 'builtins..int'
@@ -985,8 +985,8 @@ with ``builtins`` (if applicable) or the current ``__package__``
     #..
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   'builtins..int',
-    ...   '_repl..spam')
-    ('builtins..int', '_repl..spam')
+    ...   '__main__..spam')
+    ('builtins..int', '__main__..spam')
 
 Qualified symbols are especially important
 when a macro expands in a module it was not defined in.
@@ -1012,8 +1012,8 @@ symbol. (Like a quoted symbol)::
     #..
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   'builtins..float',
-    ...   '_repl..inf')
-    ('builtins..float', '_repl..inf')
+    ...   '__main__..inf')
+    ('builtins..float', '__main__..inf')
 
     #> `(float ,'inf)
     #..

@@ -55,9 +55,9 @@ class Compiler:
     The Hissp compiler.
     """
 
-    def __init__(self, qualname="_repl", ns=None, evaluate=True):
+    def __init__(self, qualname="__main__", ns=None, evaluate=True):
         self.qualname = qualname
-        self.ns = ns or {"__name__": "<compiler>"}
+        self.ns = ns or {"__name__": qualname}
         self.evaluate = evaluate
         self.error = False
 
@@ -152,6 +152,7 @@ class Compiler:
 
         """
         # Number literals may need (). E.g. (1).real
+        # TODO: pretty-print without sorting dicts.
         literal = f"({form!r})" if type(form) in NUMBER else repr(form)
         with suppress(ValueError):
             if ast.literal_eval(literal) == form:
@@ -378,5 +379,5 @@ def pairs(it: Iterable[T]) -> Iterable[Tuple[T, T]]:
 
 
 def readerless(form, ns=None):
-    ns = ns or NS.get() or {"__name__": "<compiler>"}
+    ns = ns or NS.get() or {"__name__": "__main__"}
     return Compiler(evaluate=False, ns=ns).compile([form])
