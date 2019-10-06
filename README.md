@@ -909,18 +909,30 @@ Assign a string to the `__doc__` attribute of the module/class/function object.
 That means defining a `__doc__` global in the module.
 That key in the dict argument to `type()` also works.
 
-> The REPL is nice and all, but how do I compile a module?
+> The REPL is nice and all, but how do I run a ``.lissp`` module?
 
-```lisp
-(hissp.reader..transpile "hissp" "basic")
+You can use ``hissp`` to launch a ``.lissp`` file as the main module directly.
+
+If you have the entry point script installed that's:
+```shell script
+$ hissp foo.lissp
 ```
-or
+To be able to import a ``.lissp`` module, you must compile it to Python first.
+
+At the REPL (or main module if it's written in Lissp) use:
+```lisp
+(hissp.reader..transpile __package__ 'spam 'eggs 'etc)
+```
+Where spam, eggs, etc. are the module names you want compiled.
+(If the package argument is ``None`` or ``''``, it will use the current working directory.)
+
+Or equivalently, in Python:
 ```python
 from hissp.reader import transpile
 
-transpile(__package__, "spam", "eggs")
+transpile(__package__, "sausage", "bacon")
 ```
-Consider putting the above in `__init__.py` to auto-compile
+Consider putting the above in each package's `__init__.py` to auto-compile
 each Hissp module in the package on package import during development.
 You can disable it again on release, if desired,
 but this gives you fine-grained control over what gets compiled when.
