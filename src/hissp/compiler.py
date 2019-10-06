@@ -5,6 +5,7 @@ import ast
 import pickle
 import pickletools
 import re
+import sys
 from contextlib import contextmanager, suppress
 from contextvars import ContextVar
 from functools import wraps
@@ -55,11 +56,12 @@ class Compiler:
     The Hissp compiler.
     """
 
-    def __init__(self, qualname="_repl", ns=None, evaluate=True):
+    def __init__(self, qualname="__main__", ns=None, evaluate=True):
         self.qualname = qualname
-        self.ns = ns or {"__name__": "<compiler>"}
+        self.ns = ns or {"__name__": qualname}
         self.evaluate = evaluate
         self.error = False
+        self.abort = False
 
     def compile(self, forms: Iterable) -> str:
         result = []
@@ -69,6 +71,9 @@ class Compiler:
                 self.error = False
                 raise CompileError('\n'+form)
             result.extend(self.eval(form))
+            if self.abort:
+                print("\n\n".join(result), file=sys.stderr)
+                sys.exit(1)
         return "\n\n".join(result)
 
     def eval(self, form):
@@ -77,7 +82,10 @@ class Compiler:
                 eval(compile(form, "<Hissp>", "eval"), self.ns)
         except Exception as e:
             exc = format_exc()
-            warn(f"\n {e} when evaluating form:\n{form}\n\n{exc}", PostCompileWarning)
+            if self.ns.get('__name__') == '__main__':
+                self.abort = True
+            else:
+                warn(f"\n {e} when evaluating form:\n{form}\n\n{exc}", PostCompileWarning)
             return form, '# '+exc.replace('\n', '\n# ')
         return form,
 
@@ -152,6 +160,7 @@ class Compiler:
 
         """
         # Number literals may need (). E.g. (1).real
+        # TODO: pretty-print without sorting dicts.
         literal = f"({form!r})" if type(form) in NUMBER else repr(form)
         with suppress(ValueError):
             if ast.literal_eval(literal) == form:
@@ -378,5 +387,5 @@ def pairs(it: Iterable[T]) -> Iterable[Tuple[T, T]]:
 
 
 def readerless(form, ns=None):
-    ns = ns or NS.get() or {"__name__": "<compiler>"}
+    ns = ns or NS.get() or {"__name__": "__main__"}
     return Compiler(evaluate=False, ns=ns).compile([form])

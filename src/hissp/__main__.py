@@ -1,4 +1,2 @@
-from .repl import repl
-
 if __name__ == "__main__":
-    repl()
+    __import__('hissp').repl.cmd(globals())

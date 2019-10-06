@@ -217,9 +217,14 @@ REPL
 
 You can launch the REPL from Python code (which is useful for debugging,
 like :obj:`code.iteract`),
-But let's just start it from the command line::
+But let's just start it from the command line using an appropriate Python interpreter::
 
     $ python -m hissp
+
+Or, if you installed the hissp package using pip,
+you can use the installed entry point script::
+
+    $ hissp
 
 You should see the Lissp prompt ``#>`` appear.
 
@@ -960,22 +965,22 @@ We can do better. Let's use a template::
     ...       'builtins..print',
     ...       (lambda *xAUTO0_:xAUTO0_)(
     ...         'quote',
-    ...         '_repl..Hello'),
+    ...         '__main__..Hello'),
     ...       name)))
 
     #> (greet 'Bob)
     #..
     >>> # greet
     ... __import__('builtins').print(
-    ...   '_repl..Hello',
+    ...   '__main__..Hello',
     ...   'Bob')
-    _repl..Hello Bob
+    __main__..Hello Bob
 
 Not what you expected?
 
 A template quote automatically qualifies any unqualified symbols it contains
-with ``builtins`` (if applicable) or the current ``__package__``
-(which is ``_repl``)::
+with ``builtins`` (if applicable) or the current ``__name__``
+(which is ``__main__``)::
 
     #> `int  ; Works directly on symbols too.
     >>> 'builtins..int'
@@ -985,8 +990,8 @@ with ``builtins`` (if applicable) or the current ``__package__``
     #..
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   'builtins..int',
-    ...   '_repl..spam')
-    ('builtins..int', '_repl..spam')
+    ...   '__main__..spam')
+    ('builtins..int', '__main__..spam')
 
 Qualified symbols are especially important
 when a macro expands in a module it was not defined in.
@@ -1012,8 +1017,8 @@ symbol. (Like a quoted symbol)::
     #..
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   'builtins..float',
-    ...   '_repl..inf')
-    ('builtins..float', '_repl..inf')
+    ...   '__main__..inf')
+    ('builtins..float', '__main__..inf')
 
     #> `(float ,'inf)
     #..
@@ -1122,23 +1127,49 @@ and do a find-and-replace on symbols in code all at once.
 You have full programmatic control over the *code itself*,
 with the full power of Python's ecosystem. The sky's the limit.
 
-Packages
-========
+Compiling Packages
+==================
 
-Consider putting the following in ``__init__.py`` to auto-compile
-each Hissp module in the package on package import during development::
+It isn't always necessary to create a compiled file.
+You can run a ``.lissp`` file directly as the main module using hissp::
+
+    $ python -m hissp foo.lissp
+
+Or::
+
+    $ hissp foo.lissp
+
+But you'll probably want to break a larger project up into smaller modules.
+And those must be compiled for import.
+
+The recommended way to compile a Lissp project is to put a call to
+``transpile()`` in the main module and in each ``__init__.py``—
+with the name of each top-level ``.lissp`` file,
+or ``.lissp`` file in the corresponding package,
+respectively::
 
     from hissp.reader import transpile
 
-    transpile(__package__, "spam", "eggs")
+    transpile(__package__, "spam", "eggs", "etc")
 
-You can disable it again on release, if desired,
-but this gives you fine-grained control over what gets compiled when.
+Or equivalently in Lissp, used either at the REPL or if the main module is written in Lissp::
+
+    (hissp.reader..transpile __package__ 'spam 'eggs 'etc)
+
+This will automatically compile each named Lissp module.
+This approach gives you fine-grained control over what gets compiled when.
+If desired, you can remove a name passed to the ``transpile()``
+call to stop recompiling that file.
+Then you can compile the file manually at the REPL as needed using ``transpile()``.
+
 Note that you usually *would* want to recompile the whole project
-rather than only the changed files like Python does,
+rather than only the changed files on import like Python does for ``.pyc`` files,
 because macros run at compile time.
 Changing a macro in one file normally doesn't affect the code that uses
 it in other files until they are recompiled.
+That is why transpile will recompile the named files unconditionally.
+Even if the corresponding source has not changed,
+the compiled output may be different due to an updated macro in another file.
 
 .. rubric:: Footnotes
 

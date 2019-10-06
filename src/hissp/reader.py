@@ -12,7 +12,7 @@ from itertools import chain
 from pathlib import Path, PurePath
 from pprint import pprint
 from types import ModuleType
-from typing import Any, Iterable, Iterator, NewType, Tuple, Union
+from typing import Any, Iterable, Iterator, NewType, Tuple, Union, Optional
 from unittest.mock import ANY
 
 from hissp.compiler import Compiler, readerless
@@ -73,10 +73,10 @@ def gensym_counter(count=[0]):
 
 class Parser:
     def __init__(
-        self, qualname="_repl", ns=None, verbose=False, evaluate=False, filename="<?>"
+        self, qualname="__main__", ns=None, verbose=False, evaluate=False, filename="<?>"
     ):
         self.qualname = qualname
-        self.ns = ns or {"__name__": "<compiler>"}
+        self.ns = ns or {"__name__": qualname}
         self.compiler = Compiler(self.qualname, self.ns, evaluate)
         self.verbose = verbose
         self.filename = filename
@@ -225,9 +225,18 @@ def is_string(form):
     return form == ("quote", ANY, ANY) and form[2].get(":str")
 
 
-def transpile(package: resources.Package, *modules: Union[str, PurePath]):
-    for module in modules:
-        transpile_module(package, module + ".lissp")
+def transpile(package: Optional[resources.Package], *modules: Union[str, PurePath]):
+    if package:
+        for module in modules:
+            transpile_module(package, module + ".lissp")
+    else:
+        for module in modules:
+            with open(module+'.lissp') as f:
+                code = f.read()
+            out = module + '.py'
+            with open(out, "w") as f:
+                print("writing to", out)
+                f.write(Parser(module, evaluate=True, filename=str(out)).compile(code))
 
 
 def transpile_module(
