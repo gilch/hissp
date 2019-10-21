@@ -147,7 +147,7 @@ class Compiler:
         '((-0-4.2j))'
         >>> print(readerless(float('nan')))
         __import__('pickle').loads(  # nan
-            b'\x80\x03G\x7f\xf8\x00\x00\x00\x00\x00\x00.'
+            b'Fnan\n.'
         )
         >>> readerless([{'foo':2},(),1j,2.0,{3}])
         "[{'foo': 2}, (), 1j, 2.0, {3}]"
@@ -155,10 +155,12 @@ class Compiler:
         >>> spam.append(spam)
         >>> print(readerless(spam))
         __import__('pickle').loads(  # [[...]]
-            b'\x80\x03]q\x00h\x00a.'
+            b'(lp0\ng0\na.'
         )
 
         """
+        if form is Ellipsis:
+            return "..."
         # Number literals may need (). E.g. (1).real
         # TODO: pretty-print without sorting dicts.
         literal = f"({form!r})" if type(form) in NUMBER else repr(form)
@@ -171,7 +173,11 @@ class Compiler:
     @trace
     def pickle(self, form) -> str:
         """The final fallback for self.quoted()."""
-        dumps = pickletools.optimize(pickle.dumps(form))
+        try:  # Try the more human-readable and backwards-compatible text protocol first.
+            dumps = pickle.dumps(form, 0)
+        except pickle.PicklingError:  # Fall back to the highest binary protocol if that didn't work.
+            dumps = pickle.dumps(form, pickle.HIGHEST_PROTOCOL)
+        dumps = pickletools.optimize(dumps)
         return f"__import__('pickle').loads(  # {form!r}\n    {dumps}\n)"
 
     @trace

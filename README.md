@@ -305,7 +305,7 @@ For example,
 ```python
 #> builtins..float#inf
 >>> __import__('pickle').loads(  # inf
-...     b'\x80\x03G\x7f\xf0\x00\x00\x00\x00\x00\x00.'
+...     b'Finf\n.'
 ... )
 inf
 
@@ -329,7 +329,7 @@ If you need more than one argument for a reader macro, use the built in
 #> .#(fractions..Fraction 1 2)
 #..
 >>> __import__('pickle').loads(  # Fraction(1, 2)
-...     b'\x80\x03cfractions\nFraction\nX\x03\x00\x00\x001/2\x85R.'
+...     b'cfractions\nFraction\n(V1/2\ntR.'
 ... )
 Fraction(1, 2)
 
