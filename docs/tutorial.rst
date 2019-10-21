@@ -724,20 +724,19 @@ The splice unquote is similar, but unpacks its result::
 Templates are *reader syntax*: because they're reader macros,
 they only exist in Lissp, not Hissp. The Hissp is what they return.
 
-If you quote and pretty-print an example, you can see that intermediate step::
+If you quote an example, you can see that intermediate step::
 
-    #> (pprint..pprint '`(:a ,@"bcd" ,(opearator..mul 2 3)))
+    #> '`(:a ,@"bcd" ,(opearator..mul 2 3))
     #..
-    >>> __import__('pprint').pprint(
-    ...   (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':?', ':a', ':*', ('quote', 'bcd', {':str': True}), ':?', ('opearator..mul', 2, 3)))
-    (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'),
-     ':',
-     ':?',
-     ':a',
-     ':*',
-     ('quote', 'bcd', {':str': True}),
-     ':?',
-     ('opearator..mul', 2, 3))
+    >>> (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'),
+    ...  ':',
+    ...  ':?',
+    ...  ':a',
+    ...  ':*',
+    ...  ('quote', 'bcd', {':str': True}),
+    ...  ':?',
+    ...  ('opearator..mul', 2, 3))
+    (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':?', ':a', ':*', ('quote', 'bcd', {':str': True}), ':?', ('opearator..mul', 2, 3))
 
 
 So you see, templates are not doing anything new.

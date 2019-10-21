@@ -103,7 +103,7 @@ This gives Hissp a massive advantage over other Lisps with less selection.
 If you don't care to work with the Python ecosystem,
 perhaps Hissp is not the Lisp for you.
 
-Note that the Hissp compiler is written in Python 3.7.
+Note that the Hissp compiler is written in Python 3.8.
 (Supporting older versions is not a goal,
 because that would complicate the compiler.
 This may limit the available libraries.)
@@ -447,7 +447,14 @@ Here's the earlier example quoted.
 ```python
 #> (quote (builtins..print 1 2j 3.0 [4,'5',6] : sep ":"))
 #..
->>> ('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':', {':str': True}))
+>>> ('builtins..print',
+...  1,
+...  2j,
+...  3.0,
+...  [4, '5', 6],
+...  ':',
+...  'sep',
+...  ('quote', ':', {':str': True}))
 ('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':', {':str': True}))
 
 ```

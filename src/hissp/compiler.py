@@ -21,8 +21,6 @@ MACROS = "_macro_"
 # Macro from foreign module foo.bar.._macro_.baz
 MACRO = f"..{MACROS}."
 
-NUMBER = frozenset({int, float, complex})
-
 # Sometimes macros need the current ns when expanding,
 # instead of its defining ns.
 # Rather than pass in an implicit argument, it's available here.
@@ -161,13 +159,19 @@ class Compiler:
         """
         if form is Ellipsis:
             return "..."
-        # Number literals may need (). E.g. (1).real
-        # TODO: pretty-print without sorting dicts.
-        literal = f"({form!r})" if type(form) in NUMBER else repr(form)
-        with suppress(ValueError):
+
+        case = type(form)
+        if case in {int, float, complex}:  # Number literals may need (). E.g. (1).real
+            literal = f"({form!r})"
+        elif case in {dict, list, set, tuple}:  # Pretty print collections.
+            literal = pformat(form, sort_dicts=False)
+        else:
+            literal = repr(form)
+
+        with suppress(ValueError, SyntaxError):
             if ast.literal_eval(literal) == form:
                 return literal
-        # Wasn't made with ast.literal_eval(). Fall back to pickle.
+        # literal failed to round trip. Fall back to pickle.
         return self.pickle(form)
 
     @trace
