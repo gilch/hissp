@@ -198,13 +198,13 @@ class Compiler:
         For example,
 
         >>> readerless(
-        ... ('lambda', ('a','b',
+        ... ('lambda', ('a',':/','b',
         ...         ':', 'e',1, 'f',2,
         ...         ':*','args', 'h',4, 'i',':?', 'j',1,
         ...         ':**','kwargs',),
         ...   42,),
         ... )
-        '(lambda a,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))'
+        '(lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))'
 
         The special keywords :* and :** designate the remainder of the
         positional and keyword parameters, respectively.
@@ -226,9 +226,9 @@ class Compiler:
         Also note that the body can be empty.
 
         >>> readerless(
-        ... ('lambda', (':','a',1, ':*',':?', 'b',':?', 'c',2,),),
+        ... ('lambda', (':','a',1, ':/',':?', ':*',':?', 'b',':?', 'c',2,),),
         ... )
-        '(lambda a=(1),*,b,c=(2):())'
+        '(lambda a=(1),/,*,b,c=(2):())'
 
         The ':' may be omitted if there are no paired parameters.
 
@@ -255,10 +255,12 @@ class Compiler:
     @trace
     def parameters(self, parameters: tuple) -> Iterable[str]:
         parameters = iter(parameters)
-        yield from takewhile(lambda a: a != ":", parameters)
+        yield from ('/' if a==':/' else a for a in takewhile(lambda a: a != ":", parameters))
         for k, v in pairs(parameters):
             if k == ":*":
                 yield "*" if v == ":?" else f"*{v}"
+            elif k == ":/":
+                yield "/"
             elif k == ":**":
                 yield f"**{v}"
             elif v == ":?":
