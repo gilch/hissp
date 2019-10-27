@@ -21,8 +21,6 @@ MACROS = "_macro_"
 # Macro from foreign module foo.bar.._macro_.baz
 MACRO = f"..{MACROS}."
 
-NUMBER = frozenset({int, float, complex})
-
 # Sometimes macros need the current ns when expanding,
 # instead of its defining ns.
 # Rather than pass in an implicit argument, it's available here.
@@ -147,7 +145,7 @@ class Compiler:
         '((-0-4.2j))'
         >>> print(readerless(float('nan')))
         __import__('pickle').loads(  # nan
-            b'\x80\x03G\x7f\xf8\x00\x00\x00\x00\x00\x00.'
+            b'Fnan\n.'
         )
         >>> readerless([{'foo':2},(),1j,2.0,{3}])
         "[{'foo': 2}, (), 1j, 2.0, {3}]"
@@ -155,23 +153,35 @@ class Compiler:
         >>> spam.append(spam)
         >>> print(readerless(spam))
         __import__('pickle').loads(  # [[...]]
-            b'\x80\x03]q\x00h\x00a.'
+            b'(lp0\ng0\na.'
         )
 
         """
-        # Number literals may need (). E.g. (1).real
-        # TODO: pretty-print without sorting dicts.
-        literal = f"({form!r})" if type(form) in NUMBER else repr(form)
-        with suppress(ValueError):
+        if form is Ellipsis:
+            return "..."
+
+        case = type(form)
+        if case in {int, float, complex}:  # Number literals may need (). E.g. (1).real
+            literal = f"({form!r})"
+        elif case in {dict, list, set, tuple}:  # Pretty print collections.
+            literal = pformat(form, sort_dicts=False)
+        else:
+            literal = repr(form)
+
+        with suppress(ValueError, SyntaxError):
             if ast.literal_eval(literal) == form:
                 return literal
-        # Wasn't made with ast.literal_eval(). Fall back to pickle.
+        # literal failed to round trip. Fall back to pickle.
         return self.pickle(form)
 
     @trace
     def pickle(self, form) -> str:
         """The final fallback for self.quoted()."""
-        dumps = pickletools.optimize(pickle.dumps(form))
+        try:  # Try the more human-readable and backwards-compatible text protocol first.
+            dumps = pickle.dumps(form, 0)
+        except pickle.PicklingError:  # Fall back to the highest binary protocol if that didn't work.
+            dumps = pickle.dumps(form, pickle.HIGHEST_PROTOCOL)
+        dumps = pickletools.optimize(dumps)
         return f"__import__('pickle').loads(  # {form!r}\n    {dumps}\n)"
 
     @trace
@@ -188,13 +198,13 @@ class Compiler:
         For example,
 
         >>> readerless(
-        ... ('lambda', ('a','b',
+        ... ('lambda', ('a',':/','b',
         ...         ':', 'e',1, 'f',2,
         ...         ':*','args', 'h',4, 'i',':?', 'j',1,
         ...         ':**','kwargs',),
         ...   42,),
         ... )
-        '(lambda a,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))'
+        '(lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))'
 
         The special keywords :* and :** designate the remainder of the
         positional and keyword parameters, respectively.
@@ -216,9 +226,9 @@ class Compiler:
         Also note that the body can be empty.
 
         >>> readerless(
-        ... ('lambda', (':','a',1, ':*',':?', 'b',':?', 'c',2,),),
+        ... ('lambda', (':','a',1, ':/',':?', ':*',':?', 'b',':?', 'c',2,),),
         ... )
-        '(lambda a=(1),*,b,c=(2):())'
+        '(lambda a=(1),/,*,b,c=(2):())'
 
         The ':' may be omitted if there are no paired parameters.
 
@@ -245,10 +255,12 @@ class Compiler:
     @trace
     def parameters(self, parameters: tuple) -> Iterable[str]:
         parameters = iter(parameters)
-        yield from takewhile(lambda a: a != ":", parameters)
+        yield from ('/' if a==':/' else a for a in takewhile(lambda a: a != ":", parameters))
         for k, v in pairs(parameters):
             if k == ":*":
                 yield "*" if v == ":?" else f"*{v}"
+            elif k == ":/":
+                yield "/"
             elif k == ":**":
                 yield f"**{v}"
             elif v == ":?":

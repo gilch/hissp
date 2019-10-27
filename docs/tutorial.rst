@@ -453,13 +453,14 @@ The parameters tuple is divided into ``(<single> : <paired>)``
 Parameter types are the same as Python's.
 For example::
 
-    #> (lambda (a b  ; positional
+    #> (lambda (a :/  ; positional only
+    #..         b  ; positional
     #..         : e 1  f 2  ; default
     #..         :* args  h 4  i :?  j 1  ; kwonly
     #..         :** kwargs)
     #..  42)
     #..
-    >>> (lambda a,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
+    >>> (lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
     <function <lambda> at ...>
 
 The special keywords ``:*`` and ``:**`` designate the remainder of the
@@ -491,10 +492,18 @@ You can omit the right of a pair with ``:?``
 (except the final ``**kwargs``).
 Also note that the body can be empty::
 
-    #> (lambda (: a 1 :* :?  b :?  c 2))
+    #> (lambda (: a 1  :/ :?  :* :?  b :?  c 2))
     #..
-    >>> (lambda a=(1),*,b,c=(2):())
+    >>> (lambda a=(1),/,*,b,c=(2):())
     <function <lambda> at ...>
+
+Note that positional-only arguments must appear after the ``:``
+when they have defaults, which forces the ``:/`` into the paired side.
+Everything on the paired side must be paired, no exceptions.
+(Even though ``:/`` can only be paired with ``:?``,
+special casing that to not require the ``:?``
+would make macro writing more difficult,
+because then they would also need to handle another special case.)
 
 The ``:`` may be omitted if there are no paired parameters::
 
@@ -631,7 +640,7 @@ and the reader embeds the resulting object into the output Hissp::
 
     #> builtins..float#inf
     >>> __import__('pickle').loads(  # inf
-    ...     b'\x80\x03G\x7f\xf0\x00\x00\x00\x00\x00\x00.'
+    ...     b'Finf\n.'
     ... )
     inf
 
@@ -654,7 +663,7 @@ If you need more than one argument for a reader macro, use the built in
     #> .#(fractions..Fraction 1 2)
     #..
     >>> __import__('pickle').loads(  # Fraction(1, 2)
-    ...     b'\x80\x03cfractions\nFraction\nX\x03\x00\x00\x001/2\x85R.'
+    ...     b'cfractions\nFraction\n(V1/2\ntR.'
     ... )
     Fraction(1, 2)
 
@@ -724,20 +733,19 @@ The splice unquote is similar, but unpacks its result::
 Templates are *reader syntax*: because they're reader macros,
 they only exist in Lissp, not Hissp. The Hissp is what they return.
 
-If you quote and pretty-print an example, you can see that intermediate step::
+If you quote an example, you can see that intermediate step::
 
-    #> (pprint..pprint '`(:a ,@"bcd" ,(opearator..mul 2 3)))
+    #> '`(:a ,@"bcd" ,(opearator..mul 2 3))
     #..
-    >>> __import__('pprint').pprint(
-    ...   (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':?', ':a', ':*', ('quote', 'bcd', {':str': True}), ':?', ('opearator..mul', 2, 3)))
-    (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'),
-     ':',
-     ':?',
-     ':a',
-     ':*',
-     ('quote', 'bcd', {':str': True}),
-     ':?',
-     ('opearator..mul', 2, 3))
+    >>> (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'),
+    ...  ':',
+    ...  ':?',
+    ...  ':a',
+    ...  ':*',
+    ...  ('quote', 'bcd', {':str': True}),
+    ...  ':?',
+    ...  ('opearator..mul', 2, 3))
+    (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':?', ':a', ':*', ('quote', 'bcd', {':str': True}), ':?', ('opearator..mul', 2, 3))
 
 
 So you see, templates are not doing anything new.
