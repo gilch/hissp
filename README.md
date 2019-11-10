@@ -704,11 +704,19 @@ this approach is not recommended.
 
 > But there's no `macroexpand`. How do I look at expansions?
 
-Invoke the macro indirectly so the compiler sees it as a normal function.
+Invoke the macro indirectly somehow so the compiler sees it as a normal function.
 `((getattr hissp.basic.._macro_ "define") 'foo '"bar")`
 One could, of course, write a function or macro to automate this.
 
-But you can just look at the compiled Python output.
+You can also use the method call syntax for this purpose,
+which is never interpreted as a macro invocation.
+This syntax isn't restricted solely to methods on objects.
+Due to certain regularities in Python syntax,
+it also works on callable attributes in any kind of namespace.
+
+`(.define hissp.basic.._macro_ : :* '(foo "bar"))`
+
+But you can also just look at the compiled Python output.
 It's indented, so it's not that hard to read.
 The compiler also helpfully includes a comment in the compiled output
 whenever it expands a macro.
