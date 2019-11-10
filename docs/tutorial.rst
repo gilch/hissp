@@ -387,10 +387,10 @@ as an identifier and as a string representing that identifier::
     >>> spam.xBANG_xAT_xPERCENT_xDOLLAR_
     'eggs'
 
-Key Symbols
-~~~~~~~~~~~
+Control Words
+~~~~~~~~~~~~~
 
-Symbols that begin with a ``:`` are called *key symbols* [#key]_.
+Symbols that begin with a ``:`` are called *control words* [#key]_.
 These are for when you want a symbol but it's not meant to be used as
 an identifier. Thus, they do not get munged::
 
@@ -463,7 +463,7 @@ For example::
     >>> (lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
     <function <lambda> at ...>
 
-The special keywords ``:*`` and ``:**`` designate the remainder of the
+The special control words ``:*`` and ``:**`` designate the remainder of the
 positional and keyword parameters, respectively::
 
     #> (lambda (: :* args :** kwargs)
@@ -593,7 +593,7 @@ The ``:`` is optional if the ``<kwargs>`` part is empty::
 
 The ``<kwargs>`` part has implicit pairs; there must be an even number.
 
-Use the special key symbols ``:*`` for iterable unpacking,
+Use the special control words ``:*`` for iterable unpacking,
 ``:?`` to pass by position and ``:**`` for mapping unpacking::
 
     #> (print : :* '(1 2)  :? 3  :* '(4)  :** (dict : sep :  end "\n."))
@@ -608,7 +608,7 @@ Use the special key symbols ``:*`` for iterable unpacking,
     1:2:3:4
     .
 
-Unlike other keywords, these can be repeated,
+Unlike other control words, these can be repeated,
 but (as in Python) a '*' is not allowed to follow '**'.
 
 Method calls are similar to function calls::
@@ -1133,7 +1133,7 @@ But advanced macros can inject anaphors,
 delay evaluation,
 and do a find-and-replace on symbols in code all at once.
 You have full programmatic control over the *code itself*,
-with the full power of Python's ecosystem. The sky's the limit.
+with the full power of Python's ecosystem.
 
 Compiling Packages
 ==================
