@@ -10,7 +10,7 @@
            `(builtins..setattr
              (.setdefault (builtins..globals)
                           ','_macro_
-                          (types..ModuleType '_macro_))
+                          (types..ModuleType "_macro_"))
              (quote ,name)
              ,macro)))
 (setattr _macro_.require-as '__doc__ "
