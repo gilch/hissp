@@ -81,11 +81,19 @@ Adding features that historically required a new version of the Python language,
 like `with` statements, would be almost as easy as writing a new function in Lisp.
 
 #### Minimal implementation
-The Hissp compiler includes what it needs to achieve its goals,
+Hissp serves as a modular component for other projects.
+The language and its implementation are meant to be small and comprehensible
+by a single individual.
+
+The Hissp compiler should include what it needs to achieve its goals,
 but no more. Bloat is not allowed.
 A goal of Hissp is to be as small as reasonably possible, but no smaller.
 We're not code golfing here; readability still counts.
 But this project has *limited scope*.
+Hissp's powerful macro system means that additions to the compiler are
+rarely needed.
+Feature creep belongs in external libraries,
+not in the compiler proper.
 
 Hissp compiles to an unpythonic *functional subset* of Python.
 This subset has a direct and easy-to-understand correspondence to the Hissp code,
@@ -94,11 +102,20 @@ But it is definitely not meant to be idiomatic Python.
 That would require a much more complex compiler,
 because idiomatic Python is not simple.
 
+Hissp's basic macros are meant to be just enough to bootstrap native unit tests
+and demonstrate the macro system.
+They may suffice for small embedded Lissp projects,
+but you will probably want a more comprehensive macro suite for general use.
+[Hebigo](https://github.com/gilch/hebigo)
+has macro equivalents of most Python statements.
+The Hebigo project includes an alternative indentation-based Hissp reader,
+but the macros are written in readerless mode and are also compatible with Lissp.
+
 #### Interoperability
 Why base a Lisp on Python when there are already lots of other Lisps?
 
 Python has a rich selection of libraries for a variety of domains
-and Hissp can use most of them as easily as the standard library.
+and Hissp can mostly use them as easily as the standard library.
 This gives Hissp a massive advantage over other Lisps with less selection.
 If you don't care to work with the Python ecosystem,
 perhaps Hissp is not the Lisp for you.
@@ -107,11 +124,12 @@ Note that the Hissp compiler is written in Python 3.8.
 (Supporting older versions is not a goal,
 because that would complicate the compiler.
 This may limit the available libraries.)
-But because the compiler's target functional subset is so small,
-the compiled output should still run fine on Python 3.5,
-provided you aren't using any newer library features.
-Running on even older versions (even Python 2)
-may be possible if you avoid using certain newer Python language features.
+But because the compiler's target functional Python subset is so small,
+the compiled output can usually run on Python 3.5 without too much difficulty.
+Watch out for positional-only arguments (new to 3.8)
+and changes to the standard library.
+Running on even versions older than 3.5 is not recommended,
+but may likewise be possible (even for Python 2) if you carefully avoid using newer Python features.
 (Keyword-only arguments, for example.)
 
 Python code can also import and use packages written in Hissp,
@@ -126,6 +144,8 @@ A language is not very usable without tools.
 Hissp's basic reader syntax (Lissp) should work with Emacs.
 
 #### Standalone output
+This is part of Hissp's commitment to modularity.
+
 One can, of course, write Hissp code that depends on any Python library.
 But the compiler does not depend on emitting calls out to any special
 Hissp helper functions to work.
@@ -143,7 +163,7 @@ Even though it's a compiled language,
 Hissp has an interactive shell like Python does.
 The REPL displays the compiled Python and evaluates it.
 Printed values use the normal Python reprs.
-(Translating those to Hissp is not a goal. Hissp is still Python.)
+(Translating those to back to Lissp is not a goal.)
 
 #### Same-module macro helpers
 Not all Lisps support this, but Clojure is a notable exception.
@@ -182,13 +202,15 @@ But while this informs the design of the compiler,
 it will be an external project in another repository.
 
 ## Show me some Code!
-Or, the Hissp tutorial.
+See the tutorial in the [![Documentation Status](https://readthedocs.org/projects/hissp/badge/?version=latest)](https://hissp.readthedocs.io/en/latest/?badge=latest)
+
+An abridged version follows.
 
 ### The obligatory Hello, World!
 ```lisp
 (print "Hello, World!")
 ```
-Honestly, that is 80% of Lisp right there. I told you it was simple.
+Honestly, that is 80% of Lisp right there.
 And the Python translation, as if you couldn't guess.
 ```python
 print("Hello, World!")
@@ -197,6 +219,11 @@ Yeah, we moved a parenthesis.
 Lisp is so arcane, isn't it?
 
 Here's a more involved demonstration to whet you appetite.
+There are some literal types, qualified symbols,
+a macroexpansion, a keyword argument, and symbol munging.
+It also shows what the basic REPL looks like.
+(The Lissp prompt is the `#>`.)
+
 For someone experienced in both Python and Lisp,
 this may be enough to get you started,
 but don't worry if you don't understand it all yet.
@@ -231,7 +258,7 @@ Hissp has only two types of expressions: literals (values), and invocations (tup
 #### Literals and the Reader
 Literals are handled at the reader level.
 
-"The reader" refer's to Hissp's basic parser.
+"The reader" (or "the Lissp reader") refer's to Hissp's basic parser.
 It's the reader's job to translate the `.lissp` code files into Hissp code.
 
 It's important to distinguish these two things,
@@ -274,7 +301,7 @@ but otherwise behave the same as Python's do.
 Anything else is a symbol.
 Symbols are allowed to contain many special characters, but because
 symbols are meant to be used as Python identifiers,
-the reader automatically munges invalid identifier characters to x-quoted words,
+the reader automatically *munges* invalid identifier characters to x-quoted words,
 like `/` to `xSLASH_`.
 This format was chosen because it contains an underscore
 and both lower-case and upper-case letters,
@@ -284,8 +311,8 @@ This makes it easy to tell if an identifier contains munged characters.
 It also cannot introduce a leading underscore,
 which can have special meaning in Python.
 
-A symbol that begins with a `:` is a "keyword".
-Keywords are never interpreted as identifiers,
+A symbol that begins with a `:` is a "control word".
+Control words are never interpreted as identifiers,
 so they don't need to be quoted or munged.
 
 The basic reader's macro syntax is limited to tagged forms,
@@ -313,7 +340,7 @@ inf
 This inserts an actual `inf` object at read time into the Hissp code.
 Since this isn't a valid literal, it has to compile to a pickle.
 You should normally try to avoid emitting pickles
-(e.g. use `(float 'inf)` or `math..inf` instead),
+(use `(float 'inf)` or `math..inf` instead),
 but note that a macro would get the original object,
 since the code hasn't been compiled yet, which may be useful.
 While unpickling does have some overhead,
@@ -377,7 +404,7 @@ print(
 hi
 
 ```
-Which is equivalent to
+Which is equivalent to the ``'`` reader macro in Lissp:
 ```python
 #> (print 'hi)
 #..
@@ -424,7 +451,7 @@ Note that package names may contain dots, as in Python.
 
 The `:` separates the single arguments from the paired arguments,
 which either pair a value with a unique key like `sep ":"` or with the
-special unpacking keywords `:*` and `:**`, like `:* args` or `:** kwargs`,
+special unpacking control words `:*` and `:**`, like `:* args` or `:** kwargs`,
 which, like Python, can be repeated.
 
 Hissp's two special forms deserve special consideration.
@@ -515,13 +542,14 @@ While there are only two special forms, the compiler is extensible via macros.
 Like special forms, macro invocations do not have to evaluate their arguments.
 
 Macros are simply functions that take Hissp code, and return Hissp code.
-When an unqualified symbol is in the function position, `[0]`, of a tuple about
-to be evaluated, the compiler checks if the module's `_macro_` namespace
-has that symbol. If it does, it is called at compile time as a macro and
+When an unqualified symbol is in the function position (index zero),
+of a tuple about to be evaluated,
+the compiler checks if the module's `_macro_` namespace has that symbol.
+If it does, it is called at compile time as a macro and
 the result is inserted into the code in its place.
 
 Qualified symbols can also be macros if looked up directly from their module's `_macro_`.
-E.g. `(hissp.basic.._macro_.define FOO 0xf00)`.
+E.g. in `(hissp.basic.._macro_.define FOO 0xf00)`, `define` is a macro.
 
 The `hissp.basic.._macro_.defmacro` macro defines a function in the module's macro space,
 creating `_macro_` if it doesn't exist yet.
@@ -548,12 +576,11 @@ Hissp macros and reader macros can return any type of object.
 If you return a string the compiler will assume it's either a qualified symbol
 or plain identifier (and emit it verbatim).
 But, the string *could* contain almost arbitrary Python code instead.
-(Think of it like a SQL injection attack.)
 The compiler actually checks for parentheses and spaces in strings,
 and if it finds any,
 it will assume it's a Python injection and will avoid processing them like symbols.
 
-Howerver, the whole point of Hissp is syntactic macros.
+However, the main point of Hissp is syntactic macros.
 If you wanted to do string metaprogramming you could have just used `exec()`,
 so you're giving up a lot of Hissp's power.
 Expressions are relatively safe if you're careful,
@@ -613,6 +640,8 @@ Also, you don't have to be restricted to one or two arguments.
 
 Fine. You can write macros for any syntax you please.
 
+Also consider using Hebigo, which keeps all Python expressions, instead of Lissp.
+
 Also recall that both reader and compiler macros can return arbitrary Python snippets
 and the compiler will emit them verbatim if it contains a space or parentheses.
 You should generally avoid doing this,
@@ -667,25 +696,38 @@ Look at their expansions and you'll see they don't use assignment statements eit
 
 See also `builtins..setattr` and `operator..setitem`.
 
-Also, Python 3.8 is adding assignment expressions. Those are expressions.
+Also, Python 3.8 added assignment expressions.
+Those are expressions.
+A macro could expand to a string containing `:=`,
+but as with text-substitution macros generally,
+this approach is not recommended.
 
 > But there's no `macroexpand`. How do I look at expansions?
 
-Invoke the macro indirectly so the compiler sees it as a normal function.
+Invoke the macro indirectly somehow so the compiler sees it as a normal function.
 `((getattr hissp.basic.._macro_ "define") 'foo '"bar")`
 One could, of course, write a function or macro to automate this.
 
-But you can just look at the compiled output.
+You can also use the method call syntax for this purpose,
+which is never interpreted as a macro invocation.
+This syntax isn't restricted solely to methods on objects.
+Due to certain regularities in Python syntax,
+it also works on callable attributes in any kind of namespace.
+
+`(.define hissp.basic.._macro_ : :* '(foo "bar"))`
+
+But you can also just look at the compiled Python output.
 It's indented, so it's not that hard to read.
 The compiler also helpfully includes a comment in the compiled output
 whenever it expands a macro.
 
 > There's no `for`? What about loops?
 
-Sometimes recursion is good enough try it.
+Sometimes recursion is good enough. Try it.
 `list()`, `map()` and `filter()` plus lambda can do
 anything list comprehensions can. Ditch the `list()` for lazy generators.
-Replace `list()` with `set()` for set comps. Dict comps are a little trickier.
+Replace `list()` with `set()` for set comprehensions.
+Dict comprehensions are a little trickier.
 Use `dict()` on an iterable of pairs. `zip()` is an easy way to make them,
 or just have the map's lambda return pairs.
 Remember, you can make data tuples with template quotes.
@@ -722,9 +764,9 @@ Note that `False` and `True` are special cases of `0` and `1` in Python.
 
 ```python
 (lambda b, *then_else: then_else[not b]())(
-1 < 2,
-lambda: print('yes'),
-lambda: print('no')
+    1 < 2,
+    lambda: print('yes'),
+    lambda: print('no'),
 )
 ```
 There's a `hissp.basic.._macro_.if-else` macro that basically expands to this.
@@ -737,7 +779,7 @@ is the special form and which is the macro.
   isn't this really slow? It really ought to be a special form.
 
 It's not *that* slow.
-Like most things, it's really only an issue in a bottleneck.
+Like most things, performance is really only an issue in a bottleneck.
 If you find one, there's no runtime overhead for using `.#` to inject some Python.
 
 Also recall that macros are allowed to return strings of Python code.
@@ -767,7 +809,9 @@ when run on that implementation.
 
 You can increase the recursion limit with `sys..setrecursionlimit`.
 Better not increase it too much if you don't like segfaults, but
-you can trampoline instead. See Drython's `loop()` function. Or use it.
+you can trampoline instead.
+See Drython's `loop()` function. Or use it.
+Or Hebigo's equivalent macro.
 Clojure does it about the same way.
 
 > How do I make a tuple?
@@ -817,7 +861,7 @@ Exceptions tend to raise themselves if you're not careful.
 Exceptions are not good functional style.
 You probably don't need them.
 If you must, you can still use `exec()`.
-(Or use Drython's `Raise()`.) 
+(Or use Drython's `Raise()`, or Hebigo's equivalent macro.) 
 
 > Use exec? Isn't that slow? 
 
@@ -931,7 +975,8 @@ At the REPL (or main module if it's written in Lissp) use:
 (hissp.reader..transpile __package__ 'spam 'eggs 'etc)
 ```
 Where spam, eggs, etc. are the module names you want compiled.
-(If the package argument is ``None`` or ``''``, it will use the current working directory.)
+(If the package argument is ``None`` or ``''``,
+ it will use the current working directory.)
 
 Or equivalently, in Python:
 ```python
@@ -1013,3 +1058,18 @@ prompts makes it look like a Python comment,
 and it's already set up to ignore the initial `>>> `/`...`.
 But doctest expects these,
 because that's what the Python shell looks like.
+
+> Is Hissp stable?
+
+Not exactly.
+This project is still pretty new.
+The compiler seems pretty settled.
+(It's stable enough for Hebigo.)
+But the basic macros aren't right yet.
+
+There's probably no need to ever change the basic language,
+except perhaps to keep up with Python,
+since the macro system makes it so flexible.
+But Hissp is still unproven in any major project, so who knows?
+The only way it will get proven is if some early adopter like you
+tries it out and lets me know how it goes.

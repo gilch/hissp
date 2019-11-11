@@ -29,7 +29,6 @@ Abstract Syntax Tree
 You've been writing AST all along, albeit indirectly.
 To understand code at all, in any programming language,
 you must have an understanding of how to *parse* it, mentally.
-At least on an intuitive, subconscious level.
 
 Python itself has an AST representation used by its compiler
 (the :obj:`ast` module)
@@ -76,7 +75,7 @@ Let's break this down.
 Notice that the first element of each tuple designates its function.
 
 In the case of ``('print',('quote','Hello'),'name',)``,
-the first element represents an ordinary ``print`` function call.
+the first element represents a call to the ``print`` function.
 The remaining elements are the arguments.
 
 The interpretation of the ``lambda`` form is different.
@@ -109,7 +108,7 @@ Let's try it.
 
 You may not have noticed, but congratulations.
 This is metaprogramming:
-We just wrote code that writes code. That wasn't so bad, right?
+We just wrote code that writes code.
 It output Hissp code, which changes based on an input.
 
 And, in fact, this ``q`` function takes the place of a "reader macro",
@@ -198,7 +197,6 @@ Let's see our "Hello World" example in Lissp:
 ('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
 
 There are no commas to miss, because there are no commas at all.
-Easier.
 
 As you can see, the Hissp structure is exactly the same as before.
 But now you don't have to quote identifiers either.
@@ -217,7 +215,7 @@ REPL
 
 You can launch the REPL from Python code (which is useful for debugging,
 like :obj:`code.iteract`),
-But let's just start it from the command line using an appropriate Python interpreter::
+But let's start it from the command line using an appropriate Python interpreter::
 
     $ python -m hissp
 
@@ -387,10 +385,10 @@ as an identifier and as a string representing that identifier::
     >>> spam.xBANG_xAT_xPERCENT_xDOLLAR_
     'eggs'
 
-Key Symbols
-~~~~~~~~~~~
+Control Words
+~~~~~~~~~~~~~
 
-Symbols that begin with a ``:`` are called *key symbols* [#key]_.
+Symbols that begin with a ``:`` are called *control words* [#key]_.
 These are for when you want a symbol but it's not meant to be used as
 an identifier. Thus, they do not get munged::
 
@@ -398,12 +396,33 @@ an identifier. Thus, they do not get munged::
     >>> ':foo->bar?'
     ':foo->bar?'
 
-Nor do you have to quote them (usually), but you can::
+Control words evaluate to strings,
+so you usually don't need to quote them,
+but you can::
 
     #> ':foo->bar?
     >>> ':foo->bar?'
     ':foo->bar?'
 
+Note that double quotes do the same thing::
+
+    #> ":foo->bar?"
+    >>> ':foo->bar?'
+    ':foo->bar?'
+
+The lambda special form,
+as well as certain macros,
+use certain "active"
+control words as syntactic elements to control the interpretation of other elements,
+hence the name.
+
+Some control words are also "active" in normal function calls.
+The single/paired argument separator ``:``
+and after that, the unpacking control words ``:*``/``:**``, for example.
+You must quote these like ``':`` or ``":"`` to pass them as data in that context.
+
+Macros operate on code before evaluation,
+so they can also distinguish a raw control word from a quoted one.
 
 Qualified Symbols
 ~~~~~~~~~~~~~~~~~
@@ -428,7 +447,7 @@ Compound Expressions
 --------------------
 
 Literals are just the basic building blocks.
-To do anything iteresting with them, you have to combine them.
+To do anything interesting with them, you have to combine them.
 
 Empty
 #####
@@ -463,7 +482,7 @@ For example::
     >>> (lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
     <function <lambda> at ...>
 
-The special keywords ``:*`` and ``:**`` designate the remainder of the
+The special control words ``:*`` and ``:**`` designate the remainder of the
 positional and keyword parameters, respectively::
 
     #> (lambda (: :* args :** kwargs)
@@ -497,13 +516,12 @@ Also note that the body can be empty::
     >>> (lambda a=(1),/,*,b,c=(2):())
     <function <lambda> at ...>
 
-Note that positional-only arguments must appear after the ``:``
-when they have defaults, which forces the ``:/`` into the paired side.
+Note that positional-only arguments with defaults must appear after the ``:``,
+which forces the ``:/`` into the paired side.
 Everything on the paired side must be paired, no exceptions.
 (Even though ``:/`` can only be paired with ``:?``,
 special casing that to not require the ``:?``
-would make macro writing more difficult,
-because then they would also need to handle another special case.)
+would make macro writing more difficult.)
 
 The ``:`` may be omitted if there are no paired parameters::
 
@@ -593,7 +611,7 @@ The ``:`` is optional if the ``<kwargs>`` part is empty::
 
 The ``<kwargs>`` part has implicit pairs; there must be an even number.
 
-Use the special key symbols ``:*`` for iterable unpacking,
+Use the special control words ``:*`` for iterable unpacking,
 ``:?`` to pass by position and ``:**`` for mapping unpacking::
 
     #> (print : :* '(1 2)  :? 3  :* '(4)  :** (dict : sep :  end "\n."))
@@ -608,7 +626,7 @@ Use the special key symbols ``:*`` for iterable unpacking,
     1:2:3:4
     .
 
-Unlike other keywords, these can be repeated,
+Unlike other control words, these can be repeated,
 but (as in Python) a '*' is not allowed to follow '**'.
 
 Method calls are similar to function calls::
@@ -669,8 +687,7 @@ If you need more than one argument for a reader macro, use the built in
 
 
 The ``_#`` macro omits the next expression.
-It's a way to comment out code,
-even if it takes multiple lines.
+It's a way to comment out code structurally.
 
 Templates
 ---------
@@ -731,7 +748,8 @@ The splice unquote is similar, but unpacks its result::
     (':a', 'b', 'c', 'd', ':e')
 
 Templates are *reader syntax*: because they're reader macros,
-they only exist in Lissp, not Hissp. The Hissp is what they return.
+they only exist in Lissp, not Hissp.
+They are abbreviations for the Hissp that they return.
 
 If you quote an example, you can see that intermediate step::
 
@@ -748,13 +766,12 @@ If you quote an example, you can see that intermediate step::
     (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':?', ':a', ':*', ('quote', 'bcd', {':str': True}), ':?', ('opearator..mul', 2, 3))
 
 
-So you see, templates are not doing anything new.
-It's just syntactic sugar based on what Hissp already has.
+Templates are Lissp syntactic sugar based on what Hissp already has.
 
 Judicious use of sugar can make code much easier to read and write.
 While all Turing-complete languages have the same theoretical *power*,
 they are not equally *expressive*.
-Metaprogramming makes a language more expressive: you can say more with less.
+Metaprogramming makes a language more expressive.
 Reader macros are a kind of metaprogramming.
 Because you can make your own reader macros, you can make your own sugar.
 
@@ -777,7 +794,8 @@ Within a template, the same gensym name always makes the same gensym::
 But each new template increments the counter.
 (The numbers have been elided to make the doctests work, but they're the same
 as well. E.g. ``_hissxAUTO42_``. Try it.)
-Gensyms are mainly used to prevent accidental name collisions in generated code.
+Gensyms are mainly used to prevent accidental name collisions in generated code,
+which is very important for reliable macros.
 
 Data Structures
 ---------------
@@ -806,7 +824,7 @@ you must quote them to use them as data.
 
 .. sidebar:: Except for the empty tuple.
 
-   You can quote it if you want, it doesn't matter::
+   You can quote it if you want, it doesn't change the result::
 
        #> '()
        #..
@@ -818,14 +836,17 @@ you must quote them to use them as data.
        >>> ()
        ()
 
+   However, macros could distinguish these cases,
+   because they act before evaluation.
+
 
 .. Caution::
-   Unlike Python's *displays*,
+   Unlike Python's literal data structures,
    spaces are **not** allowed in Lissp's literal data structures,
    nor are double quotes,
    because this causes them to be read as multiple forms.
    It's better to avoid these characters in single-quoted stings.
-   But if you must have them, use the escape codes ``\40``
+   But if you must have them, you can use the escape codes ``\40``
    or ``\42`` instead, respectively.
 
    Triple single-quoted strings may appear in literal data structures,
@@ -836,7 +857,7 @@ you must quote them to use them as data.
    (Use ``\50\51`` if you must.)
    Literal data structures may not contain tuples.
 
-Unlike Python, literal data structures may contain only static data
+Unlike Python, literal data structures in Lissp may contain only static values
 discernible at read time. They are each read as a *single object*.
 If you want to interpolate runtime data, use function calls
 and templates instead::
@@ -853,7 +874,7 @@ and templates instead::
 If this is still too verbose for your taste,
 remember you can use helper functions or metaprogramming to simplify::
 
-    #> (define enlist
+    #> (define enlist  ; use instead of []
     #.. (lambda (: :* args)
     #..  (list args)))
     #..
@@ -865,14 +886,6 @@ remember you can use helper functions or metaprogramming to simplify::
     ...     list(
     ...       args)))
 
-    #> (enlist : :*(.upper "abc")  :? [1,2,3]  :? (.title "zed"))
-    #..
-    >>> enlist(
-    ...   *'abc'.upper(),
-    ...   [1, 2, 3],
-    ...   'zed'.title())
-    ['A', 'B', 'C', [1, 2, 3], 'Zed']
-
     #> (enlist 'A 'B 'C (enlist 1 2 3) (.title "zed"))
     #..
     >>> enlist(
@@ -883,6 +896,16 @@ remember you can use helper functions or metaprogramming to simplify::
     ...     (1),
     ...     (2),
     ...     (3)),
+    ...   'zed'.title())
+    ['A', 'B', 'C', [1, 2, 3], 'Zed']
+
+You can also use the unpacking control words in these::
+
+    #> (enlist : :*(.upper "abc")  :? [1,2,3]  :? (.title "zed"))
+    #..
+    >>> enlist(
+    ...   *'abc'.upper(),
+    ...   [1, 2, 3],
     ...   'zed'.title())
     ['A', 'B', 'C', [1, 2, 3], 'Zed']
 
@@ -1035,7 +1058,7 @@ symbol. (Like a quoted symbol)::
     ...   'inf')
     ('builtins..float', 'inf')
 
-Let's try again. (Yes, reader macros stack.)::
+Let's try again. (Yes, reader macros compose like that.)::
 
     #> (setattr _macro_ 'greet (lambda (name) `(print ','Hello ,name)))
     #..
@@ -1133,7 +1156,7 @@ But advanced macros can inject anaphors,
 delay evaluation,
 and do a find-and-replace on symbols in code all at once.
 You have full programmatic control over the *code itself*,
-with the full power of Python's ecosystem. The sky's the limit.
+with the full power of Python's ecosystem.
 
 Compiling Packages
 ==================
@@ -1192,3 +1215,4 @@ the compiled output may be different due to an updated macro in another file.
 
 .. [#capture] When symbol capture is done on purpose, these are known as *anaphoric macros*.
    (When it's done on accident, these are known as *bugs*.)
+

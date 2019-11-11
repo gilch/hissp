@@ -206,7 +206,7 @@ class Compiler:
         ... )
         '(lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))'
 
-        The special keywords :* and :** designate the remainder of the
+        The special control words :* and :** designate the remainder of the
         positional and keyword parameters, respectively.
         Note this body has an implicit PROGN:
 
@@ -321,7 +321,7 @@ class Compiler:
 
         The <kwargs> part has implicit pairs; there must be an even number.
 
-        Use the special keywords ``:*`` and ``:**`` for iterable and
+        Use the special control words ``:*`` and ``:**`` for iterable and
         mapping unpacking:
 
         >>> print(readerless(
@@ -333,7 +333,7 @@ class Compiler:
           *[4],
           **{'sep': ':', 'end': '\n\n'})
 
-        Unlike other keywords, these can be repeated,
+        Unlike other control words, these can be repeated,
         but (as in Python) a '*' is not allowed to follow '**'.
 
         Method calls are similar to function calls.
