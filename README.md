@@ -128,7 +128,7 @@ But because the compiler's target functional Python subset is so small,
 the compiled output can usually run on Python 3.5 without too much difficulty.
 Watch out for positional-only arguments (new to 3.8)
 and changes to the standard library.
-Running on even versions older than 3.5 is not recommended,
+Running on versions even older than 3.5 is not recommended,
 but may likewise be possible (even for Python 2) if you carefully avoid using newer Python features.
 (Keyword-only arguments, for example.)
 
