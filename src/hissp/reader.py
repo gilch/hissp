@@ -92,39 +92,56 @@ class Parser:
     def _parse(self, tokens: Iterator[Token]) -> Iterator:
         for k, v in tokens:
             if k == "open":
-                depth = self.depth
-                self.depth += 1
-                yield (*self.parse(tokens),)
-                if self.depth != depth:
-                    raise SyntaxError("Unclosed '('.")
+                yield from self._open(tokens)
             elif k == "close":
-                self.depth -= 1
-                if self.depth < 0:
-                    raise SyntaxError("Unopened ')'.")
+                self._close()
                 return
             elif k == "string":
-                yield "quote", ast.literal_eval(
-                    v.replace("\\\n", "").replace("\n", r"\n")
-                ), {":str": True}
+                yield from self._string(v)
             elif k in {"comment", "whitespace"}:
                 continue
             elif k == "macro":
-                with {
-                    "`": self.gensym_context,
-                    ",": self.unquote_context,
-                    ",@": self.unquote_context,
-                }.get(v, nullcontext)():
-                    form = next(self.parse(tokens))
-                    yield self.parse_macro(v, form)
+                yield from self._macro(tokens, v)
             elif k == "symbol":
-                try:
-                    yield ast.literal_eval(v)
-                except (ValueError, SyntaxError):
-                    yield munge(v)
+                yield from self._symbol(v)
             else:
                 assert False, "unknown token: " + repr(k)
         if self.depth:
             SyntaxError("Ran out of tokens before completing form.")
+
+    def _open(self, tokens):
+        depth = self.depth
+        self.depth += 1
+        yield (*self.parse(tokens),)
+        if self.depth != depth:
+            raise SyntaxError("Unclosed '('.")
+
+    def _close(self):
+        self.depth -= 1
+        if self.depth < 0:
+            raise SyntaxError("Unopened ')'.")
+
+    @staticmethod
+    def _string(v):
+        yield "quote", ast.literal_eval(
+            v.replace("\\\n", "").replace("\n", r"\n")
+        ), {":str": True}
+
+    def _macro(self, tokens, v):
+        with {
+            "`": self.gensym_context,
+            ",": self.unquote_context,
+            ",@": self.unquote_context,
+        }.get(v, nullcontext)():
+            form = next(self.parse(tokens))
+            yield self.parse_macro(v, form)
+
+    @staticmethod
+    def _symbol(v):
+        try:
+            yield ast.literal_eval(v)
+        except (ValueError, SyntaxError):
+            yield munge(v)
 
     def parse_macro(self, tag: str, form):
         if tag == "'":
