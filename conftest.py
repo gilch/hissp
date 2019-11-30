@@ -20,7 +20,7 @@ class ParseLissp(DocTestParser):
 
     def __init__(self, *a, **kw):
         super().__init__(*a, **kw)
-        self._EXAMPLE_RE = _EXAMPLE_RE = re.compile(
+        self._EXAMPLE_RE = re.compile(
             r"""
         (?P<lissp>
              (?:^   [ ]* [#]>[ ] .*)
