@@ -60,7 +60,10 @@ class ParseLissp(DocTestParser):
 
 def norm_gensym_eq(compiled, python):
     """The special gensym suffix ``xAUTO..._`` will match any number."""
-    return re.fullmatch(re.sub(r'xAUTO\\\.\\\.\\\._', r'xAUTO\\d+_', re.escape(python)), compiled)
+    return re.fullmatch(
+        re.sub(r"xAUTO\\\.\\\.\\\._", r"xAUTO\\d+_", re.escape(python)), compiled
+    )
+
 
 class Globs(Container):
     def __init__(self, *globs):
