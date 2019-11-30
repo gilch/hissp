@@ -39,7 +39,9 @@ def trace(method):
             return method(self, expr)
         except Exception as e:
             self.error = True
-            message = f"\nCompile {method.__name__} {type(e).__name__}:\n {e}".replace('\n','\n# ')
+            message = f"\nCompile {method.__name__} {type(e).__name__}:\n {e}".replace(
+                "\n", "\n# "
+            )
             return f"(>   >  > >>{pformat(expr)}<< <  <   <){message}"
 
     return tracer
@@ -67,7 +69,7 @@ class Compiler:
             form = self.form(form)
             if self.error:
                 self.error = False
-                raise CompileError('\n'+form)
+                raise CompileError("\n" + form)
             result.extend(self.eval(form))
             if self.abort:
                 print("\n\n".join(result), file=sys.stderr)
@@ -80,12 +82,14 @@ class Compiler:
                 eval(compile(form, "<Hissp>", "eval"), self.ns)
         except Exception as e:
             exc = format_exc()
-            if self.ns.get('__name__') == '__main__':
+            if self.ns.get("__name__") == "__main__":
                 self.abort = True
             else:
-                warn(f"\n {e} when evaluating form:\n{form}\n\n{exc}", PostCompileWarning)
-            return form, '# '+exc.replace('\n', '\n# ')
-        return form,
+                warn(
+                    f"\n {e} when evaluating form:\n{form}\n\n{exc}", PostCompileWarning
+                )
+            return form, "# " + exc.replace("\n", "\n# ")
+        return (form,)
 
     @trace
     def form(self, form) -> str:
@@ -255,7 +259,9 @@ class Compiler:
     @trace
     def parameters(self, parameters: tuple) -> Iterable[str]:
         parameters = iter(parameters)
-        yield from ('/' if a==':/' else a for a in takewhile(lambda a: a != ":", parameters))
+        yield from (
+            "/" if a == ":/" else a for a in takewhile(lambda a: a != ":", parameters)
+        )
         for k, v in pairs(parameters):
             if k == ":*":
                 yield "*" if v == ":?" else f"*{v}"
@@ -368,9 +374,10 @@ class Compiler:
         if ".." in symbol:
             parts = symbol.split("..", 1)
             if parts[0] == self.qualname:  # This module. No import required.
-                chain = parts[1].split('.', 1)
-                chain[0] = f"globals()[{self.quoted(chain[0])}]"  # Avoid local shadowing.
-                return '.'.join(chain)
+                chain = parts[1].split(".", 1)
+                # Avoid local shadowing.
+                chain[0] = f"globals()[{self.quoted(chain[0])}]"
+                return ".".join(chain)
             return "__import__({0!r}{fromlist}).{1}".format(
                 parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
             )
