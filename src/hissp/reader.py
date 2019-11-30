@@ -12,7 +12,7 @@ from itertools import chain
 from pathlib import Path, PurePath
 from pprint import pprint
 from types import ModuleType
-from typing import Any, Iterable, Iterator, NewType, Tuple, Union, Optional
+from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union
 from unittest.mock import ANY
 
 from hissp.compiler import Compiler, readerless
@@ -56,6 +56,7 @@ def lex(code: str, file: str = "<?>") -> Iterator[Token]:
             line = len(good)
             column = len(good[-1])
             raise SyntaxError("Unexpected token", (file, line, column, code))
+        assert match.lastgroup
         assert match.end() > pos, match.groups()
         pos = match.end()
         yield Token((match.lastgroup, match.group()))
@@ -207,7 +208,7 @@ class Parser:
         return f"{self.qualname}..{symbol}"
 
     def reads(self, code: str) -> Iterable:
-        res = self.parse(lex(code, self.filename))
+        res: Iterable[object] = self.parse(lex(code, self.filename))
         self.reinit()
         if self.verbose:
             res = list(res)
