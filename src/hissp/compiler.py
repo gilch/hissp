@@ -12,7 +12,7 @@ from functools import wraps
 from itertools import chain, takewhile
 from pprint import pformat
 from traceback import format_exc
-from typing import Iterable, Tuple, TypeVar
+from typing import Iterable, List, Tuple, TypeVar
 from warnings import warn
 
 PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
@@ -39,7 +39,9 @@ def trace(method):
             return method(self, expr)
         except Exception as e:
             self.error = True
-            message = f"\nCompile {method.__name__} {type(e).__name__}:\n {e}".replace('\n','\n# ')
+            message = f"\nCompile {method.__name__} {type(e).__name__}:\n {e}".replace(
+                "\n", "\n# "
+            )
             return f"(>   >  > >>{pformat(expr)}<< <  <   <){message}"
 
     return tracer
@@ -62,30 +64,32 @@ class Compiler:
         self.abort = False
 
     def compile(self, forms: Iterable) -> str:
-        result = []
+        result: List[str] = []
         for form in forms:
             form = self.form(form)
             if self.error:
                 self.error = False
-                raise CompileError('\n'+form)
+                raise CompileError("\n" + form)
             result.extend(self.eval(form))
             if self.abort:
                 print("\n\n".join(result), file=sys.stderr)
                 sys.exit(1)
         return "\n\n".join(result)
 
-    def eval(self, form):
+    def eval(self, form) -> Tuple[str, ...]:
         try:
             if self.evaluate:
                 eval(compile(form, "<Hissp>", "eval"), self.ns)
         except Exception as e:
             exc = format_exc()
-            if self.ns.get('__name__') == '__main__':
+            if self.ns.get("__name__") == "__main__":
                 self.abort = True
             else:
-                warn(f"\n {e} when evaluating form:\n{form}\n\n{exc}", PostCompileWarning)
-            return form, '# '+exc.replace('\n', '\n# ')
-        return form,
+                warn(
+                    f"\n {e} when evaluating form:\n{form}\n\n{exc}", PostCompileWarning
+                )
+            return form, "# " + exc.replace("\n", "\n# ")
+        return (form,)
 
     @trace
     def form(self, form) -> str:
@@ -99,7 +103,7 @@ class Compiler:
         return self.quoted(form)
 
     @trace
-    def tuple(self, form: tuple) -> str:
+    def tuple(self, form: Tuple) -> str:
         """Calls, macros, special forms."""
         head, *tail = form
         if type(head) is str:
@@ -107,7 +111,7 @@ class Compiler:
         return self.call(form)
 
     @trace
-    def special(self, form: tuple) -> str:
+    def special(self, form: Tuple) -> str:
         """Try to compile as special form, else self.macro()."""
         if form[0] == "quote":
             return self.quoted(form[1])
@@ -116,7 +120,7 @@ class Compiler:
         return self.invocation(form)
 
     @trace
-    def invocation(self, form: tuple) -> str:
+    def invocation(self, form: Tuple) -> str:
         """Try to compile as macro, else normal call."""
         head, *tail = form
         parts = head.split(MACRO, 1)
@@ -182,10 +186,10 @@ class Compiler:
         except pickle.PicklingError:  # Fall back to the highest binary protocol if that didn't work.
             dumps = pickle.dumps(form, pickle.HIGHEST_PROTOCOL)
         dumps = pickletools.optimize(dumps)
-        return f"__import__('pickle').loads(  # {form!r}\n    {dumps}\n)"
+        return f"__import__('pickle').loads(  # {form!r}\n    {dumps!r}\n)"
 
     @trace
-    def function(self, form: tuple) -> str:
+    def function(self, form: Tuple) -> str:
         r"""
         Anonymous function special form.
 
@@ -253,9 +257,11 @@ class Compiler:
         return f"(lambda {','.join(self.parameters(parameters))}:{self.body(body)})"
 
     @trace
-    def parameters(self, parameters: tuple) -> Iterable[str]:
+    def parameters(self, parameters: Iterable) -> Iterable[str]:
         parameters = iter(parameters)
-        yield from ('/' if a==':/' else a for a in takewhile(lambda a: a != ":", parameters))
+        yield from (
+            "/" if a == ":/" else a for a in takewhile(lambda a: a != ":", parameters)
+        )
         for k, v in pairs(parameters):
             if k == ":*":
                 yield "*" if v == ":?" else f"*{v}"
@@ -278,7 +284,7 @@ class Compiler:
         return ("\n" * ("\n" in result) + result).replace("\n", "\n  ")
 
     @trace
-    def call(self, form: tuple) -> str:
+    def call(self, form: Iterable) -> str:
         r"""
         Call form.
 
@@ -368,9 +374,10 @@ class Compiler:
         if ".." in symbol:
             parts = symbol.split("..", 1)
             if parts[0] == self.qualname:  # This module. No import required.
-                chain = parts[1].split('.', 1)
-                chain[0] = f"globals()[{self.quoted(chain[0])}]"  # Avoid local shadowing.
-                return '.'.join(chain)
+                chain = parts[1].split(".", 1)
+                # Avoid local shadowing.
+                chain[0] = f"globals()[{self.quoted(chain[0])}]"
+                return ".".join(chain)
             return "__import__({0!r}{fromlist}).{1}".format(
                 parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
             )
