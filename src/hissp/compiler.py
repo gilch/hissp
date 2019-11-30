@@ -12,7 +12,7 @@ from functools import wraps
 from itertools import chain, takewhile
 from pprint import pformat
 from traceback import format_exc
-from typing import Iterable, Tuple, TypeVar
+from typing import Iterable, List, Tuple, TypeVar
 from warnings import warn
 
 PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
@@ -64,7 +64,7 @@ class Compiler:
         self.abort = False
 
     def compile(self, forms: Iterable) -> str:
-        result = []
+        result: List[str] = []
         for form in forms:
             form = self.form(form)
             if self.error:
@@ -76,7 +76,7 @@ class Compiler:
                 sys.exit(1)
         return "\n\n".join(result)
 
-    def eval(self, form):
+    def eval(self, form) -> Tuple[str, ...]:
         try:
             if self.evaluate:
                 eval(compile(form, "<Hissp>", "eval"), self.ns)
@@ -103,7 +103,7 @@ class Compiler:
         return self.quoted(form)
 
     @trace
-    def tuple(self, form: tuple) -> str:
+    def tuple(self, form: Tuple) -> str:
         """Calls, macros, special forms."""
         head, *tail = form
         if type(head) is str:
@@ -111,7 +111,7 @@ class Compiler:
         return self.call(form)
 
     @trace
-    def special(self, form: tuple) -> str:
+    def special(self, form: Tuple) -> str:
         """Try to compile as special form, else self.macro()."""
         if form[0] == "quote":
             return self.quoted(form[1])
@@ -120,7 +120,7 @@ class Compiler:
         return self.invocation(form)
 
     @trace
-    def invocation(self, form: tuple) -> str:
+    def invocation(self, form: Tuple) -> str:
         """Try to compile as macro, else normal call."""
         head, *tail = form
         parts = head.split(MACRO, 1)
@@ -186,10 +186,10 @@ class Compiler:
         except pickle.PicklingError:  # Fall back to the highest binary protocol if that didn't work.
             dumps = pickle.dumps(form, pickle.HIGHEST_PROTOCOL)
         dumps = pickletools.optimize(dumps)
-        return f"__import__('pickle').loads(  # {form!r}\n    {dumps}\n)"
+        return f"__import__('pickle').loads(  # {form!r}\n    {dumps!r}\n)"
 
     @trace
-    def function(self, form: tuple) -> str:
+    def function(self, form: Tuple) -> str:
         r"""
         Anonymous function special form.
 
@@ -257,7 +257,7 @@ class Compiler:
         return f"(lambda {','.join(self.parameters(parameters))}:{self.body(body)})"
 
     @trace
-    def parameters(self, parameters: tuple) -> Iterable[str]:
+    def parameters(self, parameters: Iterable) -> Iterable[str]:
         parameters = iter(parameters)
         yield from (
             "/" if a == ":/" else a for a in takewhile(lambda a: a != ":", parameters)
@@ -284,7 +284,7 @@ class Compiler:
         return ("\n" * ("\n" in result) + result).replace("\n", "\n  ")
 
     @trace
-    def call(self, form: tuple) -> str:
+    def call(self, form: Iterable) -> str:
         r"""
         Call form.
 
