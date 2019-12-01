@@ -32,6 +32,7 @@ setuptools.setup(
     ],
     keywords="lisp macro metaprogramming compiler DSL AST transpiler emacs clojure scheme",
     packages=setuptools.find_packages("src"),
+    package_data={"": ["*.lissp"]},  # If any package contains *.lissp files, include them.
     package_dir={"": "src"},
     python_requires=">=3.8",
     entry_points={"console_scripts": ["hissp=hissp.__main__:repl"]},
