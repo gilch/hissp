@@ -48,4 +48,8 @@ jobs:
     - name: Test install with pytest (including doctests)
       run: |
         python -c "import tests"  # Compiles hissp.basic on package import.
-        pytest -v --cov=hissp --doctest-modules --doctest-glob *.md --doctest-glob *.rst tests/ docs/ $(python -c "import hissp; print(hissp.__path__[0])")
+        pytest -v --cov=hissp --cov-report=xml --doctest-modules --doctest-glob *.md --doctest-glob *.rst tests/ docs/ $(python -c "import hissp; print(hissp.__path__[0])")
+    - name: Codecov
+      uses: codecov/codecov-action@v1.0.4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
