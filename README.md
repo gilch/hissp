@@ -73,7 +73,7 @@ but still more reliable than text manipulation.
 In Hissp, code is just another kind of data.
 
 Lisp is a programmable programming language,
-extensible though its acclaimed macro system
+extensible through its acclaimed macro system
 which hooks into the compiler itself.
 Macros are Lisp's secret weapon.
 And Hissp brings this power to Python.
