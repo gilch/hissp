@@ -852,6 +852,10 @@ But Hissp mostly doesn't need that since it has no operators to speak of.
 As always, you can write a function or macro to reduce boilerplate.
 There's actually a `hissp.basic.._macro_.deftype` macro for making a top-level type.
 
+> I've got some weird metaclass magic from a library. `type()` isn't working!
+
+Try `types..new_class` instead.
+
 > How do I raise exceptions?
 
 `(operator..truediv 1 0)` seems to work.
@@ -860,8 +864,8 @@ Exceptions tend to raise themselves if you're not careful.
 > But I need a raise statement for a specific exception message.
 
 Exceptions are not good functional style.
-You probably don't need them.
-If you must, you can still use `exec()`.
+Haskell uses the Maybe monad instead, so you don't need them.
+If you must, you can still use a `raise` in `exec()`.
 (Or use Drython's `Raise()`, or Hebigo's equivalent macro.) 
 
 > Use exec? Isn't that slow? 
@@ -889,14 +893,47 @@ Decorators are just higher-order functions.
 > Any context manager? But you don't get the return value of `__enter__()`!
 And what if it's not re-entrant?
 
-`suppress` work with these restrictions, but point taken.
+`suppress` works with these restrictions, but point taken.
 You can certainly call `.__enter__()` yourself, but you have to call
 `.__exit__()` too. Even if there was an exception.
 
 > But I need to handle the exception if and only if it was raised,
  for multiple exception types, or I need to get the exception object.
 
-Use `exec()` with callbacks in its locals.
+Context managers can do all of that!
+```python
+from contextlib import ContextDecorator
+
+class Except(ContextDecorator):
+    def __init__(self, catch, handler):
+        self.catch = catch
+        self.handler = handler
+    def __enter__(self):
+        pass
+    def __exit__(self, exc_type, exception, traceback):
+        if isinstance(exception, self.catch):
+            self.handler(exception)
+            return True
+
+@Except((TypeError, ValueError), lambda e: print(e))
+@Except(ZeroDivisionError, lambda e: print('oops'))
+def bad_idea(x):
+    1/x
+
+bad_idea(0)  # oops
+bad_idea('spam')  # unsupported operand type(s) for /: 'int' and 'str'
+bad_idea(1)  # None
+```
+You can translate all of that to Hissp.
+
+> That is *so* much harder than a `try` statement.
+
+The definition of the context manager is, sure.
+but it's not THAT hard.
+And you only have to do that part once.
+Using the decorator once you have it is really not that bad.
+
+Or, to make things easy, use `exec()` to compile a `try` with callbacks.
 
 > Isn't this slow?! You can't get away with calling this an "exceptional case" this time.
 The happy path would still require compiling an exec() string!
