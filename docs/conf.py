@@ -18,8 +18,6 @@ sys.path.insert(0, os.path.abspath("../src"))
 # Compile hissp modules so autodoc can find them.
 from hissp.reader import transpile
 transpile("hissp", "basic")
-# This is the Sphinx default now, but rtfd.io is still on 1.8.5?
-master_doc = 'index'
 
 # -- Project information -----------------------------------------------------
 
