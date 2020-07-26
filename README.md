@@ -1,5 +1,5 @@
 <!--
-Copyright 2019 Matthew Egan Odendahl
+Copyright 2019, 2020 Matthew Egan Odendahl
 SPDX-License-Identifier: Apache-2.0
 -->
 [![Gitter](https://badges.gitter.im/hissp-lang/community.svg)](https://gitter.im/hissp-lang/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -994,9 +994,11 @@ abstract base classes too.
 
 > How do I add a docstring to a module/class/function?
 
-Assign a string to the `__doc__` attribute of the module/class/function object.
-That means defining a `__doc__` global in the module.
+Assign a string to the `__doc__` attribute of the class or function object.
 That key in the dict argument to `type()` also works.
+For a module, `__doc__` works
+(make a `__doc__` global)
+but you should just use a string at the top, same as Python.
 
 > The REPL is nice and all, but how do I run a ``.lissp`` module?
 
@@ -1096,6 +1098,24 @@ prompts makes it look like a Python comment,
 and it's already set up to ignore the initial `>>> `/`...`.
 But doctest expects these,
 because that's what the Python shell looks like.
+
+> How do I add a shebang line?
+
+Same as for any executable text file, use a line starting with `#!`
+followed by a command to run hissp. (E.g. `/usr/bin/env hissp`)
+The transpiler will ignore it if it's the first line.
+If you set the executable bit,
+like `chmod foo.lissp +x`,
+then you can run the file directly.
+
+> I mean how do I add a shebang line to the compiled file?
+
+A text editor works. It's just a Python file.
+
+> I don't want to have to do that manually every time I recompile!
+
+You can use the `.#` reader macro to inject arbitrary text in the compiled output.
+Use e.g. `.#"#/usr/bin/env python"` as the first compiled line.
 
 > Is Hissp stable?
 

@@ -1,7 +1,5 @@
-# Copyright 2019 Matthew Egan Odendahl
+# Copyright 2019, 2020 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
-import os
-import sys
 import traceback
 from contextlib import suppress
 from functools import partial
@@ -11,8 +9,8 @@ from hissp.reader import Parser
 from hissp.reader import transpile
 
 
-def repl(macros=None):
-    parser = Parser()
+def repl(ns=..., macros=None):
+    parser = Parser(ns=ns)
     if not macros:
         with suppress(FileNotFoundError):
             transpile("hissp", "basic")
@@ -50,16 +48,3 @@ def _get_more(line):
     if "(" in line or '"' in line or ";" in line:
         buffer.extend(iter(partial(input, "#.."), ""))
     return buffer
-
-
-def cmd(ns):
-    case = len(sys.argv)
-    if case == 2:
-        ns["__file__"] = filename = os.path.abspath(sys.argv[1])
-        ns["__package__"] = None
-        with open(filename) as f:
-            Parser(ns=ns, filename=filename, evaluate=True).compile(f.read())
-    elif case == 1:
-        repl()
-    else:
-        raise TypeError

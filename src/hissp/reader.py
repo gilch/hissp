@@ -1,10 +1,11 @@
-# Copyright 2019 Matthew Egan Odendahl
+# Copyright 2019, 2020 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 import ast
 import builtins
 import os
 import re
+import sys
 from contextlib import contextmanager, nullcontext
 from functools import reduce
 from importlib import import_module, resources
@@ -23,11 +24,11 @@ TOKENS = re.compile(
  (?P<open>\()
 |(?P<close>\))
 |(?P<string>
-  " # Open quote.
+  "  # Open quote.
     (?:|[^"\\]  # Any non-magic character.
        |\\(?:.|\n)  # Backslash only if paired, including with newline.
     )*  # Zero or more times.
-  " # Close quote.
+  "  # Close quote.
  )
 |(?P<comment>;.*)
 |(?P<whitespace>[\n ]+)  # Tabs are not allowed outside of strings.
@@ -74,10 +75,10 @@ def gensym_counter(count=[0]):
 
 class Parser:
     def __init__(
-        self, qualname="__main__", ns=None, verbose=False, evaluate=False, filename="<?>"
+        self, qualname="__main__", ns=..., verbose=False, evaluate=False, filename="<?>"
     ):
         self.qualname = qualname
-        self.ns = ns or {"__name__": qualname}
+        self.ns = {"__name__": qualname} if ns is ... else ns
         self.compiler = Compiler(self.qualname, self.ns, evaluate)
         self.verbose = verbose
         self.filename = filename
@@ -244,6 +245,7 @@ def is_string(form):
 
 
 def transpile(package: Optional[resources.Package], *modules: Union[str, PurePath]):
+    # TODO: allow pathname without + ".lissp"?
     if package:
         for module in modules:
             transpile_module(package, module + ".lissp")
@@ -252,9 +254,7 @@ def transpile(package: Optional[resources.Package], *modules: Union[str, PurePat
             with open(module+'.lissp') as f:
                 code = f.read()
             out = module + '.py'
-            with open(out, "w") as f:
-                print("writing to", out)
-                f.write(Parser(module, evaluate=True, filename=str(out)).compile(code))
+            _write_py(out, module, code)
 
 
 def transpile_module(
@@ -270,7 +270,20 @@ def transpile_module(
             package = package.__package__
         if isinstance(package, os.PathLike):
             resource = resource.stem
-        qualname = f"{package}.{resource.split('.')[0]}"
-        with open(out, "w") as f:
-            print("writing to", out)
-            f.write(Parser(qualname, evaluate=True, filename=str(out)).compile(code))
+        _write_py(out, f"{package}.{resource.split('.')[0]}", code)
+
+
+def _write_py(out, qualname, code):
+    with open(out, "w") as f:
+        print(f"compiling {qualname} as", out)
+        if code.startswith('#!'):  # ignore shebang line
+            _, _, code = code.partition('\n')
+        f.write(Parser(qualname, evaluate=True, filename=str(out)).compile(code))
+
+def main():
+    transpile(*sys.argv[1:])
+
+if __name__ == "__main__":
+    # TODO: test CLI
+    # TODO: document CLI
+    main()

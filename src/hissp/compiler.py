@@ -1,4 +1,4 @@
-# Copyright 2019 Matthew Egan Odendahl
+# Copyright 2019, 2020 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 import ast
@@ -12,7 +12,7 @@ from functools import wraps
 from itertools import chain, takewhile
 from pprint import pformat
 from traceback import format_exc
-from typing import Iterable, List, Tuple, TypeVar
+from typing import Iterable, List, Optional, Tuple, TypeVar
 from warnings import warn
 
 PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
@@ -38,8 +38,8 @@ def trace(method):
         try:
             return method(self, expr)
         except Exception as e:
-            self.error = True
-            message = f"\nCompile {method.__name__} {type(e).__name__}:\n {e}".replace(
+            self.error = e
+            message = f"\nCompiler.{method.__name__}() {type(e).__name__}:\n {e}".replace(
                 "\n", "\n# "
             )
             return f"(>   >  > >>{pformat(expr)}<< <  <   <){message}"
@@ -56,9 +56,9 @@ class Compiler:
     The Hissp compiler.
     """
 
-    def __init__(self, qualname="__main__", ns=None, evaluate=True):
+    def __init__(self, qualname="__main__", ns=..., evaluate=True):
         self.qualname = qualname
-        self.ns = ns or {"__name__": qualname}
+        self.ns = {"__name__": qualname} if ns is ... else ns
         self.evaluate = evaluate
         self.error = False
         self.abort = False
@@ -68,8 +68,9 @@ class Compiler:
         for form in forms:
             form = self.form(form)
             if self.error:
+                e = self.error
                 self.error = False
-                raise CompileError("\n" + form)
+                raise CompileError("\n" + form) from e
             result.extend(self.eval(form))
             if self.abort:
                 print("\n\n".join(result), file=sys.stderr)
@@ -112,7 +113,7 @@ class Compiler:
 
     @trace
     def special(self, form: Tuple) -> str:
-        """Try to compile as special form, else self.macro()."""
+        """Try to compile as special form, else self.invocation()."""
         if form[0] == "quote":
             return self.quoted(form[1])
         if form[0] == "lambda":
@@ -122,21 +123,29 @@ class Compiler:
     @trace
     def invocation(self, form: Tuple) -> str:
         """Try to compile as macro, else normal call."""
+        if result := self.macro(form):
+            return f"# {form[0]}\n{result}"
+        return self.call(form)
+
+    @trace
+    def macro(self, form: Tuple) -> Optional[str]:
         head, *tail = form
         parts = head.split(MACRO, 1)
         with self.macro_context():
             if parts[0] == self.qualname:
                 # Local qualified macro. Recursive macros might need it.
-                return f"# {head}\n" + self.form(vars(self.ns[MACROS])[parts[1]](*tail))
-            try:  # Is it a local unqualified macro?
-                macro = vars(self.ns[MACROS])[head]
-            except LookupError:  # Nope.
-                pass
-            else:  # Yes.
-                return f"# {head}\n" + self.form(macro(*tail))
-            if MACRO in head:  # Qualified macro, not local.
-                return f"# {head}\n" + self.form(eval(self.symbol(head))(*tail))
-        return self.call(form)
+                result = self.form(vars(self.ns[MACROS])[parts[1]](*tail))
+            else:
+                try:  # Is it a local unqualified macro?
+                    macro = vars(self.ns[MACROS])[head]
+                except LookupError:  # Nope.
+                    if MACRO in head:  # Qualified macro, not local.
+                        result = self.form(eval(self.symbol(head))(*tail))
+                    else:
+                        result = None
+                else:  # Local unqualified.
+                    result = self.form(macro(*tail))
+        return result
 
     @trace
     def quoted(self, form) -> str:
