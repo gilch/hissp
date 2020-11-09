@@ -11,7 +11,10 @@ Welcome to Hissp's documentation!
    :caption: Contents:
 
    modules
+   lissp_quickstart
    tutorial
+   macro_tutorial
+   FAQ
 
 
 

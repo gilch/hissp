@@ -424,11 +424,11 @@ You must quote these like ``':`` or ``":"`` to pass them as data in that context
 Macros operate on code before evaluation,
 so they can also distinguish a raw control word from a quoted one.
 
-Qualified Symbols
-~~~~~~~~~~~~~~~~~
+Qualified Identifiers
+~~~~~~~~~~~~~~~~~~~~~
 
 You can refer to variables defined in any module by using a
-*qualified symbol*::
+*qualified identifier*::
 
     #> (operator..add 40 2)
     #..
@@ -653,7 +653,7 @@ Reader Macros
 
 Reader macros in Lissp consist of a symbol ending with a ``#``
 followed by another form.
-The function named by the qualified symbol is invoked on the form,
+The function named by the qualified identifier is invoked on the form,
 and the reader embeds the resulting object into the output Hissp::
 
     #> builtins..float#inf

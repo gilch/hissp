@@ -5,7 +5,7 @@ Hissp's basic macros.
 
 These are automatically made available as unqualified macros in the
 basic REPL. To use them in a Hissp module, either use the
-fully-qualified names, or add them to the module's _macro_'s.
+fully-qualified names, or add them to the module's ``_macro_``'s.
 
 For example::
 
@@ -125,7 +125,7 @@ but many macros still require this kind of recursive list processing.
   `(car (car ,xss)))
 
 (defmacro cdar (xss)
-  "The slice of the first item without its first item. Short for ``(cdr (car ,xss))``."
+  "The slice of the first item without its first item. Short for ``(cdr (car xss))``."
   `(cdr (car ,xss)))
 
 (defmacro cadr (sequence)
@@ -204,8 +204,8 @@ declaration.
 ;; TODO: error messages for reader were hard to follow (try toplevel gensym)
 ;; TODO: `[$#X] bug
 
-(defmacro fortil (item iterable : :* body)
-  "Evaluate body for each item in iterable until body is true."
+(defmacro forany (item iterable : :* body)
+  "Evaluate body for each item in iterable until any result is true."
   `(any (map (lambda (,item)
                ,@body)
              ,iterable)))
@@ -314,7 +314,7 @@ declaration.
 (defmacro -> (expr : :* forms)
   "Thread-first.
   Converts a pipeline to function calls by recursively threading it as the first argument of the next form.
-  E.g. ``(-> x (A b) (C d e))`` is ``(A (C x d e) b)``
+  E.g. ``(-> x (A b) (C d e))`` is ``(C (A x b) d e)``
   Makes chained method calls easier to read.
   "
   (if-else forms

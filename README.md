@@ -38,10 +38,6 @@ Python&mdash;Syntactic macro metaprogramming with full access to the Python ecos
         - [Same-module macro helpers](#same-module-macro-helpers)
         - [Modularity](#modularity)
     - [Show me some Code!](#show-me-some-code)
-        - [The obligatory Hello, World!](#the-obligatory-hello-world)
-        - [Calls. Hissp is literally all calls.](#calls-hissp-is-literally-all-calls)
-            - [Literals and the Reader](#literals-and-the-reader)
-            - [Invocations and the compiler](#invocations-and-the-compiler)
     - [FAQ (Frequently Anticipated Questions (and complaints))](#faq-frequently-anticipated-questions-and-complaints)
 
 <!-- markdown-toc end -->
@@ -72,14 +68,14 @@ to manipulate than Python AST,
 but still more reliable than text manipulation.
 In Hissp, code is just another kind of data.
 
-Lisp is a programmable programming language,
-extensible through its acclaimed macro system
+Lisp is renowned as the "programmable programming language",
+extensible through its powerful macro system
 which hooks into the compiler itself.
 Macros are Lisp's secret weapon.
-And Hissp brings this power to Python.
+And Hissp brings their power to Python.
 
 Adding features that historically required a new version of the Python language,
-like `with` statements, would be almost as easy as writing a new function in Lisp.
+like `with` statements, are almost as easy as writing a new function in Lisp.
 
 #### Minimal implementation
 Hissp serves as a modular component for other projects.
@@ -203,360 +199,47 @@ But while this informs the design of the compiler,
 it will be an external project in another repository.
 
 ## Show me some Code!
-See the tutorial in the [![Documentation Status](https://readthedocs.org/projects/hissp/badge/?version=latest)](https://hissp.readthedocs.io/en/latest/?badge=latest)
-
-An abridged version follows.
-
-### The obligatory Hello, World!
-```lisp
-(print "Hello, World!")
-```
-Honestly, that is 80% of Lisp right there.
-And the Python translation, as if you couldn't guess.
+Hissp is a language written as Python data and compiled to Python code:
 ```python
-print("Hello, World!")
-```
-Yeah, we moved a parenthesis.
-Lisp is so arcane, isn't it?
-
-Here's a more involved demonstration to whet you appetite.
-There are some literal types, qualified symbols,
-a macroexpansion, a keyword argument, and symbol munging.
-It also shows what the basic REPL looks like.
-(The Lissp prompt is the `#>`.)
-
-For someone experienced in both Python and Lisp,
-this may be enough to get you started,
-but don't worry if you don't understand it all yet.
-This will all be explained in more detail later on.
-```
-$ python -m hissp
-```
-```python
-#> (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
-#..
->>> __import__('builtins').print(
-...   (1),
-...   (2j),
-...   (3.0),
-...   [4, '5', 6],
-...   sep=':')
-1:2j:3.0:[4, '5', 6]
-
-#> (hissp.basic.._macro_.define tuple* (lambda (: :* xs) xs))
-#..
->>> # hissp.basic.._macro_.define
-... __import__('operator').setitem(
-...   __import__('builtins').globals(),
-...   'tuplexSTAR_',
-...   (lambda *xs:xs))
-
-```
-
-### Calls. Hissp is literally all calls.
-Hissp has only two types of expressions: literals (values), and invocations (tuples).
-
-#### Literals and the Reader
-Literals are handled at the reader level.
-
-"The reader" (or "the Lissp reader") refer's to Hissp's basic parser.
-It's the reader's job to translate the `.lissp` code files into Hissp code.
-
-It's important to distinguish these two things,
-because they each have their own type of macro:
-
-* *Lissp* code is made of text, and the basic reader parses it into Hissp.
-You can hook into this process with a *reader macro*,
-which can embed arbitrary Python objects into the Hissp.
-
-* *Hissp* code is made of tuples (and values), not text.
-Lissp is to Hissp as the written word is to the spoken word.
-It's ephemeral; it only lives in memory.
-The compiler compiles Hissp to a *functional subset of Python*.
-You can hook into this process with a *compiler macro*.
-Without context suggesting otherwise,
-the term *macro* refers to a *compiler macro*.
-
-Lissp is a fairly direct *representation* of Hissp, but it's not the only one.
-One could skip the reader altogether and write the Hissp in Python directly as tuples.
-This is called "readerless mode".
-Reader macros are an artifact of the reader and don't exist in readerless mode at all,
-but compiler macros do work.
-It's also possible to use alternative readers with alternate syntax (like [Hebigo](https://github.com/gilch/hebigo)),
-but it must *represent* the same underlying tuples to be Hissp.
-
-Using the basic reader,
-any valid Python literal (as defined by `ast..literal_eval`)
-is a valid Hissp literal,
-provided it does not contain `"`, `(`, `)`, or spaces
-(because then it would be read as multiple items) 
-or start with a `'`.
-
-In addition to the Python literals,
-the basic reader has symbol literals, string literals,
-and is extensible with more literal types via reader macros.
-
-String literals begin and end with `"` and may contain literal newlines,
-but otherwise behave the same as Python's do.
-
-Anything else is a symbol.
-Symbols are allowed to contain many special characters, but because
-symbols are meant to be used as Python identifiers,
-the reader automatically *munges* invalid identifier characters to x-quoted words,
-like `/` to `xSLASH_`.
-This format was chosen because it contains an underscore
-and both lower-case and upper-case letters,
-which makes it distinct from standard Python naming conventions:
-`lower_case_with_underscores`, `UPPER_CASE_WITH_UNDERSCORES`. and `CapWords`.
-This makes it easy to tell if an identifier contains munged characters.
-It also cannot introduce a leading underscore,
-which can have special meaning in Python.
-
-A symbol that begins with a `:` is a "control word".
-Control words are never interpreted as identifiers,
-so they don't need to be quoted or munged.
-
-The basic reader's macro syntax is limited to tagged forms,
-like EDN and Clojure, but unlike Common Lisp
-(which could dispatch on any character),
-because it's meant to be compatible with existing tooling for syntax
-highlighting and structural editing,
-which wouldn't work if you change the grammar.
-(An alternate reader for Hissp need not have this limitation.)
-
-Reader macros in Lissp consist of a symbol ending with a `#`
-followed by another form.
-The function named by the symbol is invoked on the form,
-and the reader embeds the resulting object into the output Hissp.
-
-For example,
-```python
-#> builtins..float#inf
->>> __import__('pickle').loads(  # inf
-...     b'Finf\n.'
-... )
-inf
-
-```
-This inserts an actual `inf` object at read time into the Hissp code.
-Since this isn't a valid literal, it has to compile to a pickle.
-You should normally try to avoid emitting pickles
-(use `(float 'inf)` or `math..inf` instead),
-but note that a macro would get the original object,
-since the code hasn't been compiled yet, which may be useful.
-While unpickling does have some overhead,
-it may be worth it if constructing the object normally has even more.
-Naturally, the object must be picklable to emit a pickle.
-
-Unqualified reader macros are reserved for the basic Hissp reader.
-There are currently three of them: `.#`, `_#`, and `$#`.
-
-If you need more than one argument for a reader macro, use the built in
-`.#` macro, which evaluates a form at read time. For example,
-```python
-#> .#(fractions..Fraction 1 2)
-#..
->>> __import__('pickle').loads(  # Fraction(1, 2)
-...     b'cfractions\nFraction\n(V1/2\ntR.'
-... )
-Fraction(1, 2)
-
-```
-
-The `_#` macro omits the next form.
-It's a way to comment out code,
-even if it takes multiple lines.
-
-There are also four more built-in reader macros that don't end with `#`:
-* ``` ` ``` template quote
-* `,` unquote
-* `,@` splice unquote
-* `'` quote
-
-The final builtin `$#` creates a gensym based on the given symbol.
-Within a template, the same gensym literal always makes the same
-gensym.
-```python
-#> `($#hiss $#hiss)
-#..
->>> (lambda *xAUTO0_:xAUTO0_)(
-...   '_hissxAUTO..._',
-...   '_hissxAUTO..._')
-('_hissxAUTO..._', '_hissxAUTO..._')
-
-```
-
-In readerless mode, these reader macros correspond to functions used to
-make the Hissp itself.
-For example, one could make a quoting "readerless macro" like this
-
-```python
->>> def q(form):
-...     return 'quote', form
 >>> from hissp.compiler import readerless
 >>> readerless(
-...     ('print', q('hi'),),
+...     ('lambda',('name',),
+...      ('print',('quote','Hello'),'name',),)
 ... )
-"print(\n  'hi')"
+"(lambda name:\n  print(\n    'Hello',\n    name))"
 >>> print(_)
-print(
-  'hi')
->>> eval(_)
-hi
-
+(lambda name:
+  print(
+    'Hello',
+    name))
+>>> eval(_)('World')
+Hello World
 ```
-Which is equivalent to the ``'`` reader macro in Lissp:
+Hissp's utility as a metaprogramming language is the ease of manipulating simple data structures representing executable code.
+
+Hissp can be written directly in Python using the "readerless mode" demonstrated above,
+or it can be read in from a lightweight textual language called *Lissp* that represents these data structures.
 ```python
-#> (print 'hi)
-#..
->>> print(
-...   'hi')
-hi
-
+>>> from hissp.reader import Parser
+>>> next(Parser().reads("""
+... (lambda (name)
+...   (print 'Hello name))
+... """))
+('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
 ```
+As you can see, this results in exactly the same Python data structure as the previous example,
+and can by compiled to executable Python code the same way.
 
-#### Invocations and the compiler
+Hissp comes with a basic REPL (read-eval-print-loop, or interactive shell)
+which compiles Hissp (read from Lissp) to Python and passes it to the Python REPL for execution.
 
-Here's a little more Hissp-specific example.
-Note the lack of commas between arguments.
-```
-$ python -m hissp
-```
-```python
-#> (builtins..print 1 2j 3.0 [4,'5',6] : sep ":")
-#..
->>> __import__('builtins').print(
-...   (1),
-...   (2j),
-...   (3.0),
-...   [4, '5', 6],
-...   sep=':')
-1:2j:3.0:[4, '5', 6]
+Lissp can also be read from ``.lissp`` files.
 
-```
-This is the basic Hissp REPL.
-It shows the Python compilation and its result.
+The reader and compiler are both extensible with macros.
 
-That `[4,'5',6]` is read as a single literal. Note the lack of spaces.
-The double-quoted string literal is an exception to the no-spaces rule for literals.
-And unlike Python, they are also allowed to contain literal newlines.
+See the tutorial in the [![Documentation Status](https://readthedocs.org/projects/hissp/badge/?version=latest)](https://hissp.readthedocs.io/en/latest/?badge=latest)
+for more details.
 
-The `builtins..print` is an example of a *qualified symbol*,
-which is a kind of implicit import.
-These are of the form `<package>..<item>`, and are important to make
-macros work properly across modules.
-You don't have to qualify builtins normally, but in a macroexpansion,
-this allows the macro to work even if the builtin name has been
-shadowed by a local variable in that context.
-Note that package names may contain dots, as in Python.
-
-The `:` separates the single arguments from the paired arguments,
-which either pair a value with a unique key like `sep ":"` or with the
-special unpacking control words `:*` and `:**`, like `:* args` or `:** kwargs`,
-which, like Python, can be repeated.
-
-Hissp's two special forms deserve special consideration.
-These are built into the compiler.
-Unlike a normal function call, special forms are evaluated at compile time.
-
-The first special form is `quote`. It returns its argument unevaluated.
-```python
-#> (quote builtins..print)
-#..
->>> 'builtins..print'
-'builtins..print'
-
-```
-The distinction between symbols and strings only applies to the reader.
-Hissp has no separate symbol type.
-A quoted symbol just emits a string.
-
-Here's the earlier example quoted.
-```python
-#> (quote (builtins..print 1 2j 3.0 [4,'5',6] : sep ":"))
-#..
->>> ('builtins..print',
-...  1,
-...  2j,
-...  3.0,
-...  [4, '5', 6],
-...  ':',
-...  'sep',
-...  ('quote', ':', {':str': True}))
-('builtins..print', 1, 2j, 3.0, [4, '5', 6], ':', 'sep', ('quote', ':', {':str': True}))
-
-```
-This reveals how to write the example in readerless mode.
-Notice the reader adds some metadata ``{':str': True}``
-to quoted strings that were read from double-quoted strings.
-Arguments to ``quote`` after the first have no effect on compilation,
-but may be useful to macros and reader macros.
-Many literal types simply evaluate to themselves and so are unaffected by quoting.
-The exceptions are strings and tuples, which can represent identifiers
-(or other raw Python expressions) and invocations, respectively.
-
-Quoting is important enough to have a special reader macro.
-`'foo` is the same as `(quote foo)`.
-
-The second special form is `lambda`.
-The first argument of a lambda form is the pararmeters tuple.
-Like function calls, the `:` separates the single from the paired (if any).
-After the parameters tuple, the rest of the arguments are the function body.
-
-```python
-#> (lambda (a b  ; single/positional
-#..         : e 1  f 2  ; paired/kwargs
-#..         :* args  h 4  i :?  j 1  ; *args and kwonly
-#..         :** kwargs)
-#.. 42)
-#..
->>> (lambda a,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
-<function <lambda> at ...>
-
-#> (lambda (: :* :?  x :?))  ; Only kwonly. Empty body returns ().
-#..
->>> (lambda *,x:())
-<function <lambda> at ...>
-
-#> (lambda (a b c)
-#.. (print a)
-#.. (print b)
-#.. c)
-#..
->>> (lambda a,b,c:(
-...   print(
-...     a),
-...   print(
-...     b),
-...   c)[-1])
-<function <lambda> at ...>
-
-```
-
-Normal function call forms evaluate their arguments before calling the function,
-as Python does.
-Special forms are different&mdash;`quote`'s argument is not evaluated at all.
-The body of a lambda is not evaluated until the function is invoked,
-and its parameter tuple is partly evaluated (if there are parameter defaults) and
-partly not.
-While there are only two special forms, the compiler is extensible via macros.
-Like special forms, macro invocations do not have to evaluate their arguments.
-
-Macros are simply functions that take Hissp code, and return Hissp code.
-When an unqualified symbol is in the function position (index zero),
-of a tuple about to be evaluated,
-the compiler checks if the module's `_macro_` namespace has that symbol.
-If it does, it is called at compile time as a macro and
-the result is inserted into the code in its place.
-
-Qualified symbols can also be macros if looked up directly from their module's `_macro_`.
-E.g. in `(hissp.basic.._macro_.define FOO 0xf00)`, `define` is a macro.
-
-The `hissp.basic.._macro_.defmacro` macro defines a function in the module's macro space,
-creating `_macro_` if it doesn't exist yet.
-But the compiler doesn't care how it gets there:
-`_macro_` functions are macros regardless. This means "importing" a macro is as simple
-as adding it to the current module's macro space.
 
 ## FAQ (Frequently Anticipated Questions (and complaints))
 
@@ -918,13 +601,45 @@ class Except(ContextDecorator):
 @Except((TypeError, ValueError), lambda e: print(e))
 @Except(ZeroDivisionError, lambda e: print('oops'))
 def bad_idea(x):
-    1/x
+    return 1/x
 
 bad_idea(0)  # oops
 bad_idea('spam')  # unsupported operand type(s) for /: 'int' and 'str'
-bad_idea(1)  # None
+bad_idea(1)  # 1.0
 ```
 You can translate all of that to Hissp.
+
+> How?
+
+Like this
+```lisp
+(deftype Except (contextlib..ContextDecorator)
+  __init__
+  (lambda (self catch handler)
+    (attach self catch handler)
+    None)
+  __enter__
+  (lambda (self))
+  __exit__
+  (lambda (self exc_type exception traceback)
+    (when (isinstance exception self.catch)
+      (.handler self exception)
+      True)))
+
+(define bad_idea
+  (-> (lambda (x)
+        (operator..truediv 1 x))
+      ((Except ZeroDivisionError
+               (lambda (e)
+                 (print "oops"))))
+      ((Except `(,TypeError ,ValueError)
+               (lambda (e)
+                 (print e))))))
+
+(bad_idea 0) ; oops
+(bad_idea "spam") ; unsupported operand type(s) for /: 'int' and 'str'
+(bad_idea 1) ; 1.0
+```
 
 > That is *so* much harder than a `try` statement.
 
