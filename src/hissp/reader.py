@@ -24,7 +24,7 @@ TOKENS = re.compile(
  (?P<open>\()
 |(?P<close>\))
 |(?P<string>
-  "  # Open quote.
+  [Bb]?"  # Open quote.
     (?:|[^"\\]  # Any non-magic character.
        |\\(?:.|\n)  # Backslash only if paired, including with newline.
     )*  # Zero or more times.
@@ -38,7 +38,8 @@ TOKENS = re.compile(
    # Ends in ``#``, but not bytes, dict, set, list, str.
   |(?:[Bb](?!')
      |[^ \n"(){}[\]#Bb]
-     )[^ \n"(){}[\]#]*[#])
+     )[^ \n"(){}[\]#]*[#]
+ )
 |(?P<symbol>[^ \n"()]+)
 """
 )
@@ -125,9 +126,12 @@ class Parser:
 
     @staticmethod
     def _string(v):
-        yield "quote", ast.literal_eval(
-            v.replace("\\\n", "").replace("\n", r"\n")
-        ), {":str": True}
+        v = v.replace("\\\n", "").replace("\n", r"\n")
+        val = ast.literal_eval(v)
+        if v[0].lower() == 'b':  # bytes
+            yield val
+        else:
+            yield "quote", val, {":str": True}
 
     def _macro(self, tokens, v):
         with {
@@ -141,7 +145,10 @@ class Parser:
     @staticmethod
     def _symbol(v):
         try:
-            yield ast.literal_eval(v)
+            val = ast.literal_eval(v)
+            if isinstance(val, bytes):  # bytes have their own literals.
+                raise ValueError  # munge
+            yield val
         except (ValueError, SyntaxError):
             yield munge(v)
 

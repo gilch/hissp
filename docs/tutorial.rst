@@ -641,7 +641,7 @@ function name starts with a dot::
     >>> (1j).conjugate()
     -1j
 
-    #> (.decode b'\xfffoo' : errors 'ignore)
+    #> (.decode b"\xfffoo" : errors 'ignore)
     #..
     >>> b'\xfffoo'.decode(
     ...   errors='ignore')
