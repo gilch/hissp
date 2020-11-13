@@ -177,11 +177,13 @@
    '(print "Hi") ; Same as (quote (print "Hi"))
 
    ;; Template quote. (Like quasiquote, backquote, or syntax-quote.)
-   `print ; 'builtins..print
+   `print ; 'builtins..print ; Raw identifiers get qualified.
    `foo ; '__main__..foo
    `(print "Hi") ; Code as data. Seems to act like quote.
    '`(print "Hi") ; But it's making a program to create the data.
    `(print ,(.upper "Hi")) ; Unquote interpolates.
+   ;; You can interpolate to prevent qualification.
+   `,'foo ; 'foo
    `(print ,@"abc") ; Splice unquote interpolates and unpacks.
    `(print ,@(.upper "abc"))
    `($#eggs $#spam $#bacon $#spam) ; Generated symbols
@@ -196,15 +198,111 @@
    ;; Invoke any importable unary callable at read time.
    builtins..float#inf ; Create new literals!
 
-   .#(fractions..Fraction 1 2) ; Use .# if you need more arguments.
+   ;; The injection macro evaluates the next form
+   ;; and puts the result directly in the Hissp.
+   .#(fractions..Fraction 1 2) ; Fraction() is multiary.
 
-   ;; Inject Python into the compiled output. Use responsibly!
+   ;; Use a string to inject Python into the compiled output.
+   ;; Use responsibly!
    (lambda (a b c)
      .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)"))
 
    ;;; Collections
 
-   ;; TODO: fix collection grammar
+   ;; Make tuples with a quote.
+   '(1 2 3) ; (1, 2, 3)
+
+   ;; You can interpolate with templates.
+   `(,(operator..pow 42 0) ,(operator..add 1 1) 3) ; (1, 2, 3)
+
+   ;; Be careful with quotes in templates!
+   `("a" 'b c ,'d ,"e")
+   ;; -> (('quote', 'a', {':str': True}), ('quote', '__main__..b'), '__main__..c', 'd', 'e')
+   '(1 "a") ; (1, ('quote', 'a', {':str': True}))
+   `(1 ,"a") ; (1, 'a')
+   ;; Helper functions may be easier.
+   ((lambda (: :* xs) xs) 0 "a" 'b :c) ; (0, 'a', 'b', ':c')
+   (.__setitem__ (globals) entuple (lambda (: :* xs) xs))
+   (entuple 0 "a" 'b :c) ; (0, 'a', 'b', ':c')
+
+   ;; Convert tuples to other collection types.
+   (list `(1 ,(operator..add 1 1) 2)) ; [1 2 3]
+   (.__setitem__ (globals) enlist (lambda (: :* xs) (list xs)))
+   (set '(1 2 3)) ; {1, 2, 3}
+   (dict (zip '(1 2 3) "abc")) ; {1: 'a', 2: 'b', 3: 'c'}
+
+   ;; Symbolic-keyed dicts via kwargs.
+   (dict : + 0  a 1  b 2) ; {'xPLUS_': 0, 'a': 1, 'b': 2}
+
+   ;; Mixed key types.
+   (dict '((a 1) (2 b))) ; {'a': 1, 2: 'b'}
+   ;; Interpolated.
+   (dict `((,'+ 42) (,(operator..add 1 1) ,'b))) ; {'xPlus_': 42, 2: 'b'}
+   (.__getitem__ _ '+) ; 42
+   ;; Helper function
+   (.__setitem__ (globals)
+                 'endict
+                 (lambda (: :* pairs)
+                   .#"{k: next(it) for it in [iter(pairs)] for k in it}"))
+   (endict 1 2  'a 'b) ; {1: 2, 'a': 'b'}
+
+   ;; List, set, and dict literals are read in as a unit, like strings.
+   ;; They may contain compile-time literals only--No interpolation!
+   [1,2,3] ; [1, 2, 3]
+   {1,2,3} ; {1, 2, 3}
+   {'a':1,2:'b'} ; {'a': 1, 2: 'b'}
+   ;; Nesting.
+   [1,{2},{3:[4,5]},'six'] ; [1, {2}, {3: [4, 5]}, 'six']
+
+   ;; Collections literals are a convenience for simple cases only!
+   ;; To keep the grammar simple, they're restricted.
+   ;; No double quotes, no spaces, no newlines, and no parentheses, even in nested strings.
+   [1, 2] ; SyntaxError. No Spaces!
+   [1,"2"] ; SyntaxError. No double quotes!
+   [1,'2'] ; [1, '2']
+   [1,'''2'''] ; [1, '2']
+   [1,'2 3'] ; SyntaxError. No Spaces! Not even in strings.
+   ;; Escapes work, though I find this hard to read.
+   [1,'2\0403'] ; [1, '2 3'].
+   ;; This is a little better.
+   [1,'2\N{space}3'] ; [1, '2 3']
+
+   ;; If this is too restrictive for your use case, use injection or constructors instead.
+   .#"[1, '2 3']" ; [1, '2 3']
+   (list `(1 ,"2 3")) ; [1, '2 3']
 
    ;;; Compiler Macros
+
+   ;;; Basic Macros
+
+   hissp.basic.._macro_.from-require
+
+   define
+   deftype
+   defmacro
+   let
+
+   attach
+   cascade
+   ->
+   ->>
+
+   car
+   cdr
+   caar
+   cdar
+   cadr
+   cddr
+
+   if-else
+   cond
+   when
+   when-not
+   &&
+   ||
+   forany
+
+   progn
+   prog1
+
 
