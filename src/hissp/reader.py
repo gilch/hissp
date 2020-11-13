@@ -109,7 +109,7 @@ class Parser:
             else:
                 assert False, "unknown token: " + repr(k)
         if self.depth:
-            SyntaxError("Ran out of tokens before completing form.")
+            raise SyntaxError("Ran out of tokens before completing form.")
 
     def _open(self, tokens):
         depth = self.depth
