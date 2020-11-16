@@ -57,6 +57,8 @@ def _get_code(args):
 def main():
     # TODO: test CLI
     # TODO: document CLI
+    if '' != sys.path[0]:
+        sys.path.insert(0, '')
     code, interact = parse_args(sys.argv)
     if code:
         # TODO: ignore shebang
