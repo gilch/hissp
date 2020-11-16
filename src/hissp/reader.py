@@ -24,21 +24,21 @@ TOKENS = re.compile(
  (?P<open>\()
 |(?P<close>\))
 |(?P<string>
-  [Bb]?"  # Open quote.
+  b?  # bytes
+  "  # Open quote.
     (?:|[^"\\]  # Any non-magic character.
        |\\(?:.|\n)  # Backslash only if paired, including with newline.
     )*  # Zero or more times.
   "  # Close quote.
  )
 |(?P<comment>;.*)
-|(?P<whitespace>[\n ]+)  # Tabs are not allowed outside of strings.
+|(?P<whitespace>[\n ]+)
+|(?P<badspace>\s)  # Other whitespace not allowed outside of strings.
 |(?P<macro>
    ,@
   |['`,]
-   # Ends in ``#``, but not bytes, dict, set, list, str.
-  |(?:[Bb](?!')
-     |[^ \n"(){}[\]#Bb]
-     )[^ \n"(){}[\]#]*[#]
+   # Ends in ``#``, but not dict, set, list, str.
+  |(?:[^ \n"(){}[\]#]*[#])
  )
 |(?P<symbol>[^ \n"()]+)
 """
@@ -107,6 +107,8 @@ class Parser:
                 yield from self._macro(tokens, v)
             elif k == "symbol":
                 yield from self._symbol(v)
+            elif k == "badspace":
+                raise SyntaxError("Bad space: " + repr(k))
             else:
                 assert False, "unknown token: " + repr(k)
         if self.depth:
@@ -128,7 +130,7 @@ class Parser:
     def _string(v):
         v = v.replace("\\\n", "").replace("\n", r"\n")
         val = ast.literal_eval(v)
-        if v[0].lower() == 'b':  # bytes
+        if v[0] == 'b':  # bytes
             yield val
         else:
             yield "quote", val, {":str": True}
