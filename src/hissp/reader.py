@@ -26,14 +26,14 @@ TOKENS = re.compile(
 |(?P<string>
   b?  # bytes
   "  # Open quote.
-    (?:|[^"\\]  # Any non-magic character.
+    (?:[^"\\]  # Any non-magic character.
        |\\(?:.|\n)  # Backslash only if paired, including with newline.
     )*  # Zero or more times.
   "  # Close quote.
  )
 |(?P<comment>;.*)
 |(?P<whitespace>[\n ]+)
-|(?P<badspace>\s)  # Other whitespace not allowed outside of strings.
+|(?P<badspace>\s)  # Other whitespace not allowed.
 |(?P<macro>
    ,@
   |['`,]
