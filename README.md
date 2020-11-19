@@ -214,6 +214,7 @@ Hissp is a language written as Python data and compiled to Python code:
     name))
 >>> eval(_)('World')
 Hello World
+
 ```
 Hissp's utility as a metaprogramming language is the ease of manipulating simple data structures representing executable code.
 
@@ -226,6 +227,7 @@ or it can be read in from a lightweight textual language called *Lissp* that rep
 ...   (print 'Hello name))
 ... """))
 ('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
+
 ```
 As you can see, this results in exactly the same Python data structure as the previous example,
 and can by compiled to executable Python code the same way.
