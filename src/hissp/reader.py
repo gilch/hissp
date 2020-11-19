@@ -38,7 +38,7 @@ TOKENS = re.compile(
    ,@
   |['`,]
    # Ends in ``#``, but not dict, set, list, str.
-  |(?:[^ \n"(){}[\]#]*[#])
+  |(?:[^ \n"(){}[\]#]+[#])
  )
 |(?P<symbol>[^ \n"()]+)
 """
