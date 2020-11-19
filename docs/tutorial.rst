@@ -673,10 +673,10 @@ it may be worth it if constructing the object normally has even more.
 Naturally, the object must be picklable to emit a pickle.
 
 Unqualified reader macros are reserved for the basic Hissp reader.
-There are currently three of them: ``.#``, ``_#``, and ``$#``.
+There are currently three of them: Inject ``.#``, discard ``_#``, and gensym ``$#``.
 
-If you need more than one argument for a reader macro, use the built in
-``.#`` macro, which evaluates a form at read time::
+If you need more than one argument for a reader macro, use the built-in
+inject ``.#`` macro, which evaluates a form at read time::
 
     #> .#(fractions..Fraction 1 2)
     #..
@@ -686,8 +686,35 @@ If you need more than one argument for a reader macro, use the built in
     Fraction(1, 2)
 
 
-The ``_#`` macro omits the next expression.
-It's a way to comment out code structurally.
+And can inject arbitrary text into the compiled output::
+
+    #> .#"{(1, 2): \"\"\"buckle my shoe\"\"\"}  # This is Python!"
+    #..
+    >>> {(1, 2): """buckle my shoe"""}  # This is Python!
+    {(1, 2): 'buckle my shoe'}
+
+Reader macros compose::
+
+    #> '.#"{(3, 4): 'shut the door'}" ; this quoted inject is a string
+    #..
+    >>> "{(3, 4): 'shut the door'}"
+    "{(3, 4): 'shut the door'}"
+
+    #> '.#.#"{(5, 6): 'pick up sticks'}" ; even quoted, this double inject is a dict
+    #..
+    >>> {(5, 6): 'pick up sticks'}
+    {(5, 6): 'pick up sticks'}
+
+The discard ``_#`` macro omits the next expression.
+It's a way to comment out code structurally::
+
+    #> (print 1 _#2 3)
+    #..
+    >>> print(
+    ...   (1),
+    ...   (3))
+    1 3
+
 
 Templates
 ---------
@@ -797,10 +824,10 @@ as well. E.g. ``_hissxAUTO42_``. Try it.)
 Gensyms are mainly used to prevent accidental name collisions in generated code,
 which is very important for reliable macros.
 
-Data Structures
----------------
+Atomic Literal Data Structures
+------------------------------
 
-Python's data structure notation works in Lissp as well::
+A subset of Python's data structure notation works in Lissp as well::
 
     #> [1,2,3]
     >>> [1, 2, 3]
@@ -809,10 +836,6 @@ Python's data structure notation works in Lissp as well::
     #> {'foo':2}
     >>> {'foo': 2}
     {'foo': 2}
-
-Only single-quoted or triple single-quoted strings are allowed
-inside of literal data structures.
-(And only double-quoted strings outside.)
 
 You can nest these to create small, JSON-like data structures
 which can be very useful as inputs to macros,
@@ -839,28 +862,22 @@ you must quote them to use them as data.
    However, macros could distinguish these cases,
    because they act before evaluation.
 
-
 .. Caution::
-   Unlike Python's literal data structures,
-   spaces are **not** allowed in Lissp's literal data structures,
-   nor are double quotes,
-   because this causes them to be read as multiple forms.
-   It's better to avoid these characters in single-quoted stings.
-   But if you must have them, you can use the escape codes ``\40``
-   or ``\42`` instead, respectively.
+   Unlike Python's data structure notation,
+   double quotes, parentheses, spaces, and newlines
+   are **not** allowed anywhere in Lissp's atomic data structures,
+   even in nested strings, because this causes them to be read as multiple forms.
 
-   Triple single-quoted strings may appear in literal data structures,
-   but newlines are not allowed for the same reason. Use ``\n`` instead.
+   While a significantly more complex reader could distinguish these cases (as Python does),
+   Lissp doesn't really need this capability because it can already read in arbitrary
+   Python expressions using the inject macro ``.#``.
+   The literals are just a convenience notation for simple cases.
 
-   Parentheses are reserved for Hissp forms and may not appear in
-   literal data structures, even in nested strings
-   (Use ``\50\51`` if you must.)
-   Literal data structures may not contain tuples.
-
-Unlike Python, literal data structures in Lissp may contain only static values
-discernible at read time. They are each read as a *single object*.
-If you want to interpolate runtime data, use function calls
-and templates instead::
+Unlike Python's notation,
+atomic data structures in Lissp may contain only static values discernible at read time.
+A literal data structure is read as a *single atom*.
+If you want to interpolate runtime data,
+use function calls and templates instead::
 
     #> (list `(,@(.upper "abc") ,@[1,2,3] ,(.title "zed")))
     #..
@@ -872,7 +889,7 @@ and templates instead::
     ['A', 'B', 'C', 1, 2, 3, 'Zed']
 
 If this is still too verbose for your taste,
-remember you can use helper functions or metaprogramming to simplify::
+remember that you can use helper functions or metaprogramming to simplify::
 
     #> (define enlist  ; use instead of []
     #.. (lambda (: :* args)
@@ -917,10 +934,11 @@ Macros
 Hissp macros are callables that are evaluated by the compiler at
 *compile time*.
 
-They take Hissp code as arguments, and return Hissp code as a result,
+They take the Hissp code itself as arguments (they're all quoted)
+and return Hissp code as a result,
 called a *macroexpansion* (even if it gets smaller).
-The expansion is inserted in the macro invocation's place in the code,
-and then evaluated as normal.
+The compiler inserts the expansion in the macro invocation's place in the code,
+and then continues as normal.
 If another macro invocation appears in the expansion,
 it is expanded as well (this pattern is known as a *recursive macro*),
 which is an ability that the reader macros lack.

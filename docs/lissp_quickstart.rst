@@ -117,15 +117,16 @@ Lissp Quick Start
    ;; This is a bit different from other Lisps.
 
    (print 1 2 3 : sep "-")                ;Kwargs after the ":".
+   (print : :? 1  :? 2  :? 3  sep "-")    ;You can pair all the arguments if you want.
 
    ;; Control words like : :* :? normally compile to strings,
    ;; but they can have special meaning in certain contexts.
 
    ;; The :* is for Python's positional unpacking. Try it!
-   ;; (There's also a :** for kwarg unpacking.)
-   ;; The :? passes a paired argument positionally.
-   ;; Pairs are conventionally separated by an extra space,
-   (print 1 : :* "abc"  :? 2  sep "-")
+   ;; There's also a :** for kwarg unpacking.
+   ;; Remember you can still pass an argument positionally on the paired side with :?.
+   ;; Pairs are conventionally separated by an extra space.
+   (print 1 : :* "abc"  :? 2  :** (dict : sep "-"))
 
    ;; The ``self`` is the first argument to method calls.
    (.upper "shout!")                      ;"SHOUT!"
@@ -152,8 +153,10 @@ Lissp Quick Start
             :* args  h 4  i :?  j 1       ;kwonly
             :** kwargs)                   ;arguments tuple
      ;; body
-     (print "hi" a)                       ;side effect
+     (print "hi" a)                       ;side effects
      b)                                   ;last value is returned
+
+   (lambda (: :* :? kwonly-no-starargs "default")) ; Empty body returns ().
 
    ;;;; Operators
 
@@ -162,7 +165,7 @@ Lissp Quick Start
 
    (operator..add 40 2)                   ;Addition.
    (.__setitem__ (globals) '+ operator..add) ;Assignment. We'll be using this later.
-   (+ 40 2)                               ;This is still a function call!
+   (+ 40 2)                               ;No operators. This is still a function call!
 
    ;;;; Control Flow
 
@@ -221,13 +224,14 @@ Lissp Quick Start
    ;; Reader macros compose.
    'hissp.munger..demunge#xH_xGT_xGT_     ;'->>'
 
-   ;; The injection reader macro evaluates the next form
+   ;; The "inject" reader macro evaluates the next form
    ;; and puts the result directly in the Hissp.
    .#(fractions..Fraction 1 2)            ;Fraction() is multiary.
 
    ;; Use a string to inject Python into the compiled output.
    ;; Use responsibly!
    (lambda (a b c)
+     ;; Hissp may not have operators, but Python does.
      .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
 
    ;;;; Collections
@@ -250,12 +254,12 @@ Lissp Quick Start
    (.__setitem__ (globals) 'entuple (lambda (: :* xs) xs))
    (entuple 0 "a" 'b :c)                  ;(0, 'a', 'b', ':c')
 
-   ;; Convert tuples to other collection types.
+   ;; Tuples convert to other collection types.
    (list `(1 ,(+ 1 1) 2))                 ;[1 2 3]
    (set '(1 2 3))                         ;{1, 2, 3}
    (dict (zip '(1 2 3) "abc"))            ;{1: 'a', 2: 'b', 3: 'c'}
 
-   ;; Symbolic-keyed dicts via kwargs.
+   ;; Symbolic-keyed dict via kwargs.
    (dict : + 0  a 1  b 2)                 ;{'xPLUS_': 0, 'a': 1, 'b': 2}
    ;; In the REPL, _ is the last result that wasn't None, same as Python.
    (.__getitem__ _ '+)                    ;0
@@ -263,7 +267,8 @@ Lissp Quick Start
    ;; Mixed key types.
    (dict '((a 1) (2 b)))                  ;{'a': 1, 2: 'b'}
    ;; Interpolated.
-   (dict `((,'+ 42) (,(+ 1 1) ,'b)))      ;{'xPlus_': 42, 2: 'b'}
+   (dict `((,'+ 42)
+           (,(+ 1 1) ,'b)))               ;{'xPlus_': 42, 2: 'b'}
    (.__getitem__ _ '+)                    ;42
 
    ;; Python injection can also make collections.
@@ -275,19 +280,19 @@ Lissp Quick Start
                    .#"{k: next(it) for it in [iter(pairs)] for k in it}"))
    (endict 1 2  'a 'b)                    ;{1: 2, 'a': 'b'}
 
-   ;; In certain limited cases, you can drop the quotes,
+   ;;; atomic collection literals
+
+   ;; As a special convenience, in certain limited cases, you can drop the quotes,
    .#[]                                   ;[]
    ;; and the reader macro!
    []                                     ;[]
 
-   ;;; collection literals
-
    ;; List, set, and dict literals are a special case of injection.
-   ;; They're read in as a unit, like strings.
-   ;; They may contain compile-time literals only--No interpolation!
+   ;; These read in as a single atom,
+   ;; so they may contain compile-time literals only--No interpolation!
    [1,2,3]                                ;[1, 2, 3]
    {1,2,3}                                ;{1, 2, 3}
-   {'a':1,2:'b'}                          ;{'a': 1, 2: 'b'}
+   {'a':1,2:b'b'}                         ;{'a': 1, 2: b'b'}
 
    ;; Nesting.
    [1,{2},{3:[4,5]},'six']                ;[1, {2}, {3: [4, 5]}, 'six']
@@ -300,21 +305,36 @@ Lissp Quick Start
    [1,'''2''']                            ;[1, '2']
    [1,'2 3']                              ;SyntaxError. No Spaces! Not even in nested strings.
 
-   ;; Escapes work, though I find this hard to read.
+   ;; Escapes for these do work in strings, though I find this one hard to read.
    [1,'2\0403']                           ;[1, '2 3'].
    ;; This is a little better.
    [1,'2\N{space}3']                      ;[1, '2 3']
 
-   ;; If you need those, use the injection macro (or constructors) instead.
+   ;; If you need a collection that would violate those restrictions,
+   ;; use the inject macro (or constructors) instead.
    .#"[1, '2 3']"                         ;[1, '2 3']
+   .#"[1, (2, 3)]"                        ;[1, (2, 3)]
    (list `(1 ,"2 3"))                     ;[1, '2 3']
    (.__setitem__ (globals) 'enlist (lambda (: :* xs) (list xs)))
-   (enlist 1 "2 3")
+   (enlist 1 "2 3")                       ;[1, '2 3']
+
+   _#"Even though they evaluate the same, there's a subtle compile-time difference
+   between an atomic collection literal and a string injection. This can matter because
+   macros get all their arguments quoted."
+
+   '[1,'''2\N{space}3''']                 ;[1, '2 3']
+   '.#"[1,'''2 3''']"                     ;"[1,'''2 3''']"
+
+   ;; But you can still get a real collection at compile time without a collection literal:
+   '.#(eval "[1,'''2 3''']")              ;[1, '2 3']
+   '.#.#"[1,'''2 3''']"                   ;[1, '2 3']
 
    ;;;; Compiler Macros
 
    _#" Macroexpansion happens at compile time, after the reader,
-   so they also work in readerless mode, or with alternative Hissp readers other than Lissp."
+   so they also work in readerless mode, or with alternative Hissp readers other than Lissp.
+   Macros get all of their arguments unevaluated (quoted)
+   and the compiler inserts the resulting Hissp into that point in the program."
 
    ;; A function invocation using an identifier qualified with ``_macro_`` is a macroexpansion.
    (hissp.basic.._macro_.define SPAM "eggs") ;N.B. SPAM not quoted.
@@ -383,7 +403,7 @@ Lissp Quick Start
                (.__getitem__
                  `(,first ,`(operator..add ,first (+ ,@args)))
                  (bool args))))
-   (+ 1 2 3 4)                              ;TypeError
+   (+ 1 2 3 4)                            ;TypeError
 
    _#"The recursive + was qualified as __main__..+, not __main__.._macro_.xPLUS_.
    Recursive macro invocations require forward declaration or explicit qualification.
@@ -396,7 +416,7 @@ Lissp Quick Start
                (.__getitem__
                  `(,first ,`(operator..add ,first (+ ,@args)))
                  (bool args))))
-   (+ 1 2 3 4)                              ;10
+   (+ 1 2 3 4)                            ;10
 
    (setattr _macro_ '* None)              ;Forward declaration.
    (setattr _macro_
@@ -405,7 +425,7 @@ Lissp Quick Start
                (.__getitem__
                  `(,first ,`(operator..mul ,first (* ,@args)))
                  (bool args))))
-   (* 1 2 3 4)                             ;24
+   (* 1 2 3 4)                            ;24
 
    ;; Macros only work as invocations, not arguments!
    (functools..reduce * '(1 2 3 4))       ;NameError: name 'xSTAR_` is not defined.
@@ -420,7 +440,7 @@ Lissp Quick Start
    (dir _macro_)                          ;Has both.
 
    _#"hissp can run a .lissp file as __main__.
-   You cannot import .lissp. Compile it to .py first."
+   You cannot import .lissp directly. Compile it to .py first."
 
    ;; Finds spam.lissp & eggs.lissp in the current package and compile them to spam.py & eggs.py
    (os..system "echo (print \"Hello World!\") > eggs.lissp")
@@ -536,5 +556,3 @@ Lissp Quick Start
    ;; 1
    ;; 2
    ;; 3
-
-
