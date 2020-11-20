@@ -15,12 +15,13 @@ FAQ
 ===
 (Frequently Anticipated Questions (and complaints))
 
-   Anticipated? Didn't you mean "asked"?
+Anticipated? Didn't you mean "asked"?
+-------------------------------------
 
 Well, this project is still pretty new.
 
-   Can Hissp really do anything Python can when it only compiles to a
-   subset of it?
+Can Hissp really do anything Python can when it only compiles to a subset of it?
+--------------------------------------------------------------------------------
 
 Yes.
 
@@ -48,12 +49,13 @@ worse than ``eval()``/``exec()``, which are at least explicit about it.
 Even if you think you need it, you still probably don't. But it can be
 very useful as an optimization.
 
-   What's 1 + 1?
+What's 1 + 1?
+-------------
 
 Two.
 
-   I mean how do you write it in Hissp without operators? Please don't
-   say ``eval()``.
+I mean how do you write it in Hissp without operators? Please don't say ``eval()``.
+-----------------------------------------------------------------------------------
 
 We have all the operators because we have all the standard library
 functions.
@@ -62,9 +64,8 @@ functions.
 
    (operator..add 1 1)
 
-..
-
-   That's really verbose though.
+That's really verbose though.
+-----------------------------
 
 You can, of course, abbreviate these.
 
@@ -89,7 +90,8 @@ Yes, ``+`` is a valid symbol. It gets munged to ``xPLUS_``. The result
 is all of the operators you might want, using the same prefix notation
 used by all the calls.
 
-   I want infix notation!
+I want infix notation!
+----------------------
 
 Hissp is a Lisp. It's all calls! Get used to it.
 
@@ -98,7 +100,8 @@ very readable if properly indented. Don't confuse "easy" with
 "familiar". Also, you don't have to be restricted to one or two
 arguments.
 
-   ...
+...
+---
 
 Fine. You can write macros for any syntax you please.
 
@@ -130,7 +133,8 @@ into the Hissp.
 But for a top-level ``define`` like this, you could have just used
 ``exec()``.
 
-   How do I start the REPL again?
+How do I start the REPL again?
+------------------------------
 
 If you installed the distribution using pip, you can use the provided
 ``hissp`` console script.
@@ -146,14 +150,14 @@ Python interpreter from the command line
 
    $ python3 -m hissp
 
-..
-
-   There are no statements?! How can you get anything done?
+There are no statements?! How can you get anything done?
+--------------------------------------------------------
 
 There are expression statements only (each top-level form). That's
 plenty.
 
-   But there's no assignment statement!
+But there's no assignment statement!
+------------------------------------
 
 That's not a question.
 
@@ -170,7 +174,8 @@ Also, Python 3.8 added assignment expressions. Those are expressions. A
 macro could expand to a string containing ``:=``, but as with
 text-substitution macros generally, this approach is not recommended.
 
-   But there's no ``macroexpand``. How do I look at expansions?
+But there's no ``macroexpand``. How do I look at expansions?
+------------------------------------------------------------
 
 Invoke the macro indirectly somehow so the compiler sees it as a normal
 function. ``((getattr hissp.basic.._macro_ "define") 'foo '"bar")`` One
@@ -187,7 +192,8 @@ But you can also just look at the compiled Python output. It's indented,
 so it's not that hard to read. The compiler also helpfully includes a
 comment in the compiled output whenever it expands a macro.
 
-   There's no ``for``? What about loops?
+There's no ``for``? What about loops?
+-------------------------------------
 
 Sometimes recursion is good enough. Try it. ``list()``, ``map()`` and
 ``filter()`` plus lambda can do anything list comprehensions can. Ditch
@@ -197,13 +203,14 @@ for set comprehensions. Dict comprehensions are a little trickier. Use
 them, or just have the map's lambda return pairs. Remember, you can make
 data tuples with template quotes.
 
-   This is so much harder than comprehensions!
+This is so much harder than comprehensions!
+-------------------------------------------
 
 Not really. But you can always write a macro if you want different
 syntax. You can pretty easily implement comprehensions this way.
 
-   That's comprehensions, but what about ``for`` statements? You don't
-   really think I should build a list just to throw it away?
+That's comprehensions, but what about ``for`` statements? You don't really think I should build a list just to throw it away?
+-----------------------------------------------------------------------------------------------------------------------------
 
 Side effects are not good functional style. Avoid them for as long as
 possible. Still, you do need them eventually if you want your program to
@@ -218,7 +225,8 @@ writing imperative loops.
 
 See also ``itertools``, ``builtins..iter``.
 
-   There's no ``if`` statement. Branching is fundamental!
+There's no ``if`` statement. Branching is fundamental!
+------------------------------------------------------
 
 No it's not. You already learned how to ``for`` loop above. Isn't
 looping zero or one times like skipping a branch or not? Note that
@@ -226,7 +234,8 @@ looping zero or one times like skipping a branch or not? Note that
 ``range(False)`` would loop zero times, but ``range(True)`` loops one
 time.
 
-   What about if/else ternary expressions?
+What about if/else ternary expressions?
+---------------------------------------
 
 .. code:: python
 
@@ -242,8 +251,8 @@ Hissp doesn't need it. Smalltalk pretty much does it this way. Once you
 have ``if`` you can make a ``cond``. Lisps actually differ on which is
 the special form and which is the macro.
 
-   You have to define three lambdas just for an ``if``?! isn't this
-   really slow? It really ought to be a special form.
+You have to define three lambdas just for an ``if``?! isn't this really slow? It really ought to be a special form.
+-------------------------------------------------------------------------------------------------------------------
 
 It's not *that* slow. Like most things, performance is really only an
 issue in a bottleneck. If you find one, there's no runtime overhead for
@@ -270,7 +279,8 @@ evaluation, but because they can read and re-write code. Using a text
 macro like the above can hide information that a syntactic rewriting
 macro needs to work properly.
 
-   Does Hissp have tail-call optimization?
+Does Hissp have tail-call optimization?
+---------------------------------------
 
 No, because CPython doesn't. If a Python implementation has it, Hissp
 will too, when run on that implementation.
@@ -280,12 +290,13 @@ Better not increase it too much if you don't like segfaults, but you can
 trampoline instead. See Drython's ``loop()`` function. Or use it. Or
 Hebigo's equivalent macro. Clojure does it about the same way.
 
-   How do I make a tuple?
+How do I make a tuple?
+----------------------
 
 Use ``tuple()``.
 
-   But I have to already have an iterable, which is why I wanted a tuple
-   in the first place!
+But I have to already have an iterable, which is why I wanted a tuple in the first place!
+-----------------------------------------------------------------------------------------
 
 ``lambda *a:a``
 
@@ -294,20 +305,24 @@ You can also make an empty list with ``[]`` or ``(list)``, and then
 syntax :literal:`\`()` makes tuples. Unquote ``,`` calls/symbols if
 needed.
 
-   How do I make a class?
+How do I make a class?
+----------------------
 
 Use ``type()``. (Or whatever metaclass.)
 
-   Very funny. That just tells me what type something is.
+Very funny. That just tells me what type something is.
+------------------------------------------------------
 
 No, seriously, you have to give it all three arguments. Look it up.
 
-   Well now I need a dict!
+Well now I need a dict!
+-----------------------
 
 Use ``dict()``. Obviously. You don't even need to make pairs if the keys
 are identifiers. Just use kwargs.
 
-   That seems too verbose. In Python it's easier.
+That seems too verbose. In Python it's easier.
+----------------------------------------------
 
 You mostly don't need classes though. Classes conflate data structures
 with the functions that act on them, and tend to encourage fragmented
@@ -319,51 +334,57 @@ As always, you can write a function or macro to reduce boilerplate.
 There's actually a ``hissp.basic.._macro_.deftype`` macro for making a
 top-level type.
 
-   I've got some weird metaclass magic from a library. ``type()`` isn't
-   working!
+I've got some weird metaclass magic from a library. ``type()`` isn't working!
+-----------------------------------------------------------------------------
 
 Try ``types..new_class`` instead.
 
-   How do I raise exceptions?
+How do I raise exceptions?
+--------------------------
 
 ``(operator..truediv 1 0)`` seems to work. Exceptions tend to raise
 themselves if you're not careful.
 
-   But I need a raise statement for a specific exception message.
+But I need a raise statement for a specific exception message.
+--------------------------------------------------------------
 
 Exceptions are not good functional style. Haskell uses the Maybe monad
 instead, so you don't need them. If you must, you can still use a
 ``raise`` in ``exec()``. (Or use Drython's ``Raise()``, or Hebigo's
 equivalent macro.)
 
-   Use exec? Isn't that slow?
+Use exec? Isn't that slow?
+--------------------------
 
 If the exceptions are only for exceptional cases, then does it matter?
 Early optimization is the root of all evil.
 
-   What about catching them?
+What about catching them?
+-------------------------
 
 Try not raising them in the first place? Or ``contextlib..suppress``.
 
-   But there's no ``with`` statement either!
+But there's no ``with`` statement either!
+-----------------------------------------
 
 Use ``contextlib..ContextDecorator`` as a mixin and any context manager
 works as a decorator. Or use Drython's ``With()``.
 
-   How do I use a decorator?
+How do I use a decorator?
+-------------------------
 
 You apply it to the function (or class): call it with the function as
 its argument. Decorators are just higher-order functions.
 
-   Any context manager? But you don't get the return value of
-   ``__enter__()``! And what if it's not re-entrant?
+Any context manager? But you don't get the return value of ``__enter__()``! And what if it's not re-entrant?
+------------------------------------------------------------------------------------------------------------
 
 ``suppress`` works with these restrictions, but point taken. You can
 certainly call ``.__enter__()`` yourself, but you have to call
 ``.__exit__()`` too. Even if there was an exception.
 
-   But I need to handle the exception if and only if it was raised, for
-   multiple exception types, or I need to get the exception object.
+But I need to handle the exception if and only if it was raised, for multiple exception types, or I need to get the exception object.
+-------------------------------------------------------------------------------------------------------------------------------------
 
 Context managers can do all of that!
 
@@ -393,7 +414,8 @@ Context managers can do all of that!
 
 You can translate all of that to Hissp.
 
-   How?
+How?
+----
 
 Like this
 
@@ -426,9 +448,8 @@ Like this
    (bad_idea "spam") ; unsupported operand type(s) for /: 'int' and 'str'
    (bad_idea 1) ; 1.0
 
-..
-
-   That is *so* much harder than a ``try`` statement.
+That is *so* much harder than a ``try`` statement.
+--------------------------------------------------
 
 The definition of the context manager is, sure. but it's not THAT hard.
 And you only have to do that part once. Using the decorator once you
@@ -437,9 +458,8 @@ have it is really not that bad.
 Or, to make things easy, use ``exec()`` to compile a ``try`` with
 callbacks.
 
-   Isn't this slow?! You can't get away with calling this an
-   "exceptional case" this time. The happy path would still require
-   compiling an exec() string!
+Isn't this slow?! You can't get away with calling this an "exceptional case" this time. The happy path would still require compiling an exec() string!
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Not if you define it as a function in advance. Then it only happens once
 on module import. Something like,
@@ -462,7 +482,8 @@ Or just use Drython. Hebigo also implements one. If Hebigo is installed,
 you can import and use Hebigo's macros, even in Lissp, because they also
 take and return Hissp.
 
-   Isn't Hissp slower than Python? Isn't Python slow enough already?
+Isn't Hissp slower than Python? Isn't Python slow enough already?
+-----------------------------------------------------------------
 
 "Slow" usually only matters if it's in a bottleneck. Hissp will often be
 slower than Python because it compiles to a functional subset of Python
@@ -474,13 +495,14 @@ Early optimization is the root of all evil. As always don't fix it until
 it matters, then profile to find the bottleneck and fix only that part.
 You can always re-write that part in Python (or C).
 
-   Yield?
+Yield?
+------
 
 We've got itertools. Compose iterators functional-style. You don't need
 yield.
 
-   But I need it for co-routines. Or async/await stuff. How do I accept
-   a send?
+But I need it for co-routines. Or async/await stuff. How do I accept a send?
+----------------------------------------------------------------------------
 
 Make a ``collections.abc..Geneartor`` subclass with a ``send()`` method.
 
@@ -490,14 +512,16 @@ Generator-based coroutines have been deprecated. Don't implement them
 with generators anymore. Note there are ``collections.abc..Awaitable``
 and ``collections.abc..Coroutine`` abstract base classes too.
 
-   How do I add a docstring to a module/class/function?
+How do I add a docstring to a module/class/function?
+----------------------------------------------------
 
 Assign a string to the ``__doc__`` attribute of the class or function
 object. That key in the dict argument to ``type()`` also works. For a
 module, ``__doc__`` works (make a ``__doc__`` global) but you should
 just use a string at the top, same as Python.
 
-   The REPL is nice and all, but how do I run a ``.lissp`` module?
+The REPL is nice and all, but how do I run a ``.lissp`` module?
+---------------------------------------------------------------
 
 You can use ``hissp`` to launch a ``.lissp`` file as the main module
 directly.
@@ -538,17 +562,19 @@ the changed files like Python does, because macros run at compile time.
 Changing a macro in one file normally doesn't affect the code that uses
 it in other files until they are recompiled.
 
-   How do I import things?
+How do I import things?
+-----------------------
 
 Just use a qualified symbol. You don't need imports.
 
-   But it's in a deeply nested package with a long name. It's tedious!
+But it's in a deeply nested package with a long name. It's tedious!
+-------------------------------------------------------------------
 
 So assign it to a global. Just don't do this in the macroexpansions
 where it might end up in another module.
 
-   But I need the module object itself! The package ``__init__.py``
-   doesn't import it or it's not in a package.
+But I need the module object itself! The package ``__init__.py`` doesn't import it or it's not in a package.
+------------------------------------------------------------------------------------------------------------
 
 Use ``importlib..import_module``.
 
@@ -560,16 +586,16 @@ Use ``importlib..import_module``.
    ...   'collections.abc')
    <module 'collections.abc' from ...>
 
-..
-
-   How do I import a macro?
+How do I import a macro?
+------------------------
 
 The same way you import anything else. Put it in the ``_macro_``
 namespace if you want it to be an active module-local macro. The
 compiler doesn't care how it gets there, but there's a nice
 ``hissp.basic.._macro_.from-require`` macro if you want to use that.
 
-   How do I write a macro?
+How do I write a macro?
+-----------------------
 
 Make a function that accepts the syntax you want as parameters and
 returns its transformation as Hissp code (the template reader syntax
@@ -593,14 +619,14 @@ Some tips:
 
 -  Use gensyms (``$#spam``) to avoid accidental capture of identifiers.
 
-..
-
-   How do I write a reader macro?
+How do I write a reader macro?
+------------------------------
 
 Make a function that accepts the syntax you want as its parameter and
 returns its transformation as Hissp code.
 
-   Why the weird prompts at the REPL?
+Why the weird prompts at the REPL?
+----------------------------------
 
 The REPL is designed so that you can copy/paste it into doctests or
 Jupyter notebook cells running an IPython kernel and it should just
@@ -609,7 +635,8 @@ makes it look like a Python comment, and it's already set up to ignore
 the initial ``>>>``/``...``. But doctest expects these, because that's
 what the Python shell looks like.
 
-   How do I add a shebang line?
+How do I add a shebang line?
+----------------------------
 
 Same as for any executable text file, use a line starting with ``#!``
 followed by a command to run hissp. (E.g. ``/usr/bin/env hissp``) The
@@ -617,17 +644,20 @@ transpiler will ignore it if it's the first line. If you set the
 executable bit, like ``chmod foo.lissp +x``, then you can run the file
 directly.
 
-   I mean how do I add a shebang line to the compiled file?
+I mean how do I add a shebang line to the compiled file?
+--------------------------------------------------------
 
 A text editor works. It's just a Python file.
 
-   I don't want to have to do that manually every time I recompile!
+I don't want to have to do that manually every time I recompile!
+----------------------------------------------------------------
 
 You can use the ``.#`` reader macro to inject arbitrary text in the
 compiled output. Use e.g. ``.#"#/usr/bin/env python"`` as the first
 compiled line.
 
-   Is Hissp stable?
+Is Hissp stable?
+----------------
 
 Not exactly. This project is still pretty new. The compiler seems pretty
 settled. (It's stable enough for Hebigo.) But the basic macros aren't
