@@ -16,7 +16,7 @@
               cascade
               if-else
               cond
-              forany
+              any-for
               &&
               ||
               progn
@@ -138,10 +138,10 @@
         () (.append xs :oops))
       (.assertEqual self xs (enlist () 1 2 3 4))))
 
-  test_forany
+  test_any-for
   (lambda (self)
     (let (xs [])
-      (forany i (range 1 10)
+      (any-for i (range 1 10)
         (.append xs i)
         (operator..not_ (operator..mod i 7)))
       (.assertEqual self xs (enlist 1 2 3 4 5 6 7))))

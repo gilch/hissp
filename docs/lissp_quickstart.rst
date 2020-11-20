@@ -1,6 +1,8 @@
 .. Copyright 2020 Matthew Egan Odendahl
    SPDX-License-Identifier: Apache-2.0
 
+.. TODO: sybil tests? ;: ;>>>
+
 Lissp Quick Start
 =================
 
@@ -509,6 +511,8 @@ Lissp Quick Start
 
    ;;; linked-list emulation
 
+   ;; These really could be functions, but their expansion is small.
+
    (car "abcd")                           ;'a'
    (cdr "abcd")                           ;'bcd'
    (cadr "abcd")                          ;'b'
@@ -518,7 +522,9 @@ Lissp Quick Start
 
    ;;; control flow
 
-   (forany x (range 1 11)                 ;imperative loop with break
+   ;; Hissp has no control flow, but you can build them with macros.
+
+   (any-for x (range 1 11)                 ;imperative loop with break
      (print x : end " ")
      (operator..not_ (operator..mod x 7)))
    ;; 1 2 3 4 5 6 7 True
@@ -556,3 +562,5 @@ Lissp Quick Start
    ;; 1
    ;; 2
    ;; 3
+
+.. TODO: nested templates? Show macro not working on injection?
