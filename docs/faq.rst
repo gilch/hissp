@@ -115,7 +115,7 @@ then you're metaprogramming with strings instead of AST. You're giving
 up a lot of Hissp's power. But optimizing complex formulas is maybe one
 of the few times it's OK to do that.
 
-Recall the ``.#`` reader macro executes a form and embeds its result
+Recall the inject ``.#`` reader macro executes a form and embeds its result
 into the Hissp.
 
 .. code:: python
@@ -178,15 +178,22 @@ But there's no ``macroexpand``. How do I look at expansions?
 ------------------------------------------------------------
 
 Invoke the macro indirectly somehow so the compiler sees it as a normal
-function. ``((getattr hissp.basic.._macro_ "define") 'foo '"bar")`` One
-could, of course, write a function or macro to automate this.
+function.
+
+.. code:: Lissp
+
+   ((getattr hissp.basic.._macro_ "define") 'foo '"bar")``
+
+One could, of course, write a function or macro to automate this.
 
 You can also use the method call syntax for this purpose, which is never
 interpreted as a macro invocation. This syntax isn't restricted solely
 to methods on objects. Due to certain regularities in Python syntax, it
 also works on callable attributes in any kind of namespace.
 
-``(.define hissp.basic.._macro_ : :* '(foo "bar"))``
+.. code:: Lissp
+
+   (.define hissp.basic.._macro_ : :* '(foo "bar"))
 
 But you can also just look at the compiled Python output. It's indented,
 so it's not that hard to read. The compiler also helpfully includes a
@@ -298,7 +305,9 @@ Use ``tuple()``.
 But I have to already have an iterable, which is why I wanted a tuple in the first place!
 -----------------------------------------------------------------------------------------
 
-``lambda *a:a``
+.. code:: Python
+
+   lambda *a: a
 
 You can also make an empty list with ``[]`` or ``(list)``, and then
 ``.append`` to it. (Try the ``cascade`` macro.) Finally, the template
