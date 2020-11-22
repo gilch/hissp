@@ -70,6 +70,7 @@ and judicious use can improve performance and maintainability.
              (quote ,name)
              ,macro)))
 (setattr _macro_.require-as '__doc__ "
+requrie-as
 Require a macro callable as an unqualified name.
 
 Adds the macro to the current module's _macro_ space under the specified
@@ -158,7 +159,8 @@ but many macros still require this kind of recursive list processing.
                       ,value))
 
 (defmacro if-else (test then otherwise)
-  "Basic ternary branching construct.
+  "if-else
+  Basic ternary branching construct.
 
   Like Python's conditional expressions, the else-clause is required.
   "
@@ -205,7 +207,7 @@ declaration.
 ;; TODO: `[$#X] bug
 
 (defmacro any-for (item iterable : :* body)
-  "Evaluate body for each item in iterable until any result is true."
+  "any-for Evaluate body for each item in iterable until any result is true."
   `(any (map (lambda (,item)
                ,@body)
              ,iterable)))
@@ -213,7 +215,7 @@ declaration.
 ;; I would have named this 'and, but that's a reserved word.
 (defmacro && ())  ; Forward declaration because && is recursive.
 (defmacro && (: :* exprs)
-  "Like Python's ``and`` operator, but for any number of arguments."
+  "&& 'and'. Like Python's ``and`` operator, but for any number of arguments."
   (cond (operator..not_ exprs) True
         (operator..eq 1 (len exprs)) (car exprs)
         :else `(let ($#G ,(car exprs))
@@ -223,7 +225,7 @@ declaration.
 
 (defmacro || ())  ; Forward declaration because || is recursive.
 (defmacro || (: first () :* rest)
-  "Like Python's ``or`` operator, but for any number of arguments."
+  "|| 'or'. Like Python's ``or`` operator, but for any number of arguments."
   (if-else rest
            `(let ($#first ,first)
               (if-else $#first
@@ -248,7 +250,8 @@ declaration.
      $#value1))
 
 (defmacro from-require (: :* package+macros)
-  "Adds macros for the current module from ``package``
+  "from-require
+  Adds macros for the current module from ``package``
 
    For example::
 
@@ -312,7 +315,7 @@ declaration.
 
 (defmacro -> ())
 (defmacro -> (expr : :* forms)
-  "Thread-first.
+  "-> 'Thread-first'.
   Converts a pipeline to function calls by recursively threading it as the first argument of the next form.
   E.g. ``(-> x (A b) (C d e))`` is ``(C (A x b) d e)``
   Makes chained method calls easier to read.
@@ -324,7 +327,7 @@ declaration.
 
 (defmacro ->> ())
 (defmacro ->> (expr : :* forms)
-  "Thread-last.
+  "->> 'Thread-last'.
   Converts a pipeline to function calls by recursively threading it as the last argument of the next form.
   E.g. ``(->> x (A b) (C d e))`` is ``(C d e (A b x))``.
   Can replace partial application in some cases.
