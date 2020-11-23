@@ -388,9 +388,9 @@ class Compiler:
 
     @_trace
     def symbol(self, symbol: str) -> str:
-        if re.search(r"^\.\.|[ ()]", symbol):  # Python injection?
+        if re.search(r"^\.\.|[ ()]", symbol):  # Ellipsis? Python injection?
             return symbol
-        if ".." in symbol:
+        if ".." in symbol:  # Qualified identifier?
             parts = symbol.split("..", 1)
             if parts[0] == self.qualname:  # This module. No import required.
                 chain = parts[1].split(".", 1)
@@ -400,7 +400,7 @@ class Compiler:
             return "__import__({0!r}{fromlist}).{1}".format(
                 parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
             )
-        elif symbol.endswith('.'):
+        elif symbol.endswith('.'):  # Module identifier?
             return f"__import__('importlib').import_module({symbol[:-1]!r})"
         return symbol
 
