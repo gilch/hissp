@@ -1,6 +1,13 @@
 # Copyright 2019, 2020 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
+"""
+The Hissp data language compiler and associated helper functions.
+
+Includes the special context variable NS,
+which macros can use to get their expansion context.
+"""
+
 import ast
 import pickle
 import pickletools
@@ -54,6 +61,8 @@ class PostCompileWarning(Warning):
 class Compiler:
     """
     The Hissp compiler.
+
+    Translates the Hissp data language into a functional subset of Python.
     """
 
     def __init__(self, qualname="__main__", ns=..., evaluate=True):
@@ -417,5 +426,10 @@ def pairs(it: Iterable[T]) -> Iterable[Tuple[T, T]]:
 
 
 def readerless(form, ns=None):
+    """Compile a Hissp form to Python without evaluating it.
+    Uses the current NS for context, unless an alternative is provided.
+    (Creates a temporary namespace if neither is available.)
+    Returns the Python as a string.
+    """
     ns = ns or NS.get() or {"__name__": "__main__"}
     return Compiler(evaluate=False, ns=ns).compile([form])
