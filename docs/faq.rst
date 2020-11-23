@@ -585,15 +585,26 @@ where it might end up in another module.
 But I need the module object itself! The package ``__init__.py`` doesn't import it or it's not in a package.
 ------------------------------------------------------------------------------------------------------------
 
-Use ``importlib..import_module``.
+A module name that ends with a dot will do it for you.
 
 .. code:: python
 
-   #> (importlib..import_module 'collections.abc)
+   #> collections.abc.
    #..
-   >>> __import__('importlib').import_module(
-   ...   'collections.abc')
-   <module 'collections.abc' from ...>
+   >>> __import__('collections.abc',fromlist='?')
+   <module 'collections.abc' from  ...>
+
+But I want a relative import.
+-----------------------------
+
+Qualified identifiers have to use absolute imports to be reliable in macroexpansions.
+
+But you can still import things the same way Python does.
+
+- ``importlib..import_module``
+- ``exec()`` an ``import`` or a ``from`` ``import`` statement.
+- The inject macro ``.#`` works on statements if it's at the top level.
+
 
 How do I import a macro?
 ------------------------

@@ -209,12 +209,12 @@ class Parser:
                 yield ":?", form
 
     def qualify(self, symbol: str) -> str:
-        if symbol in {e for e in dir(builtins) if not e.startswith("_")}:
-            return f"builtins..{symbol}"
-        if re.search(r"\.\.|^\.|^quote$|^lambda$|xAUTO\d+_$", symbol):
-            return symbol
+        if re.search(r"^\.|\.$|^quote$|^lambda$|^__import__$|xAUTO\d+_$|\.\.", symbol):
+            return symbol  # Not qualifiable.
         if symbol in vars(self.ns.get("_macro_", lambda: ())):
             return f"{self.qualname}.._macro_.{symbol}"
+        if symbol in dir(builtins) and symbol not in self.ns:
+            return f"builtins..{symbol}"  # Globals shadow builtins.
         return f"{self.qualname}..{symbol}"
 
     def reads(self, code: str) -> Iterable:
