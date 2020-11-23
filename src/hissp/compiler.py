@@ -278,7 +278,8 @@ class Compiler:
     def parameters(self, parameters: Iterable) -> Iterable[str]:
         parameters = iter(parameters)
         yield from (
-            "/" if a == ":/" else a for a in takewhile(lambda a: a != ":", parameters)
+            {":/": "/", ":*": "*"}.get(a, a)
+            for a in takewhile(lambda a: a != ":", parameters)
         )
         for k, v in _pairs(parameters):
             if k == ":*":
