@@ -390,6 +390,8 @@ class Compiler:
             return "__import__({0!r}{fromlist}).{1}".format(
                 parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
             )
+        elif symbol.endswith('.'):
+            return f"__import__('importlib').import_module({symbol[:-1]!r})"
         return symbol
 
     @contextmanager
