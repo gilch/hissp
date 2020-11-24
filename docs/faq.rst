@@ -67,6 +67,51 @@ functions.
 That's really verbose though.
 -----------------------------
 
+Hmm, is this better?
+
+
+.. sidebar:: Star imports are generally bad, but
+
+   I daresay ``from operator import *`` would be even less verbose.
+   It's usually not worth it.
+   But sometimes it is.
+   Use responsibly.
+
+.. code:: python
+
+   #> .#"import operator as op"
+   #..
+   >>> import operator as op
+
+   #> (op.add 1 1)
+   #..
+   >>> op.add(
+   ...   (1),
+   ...   (1))
+   2
+
+The result is a bit less desirable in templates.
+But it's not technically wrong.
+
+.. code:: python
+
+   #> `op.add
+   >>> '__main__..op.add'
+   '__main__..op.add'
+
+And you can still qualify it yourself instead of letting the reader do it for you:
+
+.. code:: python
+
+   #> `operator..add
+   >>> 'operator..add'
+   'operator..add'
+
+
+
+Yeah, that's better, but in Python, it's just ``+``.
+----------------------------------------------------
+
 You can, of course, abbreviate these.
 
 .. code:: python
@@ -89,6 +134,63 @@ You can, of course, abbreviate these.
 Yes, ``+`` is a valid symbol. It gets munged to ``xPLUS_``. The result
 is all of the operators you might want, using the same prefix notation
 used by all the calls.
+
+You can even upgrade these to use a reduce so they're multiary like other Lisps:
+
+.. code:: python
+
+   #> (define +
+   #..  (lambda (: :* args)
+   #..    (functools..reduce operator..add args)))
+   #..
+   >>> # define
+   ... __import__('operator').setitem(
+   ...   __import__('builtins').globals(),
+   ...   'xPLUS_',
+   ...   (lambda *args:
+   ...     __import__('functools').reduce(
+   ...       __import__('operator').add,
+   ...       args)))
+
+   #> (+ 1 2 3)
+   #..
+   >>> xPLUS_(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   6
+
+You mean I have to do this one by one for each operator every time?
+-------------------------------------------------------------------
+
+Write it once,
+then you just import it.
+That's called a "library".
+And no, you don't copy/paste the implementation.
+That would violate the DRY principle.
+Implement it once and map the names.
+
+Why isn't that in the Hissp library already?
+--------------------------------------------
+
+It **is** in the library already!
+It's called ``operator``.
+
+Hissp is a modular system.
+Hissp's output is *guaranteed* to have no dependencies you don't introduce yourself.
+That means Hissp's standard library *is Python's*.
+All I can add to that without breaking that rule is some basic macros that have no dependencies
+in their expansions,
+which is arguably not the right way to write macros.
+So I really don't want that collection to get bloated.
+But I needed a minimal set to test and demonstrate Hissp.
+A larger application with better alternatives should probably not be using the basic macros at all.
+
+If you don't like Python's version,
+then add a dependency to something else.
+If some open-source Hissp libraries pop up,
+I'd be happy to recommend the good ones in Hissp's documentation,
+but they will remain separate packages.
 
 I want infix notation!
 ----------------------
@@ -579,8 +681,8 @@ Just use a qualified symbol. You don't need imports.
 But it's in a deeply nested package with a long name. It's tedious!
 -------------------------------------------------------------------
 
-So assign it to a global. Just don't do this in the macroexpansions
-where it might end up in another module.
+So assign it to a global.
+But be aware of the effects that has on qualification in templates.
 
 But I need the module object itself! The package ``__init__.py`` doesn't import it or it's not in a package.
 ------------------------------------------------------------------------------------------------------------
@@ -592,7 +694,7 @@ A module name that ends with a dot will do it for you.
    #> collections.abc.
    #..
    >>> __import__('collections.abc',fromlist='?')
-   <module 'collections.abc' from  ...>
+   <module 'collections.abc' from '...abc.py'>
 
 But I want a relative import.
 -----------------------------
