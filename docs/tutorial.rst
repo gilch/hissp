@@ -438,7 +438,11 @@ Qualified Identifiers
 You can refer to variables defined in any module by using a
 *qualified identifier*::
 
-    #> (operator..add 40 2)
+    #> operator.  ; Module identifiers end in a dot and automatically import.
+    >>> __import__('operator')
+    <module 'operator' from '...operator.py'>
+
+    #> (operator..add 40 2)  ; Qualified identifiers include their module.
     #..
     >>> __import__('operator').add(
     ...   (40),
