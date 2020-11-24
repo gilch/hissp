@@ -31,7 +31,7 @@ To understand code at all, in any programming language,
 you must have an understanding of how to *parse* it, mentally.
 
 Python itself has an AST representation used by its compiler
-(the :obj:`ast` module)
+(the `ast` module)
 which is accessible to Python programs,
 but because it represents all of the possible Python syntax,
 which is considerable, it difficult to use effectively for metaprogramming.
@@ -68,14 +68,14 @@ You can invoke the Hissp compiler directly from Python.
 >>> eval(_)('World')
 Hello World
 
-The ``readerless()`` function takes a Hissp program as input,
+The `readerless()` function takes a Hissp program as input,
 and returns its Python translation as a string.
 
 Let's break this down.
 Notice that the first element of each tuple designates its function.
 
 In the case of ``('print',('quote','Hello'),'name',)``,
-the first element represents a call to the ``print`` function.
+the first element represents a call to the `print()<print>` function.
 The remaining elements are the arguments.
 
 The interpretation of the ``lambda`` form is different.
@@ -111,7 +111,7 @@ This is metaprogramming:
 We just wrote code that writes code.
 It output Hissp code, which changes based on an input.
 
-And, in fact, this ``q`` function takes the place of a "reader macro",
+And, in fact, this ``q()`` function takes the place of a "reader macro",
 which I'll explain shortly.
 
 Let's use it.
@@ -146,6 +146,16 @@ Our ``q()`` worked, but we forgot the comma in ``('name')``.
    The parentheses only control evaluation order.
    There are some contexts where tuples don't require parentheses at all.
 
+Let's try that again.
+
+>>> readerless(
+...     ('lambda',('name',),
+...      ('print',q('Hello'),'name',),)
+... )
+"(lambda name:\n  print(\n    'Hello',\n    name))"
+
+That's better.
+
 Lissp
 =====
 
@@ -162,7 +172,7 @@ Hissp is made of data structures.
 They're ephemeral; they only live in memory.
 If Hissp is the spoken word, we need a written word.
 And to "speak" the written word back into Hissp, we need a "reader".
-Hissp comes with a ``hissp.reader`` module that interprets a lightweight
+Hissp comes with a :mod:`hissp.reader` module that interprets a lightweight
 language called *Lissp* as Hissp code.
 
 Lissp is made of text.
@@ -214,7 +224,7 @@ REPL
   The interactive shell.
 
 You can launch the REPL from Python code (which is useful for debugging,
-like :obj:`code.iteract`),
+like `code.interact`),
 But let's start it from the command line using an appropriate Python interpreter::
 
     $ python -m hissp
@@ -226,7 +236,7 @@ you can use the installed entry point script::
 
 You should see the Lissp prompt ``#>`` appear.
 
-You can quit with `(exit)` or EOF [#EOF]_, same as Python's shell.
+You can quit with ``(exit)`` or EOF [#EOF]_, same as Python's shell.
 
 The basic REPL shows the Python translation of the read Lissp
 and evaluates it.
@@ -360,7 +370,7 @@ This makes it easy to tell if an identifier contains munged characters,
 which makes demunging possible in the normal case.
 It also cannot introduce a leading underscore,
 which can have special meaning in Python.
-It might have been simpler to use the character's ``ord()``,
+It might have been simpler to use the character's `ord()<ord>`,
 but it's important that the munged symbols still be human-readable.
 
 Munging happens at *read time*, which means you can use a munged symbol both
@@ -665,7 +675,7 @@ and the reader embeds the resulting object into the output Hissp::
 This inserts an actual ``inf`` object at read time into the Hissp code.
 Since this isn't a valid literal, it has to compile to a pickle.
 You should normally try to avoid emitting pickles
-(e.g. use ``(float 'inf)`` or ``math..inf`` instead),
+(e.g. use ``(float 'inf)`` or `math..inf <math.inf>` instead),
 but note that a macro would get the original object,
 since the code hasn't been compiled yet, which may be useful.
 While unpickling does have some overhead,
@@ -841,10 +851,6 @@ You can nest these to create small, JSON-like data structures
 which can be very useful as inputs to macros,
 (especially reader macros, which can only take one argument).
 
-Tuples are different.
-Since they normally represent code,
-you must quote them to use them as data.
-
 .. sidebar:: Except for the empty tuple.
 
    You can quote it if you want, it doesn't change the result::
@@ -861,6 +867,10 @@ you must quote them to use them as data.
 
    However, macros could distinguish these cases,
    because they act before evaluation.
+
+Tuples are different.
+Since they normally represent code,
+you must quote them to use them as data.
 
 .. Caution::
    Unlike Python's data structure notation,
@@ -1028,7 +1038,7 @@ We can do better. Let's use a template::
 Not what you expected?
 
 A template quote automatically qualifies any unqualified symbols it contains
-with ``builtins`` (if applicable) or the current ``__name__``
+with `builtins` (if applicable) or the current ``__name__``
 (which is ``__main__``)::
 
     #> `int  ; Works directly on symbols too.
@@ -1164,7 +1174,7 @@ This is an example of intentional capture.
 The anaphor [#capture]_ is ``#``.
 Try doing that in Python.
 You can get pretty close with higher-order functions,
-but you can't delay the evaluation of the ``.upper()``
+but you can't delay the evaluation of the `.upper()<str.upper>`
 without a lambda,
 which really negates the whole point of creating a shorter lambda.
 
@@ -1192,7 +1202,7 @@ But you'll probably want to break a larger project up into smaller modules.
 And those must be compiled for import.
 
 The recommended way to compile a Lissp project is to put a call to
-``transpile()`` in the main module and in each ``__init__.py``—
+`transpile()` in the main module and in each ``__init__.py``—
 with the name of each top-level ``.lissp`` file,
 or ``.lissp`` file in the corresponding package,
 respectively::
@@ -1207,9 +1217,9 @@ Or equivalently in Lissp, used either at the REPL or if the main module is writt
 
 This will automatically compile each named Lissp module.
 This approach gives you fine-grained control over what gets compiled when.
-If desired, you can remove a name passed to the ``transpile()``
+If desired, you can remove a name passed to the `transpile()`
 call to stop recompiling that file.
-Then you can compile the file manually at the REPL as needed using ``transpile()``.
+Then you can compile the file manually at the REPL as needed using `transpile()`.
 
 Note that you usually *would* want to recompile the whole project
 rather than only the changed files on import like Python does for ``.pyc`` files,

@@ -273,18 +273,19 @@ and you'll see they don't use assignment statements either.
 See also ``builtins..setattr`` and ``operator..setitem``.
 
 Also, Python 3.8 added assignment expressions. Those are expressions. A
-macro could expand to a string containing ``:=``, but as with
-text-substitution macros generally, this approach is not recommended.
+macro could expand to a string containing the walrus ``:=``,
+but as with text-substitution macros generally,
+this approach is not recommended.
 
 But there's no ``macroexpand``. How do I look at expansions?
 ------------------------------------------------------------
 
-Invoke the macro indirectly somehow so the compiler sees it as a normal
-function.
+Invoke the macro indirectly somehow so the compiler sees it as a normal function,
+and pass all arguments quoted.
 
 .. code:: Lissp
 
-   ((getattr hissp.basic.._macro_ "define") 'foo '"bar")``
+   ((getattr hissp.basic.._macro_ "define") 'foo '"bar")
 
 One could, of course, write a function or macro to automate this.
 
@@ -332,7 +333,9 @@ acts like ``break`` in ``any()``. Obviously, you can use this to your
 advantage if you *want* a break, which seems to happen pretty often when
 writing imperative loops.
 
-See also ``itertools``, ``builtins..iter``.
+If you like, there's a `hissp.basic.._macro_.any-for<anyxH_for>` that basically does this.
+
+See also `itertools`, `iter`.
 
 There's no ``if`` statement. Branching is fundamental!
 ------------------------------------------------------
@@ -342,6 +345,8 @@ looping zero or one times like skipping a branch or not? Note that
 ``False`` and ``True`` are special cases of ``0`` and ``1`` in Python.
 ``range(False)`` would loop zero times, but ``range(True)`` loops one
 time.
+
+See also `hissp.basic._macro_.when`.
 
 What about if/else ternary expressions?
 ---------------------------------------
@@ -354,7 +359,7 @@ What about if/else ternary expressions?
        lambda: print('no'),
    )
 
-There's a ``hissp.basic.._macro_.if-else`` macro that basically expands
+There's a `hissp.basic.._macro_.if-else<ifxH_else>` macro that basically expands
 to this. I know it's a special form in other Lisps (or ``cond`` is), but
 Hissp doesn't need it. Smalltalk pretty much does it this way. Once you
 have ``if`` you can make a ``cond``. Lisps actually differ on which is
@@ -394,7 +399,7 @@ Does Hissp have tail-call optimization?
 No, because CPython doesn't. If a Python implementation has it, Hissp
 will too, when run on that implementation.
 
-You can increase the recursion limit with ``sys..setrecursionlimit``.
+You can increase the recursion limit with `sys.setrecursionlimit`.
 Better not increase it too much if you don't like segfaults, but you can
 trampoline instead. See Drython's ``loop()`` function. Or use it. Or
 Hebigo's equivalent macro. Clojure does it about the same way.
@@ -402,7 +407,7 @@ Hebigo's equivalent macro. Clojure does it about the same way.
 How do I make a tuple?
 ----------------------
 
-Use ``tuple()``.
+Use `tuple()`.
 
 But I have to already have an iterable, which is why I wanted a tuple in the first place!
 -----------------------------------------------------------------------------------------
@@ -412,14 +417,14 @@ But I have to already have an iterable, which is why I wanted a tuple in the fir
    lambda *a: a
 
 You can also make an empty list with ``[]`` or ``(list)``, and then
-``.append`` to it. (Try the ``cascade`` macro.) Finally, the template
+``.append`` to it. (Try the `cascade` macro.) Finally, the template
 syntax :literal:`\`()` makes tuples. Unquote ``,`` calls/symbols if
 needed.
 
 How do I make a class?
 ----------------------
 
-Use ``type()``. (Or whatever metaclass.)
+Use `type()<type>`. (Or whatever metaclass.)
 
 Very funny. That just tells me what type something is.
 ------------------------------------------------------
@@ -429,7 +434,7 @@ No, seriously, you have to give it all three arguments. Look it up.
 Well now I need a dict!
 -----------------------
 
-Use ``dict()``. Obviously. You don't even need to make pairs if the keys
+Use `dict()<dict>`. Obviously. You don't even need to make pairs if the keys
 are identifiers. Just use kwargs.
 
 That seems too verbose. In Python it's easier.
@@ -442,13 +447,13 @@ magic methods to overload operators and such. But Hissp mostly doesn't
 need that since it has no operators to speak of.
 
 As always, you can write a function or macro to reduce boilerplate.
-There's actually a ``hissp.basic.._macro_.deftype`` macro for making a
+There's actually a `hissp.basic.._macro_.deftype<deftype>` macro for making a
 top-level type.
 
 I've got some weird metaclass magic from a library. ``type()`` isn't working!
 -----------------------------------------------------------------------------
 
-Try ``types..new_class`` instead.
+Try `types.new_class` instead.
 
 How do I raise exceptions?
 --------------------------
@@ -461,7 +466,7 @@ But I need a raise statement for a specific exception message.
 
 Exceptions are not good functional style. Haskell uses the Maybe monad
 instead, so you don't need them. If you must, you can still use a
-``raise`` in ``exec()``. (Or use Drython's ``Raise()``, or Hebigo's
+``raise`` in `exec()<exec>`. (Or use Drython's ``Raise()``, or Hebigo's
 equivalent macro.)
 
 Use exec? Isn't that slow?
@@ -473,12 +478,12 @@ Early optimization is the root of all evil.
 What about catching them?
 -------------------------
 
-Try not raising them in the first place? Or ``contextlib..suppress``.
+Try not raising them in the first place? Or `contextlib.suppress`.
 
 But there's no ``with`` statement either!
 -----------------------------------------
 
-Use ``contextlib..ContextDecorator`` as a mixin and any context manager
+Use `contextlib.ContextDecorator` as a mixin and any context manager
 works as a decorator. Or use Drython's ``With()``.
 
 How do I use a decorator?
@@ -490,7 +495,7 @@ its argument. Decorators are just higher-order functions.
 Any context manager? But you don't get the return value of ``__enter__()``! And what if it's not re-entrant?
 ------------------------------------------------------------------------------------------------------------
 
-``suppress`` works with these restrictions, but point taken. You can
+`suppress<contextlib.suppress>` works with these restrictions, but point taken. You can
 certainly call ``.__enter__()`` yourself, but you have to call
 ``.__exit__()`` too. Even if there was an exception.
 
@@ -566,7 +571,7 @@ The definition of the context manager is, sure. but it's not THAT hard.
 And you only have to do that part once. Using the decorator once you
 have it is really not that bad.
 
-Or, to make things easy, use ``exec()`` to compile a ``try`` with
+Or, to make things easy, use `exec()<exec>` to compile a ``try`` with
 callbacks.
 
 Isn't this slow?! You can't get away with calling this an "exceptional case" this time. The happy path would still require compiling an exec() string!
@@ -615,19 +620,19 @@ yield.
 But I need it for co-routines. Or async/await stuff. How do I accept a send?
 ----------------------------------------------------------------------------
 
-Make a ``collections.abc..Geneartor`` subclass with a ``send()`` method.
+Make a `collections.abc.Generator` subclass with a ``send()`` method.
 
 Or use Drython's ``Yield()``.
 
 Generator-based coroutines have been deprecated. Don't implement them
-with generators anymore. Note there are ``collections.abc..Awaitable``
-and ``collections.abc..Coroutine`` abstract base classes too.
+with generators anymore. Note there are `collections.abc.Awaitable`
+and `collections.abc.Coroutine` abstract base classes too.
 
 How do I add a docstring to a module/class/function?
 ----------------------------------------------------
 
 Assign a string to the ``__doc__`` attribute of the class or function
-object. That key in the dict argument to ``type()`` also works. For a
+object. That key in the dict argument to `type()<type>` also works. For a
 module, ``__doc__`` works (make a ``__doc__`` global) but you should
 just use a string at the top, same as Python.
 
@@ -703,10 +708,9 @@ Qualified identifiers have to use absolute imports to be reliable in macroexpans
 
 But you can still import things the same way Python does.
 
-- ``importlib..import_module``
-- ``exec()`` an ``import`` or a ``from`` ``import`` statement.
+- `importlib.import_module`
+- `exec()<exec>` an ``import`` or a ``from`` ``import`` statement.
 - The inject macro ``.#`` works on statements if it's at the top level.
-
 
 How do I import a macro?
 ------------------------
@@ -714,7 +718,7 @@ How do I import a macro?
 The same way you import anything else. Put it in the ``_macro_``
 namespace if you want it to be an active module-local macro. The
 compiler doesn't care how it gets there, but there's a nice
-``hissp.basic.._macro_.from-require`` macro if you want to use that.
+`hissp.basic.._macro_.from-require<fromxH_require>` macro if you want to use that.
 
 How do I write a macro?
 -----------------------
@@ -722,7 +726,7 @@ How do I write a macro?
 Make a function that accepts the syntax you want as parameters and
 returns its transformation as Hissp code (the template reader syntax
 makes this easy). Put it in the ``_macro_`` namespace. There's a nice
-``hissp.basic.._macro_.defmacro`` to do this for you. It will even
+`hissp.basic.._macro_.defmacro<defmacro>` to do this for you. It will even
 create the namespace if it doesn't exist yet.
 
 Some tips:

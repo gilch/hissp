@@ -26,7 +26,7 @@ It's true.
 Don't Count the Brackets
 ========================
 
-It is impossible for the human to comprehend the code of a nontrival program in totality;
+It is impossible for the human to comprehend the code of a nontrivial program in totality;
 working memory is too small.
 We handle complexity by chunking it into hierarchies of labeled black boxes within boxes within boxes.
 Mental recursive trees.
@@ -94,6 +94,7 @@ Just kidding!
 This doesn't really compile because the parentheses are not balanced.
 You didn't notice, did you?
 You didn't count them.
+I left one off to prove a point:
 The bracket trails are there for the computer, not the human.
 It's much easier to program a parser to read brackets than indentation.
 
@@ -103,7 +104,7 @@ instead of via a parallel language written with brackets,
 is one of the things that Python got right.
 With a bracketed language,
 on the other hand,
-These two delimiters can get out of sync,
+these two delimiters can get out of sync,
 and the human and computer no longer agree on the meaning of the code.
 
 To some extent, this is a criticism that applies to any language with bracketed code blocks,
@@ -123,6 +124,7 @@ editor support for Lisp is really very good.
 Emacs can do it, but it's got a bit of a learning curve.
 For a beginner, try installing Parinfer in a supported editor, like Atom.
 If you get the indent right, Parinfer will manage the trails for you.
+Parinfer makes editing Lisp feel more like editing Python.
 
 Lisp style guides are hard to find online,
 because most Lispers will simply tell you to let Emacs handle it.
@@ -260,7 +262,7 @@ Even after deleting the trails, you can tell where the ``x`` belongs.
          x
 
 The rule is to pass the parent *bracket*.
-You might not pass the head *symbol* in some alignment styles.
+You might not pass the head *atom* in some alignment styles.
 
 .. code:: Lissp
 
@@ -279,6 +281,23 @@ We can still unambiguously reconstruct the trails from the indent.
 
    (foo (bar y
           body
+
+Note that a multiline string is still an atom.
+
+::
+
+   (foo "abc
+     xyz")
+
+We can still unambiguously reconstruct the trail.
+
+::
+
+   (foo "abc
+     xyz"
+
+Note that the ``"`` is not a bracket,
+so we don't delete it or ignore it.
 
 
 Alignment Styles
@@ -384,7 +403,7 @@ Your code should look like these examples:
      body)
 
    ;; Parameter groups are separated by lines. Pairs are separated by extra space.
-   (lambda (a b :/                        ;positional only group
+   (lambda (a b :/                        ;positional-only group
             c d                           ;normal group
             : e 1  f 2                    ;colon group
             :* args  h 4  i :?  j 1       ;star group
@@ -440,7 +459,9 @@ The End of the Line
 ===================
 
 Any closing bracket should also end the line.
-It's OK to have single ``)``'s inside the line
+That's what lets us indent and see the tree structure clearly.
+It's OK to have single ``)``'s inside the line,
+but don't overdo it.
 
 .. code:: Lissp
 
@@ -451,7 +472,7 @@ It's OK to have single ``)``'s inside the line
      (print "Bye" x))
 
 Implied groups should be kept together.
-Closing brackets inside a pair can happen in ``cond``,
+Closing brackets inside a pair can happen in `cond`,
 for example.
 
 .. code:: Lissp
