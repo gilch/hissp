@@ -62,7 +62,7 @@ Lissp Quick Start
 
    ;;;; Singleton
 
-   ;; Also the same as Python.
+   ;; The singleton literals are also the same as Python.
 
    None
    ...                                    ;Ellipsis
@@ -71,14 +71,15 @@ Lissp Quick Start
 
    ;; Symbolic literals are not quite like Python.
 
-   object                                 ;identifier
-   ;; Qualified identifiers do an import.
-   math..tau                              ;Hissp has full access to Python libraries.
-
-   builtins..object                       ;qualified identifier
-   object.__class__                       ;attribute identifier
-   builtins..object.__class__             ;qualified attribute identifier
+   ;; Hissp has full access to Python libraries.
+   object                                 ;Normal identifier.
+   object.__class__                       ;Attribute identifier. Same as Python so far.
+   math.                                  ;Module identifier. Imports it! Ends in a dot.
+   math..tau                              ;Qualified identifier. Attribute of a module.
+   collections.abc.                       ;Submodule identifier. Has package name.
+   builtins..object.__class__             ;Qualified attribute identifier.
    object.__class__.__name__              ;Attributes chain.
+   collections.abc..Sequence.__class__.__name__ ;All together now.
 
    :control-word                          ;Similar to ":keywords" in other Lisps.
 
@@ -132,6 +133,10 @@ Lissp Quick Start
 
    ;; The ``self`` is the first argument to method calls.
    (.upper "shout!")                      ;"SHOUT!"
+   ;; Method call syntax, but not technically a method.
+   (.float builtins. 'inf)
+   ;; Same effect as above.
+   (builtins..float 'inf)
 
    ;; Macros can rewrite code before evaluation.
    (-> "world!" (.title) (->> (print "Hello")))
@@ -146,19 +151,45 @@ Lissp Quick Start
    ;;;; Lambda
 
    ;; Lambda invocations create functions.
-   (lambda (x) x)
+   (lambda ())                            ;Empty parameters, empty body.
 
-   ;; They support the same argument types as Python.
-   (lambda (a b :/                        ;positional only
-            c d                           ;positional
-            : e 1  f 2                    ;default
-            :* args  h 4  i :?  j 1       ;kwonly
-            :** kwargs)                   ;arguments tuple
+   ;; Lambdas support the same parameter types as Python, which are rather involved.
+   ;; Familiarity with Python is assumed here.
+
+   ;; Parameters are always paired, but the :? means "empty".
+   (lambda (: a :?  b :? :/               ;positional only
+            c :?  d :?                    ;normal
+            e 1  f 2                      ;default
+            :* args  h 4  i :?  j 1       ;star args, key word
+            :** kwargs)
      ;; body
-     (print "hi" a)                       ;side effects
+     (print (locals))                     ;side effects
      b)                                   ;last value is returned
 
-   (lambda (: :* :? kwonly-no-starargs "default")) ; Empty body returns ().
+   ;; The "empty", :?, is implied for each pair before the :.
+   ;; Watch as we shift the : over.
+   (lambda (: :* :?  kwonly :?))          ;Keyword-only parameter.
+   (lambda (:* : kwonly :?))              ;The : implies no star args.
+   (lambda (:* kwonly :))                 ;The : now also implies no default.
+   (lambda (:* kwonly))                   ;You don't need the : if there's nothing after it,
+
+   (lambda (:* a))                        ;Not a star args! This is a kwonly!
+   (lambda (: :* a))                      ;A star args has to pair with the star, just like Python.
+
+   (lambda (a b : x None  y None))        ;Normal, and then with defaults.
+   (lambda (:* a b : x None  y None))     ;Keyword, and then with defaults.
+
+   ;; In the rare case you want to use a reserved control word as a default, quote it.
+   (lambda (: a ':?))
+   (lambda (: a ":?"))                    ;This also works because control words compile to strings.
+
+   ;; Some of these are abuse. But this kind of flexibility can make macros easier.
+   (lambda (:))                           ;The : is still allowed.
+   (lambda :)                             ;Thunk idiom.
+   (lambda :x1)                           ;Control words are strings are iterable.
+   (lambda b"")                           ; Parameters are not strictly required to be a tuple.
+   (lambda x)
+   (lambda abc)                           ;Three parameters.
 
    ;;;; Operators
 
