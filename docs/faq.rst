@@ -69,7 +69,6 @@ That's really verbose though.
 
 Hmm, is this better?
 
-
 .. sidebar:: Star imports are generally bad, but
 
    I daresay ``from operator import *`` would be even less verbose.
@@ -106,8 +105,6 @@ And you can still qualify it yourself instead of letting the reader do it for yo
    #> `operator..add
    >>> 'operator..add'
    'operator..add'
-
-
 
 Yeah, that's better, but in Python, it's just ``+``.
 ----------------------------------------------------

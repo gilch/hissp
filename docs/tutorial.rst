@@ -45,7 +45,6 @@ programmatically.
 In Hissp, you write in this parsed form far more directly:
 *Hissp code is AST.*
 
-
 Hello World
 ===========
 
@@ -307,7 +306,6 @@ indicating that it was read from a double-quoted string literal,
 rather than a symbol.
 Metadata has no effect on how a ``quote`` form is compiled,
 but may be used macros and reader macros.
-
 
 Symbols
 #######
@@ -657,7 +655,6 @@ function name starts with a dot::
     ...   errors='ignore')
     'foo'
 
-
 Reader Macros
 =============
 
@@ -695,7 +692,6 @@ inject ``.#`` macro, which evaluates a form at read time::
     ... )
     Fraction(1, 2)
 
-
 And can inject arbitrary text into the compiled output::
 
     #> .#"{(1, 2): \"\"\"buckle my shoe\"\"\"}  # This is Python!"
@@ -724,7 +720,6 @@ It's a way to comment out code structurally::
     ...   (1),
     ...   (3))
     1 3
-
 
 Templates
 ---------
@@ -801,7 +796,6 @@ If you quote an example, you can see that intermediate step::
     ...  ':?',
     ...  ('opearator..mul', 2, 3))
     (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':?', ':a', ':*', ('quote', 'bcd', {':str': True}), ':?', ('opearator..mul', 2, 3))
-
 
 Templates are Lissp syntactic sugar based on what Hissp already has.
 
@@ -935,8 +929,6 @@ You can also use the unpacking control words in these::
     ...   [1, 2, 3],
     ...   'zed'.title())
     ['A', 'B', 'C', [1, 2, 3], 'Zed']
-
-
 
 Macros
 ======
@@ -1243,4 +1235,3 @@ the compiled output may be different due to an updated macro in another file.
 
 .. [#capture] When symbol capture is done on purpose, these are known as *anaphoric macros*.
    (When it's done on accident, these are known as *bugs*.)
-

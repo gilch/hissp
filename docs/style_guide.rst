@@ -299,7 +299,6 @@ We can still unambiguously reconstruct the trail.
 Note that the ``"`` is not a bracket,
 so we don't delete it or ignore it.
 
-
 Alignment Styles
 ================
 
@@ -452,8 +451,6 @@ followed by the pronunciation in single quotes,
 if it's not obvious from the identifier::
 
   "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
-
-
 
 The End of the Line
 ===================
