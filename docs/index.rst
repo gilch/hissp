@@ -8,26 +8,20 @@ Welcome to Hissp's documentation!
 
 Hissp: It's Python with a Lissp.
 
-Hissp is a modular Lisp implementation that compiles to a functional subset of
-Python—syntactic macro metaprogramming with full access to the Python ecosystem.
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    lissp_quickstart
-   style_guide
    tutorial
    macro_tutorial
+   style_guide
    command_line_reference
-   modules
 
 .. toctree::
    :maxdepth: 1
 
    faq
-
-
 
 Indices and tables
 ==================
