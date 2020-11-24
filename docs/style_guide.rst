@@ -139,21 +139,24 @@ For these reasons,
 I feel the need to spell out what good indentation looks like
 well enough that you could do it by hand.
 
-The absolute rules are
+The only absolute rules are
 
-- trailing brackets come in trains
-- past the parent, not the sibling
+- don't dangle brackets
+- unambiguous indentation
 
+If you break these rules,
+Parinfer can't be used.
 Team projects with any Lissp files should be running Parlinter along with their tests
 to enforce this.
 Basic legibility is not negotiable. Use it.
 
-trailing brackets come in trains
---------------------------------
+don't dangle brackets
+---------------------
 
 Trailing brackets are something we try to ignore.
-They do not get their own line.
-That's more emphasis than they deserve.
+Trailing brackets come in trains.
+They do not get their own line;
+that's more emphasis than they deserve.
 They don't get extra spaces either.
 
 .. code:: Lissp
@@ -226,45 +229,46 @@ This is to prevent the common error of forgetting the required trailing comma fo
 If your syntax highlighter can distinguish ``(x)`` from ``(x,)``, you may be OK without it.
 But this had better be the case for the whole team.
 
-past the parent, not the sibling
---------------------------------
+unambiguous indentation
+-----------------------
 
 The indentation level indicates which tuple the next line starts in.
+Go past the parent's opening bracket, not the sibling's.
 
 .. code:: Lissp
 
-   (foo (bar y))
-   x                                      ;(foo is sibling
+   (a (b c))
+   x                                      ;(a (b c)) is sibling
 
-   (foo (bar y)
-        x)                                ;(foo is parent, (bar is sibling
+   (a (b c)
+      x)                                  ;(a is parent, (b c) is sibling
 
-   (foo (bar y
-             x))                          ;(bar is parent, y is sibling
+   (a (b c
+         x))                              ;(b is parent, c is sibling
 
 Even after deleting the trails, you can tell where the ``x`` belongs.
 
 ::
 
-   (foo (bar y
+   (a (b c
    x
 
-   (foo (bar y
-        x
+   (a (b c
+      x
 
-   (foo (bar y
-             x
+   (a (b c
+         x
 
 The rule is to pass the parent *bracket*.
 You might not pass the head *symbol* in some alignment styles.
 
 .. code:: Lissp
 
-   (foo (bar y)
-     body)                                ;(foo is parent, (bar is sibling
+   (foo (bar x)
+     body)                                ;(foo is parent, (bar x) is special sibling
 
-   (foo (bar y
-          body))                          ;(bar is parent, y is sibling
+   (foo (bar x
+          body))                          ;(bar is parent, x is special sibling
 
 We can still unambiguously reconstruct the trails from the indent.
 
@@ -281,11 +285,16 @@ Alignment Styles
 ================
 
 Keep the elements in a tuple aligned to start on the same column.
-Your code should look like the following examples:
+Treat siblings groups equally:
+If you add a line break for one group,
+then put all of its sibling groups on their own line as well.
+Keep items within implied groups (like kwargs) together.
+Control words used as labels should be grouped with what they label.
+Your code should look like these examples:
 
 .. code:: Lissp
 
-   '(data1 data2 data3)                   ;Treat all data items the same
+   '(data1 data2 data3)                   ;Treat all data items the same.
 
    '(data1                                ;Line break for one, break for all.
      data2                                ;Items start on the same column.
@@ -293,7 +302,7 @@ Your code should look like the following examples:
 
    '(                                     ;This is better for linewise version control.
      data1                                ; Probably only worth it if there's a lot more than 3.
-     data2
+     data2                                ; or it changes frequently. Use this style sparingly.
      data3
      _#_)                                 ;Trails NEVER get their own line.
                                           ; But you can hold it open with a discarded item.
@@ -321,10 +330,13 @@ Your code should look like the following examples:
    ;; One extra space between pairs.
    (function arg1 arg2 : kw1 kwarg1  kw2 kwarg2  kw3 kwarg3)
 
+   (function arg1 arg2
+             : kw1 kwarg1  kw2 kwarg2)    ;Breaking groups, not args.
+
    (function arg1
              arg2
              : kw1 kwarg1                 ;The : starts the line.
-             kw2 kwarg2)                  ;Break for all, but pairs stay together.
+             kw2 kwarg2)                  ;Break for args, but pairs stay together.
 
    (function : kw1 kwarg1                 ;The : starts the "line". Sort of.
              kw2 kwarg2)
@@ -335,11 +347,11 @@ Your code should look like the following examples:
      :
      kw1
      kwarg1
-                                          ;Extra line to separate pairs.
+                                          ;Break for everything, and extra space to separate pairs.
      kw2
      kwarg2)
 
-   (macro special1 special2 special3      ;Macros can have their own rules.
+   (macro special1 special2 special3      ;Macros can have their own alignment rules.
      body1                                ; Simpler macros may look the same as functions.
      body2                                ; Special/body is common. Lambda is also like this.
      body3)
@@ -352,6 +364,32 @@ Your code should look like the following examples:
      body1
      body2
      body3)
+
+   ;; Without any positional-only parameters, there's no need for :/ at all, so it groups left.
+   (lambda (pos1 :/
+            param1
+            param2
+            ;; Without any pairs, there's no need for : at all, so it groups right.
+            : default value1
+            default2 value2)
+     body)
+
+   ;; Same structure as above, but written with only pairs.
+   (lambda (: pos1 :?
+            :/ :?
+            param1 :?
+            param2 :?
+            default value1
+            default2 value2)
+     body)
+
+   ;; Parameter groups are separated by lines. Pairs are separated by extra space.
+   (lambda (a b :/                        ;positional only group
+            c d                           ;normal group
+            : e 1  f 2                    ;colon group
+            :* args  h 4  i :?  j 1       ;star group
+            :** kwargs)                   ;kwargs
+     body)
 
 Identifiers
 ===========
@@ -380,17 +418,22 @@ See PEP 8 for full details.
 
 ``*FOO-BAR*`` is a perfectly valid Lissp identifier,
 but it munges to ``xSTAR_FOOxH_BARxSTAR_``,
-which is awkward.
+which is awkward to use from the Python side.
 
 Even in private areas,
 let the munger do the work for you.
 Avoid writing anything in the x-quoted style yourself.
 This can confuse the demunger and cause collisions with gensyms.
 
-Any docstring for something with a munged name should start with the demunged name
+Docstrings use reStructuredText markup, like Python.
+Any docstring for something with a munged name
+should start with the demunged name in doubled backticks
 (this includes anything with a hyphen),
 followed by the pronunciation in single quotes,
-if it's not obvious from the identifier.
+if it's not obvious from the identifier::
+
+  "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
+
 
 
 The End of the Line
@@ -407,7 +450,7 @@ It's OK to have single ``)``'s inside the line
      (print "Hi" x)
      (print "Bye" x))
 
-Pairs should be kept together.
+Implied groups should be kept together.
 Closing brackets inside a pair can happen in ``cond``,
 for example.
 
@@ -420,16 +463,16 @@ for example.
            :else (print "not a number")))
 
 But a train of ``)``'s must not appear inside of a line,
+even in an implied group,
 because then we'd have to count brackets!
 If the train is trailing at the end of the line,
 then the tree structure is clear from the indents.
 How many is a train?
 When you have to count them.
 
-Breaking at two or more should be considered the default style.
+Always breaking at a train of two or more should be considered the default style.
 
-Maybe you can relax this in special cases.
-Honestly, even two or three in a row is really pushing it,
-but absolutely no more than that.
+Maybe you can relax this rule in special cases.
+But honestly, even two or three in a row is really pushing it.
 That's about the most a human can reliably count at a glance.
 Consider very seriously if a line break wouldn't be more legible there.
