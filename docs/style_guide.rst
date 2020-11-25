@@ -288,17 +288,43 @@ Note that a multiline string is still an atom.
 
 .. code-block:: Lissp
 
-   (foo "abc
-     xyz")
+   (foo (bar "abc
+   xyz"))
 
-We can still unambiguously reconstruct the trail.
+   (foo (bar)
+        "abc
+   xyz")
+
+   (foo (bar "\
+   abc
+   xyz"))
+
+   (foo (bar)
+        "\
+   abc
+   xyz")
+
+We can still unambiguously reconstruct the trails.
 
 .. code-block:: Lissp
 
-   (foo "abc
-     xyz"
+   (foo (bar "abc
+   xyz"
 
-Note that the ``"`` is not a bracket,
+   (foo (bar
+        "abc
+   xyz"
+
+   (foo (bar "\
+   abc
+   xyz"
+
+   (foo (bar
+        "\
+   abc
+   xyz"
+
+The ``"`` is not a bracket,
 so we don't delete it or ignore it.
 
 Alignment Styles
@@ -410,6 +436,51 @@ Your code should look like these examples:
             :* args  h 4  i :?  j 1       ;star group
             :** kwargs)                   ;kwargs
      body)
+
+Multiline strings can mess with alignment styles.
+Strings are atoms, so this won't affect Parinfer,
+but it can impact legibility.
+For short strings in simple forms,
+don't worry too much, but consider using ``\n``.
+
+For deeply nested multiline strings,
+use a dedent string, which can be safely indented:
+
+.. code-block:: Lissp
+
+   #> (print (.upper 'textwrap..dedent#"\
+   #..               These lines
+   #..               Don't interrupt
+   #..               the flow."))
+   #..
+   >>> print(
+   ...   "These lines\nDon't interrupt\nthe flow.".upper())
+   THESE LINES
+   DON'T INTERRUPT
+   THE FLOW.
+
+Don't forget the quote ``'``.
+
+Long multiline strings should be declared at the top level and referenced by name.
+
+.. code-block:: Lissp
+
+   (define MESSAGE "\
+   These lines
+   don't interrupt
+   the flow either.
+   But, a really long string would be
+   longer than this one.
+   ")
+
+   (deftype MessagePrinter ()
+     __doc__
+     "It is safe
+      to indent docstrings."
+     display
+     (lambda (self)
+       (print MESSAGE)))
+
 
 Identifiers
 ===========
