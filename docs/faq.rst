@@ -11,6 +11,11 @@
    ...     **vars(
    ...       __import__('hissp.basic',fromlist='?')._macro_)))
 
+.. TODO: Sphinx update messed up my sidebars! Is there a better fix?
+.. raw:: html
+
+   <style>pre, div[class|="highlight"] {clear: left;}</style>
+
 FAQ
 ===
 (Frequently Anticipated Questions (and complaints))
