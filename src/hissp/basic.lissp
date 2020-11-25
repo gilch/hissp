@@ -111,7 +111,7 @@ Creates a new macro for the current module.
       ,@body)))
 
 _#"
-Hebigo is based on tuples rather than linked lists,
+Hissp is based on tuples rather than linked lists,
 but many macros still require this kind of recursive list processing.
 "
 
