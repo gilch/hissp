@@ -6,14 +6,22 @@
 Welcome to Hissp's documentation!
 =================================
 
+*Hissp: It's Python with a Lissp.*
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   modules
+   lissp_quickstart
    tutorial
+   macro_tutorial
+   style_guide
+   command_line_reference
 
+.. toctree::
+   :maxdepth: 1
 
+   faq
 
 Indices and tables
 ==================

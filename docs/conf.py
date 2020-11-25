@@ -14,6 +14,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath("../src"))
+sys.path.append(os.path.abspath("."))
 
 # Compile hissp modules so autodoc can find them.
 from hissp.reader import transpile
@@ -22,7 +23,7 @@ transpile("hissp", "basic")
 # -- Project information -----------------------------------------------------
 
 project = "Hissp"
-copyright = "2019, Matthew Egan Odendahl"
+copyright = "2019, 2020, Matthew Egan Odendahl"
 author = "Matthew Egan Odendahl"
 
 
@@ -31,7 +32,7 @@ author = "Matthew Egan Odendahl"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.intersphinx"]
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.intersphinx", "lex"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -41,6 +42,7 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+default_role = 'any'
 
 # -- Options for HTML output -------------------------------------------------
 

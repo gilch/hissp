@@ -1,10 +1,11 @@
-# Copyright 2019 Matthew Egan Odendahl
+# Copyright 2019, 2020 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 import ast
 import builtins
 import os
 import re
+import sys
 from contextlib import contextmanager, nullcontext
 from functools import reduce
 from importlib import import_module, resources
@@ -23,21 +24,22 @@ TOKENS = re.compile(
  (?P<open>\()
 |(?P<close>\))
 |(?P<string>
-  " # Open quote.
-    (?:|[^"\\]  # Any non-magic character.
+  b?  # bytes
+  "  # Open quote.
+    (?:[^"\\]  # Any non-magic character.
        |\\(?:.|\n)  # Backslash only if paired, including with newline.
     )*  # Zero or more times.
-  " # Close quote.
+  "  # Close quote.
  )
 |(?P<comment>;.*)
-|(?P<whitespace>[\n ]+)  # Tabs are not allowed outside of strings.
+|(?P<whitespace>[\n ]+)
+|(?P<badspace>\s)  # Other whitespace not allowed.
 |(?P<macro>
    ,@
   |['`,]
-   # Ends in ``#``, but not bytes, dict, set, list, str.
-  |(?:[Bb](?!')
-     |[^ \n"(){}[\]#Bb]
-     )[^ \n"(){}[\]#]*[#])
+   # Ends in ``#``, but not dict, set, list, str.
+  |(?:[^ \n"(){}[\]#]+[#])
+ )
 |(?P<symbol>[^ \n"()]+)
 """
 )
@@ -74,10 +76,10 @@ def gensym_counter(count=[0]):
 
 class Parser:
     def __init__(
-        self, qualname="__main__", ns=None, verbose=False, evaluate=False, filename="<?>"
+        self, qualname="__main__", ns=..., verbose=False, evaluate=False, filename="<?>"
     ):
         self.qualname = qualname
-        self.ns = ns or {"__name__": qualname}
+        self.ns = {"__name__": qualname} if ns is ... else ns
         self.compiler = Compiler(self.qualname, self.ns, evaluate)
         self.verbose = verbose
         self.filename = filename
@@ -105,10 +107,12 @@ class Parser:
                 yield from self._macro(tokens, v)
             elif k == "symbol":
                 yield from self._symbol(v)
+            elif k == "badspace":
+                raise SyntaxError("Bad space: " + repr(k))
             else:
                 assert False, "unknown token: " + repr(k)
         if self.depth:
-            SyntaxError("Ran out of tokens before completing form.")
+            raise SyntaxError("Ran out of tokens before completing form.")
 
     def _open(self, tokens):
         depth = self.depth
@@ -124,9 +128,12 @@ class Parser:
 
     @staticmethod
     def _string(v):
-        yield "quote", ast.literal_eval(
-            v.replace("\\\n", "").replace("\n", r"\n")
-        ), {":str": True}
+        v = v.replace("\\\n", "").replace("\n", r"\n")
+        val = ast.literal_eval(v)
+        if v[0] == 'b':  # bytes
+            yield val
+        else:
+            yield "quote", val, {":str": True}
 
     def _macro(self, tokens, v):
         with {
@@ -140,7 +147,10 @@ class Parser:
     @staticmethod
     def _symbol(v):
         try:
-            yield ast.literal_eval(v)
+            val = ast.literal_eval(v)
+            if isinstance(val, bytes):  # bytes have their own literals.
+                raise ValueError  # munge
+            yield val
         except (ValueError, SyntaxError):
             yield munge(v)
 
@@ -199,12 +209,12 @@ class Parser:
                 yield ":?", form
 
     def qualify(self, symbol: str) -> str:
-        if symbol in {e for e in dir(builtins) if not e.startswith("_")}:
-            return f"builtins..{symbol}"
-        if re.search(r"\.\.|^\.|^quote$|^lambda$|xAUTO\d+_$", symbol):
-            return symbol
+        if re.search(r"^\.|\.$|^quote$|^lambda$|^__import__$|xAUTO\d+_$|\.\.", symbol):
+            return symbol  # Not qualifiable.
         if symbol in vars(self.ns.get("_macro_", lambda: ())):
             return f"{self.qualname}.._macro_.{symbol}"
+        if symbol in dir(builtins) and symbol not in self.ns:
+            return f"builtins..{symbol}"  # Globals shadow builtins.
         return f"{self.qualname}..{symbol}"
 
     def reads(self, code: str) -> Iterable:
@@ -244,6 +254,7 @@ def is_string(form):
 
 
 def transpile(package: Optional[resources.Package], *modules: Union[str, PurePath]):
+    # TODO: allow pathname without + ".lissp"?
     if package:
         for module in modules:
             transpile_module(package, module + ".lissp")
@@ -252,9 +263,7 @@ def transpile(package: Optional[resources.Package], *modules: Union[str, PurePat
             with open(module+'.lissp') as f:
                 code = f.read()
             out = module + '.py'
-            with open(out, "w") as f:
-                print("writing to", out)
-                f.write(Parser(module, evaluate=True, filename=str(out)).compile(code))
+            _write_py(out, module, code)
 
 
 def transpile_module(
@@ -270,7 +279,20 @@ def transpile_module(
             package = package.__package__
         if isinstance(package, os.PathLike):
             resource = resource.stem
-        qualname = f"{package}.{resource.split('.')[0]}"
-        with open(out, "w") as f:
-            print("writing to", out)
-            f.write(Parser(qualname, evaluate=True, filename=str(out)).compile(code))
+        _write_py(out, f"{package}.{resource.split('.')[0]}", code)
+
+
+def _write_py(out, qualname, code):
+    with open(out, "w") as f:
+        print(f"compiling {qualname} as", out)
+        if code.startswith('#!'):  # ignore shebang line
+            _, _, code = code.partition('\n')
+        f.write(Parser(qualname, evaluate=True, filename=str(out)).compile(code))
+
+def main():
+    transpile(*sys.argv[1:])
+
+if __name__ == "__main__":
+    # TODO: test CLI
+    # TODO: document CLI
+    main()

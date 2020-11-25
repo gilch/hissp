@@ -1,10 +1,68 @@
-;; Copyright 2019 Matthew Egan Odendahl
+;; Copyright 2019, 2020 Matthew Egan Odendahl
 ;; SPDX-License-Identifier: Apache-2.0
+"
+Hissp's basic macros.
 
-;; bootstrap macro namespace using builtins
+These are automatically made available as unqualified macros in the
+basic REPL. To use them in a Hissp module, either use the
+fully-qualified names, or add them to the module's ``_macro_``'s.
+
+For example
+
+.. code:: Lissp
+
+  (hissp.basic.._macro_.from-require
+   (hissp.basic cascade if-else let progn))
+
+The basic macros are deliberately restricted in design.
+
+They have NO DEPENDENCIES in their expansions;
+they use only the standard library with no extra helper functions.
+This means that the compiled code does not require hissp to be installed to work,
+but all helper code must be inlined,
+resulting in larger expansions.
+
+They also have no prerequisite initialization,
+beyond what is available in a standard Python module.
+Their Python compilation would work directly in an ``exec()``.
+For example, a ``_macro_`` namespace need not be available for ``defmacro``.
+The inlined helper code in each expansion will do that initialization for you, if necessary.
+
+They also eschew text substitutions,
+relying only on the built-in special forms ``quote`` and ``lambda``,
+which makes their expansions compatible with advanced rewriting macros that process the expansions of other macros.
+
+To help keep macros and their expansions manageable in size,
+these basic macros lack some of the advanced bells and whistles that their equivalents have in Python or other Lisps.
+"
+
+_#"
+This module is not necessarily a good example of how you should write Lissp or Lissp macros.
+Besides the design restrictions mentioned in the module docstring above,
+the macros defined here were not available at the start,
+so the early ones had to be bootstrapped without them, often in awkward ways.
+
+These macros don't create compiled dependencies on hissp,
+but that doesn't mean you can't depend on your own code.
+Hissp's qualified symbols,
+and Lissp's template syntax that automatically creates them,
+are there to make helper functions easy to use in macroexpansions.
+Use them.
+
+However, the restriction on text-substitution is still recommended.
+Many useful advanced macros must process the expansion of other macros,
+but they require syntax trees to work on.
+Text hides that structure.
+If you want to go that route,
+you might as well use `ast` and ``exec()` and forget about Hissp.
+Nevertheless, text substitution is available,
+and judicious use can improve performance and maintainability.
+"
+
+;; Bootstrap macro namespace using builtins.
 (operator..setitem (globals) '_macro_ (types..ModuleType '_macro_))
 
-;; define require-as macro
+;; Define require-as macro.
 (setattr _macro_ 'require-as
          (lambda (macro name)
            `(builtins..setattr
@@ -14,6 +72,7 @@
              (quote ,name)
              ,macro)))
 (setattr _macro_.require-as '__doc__ "
+``requrie-as``
 Require a macro callable as an unqualified name.
 
 Adds the macro to the current module's _macro_ space under the specified
@@ -22,32 +81,63 @@ available qualified with this module's name.)
 ")
 (setattr _macro_.require-as '__qualname__ '_macro_.require-as)
 
-;; bootstrap defmacro
+;; Bootstrap enough of defmacro to def the 'defmacro' macro. Dawg.
 (require-as (lambda (name parameters : :* body)
               `(require-as (lambda ,parameters ,@ body)
                            ,name))
             defmacro)
 
-(defmacro let (pairs : :* body)
-  `((lambda (: ,@pairs)
-      ,@body)))
-(setattr _macro_.let '__doc__ "
-Creates locals. Pairs are implied. Locals are not in scope until the body.
-")
-(setattr _macro_.let '__qualname__ '_macro_.let)
-
-(defmacro defmacro (name parameters docstring : :* body)
-  `(require-as (let ($#macro (lambda ,parameters ,@body))
-                 (setattr $#macro ','__doc__ ,docstring)
-                 (setattr $#macro ','__qualname__ (.join "." '(,'_macro_ ,name)))
-                 $#macro)
+(defmacro defmacro (name parameters : docstring ()  :* body)
+  `(require-as ((lambda ($#macro)  ; We don't have let yet.
+                  ;; Save docstring if available.
+                  (setattr $#macro
+                           ','__doc__
+                           ,(operator..getitem `(None ,docstring)
+                                               (hissp.reader..is_string docstring)))
+                  ;; Save qualified name.
+                  (setattr $#macro ','__qualname__ (.join "." '(,'_macro_ ,name)))
+                  $#macro)
+                ;; Create macro function.
+                (lambda ,parameters ,docstring ,@body))
                ,name))
 (setattr _macro_.defmacro '__doc__ "
 Creates a new macro for the current module.
-
-The docstring argument is required, but can be None.
 ")
 (setattr _macro_.defmacro '__qualname__ '_macro_.defmacro)
+
+(defmacro let (pairs : :* body)
+  "Creates locals. Pairs are implied. Locals are not in scope until the body."
+  `((lambda (: ,@pairs)
+      ,@body)))
+
+_#"
+Hissp is based on tuples rather than linked lists,
+but many macros still require this kind of recursive list processing.
+"
+
+(defmacro car (sequence)
+  "The first item of a sequence."
+  `(operator..getitem ,sequence 0))
+
+(defmacro cdr (sequence)
+  "Slice of the sequence without the first item."
+  `(operator..getitem ,sequence (slice 1 None)))
+
+(defmacro caar (xss)
+  "The first item of the first item. Short for ``(car (car xss))``."
+  `(car (car ,xss)))
+
+(defmacro cdar (xss)
+  "The slice of the first item without its first item. Short for ``(cdr (car xss))``."
+  `(cdr (car ,xss)))
+
+(defmacro cadr (sequence)
+  "The second item of a sequence. Like ``(car (cdr sequence))``, but more efficient."
+  `(operator..getitem ,sequence 1))
+
+(defmacro cddr (sequence)
+  "Slice of the sequence without the first two items. Like ``(cdr (cdr sequence))``, but more efficient."
+  `(operator..getitem ,sequence (slice 2 None)))
 
 (defmacro cascade (thing : :* calls)
   "Call multiple methods on one object.
@@ -55,14 +145,14 @@ The docstring argument is required, but can be None.
   Evaluates the given thing then uses it as the first argument to a
   sequence of calls. Used for initialization. Evaluates to the thing.
   "
-  (let (thing-sym `$#thing)
-    `((lambda (: ,thing-sym ,thing)
+  (let ($thing `$#thing)
+    `((lambda (: ,$thing ,thing)
         ,@(map (lambda (call)
-                 `(,(operator..getitem call 0)
-                   ,thing-sym
-                   ,@(operator..getitem call (slice 1 None))))
+                 `(,(car call)
+                   ,$thing
+                   ,@(cdr call)))
                calls)
-        ,thing-sym))))
+        ,$thing))))
 
 (defmacro define (name value)
   "Assigns a global in the current module."
@@ -71,7 +161,8 @@ The docstring argument is required, but can be None.
                       ,value))
 
 (defmacro if-else (test then otherwise)
-  "Basic ternary branching construct.
+  "``if-else``
+  Basic ternary branching construct.
 
   Like Python's conditional expressions, the else-clause is required.
   "
@@ -81,17 +172,88 @@ The docstring argument is required, but can be None.
     (lambda () ,then)
     (lambda () ,otherwise)))
 
+_#"``cond`` is recursive.
+
+Recall that templates are read syntax, which evaluate before macroexpansion.
+Without the forward declaration creating a dummy ``cond`` macro, the reader
+would automatically qualify ``cond`` as ``hissp.basic..cond`` in the template
+instead of ``hissp.basic.._macro_.cond``, because it has no way of knowing it's
+going to be added to the ``_macro_`` namespace later.
+
+We could have used the qualified symbol ``hissp.basic.._macro_.cond`` in the
+template instead of an unqualified ``cond``, then we wouldn't need the forward
+declaration.
+"
+(defmacro cond ())
+(defmacro cond (: :* pairs)
+  "Multiple condition branching.
+
+  Pairs are implied. Default is (); use :else to change it.
+  For example::
+
+   (cond)  ; ()
+   ;; Assume some number 'x
+   (cond (operator..gt x 0) (print \"positive\")
+         (operator..lt x 0) (print \"negative\")
+         (operator..eq x 0) (print \"zero\")
+         :else (print \"not a number\"))
+  "
+  (if-else pairs
+           `(if-else ,(car pairs)
+                     ,(cadr pairs)
+                     ;; Here's the recursive part.
+                     (cond ,@(cddr pairs)))
+           ()))
+
+;; TODO: error messages for reader were hard to follow (try toplevel gensym)
+;; TODO: `[$#X] bug
+
+(defmacro any-for (item iterable : :* body)
+  "``any-for`` Evaluate body for each item in iterable until any result is true."
+  `(any (map (lambda (,item)
+               ,@body)
+             ,iterable)))
+
+;; I would have named this 'and, but that's a reserved word.
+(defmacro && ())  ; Forward declaration because && is recursive.
+(defmacro && (: :* exprs)
+  "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
+  (cond (operator..not_ exprs) True
+        (operator..eq 1 (len exprs)) (car exprs)
+        :else `(let ($#G ,(car exprs))
+                 (if-else $#G
+                          (&& ,@(cdr exprs))
+                          $#G))))
+
+(defmacro || ())  ; Forward declaration because || is recursive.
+(defmacro || (: first () :* rest)
+  "``||`` 'or'. Like Python's ``or`` operator, but for any number of arguments."
+  (if-else rest
+           `(let ($#first ,first)
+              (if-else $#first
+                       $#first
+                       (|| ,@rest)))
+           first))
 
 (defmacro progn (: :* body)
   "Evaluates each form in sequence for side effects.
 
   Evaluates to the same value as its last form (or ``()`` if empty).
   "
+  ;; TODO: consider flattening nested progns
   `((lambda ()
       ,@body)))
 
+(defmacro prog1 (expr1 : :* body)
+  "Evaluates each expression in sequence (for side effects),
+  resulting in the value of the first."
+  `(let ($#value1 ,expr1)
+     ,@body
+     $#value1))
+
 (defmacro from-require (: :* package+macros)
-  "Adds macros for the current module from ``package``
+  "``from-require``
+  Adds macros for the current module from ``package``
 
    For example::
 
@@ -123,17 +285,59 @@ The docstring argument is required, but can be None.
        (type ',name ((lambda (: :* xAUTO0_) xAUTO0_) ,@bases)
              (dict : ,@body))))
 
-;; I would have written this at the top, but we didn't have ``define`` yet.
-(define __doc__ "
-Hissp's basic macros.
+(defmacro attach (target : :* args)
+  "Attaches the named variables as attributes of the target.
 
-These are automatically made available as unqualified macros in the
-basic REPL. To use them in a Hissp module, either use the
-fully-qualified names, or add them to the module's _macro_'s.
+  Positional arguments use the same name as the variable.
+  Names after the ``:`` are key-value pairs.
+  "
+  (let (iargs (iter args)
+              $target `$#target)
+    (let (args (itertools..takewhile (lambda (a)
+                                       (operator..ne a ':))
+                                     iargs))
+      `(let (,$target ,target)
+         ,@(map (lambda (arg)
+                  `(setattr ,$target ',arg ,arg))
+                args)
+         ,@(map (lambda (kw)
+                  `(setattr ,$target ',kw ,(next iargs)))
+                iargs)
+         ,$target))))
 
-For example::
+(defmacro when (condition : :* body)
+  "Evaluates the body when condition is true."
+  `(cond ,condition (progn ,@body)))
 
-  (hissp.basic.._macro_.from-require
-   (hissp.basic cascade if-else let progn))
+(defmacro when-not (condition : :* body)
+  "``when-not`` Evaluates the body when condition is not true."
+  `(when (operator..not_ ,condition) ,@body))
 
-")
+;; TODO: implement case macro?
+
+(defmacro -> ())
+(defmacro -> (expr : :* forms)
+  "``->`` 'Thread-first'.
+  Converts a pipeline to function calls by recursively threading it as the first argument of the next form.
+  E.g. ``(-> x (A b) (C d e))`` is ``(C (A x b) d e)``
+  Makes chained method calls easier to read.
+  "
+  (if-else forms
+    `(-> (,(caar forms) ,expr ,@(cdar forms))
+         ,@(cdr forms))
+    expr))
+
+(defmacro ->> ())
+(defmacro ->> (expr : :* forms)
+  "``->>`` 'Thread-last'.
+  Converts a pipeline to function calls by recursively threading it as the last argument of the next form.
+  E.g. ``(->> x (A b) (C d e))`` is ``(C d e (A b x))``.
+  Can replace partial application in some cases.
+  Also works inside a ``->`` pipeline.
+  E.g. ``(-> x (A a) (->> B b) (C c))`` is ``(C (B b (A x a)) c)``.
+  "
+  (if-else forms
+    `(->> (,@(car forms) ,expr)
+          ,@(cdr forms))
+    expr))
+;; TODO: implement other arrange macros?

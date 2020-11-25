@@ -31,7 +31,7 @@ To understand code at all, in any programming language,
 you must have an understanding of how to *parse* it, mentally.
 
 Python itself has an AST representation used by its compiler
-(the :obj:`ast` module)
+(the `ast` module)
 which is accessible to Python programs,
 but because it represents all of the possible Python syntax,
 which is considerable, it difficult to use effectively for metaprogramming.
@@ -44,7 +44,6 @@ programmatically.
 
 In Hissp, you write in this parsed form far more directly:
 *Hissp code is AST.*
-
 
 Hello World
 ===========
@@ -68,14 +67,14 @@ You can invoke the Hissp compiler directly from Python.
 >>> eval(_)('World')
 Hello World
 
-The ``readerless()`` function takes a Hissp program as input,
+The `readerless()` function takes a Hissp program as input,
 and returns its Python translation as a string.
 
 Let's break this down.
 Notice that the first element of each tuple designates its function.
 
 In the case of ``('print',('quote','Hello'),'name',)``,
-the first element represents a call to the ``print`` function.
+the first element represents a call to the `print()<print>` function.
 The remaining elements are the arguments.
 
 The interpretation of the ``lambda`` form is different.
@@ -111,7 +110,7 @@ This is metaprogramming:
 We just wrote code that writes code.
 It output Hissp code, which changes based on an input.
 
-And, in fact, this ``q`` function takes the place of a "reader macro",
+And, in fact, this ``q()`` function takes the place of a "reader macro",
 which I'll explain shortly.
 
 Let's use it.
@@ -146,6 +145,16 @@ Our ``q()`` worked, but we forgot the comma in ``('name')``.
    The parentheses only control evaluation order.
    There are some contexts where tuples don't require parentheses at all.
 
+Let's try that again.
+
+>>> readerless(
+...     ('lambda',('name',),
+...      ('print',q('Hello'),'name',),)
+... )
+"(lambda name:\n  print(\n    'Hello',\n    name))"
+
+That's better.
+
 Lissp
 =====
 
@@ -162,7 +171,7 @@ Hissp is made of data structures.
 They're ephemeral; they only live in memory.
 If Hissp is the spoken word, we need a written word.
 And to "speak" the written word back into Hissp, we need a "reader".
-Hissp comes with a ``hissp.reader`` module that interprets a lightweight
+Hissp comes with a :mod:`hissp.reader` module that interprets a lightweight
 language called *Lissp* as Hissp code.
 
 Lissp is made of text.
@@ -214,7 +223,7 @@ REPL
   The interactive shell.
 
 You can launch the REPL from Python code (which is useful for debugging,
-like :obj:`code.iteract`),
+like `code.interact`),
 But let's start it from the command line using an appropriate Python interpreter::
 
     $ python -m hissp
@@ -226,7 +235,7 @@ you can use the installed entry point script::
 
 You should see the Lissp prompt ``#>`` appear.
 
-You can quit with `(exit)` or EOF [#EOF]_, same as Python's shell.
+You can quit with ``(exit)`` or EOF [#EOF]_, same as Python's shell.
 
 The basic REPL shows the Python translation of the read Lissp
 and evaluates it.
@@ -298,7 +307,6 @@ rather than a symbol.
 Metadata has no effect on how a ``quote`` form is compiled,
 but may be used macros and reader macros.
 
-
 Symbols
 #######
 
@@ -360,7 +368,7 @@ This makes it easy to tell if an identifier contains munged characters,
 which makes demunging possible in the normal case.
 It also cannot introduce a leading underscore,
 which can have special meaning in Python.
-It might have been simpler to use the character's ``ord()``,
+It might have been simpler to use the character's `ord()<ord>`,
 but it's important that the munged symbols still be human-readable.
 
 Munging happens at *read time*, which means you can use a munged symbol both
@@ -424,13 +432,19 @@ You must quote these like ``':`` or ``":"`` to pass them as data in that context
 Macros operate on code before evaluation,
 so they can also distinguish a raw control word from a quoted one.
 
-Qualified Symbols
-~~~~~~~~~~~~~~~~~
+.. _qualified identifiers:
+
+Qualified Identifiers
+~~~~~~~~~~~~~~~~~~~~~
 
 You can refer to variables defined in any module by using a
-*qualified symbol*::
+*qualified identifier*::
 
-    #> (operator..add 40 2)
+    #> operator.  ; Module identifiers end in a dot and automatically import.
+    >>> __import__('operator')
+    <module 'operator' from '...operator.py'>
+
+    #> (operator..add 40 2)  ; Qualified identifiers include their module.
     #..
     >>> __import__('operator').add(
     ...   (40),
@@ -641,19 +655,18 @@ function name starts with a dot::
     >>> (1j).conjugate()
     -1j
 
-    #> (.decode b'\xfffoo' : errors 'ignore)
+    #> (.decode b"\xfffoo" : errors 'ignore)
     #..
     >>> b'\xfffoo'.decode(
     ...   errors='ignore')
     'foo'
-
 
 Reader Macros
 =============
 
 Reader macros in Lissp consist of a symbol ending with a ``#``
 followed by another form.
-The function named by the qualified symbol is invoked on the form,
+The function named by the qualified identifier is invoked on the form,
 and the reader embeds the resulting object into the output Hissp::
 
     #> builtins..float#inf
@@ -665,7 +678,7 @@ and the reader embeds the resulting object into the output Hissp::
 This inserts an actual ``inf`` object at read time into the Hissp code.
 Since this isn't a valid literal, it has to compile to a pickle.
 You should normally try to avoid emitting pickles
-(e.g. use ``(float 'inf)`` or ``math..inf`` instead),
+(e.g. use ``(float 'inf)`` or `math..inf <math.inf>` instead),
 but note that a macro would get the original object,
 since the code hasn't been compiled yet, which may be useful.
 While unpickling does have some overhead,
@@ -673,10 +686,10 @@ it may be worth it if constructing the object normally has even more.
 Naturally, the object must be picklable to emit a pickle.
 
 Unqualified reader macros are reserved for the basic Hissp reader.
-There are currently three of them: ``.#``, ``_#``, and ``$#``.
+There are currently three of them: Inject ``.#``, discard ``_#``, and gensym ``$#``.
 
-If you need more than one argument for a reader macro, use the built in
-``.#`` macro, which evaluates a form at read time::
+If you need more than one argument for a reader macro, use the built-in
+inject ``.#`` macro, which evaluates a form at read time::
 
     #> .#(fractions..Fraction 1 2)
     #..
@@ -685,9 +698,34 @@ If you need more than one argument for a reader macro, use the built in
     ... )
     Fraction(1, 2)
 
+And can inject arbitrary text into the compiled output::
 
-The ``_#`` macro omits the next expression.
-It's a way to comment out code structurally.
+    #> .#"{(1, 2): \"\"\"buckle my shoe\"\"\"}  # This is Python!"
+    #..
+    >>> {(1, 2): """buckle my shoe"""}  # This is Python!
+    {(1, 2): 'buckle my shoe'}
+
+Reader macros compose::
+
+    #> '.#"{(3, 4): 'shut the door'}" ; this quoted inject is a string
+    #..
+    >>> "{(3, 4): 'shut the door'}"
+    "{(3, 4): 'shut the door'}"
+
+    #> '.#.#"{(5, 6): 'pick up sticks'}" ; even quoted, this double inject is a dict
+    #..
+    >>> {(5, 6): 'pick up sticks'}
+    {(5, 6): 'pick up sticks'}
+
+The discard ``_#`` macro omits the next expression.
+It's a way to comment out code structurally::
+
+    #> (print 1 _#2 3)
+    #..
+    >>> print(
+    ...   (1),
+    ...   (3))
+    1 3
 
 Templates
 ---------
@@ -765,7 +803,6 @@ If you quote an example, you can see that intermediate step::
     ...  ('opearator..mul', 2, 3))
     (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':?', ':a', ':*', ('quote', 'bcd', {':str': True}), ':?', ('opearator..mul', 2, 3))
 
-
 Templates are Lissp syntactic sugar based on what Hissp already has.
 
 Judicious use of sugar can make code much easier to read and write.
@@ -797,10 +834,10 @@ as well. E.g. ``_hissxAUTO42_``. Try it.)
 Gensyms are mainly used to prevent accidental name collisions in generated code,
 which is very important for reliable macros.
 
-Data Structures
----------------
+Atomic Literal Data Structures
+------------------------------
 
-Python's data structure notation works in Lissp as well::
+A subset of Python's data structure notation works in Lissp as well::
 
     #> [1,2,3]
     >>> [1, 2, 3]
@@ -810,17 +847,9 @@ Python's data structure notation works in Lissp as well::
     >>> {'foo': 2}
     {'foo': 2}
 
-Only single-quoted or triple single-quoted strings are allowed
-inside of literal data structures.
-(And only double-quoted strings outside.)
-
 You can nest these to create small, JSON-like data structures
 which can be very useful as inputs to macros,
 (especially reader macros, which can only take one argument).
-
-Tuples are different.
-Since they normally represent code,
-you must quote them to use them as data.
 
 .. sidebar:: Except for the empty tuple.
 
@@ -839,28 +868,26 @@ you must quote them to use them as data.
    However, macros could distinguish these cases,
    because they act before evaluation.
 
+Tuples are different.
+Since they normally represent code,
+you must quote them to use them as data.
 
 .. Caution::
-   Unlike Python's literal data structures,
-   spaces are **not** allowed in Lissp's literal data structures,
-   nor are double quotes,
-   because this causes them to be read as multiple forms.
-   It's better to avoid these characters in single-quoted stings.
-   But if you must have them, you can use the escape codes ``\40``
-   or ``\42`` instead, respectively.
+   Unlike Python's data structure notation,
+   double quotes, parentheses, spaces, and newlines
+   are **not** allowed anywhere in Lissp's atomic data structures,
+   even in nested strings, because this causes them to be read as multiple forms.
 
-   Triple single-quoted strings may appear in literal data structures,
-   but newlines are not allowed for the same reason. Use ``\n`` instead.
+   While a significantly more complex reader could distinguish these cases (as Python does),
+   Lissp doesn't really need this capability because it can already read in arbitrary
+   Python expressions using the inject macro ``.#``.
+   The literals are just a convenience notation for simple cases.
 
-   Parentheses are reserved for Hissp forms and may not appear in
-   literal data structures, even in nested strings
-   (Use ``\50\51`` if you must.)
-   Literal data structures may not contain tuples.
-
-Unlike Python, literal data structures in Lissp may contain only static values
-discernible at read time. They are each read as a *single object*.
-If you want to interpolate runtime data, use function calls
-and templates instead::
+Unlike Python's notation,
+atomic data structures in Lissp may contain only static values discernible at read time.
+A literal data structure is read as a *single atom*.
+If you want to interpolate runtime data,
+use function calls and templates instead::
 
     #> (list `(,@(.upper "abc") ,@[1,2,3] ,(.title "zed")))
     #..
@@ -872,7 +899,7 @@ and templates instead::
     ['A', 'B', 'C', 1, 2, 3, 'Zed']
 
 If this is still too verbose for your taste,
-remember you can use helper functions or metaprogramming to simplify::
+remember that you can use helper functions or metaprogramming to simplify::
 
     #> (define enlist  ; use instead of []
     #.. (lambda (: :* args)
@@ -909,18 +936,17 @@ You can also use the unpacking control words in these::
     ...   'zed'.title())
     ['A', 'B', 'C', [1, 2, 3], 'Zed']
 
-
-
 Macros
 ======
 
 Hissp macros are callables that are evaluated by the compiler at
 *compile time*.
 
-They take Hissp code as arguments, and return Hissp code as a result,
+They take the Hissp code itself as arguments (they're all quoted)
+and return Hissp code as a result,
 called a *macroexpansion* (even if it gets smaller).
-The expansion is inserted in the macro invocation's place in the code,
-and then evaluated as normal.
+The compiler inserts the expansion in the macro invocation's place in the code,
+and then continues as normal.
 If another macro invocation appears in the expansion,
 it is expanded as well (this pattern is known as a *recursive macro*),
 which is an ability that the reader macros lack.
@@ -1010,7 +1036,7 @@ We can do better. Let's use a template::
 Not what you expected?
 
 A template quote automatically qualifies any unqualified symbols it contains
-with ``builtins`` (if applicable) or the current ``__name__``
+with `builtins` (if applicable) or the current ``__name__``
 (which is ``__main__``)::
 
     #> `int  ; Works directly on symbols too.
@@ -1146,7 +1172,7 @@ This is an example of intentional capture.
 The anaphor [#capture]_ is ``#``.
 Try doing that in Python.
 You can get pretty close with higher-order functions,
-but you can't delay the evaluation of the ``.upper()``
+but you can't delay the evaluation of the `.upper()<str.upper>`
 without a lambda,
 which really negates the whole point of creating a shorter lambda.
 
@@ -1174,7 +1200,7 @@ But you'll probably want to break a larger project up into smaller modules.
 And those must be compiled for import.
 
 The recommended way to compile a Lissp project is to put a call to
-``transpile()`` in the main module and in each ``__init__.py``—
+`transpile()` in the main module and in each ``__init__.py``—
 with the name of each top-level ``.lissp`` file,
 or ``.lissp`` file in the corresponding package,
 respectively::
@@ -1189,9 +1215,9 @@ Or equivalently in Lissp, used either at the REPL or if the main module is writt
 
 This will automatically compile each named Lissp module.
 This approach gives you fine-grained control over what gets compiled when.
-If desired, you can remove a name passed to the ``transpile()``
+If desired, you can remove a name passed to the `transpile()`
 call to stop recompiling that file.
-Then you can compile the file manually at the REPL as needed using ``transpile()``.
+Then you can compile the file manually at the REPL as needed using `transpile()`.
 
 Note that you usually *would* want to recompile the whole project
 rather than only the changed files on import like Python does for ``.pyc`` files,
@@ -1215,4 +1241,3 @@ the compiled output may be different due to an updated macro in another file.
 
 .. [#capture] When symbol capture is done on purpose, these are known as *anaphoric macros*.
    (When it's done on accident, these are known as *bugs*.)
-
