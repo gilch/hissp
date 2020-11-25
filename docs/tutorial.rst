@@ -432,6 +432,8 @@ You must quote these like ``':`` or ``":"`` to pass them as data in that context
 Macros operate on code before evaluation,
 so they can also distinguish a raw control word from a quoted one.
 
+.. _qualified identifiers:
+
 Qualified Identifiers
 ~~~~~~~~~~~~~~~~~~~~~
 

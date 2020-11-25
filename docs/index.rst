@@ -6,7 +6,7 @@
 Welcome to Hissp's documentation!
 =================================
 
-Hissp: It's Python with a Lissp.
+*Hissp: It's Python with a Lissp.*
 
 .. toctree::
    :maxdepth: 2
