@@ -122,7 +122,8 @@ This is hard to do consistently without good editor support.
 But *because* the brackets make it easy to parse (for a computer),
 editor support for Lisp is really very good.
 Emacs can do it, but it's got a bit of a learning curve.
-For a beginner, try installing Parinfer in a supported editor, like Atom.
+For a beginner, try installing `Parinfer <https://shaunlebron.github.io/parinfer/>`_
+in a supported editor, like `Atom <https://atom.io/packages/parinfer>`_.
 If you get the indent right, Parinfer will manage the trails for you.
 Parinfer makes editing Lisp feel more like editing Python.
 
@@ -148,8 +149,9 @@ The only absolute rules are
 
 If you break these rules,
 Parinfer can't be used.
-Team projects with any Lissp files should be running Parlinter along with their tests
-to enforce this.
+Team projects with any Lissp files should be running
+`Parlinter <https://github.com/shaunlebron/parlinter>`_
+along with their tests to enforce this.
 Basic legibility is not negotiable. Use it.
 
 don't dangle brackets
