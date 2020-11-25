@@ -60,7 +60,7 @@ I mean how do you write it in Hissp without operators? Please don't say ``eval()
 We have all the operators because we have all the standard library
 functions.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (operator..add 1 1)
 
@@ -86,7 +86,7 @@ Top-level imports are a good use of inject.
    Also consider `itertools`.
    Use responsibly.
 
-.. code:: python
+.. code-block:: python
 
    #> .#"import operator as op"
    #..
@@ -102,7 +102,7 @@ Top-level imports are a good use of inject.
 The result is a bit less desirable in templates.
 But it's not technically wrong.
 
-.. code:: python
+.. code-block:: python
 
    #> `op.add
    >>> '__main__..op.add'
@@ -110,7 +110,7 @@ But it's not technically wrong.
 
 And you can still qualify it yourself instead of letting the reader do it for you:
 
-.. code:: python
+.. code-block:: python
 
    #> `operator..add
    >>> 'operator..add'
@@ -121,7 +121,7 @@ Yeah, that's better, but in Python, it's just ``+``.
 
 You can, of course, abbreviate these.
 
-.. code:: python
+.. code-block:: python
 
    #> (define + operator..add)
    #..
@@ -144,7 +144,7 @@ used by all the calls.
 
 You can even upgrade these to use a reduce so they're multiary like other Lisps:
 
-.. code:: python
+.. code-block:: python
 
    #> (define +
    #..  (lambda (: :* args)
@@ -227,7 +227,7 @@ of the few times it's OK to do that.
 Recall the inject ``.#`` reader macro executes a form and embeds its result
 into the Hissp.
 
-.. code:: python
+.. code-block:: python
 
    #> (define quadratic
    #.. (lambda (a b c)
@@ -265,7 +265,7 @@ There's no ``macroexpand``. How do I look at expansions?
 Invoke the macro indirectly somehow so the compiler sees it as a normal function,
 and pass all arguments quoted.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    ((getattr hissp.basic.._macro_ "define") 'foo '"bar")
 
@@ -276,7 +276,7 @@ interpreted as a macro invocation. This syntax isn't restricted solely
 to methods on objects. Due to certain regularities in Python syntax, it
 also works on callable attributes in any kind of namespace.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (.define hissp.basic.._macro_ : :* '(foo "bar"))
 
@@ -333,7 +333,7 @@ See also `hissp.basic._macro_.when`.
 What about if/else ternary expressions?
 ---------------------------------------
 
-.. code:: python
+.. code-block:: python
 
    (lambda b, *then_else: then_else[not b]())(
        1 < 2,
@@ -358,7 +358,7 @@ Also recall that macros are allowed to return strings of Python code.
 All the usual caveats for text-substitution macros apply. Use
 parentheses.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (defmacro !if (test then otherwise)
      "Compiles to if/else expression."
@@ -450,7 +450,7 @@ Use `tuple()`.
 But I have to already have an iterable, which is why I wanted a tuple in the first place!
 -----------------------------------------------------------------------------------------
 
-.. code:: Python
+.. code-block:: Python
 
    lambda *a: a
 
@@ -596,7 +596,7 @@ But I need to handle the exception if and only if it was raised, for multiple ex
 
 Context managers can do all of that!
 
-.. code:: python
+.. code-block:: python
 
    from contextlib import ContextDecorator
 
@@ -627,7 +627,7 @@ How?
 
 Like this
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (deftype Except (contextlib..ContextDecorator)
      __init__
@@ -672,7 +672,7 @@ Isn't this slow?! You can't get away with calling this an "exceptional case" thi
 Not if you define it as a function in advance. Then it only happens once
 on module import. Something like,
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (exec "
    def try_statement(block, target, handler):
@@ -744,7 +744,7 @@ directly.
 
 If you have the entry point script installed that's:
 
-.. code:: shell
+.. code-block:: shell
 
    $ hissp foo.lissp
 
@@ -753,7 +753,7 @@ first.
 
 At the REPL (or main module if it's written in Lissp) use:
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (hissp.reader..transpile __package__ 'spam 'eggs 'etc)
 
@@ -763,7 +763,7 @@ directory.)
 
 Or equivalently, in Python:
 
-.. code:: python
+.. code-block:: python
 
    from hissp.reader import transpile
 
@@ -796,7 +796,7 @@ But I need the module object itself! The package ``__init__.py`` doesn't import 
 
 A module name that ends with a dot will do it for you.
 
-.. code:: python
+.. code-block:: python
 
    #> collections.abc.
    #..

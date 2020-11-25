@@ -161,7 +161,7 @@ They do not get their own line;
 that's more emphasis than they deserve.
 They don't get extra spaces either.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    ;; Wrong.
    (define fib
@@ -187,7 +187,7 @@ They don't get extra spaces either.
 
 This also goes for readerless mode.
 
-.. code:: Python
+.. code-block:: Python
 
    # Very wrong.
    (
@@ -212,7 +212,7 @@ This also goes for readerless mode.
 If you're using an auto formatter that isn't aware of Hissp,
 you may have to turn it off.
 
-.. code:: Python
+.. code-block:: Python
 
    # Right.
    # fmt: off
@@ -237,7 +237,7 @@ unambiguous indentation
 The indentation level indicates which tuple the next line starts in.
 Go past the parent's opening bracket, not the sibling's.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (a (b c))
    x                                      ;(a (b c)) is sibling
@@ -264,7 +264,7 @@ Even after deleting the trails, you can tell where the ``x`` belongs.
 The rule is to pass the parent *bracket*.
 You might not pass the head *atom* in some alignment styles.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (foo (bar x)
      body)                                ;(foo is parent, (bar x) is special sibling
@@ -284,14 +284,14 @@ We can still unambiguously reconstruct the trails from the indent.
 
 Note that a multiline string is still an atom.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (foo "abc
      xyz")
 
 We can still unambiguously reconstruct the trail.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (foo "abc
      xyz"
@@ -310,7 +310,7 @@ Keep items within implied groups (like kwargs) together.
 Control words used as labels should be grouped with what they label.
 Your code should look like these examples:
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    '(data1 data2 data3)                   ;Treat all data items the same.
 
@@ -460,7 +460,7 @@ That's what lets us indent and see the tree structure clearly.
 It's OK to have single ``)``'s inside the line,
 but don't overdo it.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (lambda (x) (print "Hi" x) (print "Bye" x)) ;OK
 
@@ -472,7 +472,7 @@ Implied groups should be kept together.
 Closing brackets inside a pair can happen in `cond`,
 for example.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (lambda (x)
      (cond (operator..lt x 0) (print "negative")
