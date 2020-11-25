@@ -1041,11 +1041,11 @@ as explained in the tutorial and quickstart.
 
 Lissp goes through multiple stages as it compiles:
 
-- the `Lissp reader<hissp.reader>` reads it in as Hissp data structures.
+- the :doc:`Lissp reader<hissp.reader>` reads it in as Hissp data structures.
 
   - `its lexer<hissp.reader.lex>` breaks the text into a stream of tokens.
   - `its parser<hissp.reader.Parser>` builds the tokens into Hissp.
-- the `Hissp compiler<hissp.compiler>` translates Hissp to a functional subset of Python.
+- the :doc:`Hissp compiler<hissp.compiler>` translates Hissp to a functional subset of Python.
 
 Then Python takes over and Hissp does not concern itself with this part.
 But CPython goes through a similar process.
