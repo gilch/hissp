@@ -284,14 +284,14 @@ We can still unambiguously reconstruct the trails from the indent.
 
 Note that a multiline string is still an atom.
 
-::
+.. code:: Lissp
 
    (foo "abc
      xyz")
 
 We can still unambiguously reconstruct the trail.
 
-::
+.. code:: Lissp
 
    (foo "abc
      xyz"

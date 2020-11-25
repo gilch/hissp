@@ -74,7 +74,7 @@ Lissp Quick Start
    ;; Hissp has full access to Python libraries.
    object                                 ;Normal identifier.
    object.__class__                       ;Attribute identifier. Same as Python so far.
-   math.                                  ;Module identifier. Imports it! Ends in a dot.
+   math.                                  ;Module identifier. Ends in a dot. Imports it!
    math..tau                              ;Qualified identifier. Attribute of a module.
    collections.abc.                       ;Submodule identifier. Has package name.
    builtins..object.__class__             ;Qualified attribute identifier.
@@ -87,7 +87,7 @@ Lissp Quick Start
 
    ;;; Read-time special-character munging.
 
-   'Also-a-symbol!                        ;same as 'AlsoxH_axH_symbolxBANG_
+   'Also-a-symbol!                        ;alias for 'AlsoxH_axH_symbolxBANG_
    '+                                     ;'xPLUS_
    '->>                                   ;'xH_xGT_xGT_
 
@@ -254,7 +254,7 @@ Lissp Quick Start
 
    ;; Invoke any importable unary callable at read time.
    builtins..float#inf                    ;Extensible literals!
-   ;; Reader macros compose.
+   ;; Reader macros compose. Note the quote.
    'hissp.munger..demunge#xH_xGT_xGT_     ;'->>'
 
    ;; The "inject" reader macro evaluates the next form
@@ -549,7 +549,7 @@ Lissp Quick Start
    (cadr "abcd")                          ;'b'
    (cddr "abcd")                          ;'cd'
    (caar ['abc','xyz'])                   ;'a'
-   (cdar ['abc','xyz'])                   ;'bcd'
+   (cdar ['abc','xyz'])                   ;'bc'
 
    ;;; control flow
 
