@@ -16,7 +16,7 @@ SPDX-License-Identifier: Apache-2.0
 ...       __import__('hissp.basic',fromlist='?')._macro_)))
 
 -->
-# Hissp
+![Hissp](docs/hissp.svg)
 
 It's Python with a *Lissp*.
 
