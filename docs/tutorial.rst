@@ -243,7 +243,9 @@ and evaluates it.
 Literals
 --------
 
-Most literals work just like Python::
+Most literals work just like Python:
+
+.. code-block:: Lissp
 
     #> 1 ; Lissp comments use ';' instead of '#'.
     >>> (1)
@@ -281,7 +283,9 @@ Strings
 #######
 
 Double-quoted strings may contain newlines,
-but otherwise behave as Python's and respect the same escape codes::
+but otherwise behave as Python's and respect the same escape codes:
+
+.. code-block:: Lissp
 
     #> "Three
     #..lines\ntotal"
@@ -291,7 +295,9 @@ but otherwise behave as Python's and respect the same escape codes::
 
 There are no triple double-quoted strings in Lissp.
 
-Strings are implicitly quoted::
+Strings are implicitly quoted:
+
+.. code-block:: Lissp
 
     #> (quote
     #.. (lambda (name)
@@ -310,7 +316,9 @@ but may be used macros and reader macros.
 Symbols
 #######
 
-In our basic example::
+In our basic example:
+
+.. code-block:: Lissp
 
     (lambda (name)
      (print 'Hello name))
@@ -323,7 +331,9 @@ Symbols should be used for *identifiers* (variable names and the like).
 The distinction between a quoted symbol and a double-quoted string
 exists only in Lissp a the reader level.
 It's two ways of writing the same thing in Hissp.
-Recall that the argument of the ``quote`` special form is seen as data::
+Recall that the argument of the ``quote`` special form is seen as data:
+
+.. code-block:: Lissp
 
     #> (quote
     #.. (lambda (name)
@@ -335,7 +345,9 @@ Recall that the argument of the ``quote`` special form is seen as data::
 This shows us how that Lissp would get translated to Hissp.
 Notice that symbols become strings in Hissp.
 
-Symbols with an internal ``.`` can access attributes::
+Symbols with an internal ``.`` can access attributes:
+
+.. code-block:: Lissp
 
     #> int.__name__
     >>> int.__name__
@@ -344,7 +356,9 @@ Symbols with an internal ``.`` can access attributes::
 Munging
 ~~~~~~~
 
-Symbols have another important difference from double-quoted strings::
+Symbols have another important difference from double-quoted strings:
+
+.. code-block:: Lissp
 
     #> 'foo->bar?  ; xH_ is for "Hyphen"; xGT_ for "Greater Than/riGhT".
     >>> 'fooxH_xGT_barxQUERY_'
@@ -372,7 +386,9 @@ It might have been simpler to use the character's `ord()<ord>`,
 but it's important that the munged symbols still be human-readable.
 
 Munging happens at *read time*, which means you can use a munged symbol both
-as an identifier and as a string representing that identifier::
+as an identifier and as a string representing that identifier:
+
+.. code-block:: Lissp
 
     #> (define spam (lambda ()))
     #..
@@ -398,7 +414,9 @@ Control Words
 
 Symbols that begin with a ``:`` are called *control words* [#key]_.
 These are for when you want a symbol but it's not meant to be used as
-an identifier. Thus, they do not get munged::
+an identifier. Thus, they do not get munged:
+
+.. code-block:: Lissp
 
     #> :foo->bar?
     >>> ':foo->bar?'
@@ -406,13 +424,17 @@ an identifier. Thus, they do not get munged::
 
 Control words evaluate to strings,
 so you usually don't need to quote them,
-but you can::
+but you can:
+
+.. code-block:: Lissp
 
     #> ':foo->bar?
     >>> ':foo->bar?'
     ':foo->bar?'
 
-Note that double quotes do the same thing::
+Note that double quotes do the same thing:
+
+.. code-block:: Lissp
 
     #> ":foo->bar?"
     >>> ':foo->bar?'
@@ -438,7 +460,9 @@ Qualified Identifiers
 ~~~~~~~~~~~~~~~~~~~~~
 
 You can refer to variables defined in any module by using a
-*qualified identifier*::
+*qualified identifier*:
+
+.. code-block:: Lissp
 
     #> operator.  ; Module identifiers end in a dot and automatically import.
     >>> __import__('operator')
@@ -466,7 +490,9 @@ To do anything interesting with them, you have to combine them.
 Empty
 #####
 
-The empty tuple ``()`` might as well be a literal::
+The empty tuple ``()`` might as well be a literal:
+
+.. code-block:: Lissp
 
     #> ()
     #..
@@ -484,7 +510,9 @@ The anonymous function special form::
 The parameters tuple is divided into ``(<single> : <paired>)``
 
 Parameter types are the same as Python's.
-For example::
+For example:
+
+.. code-block:: Lissp
 
     #> (lambda (a :/  ; positional only
     #..         b  ; positional
@@ -497,7 +525,9 @@ For example::
     <function <lambda> at ...>
 
 The special control words ``:*`` and ``:**`` designate the remainder of the
-positional and keyword parameters, respectively::
+positional and keyword parameters, respectively:
+
+.. code-block:: Lissp
 
     #> (lambda (: :* args :** kwargs)
     #..  (print args)
@@ -523,7 +553,9 @@ positional and keyword parameters, respectively::
 
 You can omit the right of a pair with ``:?``
 (except the final ``**kwargs``).
-Also note that the body can be empty::
+Also note that the body can be empty:
+
+.. code-block:: Lissp
 
     #> (lambda (: a 1  :/ :?  :* :?  b :?  c 2))
     #..
@@ -537,7 +569,9 @@ Everything on the paired side must be paired, no exceptions.
 special casing that to not require the ``:?``
 would make macro writing more difficult.)
 
-The ``:`` may be omitted if there are no paired parameters::
+The ``:`` may be omitted if there are no paired parameters:
+
+.. code-block:: Lissp
 
     #> (lambda (a b c :))  ; No pairs after ':'.
     #..
@@ -560,7 +594,9 @@ The ``:`` may be omitted if there are no paired parameters::
     <function <lambda> at ...>
 
 The ``:`` is required if there are any paired parameters, even if
-there are no single parameters::
+there are no single parameters:
+
+.. code-block:: Lissp
 
     #> (lambda (: :** kwargs))
     #..
@@ -577,7 +613,9 @@ Like Python, it has three parts::
 
     (<callable> <args> : <kwargs>)
 
-For example::
+For example:
+
+.. code-block:: Lissp
 
     #> (print 1 2 3 : sep ":"  end "\n.")
     #..
@@ -590,7 +628,9 @@ For example::
     1:2:3
     .
 
-Either ``<args>`` or ``<kwargs>`` may be empty::
+Either ``<args>`` or ``<kwargs>`` may be empty:
+
+.. code-block:: Lissp
 
     #> (int :)
     #..
@@ -610,7 +650,9 @@ Either ``<args>`` or ``<kwargs>`` may be empty::
     ...   end='X')
     X
 
-The ``:`` is optional if the ``<kwargs>`` part is empty::
+The ``:`` is optional if the ``<kwargs>`` part is empty:
+
+.. code-block:: Lissp
 
     #> (int)
     #..
@@ -626,7 +668,9 @@ The ``:`` is optional if the ``<kwargs>`` part is empty::
 The ``<kwargs>`` part has implicit pairs; there must be an even number.
 
 Use the special control words ``:*`` for iterable unpacking,
-``:?`` to pass by position and ``:**`` for mapping unpacking::
+``:?`` to pass by position and ``:**`` for mapping unpacking:
+
+.. code-block:: Lissp
 
     #> (print : :* '(1 2)  :? 3  :* '(4)  :** (dict : sep :  end "\n."))
     #..
@@ -648,7 +692,9 @@ Method calls are similar to function calls::
     (.<method name> <self> <args> : <kwargs>)
 
 Like Clojure, a method on the first "argument" (``<self>``) is assumed if the
-function name starts with a dot::
+function name starts with a dot:
+
+.. code-block:: Lissp
 
     #> (.conjugate 1j)
     #..
@@ -667,7 +713,9 @@ Reader Macros
 Reader macros in Lissp consist of a symbol ending with a ``#``
 followed by another form.
 The function named by the qualified identifier is invoked on the form,
-and the reader embeds the resulting object into the output Hissp::
+and the reader embeds the resulting object into the output Hissp:
+
+.. code-block:: Lissp
 
     #> builtins..float#inf
     >>> __import__('pickle').loads(  # inf
@@ -689,7 +737,9 @@ Unqualified reader macros are reserved for the basic Hissp reader.
 There are currently three of them: Inject ``.#``, discard ``_#``, and gensym ``$#``.
 
 If you need more than one argument for a reader macro, use the built-in
-inject ``.#`` macro, which evaluates a form at read time::
+inject ``.#`` macro, which evaluates a form at read time:
+
+.. code-block:: Lissp
 
     #> .#(fractions..Fraction 1 2)
     #..
@@ -698,14 +748,18 @@ inject ``.#`` macro, which evaluates a form at read time::
     ... )
     Fraction(1, 2)
 
-And can inject arbitrary text into the compiled output::
+And can inject arbitrary text into the compiled output:
+
+.. code-block:: Lissp
 
     #> .#"{(1, 2): \"\"\"buckle my shoe\"\"\"}  # This is Python!"
     #..
     >>> {(1, 2): """buckle my shoe"""}  # This is Python!
     {(1, 2): 'buckle my shoe'}
 
-Reader macros compose::
+Reader macros compose:
+
+.. code-block:: Lissp
 
     #> '.#"{(3, 4): 'shut the door'}" ; this quoted inject is a string
     #..
@@ -718,7 +772,9 @@ Reader macros compose::
     {(5, 6): 'pick up sticks'}
 
 The discard ``_#`` macro omits the next expression.
-It's a way to comment out code structurally::
+It's a way to comment out code structurally:
+
+.. code-block:: Lissp
 
     #> (print 1 _#2 3)
     #..
@@ -737,7 +793,9 @@ Lissp has three other built-in reader macros that don't require a ``#``:
 * ``,`` unquote
 * ``,@`` splice unquote
 
-The template quote works much like a normal quote::
+The template quote works much like a normal quote:
+
+.. code-block:: Lissp
 
     #> '(1 2 3)  ; quote
     #..
@@ -758,7 +816,9 @@ instead of the quoted result itself.
 
 This gives you the ability to *interpolate*
 data into the tuple at the time it is evaluated,
-much like a template or format string::
+much like a template or format string:
+
+.. code-block:: Lissp
 
     #> '(1 2 (operator..add 1 2))  ; normal quote
     #..
@@ -775,7 +835,9 @@ much like a template or format string::
     ...     (2)))
     (1, 2, 3)
 
-The splice unquote is similar, but unpacks its result::
+The splice unquote is similar, but unpacks its result:
+
+.. code-block:: Lissp
 
     #> `(:a ,@"bcd" :e)
     #..
@@ -789,7 +851,9 @@ Templates are *reader syntax*: because they're reader macros,
 they only exist in Lissp, not Hissp.
 They are abbreviations for the Hissp that they return.
 
-If you quote an example, you can see that intermediate step::
+If you quote an example, you can see that intermediate step:
+
+.. code-block:: Lissp
 
     #> '`(:a ,@"bcd" ,(opearator..mul 2 3))
     #..
@@ -819,7 +883,9 @@ Gensyms
 #######
 The final builtin reader macro ``$#`` creates a *generated symbol*
 (gensym) based on the given symbol.
-Within a template, the same gensym name always makes the same gensym::
+Within a template, the same gensym name always makes the same gensym:
+
+.. code-block:: Lissp
 
     #> `($#hiss $#hiss)
     #..
@@ -837,7 +903,9 @@ which is very important for reliable macros.
 Atomic Literal Data Structures
 ------------------------------
 
-A subset of Python's data structure notation works in Lissp as well::
+A subset of Python's data structure notation works in Lissp as well:
+
+.. code-block:: Lissp
 
     #> [1,2,3]
     >>> [1, 2, 3]
@@ -853,7 +921,9 @@ which can be very useful as inputs to macros,
 
 .. sidebar:: Except for the empty tuple.
 
-   You can quote it if you want, it doesn't change the result::
+   You can quote it if you want, it doesn't change the result:
+
+   .. code-block:: Lissp
 
        #> '()
        #..
@@ -887,7 +957,9 @@ Unlike Python's notation,
 atomic data structures in Lissp may contain only static values discernible at read time.
 A literal data structure is read as a *single atom*.
 If you want to interpolate runtime data,
-use function calls and templates instead::
+use function calls and templates instead:
+
+.. code-block:: Lissp
 
     #> (list `(,@(.upper "abc") ,@[1,2,3] ,(.title "zed")))
     #..
@@ -899,7 +971,9 @@ use function calls and templates instead::
     ['A', 'B', 'C', 1, 2, 3, 'Zed']
 
 If this is still too verbose for your taste,
-remember that you can use helper functions or metaprogramming to simplify::
+remember that you can use helper functions or metaprogramming to simplify:
+
+.. code-block:: Lissp
 
     #> (define enlist  ; use instead of []
     #.. (lambda (: :* args)
@@ -926,7 +1000,9 @@ remember that you can use helper functions or metaprogramming to simplify::
     ...   'zed'.title())
     ['A', 'B', 'C', [1, 2, 3], 'Zed']
 
-You can also use the unpacking control words in these::
+You can also use the unpacking control words in these:
+
+.. code-block:: Lissp
 
     #> (enlist : :*(.upper "abc")  :? [1,2,3]  :? (.title "zed"))
     #..
@@ -952,7 +1028,9 @@ it is expanded as well (this pattern is known as a *recursive macro*),
 which is an ability that the reader macros lack.
 
 The compiler recognizes a callable as a macro if it is invoked directly
-from a ``_macro_`` namespace::
+from a ``_macro_`` namespace:
+
+.. code-block:: Lissp
 
     #> (hissp.basic.._macro_.define spam :eggs) ; qualified macro
     #..
@@ -971,7 +1049,9 @@ The compiler will also check the current module's ``_macro_`` namespace
 for matching macro names when compiling an unqualified invocation.
 
 The REPL automatically includes a ``_macro_``
-namespace with all of the basic macros::
+namespace with all of the basic macros:
+
+.. code-block:: Lissp
 
     #> _macro_.define
     >>> _macro_.define
@@ -993,7 +1073,9 @@ The compiler helpfully includes a comment whenever it expands a macro.
 Note the shorter comment emitted by the unqualified expansion.
 
 You can define your own macro by putting a callable into the ``_macro_`` namespace.
-Let's try it::
+Let's try it:
+
+.. code-block:: Lissp
 
     #> (setattr _macro_ 'hello (lambda () '(print 'hello)))
     #..
@@ -1010,7 +1092,9 @@ Let's try it::
     hello
 
 A zero-argument macro isn't that useful.
-We can do better. Let's use a template::
+We can do better. Let's use a template:
+
+.. code-block:: Lissp
 
     #> (setattr _macro_ 'greet (lambda (name) `(print 'Hello ,name)))
     #..
@@ -1037,7 +1121,9 @@ Not what you expected?
 
 A template quote automatically qualifies any unqualified symbols it contains
 with `builtins` (if applicable) or the current ``__name__``
-(which is ``__main__``)::
+(which is ``__main__``):
+
+.. code-block:: Lissp
 
     #> `int  ; Works directly on symbols too.
     >>> 'builtins..int'
@@ -1068,7 +1154,9 @@ instead.
 If you *want* to *capture* [#capture]_ a symbol (collide on purpose),
 you can still put unqualified symbols into templates
 by interpolating in an expression that evaluates to an unqualified
-symbol. (Like a quoted symbol)::
+symbol. (Like a quoted symbol):
+
+.. code-block:: Lissp
 
     #> `(float inf)
     #..
@@ -1084,7 +1172,9 @@ symbol. (Like a quoted symbol)::
     ...   'inf')
     ('builtins..float', 'inf')
 
-Let's try again. (Yes, reader macros compose like that.)::
+Let's try again. (Yes, reader macros compose like that.):
+
+.. code-block:: Lissp
 
     #> (setattr _macro_ 'greet (lambda (name) `(print ','Hello ,name)))
     #..
@@ -1109,7 +1199,9 @@ Let's try again. (Yes, reader macros compose like that.)::
 
 Using a symbol here is a bit sloppy.
 If you really meant it to be text, rather than an identifier,
-a double-quoted string might have been a better idea::
+a double-quoted string might have been a better idea:
+
+.. code-block:: Lissp
 
     #> (setattr _macro_ 'greet (lambda (name) `(print "Hello" ,name)))
     #..
@@ -1135,7 +1227,9 @@ it does prevent the template reader macro from qualifying it like a symbol.
 
 There's really no need to use a macro when a function will do.
 The above are for illustrative purposes only.
-But there are times when a function will not do::
+But there are times when a function will not do:
+
+.. code-block:: Lissp
 
     #> (setattr _macro_ '# (lambda (: :* body) `(lambda (,'#) (,@body))))
     #..
@@ -1209,7 +1303,9 @@ respectively::
 
     transpile(__package__, "spam", "eggs", "etc")
 
-Or equivalently in Lissp, used either at the REPL or if the main module is written in Lissp::
+Or equivalently in Lissp, used either at the REPL or if the main module is written in Lissp:
+
+.. code-block:: Lissp
 
     (hissp.reader..transpile __package__ 'spam 'eggs 'etc)
 
