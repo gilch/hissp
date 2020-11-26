@@ -122,7 +122,8 @@ This is hard to do consistently without good editor support.
 But *because* the brackets make it easy to parse (for a computer),
 editor support for Lisp is really very good.
 Emacs can do it, but it's got a bit of a learning curve.
-For a beginner, try installing Parinfer in a supported editor, like Atom.
+For a beginner, try installing `Parinfer <https://shaunlebron.github.io/parinfer/>`_
+in a supported editor, like `Atom <https://atom.io/packages/parinfer>`_.
 If you get the indent right, Parinfer will manage the trails for you.
 Parinfer makes editing Lisp feel more like editing Python.
 
@@ -148,8 +149,9 @@ The only absolute rules are
 
 If you break these rules,
 Parinfer can't be used.
-Team projects with any Lissp files should be running Parlinter along with their tests
-to enforce this.
+Team projects with any Lissp files should be running
+`Parlinter <https://github.com/shaunlebron/parlinter>`_
+along with their tests to enforce this.
 Basic legibility is not negotiable. Use it.
 
 don't dangle brackets
@@ -161,7 +163,7 @@ They do not get their own line;
 that's more emphasis than they deserve.
 They don't get extra spaces either.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    ;; Wrong.
    (define fib
@@ -187,7 +189,7 @@ They don't get extra spaces either.
 
 This also goes for readerless mode.
 
-.. code:: Python
+.. code-block:: Python
 
    # Very wrong.
    (
@@ -212,7 +214,7 @@ This also goes for readerless mode.
 If you're using an auto formatter that isn't aware of Hissp,
 you may have to turn it off.
 
-.. code:: Python
+.. code-block:: Python
 
    # Right.
    # fmt: off
@@ -237,7 +239,7 @@ unambiguous indentation
 The indentation level indicates which tuple the next line starts in.
 Go past the parent's opening bracket, not the sibling's.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (a (b c))
    x                                      ;(a (b c)) is sibling
@@ -264,7 +266,7 @@ Even after deleting the trails, you can tell where the ``x`` belongs.
 The rule is to pass the parent *bracket*.
 You might not pass the head *atom* in some alignment styles.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (foo (bar x)
      body)                                ;(foo is parent, (bar x) is special sibling
@@ -284,19 +286,45 @@ We can still unambiguously reconstruct the trails from the indent.
 
 Note that a multiline string is still an atom.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
-   (foo "abc
-     xyz")
+   (foo (bar "abc
+   xyz"))
 
-We can still unambiguously reconstruct the trail.
+   (foo (bar)
+        "abc
+   xyz")
 
-.. code:: Lissp
+   (foo (bar "\
+   abc
+   xyz"))
 
-   (foo "abc
-     xyz"
+   (foo (bar)
+        "\
+   abc
+   xyz")
 
-Note that the ``"`` is not a bracket,
+We can still unambiguously reconstruct the trails.
+
+.. code-block:: Lissp
+
+   (foo (bar "abc
+   xyz"
+
+   (foo (bar
+        "abc
+   xyz"
+
+   (foo (bar "\
+   abc
+   xyz"
+
+   (foo (bar
+        "\
+   abc
+   xyz"
+
+The ``"`` is not a bracket,
 so we don't delete it or ignore it.
 
 Alignment Styles
@@ -310,7 +338,7 @@ Keep items within implied groups (like kwargs) together.
 Control words used as labels should be grouped with what they label.
 Your code should look like these examples:
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    '(data1 data2 data3)                   ;Treat all data items the same.
 
@@ -409,6 +437,51 @@ Your code should look like these examples:
             :** kwargs)                   ;kwargs
      body)
 
+Multiline strings can mess with alignment styles.
+Strings are atoms, so this won't affect Parinfer,
+but it can impact legibility.
+For short strings in simple forms,
+don't worry too much, but consider using ``\n``.
+
+For deeply nested multiline strings,
+use a dedent string, which can be safely indented:
+
+.. code-block:: Lissp
+
+   #> (print (.upper 'textwrap..dedent#"\
+   #..               These lines
+   #..               Don't interrupt
+   #..               the flow."))
+   #..
+   >>> print(
+   ...   "These lines\nDon't interrupt\nthe flow.".upper())
+   THESE LINES
+   DON'T INTERRUPT
+   THE FLOW.
+
+Don't forget the quote ``'``.
+
+Long multiline strings should be declared at the top level and referenced by name.
+
+.. code-block:: Lissp
+
+   (define MESSAGE "\
+   These lines
+   don't interrupt
+   the flow either.
+   But, a really long string would be
+   longer than this one.
+   ")
+
+   (deftype MessagePrinter ()
+     __doc__
+     "It is safe
+      to indent docstrings."
+     display
+     (lambda (self)
+       (print MESSAGE)))
+
+
 Identifiers
 ===========
 
@@ -460,7 +533,7 @@ That's what lets us indent and see the tree structure clearly.
 It's OK to have single ``)``'s inside the line,
 but don't overdo it.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (lambda (x) (print "Hi" x) (print "Bye" x)) ;OK
 
@@ -472,7 +545,7 @@ Implied groups should be kept together.
 Closing brackets inside a pair can happen in `cond`,
 for example.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (lambda (x)
      (cond (operator..lt x 0) (print "negative")

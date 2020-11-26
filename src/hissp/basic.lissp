@@ -9,7 +9,7 @@ fully-qualified names, or add them to the module's ``_macro_``'s.
 
 For example
 
-.. code:: Lissp
+.. code-block:: Lissp
 
   (hissp.basic.._macro_.from-require
    (hissp.basic cascade if-else let progn))

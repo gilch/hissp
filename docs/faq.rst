@@ -11,6 +11,11 @@
    ...     **vars(
    ...       __import__('hissp.basic',fromlist='?')._macro_)))
 
+.. TODO: Sphinx update messed up my sidebars! Is there a better fix?
+.. raw:: html
+
+   <style>pre, div[class|="highlight"] {clear: left;}</style>
+
 FAQ
 ===
 (Frequently Anticipated Questions (and complaints))
@@ -60,7 +65,7 @@ I mean how do you write it in Hissp without operators? Please don't say ``eval()
 We have all the operators because we have all the standard library
 functions.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (operator..add 1 1)
 
@@ -86,7 +91,7 @@ Top-level imports are a good use of inject.
    Also consider `itertools`.
    Use responsibly.
 
-.. code:: python
+.. code-block:: Lissp
 
    #> .#"import operator as op"
    #..
@@ -102,7 +107,7 @@ Top-level imports are a good use of inject.
 The result is a bit less desirable in templates.
 But it's not technically wrong.
 
-.. code:: python
+.. code-block:: Lissp
 
    #> `op.add
    >>> '__main__..op.add'
@@ -110,7 +115,7 @@ But it's not technically wrong.
 
 And you can still qualify it yourself instead of letting the reader do it for you:
 
-.. code:: python
+.. code-block:: Lissp
 
    #> `operator..add
    >>> 'operator..add'
@@ -121,7 +126,7 @@ Yeah, that's better, but in Python, it's just ``+``.
 
 You can, of course, abbreviate these.
 
-.. code:: python
+.. code-block:: Lissp
 
    #> (define + operator..add)
    #..
@@ -144,7 +149,7 @@ used by all the calls.
 
 You can even upgrade these to use a reduce so they're multiary like other Lisps:
 
-.. code:: python
+.. code-block:: Lissp
 
    #> (define +
    #..  (lambda (: :* args)
@@ -214,7 +219,7 @@ arguments.
 
 Fine. You can write macros for any syntax you please.
 
-Also consider using Hebigo, which keeps all Python expressions, instead
+Also consider using Hebigo_, which keeps all Python expressions, instead
 of Lissp.
 
 Also recall that both reader and compiler macros can return arbitrary
@@ -227,7 +232,7 @@ of the few times it's OK to do that.
 Recall the inject ``.#`` reader macro executes a form and embeds its result
 into the Hissp.
 
-.. code:: python
+.. code-block:: Lissp
 
    #> (define quadratic
    #.. (lambda (a b c)
@@ -265,7 +270,7 @@ There's no ``macroexpand``. How do I look at expansions?
 Invoke the macro indirectly somehow so the compiler sees it as a normal function,
 and pass all arguments quoted.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    ((getattr hissp.basic.._macro_ "define") 'foo '"bar")
 
@@ -276,7 +281,7 @@ interpreted as a macro invocation. This syntax isn't restricted solely
 to methods on objects. Due to certain regularities in Python syntax, it
 also works on callable attributes in any kind of namespace.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (.define hissp.basic.._macro_ : :* '(foo "bar"))
 
@@ -333,7 +338,7 @@ See also `hissp.basic._macro_.when`.
 What about if/else ternary expressions?
 ---------------------------------------
 
-.. code:: python
+.. code-block:: python
 
    (lambda b, *then_else: then_else[not b]())(
        1 < 2,
@@ -358,7 +363,7 @@ Also recall that macros are allowed to return strings of Python code.
 All the usual caveats for text-substitution macros apply. Use
 parentheses.
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (defmacro !if (test then otherwise)
      "Compiles to if/else expression."
@@ -411,8 +416,8 @@ Clojure and ClojureScript don't have it either.
 
 You can increase the recursion limit with `sys.setrecursionlimit`.
 Better not increase it too much if you don't like segfaults, but you can
-trampoline instead. See Drython's ``loop()`` function. Or use it. Or
-Hebigo's equivalent macro. Clojure does it about the same way.
+trampoline instead. See Drython_'s ``loop()`` function. Or use it. Or
+Hebigo_'s equivalent macro. Clojure does it about the same way.
 
 Where's ``cons``? How do you add links to your lists?
 -----------------------------------------------------
@@ -450,7 +455,7 @@ Use `tuple()`.
 But I have to already have an iterable, which is why I wanted a tuple in the first place!
 -----------------------------------------------------------------------------------------
 
-.. code:: Python
+.. code-block:: Python
 
    lambda *a: a
 
@@ -552,7 +557,7 @@ But I need a raise statement for a specific exception message.
 
 Exceptions are not good functional style. Haskell uses the Maybe monad
 instead, so you don't need them. If you must, you can still use a
-``raise`` in `exec()<exec>`. (Or use Drython's ``Raise()``, or Hebigo's
+``raise`` in `exec()<exec>`. (Or use Drython_'s ``Raise()``, or Hebigo_'s
 equivalent macro.)
 
 If you want a Maybe in Python,
@@ -576,7 +581,7 @@ But there's no ``with`` statement either!
 -----------------------------------------
 
 Use `contextlib.ContextDecorator` as a mixin and any context manager
-works as a decorator. Or use Drython's ``With()``.
+works as a decorator. Or use Drython_'s ``With()``.
 
 How do I use a decorator?
 -------------------------
@@ -596,7 +601,7 @@ But I need to handle the exception if and only if it was raised, for multiple ex
 
 Context managers can do all of that!
 
-.. code:: python
+.. code-block:: python
 
    from contextlib import ContextDecorator
 
@@ -627,7 +632,7 @@ How?
 
 Like this
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (deftype Except (contextlib..ContextDecorator)
      __init__
@@ -672,7 +677,7 @@ Isn't this slow?! You can't get away with calling this an "exceptional case" thi
 Not if you define it as a function in advance. Then it only happens once
 on module import. Something like,
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (exec "
    def try_statement(block, target, handler):
@@ -686,8 +691,8 @@ like for `named tuples <collections.namedtuple>`.
 But at this point, unless you really want a
 single-file script with no dependencies, you're better off defining the
 helper function in Python and importing it. You could handle the
-finally/else blocks similarly. See Drython's ``Try()`` for how to do it.
-Or just use Drython. Hebigo also implements one. If Hebigo is installed,
+finally/else blocks similarly. See Drython_'s ``Try()`` for how to do it.
+Or just use Drython. Hebigo_ also implements one. If Hebigo is installed,
 you can import and use Hebigo's macros, even in Lissp, because they also
 take and return Hissp.
 
@@ -722,7 +727,7 @@ Still, we want Python compatibility, don't we?
 
 Make a `collections.abc.Generator` subclass with a ``send()`` method.
 
-Or use Drython's ``Yield()``.
+Or use Drython_'s ``Yield()``.
 
 Generator-based coroutines have been deprecated. Don't implement them
 with generators anymore. Note there are `collections.abc.Awaitable`
@@ -744,7 +749,7 @@ directly.
 
 If you have the entry point script installed that's:
 
-.. code:: shell
+.. code-block:: shell
 
    $ hissp foo.lissp
 
@@ -753,7 +758,7 @@ first.
 
 At the REPL (or main module if it's written in Lissp) use:
 
-.. code:: Lissp
+.. code-block:: Lissp
 
    (hissp.reader..transpile __package__ 'spam 'eggs 'etc)
 
@@ -763,7 +768,7 @@ directory.)
 
 Or equivalently, in Python:
 
-.. code:: python
+.. code-block:: python
 
    from hissp.reader import transpile
 
@@ -796,7 +801,7 @@ But I need the module object itself! The package ``__init__.py`` doesn't import 
 
 A module name that ends with a dot will do it for you.
 
-.. code:: python
+.. code-block:: Lissp
 
    #> collections.abc.
    #..
@@ -912,7 +917,7 @@ Using these directly in Python
 ("readerless mode")
 is much more natural than writing code using Hy's model objects,
 although using the Lissp
-(or Hebigo)
+(or Hebigo_)
 language reader makes writing these tuples even easier than doing it directly in Python.
 
 Hissp is designed to be more modular than Hy.
@@ -942,7 +947,7 @@ The decompiled AST also looks like pretty readable Python.
 Not quite what a human would write,
 but a good starting point if you wanted to translate a Hy project back to Python.
 
-But after writing Drython,
+But after writing Drython_,
 I realized that the expression subset of Python is sufficient for a compilation target.
 There is no need to do the extra work to make statements act like
 expressions if you only compile to expressions to begin with.
@@ -1036,11 +1041,11 @@ as explained in the tutorial and quickstart.
 
 Lissp goes through multiple stages as it compiles:
 
-- the `Lissp reader<hissp.reader>` reads it in as Hissp data structures.
+- the :doc:`Lissp reader<hissp.reader>` reads it in as Hissp data structures.
 
   - `its lexer<hissp.reader.lex>` breaks the text into a stream of tokens.
   - `its parser<hissp.reader.Parser>` builds the tokens into Hissp.
-- the `Hissp compiler<hissp.compiler>` translates Hissp to a functional subset of Python.
+- the :doc:`Hissp compiler<hissp.compiler>` translates Hissp to a functional subset of Python.
 
 Then Python takes over and Hissp does not concern itself with this part.
 But CPython goes through a similar process.
@@ -1090,10 +1095,13 @@ Hissp is certainly usable in its current form,
 though maybe some things could be nicer.
 The language itself seems pretty settled,
 but the implementation may change as the bugs are ironed out.
-It was stable enough to prototype Hebigo.
+It was stable enough to prototype Hebigo_.
 
 There's probably no need to ever change the basic language, except
 perhaps to keep up with Python, since the macro system makes it so
 flexible. But Hissp is still unproven in any major project, so who
 knows? The only way it will get proven is if some early adopter like you
 tries it out and lets me know how it goes.
+
+.. _Hebigo: https://github.com/gilch/hebigo
+.. _Drython: https://github.com/gilch/drython

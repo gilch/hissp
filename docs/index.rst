@@ -3,10 +3,14 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Hissp's documentation!
-=================================
+It's Python with a *Lissp.*
+===========================
 
-*Hissp: It's Python with a Lissp.*
+.. image:: hissp.svg
+
+Welcome to Hissp's documentation!
+Jump in and try the quick start if you're feeling confident,
+or read the more detailed tutorial.
 
 .. toctree::
    :maxdepth: 2
@@ -18,14 +22,11 @@ Welcome to Hissp's documentation!
    style_guide
    command_line_reference
 
+* :ref:`API Reference <modindex>`
+
 .. toctree::
    :maxdepth: 1
 
    faq
 
-Indices and tables
-==================
-
 * :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
