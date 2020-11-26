@@ -91,7 +91,7 @@ Top-level imports are a good use of inject.
    Also consider `itertools`.
    Use responsibly.
 
-.. code-block:: python
+.. code-block:: Lissp
 
    #> .#"import operator as op"
    #..
@@ -107,7 +107,7 @@ Top-level imports are a good use of inject.
 The result is a bit less desirable in templates.
 But it's not technically wrong.
 
-.. code-block:: python
+.. code-block:: Lissp
 
    #> `op.add
    >>> '__main__..op.add'
@@ -115,7 +115,7 @@ But it's not technically wrong.
 
 And you can still qualify it yourself instead of letting the reader do it for you:
 
-.. code-block:: python
+.. code-block:: Lissp
 
    #> `operator..add
    >>> 'operator..add'
@@ -126,7 +126,7 @@ Yeah, that's better, but in Python, it's just ``+``.
 
 You can, of course, abbreviate these.
 
-.. code-block:: python
+.. code-block:: Lissp
 
    #> (define + operator..add)
    #..
@@ -149,7 +149,7 @@ used by all the calls.
 
 You can even upgrade these to use a reduce so they're multiary like other Lisps:
 
-.. code-block:: python
+.. code-block:: Lissp
 
    #> (define +
    #..  (lambda (: :* args)
@@ -232,7 +232,7 @@ of the few times it's OK to do that.
 Recall the inject ``.#`` reader macro executes a form and embeds its result
 into the Hissp.
 
-.. code-block:: python
+.. code-block:: Lissp
 
    #> (define quadratic
    #.. (lambda (a b c)
@@ -801,7 +801,7 @@ But I need the module object itself! The package ``__init__.py`` doesn't import 
 
 A module name that ends with a dot will do it for you.
 
-.. code-block:: python
+.. code-block:: Lissp
 
    #> collections.abc.
    #..
