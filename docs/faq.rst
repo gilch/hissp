@@ -219,7 +219,7 @@ arguments.
 
 Fine. You can write macros for any syntax you please.
 
-Also consider using Hebigo, which keeps all Python expressions, instead
+Also consider using Hebigo_, which keeps all Python expressions, instead
 of Lissp.
 
 Also recall that both reader and compiler macros can return arbitrary
@@ -416,8 +416,8 @@ Clojure and ClojureScript don't have it either.
 
 You can increase the recursion limit with `sys.setrecursionlimit`.
 Better not increase it too much if you don't like segfaults, but you can
-trampoline instead. See Drython's ``loop()`` function. Or use it. Or
-Hebigo's equivalent macro. Clojure does it about the same way.
+trampoline instead. See Drython_'s ``loop()`` function. Or use it. Or
+Hebigo_'s equivalent macro. Clojure does it about the same way.
 
 Where's ``cons``? How do you add links to your lists?
 -----------------------------------------------------
@@ -557,7 +557,7 @@ But I need a raise statement for a specific exception message.
 
 Exceptions are not good functional style. Haskell uses the Maybe monad
 instead, so you don't need them. If you must, you can still use a
-``raise`` in `exec()<exec>`. (Or use Drython's ``Raise()``, or Hebigo's
+``raise`` in `exec()<exec>`. (Or use Drython_'s ``Raise()``, or Hebigo_'s
 equivalent macro.)
 
 If you want a Maybe in Python,
@@ -581,7 +581,7 @@ But there's no ``with`` statement either!
 -----------------------------------------
 
 Use `contextlib.ContextDecorator` as a mixin and any context manager
-works as a decorator. Or use Drython's ``With()``.
+works as a decorator. Or use Drython_'s ``With()``.
 
 How do I use a decorator?
 -------------------------
@@ -691,8 +691,8 @@ like for `named tuples <collections.namedtuple>`.
 But at this point, unless you really want a
 single-file script with no dependencies, you're better off defining the
 helper function in Python and importing it. You could handle the
-finally/else blocks similarly. See Drython's ``Try()`` for how to do it.
-Or just use Drython. Hebigo also implements one. If Hebigo is installed,
+finally/else blocks similarly. See Drython_'s ``Try()`` for how to do it.
+Or just use Drython. Hebigo_ also implements one. If Hebigo is installed,
 you can import and use Hebigo's macros, even in Lissp, because they also
 take and return Hissp.
 
@@ -727,7 +727,7 @@ Still, we want Python compatibility, don't we?
 
 Make a `collections.abc.Generator` subclass with a ``send()`` method.
 
-Or use Drython's ``Yield()``.
+Or use Drython_'s ``Yield()``.
 
 Generator-based coroutines have been deprecated. Don't implement them
 with generators anymore. Note there are `collections.abc.Awaitable`
@@ -917,7 +917,7 @@ Using these directly in Python
 ("readerless mode")
 is much more natural than writing code using Hy's model objects,
 although using the Lissp
-(or Hebigo)
+(or Hebigo_)
 language reader makes writing these tuples even easier than doing it directly in Python.
 
 Hissp is designed to be more modular than Hy.
@@ -947,7 +947,7 @@ The decompiled AST also looks like pretty readable Python.
 Not quite what a human would write,
 but a good starting point if you wanted to translate a Hy project back to Python.
 
-But after writing Drython,
+But after writing Drython_,
 I realized that the expression subset of Python is sufficient for a compilation target.
 There is no need to do the extra work to make statements act like
 expressions if you only compile to expressions to begin with.
@@ -1095,10 +1095,13 @@ Hissp is certainly usable in its current form,
 though maybe some things could be nicer.
 The language itself seems pretty settled,
 but the implementation may change as the bugs are ironed out.
-It was stable enough to prototype Hebigo.
+It was stable enough to prototype Hebigo_.
 
 There's probably no need to ever change the basic language, except
 perhaps to keep up with Python, since the macro system makes it so
 flexible. But Hissp is still unproven in any major project, so who
 knows? The only way it will get proven is if some early adopter like you
 tries it out and lets me know how it goes.
+
+.. _Hebigo: https://github.com/gilch/hebigo
+.. _Drython: https://github.com/gilch/drython
