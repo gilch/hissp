@@ -8,6 +8,9 @@ Welcome to Hissp's documentation!
 
 *Hissp: It's Python with a Lissp.*
 
+Jump in with the quick start if you're feeling confident,
+or try the tutorial for a gentler introduction.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
