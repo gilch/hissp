@@ -2,10 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
+import unicodedata
 from contextlib import suppress
 from typing import Dict, Hashable, Mapping, Match, TypeVar
-
-import unicodedata
 
 
 def munge(s: str) -> str:
@@ -20,17 +19,25 @@ TO_NAME = {
     "!": "xBANG_",
     "@": "xAT_",
     "#": "xHASH_",
-    "$": "xDOLLAR_",
-    "%": "xPERCENT_",
+    "$": "xDOLR_",
+    "%": "xPCENT_",
     "^": "xCARET_",
     "&": "xET_",
     "*": "xSTAR_",
+    "(": "xPAREN_",
+    ")": "xTHESES_",
     "-": "xH_",  # Hyphen
     "+": "xPLUS_",
     "=": "xEQ_",
+    "{": "xCURLY_",
+    "[": "xSQUARE_",
+    "}": "xBRACES_",
+    "]": "xBRACKETS_",
     "|": "xBAR_",
     "\\": "xBSLASH_",
     ":": "xCOLON_",
+    ";": "xSCOLON_",
+    '"': "x2QUOTE_",
     "'": "xQUOTE_",
     "<": "xLT_",  # Less Than or LefT.
     ",": "xCOMMA_",

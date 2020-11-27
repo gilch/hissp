@@ -19,9 +19,10 @@ class TestMunger(TestCase):
 
     def test_munge_basic(self):
         self.assertEqual(
-            munger.munge(r"~!@#$%^&*+`-=|\:'<>?,/"),
-            "xTILDE_xBANG_xAT_xHASH_xDOLLAR_xPERCENT_xCARET_xET_xSTAR_xPLUS_xGRAVE_xH_"
-            "xEQ_xBAR_xBSLASH_xCOLON_xQUOTE_xLT_xGT_xQUERY_xCOMMA_xSLASH_",
+            munger.munge(r"""~!@#$%^&*()_+{}|:"<>?`-=[]\;',./"""),
+            "xTILDE_xBANG_xAT_xHASH_xDOLR_xPCENT_xCARET_xET_xSTAR_xPAREN_xTHESES_"
+            "_xPLUS_xCURLY_xBRACES_xBAR_xCOLON_x2QUOTE_xLT_xGT_xQUERY_xGRAVE_xH_xEQ_"
+            "xSQUARE_xBRACKETS_xBSLASH_xSCOLON_xQUOTE_xCOMMA_.xSLASH_"
         )
 
     @given(st.text(st.characters(["Sm"]), min_size=1))

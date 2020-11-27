@@ -402,11 +402,11 @@ as an identifier and as a string representing that identifier:
     #..
     >>> setattr(
     ...   spam,
-    ...   'xBANG_xAT_xPERCENT_xDOLLAR_',
+    ...   'xBANG_xAT_xPCENT_xDOLR_',
     ...   'eggs')
 
     #> spam.!@%$
-    >>> spam.xBANG_xAT_xPERCENT_xDOLLAR_
+    >>> spam.xBANG_xAT_xPCENT_xDOLR_
     'eggs'
 
 Control Words
