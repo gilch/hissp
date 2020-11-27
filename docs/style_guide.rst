@@ -373,6 +373,10 @@ Your code should look like these examples:
     arg2                                  ; Not even one space past the (, like data.
     arg3)
 
+   ((lambda (a b c)
+      (print c b a))
+    arg1 arg2 arg3)                       ;Break for all args or for none.
+
    ;; One extra space between pairs.
    (function arg1 arg2 : kw1 kwarg1  kw2 kwarg2  kw3 kwarg3)
 
