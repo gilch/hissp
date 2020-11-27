@@ -115,9 +115,9 @@ r''''\~\!\@\#\$\%\^\&\*\(\)\_\+\{\}\|\:\"\<\>\?\`\-\=\[\]\\\;\'\,\.\/''':
       'xTILDE_xBANG_xAT_xHASH_xDOLR_xPCENT_xCARET_xET_xSTAR_xPAREN_xTHESES__xPLUS'
       '_xCURLY_xBRACES_xBAR_xCOLON_x2QUOTE_xLT_xGT_xQUERY_xGRAVE_xH_xEQ_xSQUARE'
       '_xBRACKETS_xBSLASH_xSCOLON_xQUOTE_xCOMMA_.xSLASH_')],
-r'''\1 \12 \[] \(\) \{} \[] \; \# \` \, \' \" \\''':
-    ['x_1',
-     'x_12',
+r'''\1 \12 \[] \(\) \{} \[] \; \# \` \, \' \" \\ \ ''':
+    ['xDIGITxONE_',
+     'xDIGITxONE_2',
      'xSQUARE_xBRACKETS_',
      'xPAREN_xTHESES_',
      'xCURLY_xBRACES_',
@@ -128,7 +128,8 @@ r'''\1 \12 \[] \(\) \{} \[] \; \# \` \, \' \" \\''':
      'xCOMMA_',
      'xQUOTE_',
      'x2QUOTE_',
-     'xBSLASH_'],
+     'xBSLASH_',
+     'xSPACE_'],
 }
 
 

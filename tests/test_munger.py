@@ -1,6 +1,7 @@
 # Copyright 2019 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
+import unicodedata
 from unittest import TestCase
 
 import hypothesis.strategies as st
@@ -15,7 +16,7 @@ class TestMunger(TestCase):
         x = munger.munge(s)
         self.assertEqual(x, munger.munge(munger.demunge(x)))
         if "x" not in s:
-            self.assertEqual(s, munger.demunge(x))
+            self.assertEqual(unicodedata.normalize("NFKC", s), munger.demunge(x))
 
     def test_munge_basic(self):
         self.assertEqual(
