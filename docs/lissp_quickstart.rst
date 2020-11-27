@@ -1,7 +1,7 @@
 .. Copyright 2020 Matthew Egan Odendahl
    SPDX-License-Identifier: Apache-2.0
 
-.. TODO: sybil tests? ;: ;>>>
+.. TODO: sybil tests? ;: ;>>> ;...
 
 Lissp Quick Start
 =================
@@ -10,41 +10,37 @@ Lissp Quick Start
 
    ;;;; Lissp Quick Start
 
-   ;; Lissp is a lightweight textual language representing the Hissp data language.
-   ;; The Lissp reader converts Lissp code to Hissp data structures.
+   ;; Lissp is a lightweight textual language representing the Hissp data
+   ;; language. The Lissp reader converts Lissp code to Hissp syntax trees.
    ;; The Hissp compiler translates Hissp to a functional subset of Python.
 
-   ;; This document is written like a .lissp file,
-   ;; demonstrating Lissp's features with minimal exposition.
-   ;; Some familiarity with Python is assumed.
-   ;; Familiarity with another Lisp dialect is helpful, but not assumed.
-   ;; See the Hissp tutorial for more detailed explanations.
+   ;; This document is written like a .lissp file, demonstrating Lissp's
+   ;; features with minimal exposition. Some familiarity with Python is
+   ;; assumed. Familiarity with another Lisp dialect is not assumed, but
+   ;; helpful. See the Hissp tutorial for more detailed explanations.
+
+   ;; Follow along by entering these examples in the REPL. It will show you the
+   ;; compiled Python, and evaluate it. Try variations that occur to you.
+
+   ;;;; Installation
 
    ;; Install hissp with $ pip install hissp
    ;; Start the REPL with $ hissp
    ;; Quit with EOF or (exit).
 
-   ;; Follow along by entering these examples in the REPL.
-   ;; It will show you the compiled Python, and evaluate it.
-   ;; Try variations that occur to you.
+   ;;;; Literals
 
-   ;;;; Semicolon Comment Style
+   ;;; singleton
 
-   ;; ;;;; Headings start with 4.
-   ;; ;;; Subheadings start with 3.
-   ;; (Aligned-comments
-   ;;   ;; are indented as the next line.
-   ;;   "And start with 2: ;;")
-   ;; Margin comments (;)                 ;Begin at column 40+,
-   ;;                                     ; can continue with a space,
-   ;; and always have a space before the semicolon. ;Like this.
+   None                                   ;Same as Python.
+   ...                                    ;Ellipsis
 
-   ;;;; Numeric
-
-   ;; Numeric literals are the same as Python.
+   ;;; boolean
 
    False                                  ;bool. Remember that bools are ints:
    True                                   ; 0 and 1.
+
+   ;;; integer
 
    42                                     ;int
    0x10                                   ;16
@@ -52,56 +48,49 @@ Lissp Quick Start
    0b10                                   ;2
    0b1111_0000_0000                       ;0xF00
 
+   ;;; floating-point
+
    -4.2                                   ;float
    4e2                                    ;400.0
    -1.6e-2                                ;-0.016
+
+   ;;; complex
 
    5j                                     ;imaginary
    4+2j                                   ;complex
    -1_2.3_4e-5_6-7_8.9_8e-7_6j            ;Very complex!
 
-   ;;;; Singleton
+   ;;; symbols and strings
 
-   ;; The singleton literals are also the same as Python.
-
-   None
-   ...                                    ;Ellipsis
-
-   ;;;; Symbolic
-
-   ;; Symbolic literals are not quite like Python.
-
-   ;; Hissp has full access to Python libraries.
    object                                 ;Normal identifier.
-   object.__class__                       ;Attribute identifier. Same as Python so far.
-   math.                                  ;Module identifier. Ends in a dot. Imports it!
+   object.__class__                       ;Attribute identifier with dot. Same as Python so far.
+   math.                                  ;Module identifier ends in a dot and imports it!
    math..tau                              ;Qualified identifier. Attribute of a module.
    collections.abc.                       ;Submodule identifier. Has package name.
    builtins..object.__class__             ;Qualified attribute identifier.
    object.__class__.__name__              ;Attributes chain.
    collections.abc..Sequence.__class__.__name__ ;All together now.
 
-   :control-word                          ;Similar to ":keywords" in other Lisps.
+   :control-word                          ;Colon prefix. Similar to ":keywords" in other Lisps.
 
-   'symbol                                ;Symbols represent identifiers.
+   'symbol                                ;Apostrophe prefix. Symbols represent identifiers.
 
-   ;;; Read-time special-character munging.
+   ;; Symbols munge special characters at read-time to valid Python identifiers.
 
    'Also-a-symbol!                        ;alias for 'AlsoxH_axH_symbolxBANG_
    '+                                     ;'xPLUS_
    '->>                                   ;'xH_xGT_xGT_
+   :->>                                   ;Control words don't represent identifiers, don't munge.
 
    "string"                               ;Double-quotes only!
-   'string'                               ;'stringxQUOTE_
+   'string'                               ;'stringxQUOTE_ symbol.
 
-   ;; No triple-quotes either, but
    "string
    with
    newlines
-   "                                      ;same as "string\nwith\nnewlines\n"
+   "                                      ;same as "string\nwith\nnewlines\n". No triple quotes.
 
-   ;; Same escape sequences as Python.
-   "Say \"Cheese!\""
+   "Say \"Cheese!\""                      ;Same backslash escape sequences as Python.
 
    b"bytes"                               ;Double-quotes only! Little 'b' only!
    b'bytes'                               ;NameError: name 'bxQUOTE_bytesxQUOTE_' is not defined
@@ -111,90 +100,58 @@ Lissp Quick Start
    newlines
    "                                      ;same as b"bytes\nwith\nnewlines\n"
 
-   ;;;; Invocations
+   ;;;; Calls
 
-   (print "Hello, World!")                ;"(" goes before function name!
-   (print 1 2 3)                          ;No commas between arguments!
+   (print :)                              ;"(" goes before the function name! Calls have a :.
+   (print : :? 1  :? 2  :? 3  sep "-")    ;Arguments pair with a parameter name. No commas!
+   (print 1 2 3 : sep "-")                ;Arguments left of the : implicitly pair with :?.
+   (print 1 : :* "abc"  :? 2  :** (dict : sep "-")) ;Unpacking!
+   (print "Hello, World!")                ;No : is the same as putting it last.
+   (print "Hello, World!" :)
 
-   ;; Paired arguments after the ":" are for Python compatibility.
-   ;; This is a bit different from other Lisps.
+   (.upper "shout!")                      ;Method calls like Clojure. A ``self`` is required.
+   (.float builtins. 'inf)                ;Method call syntax, but not technically a method.
+   (builtins..float 'inf)                 ;Same effect as before, but not method syntax.
 
-   (print 1 2 3 : sep "-")                ;Kwargs after the ":".
-   (print : :? 1  :? 2  :? 3  sep "-")    ;You can pair all the arguments if you want.
-
-   ;; Control words like : :* :? normally compile to strings,
-   ;; but they can have special meaning in certain contexts.
-
-   ;; The :* is for Python's positional unpacking. Try it!
-   ;; There's also a :** for kwarg unpacking.
-   ;; Remember you can still pass an argument positionally on the paired side with :?.
-   ;; Pairs are conventionally separated by an extra space.
-   (print 1 : :* "abc"  :? 2  :** (dict : sep "-"))
-
-   ;; The ``self`` is the first argument to method calls.
-   (.upper "shout!")                      ;"SHOUT!"
-   ;; Method call syntax, but not technically a method.
-   (.float builtins. 'inf)
-   ;; Same effect as above.
-   (builtins..float 'inf)
-
-   ;; Macros can rewrite code before evaluation.
-   (-> "world!" (.title) (->> (print "Hello")))
-
-   ;; Python's online help function is still available.
-   (help float)
-   ;; Macros have docstrings like functions do.
-   ;; They live in the _macro_ namespace.
+   (help float)                           ;Python's online help function is still available.
    (dir)                                  ;See the _macro_?
-   (help _macro_.->>)
+   (dir _macro_)
+   (help _macro_.->>)                     ;Macros have docstrings and live in _macro_.
 
    ;;;; Lambda
 
-   ;; Lambda invocations create functions.
-   (lambda ())                            ;Empty parameters, empty body.
+   (lambda (x) x)                         ;Lambda invocations create functions.
 
-   ;; Lambdas support the same parameter types as Python, which are rather involved.
-   ;; Familiarity with Python is assumed here.
-
-   ;; Parameters are always paired, but the :? means "empty".
+   ;; Python parameter types are rather involved. Lambda does all of them.
    (lambda (: a :?  b :? :/               ;positional only
             c :?  d :?                    ;normal
             e 1  f 2                      ;default
             :* args  h 4  i :?  j 1       ;star args, key word
             :** kwargs)
-     ;; body
+     ;; Body (lambda returns empty tuple if body is empty).
+     (print (globals))
      (print (locals))                     ;side effects
      b)                                   ;last value is returned
 
-   ;; The "empty", :?, is implied for each pair before the :.
-   ;; Watch as we shift the : over.
-   (lambda (: :* :?  kwonly :?))          ;Keyword-only parameter.
-   (lambda (:* : kwonly :?))              ;The : implies no star args.
-   (lambda (:* kwonly :))                 ;The : now also implies no default.
-   (lambda (:* kwonly))                   ;You don't need the : if there's nothing after it,
-
-   (lambda (:* a))                        ;Not a star args! This is a kwonly!
+   ;; Parameters left of the : are paired with :?. Like with calls, but the other side.
    (lambda (: :* a))                      ;A star args has to pair with the star, just like Python.
-
+   (lambda (:* a))                        ;Not a star args! This is a kwonly! Ending : is implied.
+   (lambda (: :* :?  a :?))               ;Same meaning as the previous line, but explicit.
    (lambda (a b : x None  y None))        ;Normal, and then with defaults.
    (lambda (:* a b : x None  y None))     ;Keyword, and then with defaults.
 
-   ;; In the rare case you want to use a reserved control word as a default, quote it.
-   (lambda (: a ':?))
-   (lambda (: a ":?"))                    ;This also works because control words compile to strings.
-
    ;; Some of these are abuse. But this kind of flexibility can make macros easier.
-   (lambda (:))                           ;The : is still allowed.
+   (lambda (:))                           ;Explicit : is still allowed with no parameters.
    (lambda :)                             ;Thunk idiom.
    (lambda :x1)                           ;Control words are strings are iterable.
    (lambda b"")                           ; Parameters are not strictly required to be a tuple.
-   (lambda x)
-   (lambda abc)                           ;Three parameters.
+   ((lambda abc                           ;Three parameters.
+      (print c b a))
+    3 2 1)
 
    ;;;; Operators
 
-   ;; Hissp is simpler than Python. No operators!
-   ;; Use function invocations instead.
+   ;; Hissp is simpler than Python. No operators! Use function invocations instead.
 
    (operator..add 40 2)                   ;Addition.
    (.__setitem__ (globals) '+ operator..add) ;Assignment. We'll be using this later.
@@ -202,19 +159,18 @@ Lissp Quick Start
 
    ;;;; Control Flow
 
-   ;; Hissp is simpler than Python. No control flow!
-   ;; Use higher-order functions instead.
+   ;; Hissp is simpler than Python. No control flow! Use higher-order functions instead.
 
-   ;; Loops!
-   (any (map (lambda (c) (print c))
+   (any (map (lambda (c) (print c))       ;Loops!
              "abc"))
 
-   ;; Branches!
-   ((.get (dict :
+   ((.get (dict :                         ;Branches!
                 y (lambda () (print "Yes!"))
                 n (lambda () (print "Canceled.")))
           (input "enter y/n> ")
           (lambda () (print "Unrecognized input."))))
+
+   ;; Don't worry, macros make this much easier.
 
    ;;;; Quote
 
@@ -227,6 +183,7 @@ Lissp Quick Start
 
    'x                                     ;Same as (quote x). Symbols are just quoted identifiers!
    '(print "Hi")                          ;Same as (quote (print "Hi"))
+   (lambda (: a ':?))                     ;Quoted things are just data.
 
    ;; Reader macros are metaprograms to abbreviate Hissp instead of representing it directly.
 
@@ -257,99 +214,90 @@ Lissp Quick Start
    ;; Reader macros compose. Note the quote.
    'hissp.munger..demunge#xH_xGT_xGT_     ;'->>'
 
+   (print (.upper 'textwrap..dedent#"\
+                  These lines
+                  Don't interrupt
+                  the flow."))
+
    ;; The "inject" reader macro evaluates the next form
    ;; and puts the result directly in the Hissp.
    .#(fractions..Fraction 1 2)            ;Fraction() is multiary.
 
    ;; Use a string to inject Python into the compiled output.
-   ;; Use responsibly!
    (lambda (a b c)
      ;; Hissp may not have operators, but Python does.
      .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
 
+   ;; Statement injections work at the top level only.
+   .#"from operator import *"             ;All your operator are belong to us.
+
+   ;; Injections are powerful. Use responsibly!
+
    ;;;; Collections
 
-   ;; Make tuples with a quote.
-   '(1 2 3)                               ;(1, 2, 3)
+   ;;; templates and tuples
 
-   ;; You can interpolate with templates.
-   `(,(operator..pow 42 0) ,(+ 1 1) 3)    ;(1, 2, 3)
+   '(1 2 3)                               ;tuple
+   `(,(operator..pow 42 0) ,(+ 1 1) 3)    ;Interpolate with templates.
+   `("a" 'b c ,'d ,"e")                   ;Careful with quotes in templates! Try it.
+   '(1 "a")                               ;Recursive quoting.
+   `(1 ,"a")
 
-   ;; Be careful with quotes in templates!
-   `("a" 'b c ,'d ,"e")
-   ;; (('quote', 'a', {':str': True}), ('quote', '__main__..b'), '__main__..c', 'd', 'e')
-
-   '(1 "a")                               ;(1, ('quote', 'a', {':str': True}))
-   `(1 ,"a")                              ;(1, 'a')
-
-   ;; Helper functions may be easier.
-   ((lambda (: :* xs) xs) 0 "a" 'b :c)    ;(0, 'a', 'b', ':c')
+   ;; Helper functions may be easier than templates.
+   ((lambda (: :* xs) xs) 0 "a" 'b :c)
    (.__setitem__ (globals) 'entuple (lambda (: :* xs) xs))
-   (entuple 0 "a" 'b :c)                  ;(0, 'a', 'b', ':c')
+   (entuple 0 "a" 'b :c)
 
-   ;; Tuples convert to other collection types.
-   (list `(1 ,(+ 1 1) 2))                 ;[1 2 3]
-   (set '(1 2 3))                         ;{1, 2, 3}
-   (dict (zip '(1 2 3) "abc"))            ;{1: 'a', 2: 'b', 3: 'c'}
+   ;;; other collection types
 
-   ;; Symbolic-keyed dict via kwargs.
-   (dict : + 0  a 1  b 2)                 ;{'xPLUS_': 0, 'a': 1, 'b': 2}
-   ;; In the REPL, _ is the last result that wasn't None, same as Python.
-   (.__getitem__ _ '+)                    ;0
+   (list `(1 ,(+ 1 1) 2))
+   (set '(1 2 3))
+   (dict (zip '(1 2 3) "abc"))
 
-   ;; Mixed key types.
-   (dict '((a 1) (2 b)))                  ;{'a': 1, 2: 'b'}
-   ;; Interpolated.
+   (dict : + 0  a 1  b 2)                 ;symbolic keys
+   (.__getitem__ _ '+)                    ;In the REPL, _ is the last result that wasn't None.
+
+   (dict '((a 1) (2 b)))                  ;Mixed key types.
    (dict `((,'+ 42)
-           (,(+ 1 1) ,'b)))               ;{'xPlus_': 42, 2: 'b'}
-   (.__getitem__ _ '+)                    ;42
+           (,(+ 1 1) ,'b)))               ;interpolated
+   (.__getitem__ _ '+)
 
-   ;; Python injection can also make collections.
-   .#"[1, 2, 3]"                          ;[1, 2, 3]
-   ;; Injections work on any Python expression, even comprehensions!
+   .#"[1, 2, 3]"                          ;List from a Python injection.
    (.__setitem__ (globals)
-                 'endict                  ;helper function
+                 'endict                  ;dict helper function
                  (lambda (: :* pairs)
+                   ;; Injections work on any Python expression, even comprehensions!
                    .#"{k: next(it) for it in [iter(pairs)] for k in it}"))
-   (endict 1 2  'a 'b)                    ;{1: 2, 'a': 'b'}
+   (endict 1 2  'a 'b)
 
    ;;; atomic collection literals
 
-   ;; As a special convenience, in certain limited cases, you can drop the quotes,
-   .#[]                                   ;[]
-   ;; and the reader macro!
-   []                                     ;[]
+   .#[]                                   ;As a convenience, you can drop the quotes in some cases.
+   []                                     ; And the reader macro!
 
-   ;; List, set, and dict literals are a special case of injection.
-   ;; These read in as a single atom,
-   ;; so they may contain compile-time literals only--No interpolation!
-   [1,2,3]                                ;[1, 2, 3]
-   {1,2,3}                                ;{1, 2, 3}
-   {'a':1,2:b'b'}                         ;{'a': 1, 2: b'b'}
-
-   ;; Nesting.
-   [1,{2},{3:[4,5]},'six']                ;[1, {2}, {3: [4, 5]}, 'six']
+   [1,2,3]                                ;List, set and dict literals are a special case
+   {1,2,3}                                ; of injection. These literals read in as a single atom.
+   {'a':1,2:b'b'}                         ; Compile-time literals only--No interpolation!
+   [1,{2},{3:[4,5]},'six']                ;Nesting is allowed.
 
    ;; To keep the grammar simple, they're restricted:
    ;; No double quotes, no spaces, no newlines, and no parentheses, even in nested strings.
    [1, 2]                                 ;SyntaxError. No Spaces!
    [1,"2"]                                ;SyntaxError. No double quotes!
-   [1,'2']                                ;[1, '2']
-   [1,'''2''']                            ;[1, '2']
+   [1,'2']                                ;Correct.
+   [1,'''2''']                            ;Triple quotes are allowed, but still no newlines.
    [1,'2 3']                              ;SyntaxError. No Spaces! Not even in nested strings.
 
-   ;; Escapes for these do work in strings, though I find this one hard to read.
-   [1,'2\0403']                           ;[1, '2 3'].
-   ;; This is a little better.
-   [1,'2\N{space}3']                      ;[1, '2 3']
+   ;; Escapes for these do work in strings.
+   [1,'2\0403']                           ;Though I find this one hard to read.
+   [1,'2\N{space}3']                      ;This is a little better.
 
-   ;; If you need a collection that would violate those restrictions,
-   ;; use the inject macro (or constructors) instead.
-   .#"[1, '2 3']"                         ;[1, '2 3']
-   .#"[1, (2, 3)]"                        ;[1, (2, 3)]
-   (list `(1 ,"2 3"))                     ;[1, '2 3']
+   ;; Use the inject macro (or constructors) instead to get around these restrictions.
+   .#"[1, '2 3']"                         ;Spaces are allowed.
+   .#"[1, (2, 3)]"                        ;Parentheses are allowed.
+   (list `(1 ,"2 3"))                     ;Remember templates make tuples, convert to lists.
    (.__setitem__ (globals) 'enlist (lambda (: :* xs) (list xs)))
-   (enlist 1 "2 3")                       ;[1, '2 3']
+   (enlist 1 "2 3")                       ;helper function
 
    _#"Even though they evaluate the same, there's a subtle compile-time difference
    between an atomic collection literal and a string injection. This can matter because
@@ -364,10 +312,10 @@ Lissp Quick Start
 
    ;;;; Compiler Macros
 
-   _#" Macroexpansion happens at compile time, after the reader,
-   so they also work in readerless mode, or with alternative Hissp readers other than Lissp.
-   Macros get all of their arguments unevaluated (quoted)
-   and the compiler inserts the resulting Hissp into that point in the program."
+   _#"Macroexpansion happens at compile time, after the reader, so they also
+   work in readerless mode, or with alternative Hissp readers other than Lissp.
+   Macros get all of their arguments unevaluated (quoted) and the compiler
+   inserts the resulting Hissp into that point in the program."
 
    ;; A function invocation using an identifier qualified with ``_macro_`` is a macroexpansion.
    (hissp.basic.._macro_.define SPAM "eggs") ;N.B. SPAM not quoted.
@@ -490,9 +438,9 @@ Lissp Quick Start
    ;;;; Basic Macros
 
    _#" The REPL comes with some basic macros defined in hissp.basic.
-   By default, they don't work in .lissp files unqualified.
-   But you can add them to the current module's _macro_ namespace.
-   The compiled output from these does not require hissp to be installed."
+   By default, they don't work in .lissp files unqualified. But you can add
+   them to the current module's _macro_ namespace. The compiled output from
+   these does not require hissp to be installed."
 
    ;;; macro import
 
@@ -542,7 +490,7 @@ Lissp Quick Start
 
    ;;; linked-list emulation
 
-   ;; These really could be functions, but their expansion is small.
+   ;; These really could be functions, but their expansion is small enough to inline.
 
    (car "abcd")                           ;'a'
    (cdr "abcd")                           ;'bcd'
