@@ -48,7 +48,6 @@ class TestCompileGeneral(TestCase):
 
     @given(
         st.characters(
-            blacklist_characters='(){}[];".',
             whitelist_categories=["Lu", "Ll", "Lt", "Nl", "Sm"],
         )
     )
