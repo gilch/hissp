@@ -38,9 +38,9 @@ TOKENS = re.compile(
    ,@
   |['`,]
    # Any atom that ends in (an unescaped) ``#``
-  |(?:[^\\ \n"()#]|\\.)+[#]
+  |(?:[^\\ \n"();#]|\\.)+[#]
  )
-|(?P<atom>(?:[^\\ \n"()]|\\.)+)  # Let Python deal with it.
+|(?P<atom>(?:[^\\ \n"();]|\\.)+)  # Let Python deal with it.
 """
 )
 
@@ -147,6 +147,7 @@ class Parser:
     @staticmethod
     def _atom(v):
         symbol = v[0] == '\\'
+        v = v.replace(r'\.', 'xFULLxSTOP_')
         v = re.sub(r'\\(.)', lambda m: m[1], v)
         if symbol:
             return munge(v)
@@ -182,6 +183,7 @@ class Parser:
             if is_string(form):
                 form = form[1]
             return reduce(getattr, function.split("."), import_module(module))(form)
+        # TODO: consider unqualified reader macros.
         raise ValueError(f"Unknown reader macro {tag}")
 
     def template(self, form):
