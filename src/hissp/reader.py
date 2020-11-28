@@ -24,7 +24,7 @@ TOKENS = re.compile(
  (?P<open>\()
 |(?P<close>\))
 |(?P<string>
-  b?  # bytes
+  b?  # bytes?
   "  # Open quote.
     (?:[^"\\]  # Any non-magic character.
        |\\(?:.|\n)  # Backslash only if paired, including with newline.
@@ -37,10 +37,10 @@ TOKENS = re.compile(
 |(?P<macro>
    ,@
   |['`,]
-   # Ends in ``#``, but not dict, set, list, str.
-  |(?:[^ \n"(){}[\]#]+[#])
+   # Any atom that ends in (an unescaped) ``#``
+  |(?:[^\\ \n"();#]|\\.)+[#]
  )
-|(?P<symbol>[^ \n"()]+)
+|(?P<atom>(?:[^\\ \n"();]|\\.)+)  # Let Python deal with it.
 """
 )
 
@@ -105,8 +105,8 @@ class Parser:
                 continue
             elif k == "macro":
                 yield from self._macro(tokens, v)
-            elif k == "symbol":
-                yield from self._symbol(v)
+            elif k == "atom":
+                yield self._atom(v)
             elif k == "badspace":
                 raise SyntaxError("Bad space: " + repr(k))
             else:
@@ -145,14 +145,19 @@ class Parser:
             yield self.parse_macro(v, form)
 
     @staticmethod
-    def _symbol(v):
+    def _atom(v):
+        symbol = v[0] == '\\'
+        v = v.replace(r'\.', 'xFULLxSTOP_')
+        v = re.sub(r'\\(.)', lambda m: m[1], v)
+        if symbol:
+            return munge(v)
         try:
             val = ast.literal_eval(v)
             if isinstance(val, bytes):  # bytes have their own literals.
-                raise ValueError  # munge
-            yield val
+                return munge(v)
+            return val
         except (ValueError, SyntaxError):
-            yield munge(v)
+            return munge(v)
 
     def parse_macro(self, tag: str, form):
         if tag == "'":
@@ -178,6 +183,7 @@ class Parser:
             if is_string(form):
                 form = form[1]
             return reduce(getattr, function.split("."), import_module(module))(form)
+        # TODO: consider unqualified reader macros.
         raise ValueError(f"Unknown reader macro {tag}")
 
     def template(self, form):

@@ -369,10 +369,10 @@ Symbols have another important difference from double-quoted strings:
     >>> 'foo->bar?'
     'foo->bar?'
 
-Symbols may contain symbol characters,
+Symbols may contain special characters,
 but the Python identifiers they represent cannot.
-Therefore, the reader *munges* symbols with symbol characters into
-valid identifier strings by using ``xQUOTEDxWORDS_``.
+Therefore, the reader *munges* symbols with forbidden characters
+to valid identifier strings by using ``xQUOTEDxWORDS_``.
 
 This format was chosen because it contains an underscore
 and both lower-case and upper-case letters,
@@ -402,12 +402,49 @@ as an identifier and as a string representing that identifier:
     #..
     >>> setattr(
     ...   spam,
-    ...   'xBANG_xAT_xPERCENT_xDOLLAR_',
+    ...   'xBANG_xAT_xPCENT_xDOLR_',
     ...   'eggs')
 
     #> spam.!@%$
-    >>> spam.xBANG_xAT_xPERCENT_xDOLLAR_
+    >>> spam.xBANG_xAT_xPCENT_xDOLR_
     'eggs'
+
+
+Spaces, double quotes, parentheses, and semicolons are allowed in symbols,
+but they must each be escaped with a backslash to prevent it from terminating the symbol.
+(Escape a backslash with another backslash.)
+
+.. code-block:: Lissp
+
+    #> 'embedded\ space
+    >>> 'embeddedxSPACE_space'
+    'embeddedxSPACE_space'
+
+Python does not allow some characters to start an identifier that it allows inside identifiers,
+such as digits.
+You also have to escape these if they begin a symbol to distinguish them from numbers.
+
+.. code-block:: Lissp
+
+    #> '\108
+    >>> 'xDIGITxONE_08'
+    'xDIGITxONE_08'
+
+Notice that only the first digit had to be munged to make it a valid Python identifier.
+
+The munger also normalizes unicode symbols to NFKC,
+because Python already does this when converting identifiers to strings:
+
+>>> ascii_a = 'A'
+>>> unicode_a = '𝐀'
+>>> ascii_a == unicode_a
+False
+>>> import unicodedata
+>>> ascii_a == unicodedata.normalize('NFKC', unicode_a)
+True
+>>> 𝐀 = unicodedata.name(unicode_a)
+>>> globals()[ascii_a]
+'MATHEMATICAL BOLD CAPITAL A'
 
 Control Words
 ~~~~~~~~~~~~~
@@ -900,8 +937,8 @@ as well. E.g. ``_hissxAUTO42_``. Try it.)
 Gensyms are mainly used to prevent accidental name collisions in generated code,
 which is very important for reliable macros.
 
-Atomic Literal Data Structures
-------------------------------
+Collection Atoms
+----------------
 
 A subset of Python's data structure notation works in Lissp as well:
 
@@ -943,19 +980,18 @@ Since they normally represent code,
 you must quote them to use them as data.
 
 .. Caution::
-   Unlike Python's data structure notation,
-   double quotes, parentheses, spaces, and newlines
-   are **not** allowed anywhere in Lissp's atomic data structures,
-   even in nested strings, because this causes them to be read as multiple forms.
+   To keep the grammar simple, spaces, double quotes, parentheses, and semicolons
+   in collection atoms must be escaped with a backslash, even in nested strings.
 
-   While a significantly more complex reader could distinguish these cases (as Python does),
+   While a significantly more complex reader could distinguish these cases without escapes
+   (as Python does),
    Lissp doesn't really need this capability because it can already read in arbitrary
    Python expressions using the inject macro ``.#``.
-   The literals are just a convenience notation for simple cases.
+   The collection atoms are just a convenience notation for simple cases.
 
 Unlike Python's notation,
-atomic data structures in Lissp may contain only static values discernible at read time.
-A literal data structure is read as a *single atom*.
+because these collections are read in as a *single atom*,
+they may contain only static values discernible at read time.
 If you want to interpolate runtime data,
 use function calls and templates instead:
 

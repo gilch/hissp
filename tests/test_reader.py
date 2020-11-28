@@ -75,16 +75,16 @@ object.__class__.__name__ ; Attributes chain.
     ('quote', '', {':str': True}),
 ],
 '''b""''': [b''],
-"b''": ['bxQUOTE_xQUOTE_'],
-"b''''''": ['bxQUOTE_xQUOTE_xQUOTE_xQUOTE_xQUOTE_xQUOTE_'],
+"b''": ['bx1QUOTE_x1QUOTE_'],
+"b''''''": ['bx1QUOTE_x1QUOTE_x1QUOTE_x1QUOTE_x1QUOTE_x1QUOTE_'],
 '''b""""""''': [
     b'', ('quote', '', {':str': True}), ('quote', '', {':str': True})
 ],
 '''rb'' br'' RB'' BR'' rb"" br"" B"" ''': [
-    'rbxQUOTE_xQUOTE_',
-    'brxQUOTE_xQUOTE_',
-    'RBxQUOTE_xQUOTE_',
-    'BRxQUOTE_xQUOTE_',
+    'rbx1QUOTE_x1QUOTE_',
+    'brx1QUOTE_x1QUOTE_',
+    'RBx1QUOTE_x1QUOTE_',
+    'BRx1QUOTE_x1QUOTE_',
     'rb',
     ('quote', '', {':str': True}),
     'br',
@@ -110,6 +110,26 @@ newlines"
 (lambda (a b c)
   .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
 ''': [('lambda', ('a', 'b', 'c'), '(-b + (b**2 - 4*a*c)**0.5)/(2*a)')],
+r''''\~\!\@\#\$\%\^\&\*\(\)\_\+\{\}\|\:\"\<\>\?\`\-\=\[\]\\\;\'\,\.\/''':
+    [('quote',
+      'xTILDE_xBANG_xAT_xHASH_xDOLR_xPCENT_xCARET_xET_xSTAR_xPAREN_xTHESES__xPLUS'
+      '_xCURLY_xBRACES_xBAR_xCOLON_x2QUOTE_xLT_xGT_xQUERY_xGRAVE_xH_xEQ_xSQUARE'
+      '_xBRACKETS_xBSLASH_xSCOLON_x1QUOTE_xCOMMA_xFULLxSTOP_xSLASH_')],
+r'''\1 \12 \[] \(\) \{} \[] \; \# \` \, \' \" \\ \ ''':
+    ['xDIGITxONE_',
+     'xDIGITxONE_2',
+     'xSQUARE_xBRACKETS_',
+     'xPAREN_xTHESES_',
+     'xCURLY_xBRACES_',
+     'xSQUARE_xBRACKETS_',
+     'xSCOLON_',
+     'xHASH_',
+     'xGRAVE_',
+     'xCOMMA_',
+     'x1QUOTE_',
+     'x2QUOTE_',
+     'xBSLASH_',
+     'xSPACE_'],
 }
 
 
