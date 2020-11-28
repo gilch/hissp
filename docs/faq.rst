@@ -1056,7 +1056,7 @@ you have to say which stage you are talking about.
 Lissp has all five
 (control word, symbol, string, identifier, and bytes)
 as distinct concepts.
-The lexer has only string and symbol *tokens*.
+The lexer has only string and atom *tokens*.
 Hissp has only string and bytes *values*.
 Python code has only string and bytes *literals*, and identifiers.
 
