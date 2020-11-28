@@ -23,11 +23,11 @@ class LisspLexer(RegexLexer):
             (r';.*', pt.Comment),
             (r'[\n ]+', pt.Whitespace),
             (r'\s|\r', pt.Error),
-            (r''',@|['`,]''', pt.Operator),
-            (r'''(?:[^ \n"(){}[\]#]*[#])''', pt.Operator.Word),
+            (r''',@|['`,]|$#|.#|_#''', pt.Operator),
+            (r'''(?:[^\\ \n"();#]|\\.)+[#]''', pt.Operator.Word),
 
             # Python numbers
-            (r'False|True', pt.Number.Integer),
+            (r'False|True', pt.Name.Builtin),
             (rf'{SN}{Ds}(?:\.{Ds}?{Es}?[Jj]?|{Es}[Jj]?|[Jj])', pt.Number.Float),
             (rf'{SN}\.{Ds}{Es}?[Jj]?', pt.Number.Float),
             (rf'{SN}?0[oO](?:_?[0-7])+', pt.Number.Oct),
@@ -38,8 +38,8 @@ class LisspLexer(RegexLexer):
             ('None|\.\.\.', pt.Name.Builtin),
             (r':[^ \n"()]*', pt.String.Symbol),  # :control-words
 
-            (r'''[[{][^ \n"()]*''', pt.Literal),
-            (r'''[^ \n"()]+''', pt.Name.Variable),
+            (r'''[[{](:?[^\\ \n"();]|\\.)*''', pt.Literal),
+            (r'''(:?[^\\ \n"();]|\\.)+''', pt.Name.Variable),
         ]
     }
 

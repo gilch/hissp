@@ -28,7 +28,7 @@ Lissp Quick Start
    ;; Start the REPL with $ hissp
    ;; Quit with EOF or (exit).
 
-   ;;;; Literals
+   ;;;; Atoms
 
    ;;; singleton
 
@@ -77,10 +77,17 @@ Lissp Quick Start
 
    ;; Symbols munge special characters at read-time to valid Python identifiers.
 
-   'Also-a-symbol!                        ;alias for 'AlsoxH_axH_symbolxBANG_
+   'Also-a-symbol!                        ;Alias for 'AlsoxH_axH_symbolxBANG_
+   '𝐀                                     ;Alias for 'A (munges to unicode normal form KC)
    '+                                     ;'xPLUS_
    '->>                                   ;'xH_xGT_xGT_
    :->>                                   ;Control words don't represent identifiers, don't munge.
+
+   'SPAM\ \"\(\)\;EGGS                    ;These would terminate a symbol if not escaped.
+   '\42                                   ;'xDIGITxFOUR_2 Python identifiers can't start with digits.
+   '\.                                    ;'xFULLxSTOP_
+   '\\                                    ;'xBSLASH_
+   '\a\b\c                                ;Escapes allowed, but not required here.
 
    "string"                               ;Double-quotes only!
    'string'                               ;'stringxQUOTE_ symbol.
@@ -88,7 +95,7 @@ Lissp Quick Start
    "string
    with
    newlines
-   "                                      ;same as "string\nwith\nnewlines\n". No triple quotes.
+   "                                      ;Same as "string\nwith\nnewlines\n". No triple quotes.
 
    "Say \"Cheese!\""                      ;Same backslash escape sequences as Python.
 
@@ -98,7 +105,7 @@ Lissp Quick Start
    b"bytes
    with
    newlines
-   "                                      ;same as b"bytes\nwith\nnewlines\n"
+   "                                      ;Same as b"bytes\nwith\nnewlines\n".
 
    ;;;; Calls
 
@@ -128,7 +135,7 @@ Lissp Quick Start
             e 1  f 2                      ;default
             :* args  h 4  i :?  j 1       ;star args, key word
             :** kwargs)
-     ;; Body (lambda returns empty tuple if body is empty).
+     ;; Body. (Lambda returns empty tuple if body is empty.)
      (print (globals))
      (print (locals))                     ;side effects
      b)                                   ;last value is returned
@@ -178,6 +185,7 @@ Lissp Quick Start
    ;; Treating code as data the key concept in metaprogramming.
    (quote (print 1 2 3 : sep "-"))        ;Just a tuple.
    (quote identifier)                     ;Just a string.
+   (quote 42)                             ;Atoms evaluate to themselves.
 
    ;;;; Reader Macros
 
@@ -211,8 +219,11 @@ Lissp Quick Start
 
    ;; Invoke any importable unary callable at read time.
    builtins..float#inf                    ;Extensible literals!
+
    ;; Reader macros compose. Note the quote.
    'hissp.munger..demunge#xH_xGT_xGT_     ;'->>'
+   ''x                                    ;('quote', 'x')
+   '\'x                                   ;'xQUOTE_x'
 
    (print (.upper 'textwrap..dedent#"\
                   These lines
@@ -270,43 +281,43 @@ Lissp Quick Start
                    .#"{k: next(it) for it in [iter(pairs)] for k in it}"))
    (endict 1 2  'a 'b)
 
-   ;;; atomic collection literals
+   ;;; collection atoms
 
    .#[]                                   ;As a convenience, you can drop the quotes in some cases.
    []                                     ; And the reader macro!
 
-   [1,2,3]                                ;List, set and dict literals are a special case
-   {1,2,3}                                ; of injection. These literals read in as a single atom.
-   {'a':1,2:b'b'}                         ; Compile-time literals only--No interpolation!
+   [1,2,3]                                ;List, set, and dict atoms are a special case
+   {1,2,3}                                ; of Python injection. They read in as a single atom, so
+   {'a':1,2:b'b'}                         ; they have compile-time literals only--No interpolation!
    [1,{2},{3:[4,5]},'six']                ;Nesting is allowed.
 
-   ;; To keep the grammar simple, they're restricted:
-   ;; No double quotes, no spaces, no newlines, and no parentheses, even in nested strings.
-   [1, 2]                                 ;SyntaxError. No Spaces!
-   [1,"2"]                                ;SyntaxError. No double quotes!
-   [1,'2']                                ;Correct.
-   [1,'''2''']                            ;Triple quotes are allowed, but still no newlines.
-   [1,'2 3']                              ;SyntaxError. No Spaces! Not even in nested strings.
+   ;; To keep the grammar simple, spaces, double quotes, parentheses, and semicolons
+   ;; must be escaped with a backslash, like in symbols and identifiers.
+   [1,\ 2]
+   [1,\(2,3\)]
+   [1,'2\ 3']                             ;Escapes are required even in nested strings.
+   [1,\"2\"]
+   [1,'2']
+   [1,'''2''']                            ;Triple quotes are allowed, but newlines are not!
+   ['''1\\n2''']                          ;['1\n2'] Double backslashes in collection atoms!
 
-   ;; Escapes for these do work in strings.
-   [1,'2\0403']                           ;Though I find this one hard to read.
-   [1,'2\N{space}3']                      ;This is a little better.
-
-   ;; Use the inject macro (or constructors) instead to get around these restrictions.
+   ;; You can use the inject macro instead of escapes.
    .#"[1, '2 3']"                         ;Spaces are allowed.
-   .#"[1, (2, 3)]"                        ;Parentheses are allowed.
+   .#"[1, (2, 3)]"                        ;Parentheses are also allowed.
+
+   ;; Constructors or helpers also work, and unlike atoms, they can interpolate.
    (list `(1 ,"2 3"))                     ;Remember templates make tuples, convert to lists.
    (.__setitem__ (globals) 'enlist (lambda (: :* xs) (list xs)))
    (enlist 1 "2 3")                       ;helper function
 
    _#"Even though they evaluate the same, there's a subtle compile-time difference
-   between an atomic collection literal and a string injection. This can matter because
+   between a collection atom and a string injection. This can matter because
    macros get all their arguments quoted."
 
-   '[1,'''2\N{space}3''']                 ;[1, '2 3']
+   '[1,'''2\ 3''']                        ;[1, '2 3']
    '.#"[1,'''2 3''']"                     ;"[1,'''2 3''']"
 
-   ;; But you can still get a real collection at compile time without a collection literal:
+   ;; But you can still get a real collection at compile time.
    '.#(eval "[1,'''2 3''']")              ;[1, '2 3']
    '.#.#"[1,'''2 3''']"                   ;[1, '2 3']
 
