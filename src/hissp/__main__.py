@@ -47,7 +47,8 @@ def _get_code(args):
     if args.c:
         code = args.c
     elif args.file and not (f := FileType("r")(args.file)).isatty():
-        ns["__file__"] = args.file.name
+        ns["__file__"] = f.name
+        ns["__name__"] = "__main__"
         code = f.read()
     else:
         code = None
