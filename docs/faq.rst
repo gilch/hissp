@@ -808,8 +808,8 @@ A module name that ends with a dot will do it for you.
    >>> __import__('collections.abc',fromlist='?')
    <module 'collections.abc' from '...abc.py'>
 
-But I want a relative import.
------------------------------
+But I want a relative import or a star import.
+----------------------------------------------
 
 `Qualified identifiers` have to use absolute imports to be reliable in macroexpansions.
 

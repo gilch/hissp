@@ -341,3 +341,17 @@ declaration.
           ,@(cdr forms))
     expr))
 ;; TODO: implement other arrange macros?
+
+(defmacro prelude ()
+  "Grants unqualified access to the basics.
+
+   Star imports from operator and itertools.
+   And adds the basic macros, if available."
+  `(exec "
+from operator import *
+from itertools import *
+try:
+    from hissp.basic import _macro_
+    _macro_ = __import__('types').SimpleNamespace(**vars(_macro_))
+except ModuleNotFoundError:
+    pass"))

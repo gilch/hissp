@@ -89,7 +89,7 @@ class Compiler:
     def eval(self, form) -> Tuple[str, ...]:
         try:
             if self.evaluate:
-                eval(compile(form, "<Hissp>", "eval"), self.ns)
+                exec(compile(form, "<Hissp>", "exec"), self.ns)
         except Exception as e:
             exc = format_exc()
             if self.ns.get("__name__") == "__main__":

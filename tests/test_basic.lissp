@@ -248,6 +248,24 @@
                        (list))
                   [0,4]))
 
+  test_prelude
+  (lambda (self)
+    (let (ns {})
+      (exec (hissp.compiler..readerless '(hissp.basic.._macro_.prelude)) ns)
+      (.assertEqual self
+                    (set operator..__all__)
+                    (.intersection (set operator..__all__) (.keys ns)))
+      ;; Asserts everything public in itertools is in ns.
+      (let (members (set (itertools..filterfalse (lambda x (.startswith x "_"))
+                                                 (dir itertools.))))
+        (.assertEqual self
+                      members
+                      (.intersection members (.keys ns))))
+      (.assertIn self '_macro_ ns)
+      (.assertEqual self
+                    (set (dir hissp.basic.._macro_))
+                    (.keys (vars (.__getitem__ ns '_macro_))))))
+
   test_string_newline
   (lambda (self)
     (.assertEqual self
