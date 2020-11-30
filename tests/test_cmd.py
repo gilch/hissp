@@ -1,7 +1,7 @@
 import subprocess as sp
-from functools import partial
 
 REPL_CMD = "replissp"
+EXIT_MSG = "\nnow exiting REPL...\n"
 
 
 def cmd(cmd, input=""):
@@ -10,36 +10,122 @@ def cmd(cmd, input=""):
     ).communicate(input=input)
 
 
-repl = partial(cmd, REPL_CMD)
+BANNER_LEN = len(cmd(REPL_CMD)[1]) - len(EXIT_MSG)
+
+
+def repl(input, out: str, err: str, exitmsg=EXIT_MSG):
+    actual_out, actual_err = cmd(REPL_CMD, input)
+    assert actual_out == out
+    assert actual_err[BANNER_LEN:] == err + exitmsg
 
 
 def test_repl_prompt():
-    out, err = repl()
-    assert out == "#> "
-    assert "now exiting REPL..." in err
+    repl("", "#> ", "")
 
 
 def test_repl_atom():
-    out, err = repl("1\n2\n3\n")
-    assert out == """\
-#> 1
-#> 2
-#> 3
-#> """
-    assert """
->>> (1)
->>> (2)
->>> (3)
-
-now exiting REPL...
-""" in err
+    repl(
+        "1\n2\n3\n",
+        "#> 1\n#> 2\n#> 3\n#> ",
+        ">>> (1)\n>>> (2)\n>>> (3)\n",
+    )
 
 
 def test_repl_exit():
-    out, err = repl('(exit)\n')
-    assert out == "#> "
-    assert """
->>> exit()
-""" in err
+    repl(
+        "(exit)\n",
+        "#> ",
+        ">>> exit()\n",
+        "",
+    )
 
-#TODO: test repl continuation, abort.
+def test_repl_read_error():
+    repl(
+        ",\n,@\n`\n$#x\nbuiltins..float#\n\\\n)\n",
+        "#> "*8,
+r"""Unquote outside of template.
+Unquote outside of template.
+Reader macro '`' missing argument.
+Gensym outside of template.
+Reader macro 'builtins..float#' missing argument.
+Read error: '\\'
+Unopened ')'.
+""",
+    )
+
+
+def test_repl_str_continue():
+    repl(
+        """\
+""
+"foo bar"
+"
+
+"
+"
+
+x
+"
+b""
+b"foo bar"
+b"
+
+
+"
+b"
+
+x"
+""",
+        r"""#> ''
+#> 'foo bar'
+#> #..#..'\n\n'
+#> #..#..#..'\n\nx\n'
+#> b''
+#> b'foo bar'
+#> #..#..#..b'\n\n\n'
+#> #..#..b'\n\nx'
+#> """,
+        r""">>> ''
+>>> 'foo bar'
+>>> '\n\n'
+>>> '\n\nx\n'
+>>> b''
+>>> b'foo bar'
+>>> b'\n\n\n'
+>>> b'\n\nx'
+""",
+    )
+
+
+def test_repl_paren_continue():
+    repl(
+        """\
+()
+(
+)
+(
+
+)
+(
+
+
+)
+'(1 2)
+'(1
+2
+)
+'(1
+
+
+2)""",
+        """\
+#> ()
+#> #..()
+#> #..#..()
+#> #..#..#..()
+#> (1, 2)
+#> #..#..(1, 2)
+#> #..#..#..(1, 2)
+#> """,
+        ">>> ()\n"*4 + ">>> (1, 2)\n"*3,
+    )

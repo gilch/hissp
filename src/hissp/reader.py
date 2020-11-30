@@ -41,6 +41,8 @@ TOKENS = re.compile(
   |(?:[^\\ \n"();#]|\\.)+[#]
  )
 |(?P<atom>(?:[^\\ \n"();]|\\.)+)  # Let Python deal with it.
+|(?P<continue>")
+|(?P<error>.)
 """
 )
 
@@ -108,7 +110,11 @@ class Parser:
             elif k == "atom":
                 yield self._atom(v)
             elif k == "badspace":
-                raise SyntaxError("Bad space: " + repr(k))
+                raise ValueError("Bad space: " + repr(v))
+            elif k == "continue":
+                raise SyntaxError("Incomplete token.")
+            elif k == "error":
+                raise ValueError("Read error: " + repr(v))
             else:
                 assert False, "unknown token: " + repr(k)
         if self.depth:
@@ -141,7 +147,10 @@ class Parser:
             ",": self.unquote_context,
             ",@": self.unquote_context,
         }.get(v, nullcontext)():
-            form = next(self.parse(tokens))
+            try:
+                form = next(self.parse(tokens))
+            except StopIteration:
+                raise ValueError(f"Reader macro {v!r} missing argument.") from None
             yield self.parse_macro(v, form)
 
     @staticmethod
@@ -236,7 +245,10 @@ class Parser:
         return self.compiler.compile(hissp)
 
     def gensym(self, form: str):
-        return f"_{munge(form)}xAUTO{self.gensym_stack[-1]}_"
+        try:
+            return f"_{munge(form)}xAUTO{self.gensym_stack[-1]}_"
+        except IndexError:
+            raise ValueError("Gensym outside of template.") from None
 
     @contextmanager
     def gensym_context(self):
@@ -248,7 +260,10 @@ class Parser:
 
     @contextmanager
     def unquote_context(self):
-        gensym_number = self.gensym_stack.pop()
+        try:
+            gensym_number = self.gensym_stack.pop()
+        except IndexError:
+            raise ValueError("Unquote outside of template.") from None
         try:
             yield
         finally:

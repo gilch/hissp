@@ -16,12 +16,12 @@ class TestReader(TestCase):
     def setUp(self) -> None:
         self.parser = reader.Parser()
 
-    @given(st.text("(1)", max_size=20))
+    @given(st.text("(\n 1)", max_size=20))
     def test_balance(self, lissp):
         tally = Counter(lissp)
         if tally["("] != tally[")"]:
             self.assertRaisesRegex(
-                SyntaxError, r"^Un(?:opened|closed)|Ran out of tokens", list, self.parser.reads(lissp)
+                (SyntaxError, ValueError), r"^Un(?:opened|closed)|Ran out of tokens", list, self.parser.reads(lissp)
             )
 
     @given(st.text(max_size=5))
