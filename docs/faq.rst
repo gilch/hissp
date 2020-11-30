@@ -3,7 +3,6 @@
 
 .. Hidden doctest requires basic macros for REPL-consistent behavior.
    #> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.basic.._macro_)))
-   #..
    >>> __import__('operator').setitem(
    ...   globals(),
    ...   '_macro_',
@@ -94,11 +93,9 @@ Top-level imports are a good use of inject.
 .. code-block:: Lissp
 
    #> .#"import operator as op"
-   #..
    >>> import operator as op
 
    #> (op.add 1 1)
-   #..
    >>> op.add(
    ...   (1),
    ...   (1))
@@ -129,7 +126,6 @@ You can, of course, abbreviate these.
 .. code-block:: Lissp
 
    #> (define + operator..add)
-   #..
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
@@ -137,7 +133,6 @@ You can, of course, abbreviate these.
    ...   __import__('operator').add)
 
    #> (+ 1 1)
-   #..
    >>> xPLUS_(
    ...   (1),
    ...   (1))
@@ -154,7 +149,6 @@ You can even upgrade these to use a reduce so they're multiary like other Lisps:
    #> (define +
    #..  (lambda (: :* args)
    #..    (functools..reduce operator..add args)))
-   #..
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
@@ -165,7 +159,6 @@ You can even upgrade these to use a reduce so they're multiary like other Lisps:
    ...       args)))
 
    #> (+ 1 2 3)
-   #..
    >>> xPLUS_(
    ...   (1),
    ...   (2),
@@ -237,7 +230,6 @@ into the Hissp.
    #> (define quadratic
    #.. (lambda (a b c)
    #..   .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)"))
-   #..
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
@@ -804,7 +796,6 @@ A module name that ends with a dot will do it for you.
 .. code-block:: Lissp
 
    #> collections.abc.
-   #..
    >>> __import__('collections.abc',fromlist='?')
    <module 'collections.abc' from '...abc.py'>
 

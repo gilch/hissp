@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 [![codecov](https://codecov.io/gh/gilch/hissp/branch/master/graph/badge.svg)](https://codecov.io/gh/gilch/hissp)
 <!-- Hidden doctest requires basic macros for REPL-consistent behavior.
 #> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.basic.._macro_)))
-#..
 >>> __import__('operator').setitem(
 ...   globals(),
 ...   '_macro_',

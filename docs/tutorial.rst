@@ -3,7 +3,6 @@
 
 ..  Hidden doctest requires basic macros for REPL-consistent behavior.
     #> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.basic.._macro_)))
-    #..
     >>> __import__('operator').setitem(
     ...   globals(),
     ...   '_macro_',
@@ -253,7 +252,6 @@ Most literals work just like Python:
 
     #> ;; Use two ';'s if it starts the line.
     #..-1.0  ; float
-    #..
     >>> (-1.0)
     -1.0
 
@@ -289,7 +287,6 @@ but otherwise behave as Python's and respect the same escape codes:
 
     #> "Three
     #..lines\ntotal"
-    #..
     >>> 'Three\nlines\ntotal'
     'Three\nlines\ntotal'
 
@@ -302,7 +299,6 @@ Strings are implicitly quoted:
     #> (quote
     #.. (lambda (name)
     #..  (print "Hello" name)))
-    #..
     >>> ('lambda', ('name',), ('print', ('quote', 'Hello', {':str': True}), 'name'))
     ('lambda', ('name',), ('print', ('quote', 'Hello', {':str': True}), 'name'))
 
@@ -338,7 +334,6 @@ Recall that the argument of the ``quote`` special form is seen as data:
     #> (quote
     #.. (lambda (name)
     #..  (print 'Hello name)))
-    #..
     >>> ('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
     ('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
 
@@ -365,7 +360,6 @@ Symbols have another important difference from double-quoted strings:
     'fooxH_xGT_barxQUERY_'
 
     #> "foo->bar?"
-    #..
     >>> 'foo->bar?'
     'foo->bar?'
 
@@ -391,7 +385,6 @@ as an identifier and as a string representing that identifier:
 .. code-block:: Lissp
 
     #> (define spam (lambda ()))
-    #..
     >>> # define
     ... __import__('operator').setitem(
     ...   __import__('builtins').globals(),
@@ -399,7 +392,6 @@ as an identifier and as a string representing that identifier:
     ...   (lambda :()))
 
     #> (setattr spam '!@%$ 'eggs)
-    #..
     >>> setattr(
     ...   spam,
     ...   'xBANG_xAT_xPCENT_xDOLR_',
@@ -506,7 +498,6 @@ You can refer to variables defined in any module by using a
     <module 'operator' from '...operator.py'>
 
     #> (operator..add 40 2)  ; Qualified identifiers include their module.
-    #..
     >>> __import__('operator').add(
     ...   (40),
     ...   (2))
@@ -532,7 +523,6 @@ The empty tuple ``()`` might as well be a literal:
 .. code-block:: Lissp
 
     #> ()
-    #..
     >>> ()
     ()
 
@@ -557,7 +547,6 @@ For example:
     #..         :* args  h 4  i :?  j 1  ; kwonly
     #..         :** kwargs)
     #..  42)
-    #..
     >>> (lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
     <function <lambda> at ...>
 
@@ -570,7 +559,6 @@ positional and keyword parameters, respectively:
     #..  (print args)
     #..  (print kwargs)  ; Body expressions evaluate in order.
     #..  :return-value)  ; The last one is returned.
-    #..
     >>> (lambda *args,**kwargs:(
     ...   print(
     ...     args),
@@ -580,7 +568,6 @@ positional and keyword parameters, respectively:
     <function <lambda> at ...>
 
     #> (_ 1 : b :c)
-    #..
     >>> _(
     ...   (1),
     ...   b=':c')
@@ -595,7 +582,6 @@ Also note that the body can be empty:
 .. code-block:: Lissp
 
     #> (lambda (: a 1  :/ :?  :* :?  b :?  c 2))
-    #..
     >>> (lambda a=(1),/,*,b,c=(2):())
     <function <lambda> at ...>
 
@@ -611,22 +597,18 @@ The ``:`` may be omitted if there are no paired parameters:
 .. code-block:: Lissp
 
     #> (lambda (a b c :))  ; No pairs after ':'.
-    #..
     >>> (lambda a,b,c:())
     <function <lambda> at ...>
 
     #> (lambda (a b c))  ; The ':' was omitted.
-    #..
     >>> (lambda a,b,c:())
     <function <lambda> at ...>
 
     #> (lambda (:))  ; Colon isn't doing anything.
-    #..
     >>> (lambda :())
     <function <lambda> at ...>
 
     #> (lambda ())  ; You can omit it.
-    #..
     >>> (lambda :())
     <function <lambda> at ...>
 
@@ -636,7 +618,6 @@ there are no single parameters:
 .. code-block:: Lissp
 
     #> (lambda (: :** kwargs))
-    #..
     >>> (lambda **kwargs:())
     <function <lambda> at ...>
 
@@ -655,7 +636,6 @@ For example:
 .. code-block:: Lissp
 
     #> (print 1 2 3 : sep ":"  end "\n.")
-    #..
     >>> print(
     ...   (1),
     ...   (2),
@@ -670,19 +650,16 @@ Either ``<args>`` or ``<kwargs>`` may be empty:
 .. code-block:: Lissp
 
     #> (int :)
-    #..
     >>> int()
     0
 
     #> (print :foo :bar :)
-    #..
     >>> print(
     ...   ':foo',
     ...   ':bar')
     :foo :bar
 
     #> (print : end "X")
-    #..
     >>> print(
     ...   end='X')
     X
@@ -692,12 +669,10 @@ The ``:`` is optional if the ``<kwargs>`` part is empty:
 .. code-block:: Lissp
 
     #> (int)
-    #..
     >>> int()
     0
 
     #> (float "inf")
-    #..
     >>> float(
     ...   'inf')
     inf
@@ -710,7 +685,6 @@ Use the special control words ``:*`` for iterable unpacking,
 .. code-block:: Lissp
 
     #> (print : :* '(1 2)  :? 3  :* '(4)  :** (dict : sep :  end "\n."))
-    #..
     >>> print(
     ...   *(1, 2),
     ...   (3),
@@ -734,12 +708,10 @@ function name starts with a dot:
 .. code-block:: Lissp
 
     #> (.conjugate 1j)
-    #..
     >>> (1j).conjugate()
     -1j
 
     #> (.decode b"\xfffoo" : errors 'ignore)
-    #..
     >>> b'\xfffoo'.decode(
     ...   errors='ignore')
     'foo'
@@ -779,7 +751,6 @@ inject ``.#`` macro, which evaluates a form at read time:
 .. code-block:: Lissp
 
     #> .#(fractions..Fraction 1 2)
-    #..
     >>> __import__('pickle').loads(  # Fraction(1, 2)
     ...     b'cfractions\nFraction\n(V1/2\ntR.'
     ... )
@@ -790,7 +761,6 @@ And can inject arbitrary text into the compiled output:
 .. code-block:: Lissp
 
     #> .#"{(1, 2): \"\"\"buckle my shoe\"\"\"}  # This is Python!"
-    #..
     >>> {(1, 2): """buckle my shoe"""}  # This is Python!
     {(1, 2): 'buckle my shoe'}
 
@@ -799,12 +769,10 @@ Reader macros compose:
 .. code-block:: Lissp
 
     #> '.#"{(3, 4): 'shut the door'}" ; this quoted inject is a string
-    #..
     >>> "{(3, 4): 'shut the door'}"
     "{(3, 4): 'shut the door'}"
 
     #> '.#.#"{(5, 6): 'pick up sticks'}" ; even quoted, this double inject is a dict
-    #..
     >>> {(5, 6): 'pick up sticks'}
     {(5, 6): 'pick up sticks'}
 
@@ -814,7 +782,6 @@ It's a way to comment out code structurally:
 .. code-block:: Lissp
 
     #> (print 1 _#2 3)
-    #..
     >>> print(
     ...   (1),
     ...   (3))
@@ -835,12 +802,10 @@ The template quote works much like a normal quote:
 .. code-block:: Lissp
 
     #> '(1 2 3)  ; quote
-    #..
     >>> (1, 2, 3)
     (1, 2, 3)
 
     #> `(1 2 3)  ; template quote
-    #..
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   (1),
     ...   (2),
@@ -858,12 +823,10 @@ much like a template or format string:
 .. code-block:: Lissp
 
     #> '(1 2 (operator..add 1 2))  ; normal quote
-    #..
     >>> (1, 2, ('operator..add', 1, 2))
     (1, 2, ('operator..add', 1, 2))
 
     #> `(1 2 ,(operator..add 1 2))  ; template and unquote
-    #..
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   (1),
     ...   (2),
@@ -877,7 +840,6 @@ The splice unquote is similar, but unpacks its result:
 .. code-block:: Lissp
 
     #> `(:a ,@"bcd" :e)
-    #..
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   ':a',
     ...   *'bcd',
@@ -893,7 +855,6 @@ If you quote an example, you can see that intermediate step:
 .. code-block:: Lissp
 
     #> '`(:a ,@"bcd" ,(opearator..mul 2 3))
-    #..
     >>> (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'),
     ...  ':',
     ...  ':?',
@@ -925,7 +886,6 @@ Within a template, the same gensym name always makes the same gensym:
 .. code-block:: Lissp
 
     #> `($#hiss $#hiss)
-    #..
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   '_hissxAUTO..._',
     ...   '_hissxAUTO..._')
@@ -963,12 +923,10 @@ which can be very useful as inputs to macros,
    .. code-block:: Lissp
 
        #> '()
-       #..
        >>> ()
        ()
 
        #> ()
-       #..
        >>> ()
        ()
 
@@ -998,7 +956,6 @@ use function calls and templates instead:
 .. code-block:: Lissp
 
     #> (list `(,@(.upper "abc") ,@[1,2,3] ,(.title "zed")))
-    #..
     >>> list(
     ...   (lambda *xAUTO0_:xAUTO0_)(
     ...     *'abc'.upper(),
@@ -1014,7 +971,6 @@ remember that you can use helper functions or metaprogramming to simplify:
     #> (define enlist  ; use instead of []
     #.. (lambda (: :* args)
     #..  (list args)))
-    #..
     >>> # define
     ... __import__('operator').setitem(
     ...   __import__('builtins').globals(),
@@ -1024,7 +980,6 @@ remember that you can use helper functions or metaprogramming to simplify:
     ...       args)))
 
     #> (enlist 'A 'B 'C (enlist 1 2 3) (.title "zed"))
-    #..
     >>> enlist(
     ...   'A',
     ...   'B',
@@ -1041,7 +996,6 @@ You can also use the unpacking control words in these:
 .. code-block:: Lissp
 
     #> (enlist : :*(.upper "abc")  :? [1,2,3]  :? (.title "zed"))
-    #..
     >>> enlist(
     ...   *'abc'.upper(),
     ...   [1, 2, 3],
@@ -1069,7 +1023,6 @@ from a ``_macro_`` namespace:
 .. code-block:: Lissp
 
     #> (hissp.basic.._macro_.define spam :eggs) ; qualified macro
-    #..
     >>> # hissp.basic.._macro_.define
     ... __import__('operator').setitem(
     ...   __import__('builtins').globals(),
@@ -1094,7 +1047,6 @@ namespace with all of the basic macros:
     <function _macro_.define at ...>
 
     #> (define eggs :spam)  ; unqualified macro
-    #..
     >>> # define
     ... __import__('operator').setitem(
     ...   __import__('builtins').globals(),
@@ -1114,14 +1066,12 @@ Let's try it:
 .. code-block:: Lissp
 
     #> (setattr _macro_ 'hello (lambda () '(print 'hello)))
-    #..
     >>> setattr(
     ...   _macro_,
     ...   'hello',
     ...   (lambda :('print', ('quote', 'hello'))))
 
     #> (hello)
-    #..
     >>> # hello
     ... print(
     ...   'hello')
@@ -1133,7 +1083,6 @@ We can do better. Let's use a template:
 .. code-block:: Lissp
 
     #> (setattr _macro_ 'greet (lambda (name) `(print 'Hello ,name)))
-    #..
     >>> setattr(
     ...   _macro_,
     ...   'greet',
@@ -1146,7 +1095,6 @@ We can do better. Let's use a template:
     ...       name)))
 
     #> (greet 'Bob)
-    #..
     >>> # greet
     ... __import__('builtins').print(
     ...   '__main__..Hello',
@@ -1166,7 +1114,6 @@ with `builtins` (if applicable) or the current ``__name__``
     'builtins..int'
 
     #> `(int spam)
-    #..
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   'builtins..int',
     ...   '__main__..spam')
@@ -1195,14 +1142,12 @@ symbol. (Like a quoted symbol):
 .. code-block:: Lissp
 
     #> `(float inf)
-    #..
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   'builtins..float',
     ...   '__main__..inf')
     ('builtins..float', '__main__..inf')
 
     #> `(float ,'inf)
-    #..
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   'builtins..float',
     ...   'inf')
@@ -1213,7 +1158,6 @@ Let's try again. (Yes, reader macros compose like that.):
 .. code-block:: Lissp
 
     #> (setattr _macro_ 'greet (lambda (name) `(print ','Hello ,name)))
-    #..
     >>> setattr(
     ...   _macro_,
     ...   'greet',
@@ -1226,7 +1170,6 @@ Let's try again. (Yes, reader macros compose like that.):
     ...       name)))
 
     #> (greet 'Bob)
-    #..
     >>> # greet
     ... __import__('builtins').print(
     ...   'Hello',
@@ -1240,7 +1183,6 @@ a double-quoted string might have been a better idea:
 .. code-block:: Lissp
 
     #> (setattr _macro_ 'greet (lambda (name) `(print "Hello" ,name)))
-    #..
     >>> setattr(
     ...   _macro_,
     ...   'greet',
@@ -1251,7 +1193,6 @@ a double-quoted string might have been a better idea:
     ...       name)))
 
     #> (greet 'Bob)
-    #..
     >>> # greet
     ... __import__('builtins').print(
     ...   'Hello',
@@ -1268,7 +1209,6 @@ But there are times when a function will not do:
 .. code-block:: Lissp
 
     #> (setattr _macro_ '# (lambda (: :* body) `(lambda (,'#) (,@body))))
-    #..
     >>> setattr(
     ...   _macro_,
     ...   'xHASH_',
@@ -1282,7 +1222,6 @@ But there are times when a function will not do:
 
     #> (any (map (# print (.upper #) ":" #)
     #..          "abc"))
-    #..
     >>> any(
     ...   map(
     ...     # xHASH_

@@ -456,7 +456,6 @@ use a dedent string, which can be safely indented:
    #..               These lines
    #..               Don't interrupt
    #..               the flow."))
-   #..
    >>> print(
    ...   "These lines\nDon't interrupt\nthe flow.".upper())
    THESE LINES
