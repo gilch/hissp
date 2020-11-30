@@ -124,7 +124,7 @@ class Parser:
     def _close(self):
         self.depth -= 1
         if self.depth < 0:
-            raise SyntaxError("Unopened ')'.")
+            raise ValueError("Unopened ')'.")
 
     @staticmethod
     def _string(v):
@@ -290,7 +290,7 @@ def transpile_module(
 
 def _write_py(out, qualname, code):
     with open(out, "w") as f:
-        print(f"compiling {qualname} as", out)
+        print(f"compiling {qualname} as", out, file=sys.stderr)
         if code.startswith('#!'):  # ignore shebang line
             _, _, code = code.partition('\n')
         f.write(Parser(qualname, evaluate=True, filename=str(out)).compile(code))
