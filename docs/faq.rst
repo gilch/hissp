@@ -1034,8 +1034,8 @@ Lissp goes through multiple stages as it compiles:
 
 - the :doc:`Lissp reader<hissp.reader>` reads it in as Hissp data structures.
 
-  - `its lexer<hissp.reader.lex>` breaks the text into a stream of tokens.
-  - `its parser<hissp.reader.Parser>` builds the tokens into Hissp.
+  - `its lexer<hissp.reader.Lexer>` breaks the text into a stream of tokens.
+  - `its parser<hissp.reader.Lissp>` builds the tokens into Hissp.
 - the :doc:`Hissp compiler<hissp.compiler>` translates Hissp to a functional subset of Python.
 
 Then Python takes over and Hissp does not concern itself with this part.

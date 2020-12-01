@@ -197,8 +197,8 @@ Read time
 
 Let's see our "Hello World" example in Lissp:
 
->>> from hissp.reader import Parser
->>> next(Parser().reads("""
+>>> from hissp.reader import Lissp
+>>> next(Lissp().reads("""
 ... (lambda (name)
 ...   (print 'Hello name))
 ... """))

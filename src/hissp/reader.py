@@ -92,7 +92,7 @@ def gensym_counter(count=[0]):
     return count[0]
 
 
-class Parser:
+class Lissp:
     def __init__(
         self, qualname="__main__", ns=..., verbose=False, evaluate=False, filename="<?>"
     ):
@@ -329,7 +329,7 @@ def _write_py(out, qualname, code):
         print(f"compiling {qualname} as", out, file=sys.stderr)
         if code.startswith('#!'):  # ignore shebang line
             _, _, code = code.partition('\n')
-        f.write(Parser(qualname, evaluate=True, filename=str(out)).compile(code))
+        f.write(Lissp(qualname, evaluate=True, filename=str(out)).compile(code))
 
 def main():
     transpile(*sys.argv[1:])

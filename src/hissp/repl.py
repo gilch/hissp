@@ -6,13 +6,13 @@ from code import InteractiveConsole
 from types import SimpleNamespace
 
 import hissp.basic
-from hissp.reader import Parser, SoftSyntaxError
+from hissp.reader import Lissp, SoftSyntaxError
 
 
 class REPL(InteractiveConsole):
     def __init__(self):
         super().__init__()
-        self.lissp = Parser(ns=self.locals)
+        self.lissp = Lissp(ns=self.locals)
 
     def runsource(self, source, filename="<input>", symbol="single"):
         try:

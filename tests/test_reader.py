@@ -17,7 +17,7 @@ STRING_ANY_ = [("string", ANY, ANY)]
 
 class TestReader(TestCase):
     def setUp(self) -> None:
-        self.parser = reader.Parser()
+        self.parser = reader.Lissp()
 
     @given(st.text("(\n 1)", max_size=20))
     def test_balance(self, lissp):
