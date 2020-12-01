@@ -9,7 +9,7 @@ from hypothesis import given
 
 from hissp import reader
 
-STRING_ANY_ = [("string", ANY)]
+STRING_ANY_ = [("string", ANY, ANY)]
 
 
 class TestReader(TestCase):
@@ -28,15 +28,15 @@ class TestReader(TestCase):
     def test_string(self, lissp):
         lissp = lissp.replace("\\", "\\\\").replace('"', r"\"")
         lissp = f'"{lissp}"'
-        self.assertEqual([*reader.lex(lissp)], STRING_ANY_)
+        self.assertEqual([*reader.Lexer(lissp)], STRING_ANY_)
 
     def test_examples(self):
         for k, v in EXPECTED.items():
             with self.subTest(code=k, parsed=v):
                 print(k)
-                lex_k = [*reader.lex(k)]
+                lex_k = [*reader.Lexer(k)]
                 print(lex_k)
-                parsed = [*self.parser.parse(iter(lex_k))]
+                parsed = [*self.parser.parse(reader.Lexer(k))]
                 print(parsed)
                 self.assertEqual(v, parsed)
                 print('OK')

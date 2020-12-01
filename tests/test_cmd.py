@@ -13,14 +13,14 @@ def cmd(cmd, input=""):
 BANNER_LEN = len(cmd(REPL_CMD)[1]) - len(EXIT_MSG)
 
 
-def repl(input, out: str, err: str, exitmsg=EXIT_MSG):
+def repl(input, out: str = '#> '*2, err: str = "", exitmsg=EXIT_MSG):
     actual_out, actual_err = cmd(REPL_CMD, input)
     assert actual_out == out
     assert actual_err[BANNER_LEN:] == err + exitmsg
 
 
 def test_repl_prompt():
-    repl("", "#> ", "")
+    repl("", "#> ")
 
 
 def test_repl_atom():
@@ -32,26 +32,77 @@ def test_repl_atom():
 
 
 def test_repl_exit():
-    repl(
-        "(exit)\n",
-        "#> ",
-        ">>> exit()\n",
-        "",
-    )
+    repl("(exit)\n", "#> ", ">>> exit()\n", "")
+
+
+def test_repl_unqoute_error():
+    err = """\
+  File "<console>", line 1
+    ,
+    ^
+SyntaxError: Unquote outside of template.
+"""
+    repl(",\n", err=err)
+
+
+def test_repl_splice_error():
+    err = """\
+  File "<console>", line 1
+    ,@
+     ^
+SyntaxError: Unquote outside of template.
+"""
+    repl(",@\n", err=err)
+
+
+def test_repl_empty_template_error():
+    err = """\
+  File "<console>", line 1
+    `
+    ^
+SyntaxError: Reader macro '`' missing argument.
+"""
+    repl("`\n", err=err)
+
+
+def test_repl_gensym_error():
+    err = """\
+  File "<console>", line 1
+    $#x
+      ^
+SyntaxError: Gensym outside of template.
+"""
+    repl("$#x\n", err=err)
+
+
+def test_repl_empty_reader_macro_error():
+    err = """\
+  File "<console>", line 1
+    builtins..float#
+                   ^
+SyntaxError: Reader macro 'builtins..float#' missing argument.
+"""
+    repl("builtins..float#\n", err=err)
+
 
 def test_repl_read_error():
-    repl(
-        ",\n,@\n`\n$#x\nbuiltins..float#\n\\\n)\n",
-        "#> "*8,
-r"""Unquote outside of template.
-Unquote outside of template.
-Reader macro '`' missing argument.
-Gensym outside of template.
-Reader macro 'builtins..float#' missing argument.
-Read error: '\\'
-Unopened ')'.
-""",
+    err = """\
+  File "<console>", line 1
+    \\
+    ^
+SyntaxError: Can't read this.
+"""
+    repl("\\\n", err=err)
+
+
+def test_repl_unopened_error():
+    err = """\
+  File "<console>", line 1
     )
+    ^
+SyntaxError: Unopened ')'.
+"""
+    repl(")\n", err=err)
 
 
 def test_repl_str_continue():

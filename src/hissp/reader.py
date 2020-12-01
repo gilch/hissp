@@ -46,24 +46,40 @@ TOKENS = re.compile(
 """
 )
 
-Token = NewType("Token", Tuple[str, str])
+Token = NewType("Token", Tuple[str, str, int])
 
 DROP = object()
 
+class SoftSyntaxError(SyntaxError):
+    """A syntax error that could be corrected with more lines of input."""
 
-def lex(code: str, file: str = "<?>") -> Iterator[Token]:
-    pos = 0
-    while pos < len(code):
-        match = TOKENS.match(code, pos)
-        if match is None:
-            good = code[0:pos].split("\n")
-            line = len(good)
-            column = len(good[-1])
-            raise SyntaxError("Unexpected token", (file, line, column, code))
-        assert match.lastgroup
-        assert match.end() > pos, match.groups()
-        pos = match.end()
-        yield Token((match.lastgroup, match.group()))
+class Lexer(Iterator):
+    def __init__(self, code: str, file: str = "<?>"):
+        self.code = code
+        self.file = file
+        self.it = self._it()
+
+    def __iter__(self) -> Iterator[Token]:
+        return self
+
+    def __next__(self):
+        return next(self.it)
+
+    def _it(self):
+        pos = 0
+        while pos < len(self.code):
+            match = TOKENS.match(self.code, pos)
+            assert match is not None
+            assert match.lastgroup
+            assert match.end() > pos, match.groups()
+            pos = match.end()
+            yield Token((match.lastgroup, match.group(), pos))
+
+    def position(self, pos: int) -> Tuple[str, int, int, str]:
+        good = self.code[0:pos].split("\n")
+        line = len(good)
+        column = len(good[-1])
+        return self.file, line, column, self.code
 
 
 class _Unquote(tuple):
@@ -90,14 +106,19 @@ class Parser:
     def reinit(self):
         self.gensym_stack = []
         self.depth = 0
+        self._p = 0
 
-    def parse(self, tokens: Iterator[Token]) -> Iterator:
-        return (form for form in self._parse(tokens) if form is not DROP)
+    def position(self):
+        return self.tokens.position(self._p)
 
-    def _parse(self, tokens: Iterator[Token]) -> Iterator:
-        for k, v in tokens:
+    def parse(self, tokens: Lexer) -> Iterator:
+        self.tokens = tokens
+        return (form for form in self._parse() if form is not DROP)
+
+    def _parse(self) -> Iterator:
+        for k, v, self._p in self.tokens:
             if k == "open":
-                yield from self._open(tokens)
+                yield from self._open()
             elif k == "close":
                 self._close()
                 return
@@ -106,31 +127,31 @@ class Parser:
             elif k in {"comment", "whitespace"}:
                 continue
             elif k == "macro":
-                yield from self._macro(tokens, v)
+                yield from self._macro(v)
             elif k == "atom":
                 yield self._atom(v)
             elif k == "badspace":
-                raise ValueError("Bad space: " + repr(v))
+                raise SyntaxError("Bad space: " + repr(v), self.position())
             elif k == "continue":
-                raise SyntaxError("Incomplete token.")
+                raise SoftSyntaxError("Incomplete token.", self.position())
             elif k == "error":
-                raise ValueError("Read error: " + repr(v))
+                raise SyntaxError("Can't read this.", self.position())
             else:
                 assert False, "unknown token: " + repr(k)
         if self.depth:
-            raise SyntaxError("Ran out of tokens before completing form.")
+            raise SoftSyntaxError("Ran out of tokens before completing form.", self.position())
 
-    def _open(self, tokens):
+    def _open(self):
         depth = self.depth
         self.depth += 1
-        yield (*self.parse(tokens),)
+        yield (*self.parse(self.tokens),)
         if self.depth != depth:
-            raise SyntaxError("Unclosed '('.")
+            raise SoftSyntaxError("Unclosed '('.", self.position())
 
     def _close(self):
         self.depth -= 1
         if self.depth < 0:
-            raise ValueError("Unopened ')'.")
+            raise SyntaxError("Unopened ')'.", self.position())
 
     @staticmethod
     def _string(v):
@@ -141,16 +162,16 @@ class Parser:
         else:
             yield "quote", val, {":str": True}
 
-    def _macro(self, tokens, v):
+    def _macro(self, v):
         with {
             "`": self.gensym_context,
             ",": self.unquote_context,
             ",@": self.unquote_context,
         }.get(v, nullcontext)():
             try:
-                form = next(self.parse(tokens))
+                form = next(self.parse(self.tokens))
             except StopIteration:
-                raise ValueError(f"Reader macro {v!r} missing argument.") from None
+                raise SyntaxError(f"Reader macro {v!r} missing argument.", self.position()) from None
             yield self.parse_macro(v, form)
 
     @staticmethod
@@ -193,7 +214,7 @@ class Parser:
                 form = form[1]
             return reduce(getattr, function.split("."), import_module(module))(form)
         # TODO: consider unqualified reader macros.
-        raise ValueError(f"Unknown reader macro {tag}")
+        raise SyntaxError(f"Unknown reader macro {tag}", self.position())
 
     def template(self, form):
         case = type(form)
@@ -233,7 +254,7 @@ class Parser:
         return f"{self.qualname}..{symbol}"
 
     def reads(self, code: str) -> Iterable:
-        res: Iterable[object] = self.parse(lex(code, self.filename))
+        res: Iterable[object] = self.parse(Lexer(code, self.filename))
         self.reinit()
         if self.verbose:
             res = list(res)
@@ -248,7 +269,7 @@ class Parser:
         try:
             return f"_{munge(form)}xAUTO{self.gensym_stack[-1]}_"
         except IndexError:
-            raise ValueError("Gensym outside of template.") from None
+            raise SyntaxError("Gensym outside of template.", self.position()) from None
 
     @contextmanager
     def gensym_context(self):
@@ -263,7 +284,7 @@ class Parser:
         try:
             gensym_number = self.gensym_stack.pop()
         except IndexError:
-            raise ValueError("Unquote outside of template.") from None
+            raise SyntaxError("Unquote outside of template.", self.position()) from None
         try:
             yield
         finally:
