@@ -3,9 +3,6 @@
 
 import subprocess as sp
 
-REPL_CMD = "replissp"
-EXIT_MSG = "\nnow exiting REPL...\n"
-
 
 def cmd(cmd, input=""):
     return sp.Popen(
@@ -13,6 +10,14 @@ def cmd(cmd, input=""):
     ).communicate(input=input)
 
 
+def test_c():
+    out, err = cmd(["hissp", "-c", '(print "Hello, World!")'])
+    assert out == "Hello, World!\n"
+    assert err == ""
+
+
+REPL_CMD = "hissp"
+EXIT_MSG = "\nnow exiting REPL...\n"
 BANNER_LEN = len(cmd(REPL_CMD)[1]) - len(EXIT_MSG)
 
 
