@@ -12,6 +12,8 @@ from hissp.reader import Lissp, SoftSyntaxError
 class REPL(InteractiveConsole):
     def __init__(self):
         super().__init__()
+        sys.ps1 = "#> "
+        sys.ps2 = "#.."
         self.lissp = Lissp(ns=self.locals)
 
     def runsource(self, source, filename="<input>", symbol="single"):
@@ -32,8 +34,6 @@ class REPL(InteractiveConsole):
 
 
 def main():
-    sys.ps1 = "#> "
-    sys.ps2 = "#.."
     repl = REPL()
     repl.locals['_macro_'] = SimpleNamespace(**vars(hissp.basic._macro_))
     repl.interact()
