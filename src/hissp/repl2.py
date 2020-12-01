@@ -35,9 +35,7 @@ def main():
     sys.ps1 = "#> "
     sys.ps2 = "#.."
     repl = REPL()
-    repl.runsource(
-        "(.__setitem__(globals)'_macro_(types..SimpleNamespace : :**(vars hissp.basic.._macro_)))"
-    )
+    repl.locals['_macro_'] = SimpleNamespace(**vars(hissp.basic._macro_))
     repl.interact()
 
 if __name__ == "__main__":
