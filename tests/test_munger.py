@@ -1,10 +1,10 @@
-# Copyright 2019 Matthew Egan Odendahl
+# Copyright 2019, 2020 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
-import unicodedata
 from unittest import TestCase
 
 import hypothesis.strategies as st
+import unicodedata
 from hypothesis import given
 
 from hissp import munger

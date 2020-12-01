@@ -1,3 +1,6 @@
+# Copyright 2020 Matthew Egan Odendahl
+# SPDX-License-Identifier: Apache-2.0
+
 import subprocess as sp
 
 REPL_CMD = "replissp"

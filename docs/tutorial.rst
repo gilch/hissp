@@ -1,4 +1,4 @@
-.. Copyright 2019 Matthew Egan Odendahl
+.. Copyright 2019, 2020 Matthew Egan Odendahl
    SPDX-License-Identifier: Apache-2.0
 
 ..  Hidden doctest requires basic macros for REPL-consistent behavior.

@@ -1,3 +1,6 @@
+# Copyright 2019 Matthew Egan Odendahl
+# SPDX-License-Identifier: Apache-2.0
+
 import re
 from collections.abc import Container
 from doctest import ELLIPSIS

@@ -1,3 +1,6 @@
+# Copyright 2019, 2020 Matthew Egan Odendahl
+# SPDX-License-Identifier: Apache-2.0
+
 import math
 from collections import Counter
 from fractions import Fraction
