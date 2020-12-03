@@ -10,21 +10,33 @@ from hissp.reader import Lissp
 
 def main():
     ns = parse_args()
-    code, arg0 = file_group(ns)
-    if code is not None:
-        sys.argv = [arg0, *ns.args]
-        if ns.i:
-            repl = hissp.repl.REPL()
-            try:
-                repl.lissp.compile(code)
-            finally:
-                repl.interact()
-        else:
-            exec(Lissp().compile(code))
-    elif ns.compile:
+    _compile(ns) or _run_as_main(ns) or hissp.repl.main()
+
+
+def _compile(ns):
+    if ns.compile:
         hissp.reader.transpile(ns.package, *ns.files)
+        return True
+
+
+def _run_as_main(ns):
+    if ns.file:
+        code = ns.file.read()
+        sys.argv = [ns.file.name, *ns.args]
+    elif 'c' in ns:
+        code = ns.c
+        sys.argv = ['-c', *ns.args]
     else:
-        hissp.repl.main()
+        return False
+    if ns.i:
+        repl = hissp.repl.REPL()
+        try:
+            repl.lissp.compile(code)
+        finally:
+            repl.interact()
+    else:
+        exec(Lissp().compile(code))
+    return True
 
 
 def parse_args():
@@ -46,14 +58,6 @@ def parse_args():
     root.add_argument("args", nargs="*")
 
     return root.parse_args()
-
-
-def file_group(ns):
-    if ns.file:
-        return ns.file.read(), ns.file.name
-    elif 'c' in ns:
-        return ns.c, '-c'
-    return None, None
 
 
 if __name__ == "__main__":
