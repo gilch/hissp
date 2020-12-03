@@ -20,6 +20,7 @@ def _compile(ns):
 
 
 def _run_as_main(ns):
+    sys.argv = ['']
     if ns.file:
         code = ns.file.read()
         sys.argv = [ns.file.name, *ns.args]
@@ -28,26 +29,32 @@ def _run_as_main(ns):
         sys.argv = ['-c', *ns.args]
     else:
         return False
-    if ns.i:
-        repl = hissp.repl.REPL()
-        try:
-            repl.lissp.compile(code)
-        finally:
-            repl.interact()
-    else:
-        exec(Lissp().compile(code))
-    return True
+    ns.i(code)
+
+
+def interact(code):
+    repl = hissp.repl.REPL()
+    try:
+        repl.lissp.compile(code)
+    finally:
+        repl.interact()
+
+
+def no_interact(code):
+    Lissp(evaluate=True).compile(code)
 
 
 def parse_args():
     root = argparse.ArgumentParser()
-    _ = root.add_subparsers().add_parser("compile").add_argument
+    _ = root.add_subparsers(dest='compile').add_parser("compile").add_argument
     _("-p", "--package", default="", help="used to qualify compiled symbols")
     _("files", nargs="+", help=".lissp files to compile to .py")
 
     root.add_argument(
         "-i",
-        action='store_true',
+        action='store_const',
+        const=interact,
+        default=no_interact,
         help="inspect interactively after running script (even if it crashes)"
     )
 
