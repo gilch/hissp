@@ -1,6 +1,5 @@
 # Copyright 2020 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
-
 import sys
 from code import InteractiveConsole
 from types import SimpleNamespace
@@ -10,11 +9,12 @@ from hissp.reader import Lissp, SoftSyntaxError
 
 
 class REPL(InteractiveConsole):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, locals=None, filename="<console>"):
+        super().__init__(locals, filename)
         sys.ps1 = "#> "
         sys.ps2 = "#.."
-        self.lissp = Lissp(ns=self.locals)
+        self.lissp = Lissp(ns=locals)
+        self.locals = self.lissp.ns
 
     def runsource(self, source, filename="<input>", symbol="single"):
         try:

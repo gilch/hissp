@@ -94,11 +94,11 @@ def gensym_counter(count=[0]):
 
 class Lissp:
     def __init__(
-        self, qualname="__main__", ns=..., verbose=False, evaluate=False, filename="<?>"
+        self, qualname="__main__", ns=None, verbose=False, evaluate=False, filename="<?>"
     ):
         self.qualname = qualname
-        self.ns = {"__name__": qualname} if ns is ... else ns
-        self.compiler = Compiler(self.qualname, self.ns, evaluate)
+        self.compiler = Compiler(self.qualname, ns, evaluate)
+        self.ns = self.compiler.ns
         self.verbose = verbose
         self.filename = filename
         self.reinit()
