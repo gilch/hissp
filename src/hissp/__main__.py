@@ -15,8 +15,10 @@ def main():
         sys.argv = [arg0, *ns.args]
         if ns.i:
             repl = hissp.repl.REPL()
-            repl.lissp.compile(code)
-            repl.interact()
+            try:
+                repl.lissp.compile(code)
+            finally:
+                repl.interact()
         else:
             exec(Lissp().compile(code))
     elif ns.compile:
