@@ -28,20 +28,24 @@ def main():
 
 
 def parse_args():
-    parser = argparse.ArgumentParser()
+    root = argparse.ArgumentParser()
+    _ = root.add_subparsers().add_parser("compile").add_argument
+    _("-p", "--package", default="", help="used to qualify compiled symbols")
+    _("files", nargs="+", help=".lissp files to compile to .py")
 
-    c = parser.add_subparsers().add_parser("compile").add_argument
-    c("-p", "--package", default="")
-    c("files", nargs="+")
+    root.add_argument(
+        "-i",
+        action='store_true',
+        help="inspect interactively after running script (even if it crashes)"
+    )
 
-    s = parser.add_mutually_exclusive_group().add_argument
-    s("-c", help="Program passed in as a string.", metavar='cmd')
-    s("file", nargs="?", type=argparse.FileType('r'))
+    _ = root.add_mutually_exclusive_group().add_argument
+    _("-c", help="Program passed in as a string.", metavar='cmd')
+    _("file", nargs="?", type=argparse.FileType('r'), help="Script file. (- is stdin.)")
 
-    parser.add_argument("-i", action='store_true')
-    parser.add_argument("args", nargs="*")
+    root.add_argument("args", nargs="*")
 
-    return parser.parse_args()
+    return root.parse_args()
 
 
 def file_group(ns):
