@@ -230,7 +230,7 @@ But let's start it from the command line using an appropriate Python interpreter
 Or, if you installed the hissp package using pip,
 you can use the installed entry point script::
 
-    $ hissp
+    $ lissp
 
 You should see the Lissp prompt ``#>`` appear.
 
@@ -1263,7 +1263,7 @@ You can run a ``.lissp`` file directly as the main module using hissp::
 
 Or::
 
-    $ hissp foo.lissp
+    $ lissp foo.lissp
 
 But you'll probably want to break a larger project up into smaller modules.
 And those must be compiled for import.

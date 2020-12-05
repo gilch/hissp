@@ -243,11 +243,11 @@ How do I start the REPL again?
 ------------------------------
 
 If you installed the distribution using pip, you can use the provided
-``hissp`` console script.
+``lissp`` console script.
 
 ::
 
-   $ hissp
+   $ lissp
 
 You can also launch the Hissp package directly using an appropriate
 Python interpreter from the command line
@@ -736,14 +736,13 @@ just use a string at the top, same as Python.
 The REPL is nice and all, but how do I run a ``.lissp`` module?
 ---------------------------------------------------------------
 
-You can use ``hissp`` to launch a ``.lissp`` file as the main module
-directly.
+You can launch a ``.lissp`` file as the main module directly.
 
 If you have the entry point script installed that's:
 
 .. code-block:: shell
 
-   $ hissp foo.lissp
+   $ lissp foo.lissp
 
 To be able to import a ``.lissp`` module, you must compile it to Python
 first.
@@ -863,7 +862,7 @@ How do I add a shebang line?
 ----------------------------
 
 Same as for any executable text file, use a line starting with ``#!``
-followed by a command to run hissp. (E.g. ``/usr/bin/env hissp``) The
+followed by a command to run lissp. (E.g. ``/usr/bin/env lissp``) The
 transpiler will ignore it if it's the first line. If you set the
 executable bit, like ``chmod foo.lissp +x``, then you can run the file
 directly.

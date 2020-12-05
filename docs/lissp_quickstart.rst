@@ -25,7 +25,7 @@ Lissp Quick Start
    ;;;; Installation
 
    ;; Install hissp with $ pip install hissp
-   ;; Start the REPL with $ hissp
+   ;; Start the REPL with $ lissp
    ;; Quit with EOF or (exit).
 
    ;;;; Atoms
