@@ -10,19 +10,46 @@ def cmd(cmd, input=""):
     ).communicate(input=input)
 
 
-def test_c():
-    out, err = cmd(["hissp", "-c", '(print "Hello, World!")'])
-    assert out == "Hello, World!\n"
+EXIT_MSG = "\nnow exiting REPL...\n"
+BANNER_LEN = len(cmd("lissp")[1]) - len(EXIT_MSG)
+
+
+def test_c_args():
+    out, err = cmd(["lissp", "-c", "(print sys..argv)", "1", "2", "3"])
+    assert out == "['-c', '1', '2', '3']\n"
     assert err == ""
 
 
-REPL_CMD = "hissp"
-EXIT_MSG = "\nnow exiting REPL...\n"
-BANNER_LEN = len(cmd(REPL_CMD)[1]) - len(EXIT_MSG)
+def test_ic_args():
+    out, err = cmd(
+        ["lissp", "-i", "-c", "(print sys..argv)(define answer 42)", "1", "2", "3"],
+        "answer\n"
+    )
+    assert out == "['-c', '1', '2', '3']\n#> 42\n#> "
+    assert err[BANNER_LEN:] == ">>> answer\n" + EXIT_MSG
+
+
+def test_file_args():
+    out, err = cmd(["lissp", "tests/argv.lissp", "1", "2", "3"])
+    assert out == """\
+['tests/argv.lissp', '1', '2', '3']
+__name__='__main__' __package__=None
+"""
+    assert err == ""
+
+
+def test_i_file_args():
+    out, err = cmd(["lissp", "-i", "tests/argv.lissp", "1", "2", "3"], "answer\n")
+    assert out == """\
+['tests/argv.lissp', '1', '2', '3']
+__name__='__main__' __package__=None
+#> 42
+#> """
+    assert err[BANNER_LEN:] == ">>> answer\n" + EXIT_MSG
 
 
 def repl(input, out: str = '#> '*2, err: str = "", exitmsg=EXIT_MSG):
-    actual_out, actual_err = cmd(REPL_CMD, input)
+    actual_out, actual_err = cmd("lissp", input)
     assert actual_out == out
     assert actual_err[BANNER_LEN:] == err + exitmsg
 

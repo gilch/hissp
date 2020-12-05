@@ -9,62 +9,58 @@ from hissp.reader import Lissp
 
 
 def main():
-    ns = parse_args()
-    _compile(ns) or _run_as_main(ns) or hissp.repl.main()
-
-
-def _compile(ns):
-    if ns.compile:
-        hissp.reader.transpile(ns.package, *ns.files)
-        return True
-
-
-def _run_as_main(ns):
+    ns = arg_parser().parse_args()
     sys.argv = ['']
-    if ns.file:
-        code = ns.file.read()
-        sys.argv = [ns.file.name, *ns.args]
-    elif 'c' in ns:
-        code = ns.c
-        sys.argv = ['-c', *ns.args]
+    if ns.c is not None:
+        _cmd(ns)
+    elif ns.file is not None:
+        _with_args(ns)
     else:
-        return False
+        hissp.repl.main()
+
+
+def _cmd(ns):
+    sys.argv = ["-c"]
+    if ns.file is not None:
+        sys.argv.extend([ns.file, *ns.args])
+    ns.i("(hissp.basic.._macro_.prelude)\n"+ns.c)
+
+
+def _with_args(ns):
+    with argparse.FileType('r')(ns.file) as file:
+        sys.argv = [file.name, *ns.args]
+        code = file.read()
     ns.i(code)
 
 
-def interact(code):
+def _interact(code):
     repl = hissp.repl.REPL()
+    repl.lissp.compiler.evaluate = True
     try:
         repl.lissp.compile(code)
     finally:
+        repl.lissp.compiler.evaluate = False
         repl.interact()
 
 
-def no_interact(code):
+def _no_interact(code):
     Lissp(evaluate=True).compile(code)
 
 
-def parse_args():
-    root = argparse.ArgumentParser()
-    _ = root.add_subparsers(dest='compile').add_parser("compile").add_argument
-    _("-p", "--package", default="", help="used to qualify compiled symbols")
-    _("files", nargs="+", help=".lissp files to compile to .py")
-
-    root.add_argument(
+def arg_parser():
+    root = argparse.ArgumentParser(description="Starts the REPL if there are no arguments.")
+    _ = root.add_argument
+    _(
         "-i",
         action='store_const',
-        const=interact,
-        default=no_interact,
-        help="inspect interactively after running script (even if it crashes)"
+        const=_interact,
+        default=_no_interact,
+        help="Drop into REPL after the script."
     )
-
-    _ = root.add_mutually_exclusive_group().add_argument
-    _("-c", help="Program passed in as a string.", metavar='cmd')
-    _("file", nargs="?", type=argparse.FileType('r'), help="Script file. (- is stdin.)")
-
-    root.add_argument("args", nargs="*")
-
-    return root.parse_args()
+    _("-c", help="Run main script (with prelude) from this string.", metavar='cmd')
+    _("file", nargs="?", help="Run main script from this file. (- for stdin.)")
+    _("args", nargs="*", help="Arguments for the script.")
+    return root
 
 
 if __name__ == "__main__":
