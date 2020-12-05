@@ -1,0 +1,6 @@
+(hissp.basic.._macro_.prelude)
+
+(print sys..argv)
+(print .#"f'{__name__=} {__package__=}'")
+
+(define answer 42)

@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 [![codecov](https://codecov.io/gh/gilch/hissp/branch/master/graph/badge.svg)](https://codecov.io/gh/gilch/hissp)
 <!-- Hidden doctest requires basic macros for REPL-consistent behavior.
 #> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.basic.._macro_)))
-#..
 >>> __import__('operator').setitem(
 ...   globals(),
 ...   '_macro_',
@@ -220,8 +219,8 @@ Hissp's utility as a metaprogramming language is the ease of manipulating simple
 Hissp can be written directly in Python using the "readerless mode" demonstrated above,
 or it can be read in from a lightweight textual language called *Lissp* that represents these data structures.
 ```python
->>> from hissp.reader import Parser
->>> next(Parser().reads("""
+>>> from hissp.reader import Lissp
+>>> next(Lissp().reads("""
 ... (lambda (name)
 ...   (print 'Hello name))
 ... """))

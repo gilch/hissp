@@ -3,7 +3,6 @@
 
 .. Hidden doctest requires basic macros for REPL-consistent behavior.
    #> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.basic.._macro_)))
-   #..
    >>> __import__('operator').setitem(
    ...   globals(),
    ...   '_macro_',
@@ -94,11 +93,9 @@ Top-level imports are a good use of inject.
 .. code-block:: Lissp
 
    #> .#"import operator as op"
-   #..
    >>> import operator as op
 
    #> (op.add 1 1)
-   #..
    >>> op.add(
    ...   (1),
    ...   (1))
@@ -129,7 +126,6 @@ You can, of course, abbreviate these.
 .. code-block:: Lissp
 
    #> (define + operator..add)
-   #..
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
@@ -137,7 +133,6 @@ You can, of course, abbreviate these.
    ...   __import__('operator').add)
 
    #> (+ 1 1)
-   #..
    >>> xPLUS_(
    ...   (1),
    ...   (1))
@@ -154,7 +149,6 @@ You can even upgrade these to use a reduce so they're multiary like other Lisps:
    #> (define +
    #..  (lambda (: :* args)
    #..    (functools..reduce operator..add args)))
-   #..
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
@@ -165,7 +159,6 @@ You can even upgrade these to use a reduce so they're multiary like other Lisps:
    ...       args)))
 
    #> (+ 1 2 3)
-   #..
    >>> xPLUS_(
    ...   (1),
    ...   (2),
@@ -237,7 +230,6 @@ into the Hissp.
    #> (define quadratic
    #.. (lambda (a b c)
    #..   .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)"))
-   #..
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
@@ -251,11 +243,11 @@ How do I start the REPL again?
 ------------------------------
 
 If you installed the distribution using pip, you can use the provided
-``hissp`` console script.
+``lissp`` console script.
 
 ::
 
-   $ hissp
+   $ lissp
 
 You can also launch the Hissp package directly using an appropriate
 Python interpreter from the command line
@@ -744,14 +736,13 @@ just use a string at the top, same as Python.
 The REPL is nice and all, but how do I run a ``.lissp`` module?
 ---------------------------------------------------------------
 
-You can use ``hissp`` to launch a ``.lissp`` file as the main module
-directly.
+You can launch a ``.lissp`` file as the main module directly.
 
 If you have the entry point script installed that's:
 
 .. code-block:: shell
 
-   $ hissp foo.lissp
+   $ lissp foo.lissp
 
 To be able to import a ``.lissp`` module, you must compile it to Python
 first.
@@ -804,7 +795,6 @@ A module name that ends with a dot will do it for you.
 .. code-block:: Lissp
 
    #> collections.abc.
-   #..
    >>> __import__('collections.abc',fromlist='?')
    <module 'collections.abc' from '...abc.py'>
 
@@ -872,7 +862,7 @@ How do I add a shebang line?
 ----------------------------
 
 Same as for any executable text file, use a line starting with ``#!``
-followed by a command to run hissp. (E.g. ``/usr/bin/env hissp``) The
+followed by a command to run lissp. (E.g. ``/usr/bin/env lissp``) The
 transpiler will ignore it if it's the first line. If you set the
 executable bit, like ``chmod foo.lissp +x``, then you can run the file
 directly.
@@ -1043,8 +1033,8 @@ Lissp goes through multiple stages as it compiles:
 
 - the :doc:`Lissp reader<hissp.reader>` reads it in as Hissp data structures.
 
-  - `its lexer<hissp.reader.lex>` breaks the text into a stream of tokens.
-  - `its parser<hissp.reader.Parser>` builds the tokens into Hissp.
+  - `its lexer<hissp.reader.Lexer>` breaks the text into a stream of tokens.
+  - `its parser<hissp.reader.Lissp>` builds the tokens into Hissp.
 - the :doc:`Hissp compiler<hissp.compiler>` translates Hissp to a functional subset of Python.
 
 Then Python takes over and Hissp does not concern itself with this part.

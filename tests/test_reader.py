@@ -1,3 +1,6 @@
+# Copyright 2019, 2020 Matthew Egan Odendahl
+# SPDX-License-Identifier: Apache-2.0
+
 import math
 from collections import Counter
 from fractions import Fraction
@@ -9,34 +12,34 @@ from hypothesis import given
 
 from hissp import reader
 
-STRING_ANY_ = [("string", ANY)]
+STRING_ANY_ = [("string", ANY, ANY)]
 
 
 class TestReader(TestCase):
     def setUp(self) -> None:
-        self.parser = reader.Parser()
+        self.parser = reader.Lissp()
 
-    @given(st.text("(1)", max_size=20))
+    @given(st.text("(\n 1)", max_size=20))
     def test_balance(self, lissp):
         tally = Counter(lissp)
         if tally["("] != tally[")"]:
             self.assertRaisesRegex(
-                SyntaxError, r"^Un(?:opened|closed)|Ran out of tokens", list, self.parser.reads(lissp)
+                (SyntaxError, ValueError), r"^Un(?:opened|closed)|Ran out of tokens", list, self.parser.reads(lissp)
             )
 
     @given(st.text(max_size=5))
     def test_string(self, lissp):
         lissp = lissp.replace("\\", "\\\\").replace('"', r"\"")
         lissp = f'"{lissp}"'
-        self.assertEqual([*reader.lex(lissp)], STRING_ANY_)
+        self.assertEqual([*reader.Lexer(lissp)], STRING_ANY_)
 
     def test_examples(self):
         for k, v in EXPECTED.items():
             with self.subTest(code=k, parsed=v):
                 print(k)
-                lex_k = [*reader.lex(k)]
+                lex_k = [*reader.Lexer(k)]
                 print(lex_k)
-                parsed = [*self.parser.parse(iter(lex_k))]
+                parsed = [*self.parser.parse(reader.Lexer(k))]
                 print(parsed)
                 self.assertEqual(v, parsed)
                 print('OK')

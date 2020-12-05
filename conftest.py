@@ -1,3 +1,6 @@
+# Copyright 2019, 2020 Matthew Egan Odendahl
+# SPDX-License-Identifier: Apache-2.0
+
 import re
 from collections.abc import Container
 from doctest import ELLIPSIS
@@ -7,7 +10,7 @@ from textwrap import dedent, indent
 from sybil import Sybil
 from sybil.parsers.doctest import DocTestParser
 
-from hissp.reader import Parser
+from hissp.reader import Lissp
 
 LISSP = re.compile(r" *#> .*\n(?: *#\.\..*\n)*")
 STRIP_LISSP = re.compile(r"(?m)^ *#(?:> |\.\.)")
@@ -39,7 +42,7 @@ class ParseLissp(DocTestParser):
         lissp = STRIP_LISSP.sub("", lissp.group())
         return lissp
 
-    def evaluate(self, example, parser=Parser()):
+    def evaluate(self, example, parser=Lissp()):
         lissp = self.lissp(example.document.text[example.start : example.end])
         if lissp:
             python = example.parsed.source

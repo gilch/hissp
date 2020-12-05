@@ -1,50 +1,42 @@
-# Copyright 2019, 2020 Matthew Egan Odendahl
+# Copyright 2020 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
-import traceback
-from contextlib import suppress
-from functools import partial
+import sys
+from code import InteractiveConsole
 from types import SimpleNamespace
 
-from hissp.reader import Parser
-from hissp.reader import transpile
+import hissp.basic
+from hissp.reader import Lissp, SoftSyntaxError
 
 
-def repl(ns=..., macros=None):
-    parser = Parser(ns=ns)
-    if not macros:
-        with suppress(FileNotFoundError):
-            transpile("hissp", "basic")
-        from hissp import basic
+class REPL(InteractiveConsole):
+    def __init__(self, locals=None, filename="<console>"):
+        super().__init__(locals, filename)
+        sys.ps1 = "#> "
+        sys.ps2 = "#.."
+        self.lissp = Lissp(ns=locals)
+        self.locals = self.lissp.ns
 
-        macros = basic
-    parser.compiler.ns["_macro_"] = SimpleNamespace(**vars(macros._macro_))
-    while True:
+    def runsource(self, source, filename="<input>", symbol="single"):
         try:
-            try:
-                line = input("\n#> ")
-            except EOFError:
-                print("Ssss.")
-                break
-            buffer = _get_more(line)
-            forms = parser.reads("\n".join(buffer))
-            evaluate(forms, parser)
-        except SystemExit:
-            print("Lissp REPL Exit.")
-            raise
-        except BaseException as be:
-            traceback.print_exception(type(be), be, be.__traceback__.tb_next)
+            self.lissp.filename = filename
+            source = self.lissp.compile(source)
+        except SoftSyntaxError:
+            return True
+        except SyntaxError:
+            self.showsyntaxerror()
+            return False
+        except BaseException:
+            import traceback
+            traceback.print_exc()
+            return False
+        print(">>>", source.replace("\n", "\n... "), file=sys.stderr)
+        super().runsource(source, filename, symbol)
 
 
-def evaluate(forms, parser):
-    code = parser.compiler.compile(forms)
-    print(">>>", code.replace("\n", "\n... "))
-    bytecode = compile(code, "<repl>", "single")
-    exec(bytecode, parser.compiler.ns)
-    return code
+def main():
+    repl = REPL()
+    repl.locals['_macro_'] = SimpleNamespace(**vars(hissp.basic._macro_))
+    repl.interact()
 
-
-def _get_more(line):
-    buffer = [line]
-    if "(" in line or '"' in line or ";" in line:
-        buffer.extend(iter(partial(input, "#.."), ""))
-    return buffer
+if __name__ == "__main__":
+    main()

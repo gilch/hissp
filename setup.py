@@ -39,7 +39,7 @@ setuptools.setup(
     },  # If any package contains *.lissp files, include them.
     package_dir={"": "src"},
     python_requires=">=3.8",
-    entry_points={"console_scripts": ["hissp=hissp.__main__:main", "lisspc=hissp.reader:main"]},
+    entry_points={"console_scripts": ["lissp=hissp.__main__:main"]},
 )
 # Build dist and install:
 # $ python setup.py sdist && pip install dist/hissp-*.tar.gz

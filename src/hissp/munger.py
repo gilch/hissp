@@ -1,10 +1,12 @@
-# Copyright 2019 Matthew Egan Odendahl
+# Copyright 2019, 2020 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 import re
-import unicodedata
 from contextlib import suppress
 from typing import Dict, Hashable, Mapping, Match, TypeVar
+
+import unicodedata
+
 
 def munge(s: str) -> str:
     if s.startswith(":"):

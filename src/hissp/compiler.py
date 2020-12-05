@@ -9,6 +9,7 @@ which macros can use to get their expansion context.
 """
 
 import ast
+import builtins
 import pickle
 import pickletools
 import re
@@ -19,6 +20,7 @@ from functools import wraps
 from itertools import chain, takewhile
 from pprint import pformat
 from traceback import format_exc
+from types import ModuleType
 from typing import Iterable, List, Optional, Tuple, TypeVar
 from warnings import warn
 
@@ -65,9 +67,17 @@ class Compiler:
     Translates the Hissp data language into a functional subset of Python.
     """
 
-    def __init__(self, qualname="__main__", ns=..., evaluate=True):
+    @staticmethod
+    def new_ns(name, doc=None, package=None):
+        mod = ModuleType(name, doc)
+        mod.__annotations__ = {}
+        mod.__package__ = package
+        mod.__builtins__ = builtins
+        return vars(mod)
+
+    def __init__(self, qualname="__main__", ns=None, evaluate=True):
         self.qualname = qualname
-        self.ns = {"__name__": qualname} if ns is ... else ns
+        self.ns = self.new_ns(qualname) if ns is None else ns
         self.evaluate = evaluate
         self.error = False
         self.abort = False

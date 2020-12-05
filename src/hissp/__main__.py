@@ -1,76 +1,67 @@
 # Copyright 2020 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
-ns = globals().copy()
-
+import argparse
 import sys
-from argparse import ArgumentParser, FileType
 
-from hissp.reader import Parser
-from hissp.repl import repl
-
-del ns["__package__"], ns["__file__"]
-
-
-def parse_args(argv):
-    p = ArgumentParser()
-    p.add_argument('-i', action='store_true', help="drop into interactive mode afterwards")
-    source = p.add_mutually_exclusive_group().add_argument
-    # TODO: include basic macros for -c?
-    # TODO: allow changing basic macros via env variable or .hissprc?
-    source("-c", metavar="command", help="string evaluated as lissp program")
-    source(
-        "file",
-        nargs="?",
-        help="program read from .lissp file. Use `-` for stdin.",
-    )
-    p.add_argument("args", nargs="*")
-    args = p.parse_args(argv[1:])
-    # TODO: stream from file? `-` arg?
-    argv.clear()
-    argv.extend(_rebuild_argv(args))
-    code = _get_code(args)
-    return code, args.i or not code
-
-
-def _rebuild_argv(args):
-    if args.c:
-        base = '-c'
-    elif args.file:
-        base = args.file
-    else:
-        base = ''
-    return [base, *args.args]
-
-
-def _get_code(args):
-    if args.c:
-        code = args.c
-    elif args.file and not (f := FileType("r")(args.file)).isatty():
-        ns["__file__"] = f.name
-        ns["__name__"] = "__main__"
-        code = f.read()
-    else:
-        code = None
-    return code
+import hissp.repl
+from hissp.reader import Lissp
 
 
 def main():
-    # TODO: test CLI
-    # TODO: document CLI
-    if '' != sys.path[0]:
-        sys.path.insert(0, '')
-    code, interact = parse_args(sys.argv)
-    if code:
-        # TODO: ignore shebang
-        Parser(ns=ns, filename=ns.get("__file__", "<?>"), evaluate=True).compile(code)
+    ns = arg_parser().parse_args()
+    sys.argv = ['']
+    if ns.c is not None:
+        _cmd(ns)
+    elif ns.file is not None:
+        _with_args(ns)
     else:
-        del ns["__cached__"]
-        ns["__spec__"] = None
-    if interact:
-        repl(ns=ns)
+        hissp.repl.main()
+
+
+def _cmd(ns):
+    sys.argv = ["-c"]
+    if ns.file is not None:
+        sys.argv.extend([ns.file, *ns.args])
+    ns.i("(hissp.basic.._macro_.prelude)\n"+ns.c)
+
+
+def _with_args(ns):
+    with argparse.FileType('r')(ns.file) as file:
+        sys.argv = [file.name, *ns.args]
+        code = file.read()
+    ns.i(code)
+
+
+def _interact(code):
+    repl = hissp.repl.REPL()
+    repl.lissp.compiler.evaluate = True
+    try:
+        repl.lissp.compile(code)
+    finally:
+        repl.lissp.compiler.evaluate = False
+        repl.interact()
+
+
+def _no_interact(code):
+    Lissp(evaluate=True).compile(code)
+
+
+def arg_parser():
+    root = argparse.ArgumentParser(description="Starts the REPL if there are no arguments.")
+    _ = root.add_argument
+    _(
+        "-i",
+        action='store_const',
+        const=_interact,
+        default=_no_interact,
+        help="Drop into REPL after the script."
+    )
+    _("-c", help="Run main script (with prelude) from this string.", metavar='cmd')
+    _("file", nargs="?", help="Run main script from this file. (- for stdin.)")
+    _("args", nargs="*", help="Arguments for the script.")
+    return root
 
 
 if __name__ == "__main__":
     main()
-
