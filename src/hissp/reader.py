@@ -207,14 +207,17 @@ class Lissp:
             return self.gensym(form)
         if tag == ".":
             return eval(readerless(form), {})
+        if is_string(form):
+            form = form[1]
         if ".." in tag and not tag.startswith(".."):
             module, function = tag.split("..", 1)
             function = munge(function)
-            if is_string(form):
-                form = form[1]
             return reduce(getattr, function.split("."), import_module(module))(form)
-        # TODO: consider unqualified reader macros.
-        raise SyntaxError(f"Unknown reader macro {tag}", self.position())
+        try:
+            m = getattr(self.ns["_macro_"], munge(tag))
+        except (AttributeError, KeyError):
+            raise SyntaxError(f"Unknown reader macro {tag}", self.position())
+        return m(form)
 
     def template(self, form):
         case = type(form)
