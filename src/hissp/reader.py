@@ -176,10 +176,9 @@ class Lissp:
 
     @staticmethod
     def _atom(v):
-        symbol = v[0] == '\\'
-        v = v.replace(r'\.', 'xFULLxSTOP_')
-        v = re.sub(r'\\(.)', lambda m: m[1], v)
-        if symbol:
+        is_symbol = '\\' == v[0]
+        v = Lissp.escape(v)
+        if is_symbol:
             return munge(v)
         try:
             val = ast.literal_eval(v)
@@ -198,9 +197,10 @@ class Lissp:
             return _Unquote([":?", form])
         if tag == ",@":
             return _Unquote([":*", form])
-
         assert tag.endswith("#")
-        tag = tag[:-1]
+        return self.parse_tag(tag[:-1], form)
+
+    def parse_tag(self, tag, form):
         if tag == "_":
             return DROP
         if tag == "$":
@@ -209,15 +209,20 @@ class Lissp:
             return eval(readerless(form), {})
         if is_string(form):
             form = form[1]
+        tag = munge(self.escape(tag))
         if ".." in tag and not tag.startswith(".."):
             module, function = tag.split("..", 1)
-            function = munge(function)
             return reduce(getattr, function.split("."), import_module(module))(form)
         try:
-            m = getattr(self.ns["_macro_"], munge(tag))
+            m = getattr(self.ns["_macro_"], tag)
         except (AttributeError, KeyError):
             raise SyntaxError(f"Unknown reader macro {tag}", self.position())
         return m(form)
+
+    @staticmethod
+    def escape(atom):
+        atom = atom.replace(r'\.', 'xFULLxSTOP_')
+        return re.sub(r'\\(.)', lambda m: m[1], atom)
 
     def template(self, form):
         case = type(form)
