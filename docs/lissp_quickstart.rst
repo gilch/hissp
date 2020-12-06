@@ -168,7 +168,7 @@ Lissp Quick Start
 
    ;; Hissp is simpler than Python. No control flow! Use higher-order functions instead.
 
-   (any (map (lambda c (print c))       ;Loops!
+   (any (map (lambda c (print c))         ;Loops!
              "abc"))
 
    ((.get (dict :                         ;Branches!

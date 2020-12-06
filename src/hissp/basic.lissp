@@ -205,9 +205,6 @@ declaration.
                      (cond ,@(cddr pairs)))
            ()))
 
-;; TODO: error messages for reader were hard to follow (try toplevel gensym)
-;; TODO: `[$#X] bug
-
 (defmacro any-for (item iterable : :* body)
   "``any-for`` Evaluate body for each item in iterable until any result is true."
   `(any (map (lambda (,item)
