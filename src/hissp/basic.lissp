@@ -352,3 +352,9 @@ try:
     _macro_ = __import__('types').SimpleNamespace(**vars(_macro_))
 except ModuleNotFoundError:
     pass"))
+
+(defmacro alias (alias module)
+  "Defines a (shorter) reader macro to use in place of a module identifier."
+  `(defmacro ,alias ($#G)
+     ',(.format "Aliases {} as {}#" module alias)
+     (.format "{}{}" ',module $#G)))
