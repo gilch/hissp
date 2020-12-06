@@ -43,3 +43,10 @@ setuptools.setup(
 )
 # Build dist and install:
 # $ python setup.py sdist && pip install dist/hissp-*.tar.gz
+
+import sys
+sys.path.insert(0,'src')
+import hissp.reader
+
+hissp.reader.transpile(hissp.__package__, "basic")
+
