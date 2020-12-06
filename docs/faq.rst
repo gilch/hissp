@@ -817,6 +817,10 @@ namespace if you want it to be an active module-local macro. The
 compiler doesn't care how it gets there, but there's a nice
 `hissp.basic.._macro_.from-require<fromxH_require>` macro if you want to use that.
 
+Rather than importing macros,
+consider using a reader macro to abbreviate their qualified identifiers.
+`hissp.basic.._macro_.alias` can define these for you.
+
 How do I write a macro?
 -----------------------
 
@@ -842,11 +846,16 @@ Some tips:
 
 -  Use gensyms (``$#spam``) to avoid accidental capture of identifiers.
 
-How do I write a reader macro?
-------------------------------
+How do I define a reader macro?
+-------------------------------
 
 Make a function that accepts the syntax you want as its parameter and
 returns its transformation as Hissp code.
+
+You can use it directly as a qualified reader macro.
+Or add it to the ``_macro_`` namespace to use it unqualified.
+
+Remember `hissp.basic.._macro_.defmacro<defmacro>` can do this for you.
 
 Why the weird prompts at the REPL?
 ----------------------------------

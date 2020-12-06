@@ -205,9 +205,6 @@ declaration.
                      (cond ,@(cddr pairs)))
            ()))
 
-;; TODO: error messages for reader were hard to follow (try toplevel gensym)
-;; TODO: `[$#X] bug
-
 (defmacro any-for (item iterable : :* body)
   "``any-for`` Evaluate body for each item in iterable until any result is true."
   `(any (map (lambda (,item)
@@ -355,3 +352,9 @@ try:
     _macro_ = __import__('types').SimpleNamespace(**vars(_macro_))
 except ModuleNotFoundError:
     pass"))
+
+(defmacro alias (alias module)
+  "Defines a (shorter) reader macro to use in place of a module identifier."
+  `(defmacro ,alias ($#G)
+     ',(.format "Aliases {} as {}#" module alias)
+     (.format "{}{}" ',module $#G)))
