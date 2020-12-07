@@ -4,15 +4,13 @@
 Hissp's basic macros.
 
 These are automatically made available as unqualified macros in the
-basic REPL. To use them in a Hissp module, either use the
-fully-qualified names, or add them to the module's ``_macro_``'s.
-
-For example
+basic REPL. To use them in a Hissp module, use the ``prelude`` macro or
+fully-qualified names. You can abbreviate qualifiers with reader macros:
 
 .. code-block:: Lissp
 
-  (hissp.basic.._macro_.from-require
-   (hissp.basic cascade if-else let progn))
+  (hissp.basic.._macro_.alias b/ hissp.basic.._macro_.)
+  (b/#define foo 2)                    ;Same as (hissp.basic.._macro_.define foo 2)
 
 The basic macros are deliberately restricted in design.
 
@@ -247,31 +245,6 @@ declaration.
   `(let ($#value1 ,expr1)
      ,@body
      $#value1))
-
-(defmacro from-require (: :* package+macros)
-  "``from-require``
-  Adds macros for the current module from ``package``
-
-   For example::
-
-    (from-require (foo.package spammacro eggsmacro)
-                  (bar.package baconmacro bannanamacro))
-
-  "
-  `(progn
-     (.setdefault (globals)
-                  ','_macro_
-                  (types..ModuleType '_macro_))
-     ,@(itertools..starmap
-        (lambda (package : :* macros)
-          `(progn ,@(map (lambda (macro)
-                           `(setattr ,'_macro_
-                                     ',macro
-                                     ,(.format "{}.._macro_.{}"
-                                               package
-                                               macro)))
-                         macros)))
-        package+macros)))
 
 (defmacro deftype (name bases : :* body)
   "Defines a type (class) in the current module.

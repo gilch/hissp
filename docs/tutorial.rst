@@ -736,14 +736,17 @@ This inserts an actual ``inf`` object at read time into the Hissp code.
 Since this isn't a valid literal, it has to compile to a pickle.
 You should normally try to avoid emitting pickles
 (e.g. use ``(float 'inf)`` or `math..inf <math.inf>` instead),
-but note that a macro would get the original object,
+but note that another macro would get the original object,
 since the code hasn't been compiled yet, which may be useful.
 While unpickling does have some overhead,
 it may be worth it if constructing the object normally has even more.
 Naturally, the object must be picklable to emit a pickle.
 
-Unqualified reader macros are reserved for the basic Hissp reader.
-There are currently three of them: Inject ``.#``, discard ``_#``, and gensym ``$#``.
+Reader macros can also be unqualified.
+These three macros are built into the reader:
+Inject ``.#``, discard ``_#``, and gensym ``$#``.
+The reader also will check the current module's ``_macro_`` namespace (if it has one)
+when it encounters and unqualified macro name.
 
 If you need more than one argument for a reader macro, use the built-in
 inject ``.#`` macro, which evaluates a form at read time:

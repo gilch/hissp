@@ -812,14 +812,31 @@ But you can still import things the same way Python does.
 How do I import a macro?
 ------------------------
 
-The same way you import anything else. Put it in the ``_macro_``
-namespace if you want it to be an active module-local macro. The
-compiler doesn't care how it gets there, but there's a nice
-`hissp.basic.._macro_.from-require<fromxH_require>` macro if you want to use that.
-
-Rather than importing macros,
-consider using a reader macro to abbreviate their qualified identifiers.
+The same way you import anything else: with a qualified identifier.
+In Lissp, you can use a reader macro to abbreviate qualifiers.
 `hissp.basic.._macro_.alias` can define these for you.
+
+Any callable in the current module's ``_macro_`` namespace will work unqualified.
+Normally you create these with `hissp.basic.._macro_.defmacro<defmacro>`,
+but the compiler doesn't care how they get there.
+
+Importing the ``_macro_`` namespace from another module will work,
+but then uses of `hissp.basic.._macro_.defmacro<defmacro>` will mutate
+another module's ``_macro_`` namespace, which is probably not what you want,
+so make a copy, or or make a new one and insert individual macros into it.
+
+The basic macros have no dependencies on the Hissp package in their expansions,
+which allows you to use their compiled output on another Python that doesn't have Hissp installed.
+However, if you import a ``_macro_`` at runtime,
+you're creating a runtime dependency on whatever module you import it from.
+
+The `hissp.basic.._macro_.prelude<prelude>` macro will clone the basic macro namespace
+only if available. It avoids creating a runtime dependency this way.
+
+`hissp.basic.._macro_.prelude<prelude>` is a convenience for short scripts,
+especially those used as the main module.
+Larger projects should probably be more explicit in their imports,
+and may need a more complete macro library anyway.
 
 How do I write a macro?
 -----------------------
