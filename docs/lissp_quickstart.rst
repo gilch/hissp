@@ -448,16 +448,17 @@ Lissp Quick Start
 
    ;;;; Basic Macros
 
-   _#" The REPL comes with some basic macros defined in hissp.basic.
-   By default, they don't work in .lissp files unqualified. But you can add
-   them to the current module's _macro_ namespace. The compiled output from
-   these does not require hissp to be installed."
+   _#" The REPL comes with some basic macros defined in hissp.basic. By default,
+   they don't work in .lissp files unqualified. The compiled output from these
+   does not require hissp to be installed."
 
-   ;;; macro import
+   ;; Makes a new reader macro to abbreviate a qualifier.
+   (hissp.basic.._macro_.alias b/ hissp.basic.._macro_.)
+   'b/#alias                              ;Now short for 'hissp.basic.._macro_.alias'.
 
-   (hissp.basic.._macro_.from-require
-     (hissp.basic define defmacro let))   ;Add unqualified macros to the current module.
-   (require-as hissp.basic.._macro_.progn begin) ;Add an unqualified macro under a new name.
+   ;; Imports a copy of hissp.basic.._macro_ (if available)
+   ;; and star imports from operator and itertools.
+   (b/#prelude)
 
    ;;; definition
 
@@ -532,8 +533,8 @@ Lissp Quick Start
      (when (eq x 0)                       ;Conditional with side-effects, but no alternative.
        (print "In when")
        (print "was zero"))
-     (when-not (eq x 0)
-       (print "In when-not")
+     (unless (eq x 0)
+       (print "In unless")
        (print "wasn't zero")))
 
    ;; Shortcutting logical and.
