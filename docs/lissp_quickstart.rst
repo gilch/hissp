@@ -533,8 +533,8 @@ Lissp Quick Start
      (when (eq x 0)                       ;Conditional with side-effects, but no alternative.
        (print "In when")
        (print "was zero"))
-     (when-not (eq x 0)
-       (print "In when-not")
+     (unless (eq x 0)
+       (print "In unless")
        (print "wasn't zero")))
 
    ;; Shortcutting logical and.

@@ -98,9 +98,9 @@ judicious use can improve performance and maintainability.
   "Evaluates the body when condition is true."
   `(if-else ,condition (progn ,@body) ()))
 
-(defmacro when-not (condition : :* body)
-  "``when-not`` Evaluates the body when condition is not true."
-  `(when (operator..not_ ,condition) ,@body))
+(defmacro unless (condition : :* body)
+  "Evaluates the body unless condition is true."
+  `(if-else ,condition () (progn ,@body)))
 
 (defmacro let (pairs : :* body)
   "Creates locals. Pairs are implied. Locals are not in scope until the body."
@@ -122,7 +122,7 @@ judicious use can improve performance and maintainability.
   "
   (let ($fn `$#fn)
     (let (fn `(lambda ,parameters ,docstring ,@body)
-          ns (when-not (operator..contains (.get hissp.compiler..NS) '_macro_)
+          ns (unless (operator..contains (.get hissp.compiler..NS) '_macro_)
                `((operator..setitem (globals) ','_macro_ (types..ModuleType ','_macro_))))
           dc (when (hissp.reader..is_string docstring)
                `((setattr ,$fn ','__doc__ ,docstring)))
@@ -324,7 +324,7 @@ the forward declaration.
 
 ;; TODO: implement case macro?
 
-;; see also from bootstrap: if-else, when, when-not
+;; see also from bootstrap: if-else, when, unless
 
 ;;; side effect
 

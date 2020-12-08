@@ -203,13 +203,13 @@
         (.append xs :oops))
       (.assertEqual self [1,2] xs)))
 
-  test_when-not
+  test_unless
   (lambda (self)
     (!#let (xs [])
-      (!#when-not 0
+      (!#unless 0
         (.append xs 1)
         (.append xs 2))
-      (!#when-not 1
+      (!#unless 1
         (.append xs :oops)
         (.append xs :oops))
       (.assertEqual self [1,2] xs)))
