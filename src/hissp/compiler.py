@@ -34,7 +34,7 @@ MACRO = f"..{MACROS}."
 # instead of its defining ns.
 # Rather than pass in an implicit argument, it's available here.
 # readerless() uses this automatically.
-NS = ContextVar("NS", default=None)
+NS = ContextVar("NS", default=())
 
 
 class CompileError(SyntaxError):

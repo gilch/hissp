@@ -60,48 +60,14 @@ and judicious use can improve performance and maintainability.
 ;; Bootstrap macro namespace using builtins.
 (operator..setitem (globals) '_macro_ (types..ModuleType '_macro_))
 
-;; Define require-as macro.
-(setattr _macro_ 'require-as
-         (lambda (macro name)
-           `(builtins..setattr
-             (.setdefault (builtins..globals)
-                          ','_macro_
-                          (types..ModuleType "_macro_"))
-             (quote ,name)
-             ,macro)))
-(setattr _macro_.require-as '__doc__ "
-``requrie-as``
-Require a macro callable as an unqualified name.
-
-Adds the macro to the current module's _macro_ space under the specified
-name, which makes it available unqualified in this module. (And
-available qualified with this module's name.)
-")
-(setattr _macro_.require-as '__qualname__ '_macro_.require-as)
-
-;; Bootstrap enough of defmacro to def the 'defmacro' macro. Dawg.
-(require-as (lambda (name parameters : :* body)
-              `(require-as (lambda ,parameters ,@ body)
-                           ,name))
-            defmacro)
-
-(defmacro defmacro (name parameters : docstring ()  :* body)
-  `(require-as ((lambda ($#macro)  ; We don't have let yet.
-                  ;; Save docstring if available.
-                  (setattr $#macro
-                           ','__doc__
-                           ,(operator..getitem `(None ,docstring)
-                                               (hissp.reader..is_string docstring)))
-                  ;; Save qualified name.
-                  (setattr $#macro ','__qualname__ (.join "." '(,'_macro_ ,name)))
-                  $#macro)
-                ;; Create macro function.
-                (lambda ,parameters ,docstring ,@body))
-               ,name))
-(setattr _macro_.defmacro '__doc__ "
-Creates a new macro for the current module.
-")
-(setattr _macro_.defmacro '__qualname__ '_macro_.defmacro)
+;; Bootstrap enough of defmacro to defmacro the 'defmacro' macro. Dawg.
+(setattr _macro_
+         'defmacro
+         (lambda (name parameters docstring : :* body)
+           `((lambda ($#G (lambda ,parameters ,@body))
+               (setattr $#G ','__doc__ ,docstring)
+               (setattr $#G ','__qualname__ (.join "." '(,'_macro_ ,name)))
+               (setattr _macro_ ',name $#G)))))
 
 (defmacro let (pairs : :* body)
   "Creates locals. Pairs are implied. Locals are not in scope until the body."
@@ -331,3 +297,17 @@ except ModuleNotFoundError:
   `(defmacro ,alias ($#G)
      ',(.format "Aliases {} as {}#" module alias)
      (.format "{}{}" ',module $#G)))
+
+(defmacro defmacro (name parameters : docstring () :* body)
+  (let ($G `$#G
+        fn `(lambda ,parameters ,docstring ,@body)
+        ns (when (operator..not_in '_macro_ (.get hissp.compiler.NS))
+             `((operator..setitem (globals) ','_macro_ (types..ModuleType ','_macro_))))
+        dc (when (hissp.reader..is_string docstring)
+             `((setitem ,$G ','__doc__ ,docstring)))
+        qn `(setattr ,$G ','__qualname__ (.join "." '(,'_macro_ ,name))))
+    `(let (,$G ,fn)
+       ,@ns
+       ,@dc
+       ,qn
+       (setattr _macro_ ',name ,$G))))
