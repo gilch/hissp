@@ -60,19 +60,72 @@ and judicious use can improve performance and maintainability.
 ;; Bootstrap macro namespace using builtins.
 (operator..setitem (globals) '_macro_ (types..ModuleType '_macro_))
 
-;; Bootstrap enough of defmacro to defmacro the 'defmacro' macro. Dawg.
+;; Bootstrap enough macros to define the 'defmacro' macro. Dawg.
+
+;; Simplified bootstrap version.
 (setattr _macro_
          'defmacro
          (lambda (name parameters docstring : :* body)
-           `((lambda ($#G (lambda ,parameters ,@body))
+           `((lambda (: $#G (lambda ,parameters ,@body))
                (setattr $#G ','__doc__ ,docstring)
                (setattr $#G ','__qualname__ (.join "." '(,'_macro_ ,name)))
                (setattr _macro_ ',name $#G)))))
+
+(defmacro if-else (test then otherwise)
+  "``if-else``
+  Basic ternary branching construct.
+
+  Like Python's conditional expressions, the else-clause is required.
+  "
+  `((lambda (,'test : :* ,'then-else)
+      ((operator..getitem ,'then-else (operator..not_ ,'test))))
+    ,test
+    (lambda () ,then)
+    (lambda () ,otherwise)))
+
+(defmacro progn (: :* body)
+  "Evaluates each form in sequence for side effects.
+
+  Evaluates to the same value as its last form (or ``()`` if empty).
+  "
+  ;; TODO: consider flattening nested progns
+  `((lambda ()
+      ,@body)))
+
+(defmacro when (condition : :* body)
+  "Evaluates the body when condition is true."
+  `(if-else ,condition (progn ,@body) ()))
+
+(defmacro when-not (condition : :* body)
+  "``when-not`` Evaluates the body when condition is not true."
+  `(when (operator..not_ ,condition) ,@body))
 
 (defmacro let (pairs : :* body)
   "Creates locals. Pairs are implied. Locals are not in scope until the body."
   `((lambda (: ,@pairs)
       ,@body)))
+
+;; Define the real defmacro using the bootstrap macros.
+(defmacro defmacro (name parameters : docstring () :* body)
+  "Creates a new macro for the current module.
+
+  If there's no _macro_, creates one (using ModuleType).
+  If there's a docstring, stores it as the new lambda's __doc__.
+  Adds the _macro_ prefix to the lambda's qualname.
+  Saves the lambda in _macro_ using the given attribute name.
+  "
+  (let ($fn `$#fn)
+    (let (fn `(lambda ,parameters ,docstring ,@body)
+          ns (when-not (operator..contains (.get hissp.compiler..NS) '_macro_)
+               `((operator..setitem (globals) ','_macro_ (types..ModuleType ','_macro_))))
+          dc (when (hissp.reader..is_string docstring)
+               `((setattr ,$fn ','__doc__ ,docstring)))
+          qn `(setattr ,$fn ','__qualname__ (.join "." '(,'_macro_ ,name))))
+      `(let (,$fn ,fn)
+         ,@ns
+         ,@dc
+         ,qn
+         (setattr ,'_macro_ ',name ,$fn)))))
 
 _#"
 Hissp is based on tuples rather than linked lists,
@@ -123,18 +176,6 @@ but many macros still require this kind of recursive list processing.
   `(operator..setitem (builtins..globals)
                       ',name
                       ,value))
-
-(defmacro if-else (test then otherwise)
-  "``if-else``
-  Basic ternary branching construct.
-
-  Like Python's conditional expressions, the else-clause is required.
-  "
-  `((lambda (,'test : :* ,'then-else)
-      ((operator..getitem ,'then-else (operator..not_ ,'test))))
-    ,test
-    (lambda () ,then)
-    (lambda () ,otherwise)))
 
 _#"``cond`` is recursive.
 
@@ -196,15 +237,6 @@ declaration.
                        (|| ,@rest)))
            first))
 
-(defmacro progn (: :* body)
-  "Evaluates each form in sequence for side effects.
-
-  Evaluates to the same value as its last form (or ``()`` if empty).
-  "
-  ;; TODO: consider flattening nested progns
-  `((lambda ()
-      ,@body)))
-
 (defmacro prog1 (expr1 : :* body)
   "Evaluates each expression in sequence (for side effects),
   resulting in the value of the first."
@@ -240,14 +272,6 @@ declaration.
                   `(setattr ,$target ',kw ,(next iargs)))
                 iargs)
          ,$target))))
-
-(defmacro when (condition : :* body)
-  "Evaluates the body when condition is true."
-  `(cond ,condition (progn ,@body)))
-
-(defmacro when-not (condition : :* body)
-  "``when-not`` Evaluates the body when condition is not true."
-  `(when (operator..not_ ,condition) ,@body))
 
 ;; TODO: implement case macro?
 
@@ -297,17 +321,3 @@ except ModuleNotFoundError:
   `(defmacro ,alias ($#G)
      ',(.format "Aliases {} as {}#" module alias)
      (.format "{}{}" ',module $#G)))
-
-(defmacro defmacro (name parameters : docstring () :* body)
-  (let ($G `$#G
-        fn `(lambda ,parameters ,docstring ,@body)
-        ns (when (operator..not_in '_macro_ (.get hissp.compiler.NS))
-             `((operator..setitem (globals) ','_macro_ (types..ModuleType ','_macro_))))
-        dc (when (hissp.reader..is_string docstring)
-             `((setitem ,$G ','__doc__ ,docstring)))
-        qn `(setattr ,$G ','__qualname__ (.join "." '(,'_macro_ ,name))))
-    `(let (,$G ,fn)
-       ,@ns
-       ,@dc
-       ,qn
-       (setattr _macro_ ',name ,$G))))
