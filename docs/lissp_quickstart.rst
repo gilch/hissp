@@ -460,8 +460,6 @@ Lissp Quick Start
    ;; and star imports from operator and itertools.
    (b/#prelude)
 
-   (require-as hissp.basic.._macro_.progn begin) ;Add an unqualified macro under a new name.
-
    ;;; definition
 
    (define answer 42)                     ;Add a global.
