@@ -195,7 +195,7 @@ class Compiler:
         case = type(form)
         if case in {int, float, complex}:  # Number literals may need (). E.g. (1).real
             literal = f"({form!r})"
-        elif case in {dict, list, set, tuple}:  # Pretty print collections.
+        elif case in {dict, list, set, tuple, str, bytes}:  # Pretty print collections.
             literal = pformat(form, sort_dicts=False)
         else:
             literal = repr(form)
