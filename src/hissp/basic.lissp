@@ -58,12 +58,14 @@ forget about Hissp. Nevertheless, text substitution is available, and
 judicious use can improve performance and maintainability.
 "
 
+;;;; Bootstrap Macros
+
 ;; Bootstrap macro namespace using builtins.
 (operator..setitem (globals) '_macro_ (types..ModuleType '_macro_))
 
 ;; Bootstrap enough macros to define the 'defmacro' macro. Dawg.
 
-;; Simplified bootstrap version.
+;; Simplified bootstrap version assumes ideal conditions to avoid branching.
 (setattr _macro_
          'defmacro
          (lambda (name parameters docstring : :* body)
@@ -105,6 +107,10 @@ judicious use can improve performance and maintainability.
   `((lambda (: ,@pairs)
       ,@body)))
 
+;;;; Post-bootstrap
+
+;;; definition
+
 ;; Define the real defmacro using the bootstrap macros.
 (defmacro defmacro (name parameters : docstring () :* body)
   "Creates a new macro for the current module.
@@ -126,6 +132,96 @@ judicious use can improve performance and maintainability.
          ,@dc
          ,qn
          (setattr ,'_macro_ ',name ,$fn)))))
+
+(defmacro define (name value)
+  "Assigns a global in the current module."
+  `(operator..setitem (builtins..globals)
+                      ',name
+                      ,value))
+
+(defmacro deftype (name bases : :* body)
+  "Defines a type (class) in the current module.
+
+  Key-value pairs are implied in the body.
+  "
+  `(define ,name
+       (type ',name ((lambda (: :* xAUTO0_) xAUTO0_) ,@bases)
+             (dict : ,@body))))
+
+;; see also from bootstrap: let
+
+;;; configuration
+
+(defmacro attach (target : :* args)
+  "Attaches the named variables as attributes of the target.
+
+  Positional arguments use the same name as the variable.
+  Names after the ``:`` are key-value pairs.
+  "
+  (let (iargs (iter args)
+              $target `$#target)
+    (let (args (itertools..takewhile (lambda (a)
+                                       (operator..ne a ':))
+                                     iargs))
+      `(let (,$target ,target)
+         ,@(map (lambda (arg)
+                  `(setattr ,$target ',arg ,arg))
+                args)
+         ,@(map (lambda (kw)
+                  `(setattr ,$target ',kw ,(next iargs)))
+                iargs)
+         ,$target))))
+
+(defmacro cascade (thing : :* calls)
+  "Call multiple methods on one object.
+
+  Evaluates the given thing then uses it as the first argument to a
+  sequence of calls. Used for initialization. Evaluates to the thing.
+  "
+  (let ($thing `$#thing)
+    `((lambda (: ,$thing ,thing)
+        ,@(map (lambda (call)
+                 `(,(car call)
+                   ,$thing
+                   ,@(cdr call)))
+               calls)
+        ,$thing))))
+
+;;; threading
+
+(defmacro -> ())
+(defmacro -> (expr : :* forms)
+  "``->`` 'Thread-first'.
+
+  Converts a pipeline to function calls by recursively threading it as
+  the first argument of the next form.
+  E.g. ``(-> x (A b) (C d e))`` is ``(C (A x b) d e)``
+  Makes chained method calls easier to read.
+  "
+  (if-else forms
+    `(-> (,(caar forms) ,expr ,@(cdar forms))
+         ,@(cdr forms))
+    expr))
+
+(defmacro ->> ())
+(defmacro ->> (expr : :* forms)
+  "``->>`` 'Thread-last'.
+
+  Converts a pipeline to function calls by recursively threading it as
+  the last argument of the next form.
+  E.g. ``(->> x (A b) (C d e))`` is ``(C d e (A b x))``.
+  Can replace partial application in some cases.
+  Also works inside a ``->`` pipeline.
+  E.g. ``(-> x (A a) (->> B b) (C c))`` is ``(C (B b (A x a)) c)``.
+  "
+  (if-else forms
+    `(->> (,@(car forms) ,expr)
+          ,@(cdr forms))
+    expr))
+
+;; TODO: implement other arrange macros?
+
+;;; linked-list emulation
 
 _#" Hissp is based on tuples rather than linked lists,
 but many macros still require this kind of recursive list processing.
@@ -164,26 +260,7 @@ but many macros still require this kind of recursive list processing.
   "
   `(operator..getitem ,sequence (slice 2 None)))
 
-(defmacro cascade (thing : :* calls)
-  "Call multiple methods on one object.
-
-  Evaluates the given thing then uses it as the first argument to a
-  sequence of calls. Used for initialization. Evaluates to the thing.
-  "
-  (let ($thing `$#thing)
-    `((lambda (: ,$thing ,thing)
-        ,@(map (lambda (call)
-                 `(,(car call)
-                   ,$thing
-                   ,@(cdr call)))
-               calls)
-        ,$thing))))
-
-(defmacro define (name value)
-  "Assigns a global in the current module."
-  `(operator..setitem (builtins..globals)
-                      ',name
-                      ,value))
+;;; control flow
 
 _#"``cond`` is recursive.
 
@@ -245,6 +322,12 @@ the forward declaration.
                        (|| ,@rest)))
            first))
 
+;; TODO: implement case macro?
+
+;; see also from bootstrap: if-else, when, when-not
+
+;;; side effect
+
 (defmacro prog1 (expr1 : :* body)
   "Evaluates each expression in sequence (for side effects),
   resulting in the value of the first."
@@ -252,68 +335,12 @@ the forward declaration.
      ,@body
      $#value1))
 
-(defmacro deftype (name bases : :* body)
-  "Defines a type (class) in the current module.
+;; see also from bootstrap: progn
 
-  Key-value pairs are implied in the body.
-  "
-  `(define ,name
-       (type ',name ((lambda (: :* xAUTO0_) xAUTO0_) ,@bases)
-             (dict : ,@body))))
+;; Note that any of the basic macros with a lambda "body" argument
+;; also sequence expressions for side effects.
 
-(defmacro attach (target : :* args)
-  "Attaches the named variables as attributes of the target.
-
-  Positional arguments use the same name as the variable.
-  Names after the ``:`` are key-value pairs.
-  "
-  (let (iargs (iter args)
-              $target `$#target)
-    (let (args (itertools..takewhile (lambda (a)
-                                       (operator..ne a ':))
-                                     iargs))
-      `(let (,$target ,target)
-         ,@(map (lambda (arg)
-                  `(setattr ,$target ',arg ,arg))
-                args)
-         ,@(map (lambda (kw)
-                  `(setattr ,$target ',kw ,(next iargs)))
-                iargs)
-         ,$target))))
-
-;; TODO: implement case macro?
-
-(defmacro -> ())
-(defmacro -> (expr : :* forms)
-  "``->`` 'Thread-first'.
-
-  Converts a pipeline to function calls by recursively threading it as
-  the first argument of the next form.
-  E.g. ``(-> x (A b) (C d e))`` is ``(C (A x b) d e)``
-  Makes chained method calls easier to read.
-  "
-  (if-else forms
-    `(-> (,(caar forms) ,expr ,@(cdar forms))
-         ,@(cdr forms))
-    expr))
-
-(defmacro ->> ())
-(defmacro ->> (expr : :* forms)
-  "``->>`` 'Thread-last'.
-
-  Converts a pipeline to function calls by recursively threading it as
-  the last argument of the next form.
-  E.g. ``(->> x (A b) (C d e))`` is ``(C d e (A b x))``.
-  Can replace partial application in some cases.
-  Also works inside a ``->`` pipeline.
-  E.g. ``(-> x (A a) (->> B b) (C c))`` is ``(C (B b (A x a)) c)``.
-  "
-  (if-else forms
-    `(->> (,@(car forms) ,expr)
-          ,@(cdr forms))
-    expr))
-
-;; TODO: implement other arrange macros?
+;;; import
 
 (defmacro prelude ()
   "Grants unqualified access to the basics.
