@@ -259,18 +259,22 @@ class Lissp:
     def qualify(self, symbol: str, invocation=False) -> str:
         if re.search(r"^\.|\.$|^quote$|^lambda$|^__import__$|xAUTO\d+_$|\.\.", symbol):
             return symbol  # Not qualifiable.
-        if symbol in vars(self.ns.get("_macro_", lambda: ())):
+        if invocation and "_macro_" in self.ns and self._macro_has(symbol):
             return f"{self.qualname}.._macro_.{symbol}"
-        if symbol in dir(builtins) and not self._has(symbol):
+        if symbol in dir(builtins) and symbol not in self.ns:
             return f"builtins..{symbol}"  # Globals shadow builtins.
-        if not invocation or self._has(symbol):
+        if not invocation or symbol in self.ns:
             return f"{self.qualname}..{symbol}"
-        # Name wasn't found, but might be a macro. Decide at compile time.
+        # Name wasn't found, but might be a macro later. Decide at compile time.
         return f"{self.qualname}..xAUTO_.{symbol}"
 
-    def _has(self, symbol):
+    def _macro_has(self, symbol):
+        # The _macro_ interface is not required to implement
+        # __contains__ or __dir__ and exotic _macro_ objects might
+        # override __getattribute__. The only way to tell if _macro_ has
+        # a name is getattr().
         try:
-            getattr(self.ns, symbol)
+            getattr(self.ns["_macro_"], symbol)
         except AttributeError:
             return False
         return True
