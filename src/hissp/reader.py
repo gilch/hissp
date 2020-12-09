@@ -109,7 +109,6 @@ class Lissp:
         self.gensym_stack = []
         self.depth = 0
         self._p = 0
-        self.invocation = False
 
     def position(self):
         return self.tokens.position(self._p)
@@ -244,27 +243,27 @@ class Lissp:
         return form
 
     def _template(self, forms: Iterable) -> Iterable[Tuple[str, Any]]:
-        self.invocation = True
+        invocation = True
         for form in forms:
             case = type(form)
             if case is str and not form.startswith(":"):
-                yield ":?", ("quote", self.qualify(form))
+                yield ":?", ("quote", self.qualify(form, invocation))
             elif case is _Unquote:
                 yield form
             elif case is tuple:
                 yield ":?", self.template(form)
             else:
                 yield ":?", form
-            self.invocation = False
+            invocation = False
 
-    def qualify(self, symbol: str) -> str:
+    def qualify(self, symbol: str, invocation=False) -> str:
         if re.search(r"^\.|\.$|^quote$|^lambda$|^__import__$|xAUTO\d+_$|\.\.", symbol):
             return symbol  # Not qualifiable.
         if symbol in vars(self.ns.get("_macro_", lambda: ())):
             return f"{self.qualname}.._macro_.{symbol}"
         if symbol in dir(builtins) and not self._has(symbol):
             return f"builtins..{symbol}"  # Globals shadow builtins.
-        if not self.invocation or self._has(symbol):
+        if not invocation or self._has(symbol):
             return f"{self.qualname}..{symbol}"
         # Name wasn't found, but might be a macro. Decide at compile time.
         return f"{self.qualname}..xAUTO_.{symbol}"
