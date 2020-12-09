@@ -15,7 +15,7 @@ class TestMunger(TestCase):
     def test_demunge(self, s: str):
         x = munger.munge(s)
         self.assertEqual(x, munger.munge(munger.demunge(x)))
-        if "x" not in s:
+        if not s.startswith(":") and "x" not in s:
             self.assertEqual(unicodedata.normalize("NFKC", s), munger.demunge(x))
 
     def test_munge_basic(self):
