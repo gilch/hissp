@@ -109,6 +109,7 @@ class Lissp:
         self.gensym_stack = []
         self.depth = 0
         self._p = 0
+        self.invocation = False
 
     def position(self):
         return self.tokens.position(self._p)
@@ -243,6 +244,7 @@ class Lissp:
         return form
 
     def _template(self, forms: Iterable) -> Iterable[Tuple[str, Any]]:
+        self.invocation = True
         for form in forms:
             case = type(form)
             if case is str and not form.startswith(":"):
@@ -253,17 +255,26 @@ class Lissp:
                 yield ":?", self.template(form)
             else:
                 yield ":?", form
+            self.invocation = False
 
     def qualify(self, symbol: str) -> str:
         if re.search(r"^\.|\.$|^quote$|^lambda$|^__import__$|xAUTO\d+_$|\.\.", symbol):
             return symbol  # Not qualifiable.
         if symbol in vars(self.ns.get("_macro_", lambda: ())):
             return f"{self.qualname}.._macro_.{symbol}"
-        if symbol in dir(builtins) and symbol not in self.ns:
+        if symbol in dir(builtins) and not self._has(symbol):
             return f"builtins..{symbol}"  # Globals shadow builtins.
-        if symbol in self.ns:
+        if not self.invocation or self._has(symbol):
             return f"{self.qualname}..{symbol}"
-        return f"{self.qualname}...{symbol}"  # Name wasn't found. Decide at compile time.
+        # Name wasn't found, but might be a macro. Decide at compile time.
+        return f"{self.qualname}..xAUTO_.{symbol}"
+
+    def _has(self, symbol):
+        try:
+            getattr(self.ns, symbol)
+        except AttributeError:
+            return False
+        return True
 
     def reads(self, code: str) -> Iterable:
         res: Iterable[object] = self.parse(Lexer(code, self.filename))

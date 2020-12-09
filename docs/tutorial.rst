@@ -1094,15 +1094,15 @@ We can do better. Let's use a template:
     ...       'builtins..print',
     ...       (lambda *xAUTO0_:xAUTO0_)(
     ...         'quote',
-    ...         '__main__...Hello'),
+    ...         '__main__..Hello'),
     ...       name)))
 
     #> (greet 'Bob)
     >>> # greet
     ... __import__('builtins').print(
-    ...   '__main__...Hello',
+    ...   '__main__..Hello',
     ...   'Bob')
-    __main__...Hello Bob
+    __main__..Hello Bob
 
 Not what you expected?
 
@@ -1119,8 +1119,8 @@ with `builtins` (if applicable) or the current ``__name__``
     #> `(int spam)
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   'builtins..int',
-    ...   '__main__...spam')
-    ('builtins..int', '__main__...spam')
+    ...   '__main__..spam')
+    ('builtins..int', '__main__..spam')
 
 Qualified symbols are especially important
 when a macro expands in a module it was not defined in.
@@ -1147,8 +1147,8 @@ symbol. (Like a quoted symbol):
     #> `(float inf)
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   'builtins..float',
-    ...   '__main__...inf')
-    ('builtins..float', '__main__...inf')
+    ...   '__main__..inf')
+    ('builtins..float', '__main__..inf')
 
     #> `(float ,'inf)
     >>> (lambda *xAUTO0_:xAUTO0_)(
