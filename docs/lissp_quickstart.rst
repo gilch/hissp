@@ -502,7 +502,7 @@ Lissp Quick Start
 
    ;;; linked-list emulation
 
-   ;; These really could be functions, but their expansion is small enough to inline.
+   ;; These really could be functions, but their expansions are small enough to inline.
 
    (car "abcd")                           ;'a'
    (cdr "abcd")                           ;'bcd'

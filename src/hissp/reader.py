@@ -19,6 +19,8 @@ from unittest.mock import ANY
 from hissp.compiler import Compiler, readerless
 from hissp.munger import munge
 
+ENTUPLE = ("lambda", (":", ":*", "xAUTO0_"), "xAUTO0_")
+
 TOKENS = re.compile(
     r"""(?x)
  (?P<open>\()
@@ -230,7 +232,7 @@ class Lissp:
             if is_string(form):
                 return "quote", form
             return (
-                ("lambda", (":", ":*", "xAUTO0_"), "xAUTO0_"),
+                ENTUPLE,
                 ":",
                 *chain(*self._template(form)),
             )
@@ -259,7 +261,9 @@ class Lissp:
             return f"{self.qualname}.._macro_.{symbol}"
         if symbol in dir(builtins) and symbol not in self.ns:
             return f"builtins..{symbol}"  # Globals shadow builtins.
-        return f"{self.qualname}..{symbol}"
+        if symbol in self.ns:
+            return f"{self.qualname}..{symbol}"
+        return f"{self.qualname}...{symbol}"  # Name wasn't found. Decide at compile time.
 
     def reads(self, code: str) -> Iterable:
         res: Iterable[object] = self.parse(Lexer(code, self.filename))

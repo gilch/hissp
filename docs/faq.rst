@@ -107,8 +107,8 @@ But it's not technically wrong.
 .. code-block:: Lissp
 
    #> `op.add
-   >>> '__main__..op.add'
-   '__main__..op.add'
+   >>> '__main__...op.add'
+   '__main__...op.add'
 
 And you can still qualify it yourself instead of letting the reader do it for you:
 
