@@ -4,8 +4,9 @@
 import math
 from collections import Counter
 from fractions import Fraction
+from types import SimpleNamespace
 from unittest import TestCase
-from unittest.mock import ANY
+from unittest.mock import ANY, patch
 
 import hypothesis.strategies as st
 from hypothesis import given
@@ -44,6 +45,52 @@ class TestReader(TestCase):
                 self.assertEqual(v, parsed)
                 print('OK')
 
+    @patch("hissp.reader.ENTUPLE", "entuple")
+    def test_auto_qualification(self):
+        self.assertEqual(
+            [('entuple',
+              ':', ':?', ('quote', '__main__..xAUTO_.x'),
+              ':?', ('quote', '__main__..x'),
+              ':?', ('quote', '__main__..x'),
+              ':?', ('entuple',
+                     ':', ':?', ('quote', '__main__..xAUTO_.y'),
+                     ':?', ('quote', '__main__..y')),
+              ':?', ('entuple', ':', ':?', 1, ':?', ('quote', '__main__..z')))
+             ],
+            [*self.parser.reads('`(x x x (y y) (1 z))')],
+        )
+
+    @patch("hissp.reader.ENTUPLE", "entuple")
+    def test_module_qualification(self):
+        self.parser.ns.update(x=1, y=2, z=3)
+        self.assertEqual(
+            [('entuple',
+              ':', ':?', ('quote', '__main__..x'),
+              ':?', ('quote', '__main__..x'),
+              ':?', ('quote', '__main__..x'),
+              ':?', ('entuple',
+                     ':', ':?', ('quote', '__main__..y'),
+                     ':?', ('quote', '__main__..y')),
+              ':?', ('entuple', ':', ':?', 1, ':?', ('quote', '__main__..z')))
+             ],
+            [*self.parser.reads('`(x x x (y y) (1 z))')],
+        )
+
+    @patch("hissp.reader.ENTUPLE", "entuple")
+    def test_macro_qualification(self):
+        self.parser.ns.update(_macro_=SimpleNamespace(x=1, y=2, z=3))
+        self.assertEqual(
+            [('entuple',
+              ':', ':?', ('quote', '__main__.._macro_.x'),
+              ':?', ('quote', '__main__..x'),
+              ':?', ('quote', '__main__..x'),
+              ':?', ('entuple',
+                     ':', ':?', ('quote', '__main__.._macro_.y'),
+                     ':?', ('quote', '__main__..y')),
+              ':?', ('entuple', ':', ':?', 1, ':?', ('quote', '__main__..z')))
+             ],
+            [*self.parser.reads('`(x x x (y y) (1 z))')],
+        )
 
 EXPECTED = {
 # Numeric

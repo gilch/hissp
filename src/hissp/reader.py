@@ -19,6 +19,8 @@ from unittest.mock import ANY
 from hissp.compiler import Compiler, readerless
 from hissp.munger import munge
 
+ENTUPLE = ("lambda", (":", ":*", "xAUTO0_"), "xAUTO0_")
+
 TOKENS = re.compile(
     r"""(?x)
  (?P<open>\()
@@ -230,7 +232,7 @@ class Lissp:
             if is_string(form):
                 return "quote", form
             return (
-                ("lambda", (":", ":*", "xAUTO0_"), "xAUTO0_"),
+                ENTUPLE,
                 ":",
                 *chain(*self._template(form)),
             )
@@ -241,25 +243,41 @@ class Lissp:
         return form
 
     def _template(self, forms: Iterable) -> Iterable[Tuple[str, Any]]:
+        invocation = True
         for form in forms:
             case = type(form)
             if case is str and not form.startswith(":"):
-                yield ":?", ("quote", self.qualify(form))
+                yield ":?", ("quote", self.qualify(form, invocation))
             elif case is _Unquote:
                 yield form
             elif case is tuple:
                 yield ":?", self.template(form)
             else:
                 yield ":?", form
+            invocation = False
 
-    def qualify(self, symbol: str) -> str:
+    def qualify(self, symbol: str, invocation=False) -> str:
         if re.search(r"^\.|\.$|^quote$|^lambda$|^__import__$|xAUTO\d+_$|\.\.", symbol):
             return symbol  # Not qualifiable.
-        if symbol in vars(self.ns.get("_macro_", lambda: ())):
+        if invocation and "_macro_" in self.ns and self._macro_has(symbol):
             return f"{self.qualname}.._macro_.{symbol}"
         if symbol in dir(builtins) and symbol not in self.ns:
             return f"builtins..{symbol}"  # Globals shadow builtins.
-        return f"{self.qualname}..{symbol}"
+        if not invocation or symbol in self.ns:
+            return f"{self.qualname}..{symbol}"
+        # Name wasn't found, but might be a macro later. Decide at compile time.
+        return f"{self.qualname}..xAUTO_.{symbol}"
+
+    def _macro_has(self, symbol):
+        # The _macro_ interface is not required to implement
+        # __contains__ or __dir__ and exotic _macro_ objects might
+        # override __getattribute__. The only way to tell if _macro_ has
+        # a name is getattr().
+        try:
+            getattr(self.ns["_macro_"], symbol)
+        except AttributeError:
+            return False
+        return True
 
     def reads(self, code: str) -> Iterable:
         res: Iterable[object] = self.parse(Lexer(code, self.filename))

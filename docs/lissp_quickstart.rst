@@ -388,20 +388,7 @@ Lissp Quick Start
                  (,@body))))
    (list (map (fnx mul X X) (range 6)))   ;Shorter lambda! Don't nest them.
 
-   ;; Recursive macro? (Multiary +)
-   (setattr _macro_
-            '+
-             (lambda (first : :* args)
-               (.__getitem__
-                 `(,first ,`(add ,first (+ ,@args)))
-                 (bool args))))
-   (+ 1 2 3 4)                            ;TypeError
-
-   _#"The recursive + was qualified as __main__..+, not __main__.._macro_.xPLUS_.
-   Recursive macro invocations require forward declaration or explicit qualification.
-   Now that we have a _macro_.+, it will qualify properly when you run it again."
-
-   ;; Same as before.
+   ;; Recursive macro. (Multiary +)
    (setattr _macro_
             '+
              (lambda (first : :* args)
@@ -410,7 +397,6 @@ Lissp Quick Start
                  (bool args))))
    (+ 1 2 3 4)                            ;10
 
-   (setattr _macro_ '* None)              ;Forward declaration.
    (setattr _macro_
             '*
              (lambda (first : :* args)
@@ -502,7 +488,7 @@ Lissp Quick Start
 
    ;;; linked-list emulation
 
-   ;; These really could be functions, but their expansion is small enough to inline.
+   ;; These really could be functions, but their expansions are small enough to inline.
 
    (car "abcd")                           ;'a'
    (cdr "abcd")                           ;'bcd'

@@ -29,6 +29,7 @@ PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
 MACROS = "_macro_"
 # Macro from foreign module foo.bar.._macro_.baz
 MACRO = f"..{MACROS}."
+RE_MACRO = re.compile(rf"(\.\.{MACROS}\.|\.\.xAUTO_\.)")
 
 # Sometimes macros need the current ns when expanding,
 # instead of its defining ns.
@@ -144,27 +145,40 @@ class Compiler:
         """Try to compile as macro, else normal call."""
         if result := self.macro(form):
             return f"# {form[0]}\n{result}"
+        form = form[0].replace("..xAUTO_.", "..", 1), *form[1:]
         return self.call(form)
 
     @_trace
     def macro(self, form: Tuple) -> Optional[str]:
         head, *tail = form
-        parts = head.split(MACRO, 1)
-        with self.macro_context():
-            if parts[0] == self.qualname:
-                # Local qualified macro. Recursive macros might need it.
-                result = self.form(vars(self.ns[MACROS])[parts[1]](*tail))
+        if (macro := self._get_macro(head)) is not None:
+            with self.macro_context():
+                return self.form(macro(*tail))
+
+    def _get_macro(self, head):
+        parts = RE_MACRO.split(head, 1)
+        head = head.replace("..xAUTO_.", MACRO, 1)
+        if len(parts) > 1:
+            macro = self._qualified_macro(head, parts)
+        else:
+            macro = self._unqualified_macro(head)
+        return macro
+
+    def _qualified_macro(self, head, parts):
+        try:
+            if parts[0] == self.qualname:  # Internal?
+                return vars(self.ns[MACROS])[parts[2]]
             else:
-                try:  # Is it a local unqualified macro?
-                    macro = vars(self.ns[MACROS])[head]
-                except LookupError:  # Nope.
-                    if MACRO in head:  # Qualified macro, not local.
-                        result = self.form(eval(self.symbol(head))(*tail))
-                    else:
-                        result = None
-                else:  # Local unqualified.
-                    result = self.form(macro(*tail))
-        return result
+                return eval(self.symbol(head))
+        except (KeyError, AttributeError):
+            if parts[1] != "..xAUTO_.":
+                raise
+
+    def _unqualified_macro(self, head):
+        try:
+            return vars(self.ns[MACROS])[head]
+        except KeyError:
+            pass
 
     @_trace
     def quoted(self, form) -> str:

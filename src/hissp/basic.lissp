@@ -228,7 +228,6 @@ but many macros still require this kind of recursive list processing.
 
 ;;; threading
 
-(defmacro -> ())
 (defmacro -> (expr : :* forms)
   "``->`` 'Thread-first'.
 
@@ -242,7 +241,6 @@ but many macros still require this kind of recursive list processing.
          ,@(cdr forms))
     expr))
 
-(defmacro ->> ())
 (defmacro ->> (expr : :* forms)
   "``->>`` 'Thread-last'.
 
@@ -262,20 +260,6 @@ but many macros still require this kind of recursive list processing.
 
 ;;; control flow
 
-_#"``cond`` is recursive.
-
-Recall that templates are read syntax, which evaluate before
-macroexpansion. Without the forward declaration creating a dummy
-``cond`` macro, the reader would automatically qualify ``cond`` as
-``hissp.basic..cond`` in the template instead of
-``hissp.basic.._macro_.cond``, because it has no way of knowing it's
-going to be added to the ``_macro_`` namespace later.
-
-We could have used the qualified symbol ``hissp.basic.._macro_.cond`` in
-the template instead of an unqualified ``cond``, then we wouldn't need
-the forward declaration.
-"
-(defmacro cond ())
 (defmacro cond (: :* pairs)
   "Multiple condition branching.
 
@@ -302,7 +286,6 @@ the forward declaration.
              ,iterable)))
 
 ;; I would have named this 'and, but that's a reserved word.
-(defmacro && ())  ; Forward declaration because && is recursive.
 (defmacro && (: :* exprs)
   "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
   (cond (operator..not_ exprs) True
@@ -312,7 +295,6 @@ the forward declaration.
                           (&& ,@(cdr exprs))
                           $#G))))
 
-(defmacro || ())  ; Forward declaration because || is recursive.
 (defmacro || (: first () :* rest)
   "``||`` 'or'. Like Python's ``or`` operator, but for any number of arguments."
   (if-else rest

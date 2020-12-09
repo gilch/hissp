@@ -1013,17 +1013,19 @@ This behavior is very much like a Lisp-2.
 
 This allows you do do things like write a macro that inlines a small function,
 while still being able to pass a function object to higher-order functions
-like `map` using the same name.
+(like `map`) using the same unqualified name.
 This behavior is similar to Hy, which uses this ability for its operators,
 but is completely unlike Clojure.
 
 And it does have a cost:
-Unlike Clojure,
-you have to declare a forward reference for recursive macros,
-or the template quote will qualify them as a variable.
-
-.. TODO: When qualifying invocation position, always qualify as a macro,
-    and when compiling, if it's absent, fall back to the global.
+Unlike Clojure's syntax quote,
+there are cases when the way Lissp's template quote should qualify a symbol is ambiguous.
+When neither a function nor a macro has yet been declared for an identifier,
+which way should it be qualified?
+What if both have?
+Try it.
+These template-quote qualification rules mostly just work,
+but you may run into edge cases in Lissp that couldn't exist in Clojure.
 
 If you wanted semantics more like a Lisp-2,
 Lissp can do it pretty easily.
