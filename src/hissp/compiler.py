@@ -21,7 +21,7 @@ from itertools import chain, takewhile
 from pprint import pformat
 from traceback import format_exc
 from types import ModuleType
-from typing import Iterable, List, Optional, Tuple, TypeVar
+from typing import Iterable, List, NewType, Tuple, TypeVar, Union
 from warnings import warn
 
 PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
@@ -36,6 +36,9 @@ RE_MACRO = re.compile(rf"(\.\.{MACROS}\.|\.\.xAUTO_\.)")
 # Rather than pass in an implicit argument, it's available here.
 # readerless() uses this automatically.
 NS = ContextVar("NS", default=())
+
+Sentinel = NewType('Sentinel', object)
+_SENTINEL = Sentinel(object())
 
 
 class CompileError(SyntaxError):
@@ -143,17 +146,18 @@ class Compiler:
     @_trace
     def invocation(self, form: Tuple) -> str:
         """Try to compile as macro, else normal call."""
-        if result := self.macro(form):
+        if (result := self.macro(form)) is not _SENTINEL:
             return f"# {form[0]}\n{result}"
         form = form[0].replace("..xAUTO_.", "..", 1), *form[1:]
         return self.call(form)
 
     @_trace
-    def macro(self, form: Tuple) -> Optional[str]:
+    def macro(self, form: Tuple) -> Union[str, Sentinel]:
         head, *tail = form
         if (macro := self._get_macro(head)) is not None:
             with self.macro_context():
                 return self.form(macro(*tail))
+        return _SENTINEL
 
     def _get_macro(self, head):
         parts = RE_MACRO.split(head, 1)

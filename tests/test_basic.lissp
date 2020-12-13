@@ -14,6 +14,8 @@
   "test qualified symbol, with docstring"
   `(enlist 'enlist))
 
+(!#defmacro nil () None)
+
 (!#deftype TestBasic (unittest..TestCase)
   test_same_gensym
   (lambda (self)
@@ -38,6 +40,10 @@
   test_doc
   (lambda (self)
     (.assertEqual self _macro_.tqs2.__doc__ "test qualified symbol, with docstring"))
+
+  test_expand_none
+  (lambda (self)
+    (.assertIsNone self (nil)))
 
   test_let
   (lambda (self)
