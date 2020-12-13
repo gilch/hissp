@@ -163,17 +163,14 @@ class Compiler:
         parts = RE_MACRO.split(head, 1)
         head = head.replace("..xAUTO_.", MACRO, 1)
         if len(parts) > 1:
-            macro = self._qualified_macro(head, parts)
-        else:
-            macro = self._unqualified_macro(head)
-        return macro
+            return self._qualified_macro(head, parts)
+        return self._unqualified_macro(head)
 
     def _qualified_macro(self, head, parts):
         try:
             if parts[0] == self.qualname:  # Internal?
                 return vars(self.ns[MACROS])[parts[2]]
-            else:
-                return eval(self.symbol(head))
+            return eval(self.symbol(head))
         except (KeyError, AttributeError):
             if parts[1] != "..xAUTO_.":
                 raise
