@@ -65,11 +65,11 @@ class TestReader(TestCase):
         self.parser.ns.update(x=1, y=2, z=3)
         self.assertEqual(
             [('entuple',
-              ':', ':?', ('quote', '__main__..x'),
+              ':', ':?', ('quote', '__main__..xAUTO_.x'),
               ':?', ('quote', '__main__..x'),
               ':?', ('quote', '__main__..x'),
               ':?', ('entuple',
-                     ':', ':?', ('quote', '__main__..y'),
+                     ':', ':?', ('quote', '__main__..xAUTO_.y'),
                      ':?', ('quote', '__main__..y')),
               ':?', ('entuple', ':', ':?', 1, ':?', ('quote', '__main__..z')))
              ],

@@ -260,13 +260,12 @@ class Lissp:
         if re.search(r"^\.|\.$|^quote$|^lambda$|^__import__$|xAUTO\d+_$|\.\.", symbol):
             return symbol  # Not qualifiable.
         if invocation and "_macro_" in self.ns and self._macro_has(symbol):
-            return f"{self.qualname}.._macro_.{symbol}"
-        if symbol in dir(builtins) and symbol not in self.ns:
-            return f"builtins..{symbol}"  # Globals shadow builtins.
-        if not invocation or symbol in self.ns:
-            return f"{self.qualname}..{symbol}"
-        # Name wasn't found, but might be a macro later. Decide at compile time.
-        return f"{self.qualname}..xAUTO_.{symbol}"
+            return f"{self.qualname}.._macro_.{symbol}"  # Known macro.
+        if symbol in dir(builtins) and symbol.split('.', 1)[0] not in self.ns:
+            return f"builtins..{symbol}"  # Known builtin, not shadowed (yet).
+        if invocation:  # Could still be a recursive macro.
+            return f"{self.qualname}..xAUTO_.{symbol}"
+        return f"{self.qualname}..{symbol}"
 
     def _macro_has(self, symbol):
         # The _macro_ interface is not required to implement
