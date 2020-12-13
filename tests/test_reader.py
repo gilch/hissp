@@ -92,6 +92,21 @@ class TestReader(TestCase):
             [*self.parser.reads('`(x x x (y y) (1 z))')],
         )
 
+    @patch("hissp.reader.ENTUPLE", "entuple")
+    def test_no_qualification(self):
+        self.assertEqual(
+            [('entuple', ':', ':?', ('quote', '.x')),
+             ('entuple', ':', ':?', ('quote', 'quote'), ':?', 1),
+             ('entuple', ':', ':?', ('quote', 'lambda'), ':?', ':'),
+             ('quote', '__import__'),
+             ('quote', 'xAUTO0_'),
+             ('quote', 'foo..bar'),
+             ('quote', 'foo.')],
+            [*self.parser.reads(
+                '`(.x) `(quote 1) `(lambda :) `__import__ `xAUTO0_ `foo..bar `foo.'
+            )],
+        )
+
 EXPECTED = {
 # Numeric
 '''False True''': [False, True],
