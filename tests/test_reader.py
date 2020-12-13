@@ -107,6 +107,35 @@ class TestReader(TestCase):
             )],
         )
 
+    @patch("hissp.reader.ENTUPLE", "entuple")
+    def test_auto_qualify_attr(self):
+        self.parser.ns.update(x=SimpleNamespace(y=1), int=SimpleNamespace(float=1))
+        self.assertEqual(
+            [('entuple',
+              ':',
+              ':?',
+              ('quote', '__main__..x.y'),
+              ':?',
+              ('quote', '__main__..x.y')),
+             ('entuple',
+              ':',
+              ':?',
+              ('quote', '__main__..int.x'),
+              ':?',
+              ('quote', '__main__..int.float')),
+             ('entuple', ':', ':?', ('quote', '__main__..xAUTO_.int'), ':?', 1),
+             ('entuple', ':', ':?', ('quote', 'builtins..float'), ':?', 1),
+             ('entuple',
+              ':',
+              ':?',
+              ('quote', '__main__..xAUTO_.x'),
+              ':?',
+              ('quote', '__main__..x'))],
+            [*self.parser.reads(
+                '`(x.y x.y) `(int.x int.float) `(int 1) `(float 1) `(x x)'
+            )],
+        )
+
 EXPECTED = {
 # Numeric
 '''False True''': [False, True],

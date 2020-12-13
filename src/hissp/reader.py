@@ -263,7 +263,7 @@ class Lissp:
             return f"{self.qualname}.._macro_.{symbol}"  # Known macro.
         if symbol in dir(builtins) and symbol.split('.', 1)[0] not in self.ns:
             return f"builtins..{symbol}"  # Known builtin, not shadowed (yet).
-        if invocation:  # Could still be a recursive macro.
+        if invocation and '.' not in symbol:  # Could still be a recursive macro.
             return f"{self.qualname}..xAUTO_.{symbol}"
         return f"{self.qualname}..{symbol}"
 
