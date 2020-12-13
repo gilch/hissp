@@ -1020,11 +1020,9 @@ but is completely unlike Clojure.
 And it does have a cost:
 Unlike Clojure's syntax quote,
 there are cases when the way Lissp's template quote should qualify a symbol is ambiguous.
-When neither a function nor a macro has yet been declared for an identifier,
-which way should it be qualified?
-What if both have?
-Try it.
-These template-quote qualification rules mostly just work,
+The same symbol might refer to a builtin, a macro, and a global,
+each of which would have to be qualified differently.
+The template-quote qualification rules were designed to mostly just work,
 but you may run into edge cases in Lissp that couldn't exist in Clojure.
 
 If you wanted semantics more like a Lisp-2,

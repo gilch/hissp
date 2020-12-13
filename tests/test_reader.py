@@ -65,11 +65,11 @@ class TestReader(TestCase):
         self.parser.ns.update(x=1, y=2, z=3)
         self.assertEqual(
             [('entuple',
-              ':', ':?', ('quote', '__main__..x'),
+              ':', ':?', ('quote', '__main__..xAUTO_.x'),
               ':?', ('quote', '__main__..x'),
               ':?', ('quote', '__main__..x'),
               ':?', ('entuple',
-                     ':', ':?', ('quote', '__main__..y'),
+                     ':', ':?', ('quote', '__main__..xAUTO_.y'),
                      ':?', ('quote', '__main__..y')),
               ':?', ('entuple', ':', ':?', 1, ':?', ('quote', '__main__..z')))
              ],
@@ -90,6 +90,50 @@ class TestReader(TestCase):
               ':?', ('entuple', ':', ':?', 1, ':?', ('quote', '__main__..z')))
              ],
             [*self.parser.reads('`(x x x (y y) (1 z))')],
+        )
+
+    @patch("hissp.reader.ENTUPLE", "entuple")
+    def test_no_qualification(self):
+        self.assertEqual(
+            [('entuple', ':', ':?', ('quote', '.x')),
+             ('entuple', ':', ':?', ('quote', 'quote'), ':?', 1),
+             ('entuple', ':', ':?', ('quote', 'lambda'), ':?', ':'),
+             ('quote', '__import__'),
+             ('quote', 'xAUTO0_'),
+             ('quote', 'foo..bar'),
+             ('quote', 'foo.')],
+            [*self.parser.reads(
+                '`(.x) `(quote 1) `(lambda :) `__import__ `xAUTO0_ `foo..bar `foo.'
+            )],
+        )
+
+    @patch("hissp.reader.ENTUPLE", "entuple")
+    def test_auto_qualify_attr(self):
+        self.parser.ns.update(x=SimpleNamespace(y=1), int=SimpleNamespace(float=1))
+        self.assertEqual(
+            [('entuple',
+              ':',
+              ':?',
+              ('quote', '__main__..x.y'),
+              ':?',
+              ('quote', '__main__..x.y')),
+             ('entuple',
+              ':',
+              ':?',
+              ('quote', '__main__..int.x'),
+              ':?',
+              ('quote', '__main__..int.float')),
+             ('entuple', ':', ':?', ('quote', '__main__..xAUTO_.int'), ':?', 1),
+             ('entuple', ':', ':?', ('quote', 'builtins..float'), ':?', 1),
+             ('entuple',
+              ':',
+              ':?',
+              ('quote', '__main__..xAUTO_.x'),
+              ':?',
+              ('quote', '__main__..x'))],
+            [*self.parser.reads(
+                '`(x.y x.y) `(int.x int.float) `(int 1) `(float 1) `(x x)'
+            )],
         )
 
 EXPECTED = {
