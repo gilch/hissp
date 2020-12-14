@@ -63,7 +63,7 @@ Lissp Quick Start
    ;;; symbols and strings
 
    object                                 ;Normal identifier.
-   object.__class__                       ;Attribute identifier with dot. Same as Python so far.
+   object.__class__                       ;Attribute identifier with dot, as Python.
    math.                                  ;Module identifier ends in a dot and imports it!
    math..tau                              ;Qualified identifier. Attribute of a module.
    collections.abc.                       ;Submodule identifier. Has package name.
@@ -71,7 +71,7 @@ Lissp Quick Start
    object.__class__.__name__              ;Attributes chain.
    collections.abc..Sequence.__class__.__name__ ;All together now.
 
-   :control-word                          ;Colon prefix. Similar to ":keywords" in other Lisps.
+   :control-word                          ;Colon prefix. Similar to Lisp ":keywords".
 
    'symbol                                ;Apostrophe prefix. Symbols represent identifiers.
 
@@ -81,16 +81,16 @@ Lissp Quick Start
    '𝐀                                     ;Alias for 'A (munges to unicode normal form KC)
    '+                                     ;'xPLUS_
    '->>                                   ;'xH_xGT_xGT_
-   :->>                                   ;Control words don't represent identifiers, don't munge.
+   :->>                                   ;These don't represent identifiers, don't munge.
 
    'SPAM\ \"\(\)\;EGGS                    ;These would terminate a symbol if not escaped.
-   '\42                                   ;'xDIGITxFOUR_2 Python identifiers can't start with digits.
+   '\42                                   ;'xDIGITxFOUR_2 Digits can't start identifiers.
    '\.                                    ;'xFULLxSTOP_
    '\\                                    ;'xBSLASH_
    '\a\b\c                                ;Escapes allowed, but not required here.
 
    "string"                               ;Double-quotes only!
-   'string'                               ;'stringx1QUOTE_ symbol.
+   'not-string'                           ;'notxH_stringx1QUOTE_ symbol.
 
    "string
    with
