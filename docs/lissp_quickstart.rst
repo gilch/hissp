@@ -8,27 +8,28 @@ Lissp Quick Start
 
 .. code-block:: Lissp
 
-   ;;;; Lissp Quick Start
+   ;;;; LISSP QUICK START
 
-   ;; Lissp is a lightweight textual language representing the Hissp data
-   ;; language. The Lissp reader converts Lissp code to Hissp syntax trees.
-   ;; The Hissp compiler translates Hissp to a functional subset of Python.
+   "Lissp is a lightweight textual language representing the Hissp data
+   language. The Lissp reader converts Lissp code to Hissp syntax trees.
+   The Hissp compiler translates Hissp to a functional subset of Python.
 
-   ;; This document is written like a .lissp file, demonstrating Lissp's
-   ;; features with minimal exposition. Some familiarity with Python is
-   ;; assumed. Familiarity with another Lisp dialect is not assumed, but
-   ;; helpful. See the Hissp tutorial for more detailed explanations.
+   This document is written like a .lissp file, demonstrating Lissp's
+   features with minimal exposition. Some familiarity with Python is
+   assumed. Familiarity with another Lisp dialect is not assumed, but
+   helpful. See the Hissp tutorial for more detailed explanations.
 
-   ;; Follow along by entering these examples in the REPL. It will show you the
-   ;; compiled Python, and evaluate it. Try variations that occur to you.
+   Follow along by entering these examples in the REPL. It will show you the
+   compiled Python, and evaluate it. Try variations that occur to you.
+   "
 
-   ;;;; Installation
+   ;;;; INSTALLATION
 
    ;; Install hissp with $ pip install hissp
    ;; Start the REPL with $ lissp
    ;; Quit with EOF or (exit).
 
-   ;;;; Atoms
+   ;;;; ATOMS
 
    ;;; singleton
 
@@ -63,7 +64,7 @@ Lissp Quick Start
    ;;; symbols and strings
 
    object                                 ;Normal identifier.
-   object.__class__                       ;Attribute identifier with dot. Same as Python so far.
+   object.__class__                       ;Attribute identifier with dot, as Python.
    math.                                  ;Module identifier ends in a dot and imports it!
    math..tau                              ;Qualified identifier. Attribute of a module.
    collections.abc.                       ;Submodule identifier. Has package name.
@@ -71,7 +72,7 @@ Lissp Quick Start
    object.__class__.__name__              ;Attributes chain.
    collections.abc..Sequence.__class__.__name__ ;All together now.
 
-   :control-word                          ;Colon prefix. Similar to ":keywords" in other Lisps.
+   :control-word                          ;Colon prefix. Similar to Lisp ":keywords".
 
    'symbol                                ;Apostrophe prefix. Symbols represent identifiers.
 
@@ -81,16 +82,16 @@ Lissp Quick Start
    '𝐀                                     ;Alias for 'A (munges to unicode normal form KC)
    '+                                     ;'xPLUS_
    '->>                                   ;'xH_xGT_xGT_
-   :->>                                   ;Control words don't represent identifiers, don't munge.
+   :->>                                   ;These don't represent identifiers, don't munge.
 
    'SPAM\ \"\(\)\;EGGS                    ;These would terminate a symbol if not escaped.
-   '\42                                   ;'xDIGITxFOUR_2 Python identifiers can't start with digits.
+   '\42                                   ;'xDIGITxFOUR_2 Digits can't start identifiers.
    '\.                                    ;'xFULLxSTOP_
    '\\                                    ;'xBSLASH_
    '\a\b\c                                ;Escapes allowed, but not required here.
 
    "string"                               ;Double-quotes only!
-   'string'                               ;'stringx1QUOTE_ symbol.
+   'not-string'                           ;'notxH_stringx1QUOTE_ symbol.
 
    "string
    with
@@ -107,7 +108,7 @@ Lissp Quick Start
    newlines
    "                                      ;Same as b"bytes\nwith\nnewlines\n".
 
-   ;;;; Calls
+   ;;;; CALLS
 
    (print :)                              ;"(" goes before the function name! Calls have a :.
    (print : :? 1  :? 2  :? 3  sep "-")    ;Arguments pair with a parameter name. No commas!
@@ -125,7 +126,7 @@ Lissp Quick Start
    (dir _macro_)
    (help _macro_.->>)                     ;Macros have docstrings and live in _macro_.
 
-   ;;;; Lambda
+   ;;;; LAMBDA
 
    (lambda (x) x)                         ;Lambda invocations create functions.
 
@@ -156,7 +157,7 @@ Lissp Quick Start
       (print c b a))
     3 2 1)
 
-   ;;;; Operators
+   ;;;; OPERATORS
 
    ;; Hissp is simpler than Python. No operators! Use function invocations instead.
 
@@ -164,7 +165,7 @@ Lissp Quick Start
    (.__setitem__ (globals) '+ operator..add) ;Assignment. We'll be using this later.
    (+ 40 2)                               ;No operators. This is still a function call!
 
-   ;;;; Control Flow
+   ;;;; CONTROL FLOW
 
    ;; Hissp is simpler than Python. No control flow! Use higher-order functions instead.
 
@@ -179,15 +180,15 @@ Lissp Quick Start
 
    ;; Don't worry, macros make this much easier.
 
-   ;;;; Quote
+   ;;;; QUOTE
 
    ;; Quotation prevents evaluation of invocations and identifiers.
-   ;; Treating code as data the key concept in metaprogramming.
+   ;; Treating code as data is the key concept in metaprogramming.
    (quote (print 1 2 3 : sep "-"))        ;Just a tuple.
    (quote identifier)                     ;Just a string.
    (quote 42)                             ;Quoted atoms evaluate to themselves.
 
-   ;;;; Reader Macros
+   ;;;; READER MACROS
 
    'x                                     ;Same as (quote x). Symbols are just quoted identifiers!
    '(print "Hi")                          ;Same as (quote (print "Hi"))
@@ -244,7 +245,7 @@ Lissp Quick Start
 
    ;; Injections are powerful. Use responsibly!
 
-   ;;;; Collections
+   ;;;; COLLECTIONS
 
    ;;; templates and tuples
 
@@ -321,7 +322,7 @@ Lissp Quick Start
    '.#(eval "[1,'''2 3''']")              ;[1, '2 3']
    '.#.#"[1,'''2 3''']"                   ;[1, '2 3']
 
-   ;;;; Compiler Macros
+   ;;;; COMPILER MACROS
 
    _#"Macroexpansion happens at compile time, after the reader, so they also
    work in readerless mode, or with alternative Hissp readers other than Lissp.
@@ -432,7 +433,7 @@ Lissp Quick Start
    spam..x                                ;42
    eggs.                                  ;Hello, World!
 
-   ;;;; Basic Macros
+   ;;;; BASIC MACROS
 
    _#" The REPL comes with some basic macros defined in hissp.basic. By default,
    they don't work in .lissp files unqualified. The compiled output from these

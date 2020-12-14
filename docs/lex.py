@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pygments.token as pt
-from pygments.lexer import RegexLexer
+from pygments.lexer import RegexLexer, bygroups, using
+from pygments.lexers.python import PythonConsoleLexer
 
 SN = r'[+-]?'
 Ds = r'(?:\d(?:_?\d)*)'
@@ -16,12 +17,13 @@ class LisspLexer(RegexLexer):
 
     tokens = {
         'root': [
+            (r'([(])(lambda|quote)', bygroups(pt.Punctuation, pt.Keyword)),
             (r'[()]', pt.Punctuation),
             (r'b?"(?:[^"\\]|\\(?:.|\n))*"', pt.String),
             (r';;;;.*', pt.Generic.Heading),
             (r';;;.*', pt.Generic.Subheading),
             (r';.*', pt.Comment),
-            (r'[\n ]+', pt.Whitespace),
+            (r'[\n ]+', pt.Text),
             (r'\s|\r', pt.Error),
             (r''',@|['`,]|$#|.#|_#''', pt.Operator),
             (r'''(?:[^\\ \n"();#]|\\.)+[#]''', pt.Operator.Word),
@@ -43,6 +45,16 @@ class LisspLexer(RegexLexer):
         ]
     }
 
+class LisspReplLexer(RegexLexer):
+    tokens = {
+        'root': [
+            (r'^#> .*\n(?:^#\.\..*\n)*', using(LisspLexer)),
+            (r'^>>> .*\n(?:\.\.\. .*\n)*', using(PythonConsoleLexer)),
+            (r'.*\n', pt.Text),
+        ]
+    }
+
 
 def setup(app):
     app.add_lexer('Lissp', LisspLexer)
+    app.add_lexer('REPL', LisspReplLexer)

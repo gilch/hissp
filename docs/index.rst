@@ -3,6 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. raw:: html
+
+   <style>div.sidebar-logo-container{display: none;}</style>
+
 It's Python with a *Lissp.*
 ===========================
 
@@ -32,3 +36,9 @@ or read the more detailed tutorial.
    faq
 
 * :ref:`genindex`
+
+****
+
+.. toctree::
+
+   GitHub Repository <https://github.com/gilch/hissp>
