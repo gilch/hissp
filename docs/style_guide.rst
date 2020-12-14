@@ -450,7 +450,7 @@ don't worry too much, but consider using ``\n``.
 For deeply nested multiline strings,
 use a dedent string, which can be safely indented:
 
-.. code-block:: Lissp
+.. code-block:: REPL
 
    #> (print (.upper 'textwrap..dedent#"\
    #..               These lines
