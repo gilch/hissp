@@ -33,7 +33,7 @@ Python itself has an AST representation used by its compiler
 (the `ast` module)
 which is accessible to Python programs,
 but because it represents all of the possible Python syntax,
-which is considerable, it difficult to use effectively for metaprogramming.
+which is considerable, it is difficult to use effectively for metaprogramming.
 
 The Hissp compiler, in contrast, compiles Hissp code to a simplified
 *functional subset* of Python.
