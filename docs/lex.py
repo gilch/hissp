@@ -23,7 +23,7 @@ class LisspLexer(RegexLexer):
             (r';;;;.*', pt.Generic.Heading),
             (r';;;.*', pt.Generic.Subheading),
             (r';.*', pt.Comment),
-            (r'[\n ]+', pt.Whitespace),
+            (r'[\n ]+', pt.Text),
             (r'\s|\r', pt.Error),
             (r''',@|['`,]|$#|.#|_#''', pt.Operator),
             (r'''(?:[^\\ \n"();#]|\\.)+[#]''', pt.Operator.Word),
