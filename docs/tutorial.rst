@@ -239,8 +239,8 @@ You can quit with ``(exit)`` or EOF [#EOF]_, same as Python's shell.
 The basic REPL shows the Python translation of the read Lissp
 and evaluates it.
 
-Literals
---------
+Basic Atoms
+-----------
 
 Most literals work just like Python:
 
@@ -280,34 +280,35 @@ and do not appear in the Hissp output.
 Strings
 #######
 
-Double-quoted strings may contain newlines,
+Double-quoted strings in Lissp may contain newlines,
 but otherwise behave as Python's and respect the same escape codes:
 
 .. code-block:: REPL
 
     #> "Three
     #..lines\ntotal"
-    >>> 'Three\nlines\ntotal'
+    >>> ('Three\nlines\ntotal')
     'Three\nlines\ntotal'
 
-There are no triple double-quoted strings in Lissp.
+Recall that strings in (readerless mode)
+Hissp are used to represent Python identifiers in the compiled output,
+and must be quoted with the ``quote`` special form to represent text data instead.
 
-Strings are implicitly quoted:
+Strings in Hissp can represent almost any raw Python code to inject in the compiled output,
+not just identifiers.
+So another way to represent text data in Hissp
+is a string that contains the Python code for a string literal:
 
 .. code-block:: REPL
 
     #> (quote
     #.. (lambda (name)
     #..  (print "Hello" name)))
-    >>> ('lambda', ('name',), ('print', ('quote', 'Hello', {':str': True}), 'name'))
-    ('lambda', ('name',), ('print', ('quote', 'Hello', {':str': True}), 'name'))
+    >>> ('lambda', ('name',), ('print', "('Hello')", 'name'))
+    ('lambda', ('name',), ('print', "('Hello')", 'name'))
 
-The reader also adds a little *metadata* [#meta]_ in the quote form
-(the ``{':str': True}`` bit)
-indicating that it was read from a double-quoted string literal,
-rather than a symbol.
-Metadata has no effect on how a ``quote`` form is compiled,
-but may be used macros and reader macros.
+Notice that rather than using the quote special form for "Hello",
+Lissp reads in a double-quoted string as a Hissp string containing a Python string.
 
 Symbols
 #######
@@ -324,11 +325,6 @@ In our basic example:
 
 Symbols should be used for *identifiers* (variable names and the like).
 
-The distinction between a quoted symbol and a double-quoted string
-exists only in Lissp a the reader level.
-It's two ways of writing the same thing in Hissp.
-Recall that the argument of the ``quote`` special form is seen as data:
-
 .. code-block:: REPL
 
     #> (quote
@@ -338,7 +334,11 @@ Recall that the argument of the ``quote`` special form is seen as data:
     ('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
 
 This shows us how that Lissp would get translated to Hissp.
-Notice that symbols become strings in Hissp.
+Notice that symbols in Lissp become strings in Hissp and become identifiers in Python,
+unless they're quoted.
+
+Attribute access
+~~~~~~~~~~~~~~~~
 
 Symbols with an internal ``.`` can access attributes:
 
@@ -360,7 +360,7 @@ Symbols have another important difference from double-quoted strings:
     'fooxH_xGT_barxQUERY_'
 
     #> "foo->bar?"
-    >>> 'foo->bar?'
+    >>> ('foo->bar?')
     'foo->bar?'
 
 Symbols may contain special characters,
@@ -461,12 +461,12 @@ but you can:
     >>> ':foo->bar?'
     ':foo->bar?'
 
-Note that double quotes do the same thing:
+Note that double quotes do nearly the same thing:
 
 .. code-block:: REPL
 
     #> ":foo->bar?"
-    >>> ':foo->bar?'
+    >>> (':foo->bar?')
     ':foo->bar?'
 
 The lambda special form,
@@ -503,22 +503,24 @@ You can refer to variables defined in any module by using a
     ...   (2))
     42
 
-Notice the part before the ``..`` is imported and the part after is
-looked up in the imported module.
+Notice the second dot required to access a module attribute.
 
-This capability is important for macros that are defined in one module,
+The translation of module identifiers to ``__import__`` calls happens at compile time,
+so this feature is still available in readerless mode.
+Qualification is important for macros that are defined in one module,
 but used in another.
 
 Compound Expressions
 --------------------
 
-Literals are just the basic building blocks.
-To do anything interesting with them, you have to combine them.
+Atoms are just the basic building blocks.
+To do anything interesting with them,
+you have to combine them into tuples.
 
 Empty
 #####
 
-The empty tuple ``()`` might as well be a literal:
+The empty tuple ``()`` might as well be an atom:
 
 .. code-block:: REPL
 
@@ -531,13 +533,12 @@ Lambdas
 
 The anonymous function special form::
 
-    (lambda (<parameters>)
+    (lambda <parameter tuple>
       <body>)
 
 The parameters tuple is divided into ``(<single> : <paired>)``
 
-Parameter types are the same as Python's.
-For example:
+Hissp has all of Python's parameter types:
 
 .. code-block:: REPL
 
@@ -640,8 +641,8 @@ For example:
     ...   (1),
     ...   (2),
     ...   (3),
-    ...   sep=':',
-    ...   end='\n.')
+    ...   sep=(':'),
+    ...   end=('\n.'))
     1:2:3
     .
 
@@ -661,7 +662,7 @@ Either ``<args>`` or ``<kwargs>`` may be empty:
 
     #> (print : end "X")
     >>> print(
-    ...   end='X')
+    ...   end=('X'))
     X
 
 The ``:`` is optional if the ``<kwargs>`` part is empty:
@@ -674,7 +675,7 @@ The ``:`` is optional if the ``<kwargs>`` part is empty:
 
     #> (float "inf")
     >>> float(
-    ...   'inf')
+    ...   ('inf'))
     inf
 
 The ``<kwargs>`` part has implicit pairs; there must be an even number.
@@ -691,7 +692,7 @@ Use the special control words ``:*`` for iterable unpacking,
     ...   *(4,),
     ...   **dict(
     ...     sep=':',
-    ...     end='\n.'))
+    ...     end=('\n.')))
     1:2:3:4
     .
 
@@ -717,7 +718,7 @@ function name starts with a dot:
     'foo'
 
 Reader Macros
-=============
+-------------
 
 Reader macros in Lissp consist of a symbol ending with a ``#``
 followed by another form.
@@ -732,12 +733,13 @@ and the reader embeds the resulting object into the output Hissp:
     ... )
     inf
 
-This inserts an actual ``inf`` object at read time into the Hissp code.
-Since this isn't a valid literal, it has to compile to a pickle.
+This inserts an actual float object at read time into the Hissp code.
+But because its repr, ``inf``, isn't a valid literal,
+it has to compile to a pickle instead.
+But if it's used by something *before* compile time, it won't be a pickle yet.
+
 You should normally try to avoid emitting pickles
-(e.g. use ``(float 'inf)`` or `math..inf <math.inf>` instead),
-but note that another macro would get the original object,
-since the code hasn't been compiled yet, which may be useful.
+(e.g. use ``(float 'inf)`` or `math..inf <math.inf>` instead).
 While unpickling does have some overhead,
 it may be worth it if constructing the object normally has even more.
 Naturally, the object must be picklable to emit a pickle.
@@ -745,7 +747,7 @@ Naturally, the object must be picklable to emit a pickle.
 Reader macros can also be unqualified.
 These three macros are built into the reader:
 Inject ``.#``, discard ``_#``, and gensym ``$#``.
-The reader also will check the current module's ``_macro_`` namespace (if it has one)
+The reader will also check the current module's ``_macro_`` namespace (if it has one)
 when it encounters and unqualified macro name.
 
 If you need more than one argument for a reader macro, use the built-in
@@ -791,7 +793,7 @@ It's a way to comment out code structurally:
     1 3
 
 Templates
----------
+~~~~~~~~~
 
 Besides ``'``, which we've already seen,
 Lissp has three other built-in reader macros that don't require a ``#``:
@@ -816,8 +818,8 @@ The template quote works much like a normal quote:
     (1, 2, 3)
 
 Notice the results are the same,
-but the template quote becomes the code that evaluates to the result,
-instead of the quoted result itself.
+but the template quote compiles to the code that evaluates to the result,
+instead of to the result itself.
 
 This gives you the ability to *interpolate*
 data into the tuple at the time it is evaluated,
@@ -845,7 +847,7 @@ The splice unquote is similar, but unpacks its result:
     #> `(:a ,@"bcd" :e)
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   ':a',
-    ...   *'bcd',
+    ...   *('bcd'),
     ...   ':e')
     (':a', 'b', 'c', 'd', ':e')
 
@@ -863,10 +865,10 @@ If you quote an example, you can see that intermediate step:
     ...  ':?',
     ...  ':a',
     ...  ':*',
-    ...  ('quote', 'bcd', {':str': True}),
+    ...  "('bcd')",
     ...  ':?',
     ...  ('opearator..mul', 2, 3))
-    (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':?', ':a', ':*', ('quote', 'bcd', {':str': True}), ':?', ('opearator..mul', 2, 3))
+    (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':?', ':a', ':*', "('bcd')", ':?', ('opearator..mul', 2, 3))
 
 Templates are Lissp syntactic sugar based on what Hissp already has.
 
@@ -878,7 +880,7 @@ Reader macros are a kind of metaprogramming.
 Because you can make your own reader macros, you can make your own sugar.
 
 Templates are extremely valuable tools for metaprogramming.
-Most macros will use at least one internally.
+Most compiler macros will use at least one internally.
 
 Gensyms
 #######
@@ -886,8 +888,11 @@ The final builtin reader macro ``$#`` creates a *generated symbol*
 (gensym) based on the given symbol.
 Within a template, the same gensym name always makes the same gensym:
 
-.. code-block:: REPL
+.. code-block:: Lissp
 
+    `($#hiss $#hiss)  ; ('_hissxAUTO42_', '_hissxAUTO42_')
+
+..
     #> `($#hiss $#hiss)
     >>> (lambda *xAUTO0_:xAUTO0_)(
     ...   '_hissxAUTO..._',
@@ -895,10 +900,8 @@ Within a template, the same gensym name always makes the same gensym:
     ('_hissxAUTO..._', '_hissxAUTO..._')
 
 But each new template increments the counter.
-(The numbers have been elided to make the doctests work, but they're the same
-as well. E.g. ``_hissxAUTO42_``. Try it.)
 Gensyms are mainly used to prevent accidental name collisions in generated code,
-which is very important for reliable macros.
+which is very important for reliable compiler macros.
 
 Collection Atoms
 ----------------
@@ -948,7 +951,7 @@ you must quote them to use them as data.
    (as Python does),
    Lissp doesn't really need this capability because it can already read in arbitrary
    Python expressions using the inject macro ``.#``.
-   The collection atoms are just a convenience notation for simple cases.
+   The collection atoms are just a convenience for simple cases.
 
 Unlike Python's notation,
 because these collections are read in as a *single atom*,
@@ -961,9 +964,9 @@ use function calls and templates instead:
     #> (list `(,@(.upper "abc") ,@[1,2,3] ,(.title "zed")))
     >>> list(
     ...   (lambda *xAUTO0_:xAUTO0_)(
-    ...     *'abc'.upper(),
+    ...     *('abc').upper(),
     ...     *[1, 2, 3],
-    ...     'zed'.title()))
+    ...     ('zed').title()))
     ['A', 'B', 'C', 1, 2, 3, 'Zed']
 
 If this is still too verbose for your taste,
@@ -991,7 +994,7 @@ remember that you can use helper functions or metaprogramming to simplify:
     ...     (1),
     ...     (2),
     ...     (3)),
-    ...   'zed'.title())
+    ...   ('zed').title())
     ['A', 'B', 'C', [1, 2, 3], 'Zed']
 
 You can also use the unpacking control words in these:
@@ -1000,9 +1003,9 @@ You can also use the unpacking control words in these:
 
     #> (enlist : :*(.upper "abc")  :? [1,2,3]  :? (.title "zed"))
     >>> enlist(
-    ...   *'abc'.upper(),
+    ...   *('abc').upper(),
     ...   [1, 2, 3],
-    ...   'zed'.title())
+    ...   ('zed').title())
     ['A', 'B', 'C', [1, 2, 3], 'Zed']
 
 Macros
@@ -1192,17 +1195,17 @@ a double-quoted string might have been a better idea:
     ...   (lambda name:
     ...     (lambda *xAUTO0_:xAUTO0_)(
     ...       'builtins..print',
-    ...       ('quote', 'Hello', {':str': True}),
+    ...       "('Hello')",
     ...       name)))
 
     #> (greet 'Bob)
     >>> # greet
     ... __import__('builtins').print(
-    ...   'Hello',
+    ...   ('Hello'),
     ...   'Bob')
     Hello Bob
 
-While the ``{':str': True}`` means nothing to the compiler,
+While the parentheses around the 'Hello' don't change the meaning of the expression in Python,
 it does prevent the template reader macro from qualifying it like a symbol.
 
 There's really no need to use a macro when a function will do.
@@ -1231,9 +1234,9 @@ But there are times when a function will not do:
     ...     (lambda xHASH_:
     ...       print(
     ...         xHASH_.upper(),
-    ...         ':',
+    ...         (':'),
     ...         xHASH_)),
-    ...     'abc'))
+    ...     ('abc')))
     A : a
     B : b
     C : c
@@ -1307,8 +1310,6 @@ the compiled output may be different due to an updated macro in another file.
 .. [#EOF] End Of File. Usually Ctrl-D, but enter Ctrl-Z on Windows.
           This doesn't quit Python if the REPL was launched from Python,
           unlike ``(exit)``.
-
-.. [#meta] Data about data.
 
 .. [#key] The equivalent concept is called a *keyword* in other Lisps,
           but that means something else in Python.
