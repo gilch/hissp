@@ -138,7 +138,7 @@ class Compiler:
     def special(self, form: Tuple) -> str:
         """Try to compile as special form, else self.invocation()."""
         if form[0] == "quote":
-            return self.quoted(form[1])
+            return self.quoted(*form[1:])
         if form[0] == "lambda":
             return self.function(form)
         return self.invocation(form)

@@ -14,7 +14,6 @@ from pathlib import Path, PurePath
 from pprint import pprint
 from types import ModuleType
 from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union
-from unittest.mock import ANY
 
 from hissp.compiler import Compiler, readerless
 from hissp.munger import munge
@@ -162,7 +161,7 @@ class Lissp:
         if v[0] == 'b':  # bytes
             yield val
         else:
-            yield "quote", val, {":str": True}
+            yield f"({val!r})"
 
     def _macro(self, v):
         with {
@@ -210,7 +209,7 @@ class Lissp:
         if tag == ".":
             return eval(readerless(form), {})
         if is_string(form):
-            form = form[1]
+            form = ast.literal_eval(form)
         tag = munge(self.escape(tag))
         if ".." in tag and not tag.startswith(".."):
             module, function = tag.split("..", 1)
@@ -228,9 +227,9 @@ class Lissp:
 
     def template(self, form):
         case = type(form)
+        if is_string(form):
+            return "quote", form
         if case is tuple and form:
-            if is_string(form):
-                return "quote", form
             return (
                 ENTUPLE,
                 ":",
@@ -257,7 +256,7 @@ class Lissp:
             invocation = False
 
     def qualify(self, symbol: str, invocation=False) -> str:
-        if re.search(r"^\.|\.$|^quote$|^lambda$|^__import__$|xAUTO\d+_$|\.\.", symbol):
+        if re.search(r"^\(|^\.|\.$|^quote$|^lambda$|^__import__$|xAUTO\d+_$|\.\.", symbol):
             return symbol  # Not qualifiable.
         if invocation and "_macro_" in self.ns and self._macro_has(symbol):
             return f"{self.qualname}.._macro_.{symbol}"  # Known macro.
@@ -317,7 +316,10 @@ class Lissp:
 
 
 def is_string(form):
-    return form == ("quote", ANY, ANY) and form[2].get(":str")
+    try:
+        return type(form) is str and form.startswith("(") and type(ast.literal_eval(form)) is str
+    except:
+        return False
 
 
 def transpile(package: Optional[resources.Package], *modules: Union[str, PurePath]):
