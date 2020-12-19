@@ -165,14 +165,14 @@ object.__class__.__name__ ; Attributes chain.
     ('quote', 'xH_xGT_xGT_'),
 ],
 '''"string" ""''': [
-    ('quote', 'string', {':str': True}),
-    ('quote', '', {':str': True}),
+    "('string')",
+    "('')",
 ],
 '''b""''': [b''],
 "b''": ['bx1QUOTE_x1QUOTE_'],
 "b''''''": ['bx1QUOTE_x1QUOTE_x1QUOTE_x1QUOTE_x1QUOTE_x1QUOTE_'],
 '''b""""""''': [
-    b'', ('quote', '', {':str': True}), ('quote', '', {':str': True})
+    b'', "('')", "('')"
 ],
 '''rb'' br'' RB'' BR'' rb"" br"" B"" ''': [
     'rbx1QUOTE_x1QUOTE_',
@@ -180,11 +180,11 @@ object.__class__.__name__ ; Attributes chain.
     'RBx1QUOTE_x1QUOTE_',
     'BRx1QUOTE_x1QUOTE_',
     'rb',
-    ('quote', '', {':str': True}),
+    "('')",
     'br',
-    ('quote', '', {':str': True}),
+    "('')",
     'B',
-    ('quote', '', {':str': True})
+    "('')"
 ],
 '''b"bytes"''': [b'bytes'],
 '''\
@@ -194,7 +194,7 @@ newlines"
 ''': [b'bytes\nwith\nnewlines'],
 # invocation
 '''(print "Hello, World!")''': [
-    ('print', ('quote', "Hello, World!", {':str': True}))
+    ('print', "('Hello, World!')")
 ],
 # reader
 '''_#foobar''': [],
