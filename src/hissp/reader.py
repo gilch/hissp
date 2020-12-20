@@ -11,7 +11,7 @@ from functools import reduce
 from importlib import import_module, resources
 from itertools import chain
 from pathlib import Path, PurePath
-from pprint import pprint
+from pprint import pformat, pprint
 from types import ModuleType
 from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union
 
@@ -161,7 +161,7 @@ class Lissp:
         if v[0] == 'b':  # bytes
             yield val
         else:
-            yield f"({val!r})"
+            yield v if (v:=pformat(val)).startswith("(") else f"({v})"
 
     def _macro(self, v):
         with {
