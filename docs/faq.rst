@@ -24,6 +24,31 @@ Anticipated? Didn't you mean "asked"?
 
 Well, this project is still pretty new.
 
+Is Hissp a replacement for Python?
+----------------------------------
+
+Hissp is a modular metaprogramming *supplement* to Python.
+
+How much Python you replace is up to you:
+
+* Use small amounts of readerless-mode Hissp directly in your Python code.
+* Compile individual Lissp modules to Python and import them in your Python projects.
+* Write your entire project in Lissp, including the main module, and launch it with ``lissp``.
+
+This also works in reverse.
+
+* Use small amounts of Python code directly in your Lissp code via the inject macro ``.#``.
+* Import Python modules and objects with qualified identifiers.
+* Write the main module in Python (or compile it) and launch it with ``python``.
+
+While the Hissp language can do anything Python can,
+Hissp is compiled to Python,
+so it requires Python to work.
+
+You must be able to read Python code to understand the output of the Lissp REPL,
+which shows the Python compilation, the normal Python reprs for objects,
+and the same kind of tracebacks and error messages Python would.
+
 Can Hissp really do anything Python can when it only compiles to a subset of it?
 --------------------------------------------------------------------------------
 
