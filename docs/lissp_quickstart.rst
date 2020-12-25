@@ -1,7 +1,7 @@
 .. Copyright 2020 Matthew Egan Odendahl
    SPDX-License-Identifier: Apache-2.0
 
-.. TODO: sybil tests? ;: ;>>> ;...
+.. TODO: sybil tests? ;: ;>>> ;... and/or make interactive via web repl?
 
 Lissp Quick Start
 =================

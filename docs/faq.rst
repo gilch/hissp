@@ -708,6 +708,14 @@ We've got `itertools`. Compose iterators functional-style. You don't need
 ``yield``.
 
 .. TODO: fill in reasoning more.
+   Lazy cons is preferable to mutable iterators.
+   Yield requires yield-from,
+   (The "What Color Is Your Function?" problem.)
+   which is inelegant compared to alternatives of similar or greater expressive power.
+   such as call/cc and ?/reset.
+.. TODO: implement yield macro? Will require pre-expansion like Hy's let.
+   fortunately, Hissp has only two special forms (by design) so this should be easier.
+   Think about code walking and alternatives.
 
 But I need it for co-routines. Or async/await stuff. How do I accept a send?
 ----------------------------------------------------------------------------

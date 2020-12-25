@@ -16,7 +16,7 @@ Welcome to Hissp's documentation!
 Jump in and try the quick start if you're feeling confident,
 or read the more detailed tutorial.
 
-.. TODO: add REPL via Brython?
+.. TODO: add REPL via Brython or Pyodide?
 
 .. toctree::
    :maxdepth: 2
