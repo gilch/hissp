@@ -847,7 +847,7 @@ How do I import a macro?
 
 The same way you import anything else: with a qualified identifier.
 In Lissp, you can use a reader macro to abbreviate qualifiers.
-`hissp.basic.._macro_.alias` can define these for you.
+`hissp.basic.._macro_.alias<hissp.basic._macro_.alias>` can define these for you.
 
 Any callable in the current module's ``_macro_`` namespace will work unqualified.
 Normally you create these with `hissp.basic.._macro_.defmacro<defmacro>`,
