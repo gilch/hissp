@@ -24,6 +24,33 @@ Anticipated? Didn't you mean "asked"?
 
 Well, this project is still pretty new.
 
+Why should I use Hissp?
+-----------------------
+
+   Any sufficiently complicated C or Fortran program contains an ad hoc,
+   informally-specified, bug-ridden, slow implementation of half of Common Lisp.
+   — Greenspun's tenth rule
+
+If the only programming languages you've tried are those designed to feel familiar to C programmers,
+you might think they're all the same. I assure you, they are not.
+
+While any Turing-complete language has equivalent theoretical power,
+they are not equally expressive.
+The best programming languages have some kind of superpower.
+
+Lisp's superpower is *metaprogramming* and it's the power to copy most other powers.
+
+On its own, such a power may not seem all that impressive,
+but used wisely, and with the knowledge of other powers,
+it becomes whatever you need.
+
+It's not that Python can't do metaprogramming at all.
+(Python is Turing complete, after all.)
+It's just too difficult (compared to Lisp), so it's rarely done.
+
+Hissp makes metaprogramming easy(er)
+by stripping Python down to a minimal subset that's easy to manipulate programmatically.
+
 Is Hissp a replacement for Python?
 ----------------------------------
 
