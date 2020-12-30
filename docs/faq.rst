@@ -29,27 +29,29 @@ Why should I use Hissp?
 
    Any sufficiently complicated C or Fortran program contains an ad hoc,
    informally-specified, bug-ridden, slow implementation of half of Common Lisp.
-   — Greenspun's tenth rule
+
+   — Greenspun's Tenth Rule
 
 If the only programming languages you've tried are those designed to feel familiar to C programmers,
 you might think they're all the same. I assure you, they are not.
 
-While any Turing-complete language has equivalent theoretical power,
-they are not equally expressive.
-The best programming languages have some kind of superpower.
+At some level you already know this.
+Why not use assembly language for everything?
+Or why not the binary machine code?
 
-Lisp's superpower is *metaprogramming* and it's the power to copy most other powers.
+Because you want the highest-level language you can get your hands on.
+Lisp has few rivals, but many dialects, Hissp among them.
 
-On its own, such a power may not seem all that impressive,
-but used wisely, and with the knowledge of other powers,
-it becomes whatever you need.
+You want access to the Python ecosystem.
+Python has had slow and steady growth for decades,
+and now it's a top industry language.
+Its ecosystem is very mature and widely used.
+And Hissp can use it and participate in it as easily as Python can,
+because compiled Hissp *is Python*.
 
-It's not that Python can't do metaprogramming at all.
-(Python is Turing complete, after all.)
-It's just too difficult (compared to Lisp), so it's rarely done.
-
-Hissp makes metaprogramming easy(er)
-by stripping Python down to a minimal subset that's easy to manipulate programmatically.
+But, Python's is not the only mature ecosystem.
+If you're attached to a different one,
+perhaps Hissp is not the Lisp for you.
 
 Is Hissp a replacement for Python?
 ----------------------------------
@@ -442,7 +444,7 @@ Because Python already provides so much,
 in many ways Hissp can be even more minimal than Scheme.
 
 Hissp draws inspiration from previous Lisps,
-including Scheme, Common Lisp, ClojureScript, Arc, and Hy.
+including Scheme, Common Lisp, ClojureScript, Emacs Lisp, Arc, and Hy.
 
 Does Hissp have tail-call optimization?
 ---------------------------------------
@@ -486,6 +488,7 @@ Do you have those immutable persistent data structures like Clojure?
 --------------------------------------------------------------------
 
 No, but tuples are immutable in Python.
+(Although their elements need not be.)
 
 If you want those,
 check out `Pyrsistent <https://pypi.org/project/pyrsistent/>`_
