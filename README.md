@@ -210,7 +210,7 @@ Printed values use the normal Python reprs.
 Not all Lisps support this, but Clojure is a notable exception.
 Functions are generally preferable to macros when functions can do the job.
 They're more reusable and composable.
-Therefore it makes sense for macros to delegate to functions where possible.
+Therefore, it makes sense for macros to delegate to functions where possible.
 But such a macro should work in the same module.
 This requires incremental compilation and evaluation of forms, like the REPL.
 
@@ -274,7 +274,7 @@ or it can be read in from a lightweight textual language called *Lissp* that rep
 
 ```
 As you can see, this results in exactly the same Python data structure as the previous example,
-and can by compiled to executable Python code the same way.
+and can be compiled to executable Python code the same way.
 
 Hissp comes with a basic REPL (read-eval-print-loop, or interactive shell)
 which compiles Hissp (read from Lissp) to Python and passes it to the Python REPL for execution.
@@ -308,7 +308,7 @@ Here's one definition from the basic macros:
 If you've never used a Lisp before, don't let this scare you.
 You should be able to read this much after completing the tutorials.
 
-Hissp is modular and the reader included for Lissp is not the only one.
+Hissp is modular, and the reader included for Lissp is not the only one.
 Here's a native unit test class from the separate
 [Hebigo](https://github.com/gilch/hebigo) prototype,
 a Hissp reader implementing a language designed to resemble Python:
