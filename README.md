@@ -25,24 +25,23 @@ Python—Syntactic macro metaprogramming with full access to the Python ecosyste
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
-- [Hissp](#hissp)
-    - [Philosophy and Goals](#philosophy-and-goals)
-        - [Radical Extensibility](#radical-extensibility)
-        - [Minimal implementation](#minimal-implementation)
-        - [Interoperability](#interoperability)
-        - [Useful error messages](#useful-error-messages)
-        - [Syntax compatible with Emacs' `lisp-mode` and Parlinter](#syntax-compatible-with-emacs-lisp-mode-and-parlinter)
-        - [Standalone output](#standalone-output)
-        - [REPL](#repl)
-        - [Same-module macro helpers](#same-module-macro-helpers)
-        - [Modularity](#modularity)
-    - [Show me some Code!](#show-me-some-code)
+- [Philosophy and Goals](#philosophy-and-goals)
+  - [Radical Extensibility](#radical-extensibility)
+  - [Minimal implementation](#minimal-implementation)
+  - [Interoperability](#interoperability)
+  - [Useful error messages](#useful-error-messages)
+  - [Syntax compatible with Emacs' `lisp-mode` and Parlinter](#syntax-compatible-with-emacs-lisp-mode-and-parlinter)
+  - [Standalone output](#standalone-output)
+  - [REPL](#repl)
+  - [Same-module macro helpers](#same-module-macro-helpers)
+  - [Modularity](#modularity)
+- [Show me some Code!](#show-me-some-code)
 
 <!-- markdown-toc end -->
 
-## Philosophy and Goals
+# Philosophy and Goals
 
-### Radical Extensibility
+## Radical Extensibility
 
 Python is already a really nice language, so why do we need Hissp?
 
@@ -121,7 +120,7 @@ Lisp is as high level as it gets.
 You're going to need it.
 Why settle for anything less?
 
-### Minimal implementation
+## Minimal implementation
 Hissp serves as a modular component for other projects.
 The language and its implementation are meant to be small and comprehensible
 by a single individual.
@@ -152,7 +151,7 @@ has macro equivalents of most Python statements.
 The Hebigo project includes an alternative indentation-based Hissp reader,
 but the macros are written in readerless mode and are also compatible with Lissp.
 
-### Interoperability
+## Interoperability
 Why base a Lisp on Python when there are already lots of other Lisps?
 
 Python has a rich selection of libraries for a variety of domains
@@ -176,15 +175,15 @@ but may likewise be possible (even for Python 2) if you carefully avoid using ne
 Python code can also import and use packages written in Hissp,
 because they compile to Python.
 
-### Useful error messages
+## Useful error messages
 One of Python's best features.
 Any errors that prevent compilation should be easy to find.
 
-### Syntax compatible with Emacs' `lisp-mode` and Parlinter
+## Syntax compatible with Emacs' `lisp-mode` and Parlinter
 A language is not very usable without tools.
 Hissp's basic reader syntax (Lissp) should work with Emacs.
 
-### Standalone output
+## Standalone output
 This is part of Hissp's commitment to modularity.
 
 One can, of course, write Hissp code that depends on any Python library.
@@ -198,7 +197,7 @@ Their expansions have no external requirements either.
 
 Libraries built on Hissp need not have this limitation.
 
-### REPL
+## REPL
 A Lisp tradition, and Hissp is no exception.
 Even though it's a compiled language,
 Hissp has an interactive shell like Python does.
@@ -206,7 +205,7 @@ The REPL displays the compiled Python and evaluates it.
 Printed values use the normal Python reprs.
 (Translating those to back to Lissp is not a goal.)
 
-### Same-module macro helpers
+## Same-module macro helpers
 Not all Lisps support this, but Clojure is a notable exception.
 Functions are generally preferable to macros when functions can do the job.
 They're more reusable and composable.
@@ -214,7 +213,7 @@ Therefore, it makes sense for macros to delegate to functions where possible.
 But such a macro should work in the same module.
 This requires incremental compilation and evaluation of forms, like the REPL.
 
-### Modularity
+## Modularity
 The Hissp language is made of tuples (and values), not text.
 The basic reader included with the project just implements a convenient
 way to write them.
@@ -242,7 +241,7 @@ a complete function/macro library.
 But while this informs the design of the compiler,
 it will be an external project in another repository.
 
-## Show me some Code!
+# Show me some Code!
 Hissp is a language written as Python data and compiled to Python code:
 ```python
 >>> from hissp.compiler import readerless
@@ -350,5 +349,5 @@ just like Lissp.
 
 The same Hissp macros work in readerless mode, Lissp, and Hebigo, and can be written in any of these.
 
-See the [![Documentation Status](https://readthedocs.org/projects/hissp/badge/?version=latest)](https://hissp.readthedocs.io/en/latest/?badge=latest)
+See the [documentation](https://hissp.readthedocs.io/en/latest/?badge=latest)
 for more.
