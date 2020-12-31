@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import sys
 from code import InteractiveConsole
-from types import SimpleNamespace
+from types import ModuleType, SimpleNamespace
 
 import hissp.basic
 from hissp.reader import Lissp, SoftSyntaxError
@@ -34,8 +34,10 @@ class REPL(InteractiveConsole):
 
 
 def main():
-    repl = REPL()
+    __main__ = ModuleType('__main__')
+    repl = REPL(locals=__main__.__dict__)
     repl.locals['_macro_'] = SimpleNamespace(**vars(hissp.basic._macro_))
+    sys.modules['__main__'] = __main__
     repl.interact()
 
 if __name__ == "__main__":
