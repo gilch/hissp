@@ -229,7 +229,8 @@ class Compiler:
         except pickle.PicklingError:  # Fall back to the highest binary protocol if that didn't work.
             dumps = pickle.dumps(form, pickle.HIGHEST_PROTOCOL)
         dumps = pickletools.optimize(dumps)
-        return f"__import__('pickle').loads(  # {form!r}\n    {dumps!r}\n)"
+        r = repr(form).replace("\n", "\n    # ")
+        return f"__import__('pickle').loads(  # {r}\n    {dumps!r}\n)"
 
     @_trace
     def function(self, form: Tuple) -> str:
