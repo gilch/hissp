@@ -207,7 +207,7 @@ class Lissp:
         if tag == "$":
             return self.gensym(form)
         if tag == ".":
-            return eval(readerless(form), {})
+            return eval(readerless(form), self.ns)
         if is_string(form):
             form = ast.literal_eval(form)
         tag = munge(self.escape(tag))
