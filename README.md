@@ -314,34 +314,34 @@ Here's a native unit test class from the separate
 a Hissp reader implementing a language designed to resemble Python:
 ```
 class: TestOr: TestCase
-    def: .test_null: self
-        self.assertEqual:
-            ()
-            or:
-    def: .test_one: self x
-        :@ given: st.from_type: type
-        self.assertIs:
-            x
-            or: x
-    def: .test_two: self x y
-        :@ given:
-            st.from_type: type
-            st.from_type: type
-        self.assertIs:
-            (x or y)
-            or: x y
-    def: .test_shortcut: self
-        or: 1 (0/0)
-        or: 0 1 (0/0)
-        or: 1 (0/0) (0/0)
-    def: .test_three: self x y z
-        :@ given:
-            st.from_type: type
-            st.from_type: type
-            st.from_type: type
-        self.assertIs:
-            (x or y or z)
-            or: x y z
+  def: .test_null: self
+    self.assertEqual:
+      ()
+      or:
+  def: .test_one: self x
+    :@ given: st.from_type: type
+    self.assertIs:
+      x
+      or: x
+  def: .test_two: self x y
+    :@ given:
+      st.from_type: type
+      st.from_type: type
+    self.assertIs:
+      (x or y)
+      or: x y
+  def: .test_shortcut: self
+    or: 1 (0/0)
+    or: 0 1 (0/0)
+    or: 1 (0/0) (0/0)
+  def: .test_three: self x y z
+    :@ given:
+      st.from_type: type
+      st.from_type: type
+      st.from_type: type
+    self.assertIs:
+      (x or y or z)
+      or: x y z
 ```
 Hebigo looks very different from Lissp, but this is still Hissp!
 If you quote this Hebigo code and print it out,
