@@ -330,7 +330,7 @@ but many macros still require this kind of recursive list processing.
   Star imports from operator and itertools.
   And adds the basic macros, if available.
   "
-  `(exec "
+  `(exec "\
 from operator import *
 from itertools import *
 try:
