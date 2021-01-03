@@ -279,9 +279,9 @@ but many macros still require this kind of recursive list processing.
               ;; Here's the recursive part.
               (cond ,@(cddr pairs)))))
 
-(defmacro any-for (item iterable : :* body)
+(defmacro any-for (params iterable : :* body)
   "``any-for`` Evaluate body for each item in iterable until any result is true."
-  `(any (map (lambda (,item)
+  `(any (map (lambda ,params
                ,@body)
              ,iterable)))
 
