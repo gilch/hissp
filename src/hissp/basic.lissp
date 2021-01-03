@@ -150,6 +150,37 @@ judicious use can improve performance and maintainability.
 
 ;; see also from bootstrap: let
 
+(defmacro thiss ()
+  `(print "\
+Nothinghiss above abstraction
+  but implementation is / the best name.
+Terseness may be one too many / but you get used to it / all the same.
+The biggest chunks / are hard to swallow
+  as simple as possible / no more.
+Castles built / in the air / where they belong
+  Elegance / then exception
+Source was made / for the human
+  object / the machine.
+Make the right way obvious / the obvious way, right
+  readability is mainly / laid out on the page.
+Perfection / is expensive
+  magic / has a price
+  pay when / it's Worth It
+  (maybe a quarter / of the time)
+are you lazy enough / to have the sincerest form of / other ways of being?
+*having* decent standards / is more important / than exactly what they are
+Golf / is good practice
+      not best practice.
+The liability; code
+the   ability; an asset.
+Form / before detail
+  whence under them,
+foundations appear.
+
+Meditate on thiss
+  --Za Zen of Hissp
+"))
+
 ;;; linked-list emulation
 
 _#" Hissp is based on tuples rather than linked lists,
