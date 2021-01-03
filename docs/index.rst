@@ -24,8 +24,8 @@ or read the more detailed tutorial.
 
    lissp_quickstart
    tutorial
-   macro_tutorial
    style_guide
+   macro_tutorial
    command_line_reference
 
 * :ref:`API Reference <modindex>`
