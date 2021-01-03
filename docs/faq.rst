@@ -947,6 +947,12 @@ makes it look like a Python comment, and it's already set up to ignore
 the initial ``>>>``/``...``. But doctest expects these, because that's
 what the Python shell looks like.
 
+Keeping the Python prompts ``>>>``/``...``
+also helps you to distinguish the compiled Python from the result of evaluating it.
+The Lissp REPL could have been implemented to not display the Python at all,
+but transparency into the process is super helpful when developing and debugging,
+even if you ignore that part most of the time.
+
 How do I add a shebang line?
 ----------------------------
 
