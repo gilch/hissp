@@ -150,34 +150,32 @@ judicious use can improve performance and maintainability.
 
 ;; see also from bootstrap: let
 
-(defmacro thiss ()
+(defmacro import (: :* args)
   `(print "\
-Nothinghiss above abstraction
+Nothingness above / abstraction
   but implementation is / the best name.
-Terseness may be one too many / but you get used to it / all the same.
+Terseness may make one too many / get used to them / or overflow your brain
+Code;     the liability
+as asset; the   ability.
 The biggest chunks / are hard to swallow
   as simple as possible / no more.
-Castles built / in the air / where they belong
-  Elegance / then exception
 Source was made / for the human
   object / the machine.
-Make the right way obvious / the obvious way, right
-  readability is mainly / laid out on the page.
+are you lazy enough to have / the sincerest form / of other ways of being?
+*having* decent standards / is more important / than exactly what they are
 Perfection / is expensive
   magic / has a price
-  pay when / it's Worth It
+  pay for when / it's Worth It
   (maybe a quarter / of the time)
-are you lazy enough / to have the sincerest form of / other ways of being?
-*having* decent standards / is more important / than exactly what they are
-Golf / is good practice
-      not best practice.
-The liability; code
-the   ability; an asset.
-Form / before detail
+Readability / is mainly / laid out on the page.
+Golfing / makes good practice / best practice it is not
+Castles built / in the air / where they do belong
+  Elegance / then exception
+  Form / before detail
   whence under them,
 foundations appear.
-
-Meditate on thiss
+Make the right way obvious,
+meditate on this.
   --Za Zen of Hissp
 "))
 
