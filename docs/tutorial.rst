@@ -888,16 +888,13 @@ The final builtin reader macro ``$#`` creates a *generated symbol*
 (gensym) based on the given symbol.
 Within a template, the same gensym name always makes the same gensym:
 
-.. code-block:: Lissp
+.. code-block:: REPL
 
-    `($#hiss $#hiss)  ; ('_hissxAUTO42_', '_hissxAUTO42_')
-
-..
     #> `($#hiss $#hiss)
     >>> (lambda *xAUTO0_:xAUTO0_)(
-    ...   '_hissxAUTO..._',
-    ...   '_hissxAUTO..._')
-    ('_hissxAUTO..._', '_hissxAUTO..._')
+    ...   '_hissxAUTO42_',
+    ...   '_hissxAUTO42_')
+    ('_hissxAUTO42_', '_hissxAUTO42_')
 
 But each new template increments the counter.
 Gensyms are mainly used to prevent accidental name collisions in generated code,

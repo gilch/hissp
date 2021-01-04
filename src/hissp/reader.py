@@ -99,10 +99,17 @@ class Lissp:
     ):
         self.qualname = qualname
         self.compiler = Compiler(self.qualname, ns, evaluate)
-        self.ns = self.compiler.ns
         self.verbose = verbose
         self.filename = filename
         self.reinit()
+
+    @property
+    def ns(self):
+        return self.compiler.ns
+
+    @ns.setter
+    def ns(self, ns):
+        self.compiler.ns = ns
 
     def reinit(self):
         self.gensym_stack = []

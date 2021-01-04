@@ -28,7 +28,10 @@ and have to be repeated each time they're needed.
 
 To someone who started out in assembly or BASIC, or C, or even Java,
 Python seems marvelously high-level, once mastered.
-Python makes everything that was so tedious before `seem *so easy* <https://xkcd.com/353/>`_.
+Python makes everything that was so tedious before |seem *so easy*|__
+
+.. |seem *so easy*| replace:: seem *so easy*
+__ https://xkcd.com/353/
 
 But the advanced Python developer eventually starts to notice the cracks.
 You can get a lot further in Python, but like the old GOTO spaghetti code,
@@ -189,8 +192,7 @@ And push it to the REPL as well:
    #> (hissp.basic.._macro_.prelude)
    >>> # hissp.basic.._macro_.prelude
    ... __import__('builtins').exec(
-   ...   ('\n'
-   ...    'from operator import *\n'
+   ...   ('from operator import *\n'
    ...    'from itertools import *\n'
    ...    'try:\n'
    ...    '    from hissp.basic import _macro_\n'
@@ -213,6 +215,8 @@ Let's try the same idea in Lissp:
    ...   __import__('builtins').globals(),
    ...   'L',
    ...   lambda)
+   Traceback (most recent call last):
+     ...
      File "<console>", line 5
        lambda)
              ^
@@ -243,7 +247,8 @@ That worked, but can we use it?
 .. code-block:: Python
 
    >>> squares = map(L x: x * x, range(10))
-   File "<input>", line 1
+   Traceback (most recent call last):
+     ...
      squares = map(L x: x * x, range(10))
                     ^
    SyntaxError: invalid syntax
@@ -265,7 +270,7 @@ and push it to the REPL:
    ...   'squares',
    ...   map(
    ...     L(
-   ...       x,
+   ...       x(),
    ...       mul(
    ...         x,
    ...         x)),
@@ -284,9 +289,8 @@ Quote the whole thing to see the Hissp tuples.
    #> '(define squares (map (L (x)
    #..                        (mul x x))
    #..                      (range 10)))
-   >>> ('define', 'squares', ('map', ('L', 'x', ('mul', 'x', 'x')), ('range', 10)))
-   ('define', 'squares', ('map', ('L', 'x', ('mul', 'x', 'x')), ('range', 10)))
-
+   >>> ('define', 'squares', ('map', ('L', ('x',), ('mul', 'x', 'x')), ('range', 10)))
+   ('define', 'squares', ('map', ('L', ('x',), ('mul', 'x', 'x')), ('range', 10)))
 
 Hissp isn't compiling it like a special form.
 We don't want that ``'L'`` string in the Hissp, but ``'lambda'``.
@@ -310,6 +314,7 @@ Inject:
    ...         x)),
    ...     range(
    ...       (10))))
+
    #> (list squares)
    >>> list(
    ...   squares)
@@ -400,6 +405,7 @@ The template needs to look something like
    ...     _macro_,
    ...     'L',
    ...     _fnxAUTO7_))[-1])()
+
    #> (list (map (L x (* x x))
    #..           (range 10)))
    >>> list(
@@ -527,12 +533,14 @@ You might already guess how we might do this:
    ...     _macro_,
    ...     'L2',
    ...     _fnxAUTO7_))[-1])()
+
    #> (L2 * X Y)
    >>> # L2
    ... (lambda X,Y:
    ...   xSTAR_(
    ...     X,
    ...     Y))
+   <function <lambda> at ...>
 
 That wasn't hard,
 and between ``L`` and ``L2``,
@@ -558,18 +566,34 @@ Don't panic.
    #> .#`(progn ,@(map (lambda (i)
    #..                   `(defmacro ,(.format "L{}" i)
    #..                              (: :* $#expr)
-   #..                      `(lambda ,',(getitem "XYZ" (slice i))
+   #..                      `(lambda ,',(getitem "ABCDEFGHIJKLMNOPQRSTUVWXYZ" (slice i))
    #..                         ,$#expr)))
-   #..                 (range 1 4)))
+   #..                 (range 27)))
    >>> # __main__.._macro_.progn
    ... (lambda :(
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO151_:
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
    ...     (lambda *xAUTO0_:xAUTO0_)(
    ...       'lambda',
-   ...       'X',
-   ...       _exprxAUTO151_)):(
+   ...       '',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L0'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L0',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'A',
+   ...       _exprxAUTO55_)):(
    ...     __import__('builtins').setattr(
    ...       _fnxAUTO7_,
    ...       '__qualname__',
@@ -581,11 +605,11 @@ Don't panic.
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO151_:
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
    ...     (lambda *xAUTO0_:xAUTO0_)(
    ...       'lambda',
-   ...       'XY',
-   ...       _exprxAUTO151_)):(
+   ...       'AB',
+   ...       _exprxAUTO55_)):(
    ...     __import__('builtins').setattr(
    ...       _fnxAUTO7_,
    ...       '__qualname__',
@@ -597,11 +621,11 @@ Don't panic.
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO151_:
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
    ...     (lambda *xAUTO0_:xAUTO0_)(
    ...       'lambda',
-   ...       'XYZ',
-   ...       _exprxAUTO151_)):(
+   ...       'ABC',
+   ...       _exprxAUTO55_)):(
    ...     __import__('builtins').setattr(
    ...       _fnxAUTO7_,
    ...       '__qualname__',
@@ -610,46 +634,418 @@ Don't panic.
    ...     __import__('builtins').setattr(
    ...       _macro_,
    ...       'L3',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCD',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L4'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L4',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDE',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L5'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L5',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEF',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L6'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L6',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFG',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L7'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L7',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGH',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L8'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L8',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHI',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L9'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L9',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJ',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L10'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L10',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJK',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L11'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L11',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJKL',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L12'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L12',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJKLM',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L13'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L13',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJKLMN',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L14'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L14',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJKLMNO',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L15'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L15',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJKLMNOP',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L16'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L16',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJKLMNOPQ',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L17'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L17',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJKLMNOPQR',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L18'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L18',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJKLMNOPQRS',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L19'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L19',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJKLMNOPQRST',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L20'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L20',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJKLMNOPQRSTU',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L21'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L21',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJKLMNOPQRSTUV',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L22'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L22',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJKLMNOPQRSTUVW',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L23'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L23',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJKLMNOPQRSTUVWX',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L24'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L24',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJKLMNOPQRSTUVWXY',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L25'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L25',
+   ...       _fnxAUTO7_))[-1])(),
+   ...   # __main__.._macro_.defmacro
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO55_:
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       'lambda',
+   ...       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+   ...       _exprxAUTO55_)):(
+   ...     __import__('builtins').setattr(
+   ...       _fnxAUTO7_,
+   ...       '__qualname__',
+   ...       ('.').join(
+   ...         ('_macro_', 'L26'))),
+   ...     __import__('builtins').setattr(
+   ...       _macro_,
+   ...       'L26',
    ...       _fnxAUTO7_))[-1])())[-1])()
-
-That little bit of Lissp expanded into *that much Python*.
-And we only went up to ``L3``.
-We could have just as easily gone up to ``L26`` by changing a single number
-and using the whole alphabet in the string of parameter names.
-The expansion would have been about ten times bigger.
 
 Whoa.
 
+That little bit of Lissp expanded into *that much Python*.
 It totally works too.
 
 .. code-block:: REPL
 
-   #> ((L3 add Z (add X Y))
+   #> ((L3 add C (add A B))
    #.. "A" "B" "C")
    >>> # L3
-   ... (lambda X,Y,Z:
+   ... (lambda A,B,C:
    ...   add(
-   ...     Z,
+   ...     C,
    ...     add(
-   ...       X,
-   ...       Y)))(
+   ...       A,
+   ...       B)))(
    ...   ('A'),
    ...   ('B'),
    ...   ('C'))
    'CAB'
-   #> (L2)
-   >>> # L2
-   ... (lambda X,Y:())
-   <function <lambda> at 0x000001A70E80EAF0>
-   #> (L1)
-   >>> # L1
-   ... (lambda X:())
-   <function <lambda> at 0x000001A70E81A4C0>
+
+   #> (L26)
+   >>> # L26
+   ... (lambda A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z:())
+   <function <lambda> at ...>
+
+   #> (L13)
+   >>> # L13
+   ... (lambda A,B,C,D,E,F,G,H,I,J,K,L,M:())
+   <function <lambda> at ...>
+
+   #> ((L0 print "Hello, World!"))
+   >>> # L0
+   ... (lambda :
+   ...   print(
+   ...     ('Hello, World!')))()
+   Hello, World!
 
 How does this work?
 I don't blame you for glossing over the Python output.
 It's pretty big this time.
-I mostly ignore it when it gets very long,
+I mostly ignore it when it gets longer than a few lines,
 unless there's something in particular I'm looking for.
 
 But let's look at this Lissp snippet again, more carefully.
@@ -659,16 +1055,16 @@ But let's look at this Lissp snippet again, more carefully.
    .#`(progn ,@(map (lambda (i)
                       `(defmacro ,(.format "L{}" i)
                                  (: :* $#expr)
-                         `(lambda ,',(getitem "XYZ" (slice i))
+                         `(lambda ,',(getitem "ABCDEFGHIJKLMNOPQRSTUVWXYZ" (slice i))
                             ,$#expr)))
-                    (range 1 4)))
+                    (range 27)))
 
 It's injecting some Hissp we generated with a template.
 That's the first two reader macros ``.#`` and :literal:`\``.
 The `progn` sequences multiple expressions for their side effects.
 It's like having multiple "statements" in a single expression.
 We splice in multiple expressions generated with a `map`.
-The `map` uses a lambda to translate all the integers from the `range` into `defmacro` forms.
+The `map` uses generates a code tuple for each integer from the `range`.
 
 The lambda takes the int ``i`` from the `range` and produces a `defmacro`,
 which, when run in the `progn` by our inject,
@@ -746,10 +1142,12 @@ We can create numbered X's the same way we created the numbered L's.
    ...     _macro_,
    ...     'L',
    ...     _fnxAUTO7_))[-1])()
+
    #> (L 10)
    >>> # L
    ... (lambda X1,X2,X3,X4,X5,X6,X7,X8,X9,X10:())
-   <function <lambda> at 0x000001A70E879C10>
+   <function <lambda> at ...>
+
    #> ((L 2 add X1 X2) "A" "B")
    >>> # L
    ... (lambda X1,X2:
