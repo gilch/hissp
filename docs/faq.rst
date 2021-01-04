@@ -24,6 +24,60 @@ Anticipated? Didn't you mean "asked"?
 
 Well, this project is still pretty new.
 
+Why should I use Hissp?
+-----------------------
+
+   Any sufficiently complicated C or Fortran program contains an ad hoc,
+   informally-specified, bug-ridden, slow implementation of half of Common Lisp.
+
+   — Greenspun's Tenth Rule
+
+If the only programming languages you've tried are those designed to feel familiar to C programmers,
+you might think they're all the same. I assure you, they are not.
+
+At some level you already know this.
+Why not use assembly language for everything?
+Or why not the binary machine code?
+
+Because you want the highest-level language you can get your hands on.
+Lisp has few rivals, but many dialects, Hissp among them.
+
+You want access to the Python ecosystem.
+Python has had slow and steady growth for decades,
+and now it's a top industry language.
+Its ecosystem is very mature and widely used.
+And Hissp can use it and participate in it as easily as Python can,
+because compiled Hissp *is Python*.
+
+But, Python's is not the only mature ecosystem.
+If you're attached to a different one,
+perhaps Hissp is not the Lisp for you.
+
+Is Hissp a replacement for Python?
+----------------------------------
+
+Hissp is a modular metaprogramming *supplement* to Python.
+
+How much Python you replace is up to you:
+
+* Use small amounts of readerless-mode Hissp directly in your Python code.
+* Compile individual Lissp modules to Python and import them in your Python projects.
+* Write your entire project in Lissp, including the main module, and launch it with ``lissp``.
+
+This also works in reverse.
+
+* Use small amounts of Python code directly in your Lissp code via the inject macro ``.#``.
+* Import Python modules and objects with qualified identifiers.
+* Write the main module in Python (or compile it) and launch it with ``python``.
+
+While the Hissp language can do anything Python can,
+Hissp is compiled to Python,
+so it requires Python to work.
+
+You must be able to read Python code to understand the output of the Lissp REPL,
+which shows the Python compilation, the normal Python reprs for objects,
+and the same kind of tracebacks and error messages Python would.
+
 Can Hissp really do anything Python can when it only compiles to a subset of it?
 --------------------------------------------------------------------------------
 
@@ -390,7 +444,7 @@ Because Python already provides so much,
 in many ways Hissp can be even more minimal than Scheme.
 
 Hissp draws inspiration from previous Lisps,
-including Scheme, Common Lisp, ClojureScript, Arc, and Hy.
+including Scheme, Common Lisp, ClojureScript, Emacs Lisp, Arc, and Hy.
 
 Does Hissp have tail-call optimization?
 ---------------------------------------
@@ -434,6 +488,7 @@ Do you have those immutable persistent data structures like Clojure?
 --------------------------------------------------------------------
 
 No, but tuples are immutable in Python.
+(Although their elements need not be.)
 
 If you want those,
 check out `Pyrsistent <https://pypi.org/project/pyrsistent/>`_
@@ -708,6 +763,14 @@ We've got `itertools`. Compose iterators functional-style. You don't need
 ``yield``.
 
 .. TODO: fill in reasoning more.
+   Lazy cons is preferable to mutable iterators.
+   Yield requires yield-from,
+   (The "What Color Is Your Function?" problem.)
+   which is inelegant compared to alternatives of similar or greater expressive power.
+   such as call/cc and ?/reset.
+.. TODO: implement yield macro? Will require pre-expansion like Hy's let.
+   fortunately, Hissp has only two special forms (by design) so this should be easier.
+   Think about code walking and alternatives.
 
 But I need it for co-routines. Or async/await stuff. How do I accept a send?
 ----------------------------------------------------------------------------
@@ -814,7 +877,7 @@ How do I import a macro?
 
 The same way you import anything else: with a qualified identifier.
 In Lissp, you can use a reader macro to abbreviate qualifiers.
-`hissp.basic.._macro_.alias` can define these for you.
+`hissp.basic.._macro_.alias<hissp.basic._macro_.alias>` can define these for you.
 
 Any callable in the current module's ``_macro_`` namespace will work unqualified.
 Normally you create these with `hissp.basic.._macro_.defmacro<defmacro>`,
@@ -883,6 +946,12 @@ work. IPython will ignore the Lissp because its ``#>``/``#..`` prompts
 makes it look like a Python comment, and it's already set up to ignore
 the initial ``>>>``/``...``. But doctest expects these, because that's
 what the Python shell looks like.
+
+Keeping the Python prompts ``>>>``/``...``
+also helps you to distinguish the compiled Python from the result of evaluating it.
+The Lissp REPL could have been implemented to not display the Python at all,
+but transparency into the process is super helpful when developing and debugging,
+even if you ignore that part most of the time.
 
 How do I add a shebang line?
 ----------------------------
@@ -959,7 +1028,7 @@ special forms behave like expressions.
 This complicates the compiler a great deal,
 and doesn't even work right in some cases,
 but allows Hy to retain a very Python-like feel.
-The decompiled AST also looks like pretty readable Python.
+The `unparsed <ast.unparse>` AST also looks like pretty readable Python.
 Not quite what a human would write,
 but a good starting point if you wanted to translate a Hy project back to Python.
 
@@ -1093,25 +1162,40 @@ What version of Python is required?
 
 The compiler itself currently requires Python 3.8+.
 However, the *compiled output* targets such a small subset of Python
-that it would probably work on 3.0 if you're careful not to use unsupported features in lambda,
+that Hissp would probably work on 3.0 if you're careful not to use unsupported features in lambda,
 invocations, injections, or any parts of the standard library that didn't exist yet.
+The output of Lissp's template syntax may require Python 3.5+ to work.
 
 Qualified macros might still be able to use the 3.8+ features,
 because they run at compile time,
 as long as unsupported features don't appear in the compiled output.
 
-Even more limited versions of Python might work with minor compiler modifications.
+Even more limited versions of Python (2.7?) might work with minor compiler modifications.
 
 Is Hissp stable?
 ----------------
 
-Not exactly.
+Almost.
+
 This project is still pretty new.
 Hissp is certainly usable in its current form,
 though maybe some things could be nicer.
-The language itself seems pretty settled,
+
+Hissp is currently *alpha-quality* software,
+but is getting very close to beta.
+
+Expect some breaking changes each release.
+If you want to be an early adopter,
+either pin the release version,
+or keep up with the changes on the master branch as they come.
+
+The Hissp language itself seems pretty settled,
 but the implementation may change as the bugs are ironed out.
 It was stable enough to prototype Hebigo_.
+
+The basic macros are unstable.
+The API may get reorganized.
+Definitions may move to different modules or may change names.
 
 There's probably no need to ever change the basic language, except
 perhaps to keep up with Python, since the macro system makes it so

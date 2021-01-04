@@ -1,7 +1,7 @@
 .. Copyright 2020 Matthew Egan Odendahl
    SPDX-License-Identifier: Apache-2.0
 
-.. TODO: sybil tests? ;: ;>>> ;...
+.. TODO: sybil tests? ;: ;>>> ;... and/or make interactive via web repl?
 
 Lissp Quick Start
 =================
@@ -19,13 +19,21 @@ Lissp Quick Start
    assumed. Familiarity with another Lisp dialect is not assumed, but
    helpful. See the Hissp tutorial for more detailed explanations.
 
-   Follow along by entering these examples in the REPL. It will show you the
-   compiled Python, and evaluate it. Try variations that occur to you.
+   To fully understand these examples, you must see their output.
+   Install the Hissp version matching this doc. Follow along by entering
+   these examples in the REPL. It will show you the compiled Python and
+   evaluate it. Try variations that occur to you.
+
+   Some examples depend on state set by previous examples to work.
+   Prerequisites for examples not in the same section are marked with
+   '(!)'. Don't skip these.
    "
 
    ;;;; INSTALLATION
 
-   ;; Install hissp with $ pip install hissp
+   ;; Install the current release of hissp with $ pip install hissp
+   ;; or the latest master with
+   ;; $ pip install git+https://github.com/gilch/hissp
    ;; Start the REPL with $ lissp
    ;; Quit with EOF or (exit).
 
@@ -162,7 +170,7 @@ Lissp Quick Start
    ;; Hissp is simpler than Python. No operators! Use function invocations instead.
 
    (operator..add 40 2)                   ;Addition.
-   (.__setitem__ (globals) '+ operator..add) ;Assignment. We'll be using this later.
+   (.__setitem__ (globals) '+ operator..add) ;(!) Assignment.
    (+ 40 2)                               ;No operators. This is still a function call!
 
    ;;;; CONTROL FLOW
@@ -241,7 +249,7 @@ Lissp Quick Start
      .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
 
    ;; Statement injections work at the top level only.
-   .#"from operator import *"             ;All your operator are belong to us.
+   .#"from operator import *"             ;(!) All your operator are belong to us.
 
    ;; Injections are powerful. Use responsibly!
 

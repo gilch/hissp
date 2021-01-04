@@ -150,6 +150,37 @@ judicious use can improve performance and maintainability.
 
 ;; see also from bootstrap: let
 
+(defmacro import (: :* args)
+  `(print "\
+Nothingness above abstraction
+  but implementation is / the best name.
+Terseness may make one too many / get used to them
+  else overflow your brain.
+No substitute for understanding
+Code;     the liability
+as asset; the   ability.
+The biggest chunks / are hard to swallow
+  as simple as possible / no more.
+Source was made / for the human
+  object / the machine.
+Are you lazy enough to bear / the sincerest form / of other ways of being?
+*having* decent standards / is more important / than exactly what they are
+Perfection / is expensive
+  magic / highly prized
+  pay for when / it's Worth It
+  a quarter is advised
+Readability / is mainly / laid out on the page.
+Golfing / makes good practice / best practice it betrays.
+Castles built / in the air / where they do belong
+  Elegance / then exception
+  Form / before detail
+  whence under them,
+Foundations appear.
+Make the right way obvious,
+meditate on this.
+  --Za Zen of Hissp
+"))
+
 ;;; linked-list emulation
 
 _#" Hissp is based on tuples rather than linked lists,
@@ -279,9 +310,9 @@ but many macros still require this kind of recursive list processing.
               ;; Here's the recursive part.
               (cond ,@(cddr pairs)))))
 
-(defmacro any-for (item iterable : :* body)
+(defmacro any-for (params iterable : :* body)
   "``any-for`` Evaluate body for each item in iterable until any result is true."
-  `(any (map (lambda (,item)
+  `(any (map (lambda ,params
                ,@body)
              ,iterable)))
 
@@ -330,7 +361,7 @@ but many macros still require this kind of recursive list processing.
   Star imports from operator and itertools.
   And adds the basic macros, if available.
   "
-  `(exec "
+  `(exec "\
 from operator import *
 from itertools import *
 try:

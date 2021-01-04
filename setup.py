@@ -42,11 +42,9 @@ setuptools.setup(
     entry_points={"console_scripts": ["lissp=hissp.__main__:main"]},
 )
 # Build dist and install:
-# $ python setup.py sdist && pip install dist/hissp-*.tar.gz
+# $ python setup.py sdist && pip install dist/hissp-0.2.0.tar.gz
 
 import sys
 sys.path.insert(0,'src')
 import hissp.reader
-
 hissp.reader.transpile(hissp.__package__, "basic")
-
