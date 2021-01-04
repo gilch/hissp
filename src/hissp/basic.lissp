@@ -152,28 +152,30 @@ judicious use can improve performance and maintainability.
 
 (defmacro import (: :* args)
   `(print "\
-Nothingness above / abstraction
+Nothingness above abstraction
   but implementation is / the best name.
-Terseness may make one too many / get used to them / or overflow your brain
+Terseness may make one too many / get used to them
+  else overflow your brain.
+No substitute for understanding
 Code;     the liability
 as asset; the   ability.
 The biggest chunks / are hard to swallow
   as simple as possible / no more.
 Source was made / for the human
   object / the machine.
-are you lazy enough to have / the sincerest form / of other ways of being?
+Are you lazy enough to bear / the sincerest form / of other ways of being?
 *having* decent standards / is more important / than exactly what they are
 Perfection / is expensive
-  magic / has a price
+  magic / highly prized
   pay for when / it's Worth It
-  (maybe a quarter / of the time)
+  a quarter is advised
 Readability / is mainly / laid out on the page.
-Golfing / makes good practice / best practice it is not
+Golfing / makes good practice / best practice it betrays.
 Castles built / in the air / where they do belong
   Elegance / then exception
   Form / before detail
   whence under them,
-foundations appear.
+Foundations appear.
 Make the right way obvious,
 meditate on this.
   --Za Zen of Hissp
