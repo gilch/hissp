@@ -1028,7 +1028,7 @@ special forms behave like expressions.
 This complicates the compiler a great deal,
 and doesn't even work right in some cases,
 but allows Hy to retain a very Python-like feel.
-The decompiled AST also looks like pretty readable Python.
+The `unparsed <ast.unparse>` AST also looks like pretty readable Python.
 Not quite what a human would write,
 but a good starting point if you wanted to translate a Hy project back to Python.
 
@@ -1162,25 +1162,40 @@ What version of Python is required?
 
 The compiler itself currently requires Python 3.8+.
 However, the *compiled output* targets such a small subset of Python
-that it would probably work on 3.0 if you're careful not to use unsupported features in lambda,
+that Hissp would probably work on 3.0 if you're careful not to use unsupported features in lambda,
 invocations, injections, or any parts of the standard library that didn't exist yet.
+The output of Lissp's template syntax may require Python 3.5+ to work.
 
 Qualified macros might still be able to use the 3.8+ features,
 because they run at compile time,
 as long as unsupported features don't appear in the compiled output.
 
-Even more limited versions of Python might work with minor compiler modifications.
+Even more limited versions of Python (2.7?) might work with minor compiler modifications.
 
 Is Hissp stable?
 ----------------
 
-Not exactly.
+Almost.
+
 This project is still pretty new.
 Hissp is certainly usable in its current form,
 though maybe some things could be nicer.
-The language itself seems pretty settled,
+
+Hissp is currently *alpha-quality* software,
+but is getting very close to beta.
+
+Expect some breaking changes each release.
+If you want to be an early adopter,
+either pin the release version,
+or keep up with the changes on the master branch as they come.
+
+The Hissp language itself seems pretty settled,
 but the implementation may change as the bugs are ironed out.
 It was stable enough to prototype Hebigo_.
+
+The basic macros are unstable.
+The API may get reorganized.
+Definitions may move to different modules or may change names.
 
 There's probably no need to ever change the basic language, except
 perhaps to keep up with Python, since the macro system makes it so
