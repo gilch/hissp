@@ -144,12 +144,12 @@ because idiomatic Python is not simple.
 
 Hissp's basic macros are meant to be just enough to bootstrap native unit tests
 and demonstrate the macro system.
-They may suffice for small embedded Lissp projects,
+They may suffice for small embedded Hissp projects,
 but you will probably want a more comprehensive macro suite for general use.
 [Hebigo](https://github.com/gilch/hebigo)
 has macro equivalents of most Python statements.
 The Hebigo project includes an alternative indentation-based Hissp reader,
-but the macros are written in readerless mode and are also compatible with Lissp.
+but the macros are written in readerless mode and are also compatible with the "Lissp" reader included in Hissp.
 
 ## Interoperability
 Why base a Lisp on Python when there are already lots of other Lisps?
