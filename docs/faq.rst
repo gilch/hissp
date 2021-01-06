@@ -293,6 +293,139 @@ into the Hissp.
 But for a top-level `define` like this, you could have just used
 `exec()<exec>`.
 
+How do I make bytes objects in Lissp?
+-------------------------------------
+
+.. code-block:: REPL
+
+   #> (bytes '(1 2 3))
+   >>> bytes(
+   ...   (1, 2, 3))
+   b'\x01\x02\x03'
+
+Or, if you prefer hexadecimal,
+
+.. code-block:: REPL
+
+   #> (bytes.fromhex "010203")
+   >>> bytes.fromhex(
+   ...   ('010203'))
+   b'\x01\x02\x03'
+
+But that's just numbers. I want ASCII text.
+-------------------------------------------
+
+You do know about the `str.encode` method, don't you?
+
+There's really no bytes literal in Lissp?
+-----------------------------------------
+
+Technically? No.
+
+However, they do work in Python injections:
+
+.. code-block:: REPL
+
+   #> [b'bytes',b'in',b'collection',b'atoms']
+   >>> [b'bytes', b'in', b'collection', b'atoms']
+   [b'bytes', b'in', b'collection', b'atoms']
+
+   #> .#"b'injected bytes literal'"
+   >>> b'injected bytes literal'
+   b'injected bytes literal'
+
+And, if you have the basic macros loaded,
+you can use the `b` reader macro.
+
+.. code-block:: REPL
+
+   #> b#"bytes from reader macro"
+   >>> b'bytes from reader macro'
+   b'bytes from reader macro'
+
+Bytes literals can be implemented fairly easily in terms of a raw string and reader macro.
+That's close enough, right?
+
+Why aren't any escape sequences working in Lissp strings?
+---------------------------------------------------------
+
+Lissp's strings are raw by default.
+Lissp doesn't force you into any particular set of escapes.
+Some kinds of metaprogramming are easier if you don't have to fight Python.
+You're free to implement your own.
+
+I like Python's, thanks. That sounds like too much work!
+--------------------------------------------------------
+
+Python's are still available in injections:
+
+.. code-block:: REPL
+
+   #> .#"'\u263a'"
+   >>> '\u263a'
+   '☺'
+
+Or use the escape-string read syntax for short:
+
+.. code-block:: REPL
+
+   #> #"\u263a"
+   >>> ('☺')
+   '☺'
+
+Wait, hash strings take escapes? Why are raw strings the default? In Clojure it's the other way around.
+-------------------------------------------------------------------------------------------------------
+
+Then we'd have to write byte strings like this: ``b##"spam"``.
+Python has various other prefixes for string types.
+Raw, bytes, format, unicode, and various combinations of these.
+Reader macros let us handle these in a unified way in Lissp and create more as needed,
+such as regex patterns, among many other types that can be initialized with a single string,
+and that makes raw strings the most sensible default.
+With a supporting reader macro all of these are practically literals.
+It's easy to process escapes in reader macros.
+It isn't easy to unprocess them.
+Not to mention Python code injections,
+which can contain their own strings with escapes.
+
+Clojure's hash strings are already regexes, not raws,
+and their reader macros aren't so easy to use,
+so it doesn't come up as much.
+
+This was not an easy decision.
+Despite all of the above,
+Python string escapes are used quite often.
+
+Why can't I make a backslash character string?
+----------------------------------------------
+
+You can.
+
+.. code-block:: REPL
+
+   #> (len #"\\")
+   >>> len(
+   ...   ('\\'))
+   1
+
+The Lissp tokenizer assumes backslashes are paired in strings,
+so you can't do it with a raw string:
+
+.. code-block:: REPL
+
+   #> (len "\\")
+   >>> len(
+   ...   ('\\\\'))
+   2
+
+   #> "\"
+   #..\\"
+   >>> ('\\"\n\\\\')
+   '\\"\n\\\\'
+
+Python makes the same assumption, even for raw strings.
+So raw strings in Python have the same limitation.
+
 How do I start the REPL again?
 ------------------------------
 
@@ -373,7 +506,9 @@ See also `itertools`, `iter`.
 There's no ``if`` statement. Branching is fundamental!
 ------------------------------------------------------
 
-No it's not. You already learned how to ``for`` loop above. Isn't
+No, it's *really* not.
+(I saw a working C compiler that only output mov instructions.)
+You already learned how to ``for`` loop above. Isn't
 looping zero or one times like skipping a branch or not? Note that
 ``False`` and ``True`` are special cases of ``0`` and ``1`` in Python.
 ``range(False)`` would loop zero times, but ``range(True)`` loops one
