@@ -179,7 +179,7 @@ class Lissp:
             try:
                 form = next(self.parse(self.tokens))
             except StopIteration:
-                raise SyntaxError(f"Reader macro {v!r} missing argument.", self.position()) from None
+                raise SoftSyntaxError(f"Reader macro {v!r} missing argument.", self.position()) from None
             yield self.parse_macro(v, form)
 
     @staticmethod
