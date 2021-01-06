@@ -1118,45 +1118,6 @@ and return the rewrite macro in that case, or raise an error otherwise.
 
 .. TODO: Demonstrate in the macro tutorials and link here.
 
-What are the differences among control words, symbols, strings, identifiers, and bytes?
----------------------------------------------------------------------------------------------
-
-These can mean different things at different stages,
-as explained in the tutorial and quickstart.
-
-Lissp goes through multiple stages as it compiles:
-
-- the :doc:`Lissp reader<hissp.reader>` reads it in as Hissp data structures.
-
-  - `its lexer<hissp.reader.Lexer>` breaks the text into a stream of tokens.
-  - `its parser<hissp.reader.Lissp>` builds the tokens into Hissp.
-- the :doc:`Hissp compiler<hissp.compiler>` translates Hissp to a functional subset of Python.
-
-Then Python takes over and Hissp does not concern itself with this part.
-But CPython goes through a similar process.
-
-For questions about these to make sense,
-you have to say which stage you are talking about.
-
-Lissp has all five
-(control word, symbol, string, identifier, and bytes)
-as distinct concepts.
-The lexer has only string and atom *tokens*.
-Hissp has only string and bytes *values*.
-Python code has only string and bytes *literals*, and identifiers.
-
-In readerless mode,
-you skip the read step and start at the Hissp level.
-(Technically, you still start with text,
-but Python is parsing it for us instead of the reader.)
-
-If something isn't clear,
-experiment with how they transition through these stages.
-
-In the Lissp REPL you enter Lissp and it shows you the generated Python before evaluating it.
-You can see the Hissp level in between these by quoting a form.
-You can see what the lexer is doing by calling it yourself on a string.
-
 What version of Python is required?
 -----------------------------------
 
