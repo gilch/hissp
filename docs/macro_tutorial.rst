@@ -1852,7 +1852,7 @@ This should not be hard.
 It would require munging,
 with the tradeoffs that entails for Python interop or other Hissp readers.
 Python already has an operator named ``%``.
-If you want to assign `mod` that name, then you might want to stick with the ``X``,
+If you want to assign `mod <operator.mod>` that name, then you might want to stick with the ``X``,
 or remove the special case aliasing ``%1`` to ``%``.
 Also, rather than ``%&`` for the catch-all as in Clojure,
 a ``%*`` might be more consistent if you've also got a kwargs parameter,
