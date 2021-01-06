@@ -152,15 +152,17 @@ def test_repl_str_continue():
 
 x
 "
-b""
-b"foo bar"
-b"
+b#""
+b#"foo bar"
+b#"
 
 
 "
-b"
+b#"
 
 x"
+(.decode b#"\\xff
+foo" : errors 'ignore)
 """,
         r"""#> ''
 #> 'foo bar'
@@ -170,6 +172,7 @@ x"
 #> b'foo bar'
 #> #..#..#..b'\n\n\n'
 #> #..#..b'\n\nx'
+#> #..'\nfoo'
 #> """,
         r""">>> ('')
 >>> ('foo bar')
@@ -179,6 +182,8 @@ x"
 >>> b'foo bar'
 >>> b'\n\n\n'
 >>> b'\n\nx'
+>>> b'\xff\nfoo'.decode(
+...   errors='ignore')
 """,
     )
 

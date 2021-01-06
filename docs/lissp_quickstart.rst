@@ -98,23 +98,18 @@ Lissp Quick Start
    '\\                                    ;'xBSLASH_
    '\a\b\c                                ;Escapes allowed, but not required here.
 
-   "string"                               ;Double-quotes only!
+   "raw string"                           ;Double-quotes only!
    'not-string'                           ;'notxH_stringx1QUOTE_ symbol.
+   #"string\nwith\nescape\nsequences"     ;Not raw.
+   #"Say \"Cheese!\" \u263a"              ;Same backslash escape sequences as Python.
 
    "string
    with
    newlines
-   "                                      ;Same as "string\nwith\nnewlines\n". No triple quotes.
+   "                                      ;Same as #"string\nwith\nnewlines\n". No triple quotes.
 
-   "Say \"Cheese!\""                      ;Same backslash escape sequences as Python.
-
-   b"bytes"                               ;Double-quotes only! Little 'b' only!
-   b'bytes'                               ;NameError: name 'bx1QUOTE_bytesx1QUOTE_' is not defined
-
-   b"bytes
-   with
-   newlines
-   "                                      ;Same as b"bytes\nwith\nnewlines\n".
+   "one\"
+   string\\"                              ;Tokenizer expects paired \'s, even in raw strings.
 
    ;;;; CALLS
 
@@ -160,7 +155,7 @@ Lissp Quick Start
    (lambda (:))                           ;Explicit : is still allowed with no parameters.
    (lambda :)                             ;Thunk idiom.
    (lambda :x1)                           ;Control words are strings are iterable.
-   (lambda b"")                           ; Parameters are not strictly required to be a tuple.
+   (lambda "")                            ; Parameters are not strictly required to be a tuple.
    ((lambda abc                           ;Three parameters.
       (print c b a))
     3 2 1)
@@ -272,6 +267,11 @@ Lissp Quick Start
 
    (list `(1 ,(+ 1 1) 3))
    (set '(1 2 3))
+
+   (bytes '(98 121 116 101 115))
+   (bytes.fromhex "6279746573")
+   .#"b'bytes'"                           ;bytes string from Python injection
+
    (dict (zip '(1 2 3) "abc"))
 
    (dict : + 0  a 1  b 2)                 ;symbolic keys
@@ -454,6 +454,16 @@ Lissp Quick Start
    ;; Imports a copy of hissp.basic.._macro_ (if available)
    ;; and star imports from operator and itertools.
    (b/#prelude)
+
+   ;;; reader
+
+   b#"bytes"                               ;Bytes reader macro.
+   b'bytes'                                ;NameError: name 'bx1QUOTE_bytesx1QUOTE_' is not defined
+
+   b#"bytes
+   with
+   newlines
+   "                                      ;Same as b#"bytes\nwith\nnewlines\n".
 
    ;;; definition
 

@@ -22,27 +22,27 @@ ENTUPLE = ("lambda", (":", ":*", "xAUTO0_"), "xAUTO0_")
 
 TOKENS = re.compile(
     r"""(?x)
- (?P<open>\()
-|(?P<close>\))
-|(?P<string>
-  b?  # bytes?
-  "  # Open quote.
-    (?:[^"\\]  # Any non-magic character.
-       |\\(?:.|\n)  # Backslash only if paired, including with newline.
-    )*  # Zero or more times.
-  "  # Close quote.
- )
-|(?P<comment>;.*)
+ (?P<comment>;.*)
 |(?P<whitespace>[\n ]+)
 |(?P<badspace>\s)  # Other whitespace not allowed.
+|(?P<open>\()
+|(?P<close>\))
 |(?P<macro>
    ,@
   |['`,]
    # Any atom that ends in (an unescaped) ``#``
   |(?:[^\\ \n"();#]|\\.)+[#]
  )
-|(?P<atom>(?:[^\\ \n"();]|\\.)+)  # Let Python deal with it.
+|(?P<string>
+  [#]?  # raw?
+  "  # Open quote.
+    (?:[^"\\]  # Any non-magic character.
+       |\\(?:.|\n)  # Backslash only if paired, including with newline.
+    )*  # Zero or more times.
+  "  # Close quote.
+ )
 |(?P<continue>")
+|(?P<atom>(?:[^\\ \n"();]|\\.)+)  # Let Python deal with it.
 |(?P<error>.)
 """
 )
@@ -125,23 +125,23 @@ class Lissp:
 
     def _parse(self) -> Iterator:
         for k, v, self._p in self.tokens:
-            if k == "open":
+            if k in {"comment", "whitespace"}:
+                continue
+            elif k == "badspace":
+                raise SyntaxError("Bad space: " + repr(v), self.position())
+            elif k == "open":
                 yield from self._open()
             elif k == "close":
                 self._close()
                 return
-            elif k == "string":
-                yield from self._string(v)
-            elif k in {"comment", "whitespace"}:
-                continue
             elif k == "macro":
                 yield from self._macro(v)
-            elif k == "atom":
-                yield self._atom(v)
-            elif k == "badspace":
-                raise SyntaxError("Bad space: " + repr(v), self.position())
+            elif k == "string":
+                yield self._string(v)
             elif k == "continue":
                 raise SoftSyntaxError("Incomplete token.", self.position())
+            elif k == "atom":
+                yield self._atom(v)
             elif k == "error":
                 raise SyntaxError("Can't read this.", self.position())
             else:
@@ -163,12 +163,12 @@ class Lissp:
 
     @staticmethod
     def _string(v):
-        v = v.replace("\\\n", "").replace("\n", r"\n")
-        val = ast.literal_eval(v)
-        if v[0] == 'b':  # bytes
-            yield val
-        else:
-            yield v if (v:=pformat(val)).startswith("(") else f"({v})"
+        if v[0] == "#":  # Let Python process escapes.
+            v = v.replace("\\\n", "").replace("\n", r"\n")
+            val = ast.literal_eval(v[1:])
+        else:  # raw
+            val = v[1:-1]  # Only remove quotes.
+        return v if (v:=pformat(val)).startswith("(") else f"({v})"
 
     def _macro(self, v):
         with {

@@ -17,15 +17,15 @@ class LisspLexer(RegexLexer):
 
     tokens = {
         'root': [
-            (r'([(])(lambda|quote)', bygroups(pt.Punctuation, pt.Keyword)),
-            (r'[()]', pt.Punctuation),
-            (r'b?"(?:[^"\\]|\\(?:.|\n))*"', pt.String),
             (r';;;;.*', pt.Generic.Heading),
             (r';;;.*', pt.Generic.Subheading),
             (r';.*', pt.Comment),
             (r'[\n ]+', pt.Text),
             (r'\s|\r', pt.Error),
+            (r'([(])(lambda|quote)', bygroups(pt.Punctuation, pt.Keyword)),
+            (r'[()]', pt.Punctuation),
             (r''',@|['`,]|$#|.#|_#''', pt.Operator),
+            (r'#?"(?:[^"\\]|\\(?:.|\n))*"', pt.String),
             (r'''(?:[^\\ \n"();#]|\\.)+[#]''', pt.Operator.Word),
 
             # Python numbers
@@ -41,7 +41,7 @@ class LisspLexer(RegexLexer):
             (r':[^ \n"()]*', pt.String.Symbol),  # :control-words
 
             (r'''[[{](:?[^\\ \n"();]|\\.)*''', pt.Literal),
-            (r'''(:?[^\\ \n"();]|\\.)+''', pt.Name.Variable),
+            (r'''(:?[^\\ \n"();]|\\.)+''', pt.Name),
         ]
     }
 

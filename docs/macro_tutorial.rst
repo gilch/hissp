@@ -65,7 +65,7 @@ not a reference,
 and I'll be explaining not just how to write macros,
 but why you need them.
 
-****
+----
 
 If you're new to Lisp,
 go back and read the style guide if you haven't already.
@@ -1104,6 +1104,13 @@ Also, we're kind of running out of alphabet when we start on ``X``,
 You often see 4-D vectors labeled (x, y, z, w),
 but beyond that, mathematicians just number them with subscripts.
 
+We got around this by starting at ``A`` instead,
+but then we're using up all of the uppercase ASCII one-character names.
+We might want to save those for other things.
+We're also limited to 26 parameters this way.
+It's rare we'd need more than three or four,
+but 26 seems kind of arbitrary.
+
 So a better approach might be with numbered parameters, like ``X1``, ``X2``, ``X3``, etc.
 Then, if you macro is smart enough,
 it can look for the highest X-number in your expression
@@ -1470,10 +1477,481 @@ Let's try again.
 
 That's better.
 
-.. (defmacro % (: :* expr)
-     `(lambda ,params (,@expr))
+Function Literals
+~~~~~~~~~~~~~~~~~
 
+Let's review. The code you need to make the version we have so far is
+
+.. code-block:: Lissp
+
+   (hissp.basic.._macro_.prelude)
+
+   (defmacro L (: :* expr)
+     `(lambda ,(map (lambda (i)
+                      (.format "X{}" i))
+                    (range 1 (add 1 (max-X expr))))
+        ,expr))
+
+   (define max-X
+     (lambda (expr)
+       (max (map (lambda (x)
+                   (|| (when (is_ str (type x))
+                         (let (match (re..fullmatch "X([1-9][0-9]*)" x))
+                           (when match
+                             (int (.group match 1)))))
+                       0))
+                 (flatten expr)))))
+
+   (define flatten
+     (lambda (form)
+       (.flatten (Flattener) form)))
+
+   (deftype Flattener ()
+     __init__
+     (lambda (self)
+       (setattr self 'acc []))
+     flatten
+     (lambda (self form)
+       (any-for x form
+         (if-else (is_ (type x) tuple)
+           (self.flatten x)
+           (.append self.acc x))
+         False)
+       self.acc))
+
+You should have all of these definitions in your Lissp file so far.
+
+You can use the resulting macro as a shorter lambda for higher-order functions:
+
+.. code-block:: REPL
+
+   #> (list (map (L add X1 X1) (range 10)))
+   >>> list(
+   ...   map(
+   ...     # L
+   ...     (lambda X1:
+   ...       add(
+   ...         X1,
+   ...         X1)),
+   ...     range(
+   ...       (10))))
+   [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+It's still a little awkward.
+It feels like the ``add`` should be in the function position,
+but that's taken by the ``L``.
+We can fix that with a reader macro.
+
+Reader syntax
+`````````````
+
+.. code-block:: REPL
+
+   #> (defmacro X (expr)
+   #..  `(L ,@expr))
+   >>> # defmacro
+   ... # hissp.basic.._macro_.let
+   ... (lambda _fnxAUTO7_=(lambda expr:
+   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...     '__main__.._macro_.L',
+   ...     *expr)):(
+   ...   __import__('builtins').setattr(
+   ...     _fnxAUTO7_,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_', 'X'))),
+   ...   __import__('builtins').setattr(
+   ...     _macro_,
+   ...     'X',
+   ...     _fnxAUTO7_))[-1])()
+
+Notice we still used a `defmacro`.
+It's the way you invoke it that makes it happen at read time:
+
+.. code-block:: REPL
+
+   #> (list (map X#(add X1 X1) (range 10)))
+   >>> list(
+   ...   map(
+   ...     # __main__.._macro_.L
+   ...     (lambda X1:
+   ...       add(
+   ...         X1,
+   ...         X1)),
+   ...     range(
+   ...       (10))))
+   [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+You can invoke any one-argument macro at read time this way.
+Reader macros like this effectively create new read syntax
+by reinterpreting existing read syntax.
+
+So now we have function literals.
+
+This is now very similar to the function literals in Clojure,
+and we implemented them from scratch in about a page of code.
+That's the power of metaprogramming.
+You can copy features from other languages,
+tweak them, and experiment with your own.
+
+Clojure's version still has a couple more features.
+Let's add them.
+
+Catch-all parameter
+```````````````````
+
+.. code-block:: REPL
+
+   #>    (defmacro L (: :* expr)
+   #..     `(lambda (,@(map (lambda (i)
+   #..                        (.format "X{}" i))
+   #..                      (range 1 (add 1 (max-X expr))))
+   #..               :
+   #..               ,@(when (contains (flatten expr)
+   #..                                 'Xi)
+   #..                   `(:* ,'Xi)))
+   #..        ,expr))
+   >>> # defmacro
+   ... # hissp.basic.._macro_.let
+   ... (lambda _fnxAUTO7_=(lambda *expr:
+   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...     'lambda',
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       *map(
+   ...         (lambda i:
+   ...           ('X{}').format(
+   ...             i)),
+   ...         range(
+   ...           (1),
+   ...           add(
+   ...             (1),
+   ...             maxxH_X(
+   ...               expr)))),
+   ...       ':',
+   ...       *# when
+   ...       # hissp.basic.._macro_.ifxH_else
+   ...       (lambda test,*thenxH_else:
+   ...         __import__('operator').getitem(
+   ...           thenxH_else,
+   ...           __import__('operator').not_(
+   ...             test))())(
+   ...         contains(
+   ...           flatten(
+   ...             expr),
+   ...           'Xi'),
+   ...         (lambda :
+   ...           # hissp.basic.._macro_.progn
+   ...           (lambda :
+   ...             (lambda *xAUTO0_:xAUTO0_)(
+   ...               ':*',
+   ...               'Xi'))()),
+   ...         (lambda :()))),
+   ...     expr)):(
+   ...   __import__('builtins').setattr(
+   ...     _fnxAUTO7_,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_', 'L'))),
+   ...   __import__('builtins').setattr(
+   ...     _macro_,
+   ...     'L',
+   ...     _fnxAUTO7_))[-1])()
+
+   #> (X#(print X1 X2 Xi) 1 2 3 4 5)
+   >>> # __main__.._macro_.L
+   ... (lambda X1,X2,*Xi:
+   ...   print(
+   ...     X1,
+   ...     X2,
+   ...     Xi))(
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   (4),
+   ...   (5))
+   1 2 (3, 4, 5)
+
+How does it work? Look at what's changed. Here it is again.
+
+.. code-block:: Lissp
+
+   (defmacro L (: :* expr)
+     `(lambda (,@(map (lambda (i)
+                        (.format "X{}" i))
+                      (range 1 (add 1 (max-X expr))))
+               :
+               ,@(when (contains (flatten expr)
+                                 'Xi)
+                   `(:* ,'Xi)))
+        ,expr))
+
+We splice in the old logic into the new parameters tuple to make the numbered parameters.
+Following that is the colon separator.
+Remember that it's always allowed in Hissp's lambda forms,
+even if you don't need it,
+which makes this kind of metaprogramming easier.
+
+Following that is the code for a star arg.
+This is an anaphor, so it must be interpolated to prevent qualification.
+Note that the `when` macro will return an empty tuple when its condition is false.
+Attempting to splice in an empty tuple conveniently doesn't do anything
+(this is similar to "nil punning" in other Lisps),
+so the anaphor is only present in the parameters tuple when the expression `contains <operator.contains>` the ``Xi`` anahpor.
+
+Clojure doesn't have these,
+but it would be nice for Python interoperability if we also had a kwargs anaphor.
+Adding this is left as an exercise.
+Can you figure out how to do it?
+
+Implied number 1
+````````````````
+
+Clojure's version has one more feature:
+the name of the first parameter doesn't need the ``1``,
+but it's allowed.
+
+The more special cases you have to add,
+the more complex the macro might get.
+
+Here you go:
+
+.. code-block:: REPL
+
+   #> (defmacro L (: :* expr)
+   #..  `(lambda (,@(map (lambda (i)
+   #..                     (.format "X{}" i))
+   #..                   (range 1 (add 1 (|| (max-X expr)
+   #..                                       (contains (flatten expr)
+   #..                                                 'X)))))
+   #..            :
+   #..            ,@(when (contains (flatten expr)
+   #..                              'Xi)
+   #..                `(:* ,'Xi)))
+   #..     ,(if-else (contains (flatten expr)
+   #..                         'X)
+   #..        `(let (,'X ,'X1)
+   #..           ,expr)
+   #..        expr)))
+   >>> # defmacro
+   ... # hissp.basic.._macro_.let
+   ... (lambda _fnxAUTO7_=(lambda *expr:
+   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...     'lambda',
+   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...       *map(
+   ...         (lambda i:
+   ...           ('X{}').format(
+   ...             i)),
+   ...         range(
+   ...           (1),
+   ...           add(
+   ...             (1),
+   ...             # xBAR_xBAR_
+   ...             # hissp.basic.._macro_.let
+   ...             (lambda _firstxAUTO34_=maxxH_X(
+   ...               expr):
+   ...               # hissp.basic.._macro_.ifxH_else
+   ...               (lambda test,*thenxH_else:
+   ...                 __import__('operator').getitem(
+   ...                   thenxH_else,
+   ...                   __import__('operator').not_(
+   ...                     test))())(
+   ...                 _firstxAUTO34_,
+   ...                 (lambda :_firstxAUTO34_),
+   ...                 (lambda :
+   ...                   # hissp.basic..xAUTO_.xBAR_xBAR_
+   ...                   contains(
+   ...                     flatten(
+   ...                       expr),
+   ...                     'X'))))()))),
+   ...       ':',
+   ...       *# when
+   ...       # hissp.basic.._macro_.ifxH_else
+   ...       (lambda test,*thenxH_else:
+   ...         __import__('operator').getitem(
+   ...           thenxH_else,
+   ...           __import__('operator').not_(
+   ...             test))())(
+   ...         contains(
+   ...           flatten(
+   ...             expr),
+   ...           'Xi'),
+   ...         (lambda :
+   ...           # hissp.basic.._macro_.progn
+   ...           (lambda :
+   ...             (lambda *xAUTO0_:xAUTO0_)(
+   ...               ':*',
+   ...               'Xi'))()),
+   ...         (lambda :()))),
+   ...     # ifxH_else
+   ...     (lambda test,*thenxH_else:
+   ...       __import__('operator').getitem(
+   ...         thenxH_else,
+   ...         __import__('operator').not_(
+   ...           test))())(
+   ...       contains(
+   ...         flatten(
+   ...           expr),
+   ...         'X'),
+   ...       (lambda :
+   ...         (lambda *xAUTO0_:xAUTO0_)(
+   ...           '__main__.._macro_.let',
+   ...           (lambda *xAUTO0_:xAUTO0_)(
+   ...             'X',
+   ...             'X1'),
+   ...           expr)),
+   ...       (lambda :expr)))):(
+   ...   __import__('builtins').setattr(
+   ...     _fnxAUTO7_,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_', 'L'))),
+   ...   __import__('builtins').setattr(
+   ...     _macro_,
+   ...     'L',
+   ...     _fnxAUTO7_))[-1])()
+
+   #> (list (map X#(add X X1) (range 10)))
+   >>> list(
+   ...   map(
+   ...     # __main__.._macro_.L
+   ...     (lambda X1:
+   ...       # __main__.._macro_.let
+   ...       (lambda X=X1:
+   ...         add(
+   ...           X,
+   ...           X1))()),
+   ...     range(
+   ...       (10))))
+   [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+Now both ``X`` and ``X1`` refer to the same value,
+even if you mix them.
+
+Read the macro and its outputs carefully.
+This version uses a bool pun.
+Recall that ``False`` is a special case of ``0``
+and ``True`` is a special case of ``1`` in Python.
+
+The design could be improved a bit.
+You'll probably want some automated test cases before refactoring.
+Writing tests is a little beyond the scope of this lesson,
+but you can use the standard library unit test class in Lissp, just like Python.
+
+There are several repetitions of ``flatten`` and `contains <operator.contains>`.
+Don't worry too much about the efficiency of code that only runs once at compile time.
+What matters is what comes out in the expansions.
+
+You could factor these out using a `let` and local variable.
+But sometimes a terse implementation is the clearest name.
+You might also consider flattening before passing to ``max-X`` instead of letting ``max-X`` do it.
+
+Another thing to consider, you might change the ``X``'s to ``%``'s,
+and then it would really look like Clojure.
+This should not be hard.
+It would require munging,
+with the tradeoffs that entails for Python interop or other Hissp readers.
+Python already has an operator named ``%``.
+If you want to assign `mod <operator.mod>` that name, then you might want to stick with the ``X``,
+or remove the special case aliasing ``%1`` to ``%``.
+Also, rather than ``%&`` for the catch-all as in Clojure,
+a ``%*`` might be more consistent if you've also got a kwargs parameter,
+which you could call ``%**``.
+
+Results
+```````
+
+Are we shorter than Python now?
+
+.. code-block:: Text
+
+   lambda x:x*x
    #%(* % %)
+
+Did we lose generality?
+Yes, but not much.
+You can't really nest these.
+The parameters get generated even if the only occurence in the expression is quoted.
+This is the kind of thing to be mindful of.
+If you're not sure about something,
+try it in the REPL.
+But Clojure's version has the same problems,
+and it gets used quite a lot.
+
+Why you should be reluctant to use Python injections
+````````````````````````````````````````````````````
+
+Suppose we wanted to use Python infix notation for a complex formula.
+
+Do you see the problem with this?
+
+.. code-block:: Lissp
+
+   %#(.#"(-%2 + (%2**2 - 4*%1*%3)**0.5)/(2*%1)")
+
+This was supposed to be the quadratic formula.
+The ``%`` is an operator in Python,
+and it can't be unary.
+In an injection you would have to spell it using the munged name ``xPCENT_``.
+But what if we had kept the ``X``?
+
+.. code-block:: REPL
+
+   #> X#(.#"(-X2 + (X2**2 - 4*X1*X3)**0.5)/(2*X1)")
+   >>> # __main__.._macro_.L
+   ... (lambda :(-X2 + (X2**2 - 4*X1*X3)**0.5)/(2*X1)())
+   <function <lambda> at ...>
+
+It looks like we're trying to call the formula.
+We're expecting at least one function in prefix notation.
+
+Maybe we can do the divide in prefix and keep the others infix?
+
+.. code-block:: REPL
+
+   #> X#(truediv .#"(-X2 + (X2**2 - 4*X1*X3)**0.5)" .#"(2*X1)")
+   >>> # __main__.._macro_.L
+   ... (lambda :
+   ...   truediv(
+   ...     (-X2 + (X2**2 - 4*X1*X3)**0.5),
+   ...     (2*X1)))
+   <function <lambda> at ...>
+
+Now the formula looks right,
+but this lambda takes no parameters!
+Python injections hide information that code-reading macros need to work.
+The macro was unable to detect any matching symbols
+because it doesn't look inside the string.
+In principle it *could have*,
+but it might be a lot more work if you want it to be reliable.
+It could function if the parameters also appeared outside the string,
+but at that point, you might as well use a normal lambda.
+
+Regex might be good enough for a simple case like this,
+but even if you write it very carefully,
+are you sure you're catching all the edge cases?
+To really do it right,
+you'd have to *parse the AST*.
+The whole point of using Hissp tuples instead is so you don't have to do this.
+Hissp is a kind of AST with lower complexity.
+
+Arguably, we didn't do it right either since it still detects anaphors even if they're quoted,
+but this level is good enough for Clojure.
+A simple basic syntax means there are relatively few edge cases.
+
+Hissp is so simple that a full code-walking macro would only have to pre-expand all macros,
+and handle atoms, calls, ``quote``, and ``lambda``.
+
+.. TODO: Which we will be demonstrating later!
+
+If you add injections to the list,
+then you also have to handle the entirety of all Python expressions.
+Don't expect Hissp macros to do this.
+Be reluctant to use Python injections,
+and be aware of where they might break things.
+They're mainly useful as performance optimizations.
+In principle,
+you should be able to do everything else without them.
 
 .. TODO: attach
    (defmacro attach (target : :* args)

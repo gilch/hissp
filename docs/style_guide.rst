@@ -452,7 +452,7 @@ use a dedent string, which can be safely indented:
 
 .. code-block:: REPL
 
-   #> (print (.upper 'textwrap..dedent#"\
+   #> (print (.upper 'textwrap..dedent##"\
    #..               These lines
    #..               Don't interrupt
    #..               the flow."))
