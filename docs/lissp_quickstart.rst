@@ -229,7 +229,7 @@ Lissp Quick Start
    ''x                                    ;('quote', 'x')
    '\'x                                   ;'x1QUOTE_x'
 
-   (print (.upper 'textwrap..dedent#"\
+   (print (.upper 'textwrap..dedent##"\
                   These lines
                   Don't interrupt
                   the flow."))
