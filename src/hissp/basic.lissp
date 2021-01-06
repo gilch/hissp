@@ -151,7 +151,7 @@ judicious use can improve performance and maintainability.
 ;; see also from bootstrap: let
 
 (defmacro import (: :* args)
-  `(print "\
+  `(print #"\
 Nothingness above abstraction
   but implementation is / the best name.
 Terseness may make one too many / get used to them
@@ -292,7 +292,7 @@ but many macros still require this kind of recursive list processing.
 ;;; control flow
 
 (defmacro cond (: :* pairs)
-  "Multiple condition branching.
+  #"Multiple condition branching.
 
   Pairs are implied. Default is (); use :else to change it.
   For example::
@@ -353,6 +353,16 @@ but many macros still require this kind of recursive list processing.
 ;; Note that any of the basic macros with a lambda "body" argument
 ;; also sequence expressions for side effects.
 
+;;; reader
+
+(defmacro b (raw)
+  "bytes literal reader macro"
+  (-> raw
+      (.replace "'" "\'")
+      (.replace #"\n" "\n")
+      (->> (.format "b'{}'"))
+      (ast..literal_eval)))
+
 ;;; import
 
 (defmacro prelude ()
@@ -361,7 +371,7 @@ but many macros still require this kind of recursive list processing.
   Star imports from operator and itertools.
   And adds the basic macros, if available.
   "
-  `(exec "\
+  `(exec #"\
 from operator import *
 from itertools import *
 try:

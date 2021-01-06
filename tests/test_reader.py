@@ -168,11 +168,11 @@ object.__class__.__name__ ; Attributes chain.
     "('string')",
     "('')",
 ],
-'''b""''': [b''],
+'''b""''': ['b', "('')"],
 "b''": ['bx1QUOTE_x1QUOTE_'],
 "b''''''": ['bx1QUOTE_x1QUOTE_x1QUOTE_x1QUOTE_x1QUOTE_x1QUOTE_'],
 '''b""""""''': [
-    b'', "('')", "('')"
+    'b', "('')", "('')", "('')"
 ],
 '''rb'' br'' RB'' BR'' rb"" br"" B"" ''': [
     'rbx1QUOTE_x1QUOTE_',
@@ -186,12 +186,12 @@ object.__class__.__name__ ; Attributes chain.
     'B',
     "('')"
 ],
-'''b"bytes"''': [b'bytes'],
+'''b"not bytes"''': ['b', "('not bytes')"],
 '''\
-b"bytes
+b"not bytes
 with
 newlines"
-''': [b'bytes\nwith\nnewlines'],
+''': ['b', r"('not bytes\nwith\nnewlines')"],
 # invocation
 '''(print "Hello, World!")''': [
     ('print', "('Hello, World!')")

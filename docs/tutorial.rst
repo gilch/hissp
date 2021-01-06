@@ -292,12 +292,36 @@ and do not appear in the output.
 Strings
 #######
 
-Double-quoted strings in Lissp may contain newlines,
-but otherwise behave as Python's and accept the same escape codes:
+Double-quoted strings in Lissp read backslashes and newlines literally,
+which makes them similar to triple-quoted raw strings in Python.
 
 .. code-block:: REPL
 
-    #> "Three
+    #> "Two
+    #..lines\ntotal"
+    >>> ('Two\nlines\\ntotal')
+    'Two\nlines\\ntotal'
+
+Do note, however, that the *tokenizer* expects backslashes to be paired.
+
+.. code-block:: REPL
+
+    #> "\"
+    #..\\"  ; One string, not two!
+    >>> ('\\"\n\\\\')
+    '\\"\n\\\\'
+
+The second double-quote character didn't end the string,
+but the backslash "escaping" it was still read literally.
+The third double quote did end the string despite being adjacent to a backslash,
+because that was already paired with another backslash.
+Again, this is the same as Python's raw strings.
+
+You can enable the processing of Python's backslash escape sequences by prefixing a string with ``#``.
+
+.. code-block:: REPL
+
+    #> #"Three
     #..lines\ntotal"
     >>> ('Three\nlines\ntotal')
     'Three\nlines\ntotal'
@@ -321,7 +345,7 @@ because when quoted it will compile as data, rather than evaluate as code:
     >>> ('lambda', ('name',), ('print', "('Hello')", 'name'))
     ('lambda', ('name',), ('print', "('Hello')", 'name'))
 
-Notice that rather than using the quote special form for "Hello",
+Notice that rather than using the ``quote`` special form for "Hello",
 Lissp reads in a double-quoted string as a Hissp string containing a Python string.
 
 Symbols
@@ -724,7 +748,7 @@ For example:
 
 .. code-block:: REPL
 
-    #> (print 1 2 3 : sep ":"  end "\n.")
+    #> (print 1 2 3 : sep ":"  end #"\n.")
     >>> print(
     ...   (1),
     ...   (2),
@@ -773,7 +797,7 @@ Use the special control words ``:*`` for iterable unpacking,
 
 .. code-block:: REPL
 
-    #> (print : :* '(1 2)  :? 3  :* '(4)  :** (dict : sep :  end "\n."))
+    #> (print : :* '(1 2)  :? 3  :* '(4)  :** (dict : sep :  end #"\n."))
     >>> print(
     ...   *(1, 2),
     ...   (3),
@@ -799,11 +823,6 @@ function name starts with a dot:
     #> (.conjugate 1j)
     >>> (1j).conjugate()
     -1j
-
-    #> (.decode b"\xfffoo" : errors 'ignore)
-    >>> b'\xfffoo'.decode(
-    ...   errors='ignore')
-    'foo'
 
 Reader Macros
 -------------
@@ -853,7 +872,7 @@ And can inject arbitrary text into the compiled output:
 
 .. code-block:: REPL
 
-    #> .#"{(1, 2): \"\"\"buckle my shoe\"\"\"}  # This is Python!"
+    #> .##"{(1, 2): \"\"\"buckle my shoe\"\"\"}  # This is Python!"
     >>> {(1, 2): """buckle my shoe"""}  # This is Python!
     {(1, 2): 'buckle my shoe'}
 
