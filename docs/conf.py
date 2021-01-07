@@ -23,7 +23,7 @@ transpile("hissp", "basic")
 # -- Project information -----------------------------------------------------
 
 project = "Hissp"
-copyright = "2019, 2020, Matthew Egan Odendahl"
+copyright = "2019, 2020, 2021 Matthew Egan Odendahl"
 author = "Matthew Egan Odendahl"
 
 
@@ -32,7 +32,7 @@ author = "Matthew Egan Odendahl"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.intersphinx", "lex"]
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.intersphinx", "lex", "lissp_directive"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
