@@ -177,8 +177,11 @@ class Lissp:
             ",@": self.unquote_context,
         }.get(v, nullcontext)():
             try:
+                depth = self.depth
                 form = next(self.parse(self.tokens))
             except StopIteration:
+                if self.depth == depth:
+                    raise SoftSyntaxError(f"Reader macro {v!r} missing argument.", self.position()) from None
                 raise SyntaxError(f"Reader macro {v!r} missing argument.", self.position()) from None
             yield self.parse_macro(v, form)
 

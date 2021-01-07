@@ -50,8 +50,8 @@ __name__='__main__' __package__=None
 
 def repl(input, out: str = '#> '*2, err: str = "", exitmsg=EXIT_MSG):
     actual_out, actual_err = cmd("lissp", input)
-    assert actual_out == out
-    assert actual_err[BANNER_LEN:] == err + exitmsg
+    assert actual_out.split('\n') == out.split('\n')
+    assert actual_err[BANNER_LEN:].split('\n') == (err + exitmsg).split('\n')
 
 
 def test_repl_prompt():
@@ -90,14 +90,26 @@ SyntaxError: Unquote outside of template.
     repl(",@\n", err=err)
 
 
+def call_response(*session):
+    stream = {'<': [], '>': [], '!': []}
+    for line in session:
+        stream[line[0]].append(line[2:])
+    repl(*(''.join(stream[k]) for k in '<>!'))
+
+
 def test_repl_empty_template_error():
-    err = """\
-  File "<console>", line 1
-    `
-    ^
-SyntaxError: Reader macro '`' missing argument.
-"""
-    repl("`\n", err=err)
+    call_response(
+        "> #> ", "< `\n",
+        "> #..", "< x\n",
+        "! >>> '__main__..x'\n",
+        "> '__main__..x'\n",
+        "> #> ", "< (`)\n",
+        '!   File "<console>", line 1\n',
+        "!     (`)\n",
+        "!       ^\n",
+        "! SyntaxError: Reader macro '`' missing argument.\n",
+        "> #> ",
+    )
 
 
 def test_repl_gensym_error():
@@ -111,13 +123,20 @@ SyntaxError: Gensym outside of template.
 
 
 def test_repl_empty_reader_macro_error():
-    err = """\
-  File "<console>", line 1
-    builtins..float#
-                   ^
-SyntaxError: Reader macro 'builtins..float#' missing argument.
-"""
-    repl("builtins..float#\n", err=err)
+    call_response(
+        "> #> ", "< builtins..float#\n",
+        "> #..", "< inf\n",
+        "! >>> __import__('pickle').loads(  # inf\n",
+        "! ...     b'Finf\\n.'\n",
+        "! ... )\n",
+        "> inf\n",
+        "> #> ", "< (builtins..float#)\n",
+        '!   File "<console>", line 1\n',
+        "!     (builtins..float#)\n",
+        "!                      ^\n",
+        "! SyntaxError: Reader macro 'builtins..float#' missing argument.\n",
+        "> #> ",
+    )
 
 
 def test_repl_read_error():
