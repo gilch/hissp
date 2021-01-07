@@ -91,7 +91,7 @@ SyntaxError: Unquote outside of template.
 
 
 def call_response(*session):
-    stream = {'<': [], '>': [], '!': []}
+    stream = {k: [] for k in '<>!'}
     for line in session:
         stream[line[0]].append(line[2:])
     repl(*(''.join(stream[k]) for k in '<>!'))
