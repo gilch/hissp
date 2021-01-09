@@ -138,7 +138,7 @@ Lissp Quick Start
 
    #> math.                                  ;Module identifier ends in a dot and imports it!
    >>> __import__('math')
-   <module 'math' (built-in)>
+   <module 'math' ...>
 
    #> math..tau                              ;Qualified identifier. Attribute of a module.
    >>> __import__('math').tau
