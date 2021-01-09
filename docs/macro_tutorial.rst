@@ -385,7 +385,7 @@ With a compiler macro, we won't need the inject.
 The template needs to look something like
 ``(lambda <params> <body>)``.
 
-.. code-block:: REPL
+.. Lissp::
 
    #> (defmacro L (params : :* body)
    #..  `(lambda ,params ,@body))
@@ -405,6 +405,9 @@ The template needs to look something like
    ...     _macro_,
    ...     'L',
    ...     _fnxAUTO7_))[-1])()
+
+
+.. code-block:: REPL
 
    #> (list (map (L x (* x x))
    #..           (range 10)))
@@ -460,7 +463,7 @@ So the template would looks something like this::
 Remember this is basically the same as
 that anaphoric macro we did in the previous tutorial.
 
-.. code-block:: REPL
+.. Lissp::
 
    #> (defmacro L (: :* expr)
    #..  `(lambda (,'X)  ; Interpolate anaphors to prevent qualification!
@@ -482,6 +485,9 @@ that anaphoric macro we did in the previous tutorial.
    ...     _macro_,
    ...     'L',
    ...     _fnxAUTO7_))[-1])()
+
+
+.. code-block:: REPL
 
    #> (list (map (L * X X) (range 10)))
    >>> list(
@@ -510,7 +516,7 @@ but what if needed two?
 
 You might already guess how we might do this:
 
-.. code-block:: REPL
+.. Lissp::
 
    #> (defmacro L2 (: :* expr)
    #..  `(lambda (,'X ,'Y)
@@ -533,6 +539,9 @@ You might already guess how we might do this:
    ...     _macro_,
    ...     'L2',
    ...     _fnxAUTO7_))[-1])()
+
+
+.. code-block:: REPL
 
    #> (L2 * X Y)
    >>> # L2
@@ -1118,7 +1127,7 @@ and automatically provide that many parameters for you.
 
 We can create numbered X's the same way we created the numbered L's.
 
-.. code-block:: REPL
+.. Lissp::
 
    #> (defmacro L (no : :* expr)
    #..  `(lambda ,(map (lambda (i)
@@ -1150,6 +1159,9 @@ We can create numbered X's the same way we created the numbered L's.
    ...     'L',
    ...     _fnxAUTO7_))[-1])()
 
+
+.. code-block:: REPL
+
    #> (L 10)
    >>> # L
    ... (lambda X1,X2,X3,X4,X5,X6,X7,X8,X9,X10:())
@@ -1172,7 +1184,7 @@ but we're still passing in a number for them.
 
 Let's make a slight tweak.
 
-.. code-block:: REPL
+.. Lissp::
 
    #> (defmacro L (: :* expr)
    #..  `(lambda ,(map (lambda (i)
@@ -1205,6 +1217,7 @@ Let's make a slight tweak.
    ...     'L',
    ...     _fnxAUTO7_))[-1])()
 
+
 What is ``max-X``?
 It's a venerable design technique known as *wishful thinking*.
 We haven't implemented it yet.
@@ -1213,7 +1226,7 @@ But we *wish* it would find the maximum X number in the expression.
 
 Can we just iterate through the expression and check?
 
-.. code-block:: REPL
+.. Lissp::
 
    #> (define max-X
    #..  (lambda (expr)
@@ -1281,6 +1294,7 @@ Can we just iterate through the expression and check?
    ...                 (0))))()),
    ...         expr))))
 
+
 It gets the parameters right:
 
 .. code-block:: REPL
@@ -1320,7 +1334,7 @@ We need to be able to check for symbols nested in tuples.
 This sounds like a job for recursion.
 Lissp can do it with a class.
 
-.. code-block:: REPL
+.. Lissp::
 
    #> (deftype Flattener ()
    #..  __init__
@@ -1373,10 +1387,11 @@ Lissp can do it with a class.
    ...             form)),
    ...         self.acc)[-1]))))
 
+
 This is a good utility to have for macros that have to read code.
 Let's give it a nicer interface.
 
-.. code-block:: REPL
+.. Lissp::
 
    #> (define flatten
    #..  (lambda (form)
@@ -1389,9 +1404,10 @@ Let's give it a nicer interface.
    ...     Flattener().flatten(
    ...       form)))
 
+
 Now we can fix ``max-X``.
 
-.. code-block:: REPL
+.. Lissp::
 
    #> (define max-X
    #..  (lambda (expr)
@@ -1459,6 +1475,7 @@ Now we can fix ``max-X``.
    ...                 (0))))()),
    ...         flatten(
    ...           expr)))))
+
 
 Let's try again.
 
@@ -1545,7 +1562,7 @@ We can fix that with a reader macro.
 Reader syntax
 `````````````
 
-.. code-block:: REPL
+.. Lissp::
 
    #> (defmacro X (expr)
    #..  `(L ,@expr))
@@ -1600,17 +1617,17 @@ Let's add them.
 Catch-all parameter
 ```````````````````
 
-.. code-block:: REPL
+.. Lissp::
 
-   #>    (defmacro L (: :* expr)
-   #..     `(lambda (,@(map (lambda (i)
-   #..                        (.format "X{}" i))
-   #..                      (range 1 (add 1 (max-X expr))))
-   #..               :
-   #..               ,@(when (contains (flatten expr)
-   #..                                 'Xi)
-   #..                   `(:* ,'Xi)))
-   #..        ,expr))
+   #> (defmacro L (: :* expr)
+   #..  `(lambda (,@(map (lambda (i)
+   #..                     (.format "X{}" i))
+   #..                   (range 1 (add 1 (max-X expr))))
+   #..            :
+   #..            ,@(when (contains (flatten expr)
+   #..                              'Xi)
+   #..                `(:* ,'Xi)))
+   #..     ,expr))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda *expr:
@@ -1656,6 +1673,8 @@ Catch-all parameter
    ...     _macro_,
    ...     'L',
    ...     _fnxAUTO7_))[-1])()
+
+.. code-block:: REPL
 
    #> (X#(print X1 X2 Xi) 1 2 3 4 5)
    >>> # __main__.._macro_.L
@@ -1715,7 +1734,7 @@ the more complex the macro might get.
 
 Here you go:
 
-.. code-block:: REPL
+.. Lissp::
 
    #> (defmacro L (: :* expr)
    #..  `(lambda (,@(map (lambda (i)
@@ -1810,6 +1829,8 @@ Here you go:
    ...     _macro_,
    ...     'L',
    ...     _fnxAUTO7_))[-1])()
+
+.. code-block:: REPL
 
    #> (list (map X#(add X X1) (range 10)))
    >>> list(
