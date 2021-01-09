@@ -1,5 +1,6 @@
-# Copyright 2020 Matthew Egan Odendahl
+# Copyright 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
+
 import sys
 from code import InteractiveConsole
 from types import ModuleType, SimpleNamespace
@@ -38,6 +39,7 @@ def main():
     repl = REPL(locals=__main__.__dict__)
     repl.locals['_macro_'] = SimpleNamespace(**vars(hissp.basic._macro_))
     sys.modules['__main__'] = __main__
+    sys.path.insert(0, '')
     repl.interact()
 
 if __name__ == "__main__":

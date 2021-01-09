@@ -1,7 +1,5 @@
-.. Hissp documentation master file, created by
-   sphinx-quickstart on Sun Jun  2 18:01:08 2019.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. Copyright 2020, 2021 Matthew Egan Odendahl
+   SPDX-License-Identifier: CC-BY-SA-4.0
 
 .. raw:: html
 

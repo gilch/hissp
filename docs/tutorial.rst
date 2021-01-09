@@ -1,5 +1,5 @@
-.. Copyright 2019, 2020 Matthew Egan Odendahl
-   SPDX-License-Identifier: Apache-2.0
+.. Copyright 2019, 2020, 2021 Matthew Egan Odendahl
+   SPDX-License-Identifier: CC-BY-SA-4.0
 
 ..  Hidden doctest requires basic macros for REPL-consistent behavior.
     #> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.basic.._macro_)))

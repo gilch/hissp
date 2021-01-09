@@ -1,3 +1,6 @@
+.. Copyright 2020, 2021 Matthew Egan Odendahl
+   SPDX-License-Identifier: CC-BY-SA-4.0
+
 Command Line Reference
 ======================
 
