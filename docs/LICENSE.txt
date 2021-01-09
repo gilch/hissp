@@ -1,0 +1,15 @@
+While Hissp itself is licensed Apache-2.0,
+Hissp's documentation is licensed separately from the rest of Hissp.
+
+Documentation files in this directory are licensed CC-BY-SA-4.0 instead.
+http://creativecommons.org/licenses/by-sa/4.0/
+
+However, some documentation consisting mostly of source code may be licensed Apache-2.0.
+Which license applies is noted in a comment at the top of each file.
+
+The tooling files created to help generate Hissp's documentation are also licensed Apache-2.0.
+
+Additional machine-generated files which do not have a notice may be included in this directory.
+Which license applies (if any) depends on what generated them.
+
+The Hissp and H logos are trademarks.

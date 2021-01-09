@@ -1,4 +1,4 @@
-# Copyright 2020 Matthew Egan Odendahl
+# Copyright 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 import subprocess as sp

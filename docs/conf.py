@@ -1,3 +1,6 @@
+# Copyright 2019, 2020, 2021 Matthew Egan Odendahl
+# SPDX-License-Identifier: Apache-2.0
+
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -51,6 +54,8 @@ default_role = 'any'
 #
 html_theme = "furo"
 html_logo = "H.svg"
+pygments_style = "monokai"
+pygments_dark_style = "monokai"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
