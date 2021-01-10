@@ -82,12 +82,6 @@
                   2
                   (!#cadr [1,2,3])))
 
-  test_cddr
-  (lambda (self)
-    (.assertEqual self
-                  [2,3]
-                  (!#cddr [0,1,2,3])))
-
   test_cascade
   (lambda (self)
     (.assertEqual self

@@ -1478,7 +1478,6 @@ Lissp Quick Start
    (car "abcd")                           ;'a'
    (cdr "abcd")                           ;'bcd'
    (cadr "abcd")                          ;'b'
-   (cddr "abcd")                          ;'cd'
    (caar ['abc','xyz'])                   ;'a'
    (cdar ['abc','xyz'])                   ;'bc'
 

@@ -213,13 +213,6 @@ but many macros still require this kind of recursive list processing.
   "
   `(operator..getitem ,sequence 1))
 
-(defmacro cddr (sequence)
-  "Slice of the sequence without the first two items.
-
-  Like ``(cdr (cdr sequence))``, but more efficient.
-  "
-  `(operator..getitem ,sequence (slice 2 None)))
-
 ;;; configuration
 
 (defmacro attach (target : :* args)
@@ -308,7 +301,7 @@ but many macros still require this kind of recursive list processing.
     `(if-else ,(car pairs)
               ,(cadr pairs)
               ;; Here's the recursive part.
-              (cond ,@(cddr pairs)))))
+              (cond ,@(operator..getitem pairs (slice 2 None))))))
 
 (defmacro any-for (params iterable : :* body)
   "``any-for`` Evaluate body for each item in iterable until any result is true."
