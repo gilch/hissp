@@ -206,13 +206,6 @@ but many macros still require this kind of recursive list processing.
   "
   `(cdr (car ,xss)))
 
-(defmacro cadr (sequence)
-  "The second item of a sequence.
-
-  Like ``(car (cdr sequence))``, but more efficient.
-  "
-  `(operator..getitem ,sequence 1))
-
 ;;; configuration
 
 (defmacro attach (target : :* args)
@@ -299,7 +292,7 @@ but many macros still require this kind of recursive list processing.
   "
   (when pairs
     `(if-else ,(car pairs)
-              ,(cadr pairs)
+              ,(operator..getitem pairs 1)
               ;; Here's the recursive part.
               (cond ,@(operator..getitem pairs (slice 2 None))))))
 
