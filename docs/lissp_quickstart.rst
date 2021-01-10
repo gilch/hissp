@@ -1471,12 +1471,6 @@ Lissp Quick Start
    Hello World!
 
 
-   ;;; linked-list emulation
-
-   ;; These really could be functions, but their expansions are small enough to inline.
-
-   (car "abcd")                           ;'a'
-
    ;;; control flow
 
    ;; Hissp has no control flow, but you can build them with macros.

@@ -181,16 +181,6 @@ meditate on this.
   --Za Zen of Hissp
 "))
 
-;;; linked-list emulation
-
-_#" Hissp is based on tuples rather than linked lists,
-but many macros still require this kind of recursive list processing.
-"
-
-(defmacro car (sequence)
-  "The first item of a sequence."
-  `(operator..getitem ,sequence 0))
-
 ;;; configuration
 
 (defmacro attach (target : :* args)
@@ -222,7 +212,7 @@ but many macros still require this kind of recursive list processing.
   (let ($thing `$#thing)
     `((lambda (: ,$thing ,thing)
         ,@(map (lambda (call)
-                 `(,(car call)
+                 `(,(operator..getitem call 0)
                    ,$thing
                    ,@(operator..getitem call (slice 1 None))))
                calls)
@@ -239,9 +229,9 @@ but many macros still require this kind of recursive list processing.
   Makes chained method calls easier to read.
   "
   (if-else forms
-    `(-> (,(car (car forms))
+    `(-> (,(operator..getitem (operator..getitem forms 0) 0)
           ,expr
-          ,@(operator..getitem (car forms)
+          ,@(operator..getitem (operator..getitem forms 0)
                                (slice 1 None)))
          ,@(operator..getitem forms (slice 1 None)))
     expr))
@@ -257,7 +247,7 @@ but many macros still require this kind of recursive list processing.
   E.g. ``(-> x (A a) (->> B b) (C c))`` is ``(C (B b (A x a)) c)``.
   "
   (if-else forms
-    `(->> (,@(car forms) ,expr)
+    `(->> (,@(operator..getitem forms 0) ,expr)
           ,@(operator..getitem forms (slice 1 None)))
     expr))
 
@@ -279,7 +269,7 @@ but many macros still require this kind of recursive list processing.
          :else (print \"not a number\"))
   "
   (when pairs
-    `(if-else ,(car pairs)
+    `(if-else ,(operator..getitem pairs 0)
               ,(operator..getitem pairs 1)
               ;; Here's the recursive part.
               (cond ,@(operator..getitem pairs (slice 2 None))))))
@@ -294,8 +284,8 @@ but many macros still require this kind of recursive list processing.
 (defmacro && (: :* exprs)
   "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
   (cond (operator..not_ exprs) True
-        (operator..eq 1 (len exprs)) (car exprs)
-        :else `(let ($#G ,(car exprs))
+        (operator..eq 1 (len exprs)) (operator..getitem exprs 0)
+        :else `(let ($#G ,(operator..getitem exprs 0))
                  (if-else $#G
                           (&& ,@(operator..getitem exprs (slice 1 None)))
                           $#G))))

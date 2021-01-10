@@ -52,12 +52,6 @@
       (.assertEqual self x 1)
       (.assertEqual self y 2)))
 
-  test_car
-  (lambda (self)
-    (.assertEqual self
-                  1
-                  (!#car [1,2])))
-
   test_cascade
   (lambda (self)
     (.assertEqual self
