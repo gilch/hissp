@@ -1,5 +1,26 @@
 # Copyright 2019, 2020 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
+"""
+The Lissp language reader and associated helper functions.
+
+Compiles Lissp files to Python files when run as the main module.
+
+The reader is organized as a lexer and parser.
+The parser is extensible with Lissp reader macros.
+The lexer is not extensible,
+but it doesn't do much more than pull tokens from a relatively simple regex
+and track its position for error messages.
+
+Includes ENTUPLE and DROP "constants".
+
+DROP is the special value returned by the discard macro ``_#`` to make the reader skip it.
+There's probably little other use for this, but it's available.
+
+ENTUPLE is the function used by the template macros.
+By default it spells out its implementation every time,
+but you can override this by setting a new value.
+Compiled code can be shorter and more readable if you use a qualified name string instead.
+"""
 
 import ast
 import builtins
@@ -55,6 +76,11 @@ class SoftSyntaxError(SyntaxError):
     """A syntax error that could be corrected with more lines of input."""
 
 class Lexer(Iterator):
+    """The tokenizer for the Lissp language.
+
+    Most of the actual tokenizing is done by the TOKENS regex.
+    The Lexer adds some position tracking to that to help with error messages.
+    """
     def __init__(self, code: str, file: str = "<?>"):
         self.code = code
         self.file = file
@@ -89,11 +115,22 @@ class _Unquote(tuple):
 
 
 def gensym_counter(count=[0]):
+    """
+    Call to increment the gensym counter, and return the new count.
+    Use this if you need to generate new gensyms at compile time,
+    otherwise (at read time), you can use the gensym reader macro in a template.
+    """
     count[0] += 1
     return count[0]
 
 
 class Lissp:
+    """
+    The parser for the Lissp language.
+
+    Wraps around a Hissp compiler instance.
+    Parses Lissp tokens into Hissp syntax trees.
+    """
     def __init__(
         self, qualname="__main__", ns=None, verbose=False, evaluate=False, filename="<?>"
     ):
@@ -326,6 +363,13 @@ class Lissp:
 
 
 def is_string(form):
+    """
+    Determines if the form could have been read from a string literal.
+
+    It's not enough to check if the atom has a string type.
+    Several token types such as control words, symbols, and Python injections, read in as strings.
+    Macros may need to distinguish these cases.
+    """
     try:
         return type(form) is str and form.startswith("(") and type(ast.literal_eval(form)) is str
     except:
@@ -333,6 +377,11 @@ def is_string(form):
 
 
 def transpile(package: Optional[resources.Package], *modules: Union[str, PurePath]):
+    """
+    Compiles the named modules to Python files.
+    If the package is None or "", it uses the current working directory without using a package.
+    Lissp files must know their package at compile time to resolve imports correctly.
+    """
     # TODO: allow pathname without + ".lissp"?
     if package:
         for module in modules:
@@ -350,6 +399,7 @@ def transpile_module(
     resource: Union[str, PurePath],
     out: Union[None, str, bytes, Path] = None,
 ):
+    """Transpile a single submodule in a package."""
     code = resources.read_text(package, resource)
     path: Path
     with resources.path(package, resource) as path:
@@ -369,9 +419,9 @@ def _write_py(out, qualname, code):
         f.write(Lissp(qualname, evaluate=True, filename=str(out)).compile(code))
 
 def main():
+    """Calls transpile() with argv as arguments."""
     transpile(*sys.argv[1:])
 
 if __name__ == "__main__":
     # TODO: test CLI
-    # TODO: document CLI
     main()
