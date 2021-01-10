@@ -11,6 +11,7 @@ Submodules
    hissp.compiler
    hissp.munger
    hissp.reader
+   hissp.repl
 
 Module contents
 ---------------

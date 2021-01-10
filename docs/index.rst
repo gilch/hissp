@@ -26,17 +26,20 @@ or read the more detailed tutorial.
    macro_tutorial
    command_line_reference
 
-* :ref:`API Reference <modindex>`
+.. toctree::
+   :maxdepth: 3
+
+   API <hissp>
 
 .. toctree::
    :maxdepth: 1
 
    faq
 
-* :ref:`genindex`
-
 ****
 
 .. toctree::
 
    GitHub Repository <https://github.com/gilch/hissp>
+
+* :ref:`genindex`
