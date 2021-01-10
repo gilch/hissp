@@ -58,12 +58,6 @@
                   1
                   (!#car [1,2])))
 
-  test_cdr
-  (lambda (self)
-    (.assertEqual self
-                  [2,3]
-                  (!#cdr [1,2,3])))
-
   test_cascade
   (lambda (self)
     (.assertEqual self

@@ -191,10 +191,6 @@ but many macros still require this kind of recursive list processing.
   "The first item of a sequence."
   `(operator..getitem ,sequence 0))
 
-(defmacro cdr (sequence)
-  "Slice of the sequence without the first item."
-  `(operator..getitem ,sequence (slice 1 None)))
-
 ;;; configuration
 
 (defmacro attach (target : :* args)
@@ -228,7 +224,7 @@ but many macros still require this kind of recursive list processing.
         ,@(map (lambda (call)
                  `(,(car call)
                    ,$thing
-                   ,@(cdr call)))
+                   ,@(operator..getitem call (slice 1 None))))
                calls)
         ,$thing))))
 
@@ -243,8 +239,11 @@ but many macros still require this kind of recursive list processing.
   Makes chained method calls easier to read.
   "
   (if-else forms
-    `(-> (,(car (car forms)) ,expr ,@(cdr (car forms)))
-         ,@(cdr forms))
+    `(-> (,(car (car forms))
+          ,expr
+          ,@(operator..getitem (car forms)
+                               (slice 1 None)))
+         ,@(operator..getitem forms (slice 1 None)))
     expr))
 
 (defmacro ->> (expr : :* forms)
@@ -259,7 +258,7 @@ but many macros still require this kind of recursive list processing.
   "
   (if-else forms
     `(->> (,@(car forms) ,expr)
-          ,@(cdr forms))
+          ,@(operator..getitem forms (slice 1 None)))
     expr))
 
 ;; TODO: implement other arrange macros?
@@ -298,7 +297,7 @@ but many macros still require this kind of recursive list processing.
         (operator..eq 1 (len exprs)) (car exprs)
         :else `(let ($#G ,(car exprs))
                  (if-else $#G
-                          (&& ,@(cdr exprs))
+                          (&& ,@(operator..getitem exprs (slice 1 None)))
                           $#G))))
 
 (defmacro || (: first () :* rest)

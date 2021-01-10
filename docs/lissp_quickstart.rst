@@ -1476,7 +1476,6 @@ Lissp Quick Start
    ;; These really could be functions, but their expansions are small enough to inline.
 
    (car "abcd")                           ;'a'
-   (cdr "abcd")                           ;'bcd'
 
    ;;; control flow
 
