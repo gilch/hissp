@@ -52,42 +52,6 @@
       (.assertEqual self x 1)
       (.assertEqual self y 2)))
 
-  test_car
-  (lambda (self)
-    (.assertEqual self
-                  1
-                  (!#car [1,2])))
-
-  test_cdr
-  (lambda (self)
-    (.assertEqual self
-                  [2,3]
-                  (!#cdr [1,2,3])))
-
-  test_caar
-  (lambda (self)
-    (.assertEqual self
-                  1
-                  (!#caar [[1,2,3]])))
-
-  test_cdar
-  (lambda (self)
-    (.assertEqual self
-                  [2,3]
-                  (!#cdar [[1,2,3]])))
-
-  test_cadr
-  (lambda (self)
-    (.assertEqual self
-                  2
-                  (!#cadr [1,2,3])))
-
-  test_cddr
-  (lambda (self)
-    (.assertEqual self
-                  [2,3]
-                  (!#cddr [0,1,2,3])))
-
   test_cascade
   (lambda (self)
     (.assertEqual self

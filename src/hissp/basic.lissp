@@ -181,45 +181,6 @@ meditate on this.
   --Za Zen of Hissp
 "))
 
-;;; linked-list emulation
-
-_#" Hissp is based on tuples rather than linked lists,
-but many macros still require this kind of recursive list processing.
-"
-
-(defmacro car (sequence)
-  "The first item of a sequence."
-  `(operator..getitem ,sequence 0))
-
-(defmacro cdr (sequence)
-  "Slice of the sequence without the first item."
-  `(operator..getitem ,sequence (slice 1 None)))
-
-(defmacro caar (xss)
-  "The first item of the first item. Short for ``(car (car xss))``."
-  `(car (car ,xss)))
-
-(defmacro cdar (xss)
-  "The slice of the first item without its first item.
-
-  Short for ``(cdr (car xss))``.
-  "
-  `(cdr (car ,xss)))
-
-(defmacro cadr (sequence)
-  "The second item of a sequence.
-
-  Like ``(car (cdr sequence))``, but more efficient.
-  "
-  `(operator..getitem ,sequence 1))
-
-(defmacro cddr (sequence)
-  "Slice of the sequence without the first two items.
-
-  Like ``(cdr (cdr sequence))``, but more efficient.
-  "
-  `(operator..getitem ,sequence (slice 2 None)))
-
 ;;; configuration
 
 (defmacro attach (target : :* args)
@@ -251,9 +212,9 @@ but many macros still require this kind of recursive list processing.
   (let ($thing `$#thing)
     `((lambda (: ,$thing ,thing)
         ,@(map (lambda (call)
-                 `(,(car call)
+                 `(,(operator..getitem call 0)
                    ,$thing
-                   ,@(cdr call)))
+                   ,@(operator..getitem call (slice 1 None))))
                calls)
         ,$thing))))
 
@@ -268,8 +229,11 @@ but many macros still require this kind of recursive list processing.
   Makes chained method calls easier to read.
   "
   (if-else forms
-    `(-> (,(caar forms) ,expr ,@(cdar forms))
-         ,@(cdr forms))
+    `(-> (,(operator..getitem (operator..getitem forms 0) 0)
+          ,expr
+          ,@(operator..getitem (operator..getitem forms 0)
+                               (slice 1 None)))
+         ,@(operator..getitem forms (slice 1 None)))
     expr))
 
 (defmacro ->> (expr : :* forms)
@@ -283,8 +247,8 @@ but many macros still require this kind of recursive list processing.
   E.g. ``(-> x (A a) (->> B b) (C c))`` is ``(C (B b (A x a)) c)``.
   "
   (if-else forms
-    `(->> (,@(car forms) ,expr)
-          ,@(cdr forms))
+    `(->> (,@(operator..getitem forms 0) ,expr)
+          ,@(operator..getitem forms (slice 1 None)))
     expr))
 
 ;; TODO: implement other arrange macros?
@@ -305,10 +269,10 @@ but many macros still require this kind of recursive list processing.
          :else (print \"not a number\"))
   "
   (when pairs
-    `(if-else ,(car pairs)
-              ,(cadr pairs)
+    `(if-else ,(operator..getitem pairs 0)
+              ,(operator..getitem pairs 1)
               ;; Here's the recursive part.
-              (cond ,@(cddr pairs)))))
+              (cond ,@(operator..getitem pairs (slice 2 None))))))
 
 (defmacro any-for (params iterable : :* body)
   "``any-for`` Evaluate body for each item in iterable until any result is true."
@@ -320,10 +284,10 @@ but many macros still require this kind of recursive list processing.
 (defmacro && (: :* exprs)
   "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
   (cond (operator..not_ exprs) True
-        (operator..eq 1 (len exprs)) (car exprs)
-        :else `(let ($#G ,(car exprs))
+        (operator..eq 1 (len exprs)) (operator..getitem exprs 0)
+        :else `(let ($#G ,(operator..getitem exprs 0))
                  (if-else $#G
-                          (&& ,@(cdr exprs))
+                          (&& ,@(operator..getitem exprs (slice 1 None)))
                           $#G))))
 
 (defmacro || (: first () :* rest)
