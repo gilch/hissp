@@ -199,13 +199,6 @@ but many macros still require this kind of recursive list processing.
   "The first item of the first item. Short for ``(car (car xss))``."
   `(car (car ,xss)))
 
-(defmacro cdar (xss)
-  "The slice of the first item without its first item.
-
-  Short for ``(cdr (car xss))``.
-  "
-  `(cdr (car ,xss)))
-
 ;;; configuration
 
 (defmacro attach (target : :* args)
@@ -254,7 +247,7 @@ but many macros still require this kind of recursive list processing.
   Makes chained method calls easier to read.
   "
   (if-else forms
-    `(-> (,(caar forms) ,expr ,@(cdar forms))
+    `(-> (,(caar forms) ,expr ,@(cdr (car forms)))
          ,@(cdr forms))
     expr))
 
