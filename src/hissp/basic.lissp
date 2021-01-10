@@ -195,10 +195,6 @@ but many macros still require this kind of recursive list processing.
   "Slice of the sequence without the first item."
   `(operator..getitem ,sequence (slice 1 None)))
 
-(defmacro caar (xss)
-  "The first item of the first item. Short for ``(car (car xss))``."
-  `(car (car ,xss)))
-
 ;;; configuration
 
 (defmacro attach (target : :* args)
@@ -247,7 +243,7 @@ but many macros still require this kind of recursive list processing.
   Makes chained method calls easier to read.
   "
   (if-else forms
-    `(-> (,(caar forms) ,expr ,@(cdr (car forms)))
+    `(-> (,(car (car forms)) ,expr ,@(cdr (car forms)))
          ,@(cdr forms))
     expr))
 
