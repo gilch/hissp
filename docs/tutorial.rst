@@ -573,15 +573,15 @@ so they can also distinguish a raw control word from a quoted one.
 
 .. _qualified identifiers:
 
-Qualified Identifiers
-~~~~~~~~~~~~~~~~~~~~~
+Module Literals and Qualified Identifiers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can refer to variables defined in any module by using a
 *qualified identifier*:
 
 .. code-block:: REPL
 
-    #> operator.  ; Module identifiers end in a dot and automatically import.
+    #> operator.  ; Module literals end in a dot and automatically import.
     >>> __import__('operator')
     <module 'operator' from '...operator.py'>
 
@@ -593,7 +593,7 @@ You can refer to variables defined in any module by using a
 
 Notice the second dot required to access a module attribute.
 
-The translation of module identifiers to ``__import__`` calls happens at compile time,
+The translation of module literals to ``__import__`` calls happens at compile time,
 so this feature is still available in readerless mode.
 Qualification is important for macros that are defined in one module,
 but used in another.

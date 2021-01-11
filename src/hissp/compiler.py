@@ -427,7 +427,7 @@ class Compiler:
             return "__import__({0!r}{fromlist}).{1}".format(
                 parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
             )
-        elif symbol.endswith('.'):  # Module identifier?
+        elif symbol.endswith('.'):  # Module literal?
             module = symbol[:-1]
             return f"""__import__({module !r}{",fromlist='?'" if "." in module else ""})"""
         return symbol

@@ -982,19 +982,35 @@ Just use a `qualified identifier <qualified identifiers>`. You don't need import
 But it's in a deeply nested package with a long name. It's tedious!
 -------------------------------------------------------------------
 
-So assign a global to it.
+So assign a global to it:
+.. Lissp::
+
+   #> (define Generator collections.abc..Generator)
+   >>> # define
+   ... __import__('operator').setitem(
+   ...   __import__('builtins').globals(),
+   ...   'Generator',
+   ...   __import__('collections.abc',fromlist='?').Generator)
+
 But be aware of the effects that has on qualification in templates.
 
 But I need the module object itself! The package ``__init__.py`` doesn't import it or it's not in a package.
 ------------------------------------------------------------------------------------------------------------
 
-A module name that ends with a dot will do it for you.
+A module literal will do it for you.
 
 .. code-block:: REPL
 
    #> collections.abc.
    >>> __import__('collections.abc',fromlist='?')
    <module 'collections.abc' from '...abc.py'>
+
+You can likewise assign a global, like any other value:
+
+.. code-block:: Lissp
+
+   (define np numpy.)
+   (define pd pandas.)
 
 But I want a relative import or a star import.
 ----------------------------------------------
@@ -1146,7 +1162,7 @@ It supports two different readers
 with the potential for more.
 These compile different languages that represent the same underlying Hissp-tuple AST.
 The separate Hebigo language is indentation based,
-while the included Lissp reader uses the traditional s-expressions.
+while the included Lissp reader uses the traditional S-expressions.
 
 Hy code requires the ``hy`` package as a dependency.
 You need Hy's import hooks just to load Hy code.

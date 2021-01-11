@@ -82,8 +82,8 @@ judicious use can improve performance and maintainability.
   `((lambda (,'test : :* ,'then-else)
       ((operator..getitem ,'then-else (operator..not_ ,'test))))
     ,test
-    (lambda () ,then)
-    (lambda () ,otherwise)))
+    (lambda : ,then)
+    (lambda : ,otherwise)))
 
 (defmacro progn (: :* body)
   "Evaluates each form in sequence for side effects.
@@ -91,7 +91,7 @@ judicious use can improve performance and maintainability.
   Evaluates to the same value as its last form (or ``()`` if empty).
   "
   ;; TODO: consider flattening nested progns
-  `((lambda ()
+  `((lambda :
       ,@body)))
 
 (defmacro when (condition : :* body)
@@ -190,7 +190,7 @@ meditate on this.
   Names after the ``:`` are key-value pairs.
   "
   (let (iargs (iter args)
-              $target `$#target)
+        $target `$#target)
     (let (args (itertools..takewhile (lambda (a)
                                        (operator..ne a ':))
                                      iargs))
@@ -274,9 +274,9 @@ meditate on this.
               ;; Here's the recursive part.
               (cond ,@(operator..getitem pairs (slice 2 None))))))
 
-(defmacro any-for (params iterable : :* body)
+(defmacro any-for (item iterable : :* body)
   "``any-for`` Evaluate body for each item in iterable until any result is true."
-  `(any (map (lambda ,params
+  `(any (map (lambda (,item)
                ,@body)
              ,iterable)))
 
