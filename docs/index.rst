@@ -12,7 +12,7 @@ It's Python with a *Lissp.*
 
 Welcome to Hissp's documentation!
 Jump in and try the quick start if you're feeling confident,
-or read the more detailed tutorial.
+or read the more detailed (but less thorough) tutorial.
 
 .. TODO: add REPL via Brython or Pyodide?
 

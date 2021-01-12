@@ -242,7 +242,7 @@ Lissp Quick Start
    >>> 'notxH_stringx1QUOTE_'
    'notxH_stringx1QUOTE_'
 
-   #> #"Say \"Cheese!\" \u263a"              ;Hash prefix turns on Python escapes.
+   #> #"Say \"Cheese!\" \u263a"              ;Hash strings use Python escapes.
    >>> ('Say "Cheese!" ☺')
    'Say "Cheese!" ☺'
 
