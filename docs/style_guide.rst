@@ -9,18 +9,25 @@ Why have a style guide?
 
 Code was made for the human, not only for the machine,
 otherwise we'd all be writing programs in binary.
-Code is written once, and rewritten many times.
-It is *read* much more than it is written.
+Style is not merely a matter of aesthetics.
+Consistency lifts a burden from the mind, and,
+with experience, improves human performance.
+Style is a practical matter.
 
-*Readability counts.*
+Code is written once, and rewritten many times.
+It is *read* much more than it is written,
+and often by multiple individuals,
+so it is that much more important to make code easy to read and edit than to write.
 
 To the uninitiated, Lisp is an unreadable homogenous ball of mud.
 Lots of Irritating Superfluous Parentheses. That's L.I.S.P.
+*How can anyone even read that?*
 
-How can *anyone* even *read* that?
+Consistency. Experience.
+I'll let you in on the secret:
 
-Well, I'll let you in on the secret:
-Real Lispers don't actually count the brackets.
+   *Real Lispers don't count the brackets.*
+
 It's true.
 
 Don't Count the Brackets
@@ -31,17 +38,20 @@ working memory is too small.
 We handle complexity by chunking it into hierarchies of labeled black boxes within boxes within boxes.
 Mental recursive trees.
 
-But syntax trees are the very essence of Lisp.
-At the bottom of Hissp's hierarchy are tuples of atoms.
-(There is, of course, a foundation outside of Hissp of many layers of abstraction even below that.)
+But syntax trees are the very essence of Lisp,
+and you understand them in the same hierarchical way.
+There are, of course, many more layers of abstractions below Hissp,
+but at the bottom of Hissp's hierarchy are tuples of atoms.
 Conceptually, it's a box with a label and contents.
 
 ::
 
    LABEL item1 item2 ...
 
-Order matters in Hissp.
-These are tuples, not just sets.
+Order matters in Hissp,
+and repeats are allowed.
+Mathematically speaking, these boxes are *tuples*,
+not just sets.
 The first element is the label.
 The rest are contents.
 
@@ -60,33 +70,37 @@ Given code like this,
 
    (define fib
      (lambda (n)
-       (if-else (operator..le n 2)
+       (if-else (le n 2)
          n
-         (operator..add (fib (operator..sub n 1))
-                        (fib (operator..sub n 2))))))
+         (add (fib (sub n 1))
+              (fib (sub n 2))))))
 
-this is what the experienced human sees:
+this is what the experienced human sees.
 
 ::
 
    (define fib
      (lambda (n
-       (if-else (operator..le n 2
+       (if-else (le n 2
          n
-         (operator..add (fib (operator..sub n 1
-                        (fib (operator..sub n 2
+         (add (fib (sub n 1
+              (fib (sub n 2
 
-The indentation is for the human, not the computer.
-While this will compile fine,
+Learn to see it that way.
+There is no missing information.
+
+While the following will compile fine,
 if you write it this way,
-you will make the humans angry:
 
 ::
 
    (define fib(lambda(n)(if-else(
-   operator..le n 2)n(operator..add(fib(
-   operator..sub n 1))(fib(operator..sub n 2)))))
+   le n 2)n(add(fib(
+   sub n 1))(fib(sub n 2)))))
 
+the uninitiated might not care
+(because it took them great effort to read it anyway),
+but you will make the experienced humans angry.
 It's like trying to read minified JavaScript.
 You can maybe do it, but it's tedious.
 
@@ -135,8 +149,8 @@ You might need to format raw Hissp in readerless mode,
 or Lissp embedded in a string
 or notebook cell
 or documentation
-or comment on some web forum.
-Or maybe you're one of those people who insists on programming in Notepad.
+or comment on some web forum,
+or maybe you're one of those people who insists on programming in Notepad.
 Or maybe you want to write one of these editor tools in the first place.
 For these reasons,
 I feel the need to spell out what good indentation looks like
@@ -144,8 +158,8 @@ well enough that you could do it by hand.
 
 The only absolute rules are
 
-- don't dangle brackets
-- unambiguous indentation
+- Don't Dangle Brackets
+- Unambiguous Indentation
 
 If you break these rules,
 Parinfer can't be used.
@@ -154,7 +168,7 @@ Team projects with any Lissp files should be running
 along with their tests to enforce this.
 Basic legibility is not negotiable. Use it.
 
-don't dangle brackets
+Don't Dangle Brackets
 ---------------------
 
 Trailing brackets are something we try to ignore.
@@ -168,12 +182,12 @@ They don't get extra spaces either.
    ;; Wrong.
    (define fib
      (lambda (n)
-       (if-else (operator..le n 2)
+       (if-else (le n 2)
          n
-         (operator..add (fib (operator..sub n 1)
-                         )
-                        (fib (operator..sub n 2)
-                         )
+         (add (fib (sub n 1)
+               )
+              (fib (sub n 2)
+               )
          )
        )
      )
@@ -182,10 +196,10 @@ They don't get extra spaces either.
    ;; Still wrong.
    ( define fib
      ( lambda ( n )
-       ( if-else ( operator..le n 2 )
+       ( if-else ( le n 2 )
          n
-         ( operator..add ( fib ( operator..sub n 1 ) )
-                         ( fib ( operator..sub n 2 ) ) ) ) ) )
+         ( ..add ( fib ( sub n 1 ) )
+                 ( fib ( sub n 2 ) ) ) ) ) )
 
 This also goes for readerless mode.
 
@@ -233,10 +247,10 @@ This is to prevent the common error of forgetting the required trailing comma fo
 If your syntax highlighter can distinguish ``(x)`` from ``(x,)``, you may be OK without it.
 But this had better be the case for the whole team.
 
-unambiguous indentation
+Unambiguous Indentation
 -----------------------
 
-The indentation level indicates which tuple the next line starts in.
+A new line's indentation level determines which tuple it starts in.
 Go past the parent's opening bracket, not the sibling's.
 
 .. code-block:: Lissp
@@ -262,6 +276,24 @@ Even after deleting the trails, you can tell where the ``x`` belongs.
 
    (a (b c
          x
+
+
+.. Caution::
+
+   **Indent with spaces only.**
+   Because indents have to be between parent and sibling brackets,
+   lines in Lisp may have to start on *any column*, therefore,
+   *Lisp cannot be indented properly with tabs alone.*
+   There are arguments to be made for using tab indents in other langauges,
+   but they mostly don't apply to Lisp.
+   You *have to* use spaces.
+   It's possible to reach any column using an invisible mix of tabs and spaces,
+   but indentation can't be called "unambiguous"
+   if no-one can agree on the width of their tab stops!
+   Tab indents are already considered bad practice in Python and in other Lisps,
+   but to pre-empt this kind of problem,
+   it's not just a matter of style in Lissp—**it's a syntax error.**
+   If you run into these, check your editor's configuration.
 
 The rule is to pass the parent *bracket*.
 You might not pass the head *atom* in some alignment styles.
@@ -295,12 +327,12 @@ Note that a multiline string is still an atom.
         "abc
    xyz")
 
-   (foo (bar "\
+   (foo (bar #"\
    abc
    xyz"))
 
    (foo (bar)
-        "\
+        #"\
    abc
    xyz")
 
@@ -315,12 +347,12 @@ We can still unambiguously reconstruct the trails.
         "abc
    xyz"
 
-   (foo (bar "\
+   (foo (bar #"\
    abc
    xyz"
 
    (foo (bar
-        "\
+        #"\
    abc
    xyz"
 
@@ -330,13 +362,27 @@ so we don't delete it or ignore it.
 Alignment Styles
 ================
 
+The remaining rules are more a matter of that *practical consistency*.
+Exactly what rules *implement* that consistency matters much less
+than the consistency itself.
+This is not always black and white,
+but that doesn't mean all shades of gray are the same.
+There may be better and worse approaches,
+while other differences are merely taste.
+
+Lisp is one of the oldest programming languages in common use.
+It has splintered into many dialects (Lissp among them),
+with a common culture, but without perfect agreement in all details.
+Lissp's recommended style is based on these,
+with some small modifications for its own unique features.
+
 Keep the elements in a tuple aligned to start on the same column.
 Treat siblings groups equally:
 If you add a line break for one group,
 then put all of its sibling groups on their own line as well.
 Keep items within implied groups (like kwargs) together.
 Control words used as labels should be grouped with what they label.
-Your code should look like these examples:
+Your code should look like these examples, recursively applied to subforms:
 
 .. code-block:: Lissp
 
@@ -370,7 +416,7 @@ Your code should look like these examples:
       (reticulate a)
       (frobnicate a b c))
     arg1                                  ;The "not past the sibling" rule is absolute.
-    arg2                                  ; Not even one space past the (, like data.
+    arg2                                  ; Not even one space past the (lambda.
     arg3)
 
    ((lambda (a b c)
@@ -468,7 +514,7 @@ Long multiline strings should be declared at the top level and referenced by nam
 
 .. code-block:: Lissp
 
-   (define MESSAGE "\
+   (define MESSAGE #"\
    These lines
    don't interrupt
    the flow either.
@@ -492,7 +538,7 @@ If you're writing an API that's exposed to the Python side,
 avoid unpythonic identifiers
 (including package and module names)
 in the public interface.
-Use the naming styles from PEP 8.
+Use the `naming conventions from PEP 8. <https://www.python.org/dev/peps/pep-0008/#naming-conventions>`_
 
 ``CapWords`` for class names.
 
@@ -508,14 +554,15 @@ and the first classmethod argument ``cls``.
 Python does not enforce this,
 but it's a very strong convention.
 
-See PEP 8 for full details.
-
-``*FOO-BAR*`` is a perfectly valid Lissp identifier,
+For internal Lissp code,
+Python conventions are fine,
+but the munger opens up more characters.
+Something like ``*FOO-BAR*`` is a perfectly valid Lissp identifier,
 but it munges to ``xSTAR_FOOxH_BARxSTAR_``,
 which is awkward to use from the Python side.
 
 Even in private areas,
-let the munger do the work for you.
+let the munger do the munging for you.
 Avoid writing anything in the x-quoted style yourself.
 This can confuse the demunger and cause collisions with gensyms.
 
@@ -538,11 +585,28 @@ but don't overdo it.
 
 .. code-block:: Lissp
 
-   (lambda (x) (print "Hi" x) (print "Bye" x)) ;OK
+   (lambda (x) (print "Hi" x) (print "Bye" x)) ;OK.
 
    (lambda (x)                            ;Preferred.
      (print "Hi" x)
      (print "Bye" x))
+
+Don't put a train of ``)``'s inside the line,
+because then we'd have to count brackets!
+
+If the train is trailing at the end of the line,
+then the tree structure is clear from the indents.
+
+.. code-block:: Lissp
+
+   (print (/ (sum xs) (len xs)) "on average.") ;Bad.
+
+   (print (+ (sum xs) (len xs))           ;OK.
+          "on average.")
+
+   (print (+ (sum xs)                     ;Preferred.
+             (len xs))
+          "on average.")
 
 Implied groups should be kept together.
 Closing brackets inside a pair can happen in `cond`,
@@ -550,23 +614,51 @@ for example.
 
 .. code-block:: Lissp
 
-   (lambda (x)
-     (cond (operator..lt x 0) (print "negative")
-           (operator..eq x 0) (print "zero")
-           (operator..gt x 0) (print "positive")
+   (lambda (x)                            ;Preferred.
+     (cond (lt x 0) (print "negative")
+           (eq x 0) (print "zero")
+           (gt x 0) (print "positive")
            :else (print "not a number")))
 
-But a train of ``)``'s must not appear inside of a line,
-even in an implied group,
-because then we'd have to count brackets!
-If the train is trailing at the end of the line,
-then the tree structure is clear from the indents.
-How many is a train?
-When you have to count them.
+A train of ``)``'s must not appear inside of a line,
+even in an implied group.
 
-Always breaking at a train of two or more should be considered the default style.
+.. code-block:: Lissp
 
-Maybe you can relax this rule in special cases.
-But honestly, even two or three in a row is really pushing it.
-That's about the most a human can reliably count at a glance.
-Consider very seriously if a line break wouldn't be more legible there.
+   (define compare                        ;Bad. Internal ))'s.
+     (lambda (xs ys)
+       (cond (eq (len xs) (len ys)) (print "0")
+             (lt (len xs) (len ys)) (print "<")
+             (gt (len xs) (len ys)) (print ">"))))
+
+   (define compare                        ;Bad. Pairs not grouped.
+     (lambda (xs ys)
+       (cond (eq (len xs) (len ys))
+             (print "0")
+             (lt (len xs) (len ys))
+             (print "<")
+             (gt (len xs) (len ys))
+             (print ">"))))
+
+   (define compare                        ;OK.
+     (lambda (xs ys)
+       (cond (eq (len xs)
+                 (len ys))
+             (print "0")
+
+             (lt (len xs)
+                 (len ys))
+             (print "<")
+
+             (gt (len xs)
+                 (len ys))
+             (print ">"))))
+
+   (define compare                        ;Preferred. Keep cond simple.
+     (lambda (xs ys)
+       (let (lxs (len xs)
+             lys (len ys))
+         (cond (eq lxs lys) (print "0")
+               (lt lxs lys) (print "<")
+               (gt lxs lys) (print ">"))))))
+

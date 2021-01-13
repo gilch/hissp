@@ -165,7 +165,9 @@ class Lissp:
             if k in {"comment", "whitespace"}:
                 continue
             elif k == "badspace":
-                raise SyntaxError("Bad space: " + repr(v), self.position())
+                raise SyntaxError(
+                    repr(v) + " is not whitespace in Lissp. Indent with spaces only.",
+                    self.position())
             elif k == "open":
                 yield from self._open()
             elif k == "close":

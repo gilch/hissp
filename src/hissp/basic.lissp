@@ -284,7 +284,7 @@ meditate on this.
 (defmacro && (: :* exprs)
   "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
   (cond (operator..not_ exprs) True
-        (operator..eq 1 (len exprs)) (operator..getitem exprs 0)
+        (operator..eq (len exprs) 1) (operator..getitem exprs 0)
         :else `(let ($#G ,(operator..getitem exprs 0))
                  (if-else $#G
                           (&& ,@(operator..getitem exprs (slice 1 None)))
