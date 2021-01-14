@@ -9,8 +9,8 @@ Lissp
 
 A normal install of the ``hissp`` package with ``pip`` and ``setuptools`` will
 also install the ``lissp`` command-line tool for running Lissp code.
-This is a convenience executable for starting ``python -m hissp``.
-Its options were modeled after Python's:
+This is a convenience executable for starting ``python -m hissp``,
+whose minimal options were modeled after Python's most commonly used:
 
 .. code-block:: Text
 
@@ -40,4 +40,5 @@ and it takes the same arguments as ``transpile``.
 
 The package can be an empty string for top-level modules.
 Remember to use the *module* names, not the *file* names.
-E.g. ``python -m hissp.reader "" spam eggs``, not ``python -m hissp.reader "" spam.lissp eggs.lissp``.
+E.g. ``python -m hissp.reader "" spam eggs``,
+not ``python -m hissp.reader "" spam.lissp eggs.lissp``.
