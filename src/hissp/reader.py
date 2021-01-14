@@ -264,7 +264,7 @@ class Lissp:
             module, function = tag.split("..", 1)
             return reduce(getattr, function.split("."), import_module(module))(form)
         try:
-            m = getattr(self.ns["_macro_"], tag)
+            m = getattr(self.ns["_macro_"], tag+'xHASH_')
         except (AttributeError, KeyError):
             raise SyntaxError(f"Unknown reader macro {tag}", self.position())
         return m(form)

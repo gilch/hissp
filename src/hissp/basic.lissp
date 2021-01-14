@@ -319,8 +319,8 @@ meditate on this.
 
 ;;; reader
 
-(defmacro b (raw)
-  "bytes literal reader macro"
+(defmacro b\# (raw)
+  "``b#`` bytes literal reader macro"
   (-> raw
       (.replace "'" "\'")
       (.replace #"\n" "\n")
@@ -346,6 +346,7 @@ except ModuleNotFoundError:
 
 (defmacro alias (alias module)
   "Defines a reader macro abbreviation of a qualifier."
-  `(defmacro ,alias ($#G)
+  `(defmacro ,(.format "{}{}" alias '#)
+             ($#G)
      ',(.format "Aliases {} as {}#" module alias)
      (.format "{}{}" ',module $#G)))

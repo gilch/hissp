@@ -1316,10 +1316,10 @@ Lissp Quick Start
    ...     _fnxAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
-   ...       ('_macro_', 'bxSLASH_'))),
+   ...       ('_macro_', 'bxSLASH_xHASH_'))),
    ...   __import__('builtins').setattr(
    ...     _macro_,
-   ...     'bxSLASH_',
+   ...     'bxSLASH_xHASH_',
    ...     _fnxAUTO7_))[-1])()
 
    #> 'b/#alias                              ;Now short for 'hissp.basic.._macro_.alias'.

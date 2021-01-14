@@ -335,7 +335,7 @@ However, they do work in Python injections:
    b'injected bytes literal'
 
 And, if you have the basic macros loaded,
-you can use the `b` reader macro.
+you can use the `b# <bxHASH_>` reader macro.
 
 .. code-block:: REPL
 
@@ -376,7 +376,7 @@ Or use the escape-string read syntax for short:
 Wait, hash strings take escapes? Why are raw strings the default? In Clojure it's the other way around.
 -------------------------------------------------------------------------------------------------------
 
-Then we'd have to write byte strings like this: ``b##"spam"``.
+Then we'd have to write byte strings like ``b##"spam"``.
 Python has various other prefixes for string types.
 Raw, bytes, format, unicode, and various combinations of these.
 Reader macros let us handle these in a unified way in Lissp and create more as needed,

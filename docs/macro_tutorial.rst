@@ -25,13 +25,13 @@ and garbage collection are *primitives*,
 but in C, those are *design patterns*,
 discovered and developed over time as best practice,
 and built with lower-level parts like structs and pointers,
-and have to be repeated each time they're needed.
+which have to be repeated each time they're needed.
 
 To someone who started out in assembly or BASIC, or C, or even Java,
 Python seems marvelously high-level, once mastered.
 Python makes everything that was so tedious before |seem *so easy*|__
 
-.. |seem *so easy*| replace:: seem *so easy*
+.. |seem *so easy*| replace:: seem *so easy*.
 __ https://xkcd.com/353/
 
 But the advanced Python developer eventually starts to notice the cracks.
@@ -44,7 +44,7 @@ You're stuck with a certain amount of boilerplate and ceremony.
 Programmers comfortable with C,
 but unfamiliar with Python,
 will tend to write C idioms in Python,
-like using explicit indexes into lists in for loops over a `range`,
+like using explicit indexes into lists in for-loops over a `range`,
 instead of using the list's iterator directly.
 Their code is said to be *unpythonic*.
 They forgo much of Python's power,
@@ -69,17 +69,34 @@ but why you need them.
 ----
 
 If you're new to Lisp,
-go back and read the style guide if you haven't already.
+go back and read the `style guide <style_guide>` if you haven't already.
 Understanding how Lisp is *formatted* helps you to read it,
 not just write it.
 And you will need to read it.
+Learning to read a new programming language can be difficult,
+because you're using up working memory that would otherwise
+be helping with the meaning of the code on the syntax itself.
+This does get better with familiarity,
+because you can offload that part to your long-term memory.
+That also means that it's more difficult the more different the new language is
+from those you already know.
+
+Fortunately, Lissp's syntax is very minimal,
+so there's not that much to remember,
+and most of the vocabulary you know from Python already.
+You can skim over the Python,
+but resist the urge to skim the Lissp.
+`S-expressions <https://en.wikipedia.org/wiki/S-expression>`_
+are a very direct representation of the same kind of syntax trees that
+you mentally generate when reading any other programming language.
+Take your time and comprehend each subexpression instead of taking it in all at once.
 
 The previous tutorial was mostly about learning how to program with
 a subset of Python in a new skin.
 This one is about using that knowledge to reprogram the skin itself.
 
 If you don't know the basics from the `previous tutorial <tutorial>`,
-go back and read that now, or at least skim the `quick start <lissp_quickstart>`.
+go back and read that now, or at least read the `Quick Start <lissp_quickstart>`.
 
 In the previous tutorial we mostly used the REPL,
 but it can become tedious to type long forms into the REPL,
@@ -92,8 +109,8 @@ The usual workflow when developing Lissp is to create a ``.lissp``
 file and work in there.
 Then you can save as you go
 and send fragments of it to the REPL for evaluation and experimentation.
-You might already develop Python that way.
-A good editor can be configured to send selected text to another process
+You might already develop Python this way.
+A good editor can be configured to send selected text to the REPL
 with a simple keyboard command,
 but copy-and-paste into a terminal window will do.
 
@@ -104,7 +121,6 @@ It's probably easiest to set up in Atom.
 
 Shorter Lambdas
 ---------------
-.. TODO: xi / %#
 
 The defect rate in computer programs seems to be a near-constant fraction
 of the number of kilobytes of source code.
@@ -137,7 +153,7 @@ But the overhead of typing out a six-letter word might make you a little too rel
 unlike in Smalltalk where it's just square brackets,
 and it's used all the time in control flow methods.
 
-Wouldn't it be nice if we could give lambda a shorter name?
+Wouldn't it be nice if we could give ``lambda`` a shorter name?
 
 .. code-block:: Python
 
@@ -152,16 +168,32 @@ Maybe like this?
 
 Alas, this doesn't work.
 The ``L = lambda`` is a syntax error.
-(Of course, I'd probably just use a generator expression here.
-It's only an example.)
+
+To be fair to Python, I'd use a generator expression here,
+which is the same length:
+
+.. code-block:: Python
+
+   squares = map(L x: x * x, range(10))
+   squares = (x * x for x in range(10))
+
+But I need a simple example,
+and lambdas are a lot more general:
+
+.. code-block:: Python
+
+   product = reduce(L a, x: a * x, range(1, 7))
+
+A genexpr doesn't really help us in a `reduce <functools.reduce>`.
 
 They say that in Python everything is an object.
-but it's still not quite true, is it?
+But it's not quite true, is it?
 ``lambda`` isn't an object in Python.
+It's a reserved word, but at runtime, that's not an object.
 It's not anything.
 If you're rolling your eyes and thinking,
 "Why would I even expect this to work?"
-Then you're still thinking inside the Python box.
+then you're still thinking inside the Python box.
 
 You can store class and function objects in variables
 and pass them as arguments to functions in Python.
@@ -200,6 +232,16 @@ And push it to the REPL as well:
    ...    "    _macro_ = __import__('types').SimpleNamespace(**vars(_macro_))\n"
    ...    'except ModuleNotFoundError:\n'
    ...    '    pass'))
+
+.. caution::
+
+   The `prelude` macro overwrites your _macro_ namespace with a copy of the basic one.
+   Any macros you've defined in there are lost.
+   In Lissp files, the prelude is meant to be used before any definitions,
+   when it is used at all.
+   Likewise, in the REPL, enter it first, or be prepared to re-enter your definitions.
+   The REPL already comes with the `basic` macros,
+   but not the `itertools` or `operator`\ s.
 
 I'll mostly be showing the REPL from here on.
 Remember, compose in your Lissp file,
@@ -254,8 +296,8 @@ That worked, but can we use it?
                     ^
    SyntaxError: invalid syntax
 
-That's still a syntax error.
-It just happened later.
+Another syntax error.
+No surprise.
 
 Write the equivalent example in your Lissp file
 and push it to the REPL:
@@ -293,9 +335,11 @@ Quote the whole thing to see the Hissp tuples.
    >>> ('define', 'squares', ('map', ('L', ('x',), ('mul', 'x', 'x')), ('range', 10)))
    ('define', 'squares', ('map', ('L', ('x',), ('mul', 'x', 'x')), ('range', 10)))
 
-Hissp isn't compiling it like a special form.
 We don't want that ``'L'`` string in the Hissp, but ``'lambda'``.
-Is that possible? It is with one more step.
+Hissp isn't compiling it like a special form.
+Is that possible?
+
+It is with one more step.
 We want to dereference this at read time.
 Inject:
 
@@ -323,32 +367,65 @@ Inject:
 
 Amazing.
 
-But Python is such a marvelously high-level language can't it do that too?
+Those of you who started with Python might be a little impressed,
+but you C people are thinking,
+"Yeah, that's just a macro.
+We can do that much in C with the preprocessor.
+I bet we could preprocess Python too somehow."
+To which I'd reply,
+*What do you think Lissp is?!*
+
+The C preprocessor is pretty limited.
+Lissp is a transplier.
+That's *much* more powerful.
+
+But since Python is supposed to be such a marvelously high-level language compared to C,
+can't it do that too?
+
 No, it really can't:
 
 >>> squares = map(eval(f"{L} x: x * x"), range(10))
 >>> list(squares)
 [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
 
+Sometimes higher-level tools cut you off from the lower level.
 You can get pretty close to the same idea,
 but that's about the best Python can do.
-It didn't help, did it? Compare:
+Compare:
 
 .. code-block:: Python
 
     eval(f"{L} x: x * x")
     lambda x: x * x
 
+It didn't help, did it?
 It got longer!
-This was so easy in Lissp,
-but so awkward in Python.
+Can we do better?
 
-It gets better.
+>>> e = eval
+
+.. code-block:: Python
+
+    e(f"{L} x:x*x")
+    lambda x:x*x
+
+Nope.
+And there are good reasons to avoid `eval` in Python:
+We have to compile code at runtime,
+and put more than we wanted to in a string,
+and deal with separate namespaces. Ick.
+Lissp had none of those problems.
+
+This simple substitution metaprogramming task that was so easy in Lissp,
+was so awkward in Python.
+
+But Lissp does more than substitutions.
 
 Simple compiler macros
 ~~~~~~~~~~~~~~~~~~~~~~
 
-We're not actually shorter yet:
+Despite my recent boasting,
+our Lissp version is not actually shorter than Python's yet:
 
 .. code-block:: Text
 
@@ -367,24 +444,28 @@ If you like, we can assign a shorter name for `mul <operator.mul>`:
    ...   'xSTAR_',
    ...   mul)
 
-And the params tuple doesn't actually have to be a tuple:
+And the params tuple doesn't technically have to be a tuple:
 
 .. code-block:: Text
 
    (.#L x (* x x))
    lambda x: x * x
 
-Symbols become strings which are iterables containing character strings.
+Symbols become strings at the Hissp level,
+which are iterables containing character strings.
 This only works because the variable name is a single character.
-Now we're the same length as Python.
+Now we're at the same length as Python.
+Let's make it even shorter.
 
 Given a tuple containing the *minimum* amount of information,
-we expand that into the necessary code using a macro.
-Isn't there something extra here?
+we want expand that into the necessary code using a macro.
+
+Isn't there something extra here we could get rid of?
 With a compiler macro, we won't need the inject.
 
 The template needs to look something like
 ``(lambda <params> <body>)``.
+Try this definition.
 
 .. Lissp::
 
@@ -513,7 +594,10 @@ But we're also less general.
 We can change the expression,
 but we've hardcoded the parameters to it.
 The fixed name is fine as long as we don't have to nest them,
-but what if needed two?
+but what if needed two parameters?
+Seriously, close your eyes and think about it for at least fifteen seconds
+before moving on to the next paragraph.
+Don't generalize before we have examples to work with.
 
 You might already guess how we might do this:
 
@@ -552,11 +636,11 @@ You might already guess how we might do this:
    ...     Y))
    <function <lambda> at ...>
 
-That wasn't hard,
-and between ``L`` and ``L2``,
+That's another easy template.
+Between ``L`` and ``L2``,
 we've probably covered 80% of short-lambda use cases.
-But you can see the pattern here.
-We could generalize to an ``L3`` with a ``Z`` parameter,
+But you can see the pattern now.
+We could continue to an ``L3`` with a ``Z`` parameter,
 and then we've run out of alphabet.
 
 When you see a "design pattern" in Lissp,
@@ -1074,20 +1158,22 @@ That's the first two reader macros ``.#`` and :literal:`\``.
 The `progn` sequences multiple expressions for their side effects.
 It's like having multiple "statements" in a single expression.
 We splice in multiple expressions generated with a `map`.
-The `map` uses generates a code tuple for each integer from the `range`.
+The `map` generates a code tuple for each integer from the `range`.
 
-The lambda takes the int ``i`` from the `range` and produces a `defmacro`,
+The lambda takes the int ``i`` from the `range` and produces a `defmacro` *form*,
+(not a *macro*, the *code for defining one*)
 which, when run in the `progn` by our inject,
 will define a macro.
 
 Nothing is above abstraction in Lissp.
-`defmacro` forms are *still code*.
+`defmacro` forms are *still code*,
+and Hissp code is made of data structures we can manipulate programmatically.
 We can make them with templates like anything else.
 
 We need to give each one a different name,
 so we combine the ``i`` with ``"L"``.
 
-The parameters tuple for `defmacro` contains a gensym,
+The parameters tuple for `defmacro` contains a gensym, ``$#expr``,
 since it shouldn't be qualified and it doesn't need to be an anaphor.
 
 The next part is tricky.
@@ -1130,14 +1216,14 @@ We can create numbered X's the same way we created the numbered L's.
 
 .. Lissp::
 
-   #> (defmacro L (no : :* expr)
+   #> (defmacro L (number : :* expr)
    #..  `(lambda ,(map (lambda (i)
    #..                   (.format "X{}" i))
-   #..                 (range 1 (add 1 no)))
+   #..                 (range 1 (add 1 number)))
    #..     ,expr))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda no,*expr:
+   ... (lambda _fnxAUTO7_=(lambda number,*expr:
    ...   (lambda *xAUTO0_:xAUTO0_)(
    ...     'lambda',
    ...     map(
@@ -1148,7 +1234,7 @@ We can create numbered X's the same way we created the numbered L's.
    ...         (1),
    ...         add(
    ...           (1),
-   ...           no))),
+   ...           number))),
    ...     expr)):(
    ...   __import__('builtins').setattr(
    ...     _fnxAUTO7_,
@@ -1178,10 +1264,10 @@ We can create numbered X's the same way we created the numbered L's.
    ...   ('B'))
    'AB'
 
-This version pulls the number argument out of the macro name and makes it the first argument.
+This version uses a number as the first argument instead of baking them into the macro names.
 We're using numbered parameters now, so there's no limit.
-That takes care of the parameters,
-but we're still passing in a number for them.
+That takes care of *generating* the parameters,
+but we're still providing an expected a number for them.
 
 Let's make a slight tweak.
 
@@ -1219,7 +1305,7 @@ Let's make a slight tweak.
    ...     _fnxAUTO7_))[-1])()
 
 
-What is ``max-X``?
+What is this ``max-X``?
 It's a venerable design technique known as *wishful thinking*.
 We haven't implemented it yet.
 This doesn't work.
@@ -1296,6 +1382,14 @@ Can we just iterate through the expression and check?
    ...         expr))))
 
 
+You can experiment with macros you don't recognize in the REPL.
+All the basic macros,
+including the `|| <xBAR_xBAR_>`
+and `when` were covered in the `Quick Start <lissp_quickstart>`.
+We're using them to coalesce Python's awkward regex matches,
+which can return ``None``, into a ``0``,
+unless it's a string with a match.
+
 It gets the parameters right:
 
 .. code-block:: REPL
@@ -1313,7 +1407,8 @@ Pretty cool.
 
 .. code-block:: REPL
 
-   #> ((L add X1 (add X2 X3)) : :* "BAR")
+   #> ((L add X1 (add X2 X3))
+   #.. : :* "BAR")
    >>> # L
    ... (lambda X1:
    ...   add(
@@ -1326,29 +1421,29 @@ Pretty cool.
      File "<console>", line 2, in <module>
    TypeError: <lambda>() takes 1 positional argument but 3 were given
 
-Not so cool.
+Oh. Not that easy.
 What happened?
 The lambda only took one parameter,
 even though the expression contained an ``X3``.
 
 We need to be able to check for symbols nested in tuples.
 This sounds like a job for recursion.
-Lissp can do it with a class.
+Lissp can do that with a class.
 
 .. Lissp::
 
    #> (deftype Flattener ()
    #..  __init__
    #..  (lambda (self)
-   #..    (setattr self 'acc []))
+   #..    (setattr self 'accumulator []))
    #..  flatten
    #..  (lambda (self form)
    #..    (any-for x form
    #..      (if-else (is_ (type x) tuple)
    #..        (self.flatten x)
-   #..        (.append self.acc x))
+   #..        (.append self.accumulator x))
    #..      False)
-   #..    self.acc))
+   #..    self.accumulator))
    >>> # deftype
    ... # hissp.basic.._macro_.define
    ... __import__('operator').setitem(
@@ -1361,7 +1456,7 @@ Lissp can do it with a class.
    ...       __init__=(lambda self:
    ...         setattr(
    ...           self,
-   ...           'acc',
+   ...           'accumulator',
    ...           [])),
    ...       flatten=(lambda self,form:(
    ...         # anyxH_for
@@ -1382,14 +1477,17 @@ Lissp can do it with a class.
    ...                   self.flatten(
    ...                     x)),
    ...                 (lambda :
-   ...                   self.acc.append(
+   ...                   self.accumulator.append(
    ...                     x))),
    ...               False)[-1]),
    ...             form)),
-   ...         self.acc)[-1]))))
+   ...         self.accumulator)[-1]))))
 
 
-This is a good utility to have for macros that have to read code.
+More basic macros here.
+Search Hissp's docs if you can't figure out what they do.
+
+``Flatten`` is a good utility to have for macros that have to read code.
 Let's give it a nicer interface.
 
 .. Lissp::
@@ -1482,7 +1580,8 @@ Let's try again.
 
 .. code-block:: REPL
 
-   #> ((L add X1 (add X2 X3)) : :* "BAR")
+   #> ((L add X1 (add X2 X3))
+   #.. : :* "BAR")
    >>> # L
    ... (lambda X1,X2,X3:
    ...   add(
@@ -1493,7 +1592,7 @@ Let's try again.
    ...   *('BAR'))
    'BAR'
 
-That's better.
+Try doing that with the C preprocessor.
 
 Function Literals
 ~~~~~~~~~~~~~~~~~
@@ -1527,17 +1626,24 @@ Let's review. The code you need to make the version we have so far is
    (deftype Flattener ()
      __init__
      (lambda (self)
-       (setattr self 'acc []))
+       (setattr self 'accumulator []))
      flatten
      (lambda (self form)
        (any-for x form
          (if-else (is_ (type x) tuple)
            (self.flatten x)
-           (.append self.acc x))
+           (.append self.accumulator x))
          False)
-       self.acc))
+       self.accumulator))
 
-You should have all of these definitions in your Lissp file so far.
+Given all of this in a file named ``macros.lissp``,
+you can start the REPL with these already loaded using the command
+
+.. code-block:: Text
+
+   $ lissp -i macros.lissp
+
+rather than pasting them in.
 
 You can use the resulting macro as a shorter lambda for higher-order functions:
 
@@ -1556,7 +1662,7 @@ You can use the resulting macro as a shorter lambda for higher-order functions:
    [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
 
 It's still a little awkward.
-It feels like the ``add`` should be in the function position,
+It feels like the ``add`` should be in the first position,
 but that's taken by the ``L``.
 We can fix that with a reader macro.
 
@@ -1565,7 +1671,7 @@ Reader syntax
 
 .. Lissp::
 
-   #> (defmacro X (expr)
+   #> (defmacro X\# (expr)
    #..  `(L ,@expr))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
@@ -1577,18 +1683,24 @@ Reader syntax
    ...     _fnxAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
-   ...       ('_macro_', 'X'))),
+   ...       ('_macro_', 'XxHASH_'))),
    ...   __import__('builtins').setattr(
    ...     _macro_,
-   ...     'X',
+   ...     'XxHASH_',
    ...     _fnxAUTO7_))[-1])()
 
-Notice we still used a `defmacro`.
+This macro's name ends in a ``#``.
+(We have to escape the ``#`` with a backslash
+or the reader will recognize the name as a macro rather than an atom
+and try to invoke it immediately.)
+Notice that we still used a `defmacro`,
+like we do for compiler macros.
 It's the way you invoke it that makes it happen at read time:
 
 .. code-block:: REPL
 
-   #> (list (map X#(add X1 X1) (range 10)))
+   #> (list (map X#(add X1 X1) ; Read-time expansion.
+   #..           (range 10)))
    >>> list(
    ...   map(
    ...     # __main__.._macro_.L
@@ -1600,13 +1712,27 @@ It's the way you invoke it that makes it happen at read time:
    ...       (10))))
    [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
 
-You can invoke any one-argument macro at read time this way.
+   #> (list (map (X\# (add X1 X1)) ; Compile-time expansion.
+   #..           (range 10)))
+   >>> list(
+   ...   map(
+   ...     # XxHASH_
+   ...     # __main__.._macro_.L
+   ...     (lambda X1:
+   ...       add(
+   ...         X1,
+   ...         X1)),
+   ...     range(
+   ...       (10))))
+   [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+
 Reader macros like this effectively create new read syntax
 by reinterpreting existing read syntax.
 
 So now we have function literals.
 
-This is now very similar to the function literals in Clojure,
+These are very similar to the function literals in Clojure,
 and we implemented them from scratch in about a page of code.
 That's the power of metaprogramming.
 You can copy features from other languages,
@@ -1691,10 +1817,18 @@ Catch-all parameter
    ...   (5))
    1 2 (3, 4, 5)
 
-How does it work? Look at what's changed. Here it is again.
+How does it work? Look at what's changed. Here they are again.
 
 .. code-block:: Lissp
 
+   ;; old version
+   (defmacro L (: :* expr)
+     `(lambda ,(map (lambda (i)
+                      (.format "X{}" i))
+                    (range 1 (add 1 (max-X expr))))
+        ,expr))
+
+   ;; new version
    (defmacro L (: :* expr)
      `(lambda (,@(map (lambda (i)
                         (.format "X{}" i))
@@ -1705,21 +1839,23 @@ How does it work? Look at what's changed. Here it is again.
                    `(:* ,'Xi)))
         ,expr))
 
-We splice in the old logic into the new parameters tuple to make the numbered parameters.
+We splice the logic that makes the numbered parameters into the new parameters tuple.
 Following that is the colon separator.
 Remember that it's always allowed in Hissp's lambda forms,
 even if you don't need it,
 which makes this kind of metaprogramming easier.
 
 Following that is the code for a star arg.
-This is an anaphor, so it must be interpolated to prevent qualification.
-Note that the `when` macro will return an empty tuple when its condition is false.
+The ``Xi`` is an anaphor,
+so it must be interpolated into the template to prevent automatic qualification.
+The `when` macro will return an empty tuple when its condition is false.
 Attempting to splice in an empty tuple conveniently doesn't do anything
-(this is similar to "nil punning" in other Lisps),
-so the anaphor is only present in the parameters tuple when the expression `contains <operator.contains>` the ``Xi`` anahpor.
+(like "nil punning" in other Lisps),
+so the ``Xi`` anaphor is only present in the parameters tuple when the
+(flattened) ``expr`` `contains <operator.contains>` it.
 
-Clojure doesn't have these,
-but it would be nice for Python interoperability if we also had a kwargs anaphor.
+It would be nice for Python interoperability if we also had an anaphor for the kwargs.
+Clojure doesn't have these.
 Adding this is left as an exercise.
 Can you figure out how to do it?
 
@@ -1866,17 +2002,18 @@ What matters is what comes out in the expansions.
 
 You could factor these out using a `let` and local variable.
 But sometimes a terse implementation is the clearest name.
-You might also consider flattening before passing to ``max-X`` instead of letting ``max-X`` do it.
+You might also consider flattening before passing to ``max-X``
+instead of letting ``max-X`` do it,
+because then you can give it the same local variable.
 
-Another thing to consider, you might change the ``X``'s to ``%``'s,
+Another thing to consider is that you might change the ``X``'s to ``%``'s,
 and then it would really look like Clojure.
 This should not be hard.
 It would require munging,
 with the tradeoffs that entails for Python interop or other Hissp readers.
 Python already has an operator named ``%``.
 If you want to assign `mod <operator.mod>` that name, then you might want to stick with the ``X``,
-or remove the special case aliasing ``%1`` to ``%``,
-or use some other character Python isn't using, like ``#``.
+or remove the special case aliasing ``%1`` to ``%``.
 Also, rather than ``%&`` for the catch-all as in Clojure,
 a ``%*`` might be more consistent if you've also got a kwargs parameter,
 which you could call ``%**``.
@@ -1894,7 +2031,7 @@ Are we shorter than Python now?
 Did we lose generality?
 Yes, but not much.
 You can't really nest these.
-The parameters get generated even if the only occurence in the expression is quoted.
+The parameters get generated even if the only occurrence in the expression is quoted.
 This is the kind of thing to be mindful of.
 If you're not sure about something,
 try it in the REPL.
@@ -1925,14 +2062,19 @@ But what if we had kept the ``X``?
    ... (lambda :(-X2 + (X2**2 - 4*X1*X3)**0.5)/(2*X1)())
    <function <lambda> at ...>
 
-It looks like we're trying to call the formula.
-We're expecting at least one function in prefix notation.
+It looks like we're trying to invoke the formula itself,
+which would evaluate to a number, not a callable,
+so this doesn't really make sense.
 
-Maybe we can do the divide in prefix and keep the others infix?
+The macro is expecting at least one function in prefix notation.
+Sure, the macro could be modified, but
+maybe we can do the divide in prefix and keep the others infix?
+This doesn't look too bad if you think of it like a fraction bar.
 
 .. code-block:: REPL
 
-   #> X#(truediv .#"(-X2 + (X2**2 - 4*X1*X3)**0.5)" .#"(2*X1)")
+   #> X#(truediv .#"(-X2 + (X2**2 - 4*X1*X3)**0.5)"
+   #..           .#"(2*X1)")
    >>> # __main__.._macro_.L
    ... (lambda :
    ...   truediv(
@@ -1941,13 +2083,17 @@ Maybe we can do the divide in prefix and keep the others infix?
    <function <lambda> at ...>
 
 Now the formula looks right,
-but this lambda takes no parameters!
+but look at the compiled Python output.
+This lambda takes no parameters!
 Python injections hide information that code-reading macros need to work.
-The macro was unable to detect any matching symbols
-because it doesn't look inside the string.
+A macro that doesn't have to read the code,
+like our ``L3``, would have worked fine.
+
+The code-reading macro was unable to detect any matching symbols
+because it doesn't look inside the injected strings.
 In principle it *could have*,
 but it might be a lot more work if you want it to be reliable.
-It could function if the parameters also appeared outside the string,
+It could function if the highest parameter also appeared outside the string,
 but at that point, you might as well use a normal lambda.
 
 Regex might be good enough for a simple case like this,
