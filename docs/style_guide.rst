@@ -525,10 +525,16 @@ Long multiline strings should be declared at the top level and referenced by nam
    (deftype MessagePrinter ()
      __doc__
      "It is safe
-      to indent docstrings."
+     to indent docstrings.
+     "
      display
      (lambda (self)
        (print MESSAGE)))
+
+Indent any multiline docstring to match its opening quote,
+including the closing quote.
+Put the closing quotes for any multiline docstring on its own line.
+(Pydoc automatically strips indents.)
 
 
 Identifiers

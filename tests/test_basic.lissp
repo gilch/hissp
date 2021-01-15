@@ -56,8 +56,9 @@
   (lambda (self)
     (.assertEqual self
                   (!#cascade []
-                           (.append 1)
-                           (.extend [2,3]))
+                           (.append 3)
+                           (.extend [1,2])
+                           (sorted))
                   [1,2,3]))
 
   test_if-else

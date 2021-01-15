@@ -1362,6 +1362,27 @@ Lissp Quick Start
    b'bytes\nwith\nnewlines\n'
 
 
+   ;;; side effect
+
+   #> (prog1                                 ;Sequence for side effects, evaluating to the first.
+   #..  (progn (print 1)                     ;Sequence for side effects, evaluating to the last.
+   #..         3)
+   #..  (print 2))
+   >>> # prog1
+   ... # hissp.basic.._macro_.let
+   ... (lambda _value1xAUTO35_=# progn
+   ... (lambda :(
+   ...   print(
+   ...     (1)),
+   ...   (3))[-1])():(
+   ...   print(
+   ...     (2)),
+   ...   _value1xAUTO35_)[-1])()
+   1
+   2
+   3
+
+
    ;;; definition
 
    #> (define answer 42)                     ;Add a global.
@@ -1483,21 +1504,21 @@ Lissp Quick Start
    >>> ns
    namespace(x=1, xPLUS_=<built-in function add>, y=5)
 
-
    #> (cascade []
-   #..  (.append 1)
-   #..  (.append 2)
-   #..  (.append 3))
+   #..  (.extend "bar")
+   #..  (.sort)
+   #..  (.append "foo")
+   #..  (progn))
    >>> # cascade
-   ... (lambda _thingxAUTO26_=[]:(
-   ...   _thingxAUTO26_.append(
-   ...     (1)),
-   ...   _thingxAUTO26_.append(
-   ...     (2)),
-   ...   _thingxAUTO26_.append(
-   ...     (3)),
-   ...   _thingxAUTO26_)[-1])()
-   [1, 2, 3]
+   ... (lambda _selfxAUTO20_=[]:(
+   ...   _selfxAUTO20_.extend(
+   ...     ('bar')),
+   ...   _selfxAUTO20_.sort(),
+   ...   _selfxAUTO20_.append(
+   ...     ('foo')),
+   ...   # progn
+   ...   (lambda :_selfxAUTO20_)())[-1])()
+   ['a', 'b', 'r', 'foo']
 
 
    ;;; threading
@@ -1626,24 +1647,4 @@ Lissp Quick Start
    ...         ('oops')))))()
    True
 
-
-   ;;; side effect
-
-   #> (prog1                                 ;Sequence for side effects, evaluating to the first.
-   #..  (progn (print 1)                     ;Sequence for side effects, evaluating to the last.
-   #..         3)
-   #..  (print 2))
-   >>> # prog1
-   ... # hissp.basic.._macro_.let
-   ... (lambda _value1xAUTO35_=# progn
-   ... (lambda :(
-   ...   print(
-   ...     (1)),
-   ...   (3))[-1])():(
-   ...   print(
-   ...     (2)),
-   ...   _value1xAUTO35_)[-1])()
-   1
-   2
-   3
 
