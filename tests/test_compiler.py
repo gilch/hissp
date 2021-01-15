@@ -44,7 +44,7 @@ class TestCompileGeneral(TestCase):
 
     @given(literals)
     def test_compile_literal(self, form):
-        self.assertEqual(form, eval(compiler.Compiler().quoted(form)))
+        self.assertEqual(form, eval(compiler.Compiler().atom(form)))
 
     @given(
         st.characters(

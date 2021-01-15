@@ -2,10 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """
-The Hissp data language compiler and associated helper functions.
-
-Includes the special context variable NS,
-which macros can use to get their expansion context.
+The Hissp data-structure language compiler and associated helper functions.
 """
 
 import ast
@@ -31,18 +28,21 @@ MACROS = "_macro_"
 MACRO = f"..{MACROS}."
 RE_MACRO = re.compile(rf"(\.\.{MACROS}\.|\.\.xAUTO_\.)")
 
-# Sometimes macros need the current ns when expanding,
-# instead of its defining ns.
-# Rather than pass in an implicit argument, it's available here.
-# readerless() uses this automatically.
 NS = ContextVar("NS", default=())
+"""
+Sometimes macros need the current namespace when expanding,
+instead of its defining namespace.
+Rather than pass in an implicit argument to all macros,
+it's available here.
+`readerless` uses this automatically.
+"""
 
 Sentinel = NewType('Sentinel', object)
 _SENTINEL = Sentinel(object())
 
 
 class CompileError(SyntaxError):
-    pass
+    """Catch-all exception for compilation failures."""
 
 
 def _trace(method):
@@ -61,14 +61,15 @@ def _trace(method):
 
 
 class PostCompileWarning(Warning):
-    pass
+    """Form compiled to Python, but execution of it failed."""
 
 
 class Compiler:
     """
-    The Hissp compiler.
+    The Hissp recursive-descent compiler.
 
-    Translates the Hissp data language into a functional subset of Python.
+    Translates the Hissp data-structure language into a functional
+    subset of Python.
     """
 
     @staticmethod
@@ -87,6 +88,9 @@ class Compiler:
         self.abort = False
 
     def compile(self, forms: Iterable) -> str:
+        """
+        Compile multiple forms, and execute them them if evaluate mode enabled.
+        """
         result: List[str] = []
         for form in forms:
             form = self.form(form)
@@ -100,7 +104,8 @@ class Compiler:
                 sys.exit(1)
         return "\n\n".join(result)
 
-    def eval(self, form) -> Tuple[str, ...]:
+    def eval(self, form: str) -> Tuple[str, ...]:
+        """Execute compiled form, but only if evaluate mode is enabled."""
         try:
             if self.evaluate:
                 exec(compile(form, "<Hissp>", "exec"), self.ns)
@@ -113,22 +118,24 @@ class Compiler:
                     f"\n {e} when evaluating form:\n{form}\n\n{exc}", PostCompileWarning
                 )
             return form, "# " + exc.replace("\n", "\n# ")
-        return (form,)
+        return form,
 
     @_trace
     def form(self, form) -> str:
         """
-        Translate Hissp form to the equivalent Python code as a string.
+        Compile Hissp form to the equivalent Python code as a string.
+        `tuple` and `str` have special evaluation rules,
+        otherwise it's an `atom` that represents itself.
         """
         if type(form) is tuple and form:
             return self.tuple(form)
         if type(form) is str and not form.startswith(":"):
-            return self.symbol(form)
-        return self.quoted(form)
+            return self.str(form)
+        return self.atom(form)
 
     @_trace
     def tuple(self, form: Tuple) -> str:
-        """Calls, macros, special forms."""
+        """Compile `call`, `macro`, or `special` forms."""
         head, *tail = form
         if type(head) is str:
             return self.special(form)
@@ -136,16 +143,16 @@ class Compiler:
 
     @_trace
     def special(self, form: Tuple) -> str:
-        """Try to compile as special form, else self.invocation()."""
+        """Try to compile as special form, else `invocation`."""
         if form[0] == "quote":
-            return self.quoted(*form[1:])
+            return self.atom(*form[1:])
         if form[0] == "lambda":
             return self.function(form)
         return self.invocation(form)
 
     @_trace
     def invocation(self, form: Tuple) -> str:
-        """Try to compile as macro, else normal call."""
+        """Try to compile as `macro`, else normal `call`."""
         if (result := self.macro(form)) is not _SENTINEL:
             return f"# {form[0]}\n{result}"
         form = form[0].replace("..xAUTO_.", "..", 1), *form[1:]
@@ -153,6 +160,7 @@ class Compiler:
 
     @_trace
     def macro(self, form: Tuple) -> Union[str, Sentinel]:
+        """Macroexpand and start over with `form`, if it's a macro."""
         head, *tail = form
         if (macro := self._get_macro(head)) is not None:
             with self.macro_context():
@@ -170,7 +178,7 @@ class Compiler:
         try:
             if parts[0] == self.qualname:  # Internal?
                 return vars(self.ns[MACROS])[parts[2]]
-            return eval(self.symbol(head))
+            return eval(self.str(head))
         except (KeyError, AttributeError):
             if parts[1] != "..xAUTO_.":
                 raise
@@ -182,11 +190,11 @@ class Compiler:
             pass
 
     @_trace
-    def quoted(self, form) -> str:
+    def atom(self, form) -> str:
         r"""
         Compile forms that evaluate to themselves.
 
-        Emits a literal if possible, otherwise falls back to pickle:
+        Emits a literal if possible, otherwise falls back to `pickle`:
 
         >>> readerless(-4.2j)
         '((-0-4.2j))'
@@ -223,7 +231,7 @@ class Compiler:
 
     @_trace
     def pickle(self, form) -> str:
-        """The final fallback for self.quoted()."""
+        """Compile to `pickle.loads`. The final fallback for `atom`."""
         try:  # Try the more human-readable and backwards-compatible text protocol first.
             dumps = pickle.dumps(form, 0)
         except pickle.PicklingError:  # Fall back to the highest binary protocol if that didn't work.
@@ -236,7 +244,7 @@ class Compiler:
     @_trace
     def function(self, form: Tuple) -> str:
         r"""
-        Anonymous function special form.
+        Compile the anonymous function special form.
 
         (lambda (<parameters>)
           <body>)
@@ -303,6 +311,7 @@ class Compiler:
 
     @_trace
     def parameters(self, parameters: Iterable) -> Iterable[str]:
+        """Process parameters to compile `function`."""
         parameters = iter(parameters)
         yield from (
             {":/": "/", ":*": "*"}.get(a, a)
@@ -322,6 +331,7 @@ class Compiler:
 
     @_trace
     def body(self, body: list) -> str:
+        """Compile body of `function`."""
         if len(body) > 1:
             return f"({_join_args(*map(self.form, body))})[-1]"
         if not body:
@@ -332,10 +342,10 @@ class Compiler:
     @_trace
     def call(self, form: Iterable) -> str:
         r"""
-        Call form.
+        Compile call form.
 
-        Any tuple that is not quoted, empty, or a special form or macro is
-        a runtime call.
+        Any tuple that is not quoted, ``()``, or a `special` form or
+        `macro` is a runtime call.
 
         Like Python, it has three parts.
         (<callable> <args> : <kwargs>)
@@ -373,7 +383,7 @@ class Compiler:
 
         The <kwargs> part has implicit pairs; there must be an even number.
 
-        Use the special control words ``:*`` and ``:**`` for iterable and
+        Use the control words ``:*`` and ``:**`` for iterable and
         mapping unpacking:
 
         >>> print(readerless(
@@ -414,26 +424,40 @@ class Compiler:
         return "{}({})".format(self.form(head), _join_args(*args))
 
     @_trace
-    def symbol(self, symbol: str) -> str:
-        if re.search(r"^\.\.|[ ()]", symbol):  # Ellipsis? Python injection?
-            return symbol
-        if ".." in symbol:  # Qualified identifier?
-            parts = symbol.split("..", 1)
-            if parts[0] == self.qualname:  # This module. No import required.
-                chain = parts[1].split(".", 1)
-                # Avoid local shadowing.
-                chain[0] = f"__import__('builtins').globals()[{self.quoted(chain[0])}]"
-                return ".".join(chain)
-            return "__import__({0!r}{fromlist}).{1}".format(
-                parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
-            )
-        elif symbol.endswith('.'):  # Module literal?
-            module = symbol[:-1]
-            return f"""__import__({module !r}{",fromlist='?'" if "." in module else ""})"""
-        return symbol
+    def str(self, code: str) -> str:
+        """Compile code strings.
+        Expands qualified identifiers and module literals into imports.
+        Otherwise, injects as raw Python directly into the output.
+        """
+        if re.search(r"^\.\.|[ ()]", code):  # Ellipsis? Python injection?
+            return code
+        if ".." in code:
+            return self.qualified_identifier(code)
+        elif code.endswith('.'):
+            return self.module_identifier(code)
+        return code
+
+    def qualified_identifier(self, code):
+        """Compile qualified identifier into import and attribute."""
+        parts = code.split("..", 1)
+        if parts[0] == self.qualname:  # This module. No import required.
+            chain = parts[1].split(".", 1)
+            # Avoid local shadowing.
+            chain[0] = f"__import__('builtins').globals()[{self.atom(chain[0])}]"
+            return ".".join(chain)
+        return "__import__({0!r}{fromlist}).{1}".format(
+            parts[0], parts[1],
+            fromlist=",fromlist='?'" if "." in parts[0] else ""
+        )
+
+    def module_identifier(self, code):
+        """Compile module identifier to import."""
+        module = code[:-1]
+        return f"""__import__({module !r}{",fromlist='?'" if "." in module else ""})"""
 
     @contextmanager
     def macro_context(self):
+        """Sets `NS` during macroexpansions."""
         token = NS.set(self.ns)
         try:
             yield
@@ -459,7 +483,7 @@ def _pairs(it: Iterable[T]) -> Iterable[Tuple[T, T]]:
 
 def readerless(form, ns=None):
     """Compile a Hissp form to Python without evaluating it.
-    Uses the current NS for context, unless an alternative is provided.
+    Uses the current `NS` for context, unless an alternative is provided.
     (Creates a temporary namespace if neither is available.)
     Returns the Python as a string.
     """
