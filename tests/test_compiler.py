@@ -52,8 +52,8 @@ class TestCompileGeneral(TestCase):
         )
     )
     def test_un_x_quote(self, char):
-        x = munger.x_quote(char)
+        x = munger.x_encode(char)
         self.assertTrue(("x" + x).isidentifier())
         match = re.fullmatch("x(.*?)_", x)
         if match:
-            self.assertEqual(char, munger.un_x_quote(match))
+            self.assertEqual(char, munger._x_decode(match))

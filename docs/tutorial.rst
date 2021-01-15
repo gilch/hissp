@@ -467,7 +467,7 @@ This format was chosen because it contains an underscore
 and both lower-case and upper-case letters,
 which makes it distinct from
 `standard Python naming conventions <https://www.python.org/dev/peps/pep-0008/#naming-conventions>`_:
-``lower_case_with_underscores``, ``UPPER_CASE_WITH_UNDERSCORES``. and ``CapWords``.
+``lower_case_with_underscores``, ``UPPER_CASE_WITH_UNDERSCORES``, and ``CapWords``.
 This makes it easy to tell if an identifier contains munged characters,
 which makes `demunging<demunge>` possible in the normal case.
 It also cannot introduce a leading underscore,

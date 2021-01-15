@@ -46,6 +46,7 @@ templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 default_role = 'any'
+autodoc_member_order = 'bysource'
 
 # -- Options for HTML output -------------------------------------------------
 
