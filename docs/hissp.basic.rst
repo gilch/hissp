@@ -12,6 +12,6 @@ macros
 .. automodule:: hissp.basic._macro_
    :members:
    :private-members:
-   :undoc-members:
+   :no-undoc-members:
    :imported-members:
 

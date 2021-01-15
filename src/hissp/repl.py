@@ -28,6 +28,7 @@ class REPL(InteractiveConsole):
         self.locals = self.lissp.ns
 
     def runsource(self, source, filename="<input>", symbol="single"):
+        """:meta private:"""
         try:
             self.lissp.filename = filename
             source = self.lissp.compile(source)
