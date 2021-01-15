@@ -72,6 +72,13 @@ class Compiler:
     subset of Python.
     """
 
+    def __init__(self, qualname="__main__", ns=None, evaluate=True):
+        self.qualname = qualname
+        self.ns = self.new_ns(qualname) if ns is None else ns
+        self.evaluate = evaluate
+        self.error = False
+        self.abort = False
+
     @staticmethod
     def new_ns(name, doc=None, package=None):
         mod = ModuleType(name, doc)
@@ -79,13 +86,6 @@ class Compiler:
         mod.__package__ = package
         mod.__builtins__ = builtins
         return vars(mod)
-
-    def __init__(self, qualname="__main__", ns=None, evaluate=True):
-        self.qualname = qualname
-        self.ns = self.new_ns(qualname) if ns is None else ns
-        self.evaluate = evaluate
-        self.error = False
-        self.abort = False
 
     def compile(self, forms: Iterable) -> str:
         """
@@ -103,22 +103,6 @@ class Compiler:
                 print("\n\n".join(result), file=sys.stderr)
                 sys.exit(1)
         return "\n\n".join(result)
-
-    def eval(self, form: str) -> Tuple[str, ...]:
-        """Execute compiled form, but only if evaluate mode is enabled."""
-        try:
-            if self.evaluate:
-                exec(compile(form, "<Hissp>", "exec"), self.ns)
-        except Exception as e:
-            exc = format_exc()
-            if self.ns.get("__name__") == "__main__":
-                self.abort = True
-            else:
-                warn(
-                    f"\n {e} when evaluating form:\n{form}\n\n{exc}", PostCompileWarning
-                )
-            return form, "# " + exc.replace("\n", "\n# ")
-        return form,
 
     @_trace
     def form(self, form) -> str:
@@ -463,6 +447,22 @@ class Compiler:
         r = repr(form).replace("\n", "\n  # ")
         nl = "\n" if "\n" in r else ""
         return f"__import__('pickle').loads({nl}  # {r}\n    {dumps!r}\n)"
+
+    def eval(self, form: str) -> Tuple[str, ...]:
+        """Execute compiled form, but only if evaluate mode is enabled."""
+        try:
+            if self.evaluate:
+                exec(compile(form, "<Hissp>", "exec"), self.ns)
+        except Exception as e:
+            exc = format_exc()
+            if self.ns.get("__name__") == "__main__":
+                self.abort = True
+            else:
+                warn(
+                    f"\n {e} when evaluating form:\n{form}\n\n{exc}", PostCompileWarning
+                )
+            return form, "# " + exc.replace("\n", "\n# ")
+        return form,
 
 
 def _join_args(*args):
