@@ -4,8 +4,10 @@
 Command Line Reference
 ======================
 
-Lissp
------
+.. _lissp command:
+
+Lissp Command
+-------------
 
 A normal install of the ``hissp`` package with ``pip`` and ``setuptools`` will
 also install the ``lissp`` command-line tool for running Lissp code.

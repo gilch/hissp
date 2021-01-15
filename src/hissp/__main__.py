@@ -1,5 +1,8 @@
 # Copyright 2020 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
+"""
+Hissp's command-line interface.
+"""
 
 import argparse
 import sys
@@ -9,7 +12,10 @@ from hissp.reader import Lissp
 
 
 def main():
-    ns = arg_parser().parse_args()
+    """
+    Entry point for the `lissp command`.
+    """
+    ns = _arg_parser().parse_args()
     sys.argv = ['']
     if ns.c is not None:
         _cmd(ns)
@@ -47,7 +53,7 @@ def _no_interact(code):
     Lissp(evaluate=True).compile(code)
 
 
-def arg_parser():
+def _arg_parser():
     root = argparse.ArgumentParser(description="Starts the REPL if there are no arguments.")
     _ = root.add_argument
     _(
