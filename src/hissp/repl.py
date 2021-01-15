@@ -1,5 +1,8 @@
 # Copyright 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
+"""
+The Lissp Read-Evaluate-Print Loop. For interactive use.
+"""
 
 import sys
 from code import InteractiveConsole
@@ -10,6 +13,13 @@ from hissp.reader import Lissp, SoftSyntaxError
 
 
 class REPL(InteractiveConsole):
+    """Lissp's interactive interpreter, layered on Python's.
+
+    You can initialize the REPL with a locals dict,
+    which is useful for debugging other modules.
+    Call interact() to start.
+    """
+
     def __init__(self, locals=None, filename="<console>"):
         super().__init__(locals, filename)
         sys.ps1 = "#> "
@@ -35,6 +45,7 @@ class REPL(InteractiveConsole):
 
 
 def main():
+    """REPL command-line entry point."""
     __main__ = ModuleType('__main__')
     repl = REPL(locals=__main__.__dict__)
     repl.locals['_macro_'] = SimpleNamespace(**vars(hissp.basic._macro_))
