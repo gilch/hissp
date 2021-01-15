@@ -151,97 +151,6 @@ class Compiler:
         return self.invocation(form)
 
     @_trace
-    def invocation(self, form: Tuple) -> str:
-        """Try to compile as `macro`, else normal `call`."""
-        if (result := self.macro(form)) is not _SENTINEL:
-            return f"# {form[0]}\n{result}"
-        form = form[0].replace("..xAUTO_.", "..", 1), *form[1:]
-        return self.call(form)
-
-    @_trace
-    def macro(self, form: Tuple) -> Union[str, Sentinel]:
-        """Macroexpand and start over with `form`, if it's a macro."""
-        head, *tail = form
-        if (macro := self._get_macro(head)) is not None:
-            with self.macro_context():
-                return self.form(macro(*tail))
-        return _SENTINEL
-
-    def _get_macro(self, head):
-        parts = RE_MACRO.split(head, 1)
-        head = head.replace("..xAUTO_.", MACRO, 1)
-        if len(parts) > 1:
-            return self._qualified_macro(head, parts)
-        return self._unqualified_macro(head)
-
-    def _qualified_macro(self, head, parts):
-        try:
-            if parts[0] == self.qualname:  # Internal?
-                return vars(self.ns[MACROS])[parts[2]]
-            return eval(self.str(head))
-        except (KeyError, AttributeError):
-            if parts[1] != "..xAUTO_.":
-                raise
-
-    def _unqualified_macro(self, head):
-        try:
-            return vars(self.ns[MACROS])[head]
-        except KeyError:
-            pass
-
-    @_trace
-    def atom(self, form) -> str:
-        r"""
-        Compile forms that evaluate to themselves.
-
-        Emits a literal if possible, otherwise falls back to `pickle`:
-
-        >>> readerless(-4.2j)
-        '((-0-4.2j))'
-        >>> print(readerless(float('nan')))
-        __import__('pickle').loads(  # nan
-            b'Fnan\n.'
-        )
-        >>> readerless([{'foo':2},(),1j,2.0,{3}])
-        "[{'foo': 2}, (), 1j, 2.0, {3}]"
-        >>> spam = []
-        >>> spam.append(spam)
-        >>> print(readerless(spam))
-        __import__('pickle').loads(  # [[...]]
-            b'(lp0\ng0\na.'
-        )
-
-        """
-        if form is Ellipsis:
-            return "..."
-
-        case = type(form)
-        if case in {int, float, complex}:  # Number literals may need (). E.g. (1).real
-            literal = f"({form!r})"
-        elif case in {dict, list, set, tuple, str, bytes}:  # Pretty print collections.
-            literal = pformat(form, sort_dicts=False)
-        else:
-            literal = repr(form)
-
-        with suppress(ValueError, SyntaxError):
-            if ast.literal_eval(literal) == form:
-                return literal
-        # literal failed to round trip. Fall back to pickle.
-        return self.pickle(form)
-
-    @_trace
-    def pickle(self, form) -> str:
-        """Compile to `pickle.loads`. The final fallback for `atom`."""
-        try:  # Try the more human-readable and backwards-compatible text protocol first.
-            dumps = pickle.dumps(form, 0)
-        except pickle.PicklingError:  # Fall back to the highest binary protocol if that didn't work.
-            dumps = pickle.dumps(form, pickle.HIGHEST_PROTOCOL)
-        dumps = pickletools.optimize(dumps)
-        r = repr(form).replace("\n", "\n  # ")
-        nl = "\n" if "\n" in r else ""
-        return f"__import__('pickle').loads({nl}  # {r}\n    {dumps!r}\n)"
-
-    @_trace
     def function(self, form: Tuple) -> str:
         r"""
         Compile the anonymous function special form.
@@ -338,6 +247,54 @@ class Compiler:
             return "()"
         result = self.form(body[0])
         return ("\n" * ("\n" in result) + result).replace("\n", "\n  ")
+
+    @_trace
+    def invocation(self, form: Tuple) -> str:
+        """Try to compile as `macro`, else normal `call`."""
+        if (result := self.macro(form)) is not _SENTINEL:
+            return f"# {form[0]}\n{result}"
+        form = form[0].replace("..xAUTO_.", "..", 1), *form[1:]
+        return self.call(form)
+
+    @_trace
+    def macro(self, form: Tuple) -> Union[str, Sentinel]:
+        """Macroexpand and start over with `form`, if it's a macro."""
+        head, *tail = form
+        if (macro := self._get_macro(head)) is not None:
+            with self.macro_context():
+                return self.form(macro(*tail))
+        return _SENTINEL
+
+    def _get_macro(self, head):
+        parts = RE_MACRO.split(head, 1)
+        head = head.replace("..xAUTO_.", MACRO, 1)
+        if len(parts) > 1:
+            return self._qualified_macro(head, parts)
+        return self._unqualified_macro(head)
+
+    def _qualified_macro(self, head, parts):
+        try:
+            if parts[0] == self.qualname:  # Internal?
+                return vars(self.ns[MACROS])[parts[2]]
+            return eval(self.str(head))
+        except (KeyError, AttributeError):
+            if parts[1] != "..xAUTO_.":
+                raise
+
+    def _unqualified_macro(self, head):
+        try:
+            return vars(self.ns[MACROS])[head]
+        except KeyError:
+            pass
+
+    @contextmanager
+    def macro_context(self):
+        """Sets `NS` during macroexpansions."""
+        token = NS.set(self.ns)
+        try:
+            yield
+        finally:
+            NS.reset(token)
 
     @_trace
     def call(self, form: Iterable) -> str:
@@ -455,14 +412,57 @@ class Compiler:
         module = code[:-1]
         return f"""__import__({module !r}{",fromlist='?'" if "." in module else ""})"""
 
-    @contextmanager
-    def macro_context(self):
-        """Sets `NS` during macroexpansions."""
-        token = NS.set(self.ns)
-        try:
-            yield
-        finally:
-            NS.reset(token)
+    @_trace
+    def atom(self, form) -> str:
+        r"""
+        Compile forms that evaluate to themselves.
+
+        Emits a literal if possible, otherwise falls back to `pickle`:
+
+        >>> readerless(-4.2j)
+        '((-0-4.2j))'
+        >>> print(readerless(float('nan')))
+        __import__('pickle').loads(  # nan
+            b'Fnan\n.'
+        )
+        >>> readerless([{'foo':2},(),1j,2.0,{3}])
+        "[{'foo': 2}, (), 1j, 2.0, {3}]"
+        >>> spam = []
+        >>> spam.append(spam)
+        >>> print(readerless(spam))
+        __import__('pickle').loads(  # [[...]]
+            b'(lp0\ng0\na.'
+        )
+
+        """
+        if form is Ellipsis:
+            return "..."
+
+        case = type(form)
+        if case in {int, float, complex}:  # Number literals may need (). E.g. (1).real
+            literal = f"({form!r})"
+        elif case in {dict, list, set, tuple, str, bytes}:  # Pretty print collections.
+            literal = pformat(form, sort_dicts=False)
+        else:
+            literal = repr(form)
+
+        with suppress(ValueError, SyntaxError):
+            if ast.literal_eval(literal) == form:
+                return literal
+        # literal failed to round trip. Fall back to pickle.
+        return self.pickle(form)
+
+    @_trace
+    def pickle(self, form) -> str:
+        """Compile to `pickle.loads`. The final fallback for `atom`."""
+        try:  # Try the more human-readable and backwards-compatible text protocol first.
+            dumps = pickle.dumps(form, 0)
+        except pickle.PicklingError:  # Fall back to the highest binary protocol if that didn't work.
+            dumps = pickle.dumps(form, pickle.HIGHEST_PROTOCOL)
+        dumps = pickletools.optimize(dumps)
+        r = repr(form).replace("\n", "\n  # ")
+        nl = "\n" if "\n" in r else ""
+        return f"__import__('pickle').loads({nl}  # {r}\n    {dumps!r}\n)"
 
 
 def _join_args(*args):
