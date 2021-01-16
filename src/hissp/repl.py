@@ -39,6 +39,7 @@ class REPL(InteractiveConsole):
             return False
         except BaseException:
             import traceback
+
             traceback.print_exc()
             return False
         print(">>>", source.replace("\n", "\n... "), file=sys.stderr)
@@ -47,12 +48,13 @@ class REPL(InteractiveConsole):
 
 def main():
     """REPL command-line entry point."""
-    __main__ = ModuleType('__main__')
+    __main__ = ModuleType("__main__")
     repl = REPL(locals=__main__.__dict__)
-    repl.locals['_macro_'] = SimpleNamespace(**vars(hissp.basic._macro_))
-    sys.modules['__main__'] = __main__
-    sys.path.insert(0, '')
+    repl.locals["_macro_"] = SimpleNamespace(**vars(hissp.basic._macro_))
+    sys.modules["__main__"] = __main__
+    sys.path.insert(0, "")
     repl.interact()
+
 
 if __name__ == "__main__":
     main()

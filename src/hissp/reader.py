@@ -29,7 +29,9 @@ from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union
 from hissp.compiler import Compiler, readerless
 from hissp.munger import munge
 
-ENTUPLE = ("lambda", (":", ":*", "xAUTO0_"), "xAUTO0_")
+# fmt: off
+ENTUPLE = ("lambda",(":",":*","xAUTO0_"),"xAUTO0_",)
+# fmt: on
 """
 Used by the template macro to make tuples.
 

@@ -37,7 +37,7 @@ it's available here.
 `readerless` uses this automatically.
 """
 
-Sentinel = NewType('Sentinel', object)
+Sentinel = NewType("Sentinel", object)
 _SENTINEL = Sentinel(object())
 
 
@@ -52,8 +52,10 @@ def _trace(method):
             return method(self, expr)
         except Exception as e:
             self.error = e
-            message = f"\nCompiler.{method.__name__}() {type(e).__name__}:\n {e}".replace(
-                "\n", "\n# "
+            message = (
+                f"\nCompiler.{method.__name__}() {type(e).__name__}:\n {e}".replace(
+                    "\n", "\n# "
+                )
             )
             return f"(>   >  > >>{pformat(expr)}<< <  <   <){message}"
 
@@ -374,7 +376,7 @@ class Compiler:
             return code
         if ".." in code:
             return self.qualified_identifier(code)
-        elif code.endswith('.'):
+        elif code.endswith("."):
             return self.module_identifier(code)
         return code
 
@@ -387,8 +389,7 @@ class Compiler:
             chain[0] = f"__import__('builtins').globals()[{self.atom(chain[0])}]"
             return ".".join(chain)
         return "__import__({0!r}{fromlist}).{1}".format(
-            parts[0], parts[1],
-            fromlist=",fromlist='?'" if "." in parts[0] else ""
+            parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
         )
 
     def module_identifier(self, code):
@@ -462,7 +463,7 @@ class Compiler:
                     f"\n {e} when evaluating form:\n{form}\n\n{exc}", PostCompileWarning
                 )
             return form, "# " + exc.replace("\n", "\n# ")
-        return form,
+        return (form,)
 
 
 def _join_args(*args):
