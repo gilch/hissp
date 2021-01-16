@@ -74,12 +74,14 @@ reader skips over when parsing. Reader macros can have read-time side
 effects with no Hissp output by returning this.
 """
 
+
 class SoftSyntaxError(SyntaxError):
     """A syntax error that could be corrected with more lines of input.
 
     When the REPL encounters this when attempting to evaluate a form,
     it will ask for more lines, rather than aborting with an error.
     """
+
 
 class Lexer(Iterator):
     """The tokenizer for the Lissp language.
@@ -88,6 +90,7 @@ class Lexer(Iterator):
     The Lexer adds some position tracking to that to help with error
     messages.
     """
+
     def __init__(self, code: str, file: str = "<?>"):
         self.code = code
         self.file = file
@@ -141,8 +144,14 @@ class Lissp:
     Wraps around a Hissp compiler instance.
     Parses Lissp tokens into Hissp syntax trees.
     """
+
     def __init__(
-        self, qualname="__main__", ns=None, verbose=False, evaluate=False, filename="<?>"
+        self,
+        qualname="__main__",
+        ns=None,
+        verbose=False,
+        evaluate=False,
+        filename="<?>",
     ):
         self.qualname = qualname
         self.compiler = Compiler(self.qualname, ns, evaluate)
@@ -184,7 +193,8 @@ class Lissp:
             elif k == "badspace":
                 raise SyntaxError(
                     repr(v) + " is not whitespace in Lissp. Indent with spaces only.",
-                    self.position())
+                    self.position(),
+                )
             elif k == "open":
                 yield from self._open()
             elif k == "close":
@@ -203,7 +213,9 @@ class Lissp:
             else:
                 assert False, "unknown token: " + repr(k)
         if self.depth:
-            raise SoftSyntaxError("Ran out of tokens before completing form.", self.position())
+            raise SoftSyntaxError(
+                "Ran out of tokens before completing form.", self.position()
+            )
 
     def _open(self):
         depth = self.depth
@@ -224,7 +236,7 @@ class Lissp:
             val = ast.literal_eval(v[1:])
         else:  # raw
             val = v[1:-1]  # Only remove quotes.
-        return v if (v:=pformat(val)).startswith("(") else f"({v})"
+        return v if (v := pformat(val)).startswith("(") else f"({v})"
 
     def _macro(self, v):
         with {
@@ -237,13 +249,17 @@ class Lissp:
                 form = next(self.parse(self.tokens))
             except StopIteration:
                 if self.depth == depth:
-                    raise SoftSyntaxError(f"Reader macro {v!r} missing argument.", self.position()) from None
-                raise SyntaxError(f"Reader macro {v!r} missing argument.", self.position()) from None
+                    raise SoftSyntaxError(
+                        f"Reader macro {v!r} missing argument.", self.position()
+                    ) from None
+                raise SyntaxError(
+                    f"Reader macro {v!r} missing argument.", self.position()
+                ) from None
             yield self.parse_macro(v, form)
 
     @staticmethod
     def _atom(v):
-        is_symbol = '\\' == v[0]
+        is_symbol = "\\" == v[0]
         v = Lissp.escape(v)
         if is_symbol:
             return munge(v)
@@ -282,7 +298,7 @@ class Lissp:
             module, function = tag.split("..", 1)
             return reduce(getattr, function.split("."), import_module(module))(form)
         try:
-            m = getattr(self.ns["_macro_"], tag+'xHASH_')
+            m = getattr(self.ns["_macro_"], tag + "xHASH_")
         except (AttributeError, KeyError):
             raise SyntaxError(f"Unknown reader macro {tag}", self.position())
         with self.compiler.macro_context():
@@ -291,8 +307,8 @@ class Lissp:
     @staticmethod
     def escape(atom):
         """Process the backslashes in a token."""
-        atom = atom.replace(r'\.', 'xFULLxSTOP_')
-        return re.sub(r'\\(.)', lambda m: m[1], atom)
+        atom = atom.replace(r"\.", "xFULLxSTOP_")
+        return re.sub(r"\\(.)", lambda m: m[1], atom)
 
     def template(self, form):
         """Process form as template."""
@@ -327,13 +343,15 @@ class Lissp:
 
     def qualify(self, symbol: str, invocation=False) -> str:
         """Qualify symbol based on current context."""
-        if re.search(r"^\(|^\.|\.$|^quote$|^lambda$|^__import__$|xAUTO\d+_$|\.\.", symbol):
+        if re.search(
+            r"^\(|^\.|\.$|^quote$|^lambda$|^__import__$|xAUTO\d+_$|\.\.", symbol
+        ):
             return symbol  # Not qualifiable.
         if invocation and "_macro_" in self.ns and self._macro_has(symbol):
             return f"{self.qualname}.._macro_.{symbol}"  # Known macro.
-        if symbol in dir(builtins) and symbol.split('.', 1)[0] not in self.ns:
+        if symbol in dir(builtins) and symbol.split(".", 1)[0] not in self.ns:
             return f"builtins..{symbol}"  # Known builtin, not shadowed (yet).
-        if invocation and '.' not in symbol:  # Could still be a recursive macro.
+        if invocation and "." not in symbol:  # Could still be a recursive macro.
             return f"{self.qualname}..xAUTO_.{symbol}"
         return f"{self.qualname}..{symbol}"
 
@@ -401,7 +419,11 @@ def is_string(form):
     cases.
     """
     try:
-        return type(form) is str and form.startswith("(") and type(ast.literal_eval(form)) is str
+        return (
+            type(form) is str
+            and form.startswith("(")
+            and type(ast.literal_eval(form)) is str
+        )
     except:
         return False
 
@@ -418,9 +440,9 @@ def transpile(package: Optional[resources.Package], *modules: Union[str, PurePat
             transpile_module(package, module + ".lissp")
     else:
         for module in modules:
-            with open(module+'.lissp') as f:
+            with open(module + ".lissp") as f:
                 code = f.read()
-            out = module + '.py'
+            out = module + ".py"
             _write_py(out, module, code)
 
 
@@ -444,9 +466,10 @@ def transpile_module(
 def _write_py(out, qualname, code):
     with open(out, "w") as f:
         print(f"compiling {qualname} as", out, file=sys.stderr)
-        if code.startswith('#!'):  # ignore shebang line
-            _, _, code = code.partition('\n')
+        if code.startswith("#!"):  # ignore shebang line
+            _, _, code = code.partition("\n")
         f.write(Lissp(qualname, evaluate=True, filename=str(out)).compile(code))
+
 
 def main():
     """Calls `transpile` with arguments from `sys.argv`."""
