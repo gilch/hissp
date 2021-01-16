@@ -382,6 +382,8 @@ Tuples
 Separate *top level* forms from each other by a single blank like,
 unless they are very closely related.
 
+.. _top level:
+
 Top Level
   Not nested inside another form.
   The top of the syntax tree, not the top of the file.
@@ -531,7 +533,7 @@ use a dedent string, which can be safely indented:
 
 Don't forget the quote ``'``.
 
-Long multiline strings should be declared at the top level and referenced by name.
+Long multiline strings should be declared at the `top level`_ and referenced by name.
 
 .. code-block:: Lissp
 
@@ -563,7 +565,7 @@ Comments
 Headings are capitalized, and begin with four semicolons and a space ``;;;; X``.
 Subheadings are not capitalized, and begin with three semicolons and a space ``;;; x``.
 
-These are for the top level only; they aren't nested in forms;
+These are for the `top level`_ only; they aren't nested in forms;
 they get their own line and start at the beginning of it.
 They have a blank line before (unless it's the first line) and after.
 They organize the code into sections.
