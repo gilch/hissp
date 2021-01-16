@@ -84,7 +84,7 @@ from those you already know.
 Fortunately, Lissp's syntax is very minimal,
 so there's not that much to remember,
 and most of the vocabulary you know from Python already.
-You can skim over the Python,
+You can skim over the Python in this tutorial,
 but resist the urge to skim the Lissp.
 `S-expressions <https://en.wikipedia.org/wiki/S-expression>`_
 are a very direct representation of the same kind of syntax trees that
@@ -96,7 +96,7 @@ a subset of Python in a new skin.
 This one is about using that knowledge to reprogram the skin itself.
 
 If you don't know the basics from the `previous tutorial <tutorial>`,
-go back and read that now, or at least read the `Quick Start <lissp_quickstart>`.
+go back and read that now, or at least read the `quick start <lissp_quickstart>`.
 
 In the previous tutorial we mostly used the REPL,
 but it can become tedious to type long forms into the REPL,
@@ -116,8 +116,8 @@ but copy-and-paste into a terminal window will do.
 
 Setting up your editor for Lissp is beyond the scope of this tutorial.
 If you're not already comfortable with Emacs and Paredit,
-give Parinfer a try.
-It's probably easiest to set up in Atom.
+give `Parinfer <https://shaunlebron.github.io/parinfer/>`_ a try.
+It's probably easiest to set up in `Atom <https://atom.io/packages/parinfer>`_.
 
 Shorter Lambdas
 ---------------
@@ -203,7 +203,7 @@ Using it effectively feels like amazing out-of-the-box thinking.
 
 Let's begin.
 
-Warm-up
+Warm-Up
 ~~~~~~~
 
 Create a Lissp file (perhaps ``macros.lissp``),
@@ -235,7 +235,7 @@ And push it to the REPL as well:
 
 .. caution::
 
-   The `prelude` macro overwrites your _macro_ namespace with a copy of the basic one.
+   The `prelude` macro overwrites your ``_macro_`` namespace with a copy of the basic one.
    Any macros you've defined in there are lost.
    In Lissp files, the prelude is meant to be used before any definitions,
    when it is used at all.
@@ -395,8 +395,8 @@ Compare:
 
 .. code-block:: Python
 
-    eval(f"{L} x: x * x")
-    lambda x: x * x
+   eval(f"{L} x: x * x")
+   lambda x: x * x
 
 It didn't help, did it?
 It got longer!
@@ -406,8 +406,8 @@ Can we do better?
 
 .. code-block:: Python
 
-    e(f"{L} x:x*x")
-    lambda x:x*x
+   e(f"{L} x:x*x")
+   lambda x:x*x
 
 Nope.
 And there are good reasons to avoid `eval` in Python:
@@ -421,7 +421,7 @@ was so awkward in Python.
 
 But Lissp does more than substitutions.
 
-Simple compiler macros
+Simple Compiler Macros
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Despite my recent boasting,
@@ -646,7 +646,7 @@ and then we've run out of alphabet.
 When you see a "design pattern" in Lissp,
 you don't keep repeating it.
 
-Nothing is above abstraction
+Nothing Is Above Abstraction
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Are you ready for this?
@@ -1189,7 +1189,7 @@ Finally, we slice the params string to the appropriate number of characters.
 Take a breath.
 We're not done.
 
-Macros can read code too.
+Macros Can Read Code Too.
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We're still providing more information than is required.
@@ -1385,7 +1385,7 @@ Can we just iterate through the expression and check?
 You can experiment with macros you don't recognize in the REPL.
 All the basic macros,
 including the `|| <xBAR_xBAR_>`
-and `when` were covered in the `Quick Start <lissp_quickstart>`.
+and `when` were covered in the `quick start <lissp_quickstart>`.
 We're using them to coalesce Python's awkward regex matches,
 which can return ``None``, into a ``0``,
 unless it's a string with a match.
@@ -1590,7 +1590,7 @@ Let's try again.
    ...   *('BAR'))
    'BAR'
 
-Try doing that with the C preprocessor.
+Try doing that with the C preprocessor!
 
 Function Literals
 ~~~~~~~~~~~~~~~~~
@@ -1662,8 +1662,11 @@ It feels like the ``add`` should be in the first position,
 but that's taken by the ``L``.
 We can fix that with a reader macro.
 
-Reader syntax
+Reader Syntax
 `````````````
+
+To use reader macros unqualified,
+you must define them in ``_macro_`` with a name ending in a ``#``.
 
 .. Lissp::
 
@@ -1685,10 +1688,9 @@ Reader syntax
    ...     'XxHASH_',
    ...     _fnxAUTO7_))[-1])()
 
-This macro's name ends in a ``#``.
-(We have to escape the ``#`` with a backslash
-or the reader will recognize the name as a macro rather than an atom
-and try to invoke it immediately.)
+We have to escape the ``#`` with a backslash
+or the reader will recognize the name as a macro rather than a symbol
+and immediately try to apply it to ``(expr)``, which is not what we want.
 Notice that we still used a `defmacro`,
 like we do for compiler macros.
 It's the way you invoke it that makes it happen at read time:
@@ -1737,7 +1739,7 @@ tweak them, and experiment with your own.
 Clojure's version still has a couple more features.
 Let's add them.
 
-Catch-all parameter
+Catch-All Parameter
 ```````````````````
 
 .. Lissp::
@@ -1855,7 +1857,7 @@ Clojure doesn't have these.
 Adding this is left as an exercise.
 Can you figure out how to do it?
 
-Implied number 1
+Implied Number 1
 ````````````````
 
 Clojure's version has one more feature:
@@ -2034,7 +2036,7 @@ try it in the REPL.
 But Clojure's version has the same problems,
 and it gets used quite a lot.
 
-Why you should be reluctant to use Python injections
+Why You Should Be Reluctant to Use Python Injections
 ````````````````````````````````````````````````````
 
 Suppose we wanted to use Python infix notation for a complex formula.

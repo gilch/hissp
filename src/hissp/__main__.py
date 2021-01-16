@@ -40,7 +40,7 @@ def _with_args(ns):
 
 
 def _interact(code):
-    repl = hissp.repl.REPL()
+    repl = hissp.repl.LisspREPL()
     repl.lissp.compiler.evaluate = True
     try:
         repl.lissp.compile(code)

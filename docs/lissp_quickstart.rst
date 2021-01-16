@@ -21,7 +21,7 @@ Lissp Quick Start
 
 .. Lissp::
 
-   ;;;; LISSP QUICK START
+   ;;;; Lissp Quick Start
 
    "Lissp is a lightweight text language representing the Hissp data-
    structure language. The Lissp reader converts Lissp's symbolic
@@ -43,7 +43,7 @@ Lissp Quick Start
    '(!)'. Don't skip these.
    "
 
-   ;;;; INSTALLATION
+   ;;;; Installation
 
    ;; Install Hissp with
    ;; $ pip install hissp==0.2.0
@@ -51,9 +51,9 @@ Lissp Quick Start
    ;; $ lissp
    ;; You can quit with EOF or (exit).
 
-   ;;;; ATOMS
+   ;;;; Atoms
 
-   ;;; singleton
+   ;;; Singleton
 
    #> None
    >>> None
@@ -63,7 +63,7 @@ Lissp Quick Start
    Ellipsis
 
 
-   ;;; boolean
+   ;;; Boolean
 
    #> False                                  ;0
    >>> False
@@ -74,7 +74,7 @@ Lissp Quick Start
    True
 
 
-   ;;; integer
+   ;;; Integer
 
    #> 42
    >>> (42)
@@ -105,7 +105,7 @@ Lissp Quick Start
    3840
 
 
-   ;;; floating-point
+   ;;; Floating-Point
 
    #> 3.
    >>> (3.0)
@@ -124,7 +124,7 @@ Lissp Quick Start
    -0.016
 
 
-   ;;; complex
+   ;;; Complex
 
    #> 5j                                     ;imaginary
    >>> (5j)
@@ -139,7 +139,7 @@ Lissp Quick Start
    (-1.234e-55-7.898e-75j)
 
 
-   ;;;; SYMBOLIC
+   ;;;; Symbolic
 
    #> object                                 ;Normal identifier.
    >>> object
@@ -261,7 +261,7 @@ Lissp Quick Start
    'one\\"\nstring\\\\'
 
 
-   ;;;; CALLS
+   ;;;; Calls
 
    #> (print :)                              ;Paren before function! Note the colon.
    >>> print()
@@ -332,7 +332,7 @@ Lissp Quick Start
    <BLANKLINE>
 
 
-   ;;;; LAMBDA
+   ;;;; Lambda
 
    ;; Lambda is one of only two special forms--looks like a call, but isn't.
 
@@ -414,7 +414,7 @@ Lissp Quick Start
    1
 
 
-   ;;;; OPERATORS
+   ;;;; Operators
 
    ;; Hissp is simpler than Python. No operators! Use calls instead.
 
@@ -436,7 +436,7 @@ Lissp Quick Start
    42
 
 
-   ;;;; CONTROL FLOW
+   ;;;; Control Flow
 
    ;; Hissp is simpler than Python. No control flow! Use higher-order functions instead.
 
@@ -462,7 +462,7 @@ Lissp Quick Start
 
    ;; Don't worry, macros make this much easier.
 
-   ;;;; QUOTE
+   ;;;; Quote
 
    ;; Quote is the only other special form. Looks like a call, but isn't.
 
@@ -506,7 +506,7 @@ Lissp Quick Start
    ':?'
 
 
-   ;;;; READER MACROS
+   ;;;; Reader Macros
 
    #> 'x                                     ;Same as (quote x). Symbols are just quoted identifiers!
    >>> 'x'
@@ -519,7 +519,8 @@ Lissp Quick Start
 
    ;; Reader macros are metaprograms to abbreviate Hissp instead of representing it directly.
 
-   ;;; template quote
+   ;;; Template Quote
+
    ;; (Like quasiquote, backquote, or syntax-quote from other Lisps.)
 
    #> `print                                 ;Automatic qualification!
@@ -653,9 +654,9 @@ Lissp Quick Start
    >>> from operator import *
 
 
-   ;;;; COLLECTIONS
+   ;;;; Collections
 
-   ;;; templates and tuples
+   ;;; Templates and Tuples
 
    #> '(1 2 3)                               ;tuple
    >>> (1, 2, 3)
@@ -717,7 +718,7 @@ Lissp Quick Start
    (0, 'a', 'b', ':c')
 
 
-   ;;; other collection types
+   ;;; Other Collection Types
 
    #> (list `(1 ,(+ 1 1) 3))
    >>> list(
@@ -812,7 +813,7 @@ Lissp Quick Start
    {1: 2, 'a': 'b'}
 
 
-   ;;; collection atoms
+   ;;; Collection Atoms
 
    #> .#"[]"                                 ;List from a Python injection.
    >>> []
@@ -940,7 +941,7 @@ Lissp Quick Start
    <function <lambda> at 0x...>
 
 
-   ;;;; COMPILER MACROS
+   ;;;; Compiler Macros
 
    _#"Macroexpansion happens at compile time, after the reader, so macros also
    work in readerless mode, or with alternative Hissp readers other than Lissp.
@@ -1287,7 +1288,7 @@ Lissp Quick Start
    spam..x                                ;42
    eggs.                                  ;Hello, World!
 
-   ;;;; BASIC MACROS
+   ;;;; Basic Macros
 
    _#" The REPL comes with some basic macros defined in hissp.basic. By default,
    they don't work in .lissp files unqualified. The compiled output from these
@@ -1341,7 +1342,7 @@ Lissp Quick Start
    ...    '    pass'))
 
 
-   ;;; reader
+   ;;; Reader
 
    #> b#"bytes"                               ;Bytes reader macro.
    >>> b'bytes'
@@ -1362,7 +1363,7 @@ Lissp Quick Start
    b'bytes\nwith\nnewlines\n'
 
 
-   ;;; side effect
+   ;;; Side Effect
 
    #> (prog1                                 ;Sequence for side effects, evaluating to the first.
    #..  (progn (print 1)                     ;Sequence for side effects, evaluating to the last.
@@ -1383,7 +1384,7 @@ Lissp Quick Start
    3
 
 
-   ;;; definition
+   ;;; Definition
 
    #> (define answer 42)                     ;Add a global.
    >>> # define
@@ -1471,37 +1472,26 @@ Lissp Quick Start
    a b
 
 
-   ;;; configuration
+   ;;; Configuration
 
-   #> (define ns (types..SimpleNamespace))
-   >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'ns',
-   ...   __import__('types').SimpleNamespace())
-
-   #> (attach ns + : x 1  y 5)
+   #> (attach (types..SimpleNamespace) + : a 1  b "Hi")
    >>> # attach
    ... # hissp.basic.._macro_.let
-   ... (lambda _targetxAUTO22_=ns:(
+   ... (lambda _targetxAUTO16_=__import__('types').SimpleNamespace():(
    ...   __import__('builtins').setattr(
-   ...     _targetxAUTO22_,
+   ...     _targetxAUTO16_,
    ...     'xPLUS_',
    ...     xPLUS_),
    ...   __import__('builtins').setattr(
-   ...     _targetxAUTO22_,
-   ...     'x',
+   ...     _targetxAUTO16_,
+   ...     'a',
    ...     (1)),
    ...   __import__('builtins').setattr(
-   ...     _targetxAUTO22_,
-   ...     'y',
-   ...     (5)),
-   ...   _targetxAUTO22_)[-1])()
-   namespace(x=1, xPLUS_=<built-in function add>, y=5)
-
-   #> ns
-   >>> ns
-   namespace(x=1, xPLUS_=<built-in function add>, y=5)
+   ...     _targetxAUTO16_,
+   ...     'b',
+   ...     ('Hi')),
+   ...   _targetxAUTO16_)[-1])()
+   namespace(a=1, b='Hi', xPLUS_=<built-in function add>)
 
    #> (cascade []
    #..  (.extend "bar")
@@ -1520,7 +1510,7 @@ Lissp Quick Start
    ['a', 'b', 'r', 'foo']
 
 
-   ;;; threading
+   ;;; Threading
 
    #> (-> "world!"                           ;Thread-first
    #..    (.title)
@@ -1536,7 +1526,7 @@ Lissp Quick Start
    Hello World!
 
 
-   ;;; control flow
+   ;;; Control Flow
 
    ;; Hissp has no control flow, but you can build them with macros.
 
@@ -1565,7 +1555,7 @@ Lissp Quick Start
      (print "Yes")
      (print "No"))
 
-   (let (x (ast..literal_eval (input "? ")))
+   (let (x (float (input "? ")))
      ;; Multi-way branch.
      (cond (lt x 0) (print "Negative")
            (eq x 0) (print "Zero")

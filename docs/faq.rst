@@ -1219,7 +1219,7 @@ Jupyter notebook cells running an IPython kernel and it should just
 work. IPython will ignore the Lissp because its ``#>``/``#..`` prompts
 makes it look like a Python comment, and it's already set up to ignore
 the initial ``>>>``/``...``. But doctest expects these, because that's
-what the Python shell looks like.
+what the Python interpreter looks like.
 
 Keeping the Python prompts ``>>>``/``...``
 also helps you to distinguish the compiled Python from the result of evaluating it.
@@ -1343,6 +1343,22 @@ which allows macros to easily import their requirements from other modules.
 Macro dependencies are much harder to work with in Hy.
 Lissp's template quote automatically qualifies symbols like Clojure does.
 Hy can't do that.
+
+Hy passes Python keyword arguments using HyKeywords,
+while Lissp passes them using symbols,
+so ``print(1, 2, 3, sep=",", end="!\n")`` in Python would be
+``(print 1 2 3 :sep ","  :end "!\n")`` in Hy and
+``(print 1 2 3 : sep ","  end #"!\n")`` in Lissp.
+
+Hissp's ``lambda`` special form parallels this call syntax for defining parameters,
+with ``:`` as the separator; ``:?`` as a placeholder;
+``:*`` and ``:**`` to parallel unpacking;
+plus ``:/`` for positional-only, based on Python's syntax.
+Hy's syntax on the other hand,
+has to use special symbols ``&optional``, ``&rest``, ``&kwonly``, and ``&kwargs``,
+based on Common Lisp's approach to distinguish its parameter types,
+in addition to the ``#*`` and ``#**`` it uses for unpacking.
+It can't do positional-only parameters at all yet.
 
 Is Hissp a Lisp-1 or a Lisp-2?
 ------------------------------

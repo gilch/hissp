@@ -12,8 +12,8 @@ import hissp.basic
 from hissp.reader import Lissp, SoftSyntaxError
 
 
-class REPL(InteractiveConsole):
-    """Lissp's interactive interpreter, layered on Python's.
+class LisspREPL(InteractiveConsole):
+    """Lissp's Read-Evaluate-Print Loop, layered on Python's.
 
     You can initialize the REPL with a locals dict,
     which is useful for debugging other modules.
@@ -49,7 +49,7 @@ class REPL(InteractiveConsole):
 def main():
     """REPL command-line entry point."""
     __main__ = ModuleType("__main__")
-    repl = REPL(locals=__main__.__dict__)
+    repl = LisspREPL(locals=__main__.__dict__)
     repl.locals["_macro_"] = SimpleNamespace(**vars(hissp.basic._macro_))
     sys.modules["__main__"] = __main__
     sys.path.insert(0, "")

@@ -10,7 +10,7 @@ def cmd(cmd, input=""):
     ).communicate(input=input)
 
 
-EXIT_MSG = "\nnow exiting REPL...\n"
+EXIT_MSG = "\nnow exiting LisspREPL...\n"
 BANNER_LEN = len(cmd("lissp")[1]) - len(EXIT_MSG)
 
 

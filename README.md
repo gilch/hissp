@@ -202,7 +202,7 @@ Libraries built on Hissp need not have this restriction.
 ## REPL
 A Lisp tradition, and Hissp is no exception.
 Even though it's a compiled language,
-Hissp has an interactive shell like Python does.
+Hissp has an interactive command-line interface like Python does.
 The REPL displays the compiled Python and evaluates it.
 Printed values use the normal Python reprs.
 (Translating those to back to Lissp is not a goal.)
@@ -277,7 +277,7 @@ or it can be read in from a lightweight textual language called *Lissp* that rep
 As you can see, this results in exactly the same Python data structure as the previous example,
 and can be compiled to executable Python code the same way.
 
-Hissp comes with a basic REPL (read-eval-print-loop, or interactive shell)
+Hissp comes with a basic REPL (read-eval-print loop, or interactive command-line interface)
 which compiles Hissp (read from Lissp) to Python and passes it to the Python REPL for execution.
 
 The reader and compiler are both extensible with macros.

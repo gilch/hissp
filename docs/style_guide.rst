@@ -742,7 +742,7 @@ even in an implied group.
              (gt (len xs) (len ys))
              (print ">"))))
 
-   (define compare                        ;OK.
+   (define compare                        ;OK, but the blank lines smell.
      (lambda (xs ys)
        (cond (eq (len xs)
                  (len ys))
