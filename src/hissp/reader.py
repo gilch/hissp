@@ -8,18 +8,8 @@ Compiles Lissp files to Python files when run as the main module.
 The reader is organized as a lexer and parser.
 The parser is extensible with Lissp reader macros.
 The lexer is not extensible,
-but it doesn't do much more than pull tokens from a relatively simple regex
+and doesn't do much more than pull tokens from a relatively simple regex
 and track its position for error messages.
-
-Includes ENTUPLE and DROP "constants".
-
-DROP is the special value returned by the discard macro ``_#`` to make the reader skip it.
-There's probably little other use for this, but it's available.
-
-ENTUPLE is the function used by the template macros.
-By default it spells out its implementation every time,
-but you can override this by setting a new value.
-Compiled code can be shorter and more readable if you use a qualified name string instead.
 """
 
 import ast
@@ -40,6 +30,13 @@ from hissp.compiler import Compiler, readerless
 from hissp.munger import munge
 
 ENTUPLE = ("lambda", (":", ":*", "xAUTO0_"), "xAUTO0_")
+"""
+Used by the template macro to make tuples.
+
+To avoid creating a dependency on Hissp, by default,
+templates spell out the entuple implementation every time,
+but you can override this by setting some other value here.
+"""
 
 TOKENS = re.compile(
     r"""(?x)
@@ -71,15 +68,25 @@ TOKENS = re.compile(
 Token = NewType("Token", Tuple[str, str, int])
 
 DROP = object()
+"""
+The sentinel value returned by the discard macro ``_#``, which the 
+reader skips over when parsing. Reader macros can have read-time side 
+effects with no Hissp output by returning this.
+"""
 
 class SoftSyntaxError(SyntaxError):
-    """A syntax error that could be corrected with more lines of input."""
+    """A syntax error that could be corrected with more lines of input.
+
+    When the REPL encounters this when attempting to evaluate a form,
+    it will ask for more lines, rather than aborting with an error.
+    """
 
 class Lexer(Iterator):
     """The tokenizer for the Lissp language.
 
-    Most of the actual tokenizing is done by the TOKENS regex.
-    The Lexer adds some position tracking to that to help with error messages.
+    Most of the actual tokenizing is done by the regex.
+    The Lexer adds some position tracking to that to help with error
+    messages.
     """
     def __init__(self, code: str, file: str = "<?>"):
         self.code = code
@@ -103,10 +110,14 @@ class Lexer(Iterator):
             yield Token((match.lastgroup, match.group(), pos))
 
     def position(self, pos: int) -> Tuple[str, int, int, str]:
+        """
+        Compute the ``filename``, ``lineno``, ``offset`` and ``text``
+        for a `SyntaxError`, using the current character offset in code.
+        """
         good = self.code[0:pos].split("\n")
-        line = len(good)
-        column = len(good[-1])
-        return self.file, line, column, self.code
+        lineno = len(good)
+        offset = len(good[-1])
+        return self.file, lineno, offset, self.code.split("\n")[lineno - 1]
 
 
 class _Unquote(tuple):
@@ -117,8 +128,7 @@ class _Unquote(tuple):
 def gensym_counter(count=[0]):
     """
     Call to increment the gensym counter, and return the new count.
-    Use this if you need to generate new gensyms at compile time,
-    otherwise (at read time), you can use the gensym reader macro in a template.
+    Used by the gensym reader macro ``$#`` to ensure symbols are unique.
     """
     count[0] += 1
     return count[0]
@@ -142,6 +152,7 @@ class Lissp:
 
     @property
     def ns(self):
+        """The wrapped `Compiler`'s ``ns``."""
         return self.compiler.ns
 
     @ns.setter
@@ -149,14 +160,20 @@ class Lissp:
         self.compiler.ns = ns
 
     def reinit(self):
+        """Reset position, nesting depth, and gensym stack."""
         self.gensym_stack = []
         self.depth = 0
         self._p = 0
 
     def position(self):
+        """
+        Get the ``filename``, ``lineno``, ``offset`` and ``text``
+        for a `SyntaxError`, from the `Lexer` given to `parse`.
+        """
         return self.tokens.position(self._p)
 
     def parse(self, tokens: Lexer) -> Iterator:
+        """Build Hissp forms from a `Lexer`."""
         self.tokens = tokens
         return (form for form in self._parse() if form is not DROP)
 
@@ -239,6 +256,7 @@ class Lissp:
             return munge(v)
 
     def parse_macro(self, tag: str, form):
+        """Apply a reader macro to a form."""
         if tag == "'":
             return "quote", form
         if tag == "`":
@@ -248,15 +266,15 @@ class Lissp:
         if tag == ",@":
             return _Unquote([":*", form])
         assert tag.endswith("#")
-        return self.parse_tag(tag[:-1], form)
+        return self._parse_tag(tag[:-1], form)
 
-    def parse_tag(self, tag, form):
+    def _parse_tag(self, tag, form):
         if tag == "_":
             return DROP
         if tag == "$":
             return self.gensym(form)
         if tag == ".":
-            return eval(readerless(form), self.ns)
+            return eval(readerless(form, self.ns), self.ns)
         if is_string(form):
             form = ast.literal_eval(form)
         tag = munge(self.escape(tag))
@@ -267,14 +285,17 @@ class Lissp:
             m = getattr(self.ns["_macro_"], tag+'xHASH_')
         except (AttributeError, KeyError):
             raise SyntaxError(f"Unknown reader macro {tag}", self.position())
-        return m(form)
+        with self.compiler.macro_context():
+            return m(form)
 
     @staticmethod
     def escape(atom):
+        """Process the backslashes in a token."""
         atom = atom.replace(r'\.', 'xFULLxSTOP_')
         return re.sub(r'\\(.)', lambda m: m[1], atom)
 
     def template(self, form):
+        """Process form as template."""
         case = type(form)
         if is_string(form):
             return "quote", form
@@ -305,6 +326,7 @@ class Lissp:
             invocation = False
 
     def qualify(self, symbol: str, invocation=False) -> str:
+        """Qualify symbol based on current context."""
         if re.search(r"^\(|^\.|\.$|^quote$|^lambda$|^__import__$|xAUTO\d+_$|\.\.", symbol):
             return symbol  # Not qualifiable.
         if invocation and "_macro_" in self.ns and self._macro_has(symbol):
@@ -327,6 +349,7 @@ class Lissp:
         return True
 
     def reads(self, code: str) -> Iterable:
+        """Read Hissp forms from code string."""
         res: Iterable[object] = self.parse(Lexer(code, self.filename))
         self.reinit()
         if self.verbose:
@@ -335,10 +358,12 @@ class Lissp:
         return res
 
     def compile(self, code: str) -> str:
+        """Read Lissp code and pass it on to the Hissp compiler."""
         hissp = self.reads(code)
         return self.compiler.compile(hissp)
 
     def gensym(self, form: str):
+        """Generate a symbol unique to the current template."""
         try:
             return f"_{munge(form)}xAUTO{self.gensym_stack[-1]}_"
         except IndexError:
@@ -346,6 +371,7 @@ class Lissp:
 
     @contextmanager
     def gensym_context(self):
+        """Start a new gensym context for the current template."""
         self.gensym_stack.append(gensym_counter())
         try:
             yield
@@ -354,6 +380,7 @@ class Lissp:
 
     @contextmanager
     def unquote_context(self):
+        """Start a new unquote context for the current template."""
         try:
             gensym_number = self.gensym_stack.pop()
         except IndexError:
@@ -366,11 +393,12 @@ class Lissp:
 
 def is_string(form):
     """
-    Determines if the form could have been read from a string literal.
+    Determines if form could have been read from a Lissp string literal.
 
-    It's not enough to check if the atom has a string type.
-    Several token types such as control words, symbols, and Python injections, read in as strings.
-    Macros may need to distinguish these cases.
+    It's not enough to check if the form has a string type.
+    Several token types such as control words, symbols, and Python
+    injections, read in as strings. Macros may need to distinguish these
+    cases.
     """
     try:
         return type(form) is str and form.startswith("(") and type(ast.literal_eval(form)) is str
@@ -421,8 +449,9 @@ def _write_py(out, qualname, code):
         f.write(Lissp(qualname, evaluate=True, filename=str(out)).compile(code))
 
 def main():
-    """Calls transpile() with argv as arguments."""
+    """Calls `transpile` with arguments from `sys.argv`."""
     transpile(*sys.argv[1:])
+
 
 if __name__ == "__main__":
     # TODO: test CLI
