@@ -376,6 +376,9 @@ with a common culture, but without perfect agreement in all details.
 Lissp's recommended style is based on these,
 with some small modifications for its own unique features.
 
+Tuples
+------
+
 Keep the elements in a tuple aligned to start on the same column.
 Treat siblings groups equally:
 If you add a line break for one group,
@@ -487,6 +490,9 @@ Your code should look like these examples, recursively applied to subforms:
             :** kwargs)                   ;kwargs
      body)
 
+Strings
+-------
+
 Multiline strings can mess with alignment styles.
 Strings are atoms, so this won't affect Parinfer,
 but it can impact legibility.
@@ -536,6 +542,81 @@ including the closing quote.
 Put the closing quotes for any multiline docstring on its own line.
 (Pydoc automatically strips indents.)
 
+Comments
+--------
+
+Headings are capitalized, and begin with four semicolons and a space ``;;;; X``.
+Subheadings are not capitalized, and begin with three semicolons and a space ``;;; x``.
+
+These are for the top level only; they aren't nested in forms;
+they get their own line and start at the beginning of it.
+They have a blank line before (unless it's the first line) and after.
+They organize the code into sections.
+
+Comments about the next form (or group) begin with two semicolons and a space ``;; x``,
+and are indented to align as if they were forms,
+and are not followed by a blank line.
+
+Comments about a line begin with one semicolon and a space ``; x``,
+starting one space after the code. They never get their own line.
+
+Margin comments begin with one semicolon ``;x`` and are aligned to column 40,
+or one space after the code, whichever is greater.
+The semicolon is not followed by a space unless it continues a
+comment from the previous line.
+Margin comment continuations may have their own line.
+
+**Never** put a single-semicolon comment on its own line unless
+it's a continuation aligned to the margin!
+Experience Lispers set their editors to automatically indent these.
+You will make them angry when they have to fix all your comments.
+
+Use the drop macro ``_#`` on a string for long block comments.
+
+Commented-out code does not belong in version control,
+but it can be helpful to turn things off during development.
+You can use the drop macro to comment out code structurally.
+You can use ``;;`` at the start of each line to comment out multiple forms at once.
+
+.. code-block:: Lissp
+
+   "Comments example.
+
+   Prefer to use docstrings like this one over comments when applicable.
+   Docstrings are always indented with their containing form, including
+   their contents, wrap at column 72, and, if multiline, their closing
+   quote has its own line. Use reStructuredText markup in docstrings.
+   "
+
+   ;;;; Heading
+
+   _#"Long Exposition about this section. Wrap at column 72.
+
+   Lorem ipsum dolor sit amet, consectetuer adipiscing elit.  Donec
+   hendrerit tempor tellus.  Donec pretium posuere tellus.  Proin quam
+   nisl, tincidunt et, mattis eget, convallis nec, purus.  Cum sociis
+   natoque penatibus et magnis dis parturient montes, nascetur ridiculus
+   mus.
+   "
+
+   ;;; subheading
+
+   ;; Comment about macro
+   (macro special1
+          ;; Comment about special2 group
+          : special2a special2b
+          special3 ; Comment about special3 line
+          special4 ; Entirely separate comment about special4 line
+     body1
+     ;; Comment about body2
+     body2                                ;Margin comment
+     body3)                               ; continuation thereof,
+                                          ; and more continuation on its own line.
+
+Docstrings can use some other markup format if the whole team can agree on one,
+and it's done for the entire project.
+But reStructuredText is the default in the Python ecosystem.
+You can automatically generate API documentation with these.
 
 Identifiers
 ===========
