@@ -379,6 +379,21 @@ with some small modifications for its own unique features.
 Tuples
 ------
 
+Separate *top level* forms from each other by a single blank like,
+unless they are very closely related.
+
+Top Level
+  Not nested inside another form.
+  The top of the syntax tree, not the top of the file.
+
+Try to avoid blank lines within forms.
+You may need them for separating groups whose elements span lines
+or to separate methods in long classes.
+This is a code smell indicating your form may be too complex.
+You can use comment lines to separate internal groups instead,
+but consider refactoring.
+Blank lines are OK in docstrings.
+
 Keep the elements in a tuple aligned to start on the same column.
 Treat siblings groups equally:
 If you add a line break for one group,
