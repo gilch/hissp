@@ -139,7 +139,7 @@ Lissp Quick Start
    (-1.234e-55-7.898e-75j)
 
 
-   ;;; symbols and strings
+   ;;;; SYMBOLIC
 
    #> object                                 ;Normal identifier.
    >>> object
