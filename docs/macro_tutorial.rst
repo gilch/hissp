@@ -1433,17 +1433,15 @@ Lissp can do that with a class.
 .. Lissp::
 
    #> (deftype Flattener ()
-   #..  __init__
-   #..  (lambda (self)
-   #..    (setattr self 'accumulator []))
-   #..  flatten
-   #..  (lambda (self form)
-   #..    (any-for x form
-   #..      (if-else (is_ (type x) tuple)
-   #..        (self.flatten x)
-   #..        (.append self.accumulator x))
-   #..      False)
-   #..    self.accumulator))
+   #..  __init__ (lambda (self)
+   #..             (setattr self 'accumulator []))
+   #..  flatten (lambda (self form)
+   #..            (any-for x form
+   #..              (if-else (is_ (type x) tuple)
+   #..                (self.flatten x)
+   #..                (.append self.accumulator x))
+   #..              False)
+   #..            self.accumulator))
    >>> # deftype
    ... # hissp.basic.._macro_.define
    ... __import__('operator').setitem(
@@ -1624,17 +1622,15 @@ Let's review. The code you need to make the version we have so far is
        (.flatten (Flattener) form)))
 
    (deftype Flattener ()
-     __init__
-     (lambda (self)
-       (setattr self 'accumulator []))
-     flatten
-     (lambda (self form)
-       (any-for x form
-         (if-else (is_ (type x) tuple)
-           (self.flatten x)
-           (.append self.accumulator x))
-         False)
-       self.accumulator))
+     __init__ (lambda (self)
+                (setattr self 'accumulator []))
+     flatten (lambda (self form)
+               (any-for x form
+                 (if-else (is_ (type x) tuple)
+                   (self.flatten x)
+                   (.append self.accumulator x))
+                 False)
+               self.accumulator))
 
 Given all of this in a file named ``macros.lissp``,
 you can start the REPL with these already loaded using the command

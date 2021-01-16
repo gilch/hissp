@@ -546,13 +546,11 @@ Long multiline strings should be declared at the `top level`_ and referenced by 
    ")
 
    (deftype MessagePrinter ()
-     __doc__
-     "It is safe
-     to indent docstrings.
-     "
-     display
-     (lambda (self)
-       (print MESSAGE)))
+     __doc__ "It is safe
+             to align docstrings.
+             "
+     display (lambda (self)
+               (print MESSAGE)))
 
 Indent any multiline docstring to match its opening quote,
 including the closing quote.

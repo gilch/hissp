@@ -1394,9 +1394,8 @@ Lissp Quick Start
 
    #> (deftype Point2D (tuple)
    #..  __doc__ "Simple pair."
-   #..  __new__
-   #..  (lambda (cls x y)
-   #..    (.__new__ tuple cls `(,x ,y))))
+   #..  __new__ (lambda (cls x y)
+   #..            (.__new__ tuple cls `(,x ,y))))
    >>> # deftype
    ... # hissp.basic.._macro_.define
    ... __import__('operator').setitem(
