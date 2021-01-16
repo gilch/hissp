@@ -3,8 +3,9 @@
 " Hissp's basic macros.
 
 These are automatically made available as unqualified macros in the
-basic REPL. To use them in a Hissp module, use the ``prelude`` macro or
-fully-qualified names. You can abbreviate qualifiers with reader macros:
+Lissp REPL. To use them in a Hissp module, either use the
+fully-qualified names, or start with the `prelude` macro. You can
+abbreviate qualifiers with the `alias` macro:
 
 .. code-block:: Lissp
 
@@ -14,28 +15,31 @@ fully-qualified names. You can abbreviate qualifiers with reader macros:
 
 The basic macros are deliberately restricted in design.
 
-They have NO DEPENDENCIES in their expansions;
-they use only the standard library with no extra helper functions.
-This means that the compiled code does not require Hissp to be installed
-to work, but all helper code must be inlined, resulting in larger
-expansions than might otherwise be necessary.
+They have NO DEPENDENCIES in their expansions; they use only the
+standard library with no extra helper functions. This means that all
+helper code must be inlined, resulting in larger expansions than might
+otherwise be necessary. But because macros expand before runtime, the
+compiled code does not require Hissp to be installed to work, assuming,
+of course, that there are no other runtime imports of the library code.
+
+These may suffice for small projects, but projects with access to better
+alternatives need not use the basic macros at all.
 
 They also have no prerequisite initialization, beyond what is available
-in a standard Python module. Their Python compilation would work
-directly in an ``exec()``. For example, a ``_macro_`` namespace need not
-be available for ``defmacro``. It's smart enough to check for the
-presence of ``_macro_`` in its expanson context, and inline the
+in a standard Python module. For example, a ``_macro_`` namespace need
+not be available for ``defmacro``. It's smart enough to check for the
+presence of ``_macro_`` in its expansion context, and inline the
 initialization code when required.
 
 With the exception of ``prelude`` (which is only meant for the top
-level), they also eschew text substitutions, relying only on the
-built-in special forms ``quote`` and ``lambda``, which makes their
-expansions compatible with advanced rewriting macros that process the
-expansions of other macros.
+level), they also eschew any expansions directly to Python code, relying
+only on the built-in special forms ``quote`` and ``lambda``, which makes
+their expansions compatible with advanced rewriting macros that process
+the Hissp expansions of other macros.
 
-To help keep macros and their expansions manageable in size, these basic
-macros lack some of the advanced bells and whistles that their
-equivalents have in Python or other Lisps.
+To help keep macros and their expansions manageable in complexity,
+these basic macros lack some of the extra features their equivalents
+have in Python or in other Lisps.
 "
 
 _#" This module is not necessarily a good example of how you should
@@ -82,8 +86,8 @@ judicious use can improve performance and maintainability.
   `((lambda (,'test : :* ,'then-else)
       ((operator..getitem ,'then-else (operator..not_ ,'test))))
     ,test
-    (lambda () ,then)
-    (lambda () ,otherwise)))
+    (lambda : ,then)
+    (lambda : ,otherwise)))
 
 (defmacro progn (: :* body)
   "Evaluates each form in sequence for side effects.
@@ -91,15 +95,23 @@ judicious use can improve performance and maintainability.
   Evaluates to the same value as its last form (or ``()`` if empty).
   "
   ;; TODO: consider flattening nested progns
-  `((lambda ()
+  `((lambda :
       ,@body)))
 
 (defmacro when (condition : :* body)
-  "Evaluates the body when condition is true."
+  "When the condition is true,
+  evaluates each form in sequence for side effects.
+  Evaluates to the same value as its last form.
+  Otherwise, skips them and returns ``()``.
+  "
   `(if-else ,condition (progn ,@body) ()))
 
 (defmacro unless (condition : :* body)
-  "Evaluates the body unless condition is true."
+  "Unless the condition is true,
+  evaluates each form in sequence for side effects.
+  Evaluates to the same value as its last form.
+  Otherwise, skips them and returns ``()``.
+  "
   `(if-else ,condition () (progn ,@body)))
 
 (defmacro let (pairs : :* body)
@@ -115,10 +127,10 @@ judicious use can improve performance and maintainability.
 (defmacro defmacro (name parameters : docstring () :* body)
   "Creates a new macro for the current module.
 
-  If there's no _macro_, creates one (using ModuleType).
-  If there's a docstring, stores it as the new lambda's __doc__.
-  Adds the _macro_ prefix to the lambda's qualname.
-  Saves the lambda in _macro_ using the given attribute name.
+  If there's no ``_macro_``, creates one (using `types.ModuleType`).
+  If there's a docstring, stores it as the new lambda's ``__doc__``.
+  Adds the ``_macro_`` prefix to the lambda's ``__qualname__``.
+  Saves the lambda in ``_macro_`` using the given attribute name.
   "
   (let ($fn `$#fn)
     (let (fn `(lambda ,parameters ,docstring ,@body)
@@ -184,13 +196,15 @@ meditate on this.
 ;;; configuration
 
 (defmacro attach (target : :* args)
-  "Attaches the named variables as attributes of the target.
+  "Attaches the named variables to the target as attributes.
 
-  Positional arguments use the same name as the variable.
-  Names after the ``:`` are key-value pairs.
+  Positional arguments must be unqualified identifiers,
+  and use that as the attribute name.
+  Names after the ``:`` are attribute-value pairs.
+  Returns the target.
   "
   (let (iargs (iter args)
-              $target `$#target)
+        $target `$#target)
     (let (args (itertools..takewhile (lambda (a)
                                        (operator..ne a ':))
                                      iargs))
@@ -203,20 +217,19 @@ meditate on this.
                 iargs)
          ,$target))))
 
-(defmacro cascade (thing : :* calls)
+(defmacro cascade (self : :* calls)
   "Call multiple methods on one object.
 
-  Evaluates the given thing then uses it as the first argument to a
-  sequence of calls. Used for initialization. Evaluates to the thing.
+  Evaluates the given ``self``, then injects it as the first argument to
+  a sequence of calls. Returns the result of the last call.
   "
-  (let ($thing `$#thing)
-    `((lambda (: ,$thing ,thing)
+  (let ($self `$#self)
+    `((lambda (: ,$self ,self)
         ,@(map (lambda (call)
                  `(,(operator..getitem call 0)
-                   ,$thing
+                   ,$self
                    ,@(operator..getitem call (slice 1 None))))
-               calls)
-        ,$thing))))
+               calls)))))
 
 ;;; threading
 
@@ -258,7 +271,7 @@ meditate on this.
 (defmacro cond (: :* pairs)
   #"Multiple condition branching.
 
-  Pairs are implied. Default is (); use :else to change it.
+  Pairs are implied. Default is ``()``. Use ``:else`` to change it.
   For example::
 
    (cond)  ; ()
@@ -274,9 +287,13 @@ meditate on this.
               ;; Here's the recursive part.
               (cond ,@(operator..getitem pairs (slice 2 None))))))
 
-(defmacro any-for (params iterable : :* body)
-  "``any-for`` Evaluate body for each item in iterable until any result is true."
-  `(any (map (lambda ,params
+(defmacro any-for (variable iterable : :* body)
+  "``any-for``
+  Bind the variable and evaluate the body for each item from the
+  iterable until any result is true (and return ``True``),
+  or until the iterable is exhausted (and return ``False``).
+  "
+  `(any (map (lambda (,variable)
                ,@body)
              ,iterable)))
 
@@ -284,7 +301,7 @@ meditate on this.
 (defmacro && (: :* exprs)
   "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
   (cond (operator..not_ exprs) True
-        (operator..eq 1 (len exprs)) (operator..getitem exprs 0)
+        (operator..eq (len exprs) 1) (operator..getitem exprs 0)
         :else `(let ($#G ,(operator..getitem exprs 0))
                  (if-else $#G
                           (&& ,@(operator..getitem exprs (slice 1 None)))
@@ -319,8 +336,8 @@ meditate on this.
 
 ;;; reader
 
-(defmacro b (raw)
-  "bytes literal reader macro"
+(defmacro b\# (raw)
+  "``b#`` bytes literal reader macro"
   (-> raw
       (.replace "'" "\'")
       (.replace #"\n" "\n")
@@ -332,8 +349,10 @@ meditate on this.
 (defmacro prelude ()
   "Grants unqualified access to the basics.
 
-  Star imports from operator and itertools.
-  And adds the basic macros, if available.
+  Star imports from `operator` and `itertools`.
+  And adds the basic macros, but only if available,
+  so its expansion does not require Hissp to be installed.
+  (This overwrites ``_macro_`` if you already had one.)
   "
   `(exec #"\
 from operator import *
@@ -345,7 +364,16 @@ except ModuleNotFoundError:
     pass"))
 
 (defmacro alias (alias module)
-  "Defines a reader macro abbreviation of a qualifier."
-  `(defmacro ,alias ($#G)
+  "Defines a reader macro abbreviation of a symbol prefix
+  (such as a qualifier). For example,
+
+  .. code-block:: Lissp
+
+     (hissp.basic.._macro_.alias b/ hissp.basic.._macro_.)
+     ;; Now the same as (hissp.basic.._macro_.define foo 2).
+     (b/#define foo 2)
+  "
+  `(defmacro ,(.format "{}{}" alias '#)
+             ($#G)
      ',(.format "Aliases {} as {}#" module alias)
      (.format "{}{}" ',module $#G)))

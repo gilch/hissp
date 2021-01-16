@@ -146,10 +146,13 @@ Hissp's basic macros are meant to be just enough to bootstrap native unit tests
 and demonstrate the macro system.
 They may suffice for small embedded Hissp projects,
 but you will probably want a more comprehensive macro suite for general use.
-[Hebigo](https://github.com/gilch/hebigo)
-has macro equivalents of most Python statements.
+
+Currently, that means using [Hebigo](https://github.com/gilch/hebigo),
+which has macro equivalents of most Python statements.
+
 The Hebigo project includes an alternative indentation-based Hissp reader,
-but the macros are written in readerless mode and are also compatible with the "Lissp" reader included in Hissp.
+but the macros are written in readerless mode and are also compatible with the 
+S-expression "Lissp" reader bundled with Hissp.
 
 ## Interoperability
 Why base a Lisp on Python when there are already lots of other Lisps?
@@ -169,8 +172,7 @@ the compiled output can usually run on Python 3.5 without too much difficulty.
 Watch out for positional-only arguments (new to 3.8)
 and changes to the standard library.
 Running on versions even older than 3.5 is not recommended,
-but may likewise be possible (even for Python 2) if you carefully avoid using newer Python features.
-(Keyword-only arguments, for example.)
+but may likewise be possible if you carefully avoid using newer Python features.
 
 Python code can also import and use packages written in Hissp,
 because they compile to Python.
@@ -195,12 +197,12 @@ only Python itself.
 Hissp includes some very basic Lisp macros to get you started.
 Their expansions have no external requirements either.
 
-Libraries built on Hissp need not have this limitation.
+Libraries built on Hissp need not have this restriction.
 
 ## REPL
 A Lisp tradition, and Hissp is no exception.
 Even though it's a compiled language,
-Hissp has an interactive shell like Python does.
+Hissp has an interactive command-line interface like Python does.
 The REPL displays the compiled Python and evaluates it.
 Printed values use the normal Python reprs.
 (Translating those to back to Lissp is not a goal.)
@@ -214,8 +216,8 @@ But such a macro should work in the same module.
 This requires incremental compilation and evaluation of forms, like the REPL.
 
 ## Modularity
-The Hissp language is made of tuples (and values), not text.
-The basic reader included with the project just implements a convenient
+The Hissp language is made of tuples (and atoms), not text.
+The S-expression reader included with the project (Lissp) is just a convenient
 way to write them.
 It's possible to write Hissp in "readerless mode"
 by writing these tuples in Python.
@@ -275,7 +277,7 @@ or it can be read in from a lightweight textual language called *Lissp* that rep
 As you can see, this results in exactly the same Python data structure as the previous example,
 and can be compiled to executable Python code the same way.
 
-Hissp comes with a basic REPL (read-eval-print-loop, or interactive shell)
+Hissp comes with a basic REPL (read-eval-print loop, or interactive command-line interface)
 which compiles Hissp (read from Lissp) to Python and passes it to the Python REPL for execution.
 
 The reader and compiler are both extensible with macros.
@@ -291,7 +293,7 @@ Here's one definition from the basic macros:
   Names after the ``:`` are key-value pairs.
   "
   (let (iargs (iter args)
-              $target `$#target)
+        $target `$#target)
     (let (args (itertools..takewhile (lambda (a)
                                        (operator..ne a ':))
                                      iargs))
@@ -305,13 +307,14 @@ Here's one definition from the basic macros:
          ,$target))))
 ```
 If you've never used a Lisp before, don't let this scare you.
-You should be able to read this much after completing the tutorials.
+You should be able to read this much after completing the
+[tutorials](https://hissp.readthedocs.io/).
 
 Hissp is modular, and the reader included for Lissp is not the only one.
 Here's a native unit test class from the separate
 [Hebigo](https://github.com/gilch/hebigo) prototype,
 a Hissp reader implementing a language designed to resemble Python:
-```
+```python
 class: TestOr: TestCase
   def: .test_null: self
     self.assertEqual:
@@ -349,5 +352,5 @@ just like Lissp.
 
 The same Hissp macros work in readerless mode, Lissp, and Hebigo, and can be written in any of these.
 
-See the [documentation](https://hissp.readthedocs.io/en/latest/?badge=latest)
+See the [documentation](https://hissp.readthedocs.io/)
 for more.

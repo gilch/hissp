@@ -1,5 +1,8 @@
 # Copyright 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
+"""
+The Lissp Read-Evaluate-Print Loop. For interactive use.
+"""
 
 import sys
 from code import InteractiveConsole
@@ -9,7 +12,14 @@ import hissp.basic
 from hissp.reader import Lissp, SoftSyntaxError
 
 
-class REPL(InteractiveConsole):
+class LisspREPL(InteractiveConsole):
+    """Lissp's Read-Evaluate-Print Loop, layered on Python's.
+
+    You can initialize the REPL with a locals dict,
+    which is useful for debugging other modules.
+    Call interact() to start.
+    """
+
     def __init__(self, locals=None, filename="<console>"):
         super().__init__(locals, filename)
         sys.ps1 = "#> "
@@ -18,6 +28,7 @@ class REPL(InteractiveConsole):
         self.locals = self.lissp.ns
 
     def runsource(self, source, filename="<input>", symbol="single"):
+        """:meta private:"""
         try:
             self.lissp.filename = filename
             source = self.lissp.compile(source)
@@ -28,6 +39,7 @@ class REPL(InteractiveConsole):
             return False
         except BaseException:
             import traceback
+
             traceback.print_exc()
             return False
         print(">>>", source.replace("\n", "\n... "), file=sys.stderr)
@@ -35,12 +47,14 @@ class REPL(InteractiveConsole):
 
 
 def main():
-    __main__ = ModuleType('__main__')
-    repl = REPL(locals=__main__.__dict__)
-    repl.locals['_macro_'] = SimpleNamespace(**vars(hissp.basic._macro_))
-    sys.modules['__main__'] = __main__
-    sys.path.insert(0, '')
+    """REPL command-line entry point."""
+    __main__ = ModuleType("__main__")
+    repl = LisspREPL(locals=__main__.__dict__)
+    repl.locals["_macro_"] = SimpleNamespace(**vars(hissp.basic._macro_))
+    sys.modules["__main__"] = __main__
+    sys.path.insert(0, "")
     repl.interact()
+
 
 if __name__ == "__main__":
     main()
