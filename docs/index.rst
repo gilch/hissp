@@ -11,8 +11,8 @@ It's Python with a *Lissp.*
 .. image:: hissp.svg
 
 Welcome to Hissp's documentation!
-Jump in and try the quick start if you're feeling confident,
-or read the more detailed (but less thorough) tutorial.
+Jump in and try the quick start first if you're feeling confident,
+or start with the longer, but less comprehensive tutorial.
 
 .. TODO: add REPL via Brython or Pyodide?
 
