@@ -5,6 +5,7 @@ Hissp's command-line interface.
 """
 
 import argparse
+import re
 import sys
 
 import hissp.repl
@@ -36,7 +37,7 @@ def _with_args(ns):
     with argparse.FileType("r")(ns.file) as file:
         sys.argv = [file.name, *ns.args]
         code = file.read()
-    ns.i(code)
+    ns.i(re.sub("^#!.*\n", "\n", code))
 
 
 def _interact(code):
