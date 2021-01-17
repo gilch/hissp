@@ -18,6 +18,7 @@ def main():
     """
     ns = _arg_parser().parse_args()
     sys.argv = [""]
+    sys.path.insert(0, "")
     if ns.c is not None:
         _cmd(ns)
     elif ns.file is not None:

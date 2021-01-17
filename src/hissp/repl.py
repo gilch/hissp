@@ -52,7 +52,8 @@ def main():
     repl = LisspREPL(locals=__main__.__dict__)
     repl.locals["_macro_"] = SimpleNamespace(**vars(hissp.basic._macro_))
     sys.modules["__main__"] = __main__
-    sys.path.insert(0, "")
+    if "" not in sys.path:
+        sys.path.insert(0, "")
     repl.interact()
 
 
