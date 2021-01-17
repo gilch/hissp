@@ -46,13 +46,20 @@ class LisspREPL(InteractiveConsole):
         super().runsource(source, filename, symbol)
 
 
-def main():
-    """REPL command-line entry point."""
+def force_main():
+    """:meta private:"""
     __main__ = ModuleType("__main__")
-    repl = LisspREPL(locals=__main__.__dict__)
-    repl.locals["_macro_"] = SimpleNamespace(**vars(hissp.basic._macro_))
     sys.modules["__main__"] = __main__
     sys.path.insert(0, "")
+    return __main__
+
+
+def main(__main__=None):
+    """REPL command-line entry point."""
+    if not __main__:
+        __main__ = force_main()
+    repl = LisspREPL(locals=__main__.__dict__)
+    repl.locals["_macro_"] = SimpleNamespace(**vars(hissp.basic._macro_))
     repl.interact()
 
 

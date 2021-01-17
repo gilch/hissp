@@ -5,6 +5,7 @@ Hissp's command-line interface.
 """
 
 import argparse
+import re
 import sys
 
 import hissp.repl
@@ -15,32 +16,33 @@ def main():
     """
     Entry point for the `lissp command`.
     """
-    ns = _arg_parser().parse_args()
+    args = _arg_parser().parse_args()
     sys.argv = [""]
-    if ns.c is not None:
-        _cmd(ns)
-    elif ns.file is not None:
-        _with_args(ns)
+    __main__ = hissp.repl.force_main()
+    if args.c is not None:
+        _cmd(args, __main__.__dict__)
+    elif args.file is not None:
+        _with_args(args, __main__.__dict__)
     else:
-        hissp.repl.main()
+        hissp.repl.main(__main__)
 
 
-def _cmd(ns):
+def _cmd(args, ns):
     sys.argv = ["-c"]
-    if ns.file is not None:
-        sys.argv.extend([ns.file, *ns.args])
-    ns.i("(hissp.basic.._macro_.prelude)\n" + ns.c)
+    if args.file is not None:
+        sys.argv.extend([args.file, *args.args])
+    args.i("(hissp.basic.._macro_.prelude)\n" + args.c, ns)
 
 
-def _with_args(ns):
-    with argparse.FileType("r")(ns.file) as file:
-        sys.argv = [file.name, *ns.args]
+def _with_args(args, ns):
+    with argparse.FileType("r")(args.file) as file:
+        sys.argv = [file.name, *args.args]
         code = file.read()
-    ns.i(code)
+    args.i(re.sub("^#!.*\n", "\n", code), ns)
 
 
-def _interact(code):
-    repl = hissp.repl.LisspREPL()
+def _interact(code, ns):
+    repl = hissp.repl.LisspREPL(locals=ns)
     repl.lissp.compiler.evaluate = True
     try:
         repl.lissp.compile(code)
@@ -49,8 +51,8 @@ def _interact(code):
         repl.interact()
 
 
-def _no_interact(code):
-    Lissp(evaluate=True).compile(code)
+def _no_interact(code, ns):
+    Lissp(ns=ns, evaluate=True).compile(code)
 
 
 def _arg_parser():
