@@ -46,7 +46,7 @@ Lissp Quick Start
    ;;;; Installation
 
    ;; Install Hissp with
-   ;; $ pip install hissp==0.2.0
+   ;; $ pip install git+https://github.com/gilch
    ;; Start the REPL with
    ;; $ lissp
    ;; You can quit with EOF or (exit).
