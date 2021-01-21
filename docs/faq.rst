@@ -296,7 +296,9 @@ How do I make bytes objects in Lissp?
 
    #> (bytes '(1 2 3))
    >>> bytes(
-   ...   (1, 2, 3))
+   ...   ((1),
+   ...    (2),
+   ...    (3),))
    b'\x01\x02\x03'
 
 Or, if you prefer hexadecimal,

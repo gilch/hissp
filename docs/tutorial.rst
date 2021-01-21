@@ -385,7 +385,11 @@ because when quoted, it's just data:
    #> (quote
    #..  (lambda (name)
    #..    (print "Hello" name)))
-   >>> ('lambda', ('name',), ('print', "('Hello')", 'name'))
+   >>> ('lambda',
+   ...  ('name',),
+   ...  ('print',
+   ...   "('Hello')",
+   ...   'name',),)
    ('lambda', ('name',), ('print', "('Hello')", 'name'))
 
 Notice that rather than using the ``quote`` special form for ``"Hello"``,
@@ -413,7 +417,12 @@ Quoting our example again to see how Lissp would get read as Hissp:
    #> (quote
    #..  (lambda (name)
    #..    (print 'Hello name)))
-   >>> ('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
+   >>> ('lambda',
+   ...  ('name',),
+   ...  ('print',
+   ...   ('quote',
+   ...    'Hello',),
+   ...   'name',),)
    ('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
 
 We see that there are *no symbol objects* at the Hissp level.
@@ -846,9 +855,10 @@ Use the control words ``:*`` for iterable unpacking,
 
    #> (print : :* '(1 2)  :? 3  :* '(4)  :** (dict : sep :  end #"\n."))
    >>> print(
-   ...   *(1, 2),
+   ...   *((1),
+   ...    (2),),
    ...   (3),
-   ...   *(4,),
+   ...   *((4),),
    ...   **dict(
    ...     sep=':',
    ...     end=('\n.')))
@@ -969,7 +979,9 @@ The template quote works much like a normal quote:
 .. code-block:: REPL
 
    #> '(1 2 3)  ; quote
-   >>> (1, 2, 3)
+   >>> ((1),
+   ...  (2),
+   ...  (3),)
    (1, 2, 3)
 
    #> `(1 2 3)  ; template quote
@@ -990,7 +1002,11 @@ much like a format string:
 .. code-block:: REPL
 
    #> '(1 2 (operator..add 1 2))  ; normal quote
-   >>> (1, 2, ('operator..add', 1, 2))
+   >>> ((1),
+   ...  (2),
+   ...  ('operator..add',
+   ...   (1),
+   ...   (2),),)
    (1, 2, ('operator..add', 1, 2))
 
    #> `(1 2 ,(operator..add 1 2))  ; template and unquote
@@ -1022,14 +1038,20 @@ If you quote an example, you can see that intermediate step:
 .. code-block:: REPL
 
    #> '`(:a ,@"bcd" ,(opearator..mul 2 3))
-   >>> (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'),
+   >>> (('lambda',
+   ...   (':',
+   ...    ':*',
+   ...    'xAUTO0_',),
+   ...   'xAUTO0_',),
    ...  ':',
    ...  ':?',
    ...  ':a',
    ...  ':*',
    ...  "('bcd')",
    ...  ':?',
-   ...  ('opearator..mul', 2, 3))
+   ...  ('opearator..mul',
+   ...   (2),
+   ...   (3),),)
    (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':?', ':a', ':*', "('bcd')", ':?', ('opearator..mul', 2, 3))
 
 Templates are Lissp syntactic sugar based on what Hissp already has.
@@ -1251,7 +1273,10 @@ Let's try it:
    >>> setattr(
    ...   _macro_,
    ...   'hello',
-   ...   (lambda :('print', ('quote', 'hello'))))
+   ...   (lambda :
+   ...     ('print',
+   ...      ('quote',
+   ...       'hello',),)))
 
    #> (hello)
    >>> # hello

@@ -413,29 +413,52 @@ class Compiler:
         >>> readerless([{'foo':2},(),1j,2.0,{3}])
         "[{'foo': 2}, (), 1j, 2.0, {3}]"
         >>> spam = []
-        >>> spam.append(spam)
+        >>> spam.append(spam)  # ref cycle can't be a literal
         >>> print(readerless(spam))
         __import__('pickle').loads(  # [[...]]
             b'(lp0\ng0\na.'
+        )
+        >>> spam = [[]] * 3  # duplicated refs
+        >>> print(readerless(spam))
+        __import__('pickle').loads(  # [[], [], []]
+            b'(l(lp0\nag0\nag0\na.'
         )
 
         """
         if form is Ellipsis:
             return "..."
-
         case = type(form)
-        if case in {int, float, complex}:  # Number literals may need (). E.g. (1).real
-            literal = f"({form!r})"
-        elif case in {dict, list, set, tuple, str, bytes}:  # Pretty print collections.
-            literal = pformat(form, sort_dicts=False)
-        else:
-            literal = repr(form)
-
-        with suppress(ValueError, SyntaxError):
-            if ast.literal_eval(literal) == form:
-                return literal
+        if case is tuple and form:
+            return self._lisp_normal_form(form)
+        if case in {dict, list, set}:
+            return self._collection(form)
+        literal = self._format_repr(case, form)
+        if self._try_eval(literal) == form:
+            return literal
         # literal failed to round trip. Fall back to pickle.
         return self.pickle(form)
+
+    def _lisp_normal_form(self, form):
+        return "({},)".format(",\n".join(map(self.atom, form)).replace("\n", "\n "))
+
+    def _collection(self, form):  # Use literal if it reproduces the object graph.
+        pickled = self.pickle(form)
+        pretty = pformat(form, sort_dicts=False)
+        evaled = self._try_eval(pretty)
+        if evaled == form and pickled == self.pickle(evaled):
+            return pretty
+        return pickled
+
+    @staticmethod
+    def _format_repr(case, form):
+        if case in {int, float, complex}:
+            return f"({form!r})"  # Number literals may need (). E.g. (1).real
+        return pformat(form)  # Pretty print for multiline strings.
+
+    @staticmethod
+    def _try_eval(literal):
+        with suppress(ValueError, SyntaxError):
+            return ast.literal_eval(literal)
 
     @_trace
     def pickle(self, form) -> str:
