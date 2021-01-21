@@ -14,7 +14,7 @@ import sys
 from contextlib import contextmanager, suppress
 from contextvars import ContextVar
 from functools import wraps
-from itertools import chain, takewhile
+from itertools import chain, takewhile, starmap
 from pprint import pformat
 from traceback import format_exc
 from types import ModuleType
@@ -360,11 +360,15 @@ class Compiler:
         head = next(form)
         args = chain(
             map(self.form, takewhile(lambda a: a != ":", form)),
-            (f"{(PAIR_WORDS.get(k, k+'='))}{self.form(v)}" for k, v in _pairs(form)),
+            starmap(self._pair_arg, _pairs(form)),
         )
         if type(head) is str and head.startswith("."):
             return "{}.{}({})".format(next(args), head[1:], _join_args(*args))
         return "{}({})".format(self.form(head), _join_args(*args))
+
+    def _pair_arg(self, k, v):
+        k = PAIR_WORDS.get(k, k + '=')
+        return k + self.form(v).replace('\n', '\n' + ' ' * len(k))
 
     @_trace
     def str(self, code: str) -> str:

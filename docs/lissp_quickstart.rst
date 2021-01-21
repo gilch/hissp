@@ -8,7 +8,7 @@
    ...   '_macro_',
    ...   __import__('types').SimpleNamespace(
    ...     **vars(
-   ...       __import__('hissp.basic',fromlist='?')._macro_)))
+   ...         __import__('hissp.basic',fromlist='?')._macro_)))
 
 .. TODO: Interactive via web repl?
 
@@ -289,7 +289,7 @@ Lissp Quick Start
    ...   *('abc'),
    ...   (2),
    ...   **dict(
-   ...     sep=('-')))
+   ...       sep=('-')))
    1-a-b-c-2
 
    #> (print "Hello, World!")                ;No : is the same as putting it last.
@@ -1448,11 +1448,11 @@ Lissp Quick Start
    ...     __import__('builtins').dict(
    ...       __doc__=('Simple pair.'),
    ...       __new__=(lambda cls,x,y:
-   ...         tuple.__new__(
-   ...           cls,
-   ...           (lambda *xAUTO0_:xAUTO0_)(
-   ...             x,
-   ...             y))))))
+   ...                 tuple.__new__(
+   ...                   cls,
+   ...                   (lambda *xAUTO0_:xAUTO0_)(
+   ...                     x,
+   ...                     y))))))
 
    #> (Point2D 1 2)                          ;(1, 2)
    >>> Point2D(

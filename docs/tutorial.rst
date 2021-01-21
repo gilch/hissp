@@ -8,7 +8,7 @@
    ...   '_macro_',
    ...   __import__('types').SimpleNamespace(
    ...     **vars(
-   ...       __import__('hissp.basic',fromlist='?')._macro_)))
+   ...         __import__('hissp.basic',fromlist='?')._macro_)))
 
 ========
 Tutorial
@@ -856,12 +856,12 @@ Use the control words ``:*`` for iterable unpacking,
    #> (print : :* '(1 2)  :? 3  :* '(4)  :** (dict : sep :  end #"\n."))
    >>> print(
    ...   *((1),
-   ...    (2),),
+   ...     (2),),
    ...   (3),
    ...   *((4),),
    ...   **dict(
-   ...     sep=':',
-   ...     end=('\n.')))
+   ...       sep=':',
+   ...       end=('\n.')))
    1:2:3:4
    .
 

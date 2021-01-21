@@ -1493,34 +1493,34 @@ Lissp can do that with a class.
    ...     (lambda *xAUTO0_:xAUTO0_)(),
    ...     __import__('builtins').dict(
    ...       __init__=(lambda self:
-   ...         setattr(
-   ...           self,
-   ...           'accumulator',
-   ...           [])),
+   ...                  setattr(
+   ...                    self,
+   ...                    'accumulator',
+   ...                    [])),
    ...       flatten=(lambda self,form:(
-   ...         # anyxH_for
-   ...         __import__('builtins').any(
-   ...           __import__('builtins').map(
-   ...             (lambda x:(
-   ...               # ifxH_else
-   ...               (lambda test,*thenxH_else:
-   ...                 __import__('operator').getitem(
-   ...                   thenxH_else,
-   ...                   __import__('operator').not_(
-   ...                     test))())(
-   ...                 is_(
-   ...                   type(
-   ...                     x),
-   ...                   tuple),
-   ...                 (lambda :
-   ...                   self.flatten(
-   ...                     x)),
-   ...                 (lambda :
-   ...                   self.accumulator.append(
-   ...                     x))),
-   ...               False)[-1]),
-   ...             form)),
-   ...         self.accumulator)[-1]))))
+   ...                 # anyxH_for
+   ...                 __import__('builtins').any(
+   ...                   __import__('builtins').map(
+   ...                     (lambda x:(
+   ...                       # ifxH_else
+   ...                       (lambda test,*thenxH_else:
+   ...                         __import__('operator').getitem(
+   ...                           thenxH_else,
+   ...                           __import__('operator').not_(
+   ...                             test))())(
+   ...                         is_(
+   ...                           type(
+   ...                             x),
+   ...                           tuple),
+   ...                         (lambda :
+   ...                           self.flatten(
+   ...                             x)),
+   ...                         (lambda :
+   ...                           self.accumulator.append(
+   ...                             x))),
+   ...                       False)[-1]),
+   ...                     form)),
+   ...                 self.accumulator)[-1]))))
 
 
 More basic macros here.
@@ -1802,34 +1802,34 @@ Catch-All Parameter
    ...     'lambda',
    ...     (lambda *xAUTO0_:xAUTO0_)(
    ...       *map(
-   ...         (lambda i:
-   ...           ('X{}').format(
-   ...             i)),
-   ...         range(
-   ...           (1),
-   ...           add(
-   ...             (1),
-   ...             maxxH_X(
-   ...               expr)))),
+   ...          (lambda i:
+   ...            ('X{}').format(
+   ...              i)),
+   ...          range(
+   ...            (1),
+   ...            add(
+   ...              (1),
+   ...              maxxH_X(
+   ...                expr)))),
    ...       ':',
    ...       *# when
-   ...       # hissp.basic.._macro_.ifxH_else
-   ...       (lambda test,*thenxH_else:
-   ...         __import__('operator').getitem(
-   ...           thenxH_else,
-   ...           __import__('operator').not_(
-   ...             test))())(
-   ...         contains(
-   ...           flatten(
-   ...             expr),
-   ...           'Xi'),
-   ...         (lambda :
-   ...           # hissp.basic.._macro_.progn
-   ...           (lambda :
-   ...             (lambda *xAUTO0_:xAUTO0_)(
-   ...               ':*',
-   ...               'Xi'))()),
-   ...         (lambda :()))),
+   ...        # hissp.basic.._macro_.ifxH_else
+   ...        (lambda test,*thenxH_else:
+   ...          __import__('operator').getitem(
+   ...            thenxH_else,
+   ...            __import__('operator').not_(
+   ...              test))())(
+   ...          contains(
+   ...            flatten(
+   ...              expr),
+   ...            'Xi'),
+   ...          (lambda :
+   ...            # hissp.basic.._macro_.progn
+   ...            (lambda :
+   ...              (lambda *xAUTO0_:xAUTO0_)(
+   ...                ':*',
+   ...                'Xi'))()),
+   ...          (lambda :()))),
    ...     expr)):(
    ...   __import__('builtins').setattr(
    ...     _fnxAUTO7_,
@@ -1936,50 +1936,50 @@ Here you go:
    ...     'lambda',
    ...     (lambda *xAUTO0_:xAUTO0_)(
    ...       *map(
-   ...         (lambda i:
-   ...           ('X{}').format(
-   ...             i)),
-   ...         range(
-   ...           (1),
-   ...           add(
-   ...             (1),
-   ...             # xBAR_xBAR_
-   ...             # hissp.basic.._macro_.let
-   ...             (lambda _firstxAUTO28_=maxxH_X(
-   ...               expr):
-   ...               # hissp.basic.._macro_.ifxH_else
-   ...               (lambda test,*thenxH_else:
-   ...                 __import__('operator').getitem(
-   ...                   thenxH_else,
-   ...                   __import__('operator').not_(
-   ...                     test))())(
-   ...                 _firstxAUTO28_,
-   ...                 (lambda :_firstxAUTO28_),
-   ...                 (lambda :
-   ...                   # hissp.basic..xAUTO_.xBAR_xBAR_
-   ...                   contains(
-   ...                     flatten(
-   ...                       expr),
-   ...                     'X'))))()))),
+   ...          (lambda i:
+   ...            ('X{}').format(
+   ...              i)),
+   ...          range(
+   ...            (1),
+   ...            add(
+   ...              (1),
+   ...              # xBAR_xBAR_
+   ...              # hissp.basic.._macro_.let
+   ...              (lambda _firstxAUTO28_=maxxH_X(
+   ...                expr):
+   ...                # hissp.basic.._macro_.ifxH_else
+   ...                (lambda test,*thenxH_else:
+   ...                  __import__('operator').getitem(
+   ...                    thenxH_else,
+   ...                    __import__('operator').not_(
+   ...                      test))())(
+   ...                  _firstxAUTO28_,
+   ...                  (lambda :_firstxAUTO28_),
+   ...                  (lambda :
+   ...                    # hissp.basic..xAUTO_.xBAR_xBAR_
+   ...                    contains(
+   ...                      flatten(
+   ...                        expr),
+   ...                      'X'))))()))),
    ...       ':',
    ...       *# when
-   ...       # hissp.basic.._macro_.ifxH_else
-   ...       (lambda test,*thenxH_else:
-   ...         __import__('operator').getitem(
-   ...           thenxH_else,
-   ...           __import__('operator').not_(
-   ...             test))())(
-   ...         contains(
-   ...           flatten(
-   ...             expr),
-   ...           'Xi'),
-   ...         (lambda :
-   ...           # hissp.basic.._macro_.progn
-   ...           (lambda :
-   ...             (lambda *xAUTO0_:xAUTO0_)(
-   ...               ':*',
-   ...               'Xi'))()),
-   ...         (lambda :()))),
+   ...        # hissp.basic.._macro_.ifxH_else
+   ...        (lambda test,*thenxH_else:
+   ...          __import__('operator').getitem(
+   ...            thenxH_else,
+   ...            __import__('operator').not_(
+   ...              test))())(
+   ...          contains(
+   ...            flatten(
+   ...              expr),
+   ...            'Xi'),
+   ...          (lambda :
+   ...            # hissp.basic.._macro_.progn
+   ...            (lambda :
+   ...              (lambda *xAUTO0_:xAUTO0_)(
+   ...                ':*',
+   ...                'Xi'))()),
+   ...          (lambda :()))),
    ...     # ifxH_else
    ...     (lambda test,*thenxH_else:
    ...       __import__('operator').getitem(

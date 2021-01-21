@@ -8,7 +8,7 @@
    ...   '_macro_',
    ...   __import__('types').SimpleNamespace(
    ...     **vars(
-   ...       __import__('hissp.basic',fromlist='?')._macro_)))
+   ...         __import__('hissp.basic',fromlist='?')._macro_)))
 
 .. TODO: Sphinx update messed up my sidebars! Is there a better fix?
 .. raw:: html
@@ -869,38 +869,38 @@ Like this
    ...       __import__('contextlib').ContextDecorator),
    ...     __import__('builtins').dict(
    ...       __init__=(lambda self,catch,handler:(
-   ...         # attach
-   ...         # hissp.basic.._macro_.let
-   ...         (lambda _targetxAUTO16_=self:(
-   ...           __import__('builtins').setattr(
-   ...             _targetxAUTO16_,
-   ...             'catch',
-   ...             catch),
-   ...           __import__('builtins').setattr(
-   ...             _targetxAUTO16_,
-   ...             'handler',
-   ...             handler),
-   ...           _targetxAUTO16_)[-1])(),
-   ...         None)[-1]),
+   ...                  # attach
+   ...                  # hissp.basic.._macro_.let
+   ...                  (lambda _targetxAUTO16_=self:(
+   ...                    __import__('builtins').setattr(
+   ...                      _targetxAUTO16_,
+   ...                      'catch',
+   ...                      catch),
+   ...                    __import__('builtins').setattr(
+   ...                      _targetxAUTO16_,
+   ...                      'handler',
+   ...                      handler),
+   ...                    _targetxAUTO16_)[-1])(),
+   ...                  None)[-1]),
    ...       __enter__=(lambda self:()),
    ...       __exit__=(lambda self,exc_type,exception,traceback:
-   ...         # when
-   ...         # hissp.basic.._macro_.ifxH_else
-   ...         (lambda test,*thenxH_else:
-   ...           __import__('operator').getitem(
-   ...             thenxH_else,
-   ...             __import__('operator').not_(
-   ...               test))())(
-   ...           isinstance(
-   ...             exception,
-   ...             self.catch),
-   ...           (lambda :
-   ...             # hissp.basic.._macro_.progn
-   ...             (lambda :(
-   ...               self.handler(
-   ...                 exception),
-   ...               True)[-1])()),
-   ...           (lambda :()))))))
+   ...                  # when
+   ...                  # hissp.basic.._macro_.ifxH_else
+   ...                  (lambda test,*thenxH_else:
+   ...                    __import__('operator').getitem(
+   ...                      thenxH_else,
+   ...                      __import__('operator').not_(
+   ...                        test))())(
+   ...                    isinstance(
+   ...                      exception,
+   ...                      self.catch),
+   ...                    (lambda :
+   ...                      # hissp.basic.._macro_.progn
+   ...                      (lambda :(
+   ...                        self.handler(
+   ...                          exception),
+   ...                        True)[-1])()),
+   ...                    (lambda :()))))))
 
 
    #> (define bad_idea

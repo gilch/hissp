@@ -12,7 +12,7 @@ SPDX-License-Identifier: Apache-2.0
 ...   '_macro_',
 ...   __import__('types').SimpleNamespace(
 ...     **vars(
-...       __import__('hissp.basic',fromlist='?')._macro_)))
+...         __import__('hissp.basic',fromlist='?')._macro_)))
 
 -->
 ![Hissp](https://raw.githubusercontent.com/gilch/hissp/master/docs/hissp.svg)
