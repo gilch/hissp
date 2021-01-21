@@ -20,7 +20,7 @@ SPDX-License-Identifier: Apache-2.0
 It's Python with a *Lissp*.
 
 Hissp is a modular Lisp implementation that compiles to a functional subset of
-Python--Syntactic macro metaprogramming with full access to the Python ecosystem!
+Python—Syntactic macro metaprogramming with full access to the Python ecosystem!
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
@@ -47,7 +47,7 @@ Python is already a really nice language, so why do we need Hissp?
 
 > *Any sufficiently complicated C or Fortran program contains an ad hoc,
 informally-specified, bug-ridden, slow implementation of half of Common Lisp.*  
--- Greenspun's Tenth Rule
+— Greenspun's Tenth Rule
 
 If the only programming languages you've tried are those designed to feel familiar to C programmers,
 you might think they're all the same.
