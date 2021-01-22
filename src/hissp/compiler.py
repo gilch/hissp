@@ -467,9 +467,11 @@ class Compiler:
     @_trace
     def pickle(self, form) -> str:
         """Compile to `pickle.loads`. The final fallback for `atom`."""
-        try:  # Try the more human-readable and backwards-compatible text protocol first.
-            dumps = pickle.dumps(form, 0)
-        except pickle.PicklingError:  # Fall back to the highest binary protocol if that didn't work.
+        try:
+            # Try the more human-readable and backwards-compatible text protocol first.
+            dumps = pickle.dumps(form, 0, fix_imports=False)
+        except pickle.PicklingError:
+            # Fall back to the highest binary protocol if that didn't work.
             dumps = pickle.dumps(form, pickle.HIGHEST_PROTOCOL)
         dumps = pickletools.optimize(dumps)
         r = repr(form).replace("\n", "\n  # ")
