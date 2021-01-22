@@ -1101,7 +1101,7 @@ Just use a `qualified identifier <qualified identifiers>`. You don't need import
 But it's in a deeply nested package with a long name. It's tedious!
 -------------------------------------------------------------------
 
-So assign a global to it:
+So assign it to a global:
 
 .. Lissp::
 
@@ -1125,12 +1125,14 @@ A module literal will do it for you.
    >>> __import__('collections.abc',fromlist='?')
    <module 'collections.abc' from '...abc.py'>
 
-You can likewise assign a global, like any other value:
+You can likewise assign the module to a global, like any other value:
 
 .. code-block:: Lissp
 
    (define np numpy.)
    (define pd pandas.)
+
+See also `hissp.basic._macro_.alias`.
 
 But I want a relative import or a star import.
 ----------------------------------------------

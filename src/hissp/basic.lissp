@@ -146,7 +146,7 @@ judicious use can improve performance and maintainability.
          (setattr ,'_macro_ ',name ,$fn)))))
 
 (defmacro define (name value)
-  "Assigns a global in the current module."
+  "Assigns a global the value in the current module."
   `(operator..setitem (builtins..globals)
                       ',name
                       ,value))

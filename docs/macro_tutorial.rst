@@ -425,7 +425,7 @@ and put more than we wanted to in a string,
 and deal with separate namespaces. Ick.
 Lissp had none of those problems.
 
-This simple substitution metaprogramming task that was so easy in Lissp,
+This simple substitution metaprogramming task that was so easy in Lissp
 was so awkward in Python.
 
 But Lissp does more than substitutions.
@@ -442,7 +442,7 @@ our Lissp version is not actually shorter than Python's yet:
      (mul x x))
    lambda x: x * x
 
-If you like, we can assign a shorter name for `mul <operator.mul>`:
+If you like, we can give `mul <operator.mul>` a shorter name:
 
 .. code-block:: REPL
 
@@ -2054,7 +2054,8 @@ This should not be hard.
 It would require munging,
 with the tradeoffs that entails for Python interop or other Hissp readers.
 Python already has an operator named ``%``.
-If you want to assign `mod <operator.mod>` that name, then you might want to stick with the ``X``,
+If you want to give `mod <operator.mod>` that name,
+then you might want to stick with the ``X``,
 or remove the special case aliasing ``%1`` to ``%``.
 Also, rather than ``%&`` for the catch-all as in Clojure,
 a ``%*`` might be more consistent if you've also got a kwargs parameter,

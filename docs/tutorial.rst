@@ -95,7 +95,7 @@ The remainder is its body.
 
 Note that ``'name'`` was used as an identifier,
 but the ``('quote','Hello')`` expression was compiled to a string.
-That's the interpretation of `quote <hissp.compiler.Compiler.quoted>`:
+That's the interpretation of ``quote``:
 its argument is seen as "data" rather than code by the compiler.
 
 Together, ``lambda`` and ``quote`` are the only `special forms <hissp.compiler.Compiler.special>`
@@ -540,7 +540,7 @@ True
 >>> A = unicodedata.name(ascii_a)
 >>> A
 'LATIN CAPITAL LETTER A'
->>> 𝐀 = unicodedata.name(unicode_a)  # Assign a unicode variable name.
+>>> 𝐀 = unicodedata.name(unicode_a)  # A Unicode variable name.
 >>> 𝐀  # Different, as expected.
 'MATHEMATICAL BOLD CAPITAL A'
 >>> A  # Huh?
