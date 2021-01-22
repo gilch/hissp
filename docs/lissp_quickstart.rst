@@ -8,7 +8,7 @@
    ...   '_macro_',
    ...   __import__('types').SimpleNamespace(
    ...     **vars(
-   ...       __import__('hissp.basic',fromlist='?')._macro_)))
+   ...         __import__('hissp.basic',fromlist='?')._macro_)))
 
 .. TODO: Interactive via web repl?
 
@@ -46,7 +46,7 @@ Lissp Quick Start
    ;;;; Installation
 
    ;; Install Hissp with
-   ;; $ pip install hissp==0.2.0
+   ;; $ pip install git+https://github.com/gilch
    ;; Start the REPL with
    ;; $ lissp
    ;; You can quit with EOF or (exit).
@@ -289,7 +289,7 @@ Lissp Quick Start
    ...   *('abc'),
    ...   (2),
    ...   **dict(
-   ...     sep=('-')))
+   ...       sep=('-')))
    1-a-b-c-2
 
    #> (print "Hello, World!")                ;No : is the same as putting it last.
@@ -470,7 +470,13 @@ Lissp Quick Start
    ;; Treating the code itself as data is the key concept in metaprogramming.
 
    #> (quote (print 1 2 3 : sep "-"))        ;Just a tuple.
-   >>> ('print', 1, 2, 3, ':', 'sep', "('-')")
+   >>> ('print',
+   ...  (1),
+   ...  (2),
+   ...  (3),
+   ...  ':',
+   ...  'sep',
+   ...  "('-')",)
    ('print', 1, 2, 3, ':', 'sep', "('-')")
 
    #> (quote identifier)                     ;Just a string.
@@ -513,7 +519,8 @@ Lissp Quick Start
    'x'
 
    #> '(print "Hi")                          ;Reveal the Hissp.
-   >>> ('print', "('Hi')")
+   >>> ('print',
+   ...  "('Hi')",)
    ('print', "('Hi')")
 
 
@@ -539,12 +546,18 @@ Lissp Quick Start
    ('builtins..print', "('Hi')")
 
    #> '`(print "Hi")                         ;But it's making a program to create the data.
-   >>> (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'),
+   >>> (('lambda',
+   ...   (':',
+   ...    ':*',
+   ...    'xAUTO0_',),
+   ...   'xAUTO0_',),
    ...  ':',
    ...  ':?',
-   ...  ('quote', 'builtins..print'),
+   ...  ('quote',
+   ...   'builtins..print',),
    ...  ':?',
-   ...  ('quote', "('Hi')"))
+   ...  ('quote',
+   ...   "('Hi')",),)
    (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':?', ('quote', 'builtins..print'), ':?', ('quote', "('Hi')"))
 
    #> `(print ,(.upper "Hi"))                ;Unquote (,) interpolates.
@@ -613,7 +626,8 @@ Lissp Quick Start
    '->>'
 
    #> ''x
-   >>> ('quote', 'x')
+   >>> ('quote',
+   ...  'x',)
    ('quote', 'x')
 
    #> '\'x
@@ -659,7 +673,9 @@ Lissp Quick Start
    ;;; Templates and Tuples
 
    #> '(1 2 3)                               ;tuple
-   >>> (1, 2, 3)
+   >>> ((1),
+   ...  (2),
+   ...  (3),)
    (1, 2, 3)
 
    #> `(,(pow 42 0) ,(+ 1 1) 3)              ;Interpolate with templates.
@@ -685,7 +701,8 @@ Lissp Quick Start
    ("('a')", ('quote', '__main__..b'), '__main__..c', 'd', 'e')
 
    #> '(1 "a")                               ;Recursive quoting.
-   >>> (1, "('a')")
+   >>> ((1),
+   ...  "('a')",)
    (1, "('a')")
 
    #> `(1 ,"a")
@@ -732,13 +749,19 @@ Lissp Quick Start
 
    #> (set '(1 2 3))
    >>> set(
-   ...   (1, 2, 3))
+   ...   ((1),
+   ...    (2),
+   ...    (3),))
    {1, 2, 3}
 
 
    #> (bytes '(98 121 116 101 115))
    >>> bytes(
-   ...   (98, 121, 116, 101, 115))
+   ...   ((98),
+   ...    (121),
+   ...    (116),
+   ...    (101),
+   ...    (115),))
    b'bytes'
 
    #> (bytes.fromhex "6279746573")
@@ -766,13 +789,18 @@ Lissp Quick Start
    #> (dict (zip '(1 2 3) "abc"))            ;Non-symbol keys are possible.
    >>> dict(
    ...   zip(
-   ...     (1, 2, 3),
+   ...     ((1),
+   ...      (2),
+   ...      (3),),
    ...     ('abc')))
    {1: 'a', 2: 'b', 3: 'c'}
 
    #> (dict '((a 1) (2 b)))                  ;Mixed key types. Beware of strings.
    >>> dict(
-   ...   (('a', 1), (2, 'b')))
+   ...   (('a',
+   ...     (1),),
+   ...    ((2),
+   ...     'b',),))
    {'a': 1, 2: 'b'}
 
    #> (dict `((,'+ 42)
@@ -880,7 +908,8 @@ Lissp Quick Start
    >>> enlist(
    ...   ('1 2'),
    ...   ('3'),
-   ...   (4, 5),
+   ...   ((4),
+   ...    (5),),
    ...   ('6;7\\8'))
    ['1 2', '3', (4, 5), '6;7\\8']
 
@@ -1230,7 +1259,10 @@ Lissp Quick Start
    #> (functools..reduce * '(1 2 3 4))       ;Oops.
    >>> __import__('functools').reduce(
    ...   xSTAR_,
-   ...   (1, 2, 3, 4))
+   ...   ((1),
+   ...    (2),
+   ...    (3),
+   ...    (4),))
    Traceback (most recent call last):
      ...
    NameError: name 'xSTAR_' is not defined
@@ -1245,7 +1277,10 @@ Lissp Quick Start
    ...       x,
    ...       # __main__..xAUTO_.xSTAR_
    ...       y)),
-   ...   (1, 2, 3, 4))
+   ...   ((1),
+   ...    (2),
+   ...    (3),
+   ...    (4),))
    24
 
 
@@ -1267,7 +1302,10 @@ Lissp Quick Start
    #> (functools..reduce + '(1 2 3 4))       ;Global function, not the macro!
    >>> __import__('functools').reduce(
    ...   xPLUS_,
-   ...   (1, 2, 3, 4))
+   ...   ((1),
+   ...    (2),
+   ...    (3),
+   ...    (4),))
    10
 
    (dir)                                  ;Has xPLUS_, but not xSTAR_.
@@ -1308,16 +1346,17 @@ Lissp Quick Start
    >>> # hissp.basic.._macro_.alias
    ... # hissp.basic.._macro_.defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda _GxAUTO37_:(
+   ... (lambda _fnxAUTO7_=(lambda _GxAUTO31_:(
    ...   'Aliases hissp.basic.._macro_. as bxSLASH_#',
    ...   ('{}{}').format(
    ...     'hissp.basic.._macro_.',
-   ...     _GxAUTO37_))[-1]):(
+   ...     _GxAUTO31_))[-1]):(
    ...   __import__('builtins').setattr(
    ...     _fnxAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
-   ...       ('_macro_', 'bxSLASH_xHASH_'))),
+   ...       ('_macro_',
+   ...        'bxSLASH_xHASH_',))),
    ...   __import__('builtins').setattr(
    ...     _macro_,
    ...     'bxSLASH_xHASH_',
@@ -1409,11 +1448,11 @@ Lissp Quick Start
    ...     __import__('builtins').dict(
    ...       __doc__=('Simple pair.'),
    ...       __new__=(lambda cls,x,y:
-   ...         tuple.__new__(
-   ...           cls,
-   ...           (lambda *xAUTO0_:xAUTO0_)(
-   ...             x,
-   ...             y))))))
+   ...                 tuple.__new__(
+   ...                   cls,
+   ...                   (lambda *xAUTO0_:xAUTO0_)(
+   ...                     x,
+   ...                     y))))))
 
    #> (Point2D 1 2)                          ;(1, 2)
    >>> Point2D(
@@ -1438,7 +1477,8 @@ Lissp Quick Start
    ...     _fnxAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
-   ...       ('_macro_', 'triple'))),
+   ...       ('_macro_',
+   ...        'triple',))),
    ...   __import__('builtins').setattr(
    ...     _macro_,
    ...     'triple',

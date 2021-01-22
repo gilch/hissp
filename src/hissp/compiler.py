@@ -14,7 +14,7 @@ import sys
 from contextlib import contextmanager, suppress
 from contextvars import ContextVar
 from functools import wraps
-from itertools import chain, takewhile
+from itertools import chain, takewhile, starmap
 from pprint import pformat
 from traceback import format_exc
 from types import ModuleType
@@ -360,11 +360,15 @@ class Compiler:
         head = next(form)
         args = chain(
             map(self.form, takewhile(lambda a: a != ":", form)),
-            (f"{(PAIR_WORDS.get(k, k+'='))}{self.form(v)}" for k, v in _pairs(form)),
+            starmap(self._pair_arg, _pairs(form)),
         )
         if type(head) is str and head.startswith("."):
             return "{}.{}({})".format(next(args), head[1:], _join_args(*args))
         return "{}({})".format(self.form(head), _join_args(*args))
+
+    def _pair_arg(self, k, v):
+        k = PAIR_WORDS.get(k, k + '=')
+        return k + self.form(v).replace('\n', '\n' + ' ' * len(k))
 
     @_trace
     def str(self, code: str) -> str:
@@ -413,36 +417,61 @@ class Compiler:
         >>> readerless([{'foo':2},(),1j,2.0,{3}])
         "[{'foo': 2}, (), 1j, 2.0, {3}]"
         >>> spam = []
-        >>> spam.append(spam)
+        >>> spam.append(spam)  # ref cycle can't be a literal
         >>> print(readerless(spam))
         __import__('pickle').loads(  # [[...]]
             b'(lp0\ng0\na.'
+        )
+        >>> spam = [[]] * 3  # duplicated refs
+        >>> print(readerless(spam))
+        __import__('pickle').loads(  # [[], [], []]
+            b'(l(lp0\nag0\nag0\na.'
         )
 
         """
         if form is Ellipsis:
             return "..."
-
         case = type(form)
-        if case in {int, float, complex}:  # Number literals may need (). E.g. (1).real
-            literal = f"({form!r})"
-        elif case in {dict, list, set, tuple, str, bytes}:  # Pretty print collections.
-            literal = pformat(form, sort_dicts=False)
-        else:
-            literal = repr(form)
-
-        with suppress(ValueError, SyntaxError):
-            if ast.literal_eval(literal) == form:
-                return literal
+        if case is tuple and form:
+            return self._lisp_normal_form(form)
+        if case in {dict, list, set}:
+            return self._collection(form)
+        literal = self._format_repr(case, form)
+        if self._try_eval(literal) == form:
+            return literal
         # literal failed to round trip. Fall back to pickle.
         return self.pickle(form)
+
+    def _lisp_normal_form(self, form):
+        return "({},)".format(",\n".join(map(self.atom, form)).replace("\n", "\n "))
+
+    def _collection(self, form):  # Use literal if it reproduces the object graph.
+        pickled = self.pickle(form)
+        pretty = pformat(form, sort_dicts=False)
+        evaled = self._try_eval(pretty)
+        if evaled == form and pickled == self.pickle(evaled):
+            return pretty
+        return pickled
+
+    @staticmethod
+    def _format_repr(case, form):
+        if case in {int, float, complex}:
+            return f"({form!r})"  # Number literals may need (). E.g. (1).real
+        return pformat(form)  # Pretty print for multiline strings.
+
+    @staticmethod
+    def _try_eval(literal):
+        with suppress(ValueError, SyntaxError):
+            return ast.literal_eval(literal)
 
     @_trace
     def pickle(self, form) -> str:
         """Compile to `pickle.loads`. The final fallback for `atom`."""
-        try:  # Try the more human-readable and backwards-compatible text protocol first.
-            dumps = pickle.dumps(form, 0)
-        except pickle.PicklingError:  # Fall back to the highest binary protocol if that didn't work.
+        try:
+            # Try the more human-readable and backwards-compatible text protocol first.
+            dumps = pickle.dumps(form, 0, fix_imports=False)
+        except pickle.PicklingError:
+            # Fall back to the highest binary protocol if that didn't work.
             dumps = pickle.dumps(form, pickle.HIGHEST_PROTOCOL)
         dumps = pickletools.optimize(dumps)
         r = repr(form).replace("\n", "\n  # ")

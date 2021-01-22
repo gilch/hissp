@@ -171,4 +171,4 @@ def _x_decode(match: Match[str]) -> str:
 
 def demunge(s: str) -> str:
     """The inverse of `munge`. Decodes any x-codes into characters."""
-    return re.sub("x([0-9A-Zhx]+?)_", _x_decode, s)
+    return re.sub("x([0-9A-Z][0-9A-Zhx]*?)_", _x_decode, s)

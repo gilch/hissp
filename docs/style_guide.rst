@@ -386,7 +386,8 @@ unless they are very closely related.
 
 Top Level
   Not nested inside another form.
-  The top of the syntax tree, not the top of the file.
+  "Top" here means the top of the syntax tree,
+  not the top of the file.
 
 Try to avoid blank lines within forms.
 You may need them for separating groups whose elements span lines
@@ -561,7 +562,7 @@ Comments
 --------
 
 Headings are capitalized, and begin with four semicolons and a space ``;;;; X``.
-Subheadings are not capitalized, and begin with three semicolons and a space ``;;; x``.
+Subheadings begin with three semicolons and a space ``;;; X``.
 
 These are for the `top level`_ only; they aren't nested in forms;
 they get their own line and start at the beginning of it.

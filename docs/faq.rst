@@ -8,7 +8,7 @@
    ...   '_macro_',
    ...   __import__('types').SimpleNamespace(
    ...     **vars(
-   ...       __import__('hissp.basic',fromlist='?')._macro_)))
+   ...         __import__('hissp.basic',fromlist='?')._macro_)))
 
 .. TODO: Sphinx update messed up my sidebars! Is there a better fix?
 .. raw:: html
@@ -296,7 +296,9 @@ How do I make bytes objects in Lissp?
 
    #> (bytes '(1 2 3))
    >>> bytes(
-   ...   (1, 2, 3))
+   ...   ((1),
+   ...    (2),
+   ...    (3),))
    b'\x01\x02\x03'
 
 Or, if you prefer hexadecimal,
@@ -867,38 +869,38 @@ Like this
    ...       __import__('contextlib').ContextDecorator),
    ...     __import__('builtins').dict(
    ...       __init__=(lambda self,catch,handler:(
-   ...         # attach
-   ...         # hissp.basic.._macro_.let
-   ...         (lambda _targetxAUTO16_=self:(
-   ...           __import__('builtins').setattr(
-   ...             _targetxAUTO16_,
-   ...             'catch',
-   ...             catch),
-   ...           __import__('builtins').setattr(
-   ...             _targetxAUTO16_,
-   ...             'handler',
-   ...             handler),
-   ...           _targetxAUTO16_)[-1])(),
-   ...         None)[-1]),
+   ...                  # attach
+   ...                  # hissp.basic.._macro_.let
+   ...                  (lambda _targetxAUTO16_=self:(
+   ...                    __import__('builtins').setattr(
+   ...                      _targetxAUTO16_,
+   ...                      'catch',
+   ...                      catch),
+   ...                    __import__('builtins').setattr(
+   ...                      _targetxAUTO16_,
+   ...                      'handler',
+   ...                      handler),
+   ...                    _targetxAUTO16_)[-1])(),
+   ...                  None)[-1]),
    ...       __enter__=(lambda self:()),
    ...       __exit__=(lambda self,exc_type,exception,traceback:
-   ...         # when
-   ...         # hissp.basic.._macro_.ifxH_else
-   ...         (lambda test,*thenxH_else:
-   ...           __import__('operator').getitem(
-   ...             thenxH_else,
-   ...             __import__('operator').not_(
-   ...               test))())(
-   ...           isinstance(
-   ...             exception,
-   ...             self.catch),
-   ...           (lambda :
-   ...             # hissp.basic.._macro_.progn
-   ...             (lambda :(
-   ...               self.handler(
-   ...                 exception),
-   ...               True)[-1])()),
-   ...           (lambda :()))))))
+   ...                  # when
+   ...                  # hissp.basic.._macro_.ifxH_else
+   ...                  (lambda test,*thenxH_else:
+   ...                    __import__('operator').getitem(
+   ...                      thenxH_else,
+   ...                      __import__('operator').not_(
+   ...                        test))())(
+   ...                    isinstance(
+   ...                      exception,
+   ...                      self.catch),
+   ...                    (lambda :
+   ...                      # hissp.basic.._macro_.progn
+   ...                      (lambda :(
+   ...                        self.handler(
+   ...                          exception),
+   ...                        True)[-1])()),
+   ...                    (lambda :()))))))
 
 
    #> (define bad_idea
@@ -1099,7 +1101,7 @@ Just use a `qualified identifier <qualified identifiers>`. You don't need import
 But it's in a deeply nested package with a long name. It's tedious!
 -------------------------------------------------------------------
 
-So assign a global to it:
+So assign it to a global:
 
 .. Lissp::
 
@@ -1123,12 +1125,14 @@ A module literal will do it for you.
    >>> __import__('collections.abc',fromlist='?')
    <module 'collections.abc' from '...abc.py'>
 
-You can likewise assign a global, like any other value:
+You can likewise assign the module to a global, like any other value:
 
 .. code-block:: Lissp
 
    (define np numpy.)
    (define pd pandas.)
+
+See also `hissp.basic._macro_.alias`.
 
 But I want a relative import or a star import.
 ----------------------------------------------
