@@ -666,7 +666,7 @@ which is awkward to use from the Python side.
 
 Even in private areas,
 let the munger do the munging for you.
-Avoid writing anything in the x-quoted style yourself.
+Avoid writing anything in the x-encoded style yourself.
 This can confuse the demunger and cause collisions with gensyms.
 
 Docstrings use reStructuredText markup, like Python.

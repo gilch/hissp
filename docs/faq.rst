@@ -1288,7 +1288,7 @@ even if it has no literal representation in Python code,
 by falling back to `pickle`, if necessary.
 Hy will just crash if you insert anything it can't model.
 
-This means that Hissp has a much higher degree of homoiconicity that Hy.
+This means that Hissp has a much higher degree of homoiconicity than Hy.
 
 Hissp code is made of ordinary Python tuples that serve the same role as
 linked lists in other Lisps,

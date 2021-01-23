@@ -2069,7 +2069,7 @@ Are we shorter than Python now?
 .. code-block:: Text
 
    lambda x:x*x
-   #%(* % %)
+   %#(* % %)
 
 Did we lose generality?
 Yes, but not much.
