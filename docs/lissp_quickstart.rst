@@ -45,8 +45,10 @@ Lissp Quick Start
 
    ;;;; Installation
 
+   ;; These docs are for the bleeding-edge version of Hissp.
+   ;; If you run into trouble, report your issues, or try the previous 0.2.0 release.
    ;; Install Hissp with
-   ;; $ pip install git+https://github.com/gilch
+   ;; $ pip install git+https://github.com/gilch/hissp
    ;; Start the REPL with
    ;; $ lissp
    ;; You can quit with EOF or (exit).
