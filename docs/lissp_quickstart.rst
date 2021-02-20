@@ -344,7 +344,7 @@ Lissp Quick Start
    #..         e 1  f 2                      ;default
    #..         :* args  h 4  i :?  j 1       ;star args, key word
    #..         :** kwargs)
-   #..  ;; Body. (Lambdas returns empty tuple if body is empty.)
+   #..  ;; Body. (Lambdas return empty tuple when body is empty.)
    #..  (print (globals))
    #..  (print (locals))                     ;side effects
    #..  b)                                   ;last value is returned
