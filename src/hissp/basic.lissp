@@ -1,11 +1,17 @@
-;; Copyright 2019, 2020 Matthew Egan Odendahl
+;; Copyright 2019, 2020, 2021 Matthew Egan Odendahl
 ;; SPDX-License-Identifier: Apache-2.0
-" Hissp's basic macros.
+"Hissp's basic macros.
 
-These are automatically made available as unqualified macros in the
-Lissp REPL. To use them in a Hissp module, either use the
-fully-qualified names, or start with the `prelude` macro. You can
-abbreviate qualifiers with the `alias` macro:
+The basic macros are just enough to test and demonstrate Hissp's macro
+system; they are not intended to be a standard library for general use,
+but may suffice for small projects.
+
+As a convenience, they are automatically made available unqualified in
+the Lissp REPL, but this does not apply to modules. (A Hissp module with
+better alternatives need not use the basic macros at all.) In modules,
+either use the fully-qualified names, or start with the `prelude` macro.
+
+You can abbreviate qualifiers with the `alias` macro:
 
 .. code-block:: Lissp
 
@@ -22,22 +28,19 @@ otherwise be necessary. But because macros expand before runtime, the
 compiled code does not require Hissp to be installed to work, assuming,
 of course, that there are no other runtime imports of the library code.
 
-These may suffice for small projects, but projects with access to better
-alternatives need not use the basic macros at all.
-
 They also have no prerequisite initialization, beyond what is available
 in a standard Python module. For example, a ``_macro_`` namespace need
 not be available for ``defmacro``. It's smart enough to check for the
 presence of ``_macro_`` in its expansion context, and inline the
 initialization code when required.
 
-With the exception of ``prelude`` (which is only meant for the top
-level), they also eschew any expansions directly to Python code, relying
-only on the built-in special forms ``quote`` and ``lambda``, which makes
-their expansions compatible with advanced rewriting macros that process
-the Hissp expansions of other macros.
+With the exception of ``prelude`` (which uses `exec`), they also eschew
+any expansions to Python code, relying only on the built-in special
+forms ``quote`` and ``lambda``, which makes their expansions compatible
+with advanced rewriting macros that process the Hissp expansions of
+other macros.
 
-To help keep macros and their expansions manageable in complexity,
+To help keep macro definitions and expansions manageable in complexity,
 these basic macros lack some of the extra features their equivalents
 have in Python or in other Lisps.
 "
@@ -162,8 +165,7 @@ judicious use can improve performance and maintainability.
 
 ;; see also from bootstrap: let
 
-(defmacro import (: :* args)
-  `(print #"\
+(define _TAO "
 Nothingness above abstraction
   but implementation is / the best name.
 Terseness may make one too many / get used to them
@@ -183,7 +185,7 @@ Perfection / is expensive
   a quarter is advised
 Readability / is mainly / laid out on the page.
 Golfing / makes good practice / best practice it betrays.
-Castles built / in the air / where they do belong
+Castles built / in the air / whither they do belong?
   Elegance / then exception
   Form / before detail
   whence under them,
@@ -191,7 +193,10 @@ Foundations appear.
 Make the right way obvious,
 meditate on this.
   --Za Zen of Hissp
-"))
+")
+
+(defmacro import (: :* args)
+  `(print _TAO))
 
 ;;; configuration
 
