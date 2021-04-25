@@ -1,5 +1,5 @@
 <!--
-Copyright 2019, 2020 Matthew Egan Odendahl
+Copyright 2019, 2020, 2021 Matthew Egan Odendahl
 SPDX-License-Identifier: Apache-2.0
 -->
 [![Gitter](https://badges.gitter.im/hissp-lang/community.svg)](https://gitter.im/hissp-lang/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -25,21 +25,170 @@ Python—Syntactic macro metaprogramming with full access to the Python ecosyste
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
+- [Show Me Code!](#show-me-code)
+    - [Readerless Mode](#readerless-mode)
+    - [Lissp](#lissp)
+    - [Hebigo](#hebigo)
 - [Philosophy and Goals](#philosophy-and-goals)
-  - [Radical Extensibility](#radical-extensibility)
-  - [Minimal implementation](#minimal-implementation)
-  - [Interoperability](#interoperability)
-  - [Useful error messages](#useful-error-messages)
-  - [Syntax compatible with Emacs' `lisp-mode` and Parlinter](#syntax-compatible-with-emacs-lisp-mode-and-parlinter)
-  - [Standalone output](#standalone-output)
-  - [REPL](#repl)
-  - [Same-module macro helpers](#same-module-macro-helpers)
-  - [Modularity](#modularity)
-- [Show me some Code!](#show-me-some-code)
+    - [Radical Extensibility](#radical-extensibility)
+    - [Minimal implementation](#minimal-implementation)
+    - [Interoperability](#interoperability)
+    - [Useful error messages](#useful-error-messages)
+    - [Syntax compatible with Emacs' `lisp-mode` and Parlinter](#syntax-compatible-with-emacs-lisp-mode-and-parlinter)
+    - [Standalone output](#standalone-output)
+    - [REPL](#repl)
+    - [Same-module macro helpers](#same-module-macro-helpers)
+    - [Modularity](#modularity)
 
 <!-- markdown-toc end -->
 
-# Philosophy and Goals
+# Show Me Code!
+
+## Readerless Mode
+Hissp is a language composed of Python data, structured into trees with tuples,
+```python
+>>> hissp_code = (
+... ('lambda',('name',),
+...  ('print',('quote','Hello'),'name',),)
+... )
+
+```
+which are compiled to Python code,
+```python
+>>> from hissp.compiler import readerless
+>>> python_code = readerless(hissp_code)
+>>> print(python_code)
+(lambda name:
+  print(
+    'Hello',
+    name))
+
+```
+and evaluated by Python.
+```python
+>>> eval(python_code)('World')
+Hello World
+
+```
+Hissp's utility as a metaprogramming language is the ease of manipulating these simple data structures representing executable code.
+
+## Lissp
+
+The Hissp data-structure language can be written directly in Python using the "readerless mode" demonstrated above,
+or it can be read in from a lightweight textual language called *Lissp* that represents the Hissp.
+```python
+>>> lissp_code = """
+... (lambda (name)
+...   (print 'Hello name))
+... """
+
+```
+As you can see, this results in exactly the same Hissp code as the previous example.
+```python
+>>> from hissp.reader import Lissp
+>>> next(Lissp().reads(lissp_code))
+('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
+>>> _ == hissp_code
+True
+
+```
+
+The Lissp reader and Hissp compiler are both extensible with macros.
+
+Hissp comes with a basic REPL (read-eval-print loop, or interactive command-line interface)
+which compiles Hissp (read from Lissp) to Python and passes that to the Python REPL for execution.
+
+Lissp can also be read from ``.lissp`` files,
+which compile to Python modules.
+Here's one definition from the basic macros:
+```Lisp
+(defmacro attach (target : :* args)
+  "Attaches the named variables as attributes of the target.
+
+  Positional arguments use the same name as the variable.
+  Names after the ``:`` are key-value pairs.
+  "
+  (let (iargs (iter args)
+        $target `$#target)
+    (let (args (itertools..takewhile (lambda (a)
+                                       (operator..ne a ':))
+                                     iargs))
+      `(let (,$target ,target)
+         ,@(map (lambda (arg)
+                  `(setattr ,$target ',arg ,arg))
+                args)
+         ,@(map (lambda (kw)
+                  `(setattr ,$target ',kw ,(next iargs)))
+                iargs)
+         ,$target))))
+```
+If you've never used a Lisp before, don't let this scare you.
+You should be able to read this much after completing the
+[tutorials](https://hissp.readthedocs.io/).
+
+## Hebigo
+
+Hissp is modular, and the reader included for Lissp is not the only one.
+Here's a native unit test class from the separate
+[Hebigo](https://github.com/gilch/hebigo) prototype,
+a Hissp reader and macro suite implementing a language designed to resemble Python:
+```python
+class: TestOr: TestCase
+  def: .test_null: self
+    self.assertEqual: () or:
+  def: .test_one: self x
+    :@ given: st.from_type: type
+    self.assertIs: x or: x
+  def: .test_two: self x y
+    :@ given:
+      st.from_type: type
+      st.from_type: type
+    self.assertIs: (x or y) or: x y
+  def: .test_shortcut: self
+    or: 1 (0/0)
+    or: 0 1 (0/0)
+    or: 1 (0/0) (0/0)
+  def: .test_three: self x y z
+    :@ given:
+      st.from_type: type
+      st.from_type: type
+      st.from_type: type
+    self.assertIs: (x or y or z) or: x y z
+```
+Hebigo looks very different from Lissp, but this is still Hissp!
+If you quote this Hebigo code and print it out,
+you get readerless-mode tuples that Hissp can compile to Python,
+just like Lissp.
+
+The same Hissp macros work in readerless mode, Lissp, and Hebigo, and can be written in any of these.
+Given Hebigo's macros, the class above could be written in the equivalent way in Lissp:
+
+```Lisp
+(class_ (TestOr TestCase)
+  (def_ (.test_null self)
+    (self.assertEqual () (or_)))
+  (def_ (.test_one self x)
+    :@ (given (st.from_type type))
+    (self.assertIs x (or_ x)))
+  (def_ (.test_two self x y)
+    :@ (given (st.from_type type)
+              (st.from_type type))
+    (self.assertIs .#"x or y" (or_ x y)))
+  (def_ (.test_shortcut self)
+    (or_ 1 .#"0/0")
+    (or_ 0 1 .#"0/0")
+    (or_ 1 .#"0/0" .#"0/0"))
+  (def_ (.test_three self x y z)
+    :@ (given (st.from_type type)
+              (st.from_type type)
+              (st.from_type type)
+    (self.assertIs .#"x or y or z" (or_ x y z)))))
+```
+
+See the [documentation](https://hissp.readthedocs.io/)
+for more examples.
+
+# Philosophy and Features
 
 ## Radical Extensibility
 
@@ -151,7 +300,7 @@ Currently, that means using [Hebigo](https://github.com/gilch/hebigo),
 which has macro equivalents of most Python statements.
 
 The Hebigo project includes an alternative indentation-based Hissp reader,
-but the macros are written in readerless mode and are also compatible with the 
+but the macros are written in readerless mode and are also compatible with the
 S-expression "Lissp" reader bundled with Hissp.
 
 ## Interoperability
@@ -243,114 +392,3 @@ a complete function/macro library.
 But while this informs the design of the compiler,
 it will be an external project in another repository.
 
-# Show me some Code!
-Hissp is a language written as Python data and compiled to Python code:
-```python
->>> from hissp.compiler import readerless
->>> readerless(
-...     ('lambda',('name',),
-...      ('print',('quote','Hello'),'name',),)
-... )
-"(lambda name:\n  print(\n    'Hello',\n    name))"
->>> print(_)
-(lambda name:
-  print(
-    'Hello',
-    name))
->>> eval(_)('World')
-Hello World
-
-```
-Hissp's utility as a metaprogramming language is the ease of manipulating simple data structures representing executable code.
-
-Hissp can be written directly in Python using the "readerless mode" demonstrated above,
-or it can be read in from a lightweight textual language called *Lissp* that represents these data structures.
-```python
->>> from hissp.reader import Lissp
->>> next(Lissp().reads("""
-... (lambda (name)
-...   (print 'Hello name))
-... """))
-('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
-
-```
-As you can see, this results in exactly the same Python data structure as the previous example,
-and can be compiled to executable Python code the same way.
-
-Hissp comes with a basic REPL (read-eval-print loop, or interactive command-line interface)
-which compiles Hissp (read from Lissp) to Python and passes it to the Python REPL for execution.
-
-The reader and compiler are both extensible with macros.
-
-Lissp can also be read from ``.lissp`` files,
-which compile to Python modules.
-Here's one definition from the basic macros:
-```Lisp
-(defmacro attach (target : :* args)
-  "Attaches the named variables as attributes of the target.
-
-  Positional arguments use the same name as the variable.
-  Names after the ``:`` are key-value pairs.
-  "
-  (let (iargs (iter args)
-        $target `$#target)
-    (let (args (itertools..takewhile (lambda (a)
-                                       (operator..ne a ':))
-                                     iargs))
-      `(let (,$target ,target)
-         ,@(map (lambda (arg)
-                  `(setattr ,$target ',arg ,arg))
-                args)
-         ,@(map (lambda (kw)
-                  `(setattr ,$target ',kw ,(next iargs)))
-                iargs)
-         ,$target))))
-```
-If you've never used a Lisp before, don't let this scare you.
-You should be able to read this much after completing the
-[tutorials](https://hissp.readthedocs.io/).
-
-Hissp is modular, and the reader included for Lissp is not the only one.
-Here's a native unit test class from the separate
-[Hebigo](https://github.com/gilch/hebigo) prototype,
-a Hissp reader implementing a language designed to resemble Python:
-```python
-class: TestOr: TestCase
-  def: .test_null: self
-    self.assertEqual:
-      ()
-      or:
-  def: .test_one: self x
-    :@ given: st.from_type: type
-    self.assertIs:
-      x
-      or: x
-  def: .test_two: self x y
-    :@ given:
-      st.from_type: type
-      st.from_type: type
-    self.assertIs:
-      (x or y)
-      or: x y
-  def: .test_shortcut: self
-    or: 1 (0/0)
-    or: 0 1 (0/0)
-    or: 1 (0/0) (0/0)
-  def: .test_three: self x y z
-    :@ given:
-      st.from_type: type
-      st.from_type: type
-      st.from_type: type
-    self.assertIs:
-      (x or y or z)
-      or: x y z
-```
-Hebigo looks very different from Lissp, but this is still Hissp!
-If you quote this Hebigo code and print it out,
-you get readerless-mode tuples that Hissp can compile to Python,
-just like Lissp.
-
-The same Hissp macros work in readerless mode, Lissp, and Hebigo, and can be written in any of these.
-
-See the [documentation](https://hissp.readthedocs.io/)
-for more.
