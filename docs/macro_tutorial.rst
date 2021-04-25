@@ -547,7 +547,7 @@ We need to expand that into this:
    (lambda (X)
      (* X X))
 
-So the template would looks something like this::
+So the template would look something like this::
 
    (lambda (X)
      (<expr>))
@@ -2165,10 +2165,10 @@ They're mainly useful as performance optimizations.
 In principle,
 you should be able to do everything else without them.
 
-Attach
-------
 
-.. TODO: attach
+
+.. TODO: optimize macro
+.. TODO: attach macro
    (defmacro attach (target : :* args)
      (let (iargs (iter args)
                  $target `$#target)
@@ -2197,7 +2197,9 @@ Attach
 .. TODO: destructuring bind (iterable only?)
 .. TODO: destructuring lambda (iterable only?)
 
-.. TODO: one-shot self-referential using reader macros
+.. TODO: one-shot self-referential data structure using reader macros
+             See http://www.lispworks.com/documentation/HyperSpec/Body/02_dho.htm
+             for the Common Lisp approach.
          multiary reader macros via stack
          reader macro namespacing via custom _macro_ class
 
