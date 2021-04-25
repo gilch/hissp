@@ -25,11 +25,12 @@ Python—Syntactic macro metaprogramming with full access to the Python ecosyste
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
+- [Installation](#installation)
 - [Show Me Code!](#show-me-code)
     - [Readerless Mode](#readerless-mode)
     - [Lissp](#lissp)
     - [Hebigo](#hebigo)
-- [Philosophy and Goals](#philosophy-and-goals)
+- [Features and Design](#features-and-design)
     - [Radical Extensibility](#radical-extensibility)
     - [Minimal implementation](#minimal-implementation)
     - [Interoperability](#interoperability)
@@ -42,10 +43,21 @@ Python—Syntactic macro metaprogramming with full access to the Python ecosyste
 
 <!-- markdown-toc end -->
 
+# Installation
+
+Install the latest PyPI release with
+```
+$ pip install hissp
+```
+Or install the bleeding-edge version directly from GitHub with
+```
+$ pip install git+https://github.com/gilch/hissp
+```
+
 # Show Me Code!
 
 ## Readerless Mode
-Hissp is a language composed of Python data, structured into trees with tuples,
+Hissp is a *metaprogramming* language composed of Python data structured into trees of tuples,
 ```python
 >>> hissp_code = (
 ... ('lambda',('name',),
@@ -70,7 +82,6 @@ and evaluated by Python.
 Hello World
 
 ```
-Hissp's utility as a metaprogramming language is the ease of manipulating these simple data structures representing executable code.
 
 ## Lissp
 
@@ -93,13 +104,12 @@ True
 
 ```
 
-The Lissp reader and Hissp compiler are both extensible with macros.
-
 Hissp comes with a basic REPL (read-eval-print loop, or interactive command-line interface)
 which compiles Hissp (read from Lissp) to Python and passes that to the Python REPL for execution.
 
 Lissp can also be read from ``.lissp`` files,
 which compile to Python modules.
+
 Here's one definition from the basic macros:
 ```Lisp
 (defmacro attach (target : :* args)
@@ -157,8 +167,76 @@ class: TestOr: TestCase
 ```
 Hebigo looks very different from Lissp, but this is still Hissp!
 If you quote this Hebigo code and print it out,
-you get readerless-mode tuples that Hissp can compile to Python,
-just like Lissp.
+you get Hissp code which can compile to Python, just like Lissp.
+
+Here's what that looks like in Hebigo's REPL.
+```
+In [1]: quote:class: TestOr: TestCase
+   ...:   def: .test_null: self
+   ...:     self.assertEqual: () or:
+   ...:   def: .test_one: self x
+   ...:     :@ given: st.from_type: type
+   ...:     self.assertIs: x or: x
+   ...:   def: .test_two: self x y
+   ...:     :@ given:
+   ...:       st.from_type: type
+   ...:       st.from_type: type
+   ...:     self.assertIs: (x or y) or: x y
+   ...:   def: .test_shortcut: self
+   ...:     or: 1 (0/0)
+   ...:     or: 0 1 (0/0)
+   ...:     or: 1 (0/0) (0/0)
+   ...:   def: .test_three: self x y z
+   ...:     :@ given:
+   ...:       st.from_type: type
+   ...:       st.from_type: type
+   ...:       st.from_type: type
+   ...:     self.assertIs: (x or y or z) or: x y z
+   ...: 
+Out[1]: ('hebi.basic.._macro_.class_', ('TestOr', 'TestCase'), ('hebi.basic.._macro_.def_', ('.test_null',
+ 'self'), ('self.assertEqual', '()', ('hebi.basic.._macro_.or_',))), ('hebi.basic.._macro_.def_', ('.test_
+one', 'self', 'x'), ':@', ('given', ('st.from_type', 'type')), ('self.assertIs', 'x', ('hebi.basic.._macro
+_.or_', 'x'))), ('hebi.basic.._macro_.def_', ('.test_two', 'self', 'x', 'y'), ':@', ('given', ('st.from_ty
+pe', 'type'), ('st.from_type', 'type')), ('self.assertIs', '((x or y))', ('hebi.basic.._macro_.or_', 'x',
+'y'))), ('hebi.basic.._macro_.def_', ('.test_shortcut', 'self'), ('hebi.basic.._macro_.or_', 1, '((0/0))')
+, ('hebi.basic.._macro_.or_', 0, 1, '((0/0))'), ('hebi.basic.._macro_.or_', 1, '((0/0))', '((0/0))')), ('h
+ebi.basic.._macro_.def_', ('.test_three', 'self', 'x', 'y', 'z'), ':@', ('given', ('st.from_type', 'type')
+, ('st.from_type', 'type'), ('st.from_type', 'type')), ('self.assertIs', '((x or y or z))', ('hebi.basic..
+_macro_.or_', 'x', 'y', 'z'))))
+
+In [2]: pprint..pp: _
+   ...: 
+('hebi.basic.._macro_.class_',
+ ('TestOr', 'TestCase'),
+ ('hebi.basic.._macro_.def_',
+  ('.test_null', 'self'),
+  ('self.assertEqual', '()', ('hebi.basic.._macro_.or_',))),
+ ('hebi.basic.._macro_.def_',
+  ('.test_one', 'self', 'x'),
+  ':@',
+  ('given', ('st.from_type', 'type')),
+  ('self.assertIs', 'x', ('hebi.basic.._macro_.or_', 'x'))),
+ ('hebi.basic.._macro_.def_',
+  ('.test_two', 'self', 'x', 'y'),
+  ':@',
+  ('given', ('st.from_type', 'type'), ('st.from_type', 'type')),
+  ('self.assertIs', '((x or y))', ('hebi.basic.._macro_.or_', 'x', 'y'))),
+ ('hebi.basic.._macro_.def_',
+  ('.test_shortcut', 'self'),
+  ('hebi.basic.._macro_.or_', 1, '((0/0))'),
+  ('hebi.basic.._macro_.or_', 0, 1, '((0/0))'),
+  ('hebi.basic.._macro_.or_', 1, '((0/0))', '((0/0))')),
+ ('hebi.basic.._macro_.def_',
+  ('.test_three', 'self', 'x', 'y', 'z'),
+  ':@',
+  ('given',
+   ('st.from_type', 'type'),
+   ('st.from_type', 'type'),
+   ('st.from_type', 'type')),
+  ('self.assertIs',
+   '((x or y or z))',
+   ('hebi.basic.._macro_.or_', 'x', 'y', 'z'))))
+```
 
 The same Hissp macros work in readerless mode, Lissp, and Hebigo, and can be written in any of these.
 Given Hebigo's macros, the class above could be written in the equivalent way in Lissp:
@@ -188,7 +266,7 @@ Given Hebigo's macros, the class above could be written in the equivalent way in
 See the [documentation](https://hissp.readthedocs.io/)
 for more examples.
 
-# Philosophy and Features
+# Features and Design
 
 ## Radical Extensibility
 
@@ -236,13 +314,13 @@ and encoding that subset as data structures rather than text,
 Hissp makes metaprogramming as easy as
 the kind of data manipulation you already do every day.
 On its own, meta-power doesn't seem that impressive.
-But the powers you can make with it, can be.
+But the powers you can make with it can be.
 Those who've mastered metaprogramming wonder how they ever got along without it.
 
 Actively developed languages keep accumulating features,
 Python included.
 Often they're helpful, but sometimes it's a misstep.
-And the more complex a language gets,
+The more complex a language gets,
 the more difficult it becomes to master.
 
 Hissp takes the opposite approach: extensibility through simplicity.
@@ -250,8 +328,9 @@ Major features that would require a new language version in lower languages
 can be a library in a Lisp.
 It's how Clojure got Goroutines like Go and logic programming like Prolog,
 without changing the core language at all.
+The Lissp reader and Hissp compiler are both extensible with macros.
 
-And it's not just about getting other superpowers from other languages,
+It's not just about getting other superpowers from other languages,
 but all the minor powers you can make yourself along the way.
 You're not going to campaign for a new Python language feature
 and wait six months for another release
@@ -259,7 +338,7 @@ just for something that might be nice to have for you special problem at the mom
 But in Hissp you can totally have that.
 You can program the language itself to fit your problem domain.
 
-Once your project is "sufficiently complicated",
+Once your Python project is "sufficiently complicated",
 you'll start hacking in new language features just to cope.
 And it will be hard,
 because you'll be using a language too low-level for your needs,
@@ -354,15 +433,16 @@ Even though it's a compiled language,
 Hissp has an interactive command-line interface like Python does.
 The REPL displays the compiled Python and evaluates it.
 Printed values use the normal Python reprs.
-(Translating those to back to Lissp is not a goal.)
+(Translating those to back to Lissp is not a goal.
+Lissp is not the only Hissp reader.)
 
 ## Same-module macro helpers
-Not all Lisps support this, but Clojure is a notable exception.
 Functions are generally preferable to macros when functions can do the job.
 They're more reusable and composable.
 Therefore, it makes sense for macros to delegate to functions where possible.
 But such a macro should work in the same module.
-This requires incremental compilation and evaluation of forms, like the REPL.
+This requires incremental compilation and evaluation of forms in Lissp modules,
+like the REPL.
 
 ## Modularity
 The Hissp language is made of tuples (and atoms), not text.
@@ -379,7 +459,7 @@ just enough to write native unit tests,
 but you are not obligated to use them when writing Hissp.
 
 It's possible for an external project to provide an alternative
-reader with different syntax, as long as the output is Hissp code (tuples).
+reader with different syntax, as long as the output is Hissp code.
 One example of this is [Hebigo](https://github.com/gilch/hebigo),
 which has a more Python-like indentation-based syntax.
 
@@ -387,8 +467,8 @@ Because Hissp produces standalone output, it's not locked into any one Lisp para
 It could work with a Clojure-like, Scheme-like, or Common-Lisp-like, etc.,
 reader, function, and macro libraries.
 
-It is a goal of the project to support a more Clojure-like reader and
+It is a goal of the project to allow a more Clojure-like reader and
 a complete function/macro library.
 But while this informs the design of the compiler,
-it will be an external project in another repository.
-
+it is beyond the scope of Hissp proper,
+and does not belong in the Hissp repository.
