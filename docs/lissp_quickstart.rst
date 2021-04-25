@@ -67,11 +67,11 @@ Lissp Quick Start
 
    ;;; Boolean
 
-   #> False                                  ;0
+   #> False                                  ;False == 0
    >>> False
    False
 
-   #> True                                   ;1
+   #> True                                   ;True == 1
    >>> True
    True
 
@@ -244,7 +244,7 @@ Lissp Quick Start
    >>> 'notxH_stringx1QUOTE_'
    'notxH_stringx1QUOTE_'
 
-   #> #"Say \"Cheese!\" \u263a"              ;Hash strings use Python escapes.
+   #> #"Say \"Cheese!\" \u263a"              ;Hash strings process Python escapes.
    >>> ('Say "Cheese!" ☺')
    'Say "Cheese!" ☺'
 
@@ -471,6 +471,14 @@ Lissp Quick Start
    ;; Quotation prevents evaluation.
    ;; Treating the code itself as data is the key concept in metaprogramming.
 
+   ;; Other objects evaluate to themselves, but strings and tuples have
+   ;; special evaluation rules in Hissp. Tuples represent invocations of
+   ;; functions, macros, and special forms, while strings represent raw
+   ;; Python code to include in the compiles output (as well as module
+   ;; literals and control words), which are usually used for identifiers,
+   ;; but can be anything. Quoting suppresses this evaluation, rendering
+   ;; the raw Python code as string data, and the invocations as tuples.
+
    #> (quote (print 1 2 3 : sep "-"))        ;Just a tuple.
    >>> ('print',
    ...  (1),
@@ -489,14 +497,17 @@ Lissp Quick Start
    >>> (42)
    42
 
-   #> (quote "string")                       ;Not what you expected? Eval it.
-   >>> "('string')"
-   "('string')"
 
-   #> (eval (quote "string"))                ;It's a string of Python code. For a string.
+   ;; The "..."/#"..." Lissp read syntax is for creating a Python-level string.
+   ;; It is NOT for creating a Hissp-level string.
+   #> (quote "a string")                     ;Unexpected? "..."/#"..." is read syntax!
+   >>> "('a string')"
+   "('a string')"
+
+   #> (eval (quote "a string"))              ;Raw Python code. For a string.
    >>> eval(
-   ...   "('string')")
-   'string'
+   ...   "('a string')")
+   'a string'
 
 
    #> :?                                     ;Just a string?
@@ -648,8 +659,8 @@ Lissp Quick Start
    THE FLOW.
 
 
-   ;; The "inject" reader macro evaluates the next form
-   ;; and puts the result directly in the Hissp.
+   ;; The "inject" reader macro evaluates the next form at read time
+   ;; and injects the resulting object directly into the Hissp tree.
    #> .#(fractions..Fraction 1 2)            ;Fraction() is multiary.
    >>> __import__('pickle').loads(  # Fraction(1, 2)
    ...     b'cfractions\nFraction\n(V1/2\ntR.'
@@ -657,12 +668,28 @@ Lissp Quick Start
    Fraction(1, 2)
 
 
-   ;; Use a string to inject Python into the compiled output.
+   ;; Recall that Hissp-level string objects can represent
+   ;; arbitrary Python code. It's usually used for identifiers,
+   ;; but can be anything, even complex formulas.
    #> (lambda (a b c)
    #..  ;; Hissp may not have operators, but Python does.
    #..  .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
    >>> (lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a))
    <function <lambda> at 0x...>
+
+
+   ;; Remember the "..."/#"..." read syntax makes Python-level strings,
+   ;; via a Hissp-level string containing a Python string literal.
+   ;; It is NOT for creating a Hissp-level string, which would normally
+   ;; represent raw Python code. Use inject for that.
+   #> '"a string"                            ;Python code for a string. In a string.
+   >>> "('a string')"
+   "('a string')"
+
+   ;; Injection of an object to the Hissp level. In this case, a string object.
+   #> '.#"a string"                          ;Quoting renders a Hissp-level string as data.
+   >>> 'a string'
+   'a string'
 
 
    ;; Statement injections work at the top level only.
@@ -691,7 +718,7 @@ Lissp Quick Start
    ...   (3))
    (1, 2, 3)
 
-   #> `("a" 'b c ,'d ,"e")                   ;Remember what happens when you quote strings?
+   #> `("a" 'b c ,'d ,"e")                   ;Remember what happens when you quote Lissp-level strings?
    >>> (lambda *xAUTO0_:xAUTO0_)(
    ...   "('a')",
    ...   (lambda *xAUTO0_:xAUTO0_)(
@@ -707,7 +734,12 @@ Lissp Quick Start
    ...  "('a')",)
    (1, "('a')")
 
-   #> `(1 ,"a")
+   #> '(1 .#"a")                             ;Injected Hissp-level string.
+   >>> ((1),
+   ...  'a',)
+   (1, 'a')
+
+   #> `(1 ,"a")                              ;Interpolated string.
    >>> (lambda *xAUTO0_:xAUTO0_)(
    ...   (1),
    ...   ('a'))
@@ -797,7 +829,7 @@ Lissp Quick Start
    ...     ('abc')))
    {1: 'a', 2: 'b', 3: 'c'}
 
-   #> (dict '((a 1) (2 b)))                  ;Mixed key types. Beware of strings.
+   #> (dict '((a 1) (2 b)))                  ;Mixed key types. Beware of quoting strings.
    >>> dict(
    ...   (('a',
    ...     (1),),
@@ -1328,11 +1360,17 @@ Lissp Quick Start
    spam..x                                ;42
    eggs.                                  ;Hello, World!
 
-   ;;;; Basic Macros
+   ;;;; The Basic Macros
 
-   _#" The REPL comes with some basic macros defined in hissp.basic. By default,
-   they don't work in .lissp files unqualified. The compiled output from these
-   does not require hissp to be installed."
+   _#"To make the REPL more usable, it comes with some basic macros already
+   defined. Their design has been deliberately restricted so that their
+   compiled output does not require the hissp package to be installed to
+   work. While these may suffice for small embedded Hissp projects, you
+   will probably want a more capable macro suite (such as Hebigo's) for
+   general use. You are not required to use the basic macros at all, so by
+   default, they don't work in .lissp files unqualified. They're available
+   qualified from hissp.basic.._macro_.
+   "
 
    #> (help _macro_.->>)                     ;Macros have docstrings and live in _macro_.
    >>> help(
