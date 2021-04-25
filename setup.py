@@ -52,4 +52,4 @@ setuptools.setup(
     entry_points={"console_scripts": ["lissp=hissp.__main__:main"]},
 )
 # Build dist and install:
-# $ python setup.py sdist && pip install dist/hissp-0.3.0a.tar.gz
+# $ python setup.py sdist && pip install dist/hissp-0.3.0.tar.gz
