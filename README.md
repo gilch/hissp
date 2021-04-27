@@ -165,13 +165,39 @@ class: TestOr: TestCase
       st.from_type: type
     self.assertIs: (x or y or z) or: x y z
 ```
-Hebigo looks very different from Lissp, but this is still Hissp!
-If you quote this Hebigo code and print it out,
-you get Hissp code which can compile to Python, just like Lissp.
 
-Here's what that looks like in Hebigo's REPL.
+The same Hissp macros work in readerless mode, Lissp, and Hebigo, and can be written in any of these.
+Given Hebigo's macros, the class above could be written in the equivalent way in Lissp:
+
+```Lisp
+(class_ (TestOr TestCase)
+  (def_ (.test_null self)
+    (self.assertEqual () (or_)))
+  (def_ (.test_one self x)
+    :@ (given (st.from_type type))
+    (self.assertIs x (or_ x)))
+  (def_ (.test_two self x y)
+    :@ (given (st.from_type type)
+              (st.from_type type))
+    (self.assertIs .#"x or y" (or_ x y)))
+  (def_ (.test_shortcut self)
+    (or_ 1 .#"0/0")
+    (or_ 0 1 .#"0/0")
+    (or_ 1 .#"0/0" .#"0/0"))
+  (def_ (.test_three self x y z)
+    :@ (given (st.from_type type)
+              (st.from_type type)
+              (st.from_type type)
+    (self.assertIs .#"x or y or z" (or_ x y z)))))
 ```
-In [1]: quote:class: TestOr: TestCase
+
+Hebigo looks very different from Lissp, but they are both Hissp!
+If you quote this Hebigo code and print it out,
+you get Hissp code, just like you would with Lissp.
+
+In Hebigo's REPL, that looks like
+```
+In [1]: pprint..pp:quote:class: TestOr: TestCase
    ...:   def: .test_null: self
    ...:     self.assertEqual: () or:
    ...:   def: .test_one: self x
@@ -192,19 +218,6 @@ In [1]: quote:class: TestOr: TestCase
    ...:       st.from_type: type
    ...:       st.from_type: type
    ...:     self.assertIs: (x or y or z) or: x y z
-   ...: 
-Out[1]: ('hebi.basic.._macro_.class_', ('TestOr', 'TestCase'), ('hebi.basic.._macro_.def_', ('.test_null',
- 'self'), ('self.assertEqual', '()', ('hebi.basic.._macro_.or_',))), ('hebi.basic.._macro_.def_', ('.test_
-one', 'self', 'x'), ':@', ('given', ('st.from_type', 'type')), ('self.assertIs', 'x', ('hebi.basic.._macro
-_.or_', 'x'))), ('hebi.basic.._macro_.def_', ('.test_two', 'self', 'x', 'y'), ':@', ('given', ('st.from_ty
-pe', 'type'), ('st.from_type', 'type')), ('self.assertIs', '((x or y))', ('hebi.basic.._macro_.or_', 'x',
-'y'))), ('hebi.basic.._macro_.def_', ('.test_shortcut', 'self'), ('hebi.basic.._macro_.or_', 1, '((0/0))')
-, ('hebi.basic.._macro_.or_', 0, 1, '((0/0))'), ('hebi.basic.._macro_.or_', 1, '((0/0))', '((0/0))')), ('h
-ebi.basic.._macro_.def_', ('.test_three', 'self', 'x', 'y', 'z'), ':@', ('given', ('st.from_type', 'type')
-, ('st.from_type', 'type'), ('st.from_type', 'type')), ('self.assertIs', '((x or y or z))', ('hebi.basic..
-_macro_.or_', 'x', 'y', 'z'))))
-
-In [2]: pprint..pp: _
    ...: 
 ('hebi.basic.._macro_.class_',
  ('TestOr', 'TestCase'),
@@ -238,33 +251,7 @@ In [2]: pprint..pp: _
    ('hebi.basic.._macro_.or_', 'x', 'y', 'z'))))
 ```
 
-The same Hissp macros work in readerless mode, Lissp, and Hebigo, and can be written in any of these.
-Given Hebigo's macros, the class above could be written in the equivalent way in Lissp:
-
-```Lisp
-(class_ (TestOr TestCase)
-  (def_ (.test_null self)
-    (self.assertEqual () (or_)))
-  (def_ (.test_one self x)
-    :@ (given (st.from_type type))
-    (self.assertIs x (or_ x)))
-  (def_ (.test_two self x y)
-    :@ (given (st.from_type type)
-              (st.from_type type))
-    (self.assertIs .#"x or y" (or_ x y)))
-  (def_ (.test_shortcut self)
-    (or_ 1 .#"0/0")
-    (or_ 0 1 .#"0/0")
-    (or_ 1 .#"0/0" .#"0/0"))
-  (def_ (.test_three self x y z)
-    :@ (given (st.from_type type)
-              (st.from_type type)
-              (st.from_type type)
-    (self.assertIs .#"x or y or z" (or_ x y z)))))
-```
-
-See the [documentation](https://hissp.readthedocs.io/)
-for more examples.
+Want more examples? See the [Hissp documentation](https://hissp.readthedocs.io/) for the quickstart and tutorials.
 
 # Features and Design
 
