@@ -62,26 +62,29 @@ Hello World
 A Hissp program is made of Python objects composed into tuples
 which represent the syntax tree structure.
 
-You can invoke the Hissp compiler directly from Python.
-
->>> from hissp.compiler import readerless
->>> readerless(
+>>> hissp_program = (
 ...     ('lambda',('name',),
 ...      ('print',('quote','Hello'),'name',),)
 ... )
-"(lambda name:\n  print(\n    'Hello',\n    name))"
->>> print(_)
+
+You can invoke the Hissp compiler directly from Python.
+The `readerless()` function takes a Hissp program as input,
+and returns its Python translation as a string.
+
+>>> from hissp.compiler import readerless
+>>> python_translation = readerless(hissp_program)
+>>> print(python_translation)
 (lambda name:
   print(
     'Hello',
     name))
->>> eval(_)('World')
+
+Python can then run this program as normal.
+
+>>> eval(python_translation)('World')
 Hello World
 
-The `readerless()` function takes a Hissp program as input,
-and returns its Python translation as a string.
-
-Let's break this down.
+Let's break this Hissp program down.
 Notice that the first element of each tuple designates its function.
 
 In the case of ``('print',('quote','Hello'),'name',)``,
@@ -93,15 +96,15 @@ It represents a lambda expression, rather than a function call.
 ``('name',)`` is its parameters tuple.
 The remainder is its body.
 
-Note that ``'name'`` was used as an identifier,
-but the ``('quote','Hello')`` expression was compiled to a string.
+Note that ``'name'`` became an identifier in the Python translation,
+but the ``('quote','Hello')`` expression became a string.
 That's the interpretation of ``quote``:
 its argument is seen as "data" rather than code by the compiler.
 
 Together, ``lambda`` and ``quote`` are the only `special forms <hissp.compiler.Compiler.special>`
 known to the compiler.
 There are ways to define more forms with special interpretations,
-called "macros". This is how Hissp gets much of its expressive power.
+called "macros", which is how Hissp gets much of its expressive power.
 
 ``('quote','Hello')`` seems a little verbose compared to its Python
 translation.
@@ -118,7 +121,8 @@ Let's try it.
 
 You may not have noticed, but congratulations!
 We've just written our first metaprogram:
-The ``q()`` function is Python code that writes Hissp code.
+``q()`` is a Python function that writes Hissp code.
+Code is writing code!
 
 Let's use it.
 
@@ -274,8 +278,9 @@ Hissp has special behaviors for Python's `tuple` and `str` types.
 Everything else is just data,
 and Hissp does its best to compile it that way.
 
-Besides the tuple and string lexical elements,
-Lissp adds special behavior to *reader macros*.
+In addition to the special behaviors from the Hissp level for tuple
+and string lexical elements,
+the Lissp level has special behavior for *reader macros*.
 (And ignores things like whitespace and comments.)
 Everything else is an *atom*,
 which is passed through to the Hissp level with minimal processing.
@@ -369,14 +374,13 @@ These are called *hash strings*.
    >>> ('Three\nlines\ntotal')
    'Three\nlines\ntotal'
 
-Recall that the `str` type in (readerless mode)
-Hissp is used to represent Python identifiers in the compiled output,
+Recall that the Hissp-level `str` type is used to represent Python identifiers in the compiled output,
 and must be quoted with the ``quote`` special form to represent text data instead.
 
-`str`\ s in Hissp can represent almost any raw Python code to inject in the compiled output,
+Hissp-level strings can represent almost any raw Python code to inject in the compiled output,
 not just identifiers.
 So another way to represent text data in Hissp
-is a `str` that contains the Python code for a string literal.
+is a Hissp-level string that contains the Python code for a string literal.
 Quoting our entire example shows us how that Lissp would get translated to Hissp,
 because when quoted, it's just data:
 
@@ -393,7 +397,7 @@ because when quoted, it's just data:
    ('lambda', ('name',), ('print', "('Hello')", 'name'))
 
 Notice that rather than using the ``quote`` special form for ``"Hello"``,
-Lissp reads in a double-quoted string as a Hissp `str`
+Lissp reads in a double-quoted string as a Hissp-level string
 containing a Python string literal: ``('Hello')``.
 
 Symbols
@@ -426,12 +430,13 @@ Quoting our example again to see how Lissp would get read as Hissp:
    ('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
 
 We see that there are *no symbol objects* at the Hissp level.
-Notice that the Lissp symbols are read in as `str`\ s
+The Lissp symbols are read in as strings.
 
-Symbols only exist as *reader syntax* in Lissp,
-where they represent the subset of Hissp `str`\ s that can act as identifiers.
+In other Lisps, symbols are a data type in their own right,
+but symbols only exist as a *reader syntax* in Lissp,
+where they represent the subset of Hissp-level strings that can act as identifiers.
 
-These symbols in Lissp become `str`\ s in Hissp which become identifiers in Python,
+These symbols in Lissp become strings in Hissp which become identifiers in Python,
 unless they're quoted, like ``('quote', 'Hello')``,
 in which case they become string literals in Python.
 
@@ -470,7 +475,7 @@ Symbols have another important difference from raw strings:
 Because symbols may contain special characters,
 but the Python identifiers they represent cannot,
 the reader `munges <munge>` symbols with forbidden characters
-to valid identifier `str`\ s by using ``xQUOTEDxWORDS_``.
+to valid identifier strings by using ``xQUOTEDxWORDS_``.
 
 This format was chosen because it contains an underscore
 and both lower-case and upper-case letters,
@@ -754,7 +759,7 @@ Also note that the body can be empty:
    >>> (lambda a=(1),/,*,b,c=(2):())
    <function <lambda> at ...>
 
-Note that positional-only parameters with defaults must appear after the ``:``,
+Positional-only parameters with defaults must appear after the ``:``,
 which forces the ``:/`` into the paired side.
 Everything on the paired side must be paired, no exceptions.
 (Even though ``:/`` can only be paired with ``:?``,
@@ -1146,7 +1151,7 @@ you must quote them to use them as data.
    While a significantly more complex reader could distinguish these cases without escapes
    (as Python does), the Lissp reader's source is meant to be simple and comprehensible,
    and Lissp doesn't really need this capability because it can already read in arbitrary
-   Python expressions using the inject macro ``.#`` applied to a raw string.
+   Python expressions using the inject macro ``.#`` applied to a string.
    The collection atoms are just a convenience for simple cases.
    If you need too many backslashes, it's not a "simple case".
    Use something else.
@@ -1331,19 +1336,19 @@ Qualified symbols are especially important
 when a macro expands in a module it was not defined in.
 This prevents accidental name collisions
 when the unqualified name was already in use.
-And the qualified identifiers in the expansion will automatically import any required helpers.
+And the qualified identifiers in the expansion will automatically import any required modules.
 
 You can force an import from a particular location by using
 a qualified symbol yourself in the template in the first place.
 Qualified symbols in templates are not qualified again.
 Usually, if you want an unqualified symbol in the template's result,
 it's a sign that you need to use a gensym instead.
-Gensyms are never qualified.
+(Gensyms are never qualified.)
 If you don't think it needs to be a gensym,
 that's a sign that the macro could maybe be an ordinary function
 instead.
 
-If you *want* to *capture* [#capture]_ a symbol (collide on purpose),
+If you *want* to *capture* [#capture]_ an identifier (collide on purpose),
 you can still put unqualified symbols into templates
 by interpolating in an expression that evaluates to an unqualified
 symbol. (Like a quoted symbol):
@@ -1477,8 +1482,8 @@ Or::
 
    $ lissp foo.lissp
 
-But you'll probably want to break a larger project up into smaller modules.
-And those must be compiled for import.
+But you'll probably want to break a larger project up into smaller modules,
+and those must be compiled for import.
 
 The recommended way to compile a Lissp project is to put a call to
 `transpile()` in the main module and in each ``__init__.py``—
