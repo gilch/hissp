@@ -21,13 +21,13 @@ whose minimal options were modeled after Python's most commonly used:
    Starts the REPL if there are no arguments.
 
    positional arguments:
-     file        Run main script from this file. (- for stdin.)
+     file        Run this file as main script. (- for stdin.)
      args        Arguments for the script.
 
    optional arguments:
      -h, --help  show this help message and exit
      -i          Drop into REPL after the script.
-     -c cmd      Run main script (with prelude) from this string.
+     -c cmd      Run this string as main script (with prelude).
 
 The Lissp Compiler
 ------------------
