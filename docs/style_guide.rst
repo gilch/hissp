@@ -427,7 +427,7 @@ Your code should look like these examples, recursively applied to subforms:
              arg2                         ;Args start on the same column.
              arg3)
 
-   ;; The previous alignment is preferred, but this is OK.
+   ;; The previous alignment is preferred, but this is OK if the line would be too long.
    (function
      arg1                                 ;Indented one space past the (, unlike data.
      arg2
@@ -458,6 +458,7 @@ Your code should look like these examples, recursively applied to subforms:
    (function : kw1 kwarg1                 ;The : starts the "line". Sort of.
              kw2 kwarg2)
 
+   ;; The previous alignment is preferred, but this is OK if the line would be too long.
    (function
      arg1
      arg2
@@ -555,16 +556,17 @@ Long multiline strings should be declared at the `top level`_ and referenced by 
 
 Indent any multiline docstring to match its opening quote,
 including the closing quote.
-Put the closing quotes for any multiline docstring on its own line.
+Put the closing quote for any multiline docstring on its own line.
 (Pydoc automatically strips indents.)
 
 Comments
 --------
 
-Headings are capitalized, and begin with four semicolons and a space ``;;;; X``.
+Headings are in ``Title Case``,
+and begin with four semicolons and a space ``;;;; X``.
 Subheadings begin with three semicolons and a space ``;;; X``.
 
-These are for the `top level`_ only; they aren't nested in forms;
+Headings are for the `top level`_ only; they aren't nested in forms;
 they get their own line and start at the beginning of it.
 They have a blank line before (unless it's the first line) and after.
 They organize the code into sections.
@@ -587,11 +589,14 @@ it's a continuation aligned to the margin!
 Experience Lispers set their editors to automatically indent these.
 You will make them angry when they have to fix all your comments.
 
-Use the drop macro ``_#`` on a string for long block comments.
+Complete sentences should start with a capital letter and end with
+a punctuation mark (typically a full stop or question mark).
+Short comments need not be complete sentences.
+Use the discard macro ``_#`` on a string for long block comments.
 
 Commented-out code does not belong in version control,
 but it can be helpful to turn things off during development.
-You can use the drop macro to comment out code structurally.
+You can use the discard macro to comment out code structurally.
 You can use ``;;`` at the start of each line to comment out multiple forms at once.
 
 .. code-block:: Lissp
@@ -615,16 +620,16 @@ You can use ``;;`` at the start of each line to comment out multiple forms at on
    mus.
    "
 
-   ;;; subheading
+   ;;; Subheading
 
-   ;; Comment about macro
+   ;; comment about macro
    (macro special1
-          ;; Comment about special2 group
+          ;; comment about special2 group
           : special2a special2b
-          special3 ; Comment about special3 line
-          special4 ; Entirely separate comment about special4 line
+          special3 ; comment about special3 line
+          special4 ; entirely separate comment about special4 line
      body1
-     ;; Comment about body2
+     ;; comment about body2
      body2                                ;Margin comment
      body3)                               ; continuation thereof,
                                           ; and more continuation on its own line.
@@ -667,7 +672,7 @@ which is awkward to use from the Python side.
 Even in private areas,
 let the munger do the munging for you.
 Avoid writing anything in the x-encoded style yourself.
-This can confuse the demunger and cause collisions with gensyms.
+(This can confuse the demunger and risks collision with compiler-generated names like gensyms.)
 
 Docstrings use reStructuredText markup, like Python.
 Any docstring for something with a munged name
@@ -681,7 +686,7 @@ if it's not obvious from the identifier::
 The End of the Line
 ===================
 
-Any closing bracket should also end the line.
+Ending brackets should also end the line.
 That's what lets us indent and see the tree structure clearly.
 It's OK to have single ``)``'s inside the line,
 but don't overdo it.
@@ -702,12 +707,12 @@ then the tree structure is clear from the indents.
 
 .. code-block:: Lissp
 
-   (print (/ (sum xs) (len xs)) "on average.") ;Bad.
+   (print (/ (sum xs) (len xs)) "on average.") ;Bad. Internal ))'s.
 
-   (print (+ (sum xs) (len xs))           ;OK.
+   (print (/ (sum xs) (len xs))           ;OK.
           "on average.")
 
-   (print (+ (sum xs)                     ;Preferred.
+   (print (/ (sum xs)                     ;Preferred.
              (len xs))
           "on average.")
 
