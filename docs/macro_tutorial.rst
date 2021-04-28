@@ -325,7 +325,7 @@ and push it to the REPL:
 
 Not a syntax error, but it's not working either.
 Why not?
-Quote the whole thing to see the Hissp tuples.
+Quote the whole thing to see the Hissp code.
 
 .. code-block:: REPL
 
@@ -464,6 +464,7 @@ Symbols become strings at the Hissp level,
 which are iterables containing character strings.
 This only works because the variable name is a single character.
 Now we're at the same length as Python.
+
 Let's make it even shorter.
 
 Given a tuple containing the *minimum* amount of information,
@@ -604,13 +605,26 @@ Now we're shorter than Python:
 But we're also less general.
 We can change the expression,
 but we've hardcoded the parameters to it.
-The fixed name is fine as long as we don't have to nest them,
-but what if needed two parameters?
+The fixed parameter name is fine as long as we don't have to nest these,
+but what if we needed two parameters?
+Could we make a macro for that?
+
+Think about it.
+
 Seriously, close your eyes and think about it for at least fifteen seconds
-before moving on to the next paragraph.
+before moving on.
+
 Don't generalize before we have examples to work with.
 
-You might already guess how we might do this:
+I'll wait.
+
+...
+
+...
+
+...
+
+Ready?
 
 .. Lissp::
 
@@ -1243,7 +1257,7 @@ We got around this by starting at ``A`` instead,
 but then we're using up all of the uppercase ASCII one-character names.
 We might want to save those for other things.
 We're also limited to 26 parameters this way.
-It's rare we'd need more than three or four,
+It's rare that we'd need more than three or four,
 but 26 seems kind of arbitrary.
 
 So a better approach might be with numbered parameters, like ``X1``, ``X2``, ``X3``, etc.
@@ -1307,7 +1321,7 @@ We can create numbered X's the same way we created the numbered L's.
 This version uses a number as the first argument instead of baking them into the macro names.
 We're using numbered parameters now, so there's no limit.
 That takes care of *generating* the parameters,
-but we're still providing an expected a number for them.
+but we're still providing a redundant expected a number for them.
 
 Let's make a slight tweak.
 
@@ -1423,6 +1437,8 @@ Can we just iterate through the expression and check?
    ...         expr))))
 
 
+Does that make sense?
+Read the definition carefully.
 You can experiment with macros you don't recognize in the REPL.
 All the basic macros,
 including the `|| <xBAR_xBAR_>`
@@ -1880,7 +1896,8 @@ How does it work? Look at what's changed. Here they are again.
                    `(:* ,'Xi)))
         ,expr))
 
-We splice the logic that makes the numbered parameters into the new parameters tuple.
+We splice the result of the logic that made the numbered parameters from the old version
+into the new parameters tuple.
 Following that is the colon separator.
 Remember that it's always allowed in Hissp's lambda forms,
 even if you don't need it,
@@ -2075,7 +2092,7 @@ Did we lose generality?
 Yes, but not much.
 You can't really nest these.
 The parameters get generated even if the only occurrence in the expression is quoted.
-This is the kind of thing to be mindful of.
+This is the kind of thing to be aware of.
 If you're not sure about something,
 try it in the REPL.
 But Clojure's version has the same problems,
@@ -2105,6 +2122,7 @@ But what if we had kept the ``X``?
    ... (lambda :(-X2 + (X2**2 - 4*X1*X3)**0.5)/(2*X1)())
    <function <lambda> at ...>
 
+Look at the Python compilation.
 It looks like we're trying to invoke the formula itself,
 which would evaluate to a number, not a callable,
 so this doesn't really make sense.
@@ -2134,7 +2152,7 @@ like our ``L3``, would have worked fine.
 
 The code-reading macro was unable to detect any matching symbols
 because it doesn't look inside the injected strings.
-In principle it *could have*,
+In principle, it *could have*,
 but it might be a lot more work if you want it to be reliable.
 It could function if the highest parameter also appeared outside the string,
 but at that point, you might as well use a normal lambda.
