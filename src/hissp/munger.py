@@ -147,16 +147,16 @@ K = TypeVar("K", bound=Hashable)
 V = TypeVar("V")
 
 
-def _reversed_1to1(mapping: Mapping[K, V]) -> Dict[V, K]:
+def _inverse_1to1(mapping: Mapping[K, V]) -> Dict[V, K]:
     result = {v: k for k, v in mapping.items()}
     assert len(mapping) == len(result)
     return result
 
 
-LOOKUP_NAME = _reversed_1to1(TO_NAME)
+LOOKUP_NAME = _inverse_1to1(TO_NAME)
 """The inverse of `TO_NAME`."""
 
-UN_X_NAME = _reversed_1to1(X_NAME)
+UN_X_NAME = _inverse_1to1(X_NAME)
 
 
 def _x_decode(match: Match[str]) -> str:
