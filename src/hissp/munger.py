@@ -123,7 +123,7 @@ X_NAME = {ord(k): ord(v) for k, v in {" ": "x", "-": "h"}.items()}
 
 def x_encode(c: str) -> str:
     """
-    Converts a character to its short x-encoding,
+    Converts a character to its x-encoding,
     unless it's already valid in a Python identifier.
     """
     if ("x" + c).isidentifier():
