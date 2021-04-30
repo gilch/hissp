@@ -346,7 +346,7 @@ class Lissp:
     def qualify(self, symbol: str, invocation=False) -> str:
         """Qualify symbol based on current context."""
         if re.search(
-            r"^\(|^\.|\.$|^quote$|^lambda$|^__import__$|xAUTO\d+_$|\.\.", symbol
+            r"^\(|^\.|\.$|^quote$|^lambda$|^__import__$|xAUTO\d+_$|\.\.| ", symbol
         ):
             return symbol  # Not qualifiable.
         if invocation and "_macro_" in self.ns and self._macro_has(symbol):
