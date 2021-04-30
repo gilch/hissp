@@ -83,6 +83,11 @@ class Compiler:
 
     @staticmethod
     def new_ns(name, doc=None, package=None):
+        """Creates and initializes a dict namespace like a module,
+        with the given `__name__`, ``__doc__``, and `__package__`;
+        ``__builtins__``; an empty ``__annotations__``; and whatever
+        else Python currently adds to new module objects.
+        """
         mod = ModuleType(name, doc)
         mod.__annotations__ = {}
         mod.__package__ = package
@@ -109,7 +114,7 @@ class Compiler:
     @_trace
     def form(self, form) -> str:
         """
-        Compile Hissp form to the equivalent Python code as a string.
+        Compile Hissp form to the equivalent Python code in a string.
         `tuple` and `str` have special evaluation rules,
         otherwise it's an `atom` that represents itself.
         """
@@ -151,16 +156,17 @@ class Compiler:
 
         >>> readerless(
         ... ('lambda', ('a',':/','b',
-        ...         ':', 'e',1, 'f',2,
-        ...         ':*','args', 'h',4, 'i',':?', 'j',1,
-        ...         ':**','kwargs',),
+        ...             ':', 'e',1, 'f',2,
+        ...             ':*','args', 'h',4, 'i',':?', 'j',1,
+        ...             ':**','kwargs',),
         ...   42,),
         ... )
         '(lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))'
 
-        The special control words :* and :** designate the remainder of the
-        positional and keyword parameters, respectively.
-        Note this body has an implicit PROGN:
+        The special control words ``:*`` and ``:**`` designate the
+        remainder of the positional and keyword parameters, respectively.
+        Note this body evaluates expressions in sequence, for side
+        effects.
 
         >>> print(readerless(
         ... ('lambda', (':',':*','args',':**','kwargs',),
@@ -182,7 +188,7 @@ class Compiler:
         ... )
         '(lambda a=(1),/,*,b,c=(2):())'
 
-        The ':' may be omitted if there are no paired parameters.
+        The ``:`` may be omitted if there are no paired parameters.
 
         >>> readerless(('lambda', ('a','b','c',':',),),)
         '(lambda a,b,c:())'
@@ -193,8 +199,8 @@ class Compiler:
         >>> readerless(('lambda', (),),)
         '(lambda :())'
 
-        ``:`` is required if there are any paired parameters, even if
-        there are no single parameters:
+        The ``:`` is required if there are any paired parameters, even
+        if there are no single parameters:
 
         >>> readerless(('lambda', (':',':**','kwargs',),),)
         '(lambda **kwargs:())'
@@ -290,8 +296,8 @@ class Compiler:
         Any tuple that is not quoted, ``()``, or a `special` form or
         `macro` is a runtime call.
 
-        Like Python, it has three parts.
-        (<callable> <args> : <kwargs>)
+        Like Python, it has three parts:
+        (<callable> <args> : <kwargs>).
         For example:
 
         >>> print(readerless(
@@ -316,7 +322,7 @@ class Compiler:
         foo(
           bar=baz)
 
-        The : is optional if the <kwargs> part is empty:
+        The ``:`` is optional if the <kwargs> part is empty:
 
         >>> readerless(('foo',),)
         'foo()'
@@ -341,7 +347,7 @@ class Compiler:
         Unlike other control words, these can be repeated,
         but (as in Python) a '*' is not allowed to follow '**'.
 
-        Method calls are similar to function calls.
+        Method calls are similar to function calls:
         (.<method name> <object> <args> : <kwargs>)
         Like Clojure, a method on the first object is assumed if the
         function name starts with a dot:
@@ -515,7 +521,7 @@ def readerless(form, ns=None):
     """Compile a Hissp form to Python without evaluating it.
     Uses the current `NS` for context, unless an alternative is provided.
     (Creates a temporary namespace if neither is available.)
-    Returns the Python as a string.
+    Returns the Python in a string.
     """
     ns = ns or NS.get() or {"__name__": "__main__"}
     return Compiler(evaluate=False, ns=ns).compile([form])
