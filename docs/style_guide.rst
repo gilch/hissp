@@ -509,6 +509,13 @@ Your code should look like these examples, recursively applied to subforms:
             :** kwargs)                   ;kwargs
      body)
 
+Readerless style is similar:
+
+.. code-block:: Python
+
+   ('function','arg1','arg2',
+               ':','kw1','kwarg1', 'kw2','kwarg2')
+
 Strings
 -------
 
