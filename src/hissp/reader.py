@@ -194,7 +194,7 @@ class Lissp:
                 continue
             elif k == "badspace":
                 raise SyntaxError(
-                    repr(v) + " is not whitespace in Lissp. Indent with spaces only.",
+                    f"{v!r} is not whitespace in Lissp. Indent with spaces only.",
                     self.position(),
                 )
             elif k == "open":
