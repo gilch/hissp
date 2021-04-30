@@ -158,7 +158,7 @@ judicious use can improve performance and maintainability.
   Key-value pairs are implied in the body.
   "
   `(define ,name
-       (type ',name ((lambda (: :* xAUTO0_) xAUTO0_) ,@bases)
+       (type ',name (,hissp.reader..ENTUPLE ,@bases)
              (dict : ,@body))))
 
 ;; see also from bootstrap: let
