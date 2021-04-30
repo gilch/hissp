@@ -865,7 +865,7 @@ Like this
    ...   'Except',
    ...   __import__('builtins').type(
    ...     'Except',
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       __import__('contextlib').ContextDecorator),
    ...     __import__('builtins').dict(
    ...       __init__=(lambda self,catch,handler:(
@@ -920,7 +920,7 @@ Like this
    ...   # hissp.basic..xAUTO_.xH_xGT_
    ...   # hissp.basic..xAUTO_.xH_xGT_
    ...   Except(
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       TypeError,
    ...       ValueError),
    ...     (lambda e:

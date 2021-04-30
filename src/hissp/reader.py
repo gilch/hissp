@@ -30,7 +30,7 @@ from hissp.compiler import Compiler, readerless
 from hissp.munger import munge
 
 # fmt: off
-ENTUPLE = ("lambda",(":",":*","xAUTO0_"),"xAUTO0_",)
+ENTUPLE = ("lambda",(":",":*"," _")," _",)
 # fmt: on
 """
 Used by the template macro to make tuples.

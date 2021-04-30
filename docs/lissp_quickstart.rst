@@ -553,7 +553,7 @@ Lissp Quick Start
 
 
    #> `(print "Hi")                          ;Code as data. Seems to act like quote.
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   'builtins..print',
    ...   "('Hi')")
    ('builtins..print', "('Hi')")
@@ -562,8 +562,8 @@ Lissp Quick Start
    >>> (('lambda',
    ...   (':',
    ...    ':*',
-   ...    'xAUTO0_',),
-   ...   'xAUTO0_',),
+   ...    ' _',),
+   ...   ' _',),
    ...  ':',
    ...  ':?',
    ...  ('quote',
@@ -571,10 +571,10 @@ Lissp Quick Start
    ...  ':?',
    ...  ('quote',
    ...   "('Hi')",),)
-   (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':?', ('quote', 'builtins..print'), ':?', ('quote', "('Hi')"))
+   (('lambda', (':', ':*', ' _'), ' _'), ':', ':?', ('quote', 'builtins..print'), ':?', ('quote', "('Hi')"))
 
    #> `(print ,(.upper "Hi"))                ;Unquote (,) interpolates.
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   'builtins..print',
    ...   ('Hi').upper())
    ('builtins..print', 'HI')
@@ -585,19 +585,19 @@ Lissp Quick Start
    'foo'
 
    #> `(print ,@"abc")                       ;Splice unquote (,@) interpolates and unpacks.
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   'builtins..print',
    ...   *('abc'))
    ('builtins..print', 'a', 'b', 'c')
 
    #> `(print ,@(.upper "abc"))
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   'builtins..print',
    ...   *('abc').upper())
    ('builtins..print', 'A', 'B', 'C')
 
    #> `($#eggs $#spam $#bacon $#spam)        ;Generated symbols for macros.
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   '_eggsxAUTO9_',
    ...   '_spamxAUTO9_',
    ...   '_baconxAUTO9_',
@@ -708,7 +708,7 @@ Lissp Quick Start
    (1, 2, 3)
 
    #> `(,(pow 42 0) ,(+ 1 1) 3)              ;Interpolate with templates.
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   pow(
    ...     (42),
    ...     (0)),
@@ -719,9 +719,9 @@ Lissp Quick Start
    (1, 2, 3)
 
    #> `("a" 'b c ,'d ,"e")                   ;Remember what happens when you quote Lissp-level strings?
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   "('a')",
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'quote',
    ...     '__main__..b'),
    ...   '__main__..c',
@@ -740,7 +740,7 @@ Lissp Quick Start
    (1, 'a')
 
    #> `(1 ,"a")                              ;Interpolated string.
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   (1),
    ...   ('a'))
    (1, 'a')
@@ -773,7 +773,7 @@ Lissp Quick Start
 
    #> (list `(1 ,(+ 1 1) 3))
    >>> list(
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     (1),
    ...     xPLUS_(
    ...       (1),
@@ -840,11 +840,11 @@ Lissp Quick Start
    #> (dict `((,'+ 42)
    #..        (,(+ 1 1) ,'b)))               ;Runtime interpolation with a template.
    >>> dict(
-   ...   (lambda *xAUTO0_:xAUTO0_)(
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
+   ...     (lambda * _: _)(
    ...       'xPLUS_',
    ...       (42)),
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       xPLUS_(
    ...         (1),
    ...         (1)),
@@ -921,10 +921,10 @@ Lissp Quick Start
    ;; Constructors or helpers also work. (And can interpolate runtime data.)
    #> (list `(,"1 2" ,"3" (4 5) ,"6;7\8"))
    >>> list(
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     ('1 2'),
    ...     ('3'),
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       (4),
    ...       (5)),
    ...     ('6;7\\8')))
@@ -1061,10 +1061,10 @@ Lissp Quick Start
    ...   _macro_,
    ...   'triple',
    ...   (lambda x:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       '__main__..xAUTO_.xPLUS_',
    ...       x,
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...       (lambda * _: _)(
    ...         '__main__..xAUTO_.xPLUS_',
    ...         x,
    ...         x))))
@@ -1118,17 +1118,17 @@ Lissp Quick Start
    ...   _macro_,
    ...   'oopsxH_triple',
    ...   (lambda x:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
+   ...       (lambda * _: _)(
    ...         'lambda',
-   ...         (lambda *xAUTO0_:xAUTO0_)(
+   ...         (lambda * _: _)(
    ...           ':',
    ...           '__main__..x',
    ...           x),
-   ...         (lambda *xAUTO0_:xAUTO0_)(
+   ...         (lambda * _: _)(
    ...           '__main__..xAUTO_.xPLUS_',
    ...           '__main__..x',
-   ...           (lambda *xAUTO0_:xAUTO0_)(
+   ...           (lambda * _: _)(
    ...             '__main__..xAUTO_.xPLUS_',
    ...             '__main__..x',
    ...             '__main__..x'))))))
@@ -1158,17 +1158,17 @@ Lissp Quick Start
    ...   _macro_,
    ...   'oncexH_triple',
    ...   (lambda x:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
+   ...       (lambda * _: _)(
    ...         'lambda',
-   ...         (lambda *xAUTO0_:xAUTO0_)(
+   ...         (lambda * _: _)(
    ...           ':',
    ...           '_xxAUTO22_',
    ...           x),
-   ...         (lambda *xAUTO0_:xAUTO0_)(
+   ...         (lambda * _: _)(
    ...           '__main__..xAUTO_.xPLUS_',
    ...           '_xxAUTO22_',
-   ...           (lambda *xAUTO0_:xAUTO0_)(
+   ...           (lambda * _: _)(
    ...             '__main__..xAUTO_.xPLUS_',
    ...             '_xxAUTO22_',
    ...             '_xxAUTO22_'))))))
@@ -1196,11 +1196,11 @@ Lissp Quick Start
    ...   _macro_,
    ...   'fnx',
    ...   (lambda *body:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...       (lambda * _: _)(
    ...         'X'),
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...       (lambda * _: _)(
    ...         *body))))
 
    #> (list (map (fnx mul X X) (range 6)))   ;Shorter lambda! Don't nest them.
@@ -1227,12 +1227,12 @@ Lissp Quick Start
    ...   _macro_,
    ...   'xPLUS_',
    ...   (lambda first,*args:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       first,
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...       (lambda * _: _)(
    ...         '__main__..xAUTO_.add',
    ...         first,
-   ...         (lambda *xAUTO0_:xAUTO0_)(
+   ...         (lambda * _: _)(
    ...           '__main__..xAUTO_.xPLUS_',
    ...           *args))).__getitem__(
    ...       bool(
@@ -1263,12 +1263,12 @@ Lissp Quick Start
    ...   _macro_,
    ...   'xSTAR_',
    ...   (lambda first,*args:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       first,
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...       (lambda * _: _)(
    ...         '__main__..xAUTO_.mul',
    ...         first,
-   ...         (lambda *xAUTO0_:xAUTO0_)(
+   ...         (lambda * _: _)(
    ...           '__main__..xAUTO_.xSTAR_',
    ...           *args))).__getitem__(
    ...       bool(
@@ -1483,14 +1483,14 @@ Lissp Quick Start
    ...   'Point2D',
    ...   __import__('builtins').type(
    ...     'Point2D',
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       tuple),
    ...     __import__('builtins').dict(
    ...       __doc__=('Simple pair.'),
    ...       __new__=(lambda cls,x,y:
    ...                 tuple.__new__(
    ...                   cls,
-   ...                   (lambda *xAUTO0_:xAUTO0_)(
+   ...                   (lambda * _: _)(
    ...                     x,
    ...                     y))))))
 
@@ -1508,7 +1508,7 @@ Lissp Quick Start
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda x:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     '__main__..xAUTO_.xPLUS_',
    ...     x,
    ...     x,

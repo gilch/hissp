@@ -484,7 +484,7 @@ Try this definition.
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda params,*body:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'lambda',
    ...     params,
    ...     *body)):(
@@ -564,9 +564,9 @@ that anaphoric macro we did in the previous tutorial.
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda *expr:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'lambda',
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'X'),
    ...     expr)):(
    ...   __import__('builtins').setattr(
@@ -634,9 +634,9 @@ Ready?
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda *expr:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'lambda',
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'X',
    ...       'Y'),
    ...     expr)):(
@@ -694,7 +694,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       '',
    ...       _exprxAUTO36_)):(
@@ -711,7 +711,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'A',
    ...       _exprxAUTO36_)):(
@@ -728,7 +728,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'AB',
    ...       _exprxAUTO36_)):(
@@ -745,7 +745,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABC',
    ...       _exprxAUTO36_)):(
@@ -762,7 +762,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCD',
    ...       _exprxAUTO36_)):(
@@ -779,7 +779,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDE',
    ...       _exprxAUTO36_)):(
@@ -796,7 +796,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEF',
    ...       _exprxAUTO36_)):(
@@ -813,7 +813,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFG',
    ...       _exprxAUTO36_)):(
@@ -830,7 +830,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGH',
    ...       _exprxAUTO36_)):(
@@ -847,7 +847,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHI',
    ...       _exprxAUTO36_)):(
@@ -864,7 +864,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJ',
    ...       _exprxAUTO36_)):(
@@ -881,7 +881,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJK',
    ...       _exprxAUTO36_)):(
@@ -898,7 +898,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKL',
    ...       _exprxAUTO36_)):(
@@ -915,7 +915,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLM',
    ...       _exprxAUTO36_)):(
@@ -932,7 +932,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMN',
    ...       _exprxAUTO36_)):(
@@ -949,7 +949,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNO',
    ...       _exprxAUTO36_)):(
@@ -966,7 +966,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOP',
    ...       _exprxAUTO36_)):(
@@ -983,7 +983,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQ',
    ...       _exprxAUTO36_)):(
@@ -1000,7 +1000,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQR',
    ...       _exprxAUTO36_)):(
@@ -1017,7 +1017,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRS',
    ...       _exprxAUTO36_)):(
@@ -1034,7 +1034,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRST',
    ...       _exprxAUTO36_)):(
@@ -1051,7 +1051,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTU',
    ...       _exprxAUTO36_)):(
@@ -1068,7 +1068,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTUV',
    ...       _exprxAUTO36_)):(
@@ -1085,7 +1085,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTUVW',
    ...       _exprxAUTO36_)):(
@@ -1102,7 +1102,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTUVWX',
    ...       _exprxAUTO36_)):(
@@ -1119,7 +1119,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTUVWXY',
    ...       _exprxAUTO36_)):(
@@ -1136,7 +1136,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
    ...       _exprxAUTO36_)):(
@@ -1277,7 +1277,7 @@ We can create numbered X's the same way we created the numbered L's.
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda number,*expr:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'lambda',
    ...     map(
    ...       (lambda i:
@@ -1335,7 +1335,7 @@ Let's make a slight tweak.
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda *expr:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'lambda',
    ...     map(
    ...       (lambda i:
@@ -1506,7 +1506,7 @@ Lissp can do that with a class.
    ...   'Flattener',
    ...   __import__('builtins').type(
    ...     'Flattener',
-   ...     (lambda *xAUTO0_:xAUTO0_)(),
+   ...     (lambda * _: _)(),
    ...     __import__('builtins').dict(
    ...       __init__=(lambda self:
    ...                  setattr(
@@ -1732,7 +1732,7 @@ you must define them in ``_macro_`` with a name ending in a ``#``.
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda expr:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     '__main__.._macro_.L',
    ...     *expr)):(
    ...   __import__('builtins').setattr(
@@ -1814,9 +1814,9 @@ Catch-All Parameter
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda *expr:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'lambda',
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       *map(
    ...          (lambda i:
    ...            ('X{}').format(
@@ -1842,7 +1842,7 @@ Catch-All Parameter
    ...          (lambda :
    ...            # hissp.basic.._macro_.progn
    ...            (lambda :
-   ...              (lambda *xAUTO0_:xAUTO0_)(
+   ...              (lambda * _: _)(
    ...                ':*',
    ...                'Xi'))()),
    ...          (lambda :()))),
@@ -1949,9 +1949,9 @@ Here you go:
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda *expr:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'lambda',
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       *map(
    ...          (lambda i:
    ...            ('X{}').format(
@@ -1993,7 +1993,7 @@ Here you go:
    ...          (lambda :
    ...            # hissp.basic.._macro_.progn
    ...            (lambda :
-   ...              (lambda *xAUTO0_:xAUTO0_)(
+   ...              (lambda * _: _)(
    ...                ':*',
    ...                'Xi'))()),
    ...          (lambda :()))),
@@ -2008,9 +2008,9 @@ Here you go:
    ...           expr),
    ...         'X'),
    ...       (lambda :
-   ...         (lambda *xAUTO0_:xAUTO0_)(
+   ...         (lambda * _: _)(
    ...           '__main__.._macro_.let',
-   ...           (lambda *xAUTO0_:xAUTO0_)(
+   ...           (lambda * _: _)(
    ...             'X',
    ...             'X1'),
    ...           expr)),

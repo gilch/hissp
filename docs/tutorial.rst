@@ -990,7 +990,7 @@ The template quote works much like a normal quote:
    (1, 2, 3)
 
    #> `(1 2 3)  ; template quote
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   (1),
    ...   (2),
    ...   (3))
@@ -1015,7 +1015,7 @@ much like a format string:
    (1, 2, ('operator..add', 1, 2))
 
    #> `(1 2 ,(operator..add 1 2))  ; template and unquote
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   (1),
    ...   (2),
    ...   __import__('operator').add(
@@ -1028,7 +1028,7 @@ The splice unquote is similar, but unpacks its result:
 .. code-block:: REPL
 
    #> `(:a ,@"bcd" :e)
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   ':a',
    ...   *('bcd'),
    ...   ':e')
@@ -1046,8 +1046,8 @@ If you quote an example, you can see that intermediate step:
    >>> (('lambda',
    ...   (':',
    ...    ':*',
-   ...    'xAUTO0_',),
-   ...   'xAUTO0_',),
+   ...    ' _',),
+   ...   ' _',),
    ...  ':',
    ...  ':?',
    ...  ':a',
@@ -1057,7 +1057,7 @@ If you quote an example, you can see that intermediate step:
    ...  ('opearator..mul',
    ...   (2),
    ...   (3),),)
-   (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':?', ':a', ':*', "('bcd')", ':?', ('opearator..mul', 2, 3))
+   (('lambda', (':', ':*', ' _'), ' _'), ':', ':?', ':a', ':*', "('bcd')", ':?', ('opearator..mul', 2, 3))
 
 Templates are Lissp syntactic sugar based on what Hissp already has.
 
@@ -1080,7 +1080,7 @@ Within a template, the same gensym name always makes the same gensym:
 .. code-block:: REPL
 
    #> `($#hiss $#hiss)
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   '_hissxAUTO41_',
    ...   '_hissxAUTO41_')
    ('_hissxAUTO41_', '_hissxAUTO41_')
@@ -1166,7 +1166,7 @@ use function calls and templates instead:
 
    #> (list `(,@(.upper "abc") ,@[1,2,3] ,(.title "zed")))
    >>> list(
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     *('abc').upper(),
    ...     *[1, 2, 3],
    ...     ('zed').title()))
@@ -1300,9 +1300,9 @@ Let's give it one. Use a template:
    ...   _macro_,
    ...   'greet',
    ...   (lambda name:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'builtins..print',
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...       (lambda * _: _)(
    ...         'quote',
    ...         '__main__..Hello'),
    ...       name)))
@@ -1327,7 +1327,7 @@ with `builtins` (if applicable) or the current ``__name__``
    'builtins..int'
 
    #> `(int spam)
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   'builtins..int',
    ...   '__main__..spam')
    ('builtins..int', '__main__..spam')
@@ -1356,13 +1356,13 @@ symbol. (Like a quoted symbol):
 .. code-block:: REPL
 
    #> `(float inf)
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   'builtins..float',
    ...   '__main__..inf')
    ('builtins..float', '__main__..inf')
 
    #> `(float ,'inf)
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   'builtins..float',
    ...   'inf')
    ('builtins..float', 'inf')
@@ -1376,9 +1376,9 @@ Let's try again. (Yes, reader macros compose like that.):
    ...   _macro_,
    ...   'greet',
    ...   (lambda name:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'builtins..print',
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...       (lambda * _: _)(
    ...         'quote',
    ...         'Hello'),
    ...       name)))
@@ -1401,7 +1401,7 @@ a raw string might have been a better idea:
    ...   _macro_,
    ...   'greet',
    ...   (lambda name:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'builtins..print',
    ...       "('Hello')",
    ...       name)))
@@ -1427,11 +1427,11 @@ But there are times when a function will not do:
    ...   _macro_,
    ...   'xHASH_',
    ...   (lambda *body:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...       (lambda * _: _)(
    ...         'xHASH_'),
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...       (lambda * _: _)(
    ...         *body))))
 
    #> (any (map (# print (.upper #) ":" #)
