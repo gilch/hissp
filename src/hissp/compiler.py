@@ -373,8 +373,8 @@ class Compiler:
         return "{}({})".format(self.form(head), _join_args(*args))
 
     def _pair_arg(self, k, v):
-        k = PAIR_WORDS.get(k, k + '=')
-        return k + self.form(v).replace('\n', '\n' + ' ' * len(k))
+        k = PAIR_WORDS.get(k, k + "=")
+        return k + self.form(v).replace("\n", "\n" + " " * len(k))
 
     @_trace
     def str(self, code: str) -> str:
@@ -382,7 +382,7 @@ class Compiler:
         Expands qualified identifiers and module literals into imports.
         Otherwise, injects as raw Python directly into the output.
         """
-        if not all(s.isidentifier() for s in code.split('.') if s):
+        if not all(s.isidentifier() for s in code.split(".") if s):
             return code
         if ".." in code:
             return self.qualified_identifier(code)
