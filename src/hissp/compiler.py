@@ -382,7 +382,7 @@ class Compiler:
         Expands qualified identifiers and module literals into imports.
         Otherwise, injects as raw Python directly into the output.
         """
-        if re.search(r"^\.\.|[ ()]", code):  # Ellipsis? Python injection?
+        if not all(s.isidentifier() for s in code.split('.') if s):
             return code
         if ".." in code:
             return self.qualified_identifier(code)
