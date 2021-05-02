@@ -474,7 +474,7 @@ Lissp Quick Start
    ;; Other objects evaluate to themselves, but strings and tuples have
    ;; special evaluation rules in Hissp. Tuples represent invocations of
    ;; functions, macros, and special forms, while strings represent raw
-   ;; Python code to include in the compiles output (as well as module
+   ;; Python code to include in the compiled output (as well as module
    ;; literals and control words), which are usually used for identifiers,
    ;; but can be anything. Quoting suppresses this evaluation, rendering
    ;; the raw Python code as string data, and the invocations as tuples.
@@ -1365,7 +1365,7 @@ Lissp Quick Start
    _#"To make the REPL more usable, it comes with some basic macros already
    defined. Their design has been deliberately restricted so that their
    compiled output does not require the hissp package to be installed to
-   work. While these may suffice for small embedded Hissp projects, you
+   work. While these may suffice for small or embedded Hissp projects, you
    will probably want a more capable macro suite (such as Hebigo's) for
    general use. You are not required to use the basic macros at all, so by
    default, they don't work in .lissp files unqualified. They're available

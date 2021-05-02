@@ -1524,5 +1524,16 @@ I will do it.
 Hissp is still unproven in any major project, so who knows?
 The only way it will get proven is if some early adopter like you tries it out and lets me know how it goes.
 
+While Hissp's basic macros may suffice for small or embedded Hissp projects,
+you'll probably want more than that for a larger application.
+Hissp doesn't exactly have a standard library,
+relying instead on Python's,
+but I can recommend using a few more:
+Currently, that's Hebigo's macro suite (and most of it even for Lissp),
+Pyrsistent_'s more basic data structures,
+and most of Toolz_.
+
 .. _Hebigo: https://github.com/gilch/hebigo
 .. _Drython: https://github.com/gilch/drython
+.. _Pyrsistent https://pypi.org/project/pyrsistent/
+.. _Toolz: https://pypi.org/project/toolz/

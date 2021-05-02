@@ -18,6 +18,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Matthew Egan Odendahl",
+    # These email addresses are spam bait. Don't expect any responses.
+    # See the GitHub project instead: https://github.com/gilch/hissp
     author_email="hissp02.gilch@xoxy.net",
     license="Apache-2.0",
     url="https://github.com/gilch/hissp",
