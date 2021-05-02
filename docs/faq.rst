@@ -662,7 +662,7 @@ No, but tuples are immutable in Python.
 (Although their elements need not be.)
 
 If you want those,
-check out `Pyrsistent <https://pypi.org/project/pyrsistent/>`_
+check out Pyrsistent_
 or `Immutables <https://pypi.org/project/immutables/>`_.
 These work well with Hissp.
 
@@ -1535,5 +1535,5 @@ and most of Toolz_.
 
 .. _Hebigo: https://github.com/gilch/hebigo
 .. _Drython: https://github.com/gilch/drython
-.. _Pyrsistent https://pypi.org/project/pyrsistent/
+.. _Pyrsistent: https://pypi.org/project/pyrsistent/
 .. _Toolz: https://pypi.org/project/toolz/
