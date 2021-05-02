@@ -1,11 +1,17 @@
-;; Copyright 2019, 2020 Matthew Egan Odendahl
+;; Copyright 2019, 2020, 2021 Matthew Egan Odendahl
 ;; SPDX-License-Identifier: Apache-2.0
-" Hissp's basic macros.
+"Hissp's basic macros.
 
-These are automatically made available as unqualified macros in the
-Lissp REPL. To use them in a Hissp module, either use the
-fully-qualified names, or start with the `prelude` macro. You can
-abbreviate qualifiers with the `alias` macro:
+The basic macros are just enough to test and demonstrate Hissp's macro
+system; they are not intended to be a standard library for general use,
+but may suffice for small projects.
+
+As a convenience, they are automatically made available unqualified in
+the Lissp REPL, but this does not apply to modules. (A Hissp module with
+better alternatives need not use the basic macros at all.) In modules,
+either use the fully-qualified names, or start with the `prelude` macro.
+
+You can abbreviate qualifiers with the `alias` macro:
 
 .. code-block:: Lissp
 
@@ -19,11 +25,7 @@ They have NO DEPENDENCIES in their expansions; they use only the
 standard library with no extra helper functions. This means that all
 helper code must be inlined, resulting in larger expansions than might
 otherwise be necessary. But because macros expand before runtime, the
-compiled code does not require Hissp to be installed to work, assuming,
-of course, that there are no other runtime imports of the library code.
-
-These may suffice for small projects, but projects with access to better
-alternatives need not use the basic macros at all.
+compiled code does not require Hissp to be installed to work.
 
 They also have no prerequisite initialization, beyond what is available
 in a standard Python module. For example, a ``_macro_`` namespace need
@@ -31,13 +33,13 @@ not be available for ``defmacro``. It's smart enough to check for the
 presence of ``_macro_`` in its expansion context, and inline the
 initialization code when required.
 
-With the exception of ``prelude`` (which is only meant for the top
-level), they also eschew any expansions directly to Python code, relying
-only on the built-in special forms ``quote`` and ``lambda``, which makes
-their expansions compatible with advanced rewriting macros that process
-the Hissp expansions of other macros.
+With the exception of ``prelude`` (which uses `exec`), they also eschew
+any expansions to Python code, relying only on the built-in special
+forms ``quote`` and ``lambda``, which makes their expansions compatible
+with advanced rewriting macros that process the Hissp expansions of
+other macros.
 
-To help keep macros and their expansions manageable in complexity,
+To help keep macro definitions and expansions manageable in complexity,
 these basic macros lack some of the extra features their equivalents
 have in Python or in other Lisps.
 "
@@ -90,9 +92,8 @@ judicious use can improve performance and maintainability.
     (lambda : ,otherwise)))
 
 (defmacro progn (: :* body)
-  "Evaluates each form in sequence for side effects.
-
-  Evaluates to the same value as its last form (or ``()`` if empty).
+  "Evaluates each body expression in sequence (for side effects),
+  resulting in the value of the last (or ``()`` if empty).
   "
   ;; TODO: consider flattening nested progns
   `((lambda :
@@ -100,22 +101,22 @@ judicious use can improve performance and maintainability.
 
 (defmacro when (condition : :* body)
   "When the condition is true,
-  evaluates each form in sequence for side effects.
-  Evaluates to the same value as its last form.
+  evaluates each expression in sequence for side effects,
+  resulting in the value of the last.
   Otherwise, skips them and returns ``()``.
   "
   `(if-else ,condition (progn ,@body) ()))
 
 (defmacro unless (condition : :* body)
   "Unless the condition is true,
-  evaluates each form in sequence for side effects.
-  Evaluates to the same value as its last form.
+  evaluates each expression in sequence for side effects,
+  resulting in the value of the last.
   Otherwise, skips them and returns ``()``.
   "
   `(if-else ,condition () (progn ,@body)))
 
 (defmacro let (pairs : :* body)
-  "Creates locals. Pairs are implied. Locals are not in scope until the body."
+  "Creates local variables. Pairs are implied. Locals are not in scope until the body."
   `((lambda (: ,@pairs)
       ,@body)))
 
@@ -157,13 +158,12 @@ judicious use can improve performance and maintainability.
   Key-value pairs are implied in the body.
   "
   `(define ,name
-       (type ',name ((lambda (: :* xAUTO0_) xAUTO0_) ,@bases)
+       (type ',name (,hissp.reader..ENTUPLE ,@bases)
              (dict : ,@body))))
 
 ;; see also from bootstrap: let
 
-(defmacro import (: :* args)
-  `(print #"\
+(define _TAO "
 Nothingness above abstraction
   but implementation is / the best name.
 Terseness may make one too many / get used to them
@@ -183,7 +183,7 @@ Perfection / is expensive
   a quarter is advised
 Readability / is mainly / laid out on the page.
 Golfing / makes good practice / best practice it betrays.
-Castles built / in the air / where they do belong
+Castles built / in the air / whither they do belong?
   Elegance / then exception
   Form / before detail
   whence under them,
@@ -191,7 +191,10 @@ Foundations appear.
 Make the right way obvious,
 meditate on this.
   --Za Zen of Hissp
-"))
+")
+
+(defmacro import (: :* args)
+  `(print _TAO))
 
 ;;; configuration
 
@@ -200,7 +203,7 @@ meditate on this.
 
   Positional arguments must be unqualified identifiers,
   and use that as the attribute name.
-  Names after the ``:`` are attribute-value pairs.
+  Names after the ``:`` are identifier-value pairs.
   Returns the target.
   "
   (let (iargs (iter args)
@@ -217,27 +220,27 @@ meditate on this.
                 iargs)
          ,$target))))
 
-(defmacro cascade (self : :* calls)
-  "Call multiple methods on one object.
+(defmacro cascade (self : :* invocations)
+  "Call multiple 'methods' on one 'self'.
 
   Evaluates the given ``self``, then injects it as the first argument to
-  a sequence of calls. Returns the result of the last call.
+  a sequence of invocations. Returns the result of the last one.
   "
   (let ($self `$#self)
     `((lambda (: ,$self ,self)
-        ,@(map (lambda (call)
-                 `(,(operator..getitem call 0)
+        ,@(map (lambda (invocation)
+                 `(,(operator..getitem invocation 0)
                    ,$self
-                   ,@(operator..getitem call (slice 1 None))))
-               calls)))))
+                   ,@(operator..getitem invocation (slice 1 None))))
+               invocations)))))
 
 ;;; threading
 
 (defmacro -> (expr : :* forms)
   "``->`` 'Thread-first'.
 
-  Converts a pipeline to function calls by recursively threading it as
-  the first argument of the next form.
+  Converts a pipeline to function calls by recursively threading
+  expressions as the first argument of the next form.
   E.g. ``(-> x (A b) (C d e))`` is ``(C (A x b) d e)``
   Makes chained method calls easier to read.
   "
@@ -252,8 +255,8 @@ meditate on this.
 (defmacro ->> (expr : :* forms)
   "``->>`` 'Thread-last'.
 
-  Converts a pipeline to function calls by recursively threading it as
-  the last argument of the next form.
+  Converts a pipeline to function calls by recursively threading
+  expressions as the last argument of the next form.
   E.g. ``(->> x (A b) (C d e))`` is ``(C d e (A b x))``.
   Can replace partial application in some cases.
   Also works inside a ``->`` pipeline.
@@ -299,7 +302,10 @@ meditate on this.
 
 ;; I would have named this 'and, but that's a reserved word.
 (defmacro && (: :* exprs)
-  "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
+  "``&&`` 'and'. Shortcutting logical AND.
+  Returns the first false value, otherwise the last value.
+  There is an implicit initial value of ``True``.
+  "
   (cond (operator..not_ exprs) True
         (operator..eq (len exprs) 1) (operator..getitem exprs 0)
         :else `(let ($#G ,(operator..getitem exprs 0))
@@ -308,7 +314,10 @@ meditate on this.
                           $#G))))
 
 (defmacro || (: first () :* rest)
-  "``||`` 'or'. Like Python's ``or`` operator, but for any number of arguments."
+  "``||`` 'or'. Shortcutting logical OR.
+  Returns the first true value, otherwise the last value.
+  There is an implicit initial value of ``()``.
+  "
   (if-else rest
            `(let ($#first ,first)
               (if-else $#first
@@ -352,7 +361,7 @@ meditate on this.
   Star imports from `operator` and `itertools`.
   And adds the basic macros, but only if available,
   so its expansion does not require Hissp to be installed.
-  (This overwrites ``_macro_`` if you already had one.)
+  (This replaces ``_macro_`` if you already had one.)
   "
   `(exec #"\
 from operator import *

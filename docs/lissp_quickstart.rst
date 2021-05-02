@@ -67,11 +67,11 @@ Lissp Quick Start
 
    ;;; Boolean
 
-   #> False                                  ;0
+   #> False                                  ;False == 0
    >>> False
    False
 
-   #> True                                   ;1
+   #> True                                   ;True == 1
    >>> True
    True
 
@@ -244,7 +244,7 @@ Lissp Quick Start
    >>> 'notxH_stringx1QUOTE_'
    'notxH_stringx1QUOTE_'
 
-   #> #"Say \"Cheese!\" \u263a"              ;Hash strings use Python escapes.
+   #> #"Say \"Cheese!\" \u263a"              ;Hash strings process Python escapes.
    >>> ('Say "Cheese!" ☺')
    'Say "Cheese!" ☺'
 
@@ -471,6 +471,14 @@ Lissp Quick Start
    ;; Quotation prevents evaluation.
    ;; Treating the code itself as data is the key concept in metaprogramming.
 
+   ;; Other objects evaluate to themselves, but strings and tuples have
+   ;; special evaluation rules in Hissp. Tuples represent invocations of
+   ;; functions, macros, and special forms, while strings represent raw
+   ;; Python code to include in the compiled output (as well as module
+   ;; literals and control words), which are usually used for identifiers,
+   ;; but can be anything. Quoting suppresses this evaluation, rendering
+   ;; the raw Python code as string data, and the invocations as tuples.
+
    #> (quote (print 1 2 3 : sep "-"))        ;Just a tuple.
    >>> ('print',
    ...  (1),
@@ -489,14 +497,17 @@ Lissp Quick Start
    >>> (42)
    42
 
-   #> (quote "string")                       ;Not what you expected? Eval it.
-   >>> "('string')"
-   "('string')"
 
-   #> (eval (quote "string"))                ;It's a string of Python code. For a string.
+   ;; The "..."/#"..." Lissp read syntax is for creating a Python-level string.
+   ;; It is NOT for creating a Hissp-level string.
+   #> (quote "a string")                     ;Unexpected? "..."/#"..." is read syntax!
+   >>> "('a string')"
+   "('a string')"
+
+   #> (eval (quote "a string"))              ;Raw Python code. For a string.
    >>> eval(
-   ...   "('string')")
-   'string'
+   ...   "('a string')")
+   'a string'
 
 
    #> :?                                     ;Just a string?
@@ -542,7 +553,7 @@ Lissp Quick Start
 
 
    #> `(print "Hi")                          ;Code as data. Seems to act like quote.
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   'builtins..print',
    ...   "('Hi')")
    ('builtins..print', "('Hi')")
@@ -551,8 +562,8 @@ Lissp Quick Start
    >>> (('lambda',
    ...   (':',
    ...    ':*',
-   ...    'xAUTO0_',),
-   ...   'xAUTO0_',),
+   ...    ' _',),
+   ...   ' _',),
    ...  ':',
    ...  ':?',
    ...  ('quote',
@@ -560,10 +571,10 @@ Lissp Quick Start
    ...  ':?',
    ...  ('quote',
    ...   "('Hi')",),)
-   (('lambda', (':', ':*', 'xAUTO0_'), 'xAUTO0_'), ':', ':?', ('quote', 'builtins..print'), ':?', ('quote', "('Hi')"))
+   (('lambda', (':', ':*', ' _'), ' _'), ':', ':?', ('quote', 'builtins..print'), ':?', ('quote', "('Hi')"))
 
    #> `(print ,(.upper "Hi"))                ;Unquote (,) interpolates.
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   'builtins..print',
    ...   ('Hi').upper())
    ('builtins..print', 'HI')
@@ -574,19 +585,19 @@ Lissp Quick Start
    'foo'
 
    #> `(print ,@"abc")                       ;Splice unquote (,@) interpolates and unpacks.
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   'builtins..print',
    ...   *('abc'))
    ('builtins..print', 'a', 'b', 'c')
 
    #> `(print ,@(.upper "abc"))
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   'builtins..print',
    ...   *('abc').upper())
    ('builtins..print', 'A', 'B', 'C')
 
    #> `($#eggs $#spam $#bacon $#spam)        ;Generated symbols for macros.
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   '_eggsxAUTO9_',
    ...   '_spamxAUTO9_',
    ...   '_baconxAUTO9_',
@@ -648,8 +659,8 @@ Lissp Quick Start
    THE FLOW.
 
 
-   ;; The "inject" reader macro evaluates the next form
-   ;; and puts the result directly in the Hissp.
+   ;; The "inject" reader macro evaluates the next form at read time
+   ;; and injects the resulting object directly into the Hissp tree.
    #> .#(fractions..Fraction 1 2)            ;Fraction() is multiary.
    >>> __import__('pickle').loads(  # Fraction(1, 2)
    ...     b'cfractions\nFraction\n(V1/2\ntR.'
@@ -657,12 +668,28 @@ Lissp Quick Start
    Fraction(1, 2)
 
 
-   ;; Use a string to inject Python into the compiled output.
+   ;; Recall that Hissp-level string objects can represent
+   ;; arbitrary Python code. It's usually used for identifiers,
+   ;; but can be anything, even complex formulas.
    #> (lambda (a b c)
    #..  ;; Hissp may not have operators, but Python does.
    #..  .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
    >>> (lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a))
    <function <lambda> at 0x...>
+
+
+   ;; Remember the "..."/#"..." read syntax makes Python-level strings,
+   ;; via a Hissp-level string containing a Python string literal.
+   ;; It is NOT for creating a Hissp-level string, which would normally
+   ;; represent raw Python code. Use inject for that.
+   #> '"a string"                            ;Python code for a string. In a string.
+   >>> "('a string')"
+   "('a string')"
+
+   ;; Injection of an object to the Hissp level. In this case, a string object.
+   #> '.#"a string"                          ;Quoting renders a Hissp-level string as data.
+   >>> 'a string'
+   'a string'
 
 
    ;; Statement injections work at the top level only.
@@ -681,7 +708,7 @@ Lissp Quick Start
    (1, 2, 3)
 
    #> `(,(pow 42 0) ,(+ 1 1) 3)              ;Interpolate with templates.
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   >>> (lambda * _: _)(
    ...   pow(
    ...     (42),
    ...     (0)),
@@ -691,10 +718,10 @@ Lissp Quick Start
    ...   (3))
    (1, 2, 3)
 
-   #> `("a" 'b c ,'d ,"e")                   ;Remember what happens when you quote strings?
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   #> `("a" 'b c ,'d ,"e")                   ;Remember what happens when you quote Lissp-level strings?
+   >>> (lambda * _: _)(
    ...   "('a')",
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'quote',
    ...     '__main__..b'),
    ...   '__main__..c',
@@ -707,8 +734,13 @@ Lissp Quick Start
    ...  "('a')",)
    (1, "('a')")
 
-   #> `(1 ,"a")
-   >>> (lambda *xAUTO0_:xAUTO0_)(
+   #> '(1 .#"a")                             ;Injected Hissp-level string.
+   >>> ((1),
+   ...  'a',)
+   (1, 'a')
+
+   #> `(1 ,"a")                              ;Interpolated string.
+   >>> (lambda * _: _)(
    ...   (1),
    ...   ('a'))
    (1, 'a')
@@ -741,7 +773,7 @@ Lissp Quick Start
 
    #> (list `(1 ,(+ 1 1) 3))
    >>> list(
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     (1),
    ...     xPLUS_(
    ...       (1),
@@ -797,7 +829,7 @@ Lissp Quick Start
    ...     ('abc')))
    {1: 'a', 2: 'b', 3: 'c'}
 
-   #> (dict '((a 1) (2 b)))                  ;Mixed key types. Beware of strings.
+   #> (dict '((a 1) (2 b)))                  ;Mixed key types. Beware of quoting strings.
    >>> dict(
    ...   (('a',
    ...     (1),),
@@ -808,11 +840,11 @@ Lissp Quick Start
    #> (dict `((,'+ 42)
    #..        (,(+ 1 1) ,'b)))               ;Runtime interpolation with a template.
    >>> dict(
-   ...   (lambda *xAUTO0_:xAUTO0_)(
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
+   ...     (lambda * _: _)(
    ...       'xPLUS_',
    ...       (42)),
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       xPLUS_(
    ...         (1),
    ...         (1)),
@@ -889,10 +921,10 @@ Lissp Quick Start
    ;; Constructors or helpers also work. (And can interpolate runtime data.)
    #> (list `(,"1 2" ,"3" (4 5) ,"6;7\8"))
    >>> list(
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     ('1 2'),
    ...     ('3'),
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       (4),
    ...       (5)),
    ...     ('6;7\\8')))
@@ -1029,10 +1061,10 @@ Lissp Quick Start
    ...   _macro_,
    ...   'triple',
    ...   (lambda x:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       '__main__..xAUTO_.xPLUS_',
    ...       x,
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...       (lambda * _: _)(
    ...         '__main__..xAUTO_.xPLUS_',
    ...         x,
    ...         x))))
@@ -1086,17 +1118,17 @@ Lissp Quick Start
    ...   _macro_,
    ...   'oopsxH_triple',
    ...   (lambda x:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
+   ...       (lambda * _: _)(
    ...         'lambda',
-   ...         (lambda *xAUTO0_:xAUTO0_)(
+   ...         (lambda * _: _)(
    ...           ':',
    ...           '__main__..x',
    ...           x),
-   ...         (lambda *xAUTO0_:xAUTO0_)(
+   ...         (lambda * _: _)(
    ...           '__main__..xAUTO_.xPLUS_',
    ...           '__main__..x',
-   ...           (lambda *xAUTO0_:xAUTO0_)(
+   ...           (lambda * _: _)(
    ...             '__main__..xAUTO_.xPLUS_',
    ...             '__main__..x',
    ...             '__main__..x'))))))
@@ -1126,17 +1158,17 @@ Lissp Quick Start
    ...   _macro_,
    ...   'oncexH_triple',
    ...   (lambda x:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
+   ...       (lambda * _: _)(
    ...         'lambda',
-   ...         (lambda *xAUTO0_:xAUTO0_)(
+   ...         (lambda * _: _)(
    ...           ':',
    ...           '_xxAUTO22_',
    ...           x),
-   ...         (lambda *xAUTO0_:xAUTO0_)(
+   ...         (lambda * _: _)(
    ...           '__main__..xAUTO_.xPLUS_',
    ...           '_xxAUTO22_',
-   ...           (lambda *xAUTO0_:xAUTO0_)(
+   ...           (lambda * _: _)(
    ...             '__main__..xAUTO_.xPLUS_',
    ...             '_xxAUTO22_',
    ...             '_xxAUTO22_'))))))
@@ -1164,11 +1196,11 @@ Lissp Quick Start
    ...   _macro_,
    ...   'fnx',
    ...   (lambda *body:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...       (lambda * _: _)(
    ...         'X'),
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...       (lambda * _: _)(
    ...         *body))))
 
    #> (list (map (fnx mul X X) (range 6)))   ;Shorter lambda! Don't nest them.
@@ -1195,12 +1227,12 @@ Lissp Quick Start
    ...   _macro_,
    ...   'xPLUS_',
    ...   (lambda first,*args:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       first,
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...       (lambda * _: _)(
    ...         '__main__..xAUTO_.add',
    ...         first,
-   ...         (lambda *xAUTO0_:xAUTO0_)(
+   ...         (lambda * _: _)(
    ...           '__main__..xAUTO_.xPLUS_',
    ...           *args))).__getitem__(
    ...       bool(
@@ -1231,12 +1263,12 @@ Lissp Quick Start
    ...   _macro_,
    ...   'xSTAR_',
    ...   (lambda first,*args:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       first,
-   ...       (lambda *xAUTO0_:xAUTO0_)(
+   ...       (lambda * _: _)(
    ...         '__main__..xAUTO_.mul',
    ...         first,
-   ...         (lambda *xAUTO0_:xAUTO0_)(
+   ...         (lambda * _: _)(
    ...           '__main__..xAUTO_.xSTAR_',
    ...           *args))).__getitem__(
    ...       bool(
@@ -1328,11 +1360,17 @@ Lissp Quick Start
    spam..x                                ;42
    eggs.                                  ;Hello, World!
 
-   ;;;; Basic Macros
+   ;;;; The Basic Macros
 
-   _#" The REPL comes with some basic macros defined in hissp.basic. By default,
-   they don't work in .lissp files unqualified. The compiled output from these
-   does not require hissp to be installed."
+   _#"To make the REPL more usable, it comes with some basic macros already
+   defined. Their design has been deliberately restricted so that their
+   compiled output does not require the hissp package to be installed to
+   work. While these may suffice for small or embedded Hissp projects, you
+   will probably want a more capable macro suite (such as Hebigo's) for
+   general use. You are not required to use the basic macros at all, so by
+   default, they don't work in .lissp files unqualified. They're available
+   qualified from hissp.basic.._macro_.
+   "
 
    #> (help _macro_.->>)                     ;Macros have docstrings and live in _macro_.
    >>> help(
@@ -1445,14 +1483,14 @@ Lissp Quick Start
    ...   'Point2D',
    ...   __import__('builtins').type(
    ...     'Point2D',
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       tuple),
    ...     __import__('builtins').dict(
    ...       __doc__=('Simple pair.'),
    ...       __new__=(lambda cls,x,y:
    ...                 tuple.__new__(
    ...                   cls,
-   ...                   (lambda *xAUTO0_:xAUTO0_)(
+   ...                   (lambda * _: _)(
    ...                     x,
    ...                     y))))))
 
@@ -1470,7 +1508,7 @@ Lissp Quick Start
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda x:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     '__main__..xAUTO_.xPLUS_',
    ...     x,
    ...     x,

@@ -1,4 +1,4 @@
-# Copyright 2020 Matthew Egan Odendahl
+# Copyright 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 """
 Hissp's command-line interface.
@@ -67,8 +67,8 @@ def _arg_parser():
         default=_no_interact,
         help="Drop into REPL after the script.",
     )
-    _("-c", help="Run main script (with prelude) from this string.", metavar="cmd")
-    _("file", nargs="?", help="Run main script from this file. (- for stdin.)")
+    _("-c", help="Run this string as main script (with prelude).", metavar="cmd")
+    _("file", nargs="?", help="Run this file as main script. (- for stdin.)")
     _("args", nargs="*", help="Arguments for the script.")
     return root
 

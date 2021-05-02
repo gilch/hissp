@@ -1,4 +1,4 @@
-# Copyright 2019, 2020 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 """
 The Lissp language reader and associated helper functions.
@@ -21,6 +21,7 @@ from contextlib import contextmanager, nullcontext
 from functools import reduce
 from importlib import import_module, resources
 from itertools import chain
+from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat, pprint
 from types import ModuleType
@@ -30,7 +31,7 @@ from hissp.compiler import Compiler, readerless
 from hissp.munger import munge
 
 # fmt: off
-ENTUPLE = ("lambda",(":",":*","xAUTO0_"),"xAUTO0_",)
+ENTUPLE = ("lambda",(":",":*"," _")," _",)
 # fmt: on
 """
 Used by the template macro to make tuples.
@@ -194,7 +195,7 @@ class Lissp:
                 continue
             elif k == "badspace":
                 raise SyntaxError(
-                    repr(v) + " is not whitespace in Lissp. Indent with spaces only.",
+                    f"{v!r} is not whitespace in Lissp. Indent with spaces only.",
                     self.position(),
                 )
             elif k == "open":
@@ -345,10 +346,8 @@ class Lissp:
 
     def qualify(self, symbol: str, invocation=False) -> str:
         """Qualify symbol based on current context."""
-        if re.search(
-            r"^\(|^\.|\.$|^quote$|^lambda$|^__import__$|xAUTO\d+_$|\.\.", symbol
-        ):
-            return symbol  # Not qualifiable.
+        if not is_qualifiable(symbol):
+            return symbol
         if invocation and "_macro_" in self.ns and self._macro_has(symbol):
             return f"{self.qualname}.._macro_.{symbol}"  # Known macro.
         if symbol in dir(builtins) and symbol.split(".", 1)[0] not in self.ns:
@@ -428,6 +427,21 @@ def is_string(form):
         )
     except:
         return False
+
+
+def is_qualifiable(symbol):
+    """Determines if symbol can be qualified with a module.
+
+    Can't be ``quote``, ``__import__``, any Python reserved word, an
+    auto-gensym, already qualified, method syntax, or a module literal;
+    and must be a valid identifier or attribute identifier.
+    """
+    return (
+            symbol not in {"quote", "__import__"}
+            and not _iskeyword(symbol)
+            and not re.match(r".*xAUTO\d+_$", symbol)
+            and all(map(str.isidentifier, symbol.split(".")))
+    )
 
 
 def transpile(package: Optional[resources.Package], *modules: Union[str, PurePath]):

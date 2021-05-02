@@ -325,7 +325,7 @@ and push it to the REPL:
 
 Not a syntax error, but it's not working either.
 Why not?
-Quote the whole thing to see the Hissp tuples.
+Quote the whole thing to see the Hissp code.
 
 .. code-block:: REPL
 
@@ -464,6 +464,7 @@ Symbols become strings at the Hissp level,
 which are iterables containing character strings.
 This only works because the variable name is a single character.
 Now we're at the same length as Python.
+
 Let's make it even shorter.
 
 Given a tuple containing the *minimum* amount of information,
@@ -483,7 +484,7 @@ Try this definition.
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda params,*body:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'lambda',
    ...     params,
    ...     *body)):(
@@ -547,7 +548,7 @@ We need to expand that into this:
    (lambda (X)
      (* X X))
 
-So the template would looks something like this::
+So the template would look something like this::
 
    (lambda (X)
      (<expr>))
@@ -563,9 +564,9 @@ that anaphoric macro we did in the previous tutorial.
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda *expr:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'lambda',
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'X'),
    ...     expr)):(
    ...   __import__('builtins').setattr(
@@ -604,13 +605,26 @@ Now we're shorter than Python:
 But we're also less general.
 We can change the expression,
 but we've hardcoded the parameters to it.
-The fixed name is fine as long as we don't have to nest them,
-but what if needed two parameters?
+The fixed parameter name is fine as long as we don't have to nest these,
+but what if we needed two parameters?
+Could we make a macro for that?
+
+Think about it.
+
 Seriously, close your eyes and think about it for at least fifteen seconds
-before moving on to the next paragraph.
+before moving on.
+
 Don't generalize before we have examples to work with.
 
-You might already guess how we might do this:
+I'll wait.
+
+...
+
+...
+
+...
+
+Ready?
 
 .. Lissp::
 
@@ -620,9 +634,9 @@ You might already guess how we might do this:
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda *expr:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'lambda',
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'X',
    ...       'Y'),
    ...     expr)):(
@@ -680,7 +694,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       '',
    ...       _exprxAUTO36_)):(
@@ -697,7 +711,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'A',
    ...       _exprxAUTO36_)):(
@@ -714,7 +728,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'AB',
    ...       _exprxAUTO36_)):(
@@ -731,7 +745,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABC',
    ...       _exprxAUTO36_)):(
@@ -748,7 +762,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCD',
    ...       _exprxAUTO36_)):(
@@ -765,7 +779,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDE',
    ...       _exprxAUTO36_)):(
@@ -782,7 +796,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEF',
    ...       _exprxAUTO36_)):(
@@ -799,7 +813,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFG',
    ...       _exprxAUTO36_)):(
@@ -816,7 +830,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGH',
    ...       _exprxAUTO36_)):(
@@ -833,7 +847,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHI',
    ...       _exprxAUTO36_)):(
@@ -850,7 +864,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJ',
    ...       _exprxAUTO36_)):(
@@ -867,7 +881,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJK',
    ...       _exprxAUTO36_)):(
@@ -884,7 +898,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKL',
    ...       _exprxAUTO36_)):(
@@ -901,7 +915,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLM',
    ...       _exprxAUTO36_)):(
@@ -918,7 +932,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMN',
    ...       _exprxAUTO36_)):(
@@ -935,7 +949,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNO',
    ...       _exprxAUTO36_)):(
@@ -952,7 +966,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOP',
    ...       _exprxAUTO36_)):(
@@ -969,7 +983,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQ',
    ...       _exprxAUTO36_)):(
@@ -986,7 +1000,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQR',
    ...       _exprxAUTO36_)):(
@@ -1003,7 +1017,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRS',
    ...       _exprxAUTO36_)):(
@@ -1020,7 +1034,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRST',
    ...       _exprxAUTO36_)):(
@@ -1037,7 +1051,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTU',
    ...       _exprxAUTO36_)):(
@@ -1054,7 +1068,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTUV',
    ...       _exprxAUTO36_)):(
@@ -1071,7 +1085,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTUVW',
    ...       _exprxAUTO36_)):(
@@ -1088,7 +1102,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTUVWX',
    ...       _exprxAUTO36_)):(
@@ -1105,7 +1119,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTUVWXY',
    ...       _exprxAUTO36_)):(
@@ -1122,7 +1136,7 @@ Don't panic.
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
    ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
    ...       _exprxAUTO36_)):(
@@ -1243,7 +1257,7 @@ We got around this by starting at ``A`` instead,
 but then we're using up all of the uppercase ASCII one-character names.
 We might want to save those for other things.
 We're also limited to 26 parameters this way.
-It's rare we'd need more than three or four,
+It's rare that we'd need more than three or four,
 but 26 seems kind of arbitrary.
 
 So a better approach might be with numbered parameters, like ``X1``, ``X2``, ``X3``, etc.
@@ -1263,7 +1277,7 @@ We can create numbered X's the same way we created the numbered L's.
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda number,*expr:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'lambda',
    ...     map(
    ...       (lambda i:
@@ -1307,7 +1321,7 @@ We can create numbered X's the same way we created the numbered L's.
 This version uses a number as the first argument instead of baking them into the macro names.
 We're using numbered parameters now, so there's no limit.
 That takes care of *generating* the parameters,
-but we're still providing an expected a number for them.
+but we're still providing a redundant expected number for them.
 
 Let's make a slight tweak.
 
@@ -1321,7 +1335,7 @@ Let's make a slight tweak.
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda *expr:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'lambda',
    ...     map(
    ...       (lambda i:
@@ -1423,6 +1437,8 @@ Can we just iterate through the expression and check?
    ...         expr))))
 
 
+Does that make sense?
+Read the definition carefully.
 You can experiment with macros you don't recognize in the REPL.
 All the basic macros,
 including the `|| <xBAR_xBAR_>`
@@ -1490,7 +1506,7 @@ Lissp can do that with a class.
    ...   'Flattener',
    ...   __import__('builtins').type(
    ...     'Flattener',
-   ...     (lambda *xAUTO0_:xAUTO0_)(),
+   ...     (lambda * _: _)(),
    ...     __import__('builtins').dict(
    ...       __init__=(lambda self:
    ...                  setattr(
@@ -1716,7 +1732,7 @@ you must define them in ``_macro_`` with a name ending in a ``#``.
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda expr:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     '__main__.._macro_.L',
    ...     *expr)):(
    ...   __import__('builtins').setattr(
@@ -1798,9 +1814,9 @@ Catch-All Parameter
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda *expr:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'lambda',
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       *map(
    ...          (lambda i:
    ...            ('X{}').format(
@@ -1826,7 +1842,7 @@ Catch-All Parameter
    ...          (lambda :
    ...            # hissp.basic.._macro_.progn
    ...            (lambda :
-   ...              (lambda *xAUTO0_:xAUTO0_)(
+   ...              (lambda * _: _)(
    ...                ':*',
    ...                'Xi'))()),
    ...          (lambda :()))),
@@ -1880,7 +1896,8 @@ How does it work? Look at what's changed. Here they are again.
                    `(:* ,'Xi)))
         ,expr))
 
-We splice the logic that makes the numbered parameters into the new parameters tuple.
+We splice the result of the logic that made the numbered parameters from the old version
+into the new parameters tuple.
 Following that is the colon separator.
 Remember that it's always allowed in Hissp's lambda forms,
 even if you don't need it,
@@ -1932,9 +1949,9 @@ Here you go:
    >>> # defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnxAUTO7_=(lambda *expr:
-   ...   (lambda *xAUTO0_:xAUTO0_)(
+   ...   (lambda * _: _)(
    ...     'lambda',
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       *map(
    ...          (lambda i:
    ...            ('X{}').format(
@@ -1976,7 +1993,7 @@ Here you go:
    ...          (lambda :
    ...            # hissp.basic.._macro_.progn
    ...            (lambda :
-   ...              (lambda *xAUTO0_:xAUTO0_)(
+   ...              (lambda * _: _)(
    ...                ':*',
    ...                'Xi'))()),
    ...          (lambda :()))),
@@ -1991,9 +2008,9 @@ Here you go:
    ...           expr),
    ...         'X'),
    ...       (lambda :
-   ...         (lambda *xAUTO0_:xAUTO0_)(
+   ...         (lambda * _: _)(
    ...           '__main__.._macro_.let',
-   ...           (lambda *xAUTO0_:xAUTO0_)(
+   ...           (lambda * _: _)(
    ...             'X',
    ...             'X1'),
    ...           expr)),
@@ -2075,7 +2092,7 @@ Did we lose generality?
 Yes, but not much.
 You can't really nest these.
 The parameters get generated even if the only occurrence in the expression is quoted.
-This is the kind of thing to be mindful of.
+This is the kind of thing to be aware of.
 If you're not sure about something,
 try it in the REPL.
 But Clojure's version has the same problems,
@@ -2105,6 +2122,7 @@ But what if we had kept the ``X``?
    ... (lambda :(-X2 + (X2**2 - 4*X1*X3)**0.5)/(2*X1)())
    <function <lambda> at ...>
 
+Look at the Python compilation.
 It looks like we're trying to invoke the formula itself,
 which would evaluate to a number, not a callable,
 so this doesn't really make sense.
@@ -2134,7 +2152,7 @@ like our ``L3``, would have worked fine.
 
 The code-reading macro was unable to detect any matching symbols
 because it doesn't look inside the injected strings.
-In principle it *could have*,
+In principle, it *could have*,
 but it might be a lot more work if you want it to be reliable.
 It could function if the highest parameter also appeared outside the string,
 but at that point, you might as well use a normal lambda.
@@ -2165,10 +2183,10 @@ They're mainly useful as performance optimizations.
 In principle,
 you should be able to do everything else without them.
 
-Attach
-------
 
-.. TODO: attach
+
+.. TODO: optimize macro
+.. TODO: attach macro
    (defmacro attach (target : :* args)
      (let (iargs (iter args)
                  $target `$#target)
@@ -2197,7 +2215,9 @@ Attach
 .. TODO: destructuring bind (iterable only?)
 .. TODO: destructuring lambda (iterable only?)
 
-.. TODO: one-shot self-referential using reader macros
+.. TODO: one-shot self-referential data structure using reader macros
+             See http://www.lispworks.com/documentation/HyperSpec/Body/02_dho.htm
+             for the Common Lisp approach.
          multiary reader macros via stack
          reader macro namespacing via custom _macro_ class
 

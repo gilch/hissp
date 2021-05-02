@@ -64,7 +64,7 @@ How much Python you replace is up to you:
 * Compile individual Lissp modules to Python and import them in your Python projects.
 * Write your entire project in Lissp, including the main module, and launch it with ``lissp``.
 
-This also works in reverse.
+Or start with Lissp and supplement with Python:
 
 * Use small amounts of Python code directly in your Lissp code via the inject macro ``.#``.
 * Import Python modules and objects with qualified identifiers.
@@ -234,8 +234,8 @@ It's called `operator`.
 Hissp is a modular system.
 Hissp's output is *guaranteed* to have no dependencies you don't introduce yourself.
 That means Hissp's standard library *is Python's*.
-All I can add to that without breaking that rule is some basic macros that have no dependencies
-in their expansions,
+All I can add to it without breaking that rule
+are some basic macros that have no dependencies in their expansions,
 which is arguably not the right way to write macros.
 So I really don't want that collection to get bloated.
 But I needed a minimal set to test and demonstrate Hissp.
@@ -243,6 +243,7 @@ A larger application with better alternatives should probably not be using the b
 
 If you don't like Python's version,
 then add a dependency to something else.
+Maybe write your own prelude.
 If some open-source Hissp libraries pop up,
 I'd be happy to recommend the good ones in Hissp's documentation,
 but they will remain separate packages.
@@ -262,14 +263,14 @@ arguments.
 
 Fine. You can write macros for any syntax you please.
 
-Also consider using Hebigo_, which keeps all Python expressions, instead
+Consider using Hebigo_, which keeps all Python expressions, instead
 of Lissp.
 
-Also recall that both reader and compiler macros can return arbitrary
+Recall that both reader and compiler macros can return arbitrary
 Python snippets and the compiler will emit them verbatim.
 You should generally avoid doing this, because
 then you're metaprogramming with strings instead of AST. You're giving
-up a lot of Hissp's power. But optimizing complex formulas is maybe one
+up a lot of Hissp's power. But optimizing a complex formula is maybe one
 of the few times it's OK to do that.
 
 Recall the inject ``.#`` reader macro executes a form and embeds its result
@@ -380,14 +381,16 @@ Raw, bytes, format, unicode, and various combinations of these.
 Reader macros let us handle these in a unified way in Lissp and create more as needed,
 such as regex patterns, among many other types that can be initialized with a single string,
 and that makes raw strings the most sensible default.
-With a supporting reader macro all of these are practically literals.
-It's easy to process escapes in reader macros.
-It isn't easy to unprocess them.
+With a supporting reader macro,
+all of these are practically literals.
+
+It's easy to process escapes in reader macros;
+it isn't easy to unprocess them.
 Not to mention Python code injections,
 which can contain their own strings with escapes.
 
 Clojure's hash strings are already regexes, not raws,
-and their reader macros aren't so easy to use,
+and its "reader macros" (tagged literals) aren't so easy to use,
 so it doesn't come up as much.
 
 Look at your strings in Python and you'll find that
@@ -399,6 +402,11 @@ Why can't I make a backslash character string?
 You can.
 
 .. code-block:: REPL
+
+   #> (print #"\\")
+   >>> print(
+   ...   ('\\'))
+   \
 
    #> (len #"\\")
    >>> len(
@@ -420,8 +428,7 @@ so you can't do it with a raw string:
    >>> ('\\"\n\\\\')
    '\\"\n\\\\'
 
-Python makes the same assumption, even for raw strings.
-So raw strings in Python have the same limitation.
+Python's tokenizer makes the same assumption, even for raw strings.
 
 How do I start the REPL again?
 ------------------------------
@@ -439,6 +446,8 @@ Python interpreter from the command line
 ::
 
    $ python3 -m hissp
+
+.. TODO: How do I start the REPL programmatically?
 
 There's no ``macroexpand``. How do I look at expansions?
 ------------------------------------------------------------
@@ -468,13 +477,57 @@ It's indented,
 so it's not that hard to read, once you get used to Hissp.
 The compiler also helpfully includes a comment in the compiled output whenever it expands a macro.
 
+Is Hissp a Scheme, Common Lisp, or Clojure implementation?
+----------------------------------------------------------
+
+No, but if you're comfortable with any Lisp,
+Lissp will feel familiar.
+
+Of these, ClojureScript may be the most similar,
+in that it transpiles to another high-level language.
+But unlike JavaScript,
+Python already comes with batteries included.
+Hissp doesn't include a standard library.
+Because Python already provides so much,
+in many ways Hissp can be even more minimal than Scheme.
+
+Hissp draws inspiration from previous Lisps,
+including Scheme, Common Lisp, ClojureScript, Emacs Lisp, Arc, and Hy.
+
+Does Hissp have tail-call optimization?
+---------------------------------------
+
+No, because CPython doesn't. If a Python implementation has it, Hissp
+will too, when run on that implementation.
+
+The performance and complexity overhead of shoehorning TCO into a Python
+compilation target is not worth it.
+
+You can increase the recursion limit with `sys.setrecursionlimit`.
+Better not increase it too much if you don't like segfaults, but you can
+trampoline instead. See Drython_'s ``loop()`` function. Or use it. Or
+Hebigo_'s equivalent macro. Clojure does it about the same way.
+
+Isn't that required for Lisp?
+-----------------------------
+
+No, you're thinking Scheme.
+The Common Lisp standard does not require TCO
+(though many popular implementations have it).
+Clojure and ClojureScript don't have it either.
+
 There's no ``for``? What about loops?
 -------------------------------------
 
-Sometimes recursion is good enough. Try it. `list()<list>`, `map()<map>` and
-`filter()<filter>` plus lambda can do anything list comprehensions can. Ditch
+Sometimes recursion is good enough even without tail-call optimization.
+Try it.
+
+`list()<list>`, `map()<map>` and
+`filter()<filter>` plus lambda can do anything list comprehensions can. Omit
 the `list()<list>` for lazy generators. Replace `list()<list>` with `set()<set>`
-for set comprehensions. Dict comprehensions are a little trickier. Use
+for set comprehensions.
+
+Dict comprehensions are a little trickier. Use
 `dict()<dict>` on an iterable of pairs. `zip()<zip>` is an easy way to make
 them, or just have the map's lambda return pairs. Remember, you can make
 data tuples with template quotes.
@@ -572,42 +625,6 @@ evaluation, but because they can read and re-write code. Using a text
 macro like the above can hide information that a syntactic rewriting
 macro needs to work properly.
 
-Is Hissp a Scheme, Common Lisp, or Clojure implementation?
-----------------------------------------------------------
-
-No, but if you're comfortable with any Lisp,
-Lissp will feel familiar.
-
-Of these, ClojureScript may be the most similar,
-in that it transpiles to another high-level language.
-But unlike JavaScript,
-Python already comes with batteries included.
-Hissp doesn't include a standard library.
-Because Python already provides so much,
-in many ways Hissp can be even more minimal than Scheme.
-
-Hissp draws inspiration from previous Lisps,
-including Scheme, Common Lisp, ClojureScript, Emacs Lisp, Arc, and Hy.
-
-Does Hissp have tail-call optimization?
----------------------------------------
-
-No, because CPython doesn't. If a Python implementation has it, Hissp
-will too, when run on that implementation.
-
-Isn't that required for Lisp?
------------------------------
-
-No, you're thinking Scheme.
-The Common Lisp standard does not require TCO
-(though many popular implementations have it).
-Clojure and ClojureScript don't have it either.
-
-You can increase the recursion limit with `sys.setrecursionlimit`.
-Better not increase it too much if you don't like segfaults, but you can
-trampoline instead. See Drython_'s ``loop()`` function. Or use it. Or
-Hebigo_'s equivalent macro. Clojure does it about the same way.
-
 Where's ``cons``? How do you add links to your lists?
 -----------------------------------------------------
 
@@ -619,7 +636,8 @@ which are backed by arrays.
 While conceptually elegant,
 pervasive consing is a persistent source performance problems in Lisp.
 Large linked lists tend to get scattered all over the heap and cause frequent cache misses.
-Experienced Lispers learn to avoid it.
+Experienced Lispers learn to avoid excessive consing,
+and advanced Lisp implementations compile their lists to arrays anyway (CDR coding etc.).
 
 You can splice ``,@`` into a template to approximate ``cons`` pretty well.
 Allocating new arrays may be slightly less efficient than adding a link,
@@ -644,8 +662,9 @@ No, but tuples are immutable in Python.
 (Although their elements need not be.)
 
 If you want those,
-check out `Pyrsistent <https://pypi.org/project/pyrsistent/>`_
-and `Immutables <https://pypi.org/project/immutables/>`_.
+check out Pyrsistent_
+or `Immutables <https://pypi.org/project/immutables/>`_.
+These work well with Hissp.
 
 How do I make a tuple?
 ----------------------
@@ -659,10 +678,14 @@ But I have to already have an iterable, which is why I wanted a tuple in the fir
 
    lambda *a: a
 
-You can also make an empty list with ``[]`` or ``(list)``, and then
-``.append`` to it. (Try the `cascade` macro.) Finally, the template
-syntax :literal:`\`()` makes tuples. Unquote ``,`` calls/symbols if
-needed.
+You can also make an empty list with ``[]`` or ``(list)``,
+and then ``.append`` to it.
+(Try the `cascade` macro.)
+
+Finally, the template syntax :literal:`\`()` makes tuples.
+Beware of auto-qualification and string reader syntax
+when using templates to make static data.
+Unquote ``,`` or splice ``,@`` to interpolate runtime values.
 
 There are no statements?! How can you get anything done?
 --------------------------------------------------------
@@ -696,6 +719,8 @@ How do I reassign a local?
 You don't. `let` is single-assignment.
 This is also true for ``let`` in Scheme and Clojure.
 
+You can nest ``let``\ s and give a new variable the same name though.
+
 But Scheme has ``set!`` and Clojure has atoms.
 ----------------------------------------------
 
@@ -722,8 +747,8 @@ No, seriously, you have to give it all three arguments. Look it up.
 Well now I need a dict!
 -----------------------
 
-Use `dict()<dict>`. Obviously.
-It's especially easy if the keys are identifiers,
+Use `dict()<dict>`. Obviously!
+It's especially easy when the keys are identifiers,
 because you can use kwargs instead of making pairs.
 
 That seems too verbose. In Python it's easier.
@@ -865,7 +890,7 @@ Like this
    ...   'Except',
    ...   __import__('builtins').type(
    ...     'Except',
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       __import__('contextlib').ContextDecorator),
    ...     __import__('builtins').dict(
    ...       __init__=(lambda self,catch,handler:(
@@ -920,7 +945,7 @@ Like this
    ...   # hissp.basic..xAUTO_.xH_xGT_
    ...   # hissp.basic..xAUTO_.xH_xGT_
    ...   Except(
-   ...     (lambda *xAUTO0_:xAUTO0_)(
+   ...     (lambda * _: _)(
    ...       TypeError,
    ...       ValueError),
    ...     (lambda e:
@@ -936,7 +961,8 @@ Like this
    ...           (1),
    ...           x)))))
 
-Remarkable how much that threading macro makes it resembles a try/except, isn't it?
+Remarkable how much that threading macro makes it resemble a Python
+``try`` statement, isn't it?
 Language "features" are just a thin skin built on syntax trees,
 which Lisp *is*, fundamentally.
 And a macro could factor out all the repeated bits,
@@ -966,6 +992,7 @@ Wow. That is *so* much harder than a ``try`` statement.
 The definition of the context manager is, sure. but it's not *that* hard.
 You only have to do that part once,
 and I already did it for you.
+Maybe add something like this to your prelude if it comes up a lot.
 Using the decorator once you have it is really not that bad.
 
 Or, to make things easy,
@@ -1222,7 +1249,7 @@ The REPL is designed so that you can copy/paste it into doctests or
 Jupyter notebook cells running an IPython kernel and it should just
 work. IPython will ignore the Lissp because its ``#>``/``#..`` prompts
 makes it look like a Python comment, and it's already set up to ignore
-the initial ``>>>``/``...``. But doctest expects these, because that's
+the initial ``>>>``/``...``. But `doctest` expects these, because that's
 what the Python interpreter looks like.
 
 Keeping the Python prompts ``>>>``/``...``
@@ -1343,7 +1370,7 @@ while a direct and sensible translation once you understand Hissp,
 is *completely unpythonic*.
 
 Another major difference is Hissp's module literals and qualified symbols,
-which allows macros to easily import their requirements from other modules.
+which allow macros to easily import their requirements from other modules.
 Macro dependencies are much harder to work with in Hy.
 Lissp's template quote automatically qualifies symbols like Clojure does.
 Hy can't do that.
@@ -1497,5 +1524,16 @@ I will do it.
 Hissp is still unproven in any major project, so who knows?
 The only way it will get proven is if some early adopter like you tries it out and lets me know how it goes.
 
+While Hissp's basic macros may suffice for small or embedded Hissp projects,
+you'll probably want more than that for a larger application.
+Hissp doesn't exactly have a standard library,
+relying instead on Python's,
+but I can recommend using a few more:
+Currently, that's Hebigo's macro suite (and most of it even for Lissp),
+Pyrsistent_'s more basic data structures,
+and most of Toolz_.
+
 .. _Hebigo: https://github.com/gilch/hebigo
 .. _Drython: https://github.com/gilch/drython
+.. _Pyrsistent: https://pypi.org/project/pyrsistent/
+.. _Toolz: https://pypi.org/project/toolz/

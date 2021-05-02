@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2019, 2020 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 import setuptools
 
@@ -18,6 +18,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Matthew Egan Odendahl",
+    # These email addresses are spam bait. Don't expect any responses.
+    # See the GitHub project instead: https://github.com/gilch/hissp
     author_email="hissp02.gilch@xoxy.net",
     license="Apache-2.0",
     url="https://github.com/gilch/hissp",
@@ -52,4 +54,4 @@ setuptools.setup(
     entry_points={"console_scripts": ["lissp=hissp.__main__:main"]},
 )
 # Build dist and install:
-# $ python setup.py sdist && pip install dist/hissp-0.3.0a.tar.gz
+# $ python setup.py sdist && pip install dist/hissp-0.3.0.tar.gz
