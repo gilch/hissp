@@ -116,7 +116,7 @@ Here's one definition from the basic macros:
   "Attaches the named variables as attributes of the target.
 
   Positional arguments use the same name as the variable.
-  Names after the ``:`` are key-value pairs.
+  Names after the ``:`` are identifier-value pairs.
   "
   (let (iargs (iter args)
         $target `$#target)

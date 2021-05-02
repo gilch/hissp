@@ -1321,7 +1321,7 @@ We can create numbered X's the same way we created the numbered L's.
 This version uses a number as the first argument instead of baking them into the macro names.
 We're using numbered parameters now, so there's no limit.
 That takes care of *generating* the parameters,
-but we're still providing a redundant expected a number for them.
+but we're still providing a redundant expected number for them.
 
 Let's make a slight tweak.
 
