@@ -1398,7 +1398,9 @@ Lissp Quick Start
    ...       ('_macro_',
    ...        'bxSLASH_xHASH_',))),
    ...   __import__('builtins').setattr(
-   ...     _macro_,
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
    ...     'bxSLASH_xHASH_',
    ...     _fnxAUTO7_))[-1])()
 
@@ -1520,7 +1522,9 @@ Lissp Quick Start
    ...       ('_macro_',
    ...        'triple',))),
    ...   __import__('builtins').setattr(
-   ...     _macro_,
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
    ...     'triple',
    ...     _fnxAUTO7_))[-1])()
 

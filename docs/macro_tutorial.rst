@@ -495,7 +495,9 @@ Try this definition.
    ...       ('_macro_',
    ...        'L',))),
    ...   __import__('builtins').setattr(
-   ...     _macro_,
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
    ...     'L',
    ...     _fnxAUTO7_))[-1])()
 
@@ -576,7 +578,9 @@ that anaphoric macro we did in the previous tutorial.
    ...       ('_macro_',
    ...        'L',))),
    ...   __import__('builtins').setattr(
-   ...     _macro_,
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
    ...     'L',
    ...     _fnxAUTO7_))[-1])()
 
@@ -647,7 +651,9 @@ Ready?
    ...       ('_macro_',
    ...        'L2',))),
    ...   __import__('builtins').setattr(
-   ...     _macro_,
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
    ...     'L2',
    ...     _fnxAUTO7_))[-1])()
 
@@ -705,7 +711,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L0',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L0',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -722,7 +730,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L1',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L1',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -739,7 +749,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L2',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L2',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -756,7 +768,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L3',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L3',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -773,7 +787,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L4',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L4',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -790,7 +806,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L5',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L5',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -807,7 +825,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L6',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L6',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -824,7 +844,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L7',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L7',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -841,7 +863,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L8',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L8',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -858,7 +882,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L9',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L9',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -875,7 +901,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L10',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L10',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -892,7 +920,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L11',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L11',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -909,7 +939,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L12',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L12',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -926,7 +958,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L13',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L13',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -943,7 +977,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L14',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L14',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -960,7 +996,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L15',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L15',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -977,7 +1015,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L16',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L16',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -994,7 +1034,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L17',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L17',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -1011,7 +1053,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L18',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L18',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -1028,7 +1072,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L19',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L19',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -1045,7 +1091,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L20',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L20',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -1062,7 +1110,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L21',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L21',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -1079,7 +1129,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L22',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L22',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -1096,7 +1148,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L23',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L23',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -1113,7 +1167,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L24',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L24',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -1130,7 +1186,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L25',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L25',
    ...       _fnxAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
@@ -1147,7 +1205,9 @@ Don't panic.
    ...         ('_macro_',
    ...          'L26',))),
    ...     __import__('builtins').setattr(
-   ...       _macro_,
+   ...       __import__('operator').getitem(
+   ...         __import__('builtins').globals(),
+   ...         '_macro_'),
    ...       'L26',
    ...       _fnxAUTO7_))[-1])())[-1])()
 
@@ -1296,7 +1356,9 @@ We can create numbered X's the same way we created the numbered L's.
    ...       ('_macro_',
    ...        'L',))),
    ...   __import__('builtins').setattr(
-   ...     _macro_,
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
    ...     'L',
    ...     _fnxAUTO7_))[-1])()
 
@@ -1355,7 +1417,9 @@ Let's make a slight tweak.
    ...       ('_macro_',
    ...        'L',))),
    ...   __import__('builtins').setattr(
-   ...     _macro_,
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
    ...     'L',
    ...     _fnxAUTO7_))[-1])()
 
@@ -1742,7 +1806,9 @@ you must define them in ``_macro_`` with a name ending in a ``#``.
    ...       ('_macro_',
    ...        'XxHASH_',))),
    ...   __import__('builtins').setattr(
-   ...     _macro_,
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
    ...     'XxHASH_',
    ...     _fnxAUTO7_))[-1])()
 
@@ -1854,7 +1920,9 @@ Catch-All Parameter
    ...       ('_macro_',
    ...        'L',))),
    ...   __import__('builtins').setattr(
-   ...     _macro_,
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
    ...     'L',
    ...     _fnxAUTO7_))[-1])()
 
@@ -2022,7 +2090,9 @@ Here you go:
    ...       ('_macro_',
    ...        'L',))),
    ...   __import__('builtins').setattr(
-   ...     _macro_,
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
    ...     'L',
    ...     _fnxAUTO7_))[-1])()
 
