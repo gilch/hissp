@@ -144,7 +144,10 @@ judicious use can improve performance and maintainability.
          ,@ns
          ,@dc
          ,qn
-         (setattr ,'_macro_ ',name ,$fn)))))
+         (setattr (operator..getitem (builtins..globals)
+                                     ','_macro_)
+                  ',name
+                  ,$fn)))))
 
 (defmacro define (name value)
   "Assigns a global the value in the current module."
