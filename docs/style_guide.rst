@@ -398,7 +398,7 @@ but consider refactoring.
 Blank lines are OK in docstrings.
 
 Keep the elements in a tuple aligned to start on the same column.
-Treat siblings groups equally:
+Treat sibling groups equally:
 If you add a line break for one group,
 then put all of its sibling groups on their own line as well.
 Keep items within implied groups (like kwargs) together.
