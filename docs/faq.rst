@@ -592,7 +592,7 @@ I know it's a special form in other Lisps (or ``cond`` is),
 but Hissp doesn't need it.
 Smalltalk pretty much does it this way.
 Once you have ``if`` you can make a ``cond``.
-Lisps implementations differ on which is the special form and which is the macro.
+Lisp implementations differ on which is the special form and which is the macro.
 
 You have to define three lambdas just for an ``if``?! isn't this really slow? It really ought to be a special form.
 -------------------------------------------------------------------------------------------------------------------
