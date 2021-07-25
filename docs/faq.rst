@@ -592,7 +592,7 @@ I know it's a special form in other Lisps (or ``cond`` is),
 but Hissp doesn't need it.
 Smalltalk pretty much does it this way.
 Once you have ``if`` you can make a ``cond``.
-Lisps implementations differ on which is the special form and which is the macro.
+Lisp implementations differ on which is the special form and which is the macro.
 
 You have to define three lambdas just for an ``if``?! isn't this really slow? It really ought to be a special form.
 -------------------------------------------------------------------------------------------------------------------
@@ -1186,7 +1186,7 @@ but the compiler doesn't care how they get there.
 Importing the ``_macro_`` namespace from another module will work,
 but then uses of `hissp.basic.._macro_.defmacro<defmacro>` will mutate
 another module's ``_macro_`` namespace, which is probably not what you want,
-so make a copy, or or make a new one and insert individual macros into it.
+so make a copy, or make a new one and insert individual macros into it.
 
 The basic macros have no dependencies on the Hissp package in their expansions,
 which allows you to use their compiled output on another Python that doesn't have Hissp installed.

@@ -187,8 +187,8 @@ Given Hebigo's macros, the class above could be written in the equivalent way in
   (def_ (.test_three self x y z)
     :@ (given (st.from_type type)
               (st.from_type type)
-              (st.from_type type)
-    (self.assertIs .#"x or y or z" (or_ x y z)))))
+              (st.from_type type))
+    (self.assertIs .#"x or y or z" (or_ x y z))))
 ```
 
 Hebigo looks very different from Lissp, but they are both Hissp!
