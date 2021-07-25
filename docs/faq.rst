@@ -729,8 +729,8 @@ And Python has `dict` and `types.SimpleNamespace`.
 (The walrus ``:=`` also works in an injection,
 but this use is discouraged in Hissp.)
 
-But I need it for recursion. Where's the ``letrec``/``letfn``?
---------------------------------------------------------------
+But I need it for recursion. Where's the ``letrec``/``letfn``/``labels``?
+-------------------------------------------------------------------------
 
 Use methods in a class. You can get the other methods from the ``self`` argument.
 
