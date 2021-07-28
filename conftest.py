@@ -49,14 +49,12 @@ class ParseLissp(DocTestParser):
             parser.compiler.ns = example.namespace
             hissp = parser.reads(lissp)
             compiled = parser.compiler.compile(hissp) + "\n"
-            assert norm_gensym_eq(compiled, python), dedent(
-                f"""
-                EXPECTED PYTHON:
-                {indent(python, "  ")}
-                ACTUALLY COMPILED TO:
-                {indent(compiled, "  ")}
-                .
-                """
+            from difflib import context_diff
+            assert norm_gensym_eq(compiled, python), ''.join(
+                context_diff(
+                    indent(python, "  ").splitlines(True),
+                    indent(compiled, "  ").splitlines(True),
+                )
             )
         return super().evaluate(example)
 
