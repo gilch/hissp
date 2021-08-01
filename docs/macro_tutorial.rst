@@ -2798,6 +2798,9 @@ It would be nice if the macro could deal with it for us,
 but there's just no getting around these issues when using a float.
 Lissp reader macros get the parsed object,
 and by then, some information has been lost.
+One could argue that a float literal written with more precision than is
+available should be a syntax error,
+but Python doesn't care.
 
 In cases like this,
 it's best to not use a float at all,
