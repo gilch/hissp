@@ -2281,8 +2281,8 @@ which many Lisps include.
 Other languages made other selections,
 which may make them more or less convenient for certain problem domains.
 
-Would an ideal language then have a notation for every conceivable "primitive"?
-I say no.
+What notations would an ideal language have?
+Every conceivable "primitive"?
 Such a language would be more difficult to learn.
 It's much easier to familiarize oneself with a small set of primitive notations,
 and the means of combination.
