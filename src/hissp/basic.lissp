@@ -223,11 +223,13 @@ meditate on this.
                 iargs)
          ,$target))))
 
-(defmacro cascade (self : :* invocations)
-  "Call multiple 'methods' on one 'self'.
+(defmacro doto (self : :* invocations)
+  "Configure an object.
+
+  Calls multiple 'methods' on one 'self'.
 
   Evaluates the given ``self``, then injects it as the first argument to
-  a sequence of invocations. Returns the result of the last one.
+  a sequence of invocations. Returns ``self``.
   "
   (let ($self `$#self)
     `((lambda (: ,$self ,self)
@@ -235,7 +237,8 @@ meditate on this.
                  `(,(operator..getitem invocation 0)
                    ,$self
                    ,@(operator..getitem invocation (slice 1 None))))
-               invocations)))))
+               invocations)
+        ,$self))))
 
 ;;; threading
 

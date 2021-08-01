@@ -52,13 +52,13 @@
       (.assertEqual self x 1)
       (.assertEqual self y 2)))
 
-  test_cascade
+  test_doto
   (lambda (self)
     (.assertEqual self
-                  (!#cascade []
-                           (.append 3)
-                           (.extend [1,2])
-                           (sorted))
+                  (!#doto []
+                    (.append 3)
+                    (.extend [1,2])
+                    (.sort))
                   [1,2,3]))
 
   test_if-else
@@ -102,7 +102,7 @@
   test_&&
   (lambda (self)
     (!#let (xs [])
-      (!#cascade xs
+      (!#doto xs
         (.append (!#&&))
         (.append (!#&& 0))
         (.append (!#&& 1))
@@ -123,7 +123,7 @@
   test_||
   (lambda (self)
     (!#let (xs [])
-      (!#cascade xs
+      (!#doto xs
         (.append (!#||))
         (.append (!#|| 0))
         (.append (!#|| 1))

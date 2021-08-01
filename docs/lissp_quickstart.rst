@@ -1577,20 +1577,18 @@ Lissp Quick Start
    ...   _targetxAUTO16_)[-1])()
    namespace(a=1, b='Hi', xPLUS_=<built-in function add>)
 
-   #> (cascade []
+   #> (doto []
    #..  (.extend "bar")
    #..  (.sort)
-   #..  (.append "foo")
-   #..  (progn))
-   >>> # cascade
+   #..  (.append "foo"))
+   >>> # doto
    ... (lambda _selfxAUTO20_=[]:(
    ...   _selfxAUTO20_.extend(
    ...     ('bar')),
    ...   _selfxAUTO20_.sort(),
    ...   _selfxAUTO20_.append(
    ...     ('foo')),
-   ...   # progn
-   ...   (lambda :_selfxAUTO20_)())[-1])()
+   ...   _selfxAUTO20_)[-1])()
    ['a', 'b', 'r', 'foo']
 
 

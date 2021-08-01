@@ -680,7 +680,7 @@ But I have to already have an iterable, which is why I wanted a tuple in the fir
 
 You can also make an empty list with ``[]`` or ``(list)``,
 and then ``.append`` to it.
-(Try the `cascade` macro.)
+(Try the `doto` macro.)
 
 Finally, the template syntax :literal:`\`()` makes tuples.
 Beware of auto-qualification and string reader syntax
