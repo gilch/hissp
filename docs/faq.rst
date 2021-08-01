@@ -871,7 +871,8 @@ Like this
    ...    '    from hissp.basic import _macro_\n'
    ...    "    _macro_ = __import__('types').SimpleNamespace(**vars(_macro_))\n"
    ...    'except ModuleNotFoundError:\n'
-   ...    '    pass'))
+   ...    '    pass'),
+   ...   __import__('builtins').globals())
 
 
    #> (deftype Except (contextlib..ContextDecorator)

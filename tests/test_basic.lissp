@@ -204,7 +204,7 @@
   test_prelude
   (lambda (self)
     (!#let (ns {})
-      (exec (hissp.compiler..readerless '(hissp.basic.._macro_.prelude)) ns)
+      (!#prelude ns)
       (.assertEqual self
                     (set operator..__all__)
                     (.intersection (set operator..__all__) (.keys ns)))

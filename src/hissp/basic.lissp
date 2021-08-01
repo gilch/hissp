@@ -361,7 +361,7 @@ meditate on this.
 
 ;;; import
 
-(defmacro prelude ()
+(defmacro prelude (: ns `(globals))
   "Grants unqualified access to the basics.
 
   Star imports from `operator` and `itertools`.
@@ -376,7 +376,8 @@ try:
     from hissp.basic import _macro_
     _macro_ = __import__('types').SimpleNamespace(**vars(_macro_))
 except ModuleNotFoundError:
-    pass"))
+    pass"
+    ,ns))
 
 (defmacro alias (alias module)
   "Defines a reader macro abbreviation of a symbol prefix
