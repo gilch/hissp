@@ -2235,9 +2235,11 @@ you'd have to *parse the AST*.
 The whole point of using Hissp tuples instead is so you don't have to do this.
 Hissp is a kind of AST with lower complexity.
 
-Arguably, we didn't do it right either since it still detects anaphors even if they're quoted,
-but this level is good enough for Clojure.
-A simple basic syntax means there are relatively few edge cases.
+Arguably, our final ``%#`` or ``X#`` macro didn't do it right either,
+since it still detects the anaphors even if they're quoted,
+but this level of correctness is good enough for Clojure's function literals,
+which have the same issue.
+A simple basic syntax means there are relatively few edge cases you have to be aware of.
 
 Hissp is so simple that a full code-walking macro would only have to pre-expand all macros,
 and handle atoms, calls, ``quote``, and ``lambda``.
