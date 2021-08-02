@@ -5,7 +5,7 @@ import re
 from collections.abc import Container
 from doctest import ELLIPSIS
 from fnmatch import fnmatch
-from textwrap import dedent, indent
+from textwrap import indent
 
 from sybil import Sybil
 from sybil.parsers.doctest import DocTestParser

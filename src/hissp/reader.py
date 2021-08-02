@@ -73,8 +73,8 @@ Token = NewType("Token", Tuple[str, str, int])
 
 DROP = object()
 """
-The sentinel value returned by the discard macro ``_#``, which the 
-reader skips over when parsing. Reader macros can have read-time side 
+The sentinel value returned by the discard macro ``_#``, which the
+reader skips over when parsing. Reader macros can have read-time side
 effects with no Hissp output by returning this.
 """
 
