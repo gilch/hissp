@@ -52,7 +52,7 @@ def munge(s: str) -> str:
     Lissp's symbol munger.
 
     Encodes Lissp symbols with special characters into valid,
-    human-readable (if ugly) Python identifiers,
+    human-readable (if unpythonic) Python identifiers,
     using NFKC normalization and *Quotez*.
 
     Inputs that begin with ``:`` are assumed to be control words
@@ -124,7 +124,7 @@ QZ_NAME = {ord(k): ord(v) for k, v in {" ": "x", "-": "h"}.items()}
 
 def qz_encode(c: str) -> str:
     """
-    Converts a character to its qz-encoding,
+    Converts a character to its Quotez encoding,
     unless it's already valid in a Python identifier.
     """
     if ("x" + c).isidentifier():
@@ -134,7 +134,7 @@ def qz_encode(c: str) -> str:
 
 def force_qz_encode(c: str) -> str:
     """
-    Converts a character to its qz-encoding,
+    Converts a character to its Quotez encoding,
     even if it's valid in a Python identifier.
     """
     with suppress(LookupError):
