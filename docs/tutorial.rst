@@ -475,9 +475,10 @@ Symbols have another important difference from raw strings:
 Because symbols may contain special characters,
 but the Python identifiers they represent cannot,
 the reader `munges <munge>` symbols with forbidden characters
-to valid identifier strings by using ``QzQUOTEDxWORDS_``.
+to valid identifier strings by replacing them with special "Quotez"
+escape sequences, like ``QzFullxSTOP_``.
 
-This format was chosen because it contains an underscore
+This "Quotez" format was chosen because it contains an underscore
 and both lower-case and upper-case letters,
 which makes it distinct from
 `standard Python naming conventions <https://www.python.org/dev/peps/pep-0008/#naming-conventions>`_:
@@ -488,6 +489,11 @@ It also cannot introduce a leading underscore,
 which can have special meaning in Python.
 It might have been simpler to use the character's `ord()<ord>`,
 but it's important that the munged symbols still be human-readable.
+
+The "Qz" bigram is almost unheard of in English text,
+and "Q" almost never ends a word (except perhaps in brand names),
+making "Qz" a visually distinct escape sequence,
+easy to read, and very unlikely to cause a collision when demunging.
 
 Munging happens at `read time`_, which means you can use a munged symbol both
 as an identifier and as a string representing that identifier:
