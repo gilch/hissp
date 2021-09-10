@@ -136,6 +136,7 @@ class TestReader(TestCase):
             )],
         )
 
+
 EXPECTED = {
 # Numeric
 '''False True''': [False, True],
@@ -226,5 +227,3 @@ r'''\1 \12 \[] \(\) \{} \[] \; \# \` \, \' \" \\ \ ''':
      'xSPACE_'],
 r'''\b\u\i\l\t\i\n\s..\f\l\o\a\t#\i\n\f''': [math.inf],
 }
-
-

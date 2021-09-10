@@ -96,7 +96,7 @@ class Compiler:
 
     def compile(self, forms: Iterable) -> str:
         """
-        Compile multiple forms, and execute them them if evaluate mode enabled.
+        Compile multiple forms, and execute them if evaluate mode enabled.
         """
         result: List[str] = []
         for form in forms:

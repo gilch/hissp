@@ -9,6 +9,7 @@ SN = r'[+-]?'
 Ds = r'(?:\d(?:_?\d)*)'
 Es = rf'(?:[Ee]{SN}{Ds})'
 
+
 # TODO: rename file?
 class LisspLexer(RegexLexer):
     name = 'Lissp'
@@ -37,13 +38,14 @@ class LisspLexer(RegexLexer):
             (rf'{SN}0[xX](?:_?[a-fA-F0-9])+', pt.Number.Hex),
             (rf'{SN}{Ds}', pt.Number.Integer),
 
-            ('None|\.\.\.', pt.Name.Builtin),
+            (r'None|\.\.\.', pt.Name.Builtin),
             (r':[^ \n"()]*', pt.String.Symbol),  # :control-words
 
             (r'''[[{](:?[^\\ \n"();]|\\.)*''', pt.Literal),
             (r'''(:?[^\\ \n"();]|\\.)+''', pt.Name),
         ]
     }
+
 
 class LisspReplLexer(RegexLexer):
     tokens = {

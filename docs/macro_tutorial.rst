@@ -231,7 +231,8 @@ And push it to the REPL as well:
    ...    '    from hissp.basic import _macro_\n'
    ...    "    _macro_ = __import__('types').SimpleNamespace(**vars(_macro_))\n"
    ...    'except ModuleNotFoundError:\n'
-   ...    '    pass'))
+   ...    '    pass'),
+   ...   __import__('builtins').globals())
 
 .. caution::
 
@@ -2258,6 +2259,607 @@ you should be able to do everything else without them.
 
 
 .. TODO: optimize macro
+
+More Literals
+-------------
+
+While other data types in code must be built up from the primitive notation,
+Python has built-in notation for certain common ones.
+(And Lissp inherits most of these.)
+
+This can be very convenient compared to the alternative.
+Imagine if you had to represent text as lists of numbers.
+That's closer to what the machine uses in memory.
+Many common programming tasks would become very tedious that way.
+Thus, the need for string literal notation.
+
+But the available notations are somewhat arbitrary.
+Many languages in common use lack Python's notation for complex numbers,
+for example.
+Python, on the other hand, currently lacks built-in notation for exact fractions,
+which many Lisps include.
+Other languages made other selections,
+which may make them more or less convenient for certain problem domains.
+
+What notations would an ideal language have?
+Every conceivable "primitive"?
+Such a language would be more difficult to learn.
+It's much easier to familiarize oneself with a small set of primitive notations,
+and the means of combination.
+And in any case,
+many desirable notations would collide and then be ambiguous.
+
+Hissp has a better way: extensibility through simplicity.
+
+With Lissp's reader macros, we can create new notation as-needed,
+with an overhead of just a few characters for a tag to disambiguate from the built-ins
+(and each other).
+You only have to learn a new notation when it's worth your while.
+
+Hexadecimal
+~~~~~~~~~~~
+
+You can use Python's `int` builtin to convert a string containing a hexadecimal
+number to the corresponding integer value.
+
+.. code-block:: Python
+
+   >>> int("FF", 16)
+   255
+
+Of course, Python already has a built-in notation for this,
+disambiguated from normal base-ten ints using the ``0x`` tag.
+
+.. code-block:: Python
+
+   >>> 0xFF
+   255
+
+But what if it didn't?
+
+About the best Python could do would be something like this.
+
+.. code-block:: Python
+
+   >>> def b16(x):
+   ...     return int(x, 16)
+   ...
+   >>> b16("FF")
+   255
+
+Lissp gives us a better option.
+
+.. Lissp::
+
+   #> (defmacro \16\# (x)
+   #..  (int x 16))
+   >>> # defmacro
+   ... # hissp.basic.._macro_.let
+   ... (lambda _fnxAUTO7_=(lambda x:
+   ...   int(
+   ...     x,
+   ...     (16))):(
+   ...   __import__('builtins').setattr(
+   ...     _fnxAUTO7_,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'xDIGITxONE_6xHASH_',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'xDIGITxONE_6xHASH_',
+   ...     _fnxAUTO7_))[-1])()
+
+We've defined a tag that turns hexadecimal strings into ints.
+And it does it so at *read time*.
+There's no runtime overhead for the conversion;
+the result is compiled in.
+
+.. code-block:: REPL
+
+   #> 16#"FF"
+   >>> (255)
+   255
+
+   #> 16#"12"
+   >>> (18)
+   18
+
+It even works without the quotes,
+since symbols read as strings as well.
+
+.. code-block:: REPL
+
+   #> 16#FF
+   >>> (255)
+   255
+
+Or does it?
+
+.. code-block:: REPL
+
+   #> 16#12
+   Traceback (most recent call last):
+     ...
+   TypeError: int() can't convert non-string with explicit base
+
+What's going on?
+Well, ``12`` is a valid base-ten int,
+so it's read as an int.
+Python's `int` builtin doesn't do base conversions for those.
+
+.. code-block:: Python
+
+   >>> int(12, 16)
+   Traceback (most recent call last):
+     ...
+   TypeError: int() can't convert non-string with explicit base
+
+No matter, this is an easy fix.
+Convert it to a string,
+and it works regardless of which type you start with.
+
+.. code-block:: Python
+
+   >>> int(str(12), 16)
+   18
+   >>> int(str("FF"), 16)
+   255
+
+New version.
+
+.. Lissp::
+
+   #> (defmacro \16\# (x)
+   #..  (int (str x) 16))
+   >>> # defmacro
+   ... # hissp.basic.._macro_.let
+   ... (lambda _fnxAUTO7_=(lambda x:
+   ...   int(
+   ...     str(
+   ...       x),
+   ...     (16))):(
+   ...   __import__('builtins').setattr(
+   ...     _fnxAUTO7_,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'xDIGITxONE_6xHASH_',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'xDIGITxONE_6xHASH_',
+   ...     _fnxAUTO7_))[-1])()
+
+And now it works as well as the built-in notation.
+
+.. code-block:: REPL
+
+   #> '(16#ff 0xff 16#12 0x12 16#FEED_FACE 0xFEED_FACE)
+   >>> ((255),
+   ...  (255),
+   ...  (18),
+   ...  (18),
+   ...  (4277009102),
+   ...  (4277009102),)
+   (255, 255, 18, 18, 4277009102, 4277009102)
+
+Or does it?
+
+.. code-block:: REPL
+
+   #> -16#1
+     File "<console>", line 1
+       -16#1
+           ^
+   SyntaxError: Unknown reader macro xH_16
+
+The minus sign changed the tag!
+If we don't want to define a new ``-16#`` tag
+(which is one option),
+we'd have to put the sign after.
+
+.. code-block:: REPL
+
+   #> 16#-1
+   >>> (-1)
+   -1
+
+That worked! Not.
+
+.. code-block:: REPL
+
+   #> 16#-FF
+   Traceback (most recent call last):
+     ...
+   ValueError: invalid literal for int() with base 16: 'xH_FF'
+
+But this is fine.
+
+.. code-block:: REPL
+
+   #> 16#"-FF"
+   >>> (-255)
+   -255
+
+.. sidebar:: Lissp's reader macros are a feature of Lissp itself, not of the Hissp compiler.
+
+   An alternate reader could certainly do reader macros differently.
+   But Lissp's lexer is *intentionally* not extensible,
+   for the same reasons that Clojure does not give the programmer access to its read table:
+   your tooling would no longer be able to parse your code.
+
+What's going on?
+Symbols do read as strings,
+but special characters get munged!
+
+Remember, Lissp's reader macros are applied to the next *parsed object*,
+not to the next token from the lexer,
+and certainly not to the raw character stream.
+This makes them more like Clojure's tagged literals
+than like Common Lisp's reader macros.
+
+The ``16#`` reader macro was very easy to implement when you only applied it to strings,
+but since it can take multiple types you have to be sure to handle each of them.
+
+Fortunately, we can fix this too,
+because munging is (mostly) reversible.
+
+.. Lissp::
+
+   #> (defmacro \16\# (x)
+   #..  "hexadecimal"
+   #..  (int (hissp.munger..demunge (str x))
+   #..       16))
+   >>> # defmacro
+   ... # hissp.basic.._macro_.let
+   ... (lambda _fnxAUTO7_=(lambda x:(
+   ...   ('hexadecimal'),
+   ...   int(
+   ...     __import__('hissp.munger',fromlist='?').demunge(
+   ...       str(
+   ...         x)),
+   ...     (16)))[-1]):(
+   ...   __import__('builtins').setattr(
+   ...     _fnxAUTO7_,
+   ...     '__doc__',
+   ...     ('hexadecimal')),
+   ...   __import__('builtins').setattr(
+   ...     _fnxAUTO7_,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'xDIGITxONE_6xHASH_',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'xDIGITxONE_6xHASH_',
+   ...     _fnxAUTO7_))[-1])()
+
+.. code-block:: REPL
+
+   #> 16#-FF
+   >>> (-255)
+   -255
+
+But what's the point of all of this when we already have hexadecimal notation built in?
+Well, with reader macros, you can implement any base you want.
+
+.. Lissp::
+
+   #> (defmacro \6\# (x)
+   #..  "seximal"
+   #..  (int (str x) 6))
+   >>> # defmacro
+   ... # hissp.basic.._macro_.let
+   ... (lambda _fnxAUTO7_=(lambda x:(
+   ...   ('seximal'),
+   ...   int(
+   ...     str(
+   ...       x),
+   ...     (6)))[-1]):(
+   ...   __import__('builtins').setattr(
+   ...     _fnxAUTO7_,
+   ...     '__doc__',
+   ...     ('seximal')),
+   ...   __import__('builtins').setattr(
+   ...     _fnxAUTO7_,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'xDIGITxSIX_xHASH_',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'xDIGITxSIX_xHASH_',
+   ...     _fnxAUTO7_))[-1])()
+
+.. code-block:: REPL
+
+   #> '(6#5 6#10 6#11 6#12)
+   >>> ((5),
+   ...  (6),
+   ...  (7),
+   ...  (8),)
+   (5, 6, 7, 8)
+
+   #> 6#543210
+   >>> (44790)
+   44790
+
+Or you can add floating-point. Python's notation can't do that.
+
+.. Lissp::
+
+   #> (defmacro \16\# (x)
+   #..  (let (x (hissp.munger..demunge (str x)))
+   #..    (if-else (re..search "[.Pp]" x)
+   #..      (float.fromhex x)
+   #..      (int x 16))))
+   >>> # defmacro
+   ... # hissp.basic.._macro_.let
+   ... (lambda _fnxAUTO7_=(lambda x:
+   ...   # let
+   ...   (lambda x=__import__('hissp.munger',fromlist='?').demunge(
+   ...     str(
+   ...       x)):
+   ...     # ifxH_else
+   ...     (lambda test,*thenxH_else:
+   ...       __import__('operator').getitem(
+   ...         thenxH_else,
+   ...         __import__('operator').not_(
+   ...           test))())(
+   ...       __import__('re').search(
+   ...         ('[.Pp]'),
+   ...         x),
+   ...       (lambda :
+   ...         float.fromhex(
+   ...           x)),
+   ...       (lambda :
+   ...         int(
+   ...           x,
+   ...           (16)))))()):(
+   ...   __import__('builtins').setattr(
+   ...     _fnxAUTO7_,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'xDIGITxONE_6xHASH_',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'xDIGITxONE_6xHASH_',
+   ...     _fnxAUTO7_))[-1])()
+
+.. code-block:: REPL
+
+   #> '(16#FEED_FACE 16#-FEED.FACE 16#0.1 16#-.2 16#.4 16#-.8)
+   >>> ((4277009102),
+   ...  (-65261.97970581055),
+   ...  (0.0625),
+   ...  (-0.125),
+   ...  (0.25),
+   ...  (-0.5),)
+   (4277009102, -65261.97970581055, 0.0625, -0.125, 0.25, -0.5)
+
+   #> 16#Cp-2 ; 12.*2**-2
+   >>> (3.0)
+   3.0
+
+Decimal
+~~~~~~~
+
+Floating-point numbers are very useful,
+but they have some important limitations.
+
+.. code-block:: Python
+
+   >>> 0.2 * 3
+   0.6000000000000001
+
+Not quite what you expected?
+Binary floating-point can't represent exact fifths like decimal can.
+For exact decimals, you need decimal floating-point.
+
+.. code-block:: REPL
+
+   #> (mul (decimal..Decimal "0.2") 3)
+   >>> mul(
+   ...   __import__('decimal').Decimal(
+   ...     ('0.2')),
+   ...   (3))
+   Decimal('0.6')
+
+Because it takes a single string argument,
+you can already use `decimal.Decimal` as a reader macro:
+
+.. code-block:: REPL
+
+   #> (mul decimal..Decimal#".2" 3)
+   >>> mul(
+   ...   __import__('pickle').loads(  # Decimal('0.2')
+   ...       b'cdecimal\nDecimal\n(V0.2\ntR.'
+   ...   ),
+   ...   (3))
+   Decimal('0.6')
+
+It's kind of long though.
+
+Notice that Hissp had to use a pickle here,
+because it had to emit code for the object,
+but Python has no literal notation for Decimal objects.
+
+The reader macro didn't inject the code for making a Decimal,
+but an actual Decimal object, at read time.
+The pickling isn't done by the reader.
+It doesn't happen until the compiler has to emit something
+that it doesn't have a round-tripping representation for.
+
+Something like this never goes through a pickle.
+
+.. code-block:: REPL
+
+   #> 'builtins..repr#decimal..Decimal#".2"
+   >>> "Decimal('0.2')"
+   "Decimal('0.2')"
+
+It changed to a string before the compiler had to emit it.
+
+Decimal can also take float objects,
+but this isn't always a good idea.
+
+.. code-block:: REPL
+
+   #> decimal..Decimal#.2
+   >>> __import__('pickle').loads(  # Decimal('0.200000000000000011102230246251565404236316680908203125')
+   ...     b'cdecimal\nDecimal\n(V0.200000000000000011102230246251565404236316680908203125\ntR.'
+   ... )
+   Decimal('0.200000000000000011102230246251565404236316680908203125')
+
+There's no bug in Decimal.
+That's just the exact binary fraction closest to one-fifth,
+given the available precision in a float,
+when represented as a decimal.
+
+Maybe we could work around this if we converted to a string first?
+We can improve this a lot with a custom defmacro.
+
+.. Lissp::
+
+   #> (defmacro \10\# (x)
+   #..  `(decimal..Decimal ',(str x)))
+   >>> # defmacro
+   ... # hissp.basic.._macro_.let
+   ... (lambda _fnxAUTO7_=(lambda x:
+   ...   (lambda * _: _)(
+   ...     'decimal..Decimal',
+   ...     (lambda * _: _)(
+   ...       'quote',
+   ...       str(
+   ...         x)))):(
+   ...   __import__('builtins').setattr(
+   ...     _fnxAUTO7_,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'xDIGITxONE_0xHASH_',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'xDIGITxONE_0xHASH_',
+   ...     _fnxAUTO7_))[-1])()
+
+.. code-block:: REPL
+
+   #> 10#.2
+   >>> __import__('decimal').Decimal(
+   ...   '0.2')
+   Decimal('0.2')
+
+This is better.
+It's a much shorter notation;
+there are no extra digits after the 2;
+and (because we used a template)
+it compiled to the straightforward code for a Decimal,
+rather than a pickle.
+This makes the compiled output a bit easier to read,
+but using code like this, rather than the Decimal object itself,
+may make it less useful as input to other macros.
+Which approach is better depends on your needs.
+
+But there's still a subtle problem:
+
+.. code-block:: REPL
+
+   #> 10#.1234567890_1234567890_000
+   >>> __import__('decimal').Decimal(
+   ...   '0.12345678901234568')
+   Decimal('0.12345678901234568')
+
+   #> 10#".1234567890_1234567890_000"
+   >>> __import__('decimal').Decimal(
+   ...   '.1234567890_1234567890_000')
+   Decimal('0.12345678901234567890000')
+
+We have limited precision when tagging a float instead of a string.
+If you don't need the precision, it's fine.
+If you do, you can still use a string,
+but you have to be aware of this.
+Decimal also keeps trailing zeros to represent significant figures.
+But floats never do this, even when the precision is available.
+
+It would be nice if the macro could deal with it for us,
+but there's just no getting around these issues when using a float.
+Lissp reader macros get the parsed object,
+and by then, some information has been lost.
+One could argue that a float literal written with more precision than is
+available should be a syntax error,
+but Python doesn't care.
+
+In cases like this,
+it's best to not use a float at all,
+but a string is not the only alternative available:
+
+.. Lissp::
+
+   #> (defmacro \10\# (x)
+   #..  `(decimal..Decimal ',(getitem x (slice 1 None))))
+   >>> # defmacro
+   ... # hissp.basic.._macro_.let
+   ... (lambda _fnxAUTO7_=(lambda x:
+   ...   (lambda * _: _)(
+   ...     'decimal..Decimal',
+   ...     (lambda * _: _)(
+   ...       'quote',
+   ...       getitem(
+   ...         x,
+   ...         slice(
+   ...           (1),
+   ...           None))))):(
+   ...   __import__('builtins').setattr(
+   ...     _fnxAUTO7_,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'xDIGITxONE_0xHASH_',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'xDIGITxONE_0xHASH_',
+   ...     _fnxAUTO7_))[-1])()
+
+.. code-block:: REPL
+
+   #> 10#:.1234567890_1234567890_000
+   >>> __import__('decimal').Decimal(
+   ...   '.1234567890_1234567890_000')
+   Decimal('0.12345678901234567890000')
+
+With a control word like this,
+you get full precision and don't need a trailing double quote.
+
+.. TODO: fractions
+   (defmacro F\# (x)
+     "fraction"
+     `(fractions..Fraction ',(hissp.munger..demunge x)))
+
+.. TODO: stack?
+   (defmacro <\# (x)
+     "push"
+     (.append _macro_.<\#.stack x)
+     hissp.reader..DROP)
+   (setattr _macro_.<\# 'stack [])
+   (defmacro -\# (x)
+     `(sub ,(.pop _macro_.<\#.stack) ,x))
+
 .. TODO: attach macro
    (defmacro attach (target : :* args)
      (let (iargs (iter args)

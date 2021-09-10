@@ -24,6 +24,7 @@ from itertools import chain
 from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat, pprint
+from threading import Lock
 from types import ModuleType
 from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union
 
@@ -72,8 +73,8 @@ Token = NewType("Token", Tuple[str, str, int])
 
 DROP = object()
 """
-The sentinel value returned by the discard macro ``_#``, which the 
-reader skips over when parsing. Reader macros can have read-time side 
+The sentinel value returned by the discard macro ``_#``, which the
+reader skips over when parsing. Reader macros can have read-time side
 effects with no Hissp output by returning this.
 """
 
@@ -131,13 +132,14 @@ class _Unquote(tuple):
         return f"_Unquote{super().__repr__()}"
 
 
-def gensym_counter(count=[0]):
+def gensym_counter(_count=[0], _lock=Lock()):
     """
     Call to increment the gensym counter, and return the new count.
     Used by the gensym reader macro ``$#`` to ensure symbols are unique.
     """
-    count[0] += 1
-    return count[0]
+    with _lock:
+        _count[0] += 1
+        return _count[0]
 
 
 class Lissp:
