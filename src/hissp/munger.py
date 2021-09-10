@@ -7,7 +7,7 @@ Encodes Lissp symbols with special characters into valid,
 human-readable (if unpythonic) Python identifiers,
 using NFKC normalization and *Quotez*.
 
-E.g. ``*FOO-BAR*`` becomes ``QzSTAR_FOOQzH_BARQzSTAR_``.
+E.g. ``*FOO-BAR*`` becomes ``QzSTAR_FOOQz_BARQzSTAR_``.
 
 Quotez are written in upper case and wrapped in a ``Qz`` and ``_``.
 This format was chosen because it contains an underscore
@@ -94,7 +94,7 @@ TO_NAME = {
     "*": "QzSTAR_",
     "+": "QzPLUS_",
     # QzCOMMA_ is fine.
-    "-": "QzH_",  # Hyphen-minus
+    "-": "Qz_",  # Hyphen-minus
     # Full stop reserved for imports and attributes.
     "/": "QzSLASH_",
     # Digits only munge if first character.
@@ -172,4 +172,4 @@ def _qz_decode(match: Match[str]) -> str:
 
 def demunge(s: str) -> str:
     """The inverse of `munge`. Decodes any Quotez into characters."""
-    return re.sub("Qz([0-9A-Z][0-9A-Zhx]*?)_", _qz_decode, s)
+    return re.sub("Qz([0-9A-Z][0-9A-Zhx]*?)?_", _qz_decode, s)

@@ -213,7 +213,7 @@ This also goes for readerless mode.
            "lambda",
            ("n",),
            (
-               "ifQzH_else",
+               "ifQz_else",
                ("operator..le", "n", 2),
                "n",
                (
@@ -234,7 +234,7 @@ you may have to turn it off.
    # fmt: off
    ('define','fib',
      ('lambda',('n',),
-       ('ifQzH_else',('operator..le','n',2,),
+       ('ifQz_else',('operator..le','n',2,),
          'n',
          ('operator..add',('fib',('operator..sub','n',1,),),
                           ('fib',('operator..sub','n',2,),),),),),)
@@ -673,7 +673,7 @@ For internal Lissp code,
 Python conventions are fine,
 but the munger opens up more characters.
 Something like ``*FOO-BAR*`` is a perfectly valid Lissp identifier,
-but it munges to ``QzSTAR_FOOQzH_BARQzSTAR_``,
+but it munges to ``QzSTAR_FOOQz_BARQzSTAR_``,
 which is awkward to use from the Python side.
 
 Even in private areas,

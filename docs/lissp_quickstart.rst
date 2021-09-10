@@ -191,17 +191,17 @@ Lissp Quick Start
    >>> 'QzPLUS_'
    'QzPLUS_'
 
-   #> 'Also-a-symbol!                        ;Alias for 'AlsoQzH_aQzH_symbolQzBANG_
-   >>> 'AlsoQzH_aQzH_symbolQzBANG_'
-   'AlsoQzH_aQzH_symbolQzBANG_'
+   #> 'Also-a-symbol!                        ;Alias for 'AlsoQz_aQz_symbolQzBANG_
+   >>> 'AlsoQz_aQz_symbolQzBANG_'
+   'AlsoQz_aQz_symbolQzBANG_'
 
    #> '𝐀                                     ;Alias for 'A (munges to unicode normal form KC)
    >>> 'A'
    'A'
 
    #> '->>
-   >>> 'QzH_QzGT_QzGT_'
-   'QzH_QzGT_QzGT_'
+   >>> 'Qz_QzGT_QzGT_'
+   'Qz_QzGT_QzGT_'
 
    #> :->>                                   ;These don't represent identifiers, don't munge.
    >>> ':->>'
@@ -241,8 +241,8 @@ Lissp Quick Start
    'raw string'
 
    #> 'not-string'                           ;symbol
-   >>> 'notQzH_stringQz1QUOTE_'
-   'notQzH_stringQz1QUOTE_'
+   >>> 'notQz_stringQz1QUOTE_'
+   'notQz_stringQz1QUOTE_'
 
    #> #"Say \"Cheese!\" \u263a"              ;Hash strings process Python escapes.
    >>> ('Say "Cheese!" ☺')
@@ -634,7 +634,7 @@ Lissp Quick Start
 
 
    ;; Reader macros compose. Note the quote.
-   #> 'hissp.munger..demunge#QzH_QzGT_QzGT_
+   #> 'hissp.munger..demunge#Qz_QzGT_QzGT_
    >>> '->>'
    '->>'
 
@@ -1086,7 +1086,7 @@ Lissp Quick Start
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
-   ...   'loudQzH_number',
+   ...   'loudQz_number',
    ...   (lambda x:(
    ...     print(
    ...       x),
@@ -1095,12 +1095,12 @@ Lissp Quick Start
    #> (triple (loud-number 14))              ;Triples the *code*, not just the *value*.
    >>> # triple
    ... __import__('builtins').globals()['QzPLUS_'](
-   ...   loudQzH_number(
+   ...   loudQz_number(
    ...     (14)),
    ...   __import__('builtins').globals()['QzPLUS_'](
-   ...     loudQzH_number(
+   ...     loudQz_number(
    ...       (14)),
-   ...     loudQzH_number(
+   ...     loudQz_number(
    ...       (14))))
    14
    14
@@ -1116,7 +1116,7 @@ Lissp Quick Start
    #..               (+ x (+ x x))))))
    >>> setattr(
    ...   _macro_,
-   ...   'oopsQzH_triple',
+   ...   'oopsQz_triple',
    ...   (lambda x:
    ...     (lambda * _: _)(
    ...       (lambda * _: _)(
@@ -1134,7 +1134,7 @@ Lissp Quick Start
    ...             '__main__..x'))))))
 
    #> (oops-triple 14)                       ;Don't forget that templates qualify symbols!
-   >>> # oopsQzH_triple
+   >>> # oopsQz_triple
    ... (lambda __main__..x=(14):
    ...   __import__('builtins').globals()['QzPLUS_'](
    ...     __import__('builtins').globals()['x'],
@@ -1156,7 +1156,7 @@ Lissp Quick Start
    #..               (+ $#x (+ $#x $#x))))))
    >>> setattr(
    ...   _macro_,
-   ...   'onceQzH_triple',
+   ...   'onceQz_triple',
    ...   (lambda x:
    ...     (lambda * _: _)(
    ...       (lambda * _: _)(
@@ -1174,8 +1174,8 @@ Lissp Quick Start
    ...             '_xQzAUTO22_'))))))
 
    #> (once-triple (loud-number 14))
-   >>> # onceQzH_triple
-   ... (lambda _xQzAUTO22_=loudQzH_number(
+   >>> # onceQz_triple
+   ... (lambda _xQzAUTO22_=loudQz_number(
    ...   (14)):
    ...   __import__('builtins').globals()['QzPLUS_'](
    ...     _xQzAUTO22_,
@@ -1374,7 +1374,7 @@ Lissp Quick Start
 
    #> (help _macro_.->>)                     ;Macros have docstrings and live in _macro_.
    >>> help(
-   ...   _macro_.QzH_QzGT_QzGT_)
+   ...   _macro_.Qz_QzGT_QzGT_)
    Help on function <lambda> in module hissp.basic:
    <BLANKLINE>
    <lambda> lambda expr, *forms
@@ -1598,11 +1598,11 @@ Lissp Quick Start
    #> (-> "world!"                           ;Thread-first
    #..    (.title)
    #..    (->> (print "Hello")))             ;Thread-last
-   >>> # QzH_QzGT_
-   ... # hissp.basic..QzAUTO_.QzH_QzGT_
-   ... # hissp.basic..QzAUTO_.QzH_QzGT_
-   ... # QzH_QzGT_QzGT_
-   ... # hissp.basic..QzAUTO_.QzH_QzGT_QzGT_
+   >>> # Qz_QzGT_
+   ... # hissp.basic..QzAUTO_.Qz_QzGT_
+   ... # hissp.basic..QzAUTO_.Qz_QzGT_
+   ... # Qz_QzGT_QzGT_
+   ... # hissp.basic..QzAUTO_.Qz_QzGT_QzGT_
    ... print(
    ...   ('Hello'),
    ...   ('world!').title())
@@ -1616,7 +1616,7 @@ Lissp Quick Start
    #> (any-for i (range 1 11)                ;Imperative loop with break.
    #..  (print i : end " ")
    #..  (not_ (mod i 7)))
-   >>> # anyQzH_for
+   >>> # anyQz_for
    ... __import__('builtins').any(
    ...   __import__('builtins').map(
    ...     (lambda i:(
@@ -1656,10 +1656,10 @@ Lissp Quick Start
    >>> # QzET_QzET_
    ... # hissp.basic.._macro_.let
    ... (lambda _GQzAUTO33_=True:
-   ...   # hissp.basic.._macro_.ifQzH_else
-   ...   (lambda test,*thenQzH_else:
+   ...   # hissp.basic.._macro_.ifQz_else
+   ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
-   ...       thenQzH_else,
+   ...       thenQz_else,
    ...       __import__('operator').not_(
    ...         test))())(
    ...     _GQzAUTO33_,
@@ -1667,10 +1667,10 @@ Lissp Quick Start
    ...       # hissp.basic..QzAUTO_.QzET_QzET_
    ...       # hissp.basic.._macro_.let
    ...       (lambda _GQzAUTO33_=True:
-   ...         # hissp.basic.._macro_.ifQzH_else
-   ...         (lambda test,*thenQzH_else:
+   ...         # hissp.basic.._macro_.ifQz_else
+   ...         (lambda test,*thenQz_else:
    ...           __import__('operator').getitem(
-   ...             thenQzH_else,
+   ...             thenQz_else,
    ...             __import__('operator').not_(
    ...               test))())(
    ...           _GQzAUTO33_,
@@ -1685,10 +1685,10 @@ Lissp Quick Start
    >>> # QzET_QzET_
    ... # hissp.basic.._macro_.let
    ... (lambda _GQzAUTO33_=False:
-   ...   # hissp.basic.._macro_.ifQzH_else
-   ...   (lambda test,*thenQzH_else:
+   ...   # hissp.basic.._macro_.ifQz_else
+   ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
-   ...       thenQzH_else,
+   ...       thenQz_else,
    ...       __import__('operator').not_(
    ...         test))())(
    ...     _GQzAUTO33_,
@@ -1705,10 +1705,10 @@ Lissp Quick Start
    >>> # QzBAR_QzBAR_
    ... # hissp.basic.._macro_.let
    ... (lambda _firstQzAUTO34_=True:
-   ...   # hissp.basic.._macro_.ifQzH_else
-   ...   (lambda test,*thenQzH_else:
+   ...   # hissp.basic.._macro_.ifQz_else
+   ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
-   ...       thenQzH_else,
+   ...       thenQz_else,
    ...       __import__('operator').not_(
    ...         test))())(
    ...     _firstQzAUTO34_,

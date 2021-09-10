@@ -1408,7 +1408,7 @@ Let's make a slight tweak.
    ...         (1),
    ...         add(
    ...           (1),
-   ...           maxQzH_X(
+   ...           maxQz_X(
    ...             expr)))),
    ...     expr)):(
    ...   __import__('builtins').setattr(
@@ -1447,7 +1447,7 @@ Can we just iterate through the expression and check?
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
-   ...   'maxQzH_X',
+   ...   'maxQz_X',
    ...   (lambda expr:
    ...     max(
    ...       map(
@@ -1455,10 +1455,10 @@ Can we just iterate through the expression and check?
    ...           # QzBAR_QzBAR_
    ...           # hissp.basic.._macro_.let
    ...           (lambda _firstQzAUTO33_=# when
-   ...           # hissp.basic.._macro_.ifQzH_else
-   ...           (lambda test,*thenQzH_else:
+   ...           # hissp.basic.._macro_.ifQz_else
+   ...           (lambda test,*thenQz_else:
    ...             __import__('operator').getitem(
-   ...               thenQzH_else,
+   ...               thenQz_else,
    ...               __import__('operator').not_(
    ...                 test))())(
    ...             is_(
@@ -1473,10 +1473,10 @@ Can we just iterate through the expression and check?
    ...                   ('X([1-9][0-9]*)'),
    ...                   x):
    ...                   # when
-   ...                   # hissp.basic.._macro_.ifQzH_else
-   ...                   (lambda test,*thenQzH_else:
+   ...                   # hissp.basic.._macro_.ifQz_else
+   ...                   (lambda test,*thenQz_else:
    ...                     __import__('operator').getitem(
-   ...                       thenQzH_else,
+   ...                       thenQz_else,
    ...                       __import__('operator').not_(
    ...                         test))())(
    ...                     match,
@@ -1488,10 +1488,10 @@ Can we just iterate through the expression and check?
    ...                             (1))))()),
    ...                     (lambda :())))())()),
    ...             (lambda :())):
-   ...             # hissp.basic.._macro_.ifQzH_else
-   ...             (lambda test,*thenQzH_else:
+   ...             # hissp.basic.._macro_.ifQz_else
+   ...             (lambda test,*thenQz_else:
    ...               __import__('operator').getitem(
-   ...                 thenQzH_else,
+   ...                 thenQz_else,
    ...                 __import__('operator').not_(
    ...                   test))())(
    ...               _firstQzAUTO33_,
@@ -1579,14 +1579,14 @@ Lissp can do that with a class.
    ...                    'accumulator',
    ...                    [])),
    ...       flatten=(lambda self,form:(
-   ...                 # anyQzH_for
+   ...                 # anyQz_for
    ...                 __import__('builtins').any(
    ...                   __import__('builtins').map(
    ...                     (lambda x:(
-   ...                       # ifQzH_else
-   ...                       (lambda test,*thenQzH_else:
+   ...                       # ifQz_else
+   ...                       (lambda test,*thenQz_else:
    ...                         __import__('operator').getitem(
-   ...                           thenQzH_else,
+   ...                           thenQz_else,
    ...                           __import__('operator').not_(
    ...                             test))())(
    ...                         is_(
@@ -1640,7 +1640,7 @@ Now we can fix ``max-X``.
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
-   ...   'maxQzH_X',
+   ...   'maxQz_X',
    ...   (lambda expr:
    ...     max(
    ...       map(
@@ -1648,10 +1648,10 @@ Now we can fix ``max-X``.
    ...           # QzBAR_QzBAR_
    ...           # hissp.basic.._macro_.let
    ...           (lambda _firstQzAUTO33_=# when
-   ...           # hissp.basic.._macro_.ifQzH_else
-   ...           (lambda test,*thenQzH_else:
+   ...           # hissp.basic.._macro_.ifQz_else
+   ...           (lambda test,*thenQz_else:
    ...             __import__('operator').getitem(
-   ...               thenQzH_else,
+   ...               thenQz_else,
    ...               __import__('operator').not_(
    ...                 test))())(
    ...             is_(
@@ -1666,10 +1666,10 @@ Now we can fix ``max-X``.
    ...                   ('X([1-9][0-9]*)'),
    ...                   x):
    ...                   # when
-   ...                   # hissp.basic.._macro_.ifQzH_else
-   ...                   (lambda test,*thenQzH_else:
+   ...                   # hissp.basic.._macro_.ifQz_else
+   ...                   (lambda test,*thenQz_else:
    ...                     __import__('operator').getitem(
-   ...                       thenQzH_else,
+   ...                       thenQz_else,
    ...                       __import__('operator').not_(
    ...                         test))())(
    ...                     match,
@@ -1681,10 +1681,10 @@ Now we can fix ``max-X``.
    ...                             (1))))()),
    ...                     (lambda :())))())()),
    ...             (lambda :())):
-   ...             # hissp.basic.._macro_.ifQzH_else
-   ...             (lambda test,*thenQzH_else:
+   ...             # hissp.basic.._macro_.ifQz_else
+   ...             (lambda test,*thenQz_else:
    ...               __import__('operator').getitem(
-   ...                 thenQzH_else,
+   ...                 thenQz_else,
    ...                 __import__('operator').not_(
    ...                   test))())(
    ...               _firstQzAUTO33_,
@@ -1892,14 +1892,14 @@ Catch-All Parameter
    ...            (1),
    ...            add(
    ...              (1),
-   ...              maxQzH_X(
+   ...              maxQz_X(
    ...                expr)))),
    ...       ':',
    ...       *# when
-   ...        # hissp.basic.._macro_.ifQzH_else
-   ...        (lambda test,*thenQzH_else:
+   ...        # hissp.basic.._macro_.ifQz_else
+   ...        (lambda test,*thenQz_else:
    ...          __import__('operator').getitem(
-   ...            thenQzH_else,
+   ...            thenQz_else,
    ...            __import__('operator').not_(
    ...              test))())(
    ...          contains(
@@ -2031,12 +2031,12 @@ Here you go:
    ...              (1),
    ...              # QzBAR_QzBAR_
    ...              # hissp.basic.._macro_.let
-   ...              (lambda _firstQzAUTO28_=maxQzH_X(
+   ...              (lambda _firstQzAUTO28_=maxQz_X(
    ...                expr):
-   ...                # hissp.basic.._macro_.ifQzH_else
-   ...                (lambda test,*thenQzH_else:
+   ...                # hissp.basic.._macro_.ifQz_else
+   ...                (lambda test,*thenQz_else:
    ...                  __import__('operator').getitem(
-   ...                    thenQzH_else,
+   ...                    thenQz_else,
    ...                    __import__('operator').not_(
    ...                      test))())(
    ...                  _firstQzAUTO28_,
@@ -2049,10 +2049,10 @@ Here you go:
    ...                      'X'))))()))),
    ...       ':',
    ...       *# when
-   ...        # hissp.basic.._macro_.ifQzH_else
-   ...        (lambda test,*thenQzH_else:
+   ...        # hissp.basic.._macro_.ifQz_else
+   ...        (lambda test,*thenQz_else:
    ...          __import__('operator').getitem(
-   ...            thenQzH_else,
+   ...            thenQz_else,
    ...            __import__('operator').not_(
    ...              test))())(
    ...          contains(
@@ -2066,10 +2066,10 @@ Here you go:
    ...                ':*',
    ...                'Xi'))()),
    ...          (lambda :()))),
-   ...     # ifQzH_else
-   ...     (lambda test,*thenQzH_else:
+   ...     # ifQz_else
+   ...     (lambda test,*thenQz_else:
    ...       __import__('operator').getitem(
-   ...         thenQzH_else,
+   ...         thenQz_else,
    ...         __import__('operator').not_(
    ...           test))())(
    ...       contains(
@@ -2455,7 +2455,7 @@ Or does it?
      File "<console>", line 1
        -16#1
            ^
-   SyntaxError: Unknown reader macro QzH_16
+   SyntaxError: Unknown reader macro Qz_16
 
 The minus sign changed the tag!
 If we don't want to define a new ``-16#`` tag
@@ -2475,7 +2475,7 @@ That worked! Not.
    #> 16#-FF
    Traceback (most recent call last):
      ...
-   ValueError: invalid literal for int() with base 16: 'QzH_FF'
+   ValueError: invalid literal for int() with base 16: 'Qz_FF'
 
 But this is fine.
 
@@ -2608,10 +2608,10 @@ Or you can add floating-point. Python's notation can't do that.
    ...   (lambda x=__import__('hissp.munger',fromlist='?').demunge(
    ...     str(
    ...       x)):
-   ...     # ifQzH_else
-   ...     (lambda test,*thenQzH_else:
+   ...     # ifQz_else
+   ...     (lambda test,*thenQz_else:
    ...       __import__('operator').getitem(
-   ...         thenQzH_else,
+   ...         thenQz_else,
    ...         __import__('operator').not_(
    ...           test))())(
    ...       __import__('re').search(

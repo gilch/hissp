@@ -556,7 +556,7 @@ acts like ``break`` in `any()<any>`. Obviously, you can use this to your
 advantage if you *want* a break, which seems to happen pretty often when
 writing imperative loops.
 
-If you like, there's a `hissp.basic.._macro_.any-for<anyQzH_for>` that basically does this.
+If you like, there's a `hissp.basic.._macro_.any-for<anyQz_for>` that basically does this.
 
 See also `itertools`, `iter`.
 
@@ -587,7 +587,7 @@ What about if/else ternary expressions?
    )
 
 Look up a thunk and run it.
-There's a `hissp.basic.._macro_.if-else<ifQzH_else>` that basically expands to this.
+There's a `hissp.basic.._macro_.if-else<ifQz_else>` that basically expands to this.
 I know it's a special form in other Lisps (or ``cond`` is),
 but Hissp doesn't need it.
 Smalltalk pretty much does it this way.
@@ -911,10 +911,10 @@ Like this
    ...       __enter__=(lambda self:()),
    ...       __exit__=(lambda self,exc_type,exception,traceback:
    ...                  # when
-   ...                  # hissp.basic.._macro_.ifQzH_else
-   ...                  (lambda test,*thenQzH_else:
+   ...                  # hissp.basic.._macro_.ifQz_else
+   ...                  (lambda test,*thenQz_else:
    ...                    __import__('operator').getitem(
-   ...                      thenQzH_else,
+   ...                      thenQz_else,
    ...                      __import__('operator').not_(
    ...                        test))())(
    ...                    isinstance(
@@ -942,9 +942,9 @@ Like this
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
    ...   'bad_idea',
-   ...   # QzH_QzGT_
-   ...   # hissp.basic..QzAUTO_.QzH_QzGT_
-   ...   # hissp.basic..QzAUTO_.QzH_QzGT_
+   ...   # Qz_QzGT_
+   ...   # hissp.basic..QzAUTO_.Qz_QzGT_
+   ...   # hissp.basic..QzAUTO_.Qz_QzGT_
    ...   Except(
    ...     (lambda * _: _)(
    ...       TypeError,

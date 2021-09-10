@@ -161,9 +161,9 @@ object.__class__.__name__ ; Attributes chain.
 ''':control-word''': [':control-word'],
 "'symbol": [('quote', 'symbol')],
 "'Also-a-symbol! '+ '->>": [
-    ('quote', 'AlsoQzH_aQzH_symbolQzBANG_'),
+    ('quote', 'AlsoQz_aQz_symbolQzBANG_'),
     ('quote', 'QzPLUS_'),
-    ('quote', 'QzH_QzGT_QzGT_'),
+    ('quote', 'Qz_QzGT_QzGT_'),
 ],
 '''"string" ""''': [
     "('string')",
@@ -208,7 +208,7 @@ newlines"
 r''''\~\!\@\#\$\%\^\&\*\(\)\_\+\{\}\|\:\"\<\>\?\`\-\=\[\]\\\;\'\,\.\/''':
     [('quote',
       'QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzCARET_QzET_QzSTAR_QzPAREN_QzTHESES__'
-      'QzPLUS_QzCURLY_QzBRACES_QzBAR_QzCOLON_Qz2QUOTE_QzLT_QzGT_QzQUERY_QzGRAVE_QzH_QzEQ_'
+      'QzPLUS_QzCURLY_QzBRACES_QzBAR_QzCOLON_Qz2QUOTE_QzLT_QzGT_QzQUERY_QzGRAVE_Qz_QzEQ_'
       'QzSQUARE_QzBRACKETS_QzBSLASH_QzSCOLON_Qz1QUOTE_QzCOMMA_QzFULLxSTOP_QzSLASH_')],
 r'''\1 \12 \[] \(\) \{} \[] \; \# \` \, \' \" \\ \ ''':
     ['QzDIGITxONE_',

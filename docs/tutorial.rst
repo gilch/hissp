@@ -464,9 +464,9 @@ Symbols have another important difference from raw strings:
 
 .. code-block:: REPL
 
-   #> 'foo->bar?  ; QzH_ is for "Hyphen", QzGT_ for "Greater Than/riGhT".
-   >>> 'fooQzH_QzGT_barQzQUERY_'
-   'fooQzH_QzGT_barQzQUERY_'
+   #> 'foo->bar?  ; Qz_ is for "Hyphen", QzGT_ for "Greater Than/riGhT".
+   >>> 'fooQz_QzGT_barQzQUERY_'
+   'fooQz_QzGT_barQzQUERY_'
 
    #> "foo->bar?"
    >>> ('foo->bar?')
