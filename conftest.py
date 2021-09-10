@@ -60,9 +60,9 @@ class ParseLissp(DocTestParser):
 
 
 def norm_gensym_eq(compiled, python):
-    """The special gensym suffix ``xAUTO..._`` will match regardless of number."""
+    """The special gensym suffix ``QzAUTO..._`` will match regardless of number."""
     return re.fullmatch(
-        re.sub(r"xAUTO\d+_", r"xAUTO\\d+_", re.escape(python)), compiled
+        re.sub(r"QzAUTO\d+_", r"QzAUTO\\d+_", re.escape(python)), compiled
     )
 
 

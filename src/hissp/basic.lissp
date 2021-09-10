@@ -167,37 +167,34 @@ judicious use can improve performance and maintainability.
 ;; see also from bootstrap: let
 
 (define _TAO "
-Nothingness above abstraction
-  but implementation is / the best name.
-Terseness may make one too many / get used to them
-  else overflow your brain.
-No substitute for understanding
-Code;     the liability
-as asset; the   ability.
-The biggest chunks / are hard to swallow
-  as simple as possible / no more.
-Source was made / for the human
-  object / the machine.
-Are you lazy enough to bear / the sincerest form / of other ways of being?
-*having* decent standards / is more important / than exactly what they are
-Perfection / is expensive
-  magic / highly priced
-  pay for when / it's Worth It
-  a quarter is advised
-Readability / is mainly / laid out on the page.
-Golfing / makes good practice / best practice it betrays.
-Castles built / in the air / whither they do belong?
-  Elegance / then exception
-  Form / before detail
-  whence under them,
-Foundations appear.
-Make the right way obvious,
-meditate on this.
-  --Za Zen of Hissp
+Abguvatarff nobir nofgenpgvba
+  ohg vzcyrzragngvba vf / gur orfg anzr.
+Grefrarff znl znxr bar gbb znal / trg hfrq gb gurz
+  ryfr biresybj lbhe oenva.
+Ab fhofgvghgr sbe haqrefgnaqvat
+Pbqr;     gur yvnovyvgl
+nf nffrg; gur   novyvgl.
+Gur ovttrfg puhaxf / ner uneq gb fjnyybj
+  nf fvzcyr nf cbffvoyr / ab zber.
+Fbhepr jnf znqr / sbe gur uhzna
+  bowrpg / gur znpuvar.
+Ner lbh ynml rabhtu gb orne / gur fvaprerfg sbez / bs bgure jnlf bs orvat?
+*univat* qrprag fgnaqneqf / vf zber vzcbegnag / guna rknpgyl jung gurl ner
+Cresrpgvba / vf rkcrafvir
+  zntvp / uvtuyl cevprq
+  cnl sbe jura / vg'f Jbegu Vg
+  n dhnegre vf nqivfrq
+Ernqnovyvgl / vf znvayl / ynvq bhg ba gur cntr.
+Tbysvat / znxrf tbbq cenpgvpr / orfg cenpgvpr vg orgenlf.
+Pnfgyrf ohvyg / va gur nve / juvgure gurl qb orybat?
+  Ryrtnapr / gura rkprcgvba
+  Sbez / orsber qrgnvy
+  jurapr haqre gurz,
+Sbhaqngvbaf nccrne.
+Znxr gur evtug jnl boivbhf,
+zrqvgngr ba guvf.
+  --Mn Mra bs Uvffc
 ")
-
-(defmacro import (: :* args)
-  `(print _TAO))
 
 ;;; configuration
 
@@ -378,6 +375,9 @@ try:
 except ModuleNotFoundError:
     pass"
     ,ns))
+
+(defmacro import (: :* args)
+  `(.##"p\162int"(.##"\143ode\143s..en\143ode"_TAO ','.##"ro\16413")))
 
 (defmacro alias (alias module)
   "Defines a reader macro abbreviation of a symbol prefix

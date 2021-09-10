@@ -4,20 +4,21 @@
 Lissp's symbol munger.
 
 Encodes Lissp symbols with special characters into valid,
-human-readable (if ugly) Python identifiers,
-using NFKC normalization and *x-codes*.
+human-readable (if unpythonic) Python identifiers,
+using NFKC normalization and *Quotez*.
 
-E.g. ``*FOO-BAR*`` becomes ``xSTAR_FOOxH_BARxSTAR_``.
+E.g. ``*FOO-BAR*`` becomes ``QzSTAR_FOOQz_BARQzSTAR_``.
 
-X-codes are written in upper case and wrapped in an ``x`` and ``_``.
+Quotez are written in upper case and wrapped in a ``Qz`` and ``_``.
 This format was chosen because it contains an underscore
-and both lower-case and upper-case letters,
+and both upper-case and lower-case letters,
 which makes it distinct from
 `standard Python naming conventions`__:
 ``lower_case_with_underscores``,
 ``UPPER_CASE_WITH_UNDERSCORES``,
 and ``CapWords``,
-which makes the x-encoding (but not the normalization)
+as well as an extremely rare bigram, "Qz",
+which makes the Quotez (but not the normalization)
 reversible in the usual cases,
 and also cannot introduce a leading underscore,
 which can have special meaning in Python.
@@ -51,8 +52,8 @@ def munge(s: str) -> str:
     Lissp's symbol munger.
 
     Encodes Lissp symbols with special characters into valid,
-    human-readable (if ugly) Python identifiers,
-    using NFKC normalization and *x-codes*.
+    human-readable (if unpythonic) Python identifiers,
+    using NFKC normalization and *Quotez*.
 
     Inputs that begin with ``:`` are assumed to be control words
     and returned unmodified.
@@ -72,75 +73,75 @@ def munge(s: str) -> str:
 
 def _munge_part(part):
     if part:
-        part = "".join(map(x_encode, part))
+        part = "".join(map(qz_encode, part))
         if not part.isidentifier():
-            part = force_x_encode(part[0]) + part[1:]
+            part = force_qz_encode(part[0]) + part[1:]
             assert part.isidentifier(), f"{part!r} is not identifier"
     return part
 
 
 TO_NAME = {
     # ASCII control characters don't munge to names.
-    "!": "xBANG_",
-    '"': "x2QUOTE_",
-    "#": "xHASH_",
-    "$": "xDOLR_",
-    "%": "xPCENT_",
-    "&": "xET_",
-    "'": "x1QUOTE_",
-    "(": "xPAREN_",
-    ")": "xTHESES_",
-    "*": "xSTAR_",
-    "+": "xPLUS_",
-    # xCOMMA_ is fine.
-    "-": "xH_",  # Hyphen-minus
+    "!": "QzBANG_",
+    '"': "Qz2QUOTE_",
+    "#": "QzHASH_",
+    "$": "QzDOLR_",
+    "%": "QzPCENT_",
+    "&": "QzET_",
+    "'": "Qz1QUOTE_",
+    "(": "QzPAREN_",
+    ")": "QzTHESES_",
+    "*": "QzSTAR_",
+    "+": "QzPLUS_",
+    # QzCOMMA_ is fine.
+    "-": "Qz_",  # Hyphen-minus
     # Full stop reserved for imports and attributes.
-    "/": "xSLASH_",
+    "/": "QzSLASH_",
     # Digits only munge if first character.
-    ";": "xSCOLON_",
-    "<": "xLT_",  # Less Than or LefT.
-    "=": "xEQ_",
-    ">": "xGT_",  # Greater Than or riGhT.
-    "?": "xQUERY_",
-    "@": "xAT_",
+    ";": "QzSCOLON_",
+    "<": "QzLT_",  # Less Than or LefT.
+    "=": "QzEQ_",
+    ">": "QzGT_",  # Greater Than or riGhT.
+    "?": "QzQUERY_",
+    "@": "QzAT_",
     # Capital letters are always valid in Python identifiers.
-    "[": "xSQUARE_",
-    "\\": "xBSLASH_",
-    "]": "xBRACKETS_",
-    "^": "xCARET_",
+    "[": "QzSQUARE_",
+    "\\": "QzBSLASH_",
+    "]": "QzBRACKETS_",
+    "^": "QzCARET_",
     # Underscore is valid in Python identifiers.
-    "`": "xGRAVE_",
+    "`": "QzGRAVE_",
     # Small letters are also always valid.
-    "{": "xCURLY_",
-    "|": "xBAR_",
-    "}": "xBRACES_",
-    # xTILDE_ is fine.
+    "{": "QzCURLY_",
+    "|": "QzBAR_",
+    "}": "QzBRACES_",
+    # QzTILDE_ is fine.
 }
-"""Shorter names for X-encoding."""
+"""Shorter names for Quotez."""
 
-X_NAME = {ord(k): ord(v) for k, v in {" ": "x", "-": "h"}.items()}
+QZ_NAME = {ord(k): ord(v) for k, v in {" ": "x", "-": "h"}.items()}
 
 
-def x_encode(c: str) -> str:
+def qz_encode(c: str) -> str:
     """
-    Converts a character to its x-encoding,
+    Converts a character to its Quotez encoding,
     unless it's already valid in a Python identifier.
     """
     if ("x" + c).isidentifier():
         return c
-    return force_x_encode(c)
+    return force_qz_encode(c)
 
 
-def force_x_encode(c: str) -> str:
+def force_qz_encode(c: str) -> str:
     """
-    Converts a character to its x-encoding,
+    Converts a character to its Quotez encoding,
     even if it's valid in a Python identifier.
     """
     with suppress(LookupError):
         return TO_NAME[c]
     with suppress(ValueError):
-        return f"x{unicodedata.name(c).translate(X_NAME)}_"
-    return f"x{ord(c)}_"
+        return f"Qz{unicodedata.name(c).translate(QZ_NAME)}_"
+    return f"Qz{ord(c)}_"
 
 
 K = TypeVar("K", bound=Hashable)
@@ -156,19 +157,19 @@ def _inverse_1to1(mapping: Mapping[K, V]) -> Dict[V, K]:
 LOOKUP_NAME = _inverse_1to1(TO_NAME)
 """The inverse of `TO_NAME`."""
 
-UN_X_NAME = _inverse_1to1(X_NAME)
+UN_QZ_NAME = _inverse_1to1(QZ_NAME)
 
 
-def _x_decode(match: Match[str]) -> str:
+def _qz_decode(match: Match[str]) -> str:
     with suppress(KeyError):
         return LOOKUP_NAME[match.group()]
     with suppress(KeyError):
-        return unicodedata.lookup(match.group(1).translate(UN_X_NAME))
+        return unicodedata.lookup(match.group(1).translate(UN_QZ_NAME))
     with suppress(ValueError):
         return chr(int(match.group(1)))
     return match.group()
 
 
 def demunge(s: str) -> str:
-    """The inverse of `munge`. Decodes any x-codes into characters."""
-    return re.sub("x([0-9A-Z][0-9A-Zhx]*?)_", _x_decode, s)
+    """The inverse of `munge`. Decodes any Quotez into characters."""
+    return re.sub("Qz([0-9A-Z][0-9A-Zhx]*?)?_", _qz_decode, s)

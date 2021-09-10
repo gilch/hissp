@@ -464,9 +464,9 @@ Symbols have another important difference from raw strings:
 
 .. code-block:: REPL
 
-   #> 'foo->bar?  ; xH_ is for "Hyphen", xGT_ for "Greater Than/riGhT".
-   >>> 'fooxH_xGT_barxQUERY_'
-   'fooxH_xGT_barxQUERY_'
+   #> 'foo->bar?  ; Qz_ is for "Hyphen", QzGT_ for "Greater Than/riGhT".
+   >>> 'fooQz_QzGT_barQzQUERY_'
+   'fooQz_QzGT_barQzQUERY_'
 
    #> "foo->bar?"
    >>> ('foo->bar?')
@@ -475,9 +475,10 @@ Symbols have another important difference from raw strings:
 Because symbols may contain special characters,
 but the Python identifiers they represent cannot,
 the reader `munges <munge>` symbols with forbidden characters
-to valid identifier strings by using ``xQUOTEDxWORDS_``.
+to valid identifier strings by replacing them with special "Quotez"
+escape sequences, like ``QzFullxSTOP_``.
 
-This format was chosen because it contains an underscore
+This "Quotez" format was chosen because it contains an underscore
 and both lower-case and upper-case letters,
 which makes it distinct from
 `standard Python naming conventions <https://www.python.org/dev/peps/pep-0008/#naming-conventions>`_:
@@ -488,6 +489,11 @@ It also cannot introduce a leading underscore,
 which can have special meaning in Python.
 It might have been simpler to use the character's `ord()<ord>`,
 but it's important that the munged symbols still be human-readable.
+
+The "Qz" bigram is almost unheard of in English text,
+and "Q" almost never ends a word (except perhaps in brand names),
+making "Qz" a visually distinct escape sequence,
+easy to read, and very unlikely to cause a collision when demunging.
 
 Munging happens at `read time`_, which means you can use a munged symbol both
 as an identifier and as a string representing that identifier:
@@ -503,9 +509,9 @@ as an identifier and as a string representing that identifier:
    >>> (lambda spam:(
    ...   setattr(
    ...     spam,
-   ...     'xBANG_xAT_xPCENT_xDOLR_',
+   ...     'QzBANG_QzAT_QzPCENT_QzDOLR_',
    ...     'eggs'),
-   ...   spam.xBANG_xAT_xPCENT_xDOLR_)[-1])(
+   ...   spam.QzBANG_QzAT_QzPCENT_QzDOLR_)[-1])(
    ...   (lambda :()))
    'eggs'
 
@@ -517,8 +523,8 @@ but they must each be escaped with a backslash to prevent it from terminating th
 .. code-block:: REPL
 
    #> 'embedded\ space
-   >>> 'embeddedxSPACE_space'
-   'embeddedxSPACE_space'
+   >>> 'embeddedQzSPACE_space'
+   'embeddedQzSPACE_space'
 
 Python does not allow some characters to start an identifier that it allows inside identifiers,
 such as digits.
@@ -527,8 +533,8 @@ You also have to escape these if they begin a symbol to distinguish them from nu
 .. code-block:: REPL
 
    #> '\108
-   >>> 'xDIGITxONE_08'
-   'xDIGITxONE_08'
+   >>> 'QzDIGITxONE_08'
+   'QzDIGITxONE_08'
 
 Notice that only the first digit had to be munged to make it a valid Python identifier.
 
@@ -1081,17 +1087,17 @@ Within a template, the same gensym name always makes the same gensym:
 
    #> `($#hiss $#hiss)
    >>> (lambda * _: _)(
-   ...   '_hissxAUTO41_',
-   ...   '_hissxAUTO41_')
-   ('_hissxAUTO41_', '_hissxAUTO41_')
+   ...   '_hissQzAUTO41_',
+   ...   '_hissQzAUTO41_')
+   ('_hissQzAUTO41_', '_hissQzAUTO41_')
 
 But each new template increments the counter.
 
 .. code-block:: REPL
 
    #> `$#hiss
-   >>> '_hissxAUTO42_'
-   '_hissxAUTO42_'
+   >>> '_hissQzAUTO42_'
+   '_hissQzAUTO42_'
 
 Gensyms are mainly used to prevent accidental name collisions in generated code,
 which is very important for reliable compiler macros.
@@ -1425,12 +1431,12 @@ But there are times when a function will not do:
    #> (setattr _macro_ '# (lambda (: :* body) `(lambda (,'#) (,@body))))
    >>> setattr(
    ...   _macro_,
-   ...   'xHASH_',
+   ...   'QzHASH_',
    ...   (lambda *body:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       (lambda * _: _)(
-   ...         'xHASH_'),
+   ...         'QzHASH_'),
    ...       (lambda * _: _)(
    ...         *body))))
 
@@ -1438,12 +1444,12 @@ But there are times when a function will not do:
    #..          "abc"))
    >>> any(
    ...   map(
-   ...     # xHASH_
-   ...     (lambda xHASH_:
+   ...     # QzHASH_
+   ...     (lambda QzHASH_:
    ...       print(
-   ...         xHASH_.upper(),
+   ...         QzHASH_.upper(),
    ...         (':'),
-   ...         xHASH_)),
+   ...         QzHASH_)),
    ...     ('abc')))
    A : a
    B : b

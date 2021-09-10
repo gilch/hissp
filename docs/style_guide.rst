@@ -213,7 +213,7 @@ This also goes for readerless mode.
            "lambda",
            ("n",),
            (
-               "ifxH_else",
+               "ifQz_else",
                ("operator..le", "n", 2),
                "n",
                (
@@ -234,7 +234,7 @@ you may have to turn it off.
    # fmt: off
    ('define','fib',
      ('lambda',('n',),
-       ('ifxH_else',('operator..le','n',2,),
+       ('ifQz_else',('operator..le','n',2,),
          'n',
          ('operator..add',('fib',('operator..sub','n',1,),),
                           ('fib',('operator..sub','n',2,),),),),),)
@@ -673,12 +673,12 @@ For internal Lissp code,
 Python conventions are fine,
 but the munger opens up more characters.
 Something like ``*FOO-BAR*`` is a perfectly valid Lissp identifier,
-but it munges to ``xSTAR_FOOxH_BARxSTAR_``,
+but it munges to ``QzSTAR_FOOQz_BARQzSTAR_``,
 which is awkward to use from the Python side.
 
 Even in private areas,
 let the munger do the munging for you.
-Avoid writing anything in the x-encoded style yourself.
+Avoid writing anything in the Quotez style yourself.
 (This can confuse the demunger and risks collision with compiler-generated names like gensyms.)
 
 Docstrings use reStructuredText markup, like Python.

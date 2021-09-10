@@ -26,7 +26,7 @@ PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
 MACROS = "_macro_"
 # Macro from foreign module foo.bar.._macro_.baz
 MACRO = f"..{MACROS}."
-RE_MACRO = re.compile(rf"(\.\.{MACROS}\.|\.\.xAUTO_\.)")
+RE_MACRO = re.compile(rf"(\.\.{MACROS}\.|\.\.QzAUTO_\.)")
 
 NS = ContextVar("NS", default=())
 """
@@ -245,7 +245,7 @@ class Compiler:
         """Try to compile as `macro`, else normal `call`."""
         if (result := self.macro(form)) is not _SENTINEL:
             return f"# {form[0]}\n{result}"
-        form = form[0].replace("..xAUTO_.", "..", 1), *form[1:]
+        form = form[0].replace("..QzAUTO_.", "..", 1), *form[1:]
         return self.call(form)
 
     @_trace
@@ -259,7 +259,7 @@ class Compiler:
 
     def _get_macro(self, head):
         parts = RE_MACRO.split(head, 1)
-        head = head.replace("..xAUTO_.", MACRO, 1)
+        head = head.replace("..QzAUTO_.", MACRO, 1)
         if len(parts) > 1:
             return self._qualified_macro(head, parts)
         return self._unqualified_macro(head)
@@ -270,7 +270,7 @@ class Compiler:
                 return vars(self.ns[MACROS])[parts[2]]
             return eval(self.str(head))
         except (KeyError, AttributeError):
-            if parts[1] != "..xAUTO_.":
+            if parts[1] != "..QzAUTO_.":
                 raise
 
     def _unqualified_macro(self, head):

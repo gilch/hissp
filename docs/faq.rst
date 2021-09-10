@@ -178,16 +178,16 @@ You can, of course, abbreviate these.
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
-   ...   'xPLUS_',
+   ...   'QzPLUS_',
    ...   __import__('operator').add)
 
    #> (+ 1 1)
-   >>> xPLUS_(
+   >>> QzPLUS_(
    ...   (1),
    ...   (1))
    2
 
-Yes, ``+`` is a valid symbol. It gets munged to ``xPLUS_``. The result
+Yes, ``+`` is a valid symbol. It gets munged to ``QzPLUS_``. The result
 is all of the operators you might want, using the same prefix notation
 used by all the calls.
 
@@ -202,14 +202,14 @@ like upgrading them to use a reduce so they're multiary like other Lisps:
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
-   ...   'xPLUS_',
+   ...   'QzPLUS_',
    ...   (lambda *args:
    ...     __import__('functools').reduce(
    ...       __import__('operator').add,
    ...       args)))
 
    #> (+ 1 2 3)
-   >>> xPLUS_(
+   >>> QzPLUS_(
    ...   (1),
    ...   (2),
    ...   (3))
@@ -334,7 +334,7 @@ However, they do work in Python injections:
    b'injected bytes literal'
 
 And, if you have the basic macros loaded,
-you can use the `b# <bxHASH_>` reader macro.
+you can use the `b# <bQzHASH_>` reader macro.
 
 .. code-block:: REPL
 
@@ -556,7 +556,7 @@ acts like ``break`` in `any()<any>`. Obviously, you can use this to your
 advantage if you *want* a break, which seems to happen pretty often when
 writing imperative loops.
 
-If you like, there's a `hissp.basic.._macro_.any-for<anyxH_for>` that basically does this.
+If you like, there's a `hissp.basic.._macro_.any-for<anyQz_for>` that basically does this.
 
 See also `itertools`, `iter`.
 
@@ -587,7 +587,7 @@ What about if/else ternary expressions?
    )
 
 Look up a thunk and run it.
-There's a `hissp.basic.._macro_.if-else<ifxH_else>` that basically expands to this.
+There's a `hissp.basic.._macro_.if-else<ifQz_else>` that basically expands to this.
 I know it's a special form in other Lisps (or ``cond`` is),
 but Hissp doesn't need it.
 Smalltalk pretty much does it this way.
@@ -897,24 +897,24 @@ Like this
    ...       __init__=(lambda self,catch,handler:(
    ...                  # attach
    ...                  # hissp.basic.._macro_.let
-   ...                  (lambda _targetxAUTO16_=self:(
+   ...                  (lambda _targetQzAUTO16_=self:(
    ...                    __import__('builtins').setattr(
-   ...                      _targetxAUTO16_,
+   ...                      _targetQzAUTO16_,
    ...                      'catch',
    ...                      catch),
    ...                    __import__('builtins').setattr(
-   ...                      _targetxAUTO16_,
+   ...                      _targetQzAUTO16_,
    ...                      'handler',
    ...                      handler),
-   ...                    _targetxAUTO16_)[-1])(),
+   ...                    _targetQzAUTO16_)[-1])(),
    ...                  None)[-1]),
    ...       __enter__=(lambda self:()),
    ...       __exit__=(lambda self,exc_type,exception,traceback:
    ...                  # when
-   ...                  # hissp.basic.._macro_.ifxH_else
-   ...                  (lambda test,*thenxH_else:
+   ...                  # hissp.basic.._macro_.ifQz_else
+   ...                  (lambda test,*thenQz_else:
    ...                    __import__('operator').getitem(
-   ...                      thenxH_else,
+   ...                      thenQz_else,
    ...                      __import__('operator').not_(
    ...                        test))())(
    ...                    isinstance(
@@ -942,9 +942,9 @@ Like this
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
    ...   'bad_idea',
-   ...   # xH_xGT_
-   ...   # hissp.basic..xAUTO_.xH_xGT_
-   ...   # hissp.basic..xAUTO_.xH_xGT_
+   ...   # Qz_QzGT_
+   ...   # hissp.basic..QzAUTO_.Qz_QzGT_
+   ...   # hissp.basic..QzAUTO_.Qz_QzGT_
    ...   Except(
    ...     (lambda * _: _)(
    ...       TypeError,
@@ -1444,7 +1444,7 @@ If you wanted semantics more like a Lisp-2,
 Lissp can do it pretty easily.
 You could write a ``defun`` macro that
 creates a function and put it in a
-global `types.SimpleNamespace` named ``xHASH_xQUOTE_``.
+global `types.SimpleNamespace` named ``QzHASH_QzQUOTE_``.
 
 Note that you can define macros that behave like functions:
 maybe such a macro ``foo`` would rewrite an invocation like
