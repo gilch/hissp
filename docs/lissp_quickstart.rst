@@ -188,20 +188,20 @@ Lissp Quick Start
 
 
    #> '+                                     ;Read-time munging of invalid identifiers.
-   >>> 'xPLUS_'
-   'xPLUS_'
+   >>> 'QzPLUS_'
+   'QzPLUS_'
 
-   #> 'Also-a-symbol!                        ;Alias for 'AlsoxH_axH_symbolxBANG_
-   >>> 'AlsoxH_axH_symbolxBANG_'
-   'AlsoxH_axH_symbolxBANG_'
+   #> 'Also-a-symbol!                        ;Alias for 'AlsoQzH_aQzH_symbolQzBANG_
+   >>> 'AlsoQzH_aQzH_symbolQzBANG_'
+   'AlsoQzH_aQzH_symbolQzBANG_'
 
    #> '𝐀                                     ;Alias for 'A (munges to unicode normal form KC)
    >>> 'A'
    'A'
 
    #> '->>
-   >>> 'xH_xGT_xGT_'
-   'xH_xGT_xGT_'
+   >>> 'QzH_QzGT_QzGT_'
+   'QzH_QzGT_QzGT_'
 
    #> :->>                                   ;These don't represent identifiers, don't munge.
    >>> ':->>'
@@ -209,20 +209,20 @@ Lissp Quick Start
 
 
    #> 'SPAM\ \"\(\)\;EGGS                    ;These would terminate a symbol if not escaped.
-   >>> 'SPAMxSPACE_x2QUOTE_xPAREN_xTHESES_xSCOLON_EGGS'
-   'SPAMxSPACE_x2QUOTE_xPAREN_xTHESES_xSCOLON_EGGS'
+   >>> 'SPAMQzSPACE_Qz2QUOTE_QzPAREN_QzTHESES_QzSCOLON_EGGS'
+   'SPAMQzSPACE_Qz2QUOTE_QzPAREN_QzTHESES_QzSCOLON_EGGS'
 
    #> '\42                                   ;Digits can't start identifiers.
-   >>> 'xDIGITxFOUR_2'
-   'xDIGITxFOUR_2'
+   >>> 'QzDIGITxFOUR_2'
+   'QzDIGITxFOUR_2'
 
    #> '\.
-   >>> 'xFULLxSTOP_'
-   'xFULLxSTOP_'
+   >>> 'QzFULLxSTOP_'
+   'QzFULLxSTOP_'
 
    #> '\\
-   >>> 'xBSLASH_'
-   'xBSLASH_'
+   >>> 'QzBSLASH_'
+   'QzBSLASH_'
 
    #> '\a\b\c                                ;Escapes allowed, but not required here.
    >>> 'abc'
@@ -241,8 +241,8 @@ Lissp Quick Start
    'raw string'
 
    #> 'not-string'                           ;symbol
-   >>> 'notxH_stringx1QUOTE_'
-   'notxH_stringx1QUOTE_'
+   >>> 'notQzH_stringQz1QUOTE_'
+   'notQzH_stringQz1QUOTE_'
 
    #> #"Say \"Cheese!\" \u263a"              ;Hash strings process Python escapes.
    >>> ('Say "Cheese!" ☺')
@@ -428,11 +428,11 @@ Lissp Quick Start
 
    #> (.__setitem__ (globals) '+ operator..add) ;(!) Assignment. Symbols munge.
    >>> globals().__setitem__(
-   ...   'xPLUS_',
+   ...   'QzPLUS_',
    ...   __import__('operator').add)
 
    #> (+ 40 2)                               ;No operators. This is still a function call!
-   >>> xPLUS_(
+   >>> QzPLUS_(
    ...   (40),
    ...   (2))
    42
@@ -598,15 +598,15 @@ Lissp Quick Start
 
    #> `($#eggs $#spam $#bacon $#spam)        ;Generated symbols for macros.
    >>> (lambda * _: _)(
-   ...   '_eggsxAUTO9_',
-   ...   '_spamxAUTO9_',
-   ...   '_baconxAUTO9_',
-   ...   '_spamxAUTO9_')
-   ('_eggsxAUTO9_', '_spamxAUTO9_', '_baconxAUTO9_', '_spamxAUTO9_')
+   ...   '_eggsQzAUTO9_',
+   ...   '_spamQzAUTO9_',
+   ...   '_baconQzAUTO9_',
+   ...   '_spamQzAUTO9_')
+   ('_eggsQzAUTO9_', '_spamQzAUTO9_', '_baconQzAUTO9_', '_spamQzAUTO9_')
 
    #> `$#spam                                ;Gensym counter prevents name collisions.
-   >>> '_spamxAUTO10_'
-   '_spamxAUTO10_'
+   >>> '_spamQzAUTO10_'
+   '_spamQzAUTO10_'
 
 
    #> _#"
@@ -634,7 +634,7 @@ Lissp Quick Start
 
 
    ;; Reader macros compose. Note the quote.
-   #> 'hissp.munger..demunge#xH_xGT_xGT_
+   #> 'hissp.munger..demunge#QzH_QzGT_QzGT_
    >>> '->>'
    '->>'
 
@@ -644,8 +644,8 @@ Lissp Quick Start
    ('quote', 'x')
 
    #> '\'x
-   >>> 'x1QUOTE_x'
-   'x1QUOTE_x'
+   >>> 'Qz1QUOTE_x'
+   'Qz1QUOTE_x'
 
 
    #> (print (.upper 'textwrap..dedent##"\
@@ -712,7 +712,7 @@ Lissp Quick Start
    ...   pow(
    ...     (42),
    ...     (0)),
-   ...   xPLUS_(
+   ...   QzPLUS_(
    ...     (1),
    ...     (1)),
    ...   (3))
@@ -775,7 +775,7 @@ Lissp Quick Start
    >>> list(
    ...   (lambda * _: _)(
    ...     (1),
-   ...     xPLUS_(
+   ...     QzPLUS_(
    ...       (1),
    ...       (1)),
    ...     (3)))
@@ -810,14 +810,14 @@ Lissp Quick Start
 
    #> (dict : + 0  a 1  b 2)                 ;Symbol keys are easy. The common case.
    >>> dict(
-   ...   xPLUS_=(0),
+   ...   QzPLUS_=(0),
    ...   a=(1),
    ...   b=(2))
-   {'xPLUS_': 0, 'a': 1, 'b': 2}
+   {'QzPLUS_': 0, 'a': 1, 'b': 2}
 
    #> (.__getitem__ _ '+)                    ;In the REPL, _ is the last result that wasn't None.
    >>> _.__getitem__(
-   ...   'xPLUS_')
+   ...   'QzPLUS_')
    0
 
    #> (dict (zip '(1 2 3) "abc"))            ;Non-symbol keys are possible.
@@ -842,18 +842,18 @@ Lissp Quick Start
    >>> dict(
    ...   (lambda * _: _)(
    ...     (lambda * _: _)(
-   ...       'xPLUS_',
+   ...       'QzPLUS_',
    ...       (42)),
    ...     (lambda * _: _)(
-   ...       xPLUS_(
+   ...       QzPLUS_(
    ...         (1),
    ...         (1)),
    ...       'b')))
-   {'xPLUS_': 42, 2: 'b'}
+   {'QzPLUS_': 42, 2: 'b'}
 
    #> (.__getitem__ _ '+)
    >>> _.__getitem__(
-   ...   'xPLUS_')
+   ...   'QzPLUS_')
    42
 
 
@@ -1062,18 +1062,18 @@ Lissp Quick Start
    ...   'triple',
    ...   (lambda x:
    ...     (lambda * _: _)(
-   ...       '__main__..xAUTO_.xPLUS_',
+   ...       '__main__..QzAUTO_.QzPLUS_',
    ...       x,
    ...       (lambda * _: _)(
-   ...         '__main__..xAUTO_.xPLUS_',
+   ...         '__main__..QzAUTO_.QzPLUS_',
    ...         x,
    ...         x))))
 
    #> (triple 4)                             ;12
    >>> # triple
-   ... __import__('builtins').globals()['xPLUS_'](
+   ... __import__('builtins').globals()['QzPLUS_'](
    ...   (4),
-   ...   __import__('builtins').globals()['xPLUS_'](
+   ...   __import__('builtins').globals()['QzPLUS_'](
    ...     (4),
    ...     (4)))
    12
@@ -1086,7 +1086,7 @@ Lissp Quick Start
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
-   ...   'loudxH_number',
+   ...   'loudQzH_number',
    ...   (lambda x:(
    ...     print(
    ...       x),
@@ -1094,13 +1094,13 @@ Lissp Quick Start
 
    #> (triple (loud-number 14))              ;Triples the *code*, not just the *value*.
    >>> # triple
-   ... __import__('builtins').globals()['xPLUS_'](
-   ...   loudxH_number(
+   ... __import__('builtins').globals()['QzPLUS_'](
+   ...   loudQzH_number(
    ...     (14)),
-   ...   __import__('builtins').globals()['xPLUS_'](
-   ...     loudxH_number(
+   ...   __import__('builtins').globals()['QzPLUS_'](
+   ...     loudQzH_number(
    ...       (14)),
-   ...     loudxH_number(
+   ...     loudQzH_number(
    ...       (14))))
    14
    14
@@ -1116,7 +1116,7 @@ Lissp Quick Start
    #..               (+ x (+ x x))))))
    >>> setattr(
    ...   _macro_,
-   ...   'oopsxH_triple',
+   ...   'oopsQzH_triple',
    ...   (lambda x:
    ...     (lambda * _: _)(
    ...       (lambda * _: _)(
@@ -1126,19 +1126,19 @@ Lissp Quick Start
    ...           '__main__..x',
    ...           x),
    ...         (lambda * _: _)(
-   ...           '__main__..xAUTO_.xPLUS_',
+   ...           '__main__..QzAUTO_.QzPLUS_',
    ...           '__main__..x',
    ...           (lambda * _: _)(
-   ...             '__main__..xAUTO_.xPLUS_',
+   ...             '__main__..QzAUTO_.QzPLUS_',
    ...             '__main__..x',
    ...             '__main__..x'))))))
 
    #> (oops-triple 14)                       ;Don't forget that templates qualify symbols!
-   >>> # oopsxH_triple
+   >>> # oopsQzH_triple
    ... (lambda __main__..x=(14):
-   ...   __import__('builtins').globals()['xPLUS_'](
+   ...   __import__('builtins').globals()['QzPLUS_'](
    ...     __import__('builtins').globals()['x'],
-   ...     __import__('builtins').globals()['xPLUS_'](
+   ...     __import__('builtins').globals()['QzPLUS_'](
    ...       __import__('builtins').globals()['x'],
    ...       __import__('builtins').globals()['x'])))()
    Traceback (most recent call last):
@@ -1156,32 +1156,32 @@ Lissp Quick Start
    #..               (+ $#x (+ $#x $#x))))))
    >>> setattr(
    ...   _macro_,
-   ...   'oncexH_triple',
+   ...   'onceQzH_triple',
    ...   (lambda x:
    ...     (lambda * _: _)(
    ...       (lambda * _: _)(
    ...         'lambda',
    ...         (lambda * _: _)(
    ...           ':',
-   ...           '_xxAUTO22_',
+   ...           '_xQzAUTO22_',
    ...           x),
    ...         (lambda * _: _)(
-   ...           '__main__..xAUTO_.xPLUS_',
-   ...           '_xxAUTO22_',
+   ...           '__main__..QzAUTO_.QzPLUS_',
+   ...           '_xQzAUTO22_',
    ...           (lambda * _: _)(
-   ...             '__main__..xAUTO_.xPLUS_',
-   ...             '_xxAUTO22_',
-   ...             '_xxAUTO22_'))))))
+   ...             '__main__..QzAUTO_.QzPLUS_',
+   ...             '_xQzAUTO22_',
+   ...             '_xQzAUTO22_'))))))
 
    #> (once-triple (loud-number 14))
-   >>> # oncexH_triple
-   ... (lambda _xxAUTO22_=loudxH_number(
+   >>> # onceQzH_triple
+   ... (lambda _xQzAUTO22_=loudQzH_number(
    ...   (14)):
-   ...   __import__('builtins').globals()['xPLUS_'](
-   ...     _xxAUTO22_,
-   ...     __import__('builtins').globals()['xPLUS_'](
-   ...       _xxAUTO22_,
-   ...       _xxAUTO22_)))()
+   ...   __import__('builtins').globals()['QzPLUS_'](
+   ...     _xQzAUTO22_,
+   ...     __import__('builtins').globals()['QzPLUS_'](
+   ...       _xQzAUTO22_,
+   ...       _xQzAUTO22_)))()
    14
    42
 
@@ -1225,30 +1225,30 @@ Lissp Quick Start
    #..              (bool args))))
    >>> setattr(
    ...   _macro_,
-   ...   'xPLUS_',
+   ...   'QzPLUS_',
    ...   (lambda first,*args:
    ...     (lambda * _: _)(
    ...       first,
    ...       (lambda * _: _)(
-   ...         '__main__..xAUTO_.add',
+   ...         '__main__..QzAUTO_.add',
    ...         first,
    ...         (lambda * _: _)(
-   ...           '__main__..xAUTO_.xPLUS_',
+   ...           '__main__..QzAUTO_.QzPLUS_',
    ...           *args))).__getitem__(
    ...       bool(
    ...         args))))
 
    #> (+ 1 2 3 4)
-   >>> # xPLUS_
+   >>> # QzPLUS_
    ... __import__('builtins').globals()['add'](
    ...   (1),
-   ...   # __main__..xAUTO_.xPLUS_
+   ...   # __main__..QzAUTO_.QzPLUS_
    ...   __import__('builtins').globals()['add'](
    ...     (2),
-   ...     # __main__..xAUTO_.xPLUS_
+   ...     # __main__..QzAUTO_.QzPLUS_
    ...     __import__('builtins').globals()['add'](
    ...       (3),
-   ...       # __main__..xAUTO_.xPLUS_
+   ...       # __main__..QzAUTO_.QzPLUS_
    ...       (4))))
    10
 
@@ -1261,30 +1261,30 @@ Lissp Quick Start
    #..              (bool args))))
    >>> setattr(
    ...   _macro_,
-   ...   'xSTAR_',
+   ...   'QzSTAR_',
    ...   (lambda first,*args:
    ...     (lambda * _: _)(
    ...       first,
    ...       (lambda * _: _)(
-   ...         '__main__..xAUTO_.mul',
+   ...         '__main__..QzAUTO_.mul',
    ...         first,
    ...         (lambda * _: _)(
-   ...           '__main__..xAUTO_.xSTAR_',
+   ...           '__main__..QzAUTO_.QzSTAR_',
    ...           *args))).__getitem__(
    ...       bool(
    ...         args))))
 
    #> (* 1 2 3 4)
-   >>> # xSTAR_
+   >>> # QzSTAR_
    ... __import__('builtins').globals()['mul'](
    ...   (1),
-   ...   # __main__..xAUTO_.xSTAR_
+   ...   # __main__..QzAUTO_.QzSTAR_
    ...   __import__('builtins').globals()['mul'](
    ...     (2),
-   ...     # __main__..xAUTO_.xSTAR_
+   ...     # __main__..QzAUTO_.QzSTAR_
    ...     __import__('builtins').globals()['mul'](
    ...       (3),
-   ...       # __main__..xAUTO_.xSTAR_
+   ...       # __main__..QzAUTO_.QzSTAR_
    ...       (4))))
    24
 
@@ -1292,24 +1292,24 @@ Lissp Quick Start
    ;; Macros only work as invocations, not arguments!
    #> (functools..reduce * '(1 2 3 4))       ;Oops.
    >>> __import__('functools').reduce(
-   ...   xSTAR_,
+   ...   QzSTAR_,
    ...   ((1),
    ...    (2),
    ...    (3),
    ...    (4),))
    Traceback (most recent call last):
      ...
-   NameError: name 'xSTAR_' is not defined
+   NameError: name 'QzSTAR_' is not defined
 
    #> (functools..reduce (lambda xy
    #..                     (* x y))          ;Invocation.
    #..                   '(1 2 3 4))
    >>> __import__('functools').reduce(
    ...   (lambda x,y:
-   ...     # xSTAR_
+   ...     # QzSTAR_
    ...     __import__('builtins').globals()['mul'](
    ...       x,
-   ...       # __main__..xAUTO_.xSTAR_
+   ...       # __main__..QzAUTO_.QzSTAR_
    ...       y)),
    ...   ((1),
    ...    (2),
@@ -1320,29 +1320,29 @@ Lissp Quick Start
 
    ;; It's possible for a macro to shadow a global. They live in different namespaces.
    #> (+ 1 2 3 4)                            ;_macro_.+, not the global.
-   >>> # xPLUS_
+   >>> # QzPLUS_
    ... __import__('builtins').globals()['add'](
    ...   (1),
-   ...   # __main__..xAUTO_.xPLUS_
+   ...   # __main__..QzAUTO_.QzPLUS_
    ...   __import__('builtins').globals()['add'](
    ...     (2),
-   ...     # __main__..xAUTO_.xPLUS_
+   ...     # __main__..QzAUTO_.QzPLUS_
    ...     __import__('builtins').globals()['add'](
    ...       (3),
-   ...       # __main__..xAUTO_.xPLUS_
+   ...       # __main__..QzAUTO_.QzPLUS_
    ...       (4))))
    10
 
    #> (functools..reduce + '(1 2 3 4))       ;Global function, not the macro!
    >>> __import__('functools').reduce(
-   ...   xPLUS_,
+   ...   QzPLUS_,
    ...   ((1),
    ...    (2),
    ...    (3),
    ...    (4),))
    10
 
-   (dir)                                  ;Has xPLUS_, but not xSTAR_.
+   (dir)                                  ;Has QzPLUS_, but not QzSTAR_.
    (dir _macro_)                          ;Has both.
 
    ;; ``$ lissp`` can run a .lissp file as __main__.
@@ -1374,7 +1374,7 @@ Lissp Quick Start
 
    #> (help _macro_.->>)                     ;Macros have docstrings and live in _macro_.
    >>> help(
-   ...   _macro_.xH_xGT_xGT_)
+   ...   _macro_.QzH_QzGT_QzGT_)
    Help on function <lambda> in module hissp.basic:
    <BLANKLINE>
    <lambda> lambda expr, *forms
@@ -1386,23 +1386,23 @@ Lissp Quick Start
    >>> # hissp.basic.._macro_.alias
    ... # hissp.basic.._macro_.defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda _GxAUTO31_:(
-   ...   'Aliases hissp.basic.._macro_. as bxSLASH_#',
+   ... (lambda _fnQzAUTO7_=(lambda _GQzAUTO31_:(
+   ...   'Aliases hissp.basic.._macro_. as bQzSLASH_#',
    ...   ('{}{}').format(
    ...     'hissp.basic.._macro_.',
-   ...     _GxAUTO31_))[-1]):(
+   ...     _GQzAUTO31_))[-1]):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
-   ...        'bxSLASH_xHASH_',))),
+   ...        'bQzSLASH_QzHASH_',))),
    ...   __import__('builtins').setattr(
    ...     __import__('operator').getitem(
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
-   ...     'bxSLASH_xHASH_',
-   ...     _fnxAUTO7_))[-1])()
+   ...     'bQzSLASH_QzHASH_',
+   ...     _fnQzAUTO7_))[-1])()
 
    #> 'b/#alias                              ;Now short for 'hissp.basic.._macro_.alias'.
    >>> 'hissp.basic.._macro_.alias'
@@ -1430,11 +1430,11 @@ Lissp Quick Start
    >>> b'bytes'
    b'bytes'
 
-   #> b'bytes'                                ;NameError: name 'bx1QUOTE_bytesx1QUOTE_' is not defined
-   >>> bx1QUOTE_bytesx1QUOTE_
+   #> b'bytes'                                ;NameError: name 'bQz1QUOTE_bytesQz1QUOTE_' is not defined
+   >>> bQz1QUOTE_bytesQz1QUOTE_
    Traceback (most recent call last):
      File "<console>", line 1, in <module>
-   NameError: name 'bx1QUOTE_bytesx1QUOTE_' is not defined
+   NameError: name 'bQz1QUOTE_bytesQz1QUOTE_' is not defined
 
 
    #> b#"bytes
@@ -1453,14 +1453,14 @@ Lissp Quick Start
    #..  (print 2))
    >>> # prog1
    ... # hissp.basic.._macro_.let
-   ... (lambda _value1xAUTO35_=# progn
+   ... (lambda _value1QzAUTO35_=# progn
    ... (lambda :(
    ...   print(
    ...     (1)),
    ...   (3))[-1])():(
    ...   print(
    ...     (2)),
-   ...   _value1xAUTO35_)[-1])()
+   ...   _value1QzAUTO35_)[-1])()
    1
    2
    3
@@ -1510,14 +1510,14 @@ Lissp Quick Start
    #..  `(+ ,x ,x ,x))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda x:
+   ... (lambda _fnQzAUTO7_=(lambda x:
    ...   (lambda * _: _)(
-   ...     '__main__..xAUTO_.xPLUS_',
+   ...     '__main__..QzAUTO_.QzPLUS_',
    ...     x,
    ...     x,
    ...     x)):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
@@ -1527,7 +1527,7 @@ Lissp Quick Start
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
    ...     'triple',
-   ...     _fnxAUTO7_))[-1])()
+   ...     _fnQzAUTO7_))[-1])()
 
 
    #> (let (x "a"                            ;Create locals.
@@ -1543,7 +1543,7 @@ Lissp Quick Start
    ...     x,
    ...     y),
    ...   # let
-   ...   (lambda x=('x'),y=xPLUS_(
+   ...   (lambda x=('x'),y=QzPLUS_(
    ...     x,
    ...     x):
    ...     print(
@@ -1562,34 +1562,34 @@ Lissp Quick Start
    #> (attach (types..SimpleNamespace) + : a 1  b "Hi")
    >>> # attach
    ... # hissp.basic.._macro_.let
-   ... (lambda _targetxAUTO16_=__import__('types').SimpleNamespace():(
+   ... (lambda _targetQzAUTO16_=__import__('types').SimpleNamespace():(
    ...   __import__('builtins').setattr(
-   ...     _targetxAUTO16_,
-   ...     'xPLUS_',
-   ...     xPLUS_),
+   ...     _targetQzAUTO16_,
+   ...     'QzPLUS_',
+   ...     QzPLUS_),
    ...   __import__('builtins').setattr(
-   ...     _targetxAUTO16_,
+   ...     _targetQzAUTO16_,
    ...     'a',
    ...     (1)),
    ...   __import__('builtins').setattr(
-   ...     _targetxAUTO16_,
+   ...     _targetQzAUTO16_,
    ...     'b',
    ...     ('Hi')),
-   ...   _targetxAUTO16_)[-1])()
-   namespace(a=1, b='Hi', xPLUS_=<built-in function add>)
+   ...   _targetQzAUTO16_)[-1])()
+   namespace(QzPLUS_=<built-in function add>, a=1, b='Hi')
 
    #> (doto []
    #..  (.extend "bar")
    #..  (.sort)
    #..  (.append "foo"))
    >>> # doto
-   ... (lambda _selfxAUTO20_=[]:(
-   ...   _selfxAUTO20_.extend(
+   ... (lambda _selfQzAUTO20_=[]:(
+   ...   _selfQzAUTO20_.extend(
    ...     ('bar')),
-   ...   _selfxAUTO20_.sort(),
-   ...   _selfxAUTO20_.append(
+   ...   _selfQzAUTO20_.sort(),
+   ...   _selfQzAUTO20_.append(
    ...     ('foo')),
-   ...   _selfxAUTO20_)[-1])()
+   ...   _selfQzAUTO20_)[-1])()
    ['a', 'b', 'r', 'foo']
 
 
@@ -1598,11 +1598,11 @@ Lissp Quick Start
    #> (-> "world!"                           ;Thread-first
    #..    (.title)
    #..    (->> (print "Hello")))             ;Thread-last
-   >>> # xH_xGT_
-   ... # hissp.basic..xAUTO_.xH_xGT_
-   ... # hissp.basic..xAUTO_.xH_xGT_
-   ... # xH_xGT_xGT_
-   ... # hissp.basic..xAUTO_.xH_xGT_xGT_
+   >>> # QzH_QzGT_
+   ... # hissp.basic..QzAUTO_.QzH_QzGT_
+   ... # hissp.basic..QzAUTO_.QzH_QzGT_
+   ... # QzH_QzGT_QzGT_
+   ... # hissp.basic..QzAUTO_.QzH_QzGT_QzGT_
    ... print(
    ...   ('Hello'),
    ...   ('world!').title())
@@ -1616,7 +1616,7 @@ Lissp Quick Start
    #> (any-for i (range 1 11)                ;Imperative loop with break.
    #..  (print i : end " ")
    #..  (not_ (mod i 7)))
-   >>> # anyxH_for
+   >>> # anyQzH_for
    ... __import__('builtins').any(
    ...   __import__('builtins').map(
    ...     (lambda i:(
@@ -1653,68 +1653,68 @@ Lissp Quick Start
 
    ;; Shortcutting logical and.
    #> (&& True True False)
-   >>> # xET_xET_
+   >>> # QzET_QzET_
    ... # hissp.basic.._macro_.let
-   ... (lambda _GxAUTO33_=True:
-   ...   # hissp.basic.._macro_.ifxH_else
-   ...   (lambda test,*thenxH_else:
+   ... (lambda _GQzAUTO33_=True:
+   ...   # hissp.basic.._macro_.ifQzH_else
+   ...   (lambda test,*thenQzH_else:
    ...     __import__('operator').getitem(
-   ...       thenxH_else,
+   ...       thenQzH_else,
    ...       __import__('operator').not_(
    ...         test))())(
-   ...     _GxAUTO33_,
+   ...     _GQzAUTO33_,
    ...     (lambda :
-   ...       # hissp.basic..xAUTO_.xET_xET_
+   ...       # hissp.basic..QzAUTO_.QzET_QzET_
    ...       # hissp.basic.._macro_.let
-   ...       (lambda _GxAUTO33_=True:
-   ...         # hissp.basic.._macro_.ifxH_else
-   ...         (lambda test,*thenxH_else:
+   ...       (lambda _GQzAUTO33_=True:
+   ...         # hissp.basic.._macro_.ifQzH_else
+   ...         (lambda test,*thenQzH_else:
    ...           __import__('operator').getitem(
-   ...             thenxH_else,
+   ...             thenQzH_else,
    ...             __import__('operator').not_(
    ...               test))())(
-   ...           _GxAUTO33_,
+   ...           _GQzAUTO33_,
    ...           (lambda :
-   ...             # hissp.basic..xAUTO_.xET_xET_
+   ...             # hissp.basic..QzAUTO_.QzET_QzET_
    ...             False),
-   ...           (lambda :_GxAUTO33_)))()),
-   ...     (lambda :_GxAUTO33_)))()
+   ...           (lambda :_GQzAUTO33_)))()),
+   ...     (lambda :_GQzAUTO33_)))()
    False
 
    #> (&& False (print "oops"))
-   >>> # xET_xET_
+   >>> # QzET_QzET_
    ... # hissp.basic.._macro_.let
-   ... (lambda _GxAUTO33_=False:
-   ...   # hissp.basic.._macro_.ifxH_else
-   ...   (lambda test,*thenxH_else:
+   ... (lambda _GQzAUTO33_=False:
+   ...   # hissp.basic.._macro_.ifQzH_else
+   ...   (lambda test,*thenQzH_else:
    ...     __import__('operator').getitem(
-   ...       thenxH_else,
+   ...       thenQzH_else,
    ...       __import__('operator').not_(
    ...         test))())(
-   ...     _GxAUTO33_,
+   ...     _GQzAUTO33_,
    ...     (lambda :
-   ...       # hissp.basic..xAUTO_.xET_xET_
+   ...       # hissp.basic..QzAUTO_.QzET_QzET_
    ...       print(
    ...         ('oops'))),
-   ...     (lambda :_GxAUTO33_)))()
+   ...     (lambda :_GQzAUTO33_)))()
    False
 
 
    ;; Shortcutting logical or.
    #> (|| True (print "oops"))
-   >>> # xBAR_xBAR_
+   >>> # QzBAR_QzBAR_
    ... # hissp.basic.._macro_.let
-   ... (lambda _firstxAUTO34_=True:
-   ...   # hissp.basic.._macro_.ifxH_else
-   ...   (lambda test,*thenxH_else:
+   ... (lambda _firstQzAUTO34_=True:
+   ...   # hissp.basic.._macro_.ifQzH_else
+   ...   (lambda test,*thenQzH_else:
    ...     __import__('operator').getitem(
-   ...       thenxH_else,
+   ...       thenQzH_else,
    ...       __import__('operator').not_(
    ...         test))())(
-   ...     _firstxAUTO34_,
-   ...     (lambda :_firstxAUTO34_),
+   ...     _firstQzAUTO34_,
+   ...     (lambda :_firstQzAUTO34_),
    ...     (lambda :
-   ...       # hissp.basic..xAUTO_.xBAR_xBAR_
+   ...       # hissp.basic..QzAUTO_.QzBAR_QzBAR_
    ...       print(
    ...         ('oops')))))()
    True

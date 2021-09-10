@@ -49,11 +49,11 @@ class TestReader(TestCase):
     def test_auto_qualification(self):
         self.assertEqual(
             [('entuple',
-              ':', ':?', ('quote', '__main__..xAUTO_.x'),
+              ':', ':?', ('quote', '__main__..QzAUTO_.x'),
               ':?', ('quote', '__main__..x'),
               ':?', ('quote', '__main__..x'),
               ':?', ('entuple',
-                     ':', ':?', ('quote', '__main__..xAUTO_.y'),
+                     ':', ':?', ('quote', '__main__..QzAUTO_.y'),
                      ':?', ('quote', '__main__..y')),
               ':?', ('entuple', ':', ':?', 1, ':?', ('quote', '__main__..z')))
              ],
@@ -65,11 +65,11 @@ class TestReader(TestCase):
         self.parser.ns.update(x=1, y=2, z=3)
         self.assertEqual(
             [('entuple',
-              ':', ':?', ('quote', '__main__..xAUTO_.x'),
+              ':', ':?', ('quote', '__main__..QzAUTO_.x'),
               ':?', ('quote', '__main__..x'),
               ':?', ('quote', '__main__..x'),
               ':?', ('entuple',
-                     ':', ':?', ('quote', '__main__..xAUTO_.y'),
+                     ':', ':?', ('quote', '__main__..QzAUTO_.y'),
                      ':?', ('quote', '__main__..y')),
               ':?', ('entuple', ':', ':?', 1, ':?', ('quote', '__main__..z')))
              ],
@@ -99,11 +99,11 @@ class TestReader(TestCase):
              ('entuple', ':', ':?', ('quote', 'quote'), ':?', 1),
              ('entuple', ':', ':?', ('quote', 'lambda'), ':?', ':'),
              ('quote', '__import__'),
-             ('quote', 'xAUTO0_'),
+             ('quote', 'QzAUTO0_'),
              ('quote', 'foo..bar'),
              ('quote', 'foo.')],
             [*self.parser.reads(
-                '`(.x) `(quote 1) `(lambda :) `__import__ `xAUTO0_ `foo..bar `foo.'
+                '`(.x) `(quote 1) `(lambda :) `__import__ `QzAUTO0_ `foo..bar `foo.'
             )],
         )
 
@@ -123,12 +123,12 @@ class TestReader(TestCase):
               ('quote', '__main__..int.x'),
               ':?',
               ('quote', '__main__..int.float')),
-             ('entuple', ':', ':?', ('quote', '__main__..xAUTO_.int'), ':?', 1),
+             ('entuple', ':', ':?', ('quote', '__main__..QzAUTO_.int'), ':?', 1),
              ('entuple', ':', ':?', ('quote', 'builtins..float'), ':?', 1),
              ('entuple',
               ':',
               ':?',
-              ('quote', '__main__..xAUTO_.x'),
+              ('quote', '__main__..QzAUTO_.x'),
               ':?',
               ('quote', '__main__..x'))],
             [*self.parser.reads(
@@ -161,25 +161,25 @@ object.__class__.__name__ ; Attributes chain.
 ''':control-word''': [':control-word'],
 "'symbol": [('quote', 'symbol')],
 "'Also-a-symbol! '+ '->>": [
-    ('quote', 'AlsoxH_axH_symbolxBANG_'),
-    ('quote', 'xPLUS_'),
-    ('quote', 'xH_xGT_xGT_'),
+    ('quote', 'AlsoQzH_aQzH_symbolQzBANG_'),
+    ('quote', 'QzPLUS_'),
+    ('quote', 'QzH_QzGT_QzGT_'),
 ],
 '''"string" ""''': [
     "('string')",
     "('')",
 ],
 '''b""''': ['b', "('')"],
-"b''": ['bx1QUOTE_x1QUOTE_'],
-"b''''''": ['bx1QUOTE_x1QUOTE_x1QUOTE_x1QUOTE_x1QUOTE_x1QUOTE_'],
+"b''": ['bQz1QUOTE_Qz1QUOTE_'],
+"b''''''": ['bQz1QUOTE_Qz1QUOTE_Qz1QUOTE_Qz1QUOTE_Qz1QUOTE_Qz1QUOTE_'],
 '''b""""""''': [
     'b', "('')", "('')", "('')"
 ],
 '''rb'' br'' RB'' BR'' rb"" br"" B"" ''': [
-    'rbx1QUOTE_x1QUOTE_',
-    'brx1QUOTE_x1QUOTE_',
-    'RBx1QUOTE_x1QUOTE_',
-    'BRx1QUOTE_x1QUOTE_',
+    'rbQz1QUOTE_Qz1QUOTE_',
+    'brQz1QUOTE_Qz1QUOTE_',
+    'RBQz1QUOTE_Qz1QUOTE_',
+    'BRQz1QUOTE_Qz1QUOTE_',
     'rb',
     "('')",
     'br',
@@ -207,23 +207,23 @@ newlines"
 ''': [('lambda', ('a', 'b', 'c'), '(-b + (b**2 - 4*a*c)**0.5)/(2*a)')],
 r''''\~\!\@\#\$\%\^\&\*\(\)\_\+\{\}\|\:\"\<\>\?\`\-\=\[\]\\\;\'\,\.\/''':
     [('quote',
-      'xTILDE_xBANG_xAT_xHASH_xDOLR_xPCENT_xCARET_xET_xSTAR_xPAREN_xTHESES__xPLUS'
-      '_xCURLY_xBRACES_xBAR_xCOLON_x2QUOTE_xLT_xGT_xQUERY_xGRAVE_xH_xEQ_xSQUARE'
-      '_xBRACKETS_xBSLASH_xSCOLON_x1QUOTE_xCOMMA_xFULLxSTOP_xSLASH_')],
+      'QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzCARET_QzET_QzSTAR_QzPAREN_QzTHESES__'
+      'QzPLUS_QzCURLY_QzBRACES_QzBAR_QzCOLON_Qz2QUOTE_QzLT_QzGT_QzQUERY_QzGRAVE_QzH_QzEQ_'
+      'QzSQUARE_QzBRACKETS_QzBSLASH_QzSCOLON_Qz1QUOTE_QzCOMMA_QzFULLxSTOP_QzSLASH_')],
 r'''\1 \12 \[] \(\) \{} \[] \; \# \` \, \' \" \\ \ ''':
-    ['xDIGITxONE_',
-     'xDIGITxONE_2',
-     'xSQUARE_xBRACKETS_',
-     'xPAREN_xTHESES_',
-     'xCURLY_xBRACES_',
-     'xSQUARE_xBRACKETS_',
-     'xSCOLON_',
-     'xHASH_',
-     'xGRAVE_',
-     'xCOMMA_',
-     'x1QUOTE_',
-     'x2QUOTE_',
-     'xBSLASH_',
-     'xSPACE_'],
+    ['QzDIGITxONE_',
+     'QzDIGITxONE_2',
+     'QzSQUARE_QzBRACKETS_',
+     'QzPAREN_QzTHESES_',
+     'QzCURLY_QzBRACES_',
+     'QzSQUARE_QzBRACKETS_',
+     'QzSCOLON_',
+     'QzHASH_',
+     'QzGRAVE_',
+     'QzCOMMA_',
+     'Qz1QUOTE_',
+     'Qz2QUOTE_',
+     'QzBSLASH_',
+     'QzSPACE_'],
 r'''\b\u\i\l\t\i\n\s..\f\l\o\a\t#\i\n\f''': [math.inf],
 }

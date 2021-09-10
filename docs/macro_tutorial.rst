@@ -451,7 +451,7 @@ If you like, we can give `mul <operator.mul>` a shorter name:
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
-   ...   'xSTAR_',
+   ...   'QzSTAR_',
    ...   mul)
 
 And the params tuple doesn't technically have to be a tuple:
@@ -484,13 +484,13 @@ Try this definition.
    #..  `(lambda ,params ,@body))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda params,*body:
+   ... (lambda _fnQzAUTO7_=(lambda params,*body:
    ...   (lambda * _: _)(
    ...     'lambda',
    ...     params,
    ...     *body)):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
@@ -500,7 +500,7 @@ Try this definition.
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
    ...     'L',
-   ...     _fnxAUTO7_))[-1])()
+   ...     _fnQzAUTO7_))[-1])()
 
 
 .. code-block:: REPL
@@ -511,7 +511,7 @@ Try this definition.
    ...   map(
    ...     # L
    ...     (lambda x:
-   ...       xSTAR_(
+   ...       QzSTAR_(
    ...         x,
    ...         x)),
    ...     range(
@@ -566,14 +566,14 @@ that anaphoric macro we did in the previous tutorial.
    #..     ,expr))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda *expr:
+   ... (lambda _fnQzAUTO7_=(lambda *expr:
    ...   (lambda * _: _)(
    ...     'lambda',
    ...     (lambda * _: _)(
    ...       'X'),
    ...     expr)):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
@@ -583,7 +583,7 @@ that anaphoric macro we did in the previous tutorial.
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
    ...     'L',
-   ...     _fnxAUTO7_))[-1])()
+   ...     _fnQzAUTO7_))[-1])()
 
 
 .. code-block:: REPL
@@ -593,7 +593,7 @@ that anaphoric macro we did in the previous tutorial.
    ...   map(
    ...     # L
    ...     (lambda X:
-   ...       xSTAR_(
+   ...       QzSTAR_(
    ...         X,
    ...         X)),
    ...     range(
@@ -638,7 +638,7 @@ Ready?
    #..     ,expr))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda *expr:
+   ... (lambda _fnQzAUTO7_=(lambda *expr:
    ...   (lambda * _: _)(
    ...     'lambda',
    ...     (lambda * _: _)(
@@ -646,7 +646,7 @@ Ready?
    ...       'Y'),
    ...     expr)):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
@@ -656,7 +656,7 @@ Ready?
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
    ...     'L2',
-   ...     _fnxAUTO7_))[-1])()
+   ...     _fnQzAUTO7_))[-1])()
 
 
 .. code-block:: REPL
@@ -664,7 +664,7 @@ Ready?
    #> (L2 * X Y)
    >>> # L2
    ... (lambda X,Y:
-   ...   xSTAR_(
+   ...   QzSTAR_(
    ...     X,
    ...     Y))
    <function <lambda> at ...>
@@ -700,13 +700,13 @@ Don't panic.
    ... (lambda :(
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       '',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -716,16 +716,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L0',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'A',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -735,16 +735,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L1',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'AB',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -754,16 +754,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L2',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABC',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -773,16 +773,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L3',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCD',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -792,16 +792,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L4',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDE',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -811,16 +811,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L5',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEF',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -830,16 +830,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L6',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFG',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -849,16 +849,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L7',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGH',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -868,16 +868,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L8',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHI',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -887,16 +887,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L9',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJ',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -906,16 +906,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L10',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJK',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -925,16 +925,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L11',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKL',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -944,16 +944,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L12',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLM',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -963,16 +963,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L13',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMN',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -982,16 +982,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L14',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNO',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -1001,16 +1001,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L15',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOP',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -1020,16 +1020,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L16',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQ',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -1039,16 +1039,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L17',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQR',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -1058,16 +1058,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L18',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRS',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -1077,16 +1077,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L19',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRST',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -1096,16 +1096,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L20',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTU',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -1115,16 +1115,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L21',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTUV',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -1134,16 +1134,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L22',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTUVW',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -1153,16 +1153,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L23',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTUVWX',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -1172,16 +1172,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L24',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTUVWXY',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -1191,16 +1191,16 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L25',
-   ...       _fnxAUTO7_))[-1])(),
+   ...       _fnQzAUTO7_))[-1])(),
    ...   # __main__.._macro_.defmacro
    ...   # hissp.basic.._macro_.let
-   ...   (lambda _fnxAUTO7_=(lambda *_exprxAUTO36_:
+   ...   (lambda _fnQzAUTO7_=(lambda *_exprQzAUTO36_:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-   ...       _exprxAUTO36_)):(
+   ...       _exprQzAUTO36_)):(
    ...     __import__('builtins').setattr(
-   ...       _fnxAUTO7_,
+   ...       _fnQzAUTO7_,
    ...       '__qualname__',
    ...       ('.').join(
    ...         ('_macro_',
@@ -1210,7 +1210,7 @@ Don't panic.
    ...         __import__('builtins').globals(),
    ...         '_macro_'),
    ...       'L26',
-   ...       _fnxAUTO7_))[-1])())[-1])()
+   ...       _fnQzAUTO7_))[-1])())[-1])()
 
 Whoa.
 
@@ -1337,7 +1337,7 @@ We can create numbered X's the same way we created the numbered L's.
    #..     ,expr))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda number,*expr:
+   ... (lambda _fnQzAUTO7_=(lambda number,*expr:
    ...   (lambda * _: _)(
    ...     'lambda',
    ...     map(
@@ -1351,7 +1351,7 @@ We can create numbered X's the same way we created the numbered L's.
    ...           number))),
    ...     expr)):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
@@ -1361,7 +1361,7 @@ We can create numbered X's the same way we created the numbered L's.
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
    ...     'L',
-   ...     _fnxAUTO7_))[-1])()
+   ...     _fnQzAUTO7_))[-1])()
 
 
 .. code-block:: REPL
@@ -1397,7 +1397,7 @@ Let's make a slight tweak.
    #..     ,expr))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda *expr:
+   ... (lambda _fnQzAUTO7_=(lambda *expr:
    ...   (lambda * _: _)(
    ...     'lambda',
    ...     map(
@@ -1408,11 +1408,11 @@ Let's make a slight tweak.
    ...         (1),
    ...         add(
    ...           (1),
-   ...           maxxH_X(
+   ...           maxQzH_X(
    ...             expr)))),
    ...     expr)):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
@@ -1422,7 +1422,7 @@ Let's make a slight tweak.
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
    ...     'L',
-   ...     _fnxAUTO7_))[-1])()
+   ...     _fnQzAUTO7_))[-1])()
 
 
 What is this ``max-X``?
@@ -1447,18 +1447,18 @@ Can we just iterate through the expression and check?
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
-   ...   'maxxH_X',
+   ...   'maxQzH_X',
    ...   (lambda expr:
    ...     max(
    ...       map(
    ...         (lambda x:
-   ...           # xBAR_xBAR_
+   ...           # QzBAR_QzBAR_
    ...           # hissp.basic.._macro_.let
-   ...           (lambda _firstxAUTO33_=# when
-   ...           # hissp.basic.._macro_.ifxH_else
-   ...           (lambda test,*thenxH_else:
+   ...           (lambda _firstQzAUTO33_=# when
+   ...           # hissp.basic.._macro_.ifQzH_else
+   ...           (lambda test,*thenQzH_else:
    ...             __import__('operator').getitem(
-   ...               thenxH_else,
+   ...               thenQzH_else,
    ...               __import__('operator').not_(
    ...                 test))())(
    ...             is_(
@@ -1473,10 +1473,10 @@ Can we just iterate through the expression and check?
    ...                   ('X([1-9][0-9]*)'),
    ...                   x):
    ...                   # when
-   ...                   # hissp.basic.._macro_.ifxH_else
-   ...                   (lambda test,*thenxH_else:
+   ...                   # hissp.basic.._macro_.ifQzH_else
+   ...                   (lambda test,*thenQzH_else:
    ...                     __import__('operator').getitem(
-   ...                       thenxH_else,
+   ...                       thenQzH_else,
    ...                       __import__('operator').not_(
    ...                         test))())(
    ...                     match,
@@ -1488,16 +1488,16 @@ Can we just iterate through the expression and check?
    ...                             (1))))()),
    ...                     (lambda :())))())()),
    ...             (lambda :())):
-   ...             # hissp.basic.._macro_.ifxH_else
-   ...             (lambda test,*thenxH_else:
+   ...             # hissp.basic.._macro_.ifQzH_else
+   ...             (lambda test,*thenQzH_else:
    ...               __import__('operator').getitem(
-   ...                 thenxH_else,
+   ...                 thenQzH_else,
    ...                 __import__('operator').not_(
    ...                   test))())(
-   ...               _firstxAUTO33_,
-   ...               (lambda :_firstxAUTO33_),
+   ...               _firstQzAUTO33_,
+   ...               (lambda :_firstQzAUTO33_),
    ...               (lambda :
-   ...                 # hissp.basic..xAUTO_.xBAR_xBAR_
+   ...                 # hissp.basic..QzAUTO_.QzBAR_QzBAR_
    ...                 (0))))()),
    ...         expr))))
 
@@ -1506,7 +1506,7 @@ Does that make sense?
 Read the definition carefully.
 You can experiment with macros you don't recognize in the REPL.
 All the basic macros,
-including the `|| <xBAR_xBAR_>`
+including the `|| <QzBAR_QzBAR_>`
 and `when` were covered in the `quick start <lissp_quickstart>`.
 We're using them to coalesce Python's awkward regex matches,
 which can return ``None``, into a ``0``,
@@ -1579,14 +1579,14 @@ Lissp can do that with a class.
    ...                    'accumulator',
    ...                    [])),
    ...       flatten=(lambda self,form:(
-   ...                 # anyxH_for
+   ...                 # anyQzH_for
    ...                 __import__('builtins').any(
    ...                   __import__('builtins').map(
    ...                     (lambda x:(
-   ...                       # ifxH_else
-   ...                       (lambda test,*thenxH_else:
+   ...                       # ifQzH_else
+   ...                       (lambda test,*thenQzH_else:
    ...                         __import__('operator').getitem(
-   ...                           thenxH_else,
+   ...                           thenQzH_else,
    ...                           __import__('operator').not_(
    ...                             test))())(
    ...                         is_(
@@ -1640,18 +1640,18 @@ Now we can fix ``max-X``.
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
-   ...   'maxxH_X',
+   ...   'maxQzH_X',
    ...   (lambda expr:
    ...     max(
    ...       map(
    ...         (lambda x:
-   ...           # xBAR_xBAR_
+   ...           # QzBAR_QzBAR_
    ...           # hissp.basic.._macro_.let
-   ...           (lambda _firstxAUTO33_=# when
-   ...           # hissp.basic.._macro_.ifxH_else
-   ...           (lambda test,*thenxH_else:
+   ...           (lambda _firstQzAUTO33_=# when
+   ...           # hissp.basic.._macro_.ifQzH_else
+   ...           (lambda test,*thenQzH_else:
    ...             __import__('operator').getitem(
-   ...               thenxH_else,
+   ...               thenQzH_else,
    ...               __import__('operator').not_(
    ...                 test))())(
    ...             is_(
@@ -1666,10 +1666,10 @@ Now we can fix ``max-X``.
    ...                   ('X([1-9][0-9]*)'),
    ...                   x):
    ...                   # when
-   ...                   # hissp.basic.._macro_.ifxH_else
-   ...                   (lambda test,*thenxH_else:
+   ...                   # hissp.basic.._macro_.ifQzH_else
+   ...                   (lambda test,*thenQzH_else:
    ...                     __import__('operator').getitem(
-   ...                       thenxH_else,
+   ...                       thenQzH_else,
    ...                       __import__('operator').not_(
    ...                         test))())(
    ...                     match,
@@ -1681,16 +1681,16 @@ Now we can fix ``max-X``.
    ...                             (1))))()),
    ...                     (lambda :())))())()),
    ...             (lambda :())):
-   ...             # hissp.basic.._macro_.ifxH_else
-   ...             (lambda test,*thenxH_else:
+   ...             # hissp.basic.._macro_.ifQzH_else
+   ...             (lambda test,*thenQzH_else:
    ...               __import__('operator').getitem(
-   ...                 thenxH_else,
+   ...                 thenQzH_else,
    ...                 __import__('operator').not_(
    ...                   test))())(
-   ...               _firstxAUTO33_,
-   ...               (lambda :_firstxAUTO33_),
+   ...               _firstQzAUTO33_,
+   ...               (lambda :_firstQzAUTO33_),
    ...               (lambda :
-   ...                 # hissp.basic..xAUTO_.xBAR_xBAR_
+   ...                 # hissp.basic..QzAUTO_.QzBAR_QzBAR_
    ...                 (0))))()),
    ...         flatten(
    ...           expr)))))
@@ -1796,22 +1796,22 @@ you must define them in ``_macro_`` with a name ending in a ``#``.
    #..  `(L ,@expr))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda expr:
+   ... (lambda _fnQzAUTO7_=(lambda expr:
    ...   (lambda * _: _)(
    ...     '__main__.._macro_.L',
    ...     *expr)):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
-   ...        'XxHASH_',))),
+   ...        'XQzHASH_',))),
    ...   __import__('builtins').setattr(
    ...     __import__('operator').getitem(
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
-   ...     'XxHASH_',
-   ...     _fnxAUTO7_))[-1])()
+   ...     'XQzHASH_',
+   ...     _fnQzAUTO7_))[-1])()
 
 We have to escape the ``#`` with a backslash
 or the reader will recognize the name as a macro rather than a symbol
@@ -1839,7 +1839,7 @@ It's the way you invoke it that makes it happen at read time:
    #..           (range 10)))
    >>> list(
    ...   map(
-   ...     # XxHASH_
+   ...     # XQzHASH_
    ...     # __main__.._macro_.L
    ...     (lambda X1:
    ...       add(
@@ -1880,7 +1880,7 @@ Catch-All Parameter
    #..     ,expr))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda *expr:
+   ... (lambda _fnQzAUTO7_=(lambda *expr:
    ...   (lambda * _: _)(
    ...     'lambda',
    ...     (lambda * _: _)(
@@ -1892,14 +1892,14 @@ Catch-All Parameter
    ...            (1),
    ...            add(
    ...              (1),
-   ...              maxxH_X(
+   ...              maxQzH_X(
    ...                expr)))),
    ...       ':',
    ...       *# when
-   ...        # hissp.basic.._macro_.ifxH_else
-   ...        (lambda test,*thenxH_else:
+   ...        # hissp.basic.._macro_.ifQzH_else
+   ...        (lambda test,*thenQzH_else:
    ...          __import__('operator').getitem(
-   ...            thenxH_else,
+   ...            thenQzH_else,
    ...            __import__('operator').not_(
    ...              test))())(
    ...          contains(
@@ -1915,7 +1915,7 @@ Catch-All Parameter
    ...          (lambda :()))),
    ...     expr)):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
@@ -1925,7 +1925,7 @@ Catch-All Parameter
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
    ...     'L',
-   ...     _fnxAUTO7_))[-1])()
+   ...     _fnQzAUTO7_))[-1])()
 
 .. code-block:: REPL
 
@@ -2017,7 +2017,7 @@ Here you go:
    #..        expr)))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda *expr:
+   ... (lambda _fnQzAUTO7_=(lambda *expr:
    ...   (lambda * _: _)(
    ...     'lambda',
    ...     (lambda * _: _)(
@@ -2029,30 +2029,30 @@ Here you go:
    ...            (1),
    ...            add(
    ...              (1),
-   ...              # xBAR_xBAR_
+   ...              # QzBAR_QzBAR_
    ...              # hissp.basic.._macro_.let
-   ...              (lambda _firstxAUTO28_=maxxH_X(
+   ...              (lambda _firstQzAUTO28_=maxQzH_X(
    ...                expr):
-   ...                # hissp.basic.._macro_.ifxH_else
-   ...                (lambda test,*thenxH_else:
+   ...                # hissp.basic.._macro_.ifQzH_else
+   ...                (lambda test,*thenQzH_else:
    ...                  __import__('operator').getitem(
-   ...                    thenxH_else,
+   ...                    thenQzH_else,
    ...                    __import__('operator').not_(
    ...                      test))())(
-   ...                  _firstxAUTO28_,
-   ...                  (lambda :_firstxAUTO28_),
+   ...                  _firstQzAUTO28_,
+   ...                  (lambda :_firstQzAUTO28_),
    ...                  (lambda :
-   ...                    # hissp.basic..xAUTO_.xBAR_xBAR_
+   ...                    # hissp.basic..QzAUTO_.QzBAR_QzBAR_
    ...                    contains(
    ...                      flatten(
    ...                        expr),
    ...                      'X'))))()))),
    ...       ':',
    ...       *# when
-   ...        # hissp.basic.._macro_.ifxH_else
-   ...        (lambda test,*thenxH_else:
+   ...        # hissp.basic.._macro_.ifQzH_else
+   ...        (lambda test,*thenQzH_else:
    ...          __import__('operator').getitem(
-   ...            thenxH_else,
+   ...            thenQzH_else,
    ...            __import__('operator').not_(
    ...              test))())(
    ...          contains(
@@ -2066,10 +2066,10 @@ Here you go:
    ...                ':*',
    ...                'Xi'))()),
    ...          (lambda :()))),
-   ...     # ifxH_else
-   ...     (lambda test,*thenxH_else:
+   ...     # ifQzH_else
+   ...     (lambda test,*thenQzH_else:
    ...       __import__('operator').getitem(
-   ...         thenxH_else,
+   ...         thenQzH_else,
    ...         __import__('operator').not_(
    ...           test))())(
    ...       contains(
@@ -2085,7 +2085,7 @@ Here you go:
    ...           expr)),
    ...       (lambda :expr)))):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
@@ -2095,7 +2095,7 @@ Here you go:
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
    ...     'L',
-   ...     _fnxAUTO7_))[-1])()
+   ...     _fnQzAUTO7_))[-1])()
 
 .. code-block:: REPL
 
@@ -2183,7 +2183,7 @@ Do you see the problem with this?
 This was supposed to be the quadratic formula.
 The ``%`` is an operator in Python,
 and it can't be unary.
-In an injection you would have to spell it using the munged name ``xPCENT_``.
+In an injection you would have to spell it using the munged name ``QzPCENT_``.
 But what if we had kept the ``X``?
 
 .. code-block:: REPL
@@ -2335,22 +2335,22 @@ Lissp gives us a better option.
    #..  (int x 16))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda x:
+   ... (lambda _fnQzAUTO7_=(lambda x:
    ...   int(
    ...     x,
    ...     (16))):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
-   ...        'xDIGITxONE_6xHASH_',))),
+   ...        'QzDIGITxONE_6QzHASH_',))),
    ...   __import__('builtins').setattr(
    ...     __import__('operator').getitem(
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
-   ...     'xDIGITxONE_6xHASH_',
-   ...     _fnxAUTO7_))[-1])()
+   ...     'QzDIGITxONE_6QzHASH_',
+   ...     _fnQzAUTO7_))[-1])()
 
 We've defined a tag that turns hexadecimal strings into ints.
 And it does it so at *read time*.
@@ -2416,23 +2416,23 @@ New version.
    #..  (int (str x) 16))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda x:
+   ... (lambda _fnQzAUTO7_=(lambda x:
    ...   int(
    ...     str(
    ...       x),
    ...     (16))):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
-   ...        'xDIGITxONE_6xHASH_',))),
+   ...        'QzDIGITxONE_6QzHASH_',))),
    ...   __import__('builtins').setattr(
    ...     __import__('operator').getitem(
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
-   ...     'xDIGITxONE_6xHASH_',
-   ...     _fnxAUTO7_))[-1])()
+   ...     'QzDIGITxONE_6QzHASH_',
+   ...     _fnQzAUTO7_))[-1])()
 
 And now it works as well as the built-in notation.
 
@@ -2455,7 +2455,7 @@ Or does it?
      File "<console>", line 1
        -16#1
            ^
-   SyntaxError: Unknown reader macro xH_16
+   SyntaxError: Unknown reader macro QzH_16
 
 The minus sign changed the tag!
 If we don't want to define a new ``-16#`` tag
@@ -2475,7 +2475,7 @@ That worked! Not.
    #> 16#-FF
    Traceback (most recent call last):
      ...
-   ValueError: invalid literal for int() with base 16: 'xH_FF'
+   ValueError: invalid literal for int() with base 16: 'QzH_FF'
 
 But this is fine.
 
@@ -2516,7 +2516,7 @@ because munging is (mostly) reversible.
    #..       16))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda x:(
+   ... (lambda _fnQzAUTO7_=(lambda x:(
    ...   ('hexadecimal'),
    ...   int(
    ...     __import__('hissp.munger',fromlist='?').demunge(
@@ -2524,21 +2524,21 @@ because munging is (mostly) reversible.
    ...         x)),
    ...     (16)))[-1]):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__doc__',
    ...     ('hexadecimal')),
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
-   ...        'xDIGITxONE_6xHASH_',))),
+   ...        'QzDIGITxONE_6QzHASH_',))),
    ...   __import__('builtins').setattr(
    ...     __import__('operator').getitem(
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
-   ...     'xDIGITxONE_6xHASH_',
-   ...     _fnxAUTO7_))[-1])()
+   ...     'QzDIGITxONE_6QzHASH_',
+   ...     _fnQzAUTO7_))[-1])()
 
 .. code-block:: REPL
 
@@ -2556,28 +2556,28 @@ Well, with reader macros, you can implement any base you want.
    #..  (int (str x) 6))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda x:(
+   ... (lambda _fnQzAUTO7_=(lambda x:(
    ...   ('seximal'),
    ...   int(
    ...     str(
    ...       x),
    ...     (6)))[-1]):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__doc__',
    ...     ('seximal')),
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
-   ...        'xDIGITxSIX_xHASH_',))),
+   ...        'QzDIGITxSIX_QzHASH_',))),
    ...   __import__('builtins').setattr(
    ...     __import__('operator').getitem(
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
-   ...     'xDIGITxSIX_xHASH_',
-   ...     _fnxAUTO7_))[-1])()
+   ...     'QzDIGITxSIX_QzHASH_',
+   ...     _fnQzAUTO7_))[-1])()
 
 .. code-block:: REPL
 
@@ -2603,15 +2603,15 @@ Or you can add floating-point. Python's notation can't do that.
    #..      (int x 16))))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda x:
+   ... (lambda _fnQzAUTO7_=(lambda x:
    ...   # let
    ...   (lambda x=__import__('hissp.munger',fromlist='?').demunge(
    ...     str(
    ...       x)):
-   ...     # ifxH_else
-   ...     (lambda test,*thenxH_else:
+   ...     # ifQzH_else
+   ...     (lambda test,*thenQzH_else:
    ...       __import__('operator').getitem(
-   ...         thenxH_else,
+   ...         thenQzH_else,
    ...         __import__('operator').not_(
    ...           test))())(
    ...       __import__('re').search(
@@ -2625,17 +2625,17 @@ Or you can add floating-point. Python's notation can't do that.
    ...           x,
    ...           (16)))))()):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
-   ...        'xDIGITxONE_6xHASH_',))),
+   ...        'QzDIGITxONE_6QzHASH_',))),
    ...   __import__('builtins').setattr(
    ...     __import__('operator').getitem(
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
-   ...     'xDIGITxONE_6xHASH_',
-   ...     _fnxAUTO7_))[-1])()
+   ...     'QzDIGITxONE_6QzHASH_',
+   ...     _fnQzAUTO7_))[-1])()
 
 .. code-block:: REPL
 
@@ -2736,7 +2736,7 @@ We can improve this a lot with a custom defmacro.
    #..  `(decimal..Decimal ',(str x)))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda x:
+   ... (lambda _fnQzAUTO7_=(lambda x:
    ...   (lambda * _: _)(
    ...     'decimal..Decimal',
    ...     (lambda * _: _)(
@@ -2744,17 +2744,17 @@ We can improve this a lot with a custom defmacro.
    ...       str(
    ...         x)))):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
-   ...        'xDIGITxONE_0xHASH_',))),
+   ...        'QzDIGITxONE_0QzHASH_',))),
    ...   __import__('builtins').setattr(
    ...     __import__('operator').getitem(
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
-   ...     'xDIGITxONE_0xHASH_',
-   ...     _fnxAUTO7_))[-1])()
+   ...     'QzDIGITxONE_0QzHASH_',
+   ...     _fnQzAUTO7_))[-1])()
 
 .. code-block:: REPL
 
@@ -2813,7 +2813,7 @@ but a string is not the only alternative available:
    #..  `(decimal..Decimal ',(getitem x (slice 1 None))))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fnxAUTO7_=(lambda x:
+   ... (lambda _fnQzAUTO7_=(lambda x:
    ...   (lambda * _: _)(
    ...     'decimal..Decimal',
    ...     (lambda * _: _)(
@@ -2824,17 +2824,17 @@ but a string is not the only alternative available:
    ...           (1),
    ...           None))))):(
    ...   __import__('builtins').setattr(
-   ...     _fnxAUTO7_,
+   ...     _fnQzAUTO7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
-   ...        'xDIGITxONE_0xHASH_',))),
+   ...        'QzDIGITxONE_0QzHASH_',))),
    ...   __import__('builtins').setattr(
    ...     __import__('operator').getitem(
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
-   ...     'xDIGITxONE_0xHASH_',
-   ...     _fnxAUTO7_))[-1])()
+   ...     'QzDIGITxONE_0QzHASH_',
+   ...     _fnQzAUTO7_))[-1])()
 
 .. code-block:: REPL
 

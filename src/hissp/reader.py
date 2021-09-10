@@ -303,7 +303,7 @@ class Lissp:
             module, function = tag.split("..", 1)
             return reduce(getattr, function.split("."), import_module(module))(form)
         try:
-            m = getattr(self.ns["_macro_"], tag + "xHASH_")
+            m = getattr(self.ns["_macro_"], tag + "QzHASH_")
         except (AttributeError, KeyError):
             raise SyntaxError(f"Unknown reader macro {tag}", self.position())
         with self.compiler.macro_context():
@@ -312,7 +312,7 @@ class Lissp:
     @staticmethod
     def escape(atom):
         """Process the backslashes in a token."""
-        atom = atom.replace(r"\.", "xFULLxSTOP_")
+        atom = atom.replace(r"\.", "QzFULLxSTOP_")
         return re.sub(r"\\(.)", lambda m: m[1], atom)
 
     def template(self, form):
@@ -355,7 +355,7 @@ class Lissp:
         if symbol in dir(builtins) and symbol.split(".", 1)[0] not in self.ns:
             return f"builtins..{symbol}"  # Known builtin, not shadowed (yet).
         if invocation and "." not in symbol:  # Could still be a recursive macro.
-            return f"{self.qualname}..xAUTO_.{symbol}"
+            return f"{self.qualname}..QzAUTO_.{symbol}"
         return f"{self.qualname}..{symbol}"
 
     def _macro_has(self, symbol):
@@ -386,7 +386,7 @@ class Lissp:
     def gensym(self, form: str):
         """Generate a symbol unique to the current template."""
         try:
-            return f"_{munge(form)}xAUTO{self.gensym_stack[-1]}_"
+            return f"_{munge(form)}QzAUTO{self.gensym_stack[-1]}_"
         except IndexError:
             raise SyntaxError("Gensym outside of template.", self.position()) from None
 
@@ -441,7 +441,7 @@ def is_qualifiable(symbol):
     return (
             symbol not in {"quote", "__import__"}
             and not _iskeyword(symbol)
-            and not re.match(r".*xAUTO\d+_$", symbol)
+            and not re.match(r".*QzAUTO\d+_$", symbol)
             and all(map(str.isidentifier, symbol.split(".")))
     )
 

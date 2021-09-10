@@ -7,7 +7,7 @@ Encodes Lissp symbols with special characters into valid,
 human-readable (if ugly) Python identifiers,
 using NFKC normalization and *x-codes*.
 
-E.g. ``*FOO-BAR*`` becomes ``xSTAR_FOOxH_BARxSTAR_``.
+E.g. ``*FOO-BAR*`` becomes ``QzSTAR_FOOQzH_BARQzSTAR_``.
 
 X-codes are written in upper case and wrapped in an ``x`` and ``_``.
 This format was chosen because it contains an underscore
@@ -81,40 +81,40 @@ def _munge_part(part):
 
 TO_NAME = {
     # ASCII control characters don't munge to names.
-    "!": "xBANG_",
-    '"': "x2QUOTE_",
-    "#": "xHASH_",
-    "$": "xDOLR_",
-    "%": "xPCENT_",
-    "&": "xET_",
-    "'": "x1QUOTE_",
-    "(": "xPAREN_",
-    ")": "xTHESES_",
-    "*": "xSTAR_",
-    "+": "xPLUS_",
-    # xCOMMA_ is fine.
-    "-": "xH_",  # Hyphen-minus
+    "!": "QzBANG_",
+    '"': "Qz2QUOTE_",
+    "#": "QzHASH_",
+    "$": "QzDOLR_",
+    "%": "QzPCENT_",
+    "&": "QzET_",
+    "'": "Qz1QUOTE_",
+    "(": "QzPAREN_",
+    ")": "QzTHESES_",
+    "*": "QzSTAR_",
+    "+": "QzPLUS_",
+    # QzCOMMA_ is fine.
+    "-": "QzH_",  # Hyphen-minus
     # Full stop reserved for imports and attributes.
-    "/": "xSLASH_",
+    "/": "QzSLASH_",
     # Digits only munge if first character.
-    ";": "xSCOLON_",
-    "<": "xLT_",  # Less Than or LefT.
-    "=": "xEQ_",
-    ">": "xGT_",  # Greater Than or riGhT.
-    "?": "xQUERY_",
-    "@": "xAT_",
+    ";": "QzSCOLON_",
+    "<": "QzLT_",  # Less Than or LefT.
+    "=": "QzEQ_",
+    ">": "QzGT_",  # Greater Than or riGhT.
+    "?": "QzQUERY_",
+    "@": "QzAT_",
     # Capital letters are always valid in Python identifiers.
-    "[": "xSQUARE_",
-    "\\": "xBSLASH_",
-    "]": "xBRACKETS_",
-    "^": "xCARET_",
+    "[": "QzSQUARE_",
+    "\\": "QzBSLASH_",
+    "]": "QzBRACKETS_",
+    "^": "QzCARET_",
     # Underscore is valid in Python identifiers.
-    "`": "xGRAVE_",
+    "`": "QzGRAVE_",
     # Small letters are also always valid.
-    "{": "xCURLY_",
-    "|": "xBAR_",
-    "}": "xBRACES_",
-    # xTILDE_ is fine.
+    "{": "QzCURLY_",
+    "|": "QzBAR_",
+    "}": "QzBRACES_",
+    # QzTILDE_ is fine.
 }
 """Shorter names for X-encoding."""
 
@@ -139,8 +139,8 @@ def force_x_encode(c: str) -> str:
     with suppress(LookupError):
         return TO_NAME[c]
     with suppress(ValueError):
-        return f"x{unicodedata.name(c).translate(X_NAME)}_"
-    return f"x{ord(c)}_"
+        return f"Qz{unicodedata.name(c).translate(X_NAME)}_"
+    return f"Qz{ord(c)}_"
 
 
 K = TypeVar("K", bound=Hashable)
@@ -171,4 +171,4 @@ def _x_decode(match: Match[str]) -> str:
 
 def demunge(s: str) -> str:
     """The inverse of `munge`. Decodes any x-codes into characters."""
-    return re.sub("x([0-9A-Z][0-9A-Zhx]*?)_", _x_decode, s)
+    return re.sub("Qz([0-9A-Z][0-9A-Zhx]*?)_", _x_decode, s)
