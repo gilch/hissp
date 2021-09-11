@@ -508,6 +508,8 @@ Better not increase it too much if you don't like segfaults, but you can
 trampoline instead. See Drython_'s ``loop()`` function. Or use it. Or
 Hebigo_'s equivalent macro. Clojure does it about the same way.
 
+See also, `fn.py <https://pypi.org/project/fn/>`_'s ``@recur.tco`` decorator.
+
 Isn't that required for Lisp?
 -----------------------------
 
@@ -783,16 +785,25 @@ themselves if you're not careful.
 But I need a raise statement for a specific exception message.
 --------------------------------------------------------------
 
-Exceptions are not good functional style. Haskell uses the Maybe monad
-instead, so you don't need them. If you must, you can still use a
-``raise`` in `exec()<exec>`. (Or use Drython_'s ``Raise()``, or Hebigo_'s
-equivalent macro.)
+Exceptions are not good functional style.
+Haskell uses other approaches instead,
+like the Maybe monad,
+demonstrating that you don't *need* exceptions in functional code.
 
-If you want a Maybe in Python,
+(If you want a Maybe in Python,
 `returns <https://pypi.org/project/returns/>`_
 has them.
 But should you use them?
-`Maybe not. <https://www.youtube.com/watch?v=YR5WdGrpoug>`_
+`Maybe not. <https://www.youtube.com/watch?v=YR5WdGrpoug>`_)
+
+If you can install an additional library,
+Drython_'s ``Raise()``,
+Hebigo_'s equivalent macro,
+or funcy_'s ``raiser()`` are options.
+
+If you can't but must use exceptions for compatibility,
+you can still use a ``raise`` in `exec()<exec>`
+without adding any dependencies.
 
 Use exec? Isn't that slow?
 --------------------------
@@ -1016,13 +1027,20 @@ on module import. Something like,
 
 Once on import is honestly not bad. Even the standard library does it,
 like for `named tuples <collections.namedtuple>`.
-But at this point, unless you really want a
-single-file script with no dependencies, you're better off defining the
-helper function in Python and importing it. You could handle the
-finally/else blocks similarly. See Drython_'s ``Try()`` for how to do it.
-Or just use Drython. Hebigo_ also implements one. If Hebigo is installed,
-you can import and use Hebigo's macros, even in Lissp, because they also
-take and return Hissp.
+
+But at this point,
+unless you really want a single-file script with no dependencies,
+you're better off defining the helper function in Python and importing it.
+You could handle the finally/else blocks similarly.
+See Drython_'s ``Try()`` for how to do it.
+(Or just use Drython.
+Or ``excepts()`` from Toolz_.)
+
+Hebigo_ also implements a try macro.
+If Hebigo is installed,
+you can import and use Hebigo's macros,
+even in Lissp,
+because they also take and return Hissp.
 
 Isn't Hissp slower than Python? Isn't Python slow enough already?
 -----------------------------------------------------------------
@@ -1527,14 +1545,18 @@ The only way it will get proven is if some early adopter like you tries it out a
 
 While Hissp's basic macros may suffice for small or embedded Hissp projects,
 you'll probably want more than that for a larger application.
+Functional and data structure–manipulation libraries are especially useful.
 Hissp doesn't exactly have a standard library,
 relying instead on Python's,
-but I can recommend using a few more:
-Currently, that's Hebigo's macro suite (and most of it even for Lissp),
+but I can recommend using a few more, currently:
+Hebigo's macro suite (and most of it even for Lissp),
 Pyrsistent_'s more basic data structures,
-and most of Toolz_.
+and most of Toolz_ (or cytoolz_).
 
 .. _Hebigo: https://github.com/gilch/hebigo
 .. _Drython: https://github.com/gilch/drython
+
+.. _cytoolz: https://pypi.org/project/cytoolz/
+.. _funcy: https://pypi.org/project/funcy/
 .. _Pyrsistent: https://pypi.org/project/pyrsistent/
 .. _Toolz: https://pypi.org/project/toolz/
