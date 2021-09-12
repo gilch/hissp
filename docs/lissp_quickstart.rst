@@ -31,7 +31,7 @@ Lissp Quick Start
    This document is written like a .lissp file, demonstrating Lissp's (and
    thereby Hissp's) features with minimal exposition. Some familiarity with
    Python is assumed. Familiarity with another Lisp dialect is not assumed,
-   but helpful. See the Hissp tutorial for more detailed explanations.
+   but helpful. If you get confused or stuck, read the Hissp tutorial.
 
    To fully understand these examples, you must see their output. Install
    the Hissp version matching this document. Follow along by entering these
@@ -40,7 +40,7 @@ Lissp Quick Start
 
    Some examples depend on state set by previous examples to work.
    Prerequisites for examples not in the same section are marked with
-   '(!)'. Don't skip these.
+   '(!)'. Don't skip these. Re-enter them if you start a new session.
    "
 
    ;;;; Installation
@@ -195,7 +195,7 @@ Lissp Quick Start
    >>> 'AlsoQz_aQz_symbolQzBANG_'
    'AlsoQz_aQz_symbolQzBANG_'
 
-   #> '𝐀                                     ;Alias for 'A (munges to unicode normal form KC)
+   #> '𝐀                                     ;Alias for 'A (unicode normal form KC)
    >>> 'A'
    'A'
 
@@ -203,9 +203,13 @@ Lissp Quick Start
    >>> 'Qz_QzGT_QzGT_'
    'Qz_QzGT_QzGT_'
 
-   #> :->>                                   ;These don't represent identifiers, don't munge.
+   #> :->>                                   ;Don't represent identifiers, don't munge.
    >>> ':->>'
    ':->>'
+
+   #> :                                      ;Still a control word.
+   >>> ':'
+   ':'
 
 
    #> 'SPAM\ \"\(\)\;EGGS                    ;These would terminate a symbol if not escaped.
@@ -269,7 +273,7 @@ Lissp Quick Start
    >>> print()
    <BLANKLINE>
 
-   #> (print : :? 1  :? 2  :? 3  sep "-")    ;Arguments pair with a parameter name. No commas!
+   #> (print : :? 1  :? 2  :? 3  sep "-")    ;All arguments pair with a target! No commas!
    >>> print(
    ...   (1),
    ...   (2),
@@ -277,7 +281,7 @@ Lissp Quick Start
    ...   sep=('-'))
    1-2-3
 
-   #> (print 1 2 3 : sep "-")                ;Arguments left of the : implicitly pair with :?.
+   #> (print 1 : :? 2  :? 3  sep "-")        ;Arguments left of : implicitly pair with :?.
    >>> print(
    ...   (1),
    ...   (2),
@@ -285,7 +289,23 @@ Lissp Quick Start
    ...   sep=('-'))
    1-2-3
 
-   #> (print 1 : :* "abc"  :? 2  :** (dict : sep "-")) ;Unpacking!
+   #> (print 1 2 : :? 3  sep "-")            ;Same thing. Keep sliding it over.
+   >>> print(
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   sep=('-'))
+   1-2-3
+
+   #> (print 1 2 3 : sep "-")                ;Next isn't a :?. The : stops here.
+   >>> print(
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   sep=('-'))
+   1-2-3
+
+   #> (print 1 : :* "abc"  :? 2  :** (dict : sep "-")) ;Pair with stars for unpacking!
    >>> print(
    ...   (1),
    ...   *('abc'),
@@ -294,12 +314,17 @@ Lissp Quick Start
    ...       sep=('-')))
    1-a-b-c-2
 
-   #> (print "Hello, World!")                ;No : is the same as putting it last.
+   #> (print : :? "Hello, World!")
    >>> print(
    ...   ('Hello, World!'))
    Hello, World!
 
-   #> (print "Hello, World!" :)              ;Compare.
+   #> (print "Hello, World!" :)              ;Same. Compare.
+   >>> print(
+   ...   ('Hello, World!'))
+   Hello, World!
+
+   #> (print "Hello, World!")                ;No : is the same as putting it last!
    >>> print(
    ...   ('Hello, World!'))
    Hello, World!
@@ -320,7 +345,7 @@ Lissp Quick Start
    inf
 
 
-   #> (help sum)                             ;Python's online help function is still available.
+   #> (help sum)                             ;Python's online help function still works.
    >>> help(
    ...   sum)
    Help on built-in function sum in module builtins:
@@ -339,6 +364,7 @@ Lissp Quick Start
    ;; Lambda is one of only two special forms--looks like a call, but isn't.
 
    ;; Python parameter types are rather involved. Lambda does all of them.
+   ;; Like calls, they are all paired. :? means no default.
    #> (lambda (: a :?  b :?  :/ :?           ;positional only
    #..         c :?  d :?                    ;normal
    #..         e 1  f 2                      ;default
@@ -357,7 +383,19 @@ Lissp Quick Start
    <function <lambda> at 0x...>
 
 
-   ;; Parameters left of the : are paired with placeholder (:?), parallels calls.
+   #> (lambda (: a :?  b :?  c 1))           ;Parameters left of : pair with :?.
+   >>> (lambda a,b,c=(1):())
+   <function <lambda> at 0x...>
+
+   #> (lambda (a : b :?  c 1))               ;Like calls. Keep sliding.
+   >>> (lambda a,b,c=(1):())
+   <function <lambda> at 0x...>
+
+   #> (lambda (a b : c 1))                   ;Next isn't a :?. The : stops here.
+   >>> (lambda a,b,c=(1):())
+   <function <lambda> at 0x...>
+
+
    #> (lambda (: :* a))                      ;Star arg must pair with star, as Python.
    >>> (lambda *a:())
    <function <lambda> at 0x...>
@@ -366,7 +404,7 @@ Lissp Quick Start
    >>> (lambda *,a:())
    <function <lambda> at 0x...>
 
-   #> (lambda (:* a :))                      ;Compare.
+   #> (lambda (:* a :))                      ;Same. Compare.
    >>> (lambda *,a:())
    <function <lambda> at 0x...>
 
@@ -387,7 +425,7 @@ Lissp Quick Start
    >>> (lambda spam,eggs:eggs)
    <function <lambda> at 0x...>
 
-   #> ((lambda abc                           ; parameters are not strictly required to be a tuple.
+   #> ((lambda abc                           ; params not strictly required to be a tuple.
    #..   (print c b a))                      ;There are three parameters.
    #.. 3 2 1)
    >>> (lambda a,b,c:
@@ -401,7 +439,7 @@ Lissp Quick Start
    1 2 3
 
 
-   #> (lambda (:))                           ;Explicit : is still allowed with no parameters.
+   #> (lambda (:))                           ;Explicit : still allowed with no params.
    >>> (lambda :())
    <function <lambda> at 0x...>
 
@@ -527,17 +565,19 @@ Lissp Quick Start
 
    ;;;; Reader Macros
 
-   #> 'x                                     ;Same as (quote x). Symbols are just quoted identifiers!
+   ;; Reader macros are metaprograms to abbreviate Hissp and don't represent it directly.
+   ;; They apply to the next form. They end in # except for a few builtins-- ' ` , ,@
+
+   ;;; Quote
+
+   #> 'x                                     ;(quote x). Symbols are just quoted identifiers!
    >>> 'x'
    'x'
 
-   #> '(print "Hi")                          ;Reveal the Hissp.
+   #> '(print "Hi")                          ;Quote to reveal the Hissp.
    >>> ('print',
    ...  "('Hi')",)
    ('print', "('Hi')")
-
-
-   ;; Reader macros are metaprograms to abbreviate Hissp instead of representing it directly.
 
    ;;; Template Quote
 
@@ -632,6 +672,10 @@ Lissp Quick Start
    ... )
    inf
 
+   _#"Except for strings and tuples, objects in Hissp should evaluate to
+   themselves. But when the object's repr doesn't round trip, the
+   compiler is in a pickle!"
+
 
    ;; Reader macros compose. Note the quote.
    #> 'hissp.munger..demunge#Qz_QzGT_QzGT_
@@ -718,7 +762,7 @@ Lissp Quick Start
    ...   (3))
    (1, 2, 3)
 
-   #> `("a" 'b c ,'d ,"e")                   ;Remember what happens when you quote Lissp-level strings?
+   #> `("a" 'b c ,'d ,"e")                   ;These can be tricky. Careful.
    >>> (lambda * _: _)(
    ...   "('a')",
    ...   (lambda * _: _)(
@@ -746,7 +790,7 @@ Lissp Quick Start
    (1, 'a')
 
 
-   ;; Helper functions may be easier than templates.
+   ;; Helper functions may be easier than templates for data.
    #> ((lambda (: :* xs) xs) 0 "a" 'b :c)
    >>> (lambda *xs:xs)(
    ...   (0),
@@ -815,7 +859,7 @@ Lissp Quick Start
    ...   b=(2))
    {'QzPLUS_': 0, 'a': 1, 'b': 2}
 
-   #> (.__getitem__ _ '+)                    ;In the REPL, _ is the last result that wasn't None.
+   #> (.__getitem__ _ '+)                    ;_: the last result that wasn't None, in the REPL.
    >>> _.__getitem__(
    ...   'QzPLUS_')
    0
@@ -881,7 +925,7 @@ Lissp Quick Start
    >>> []
    []
 
-   #> .#[]                                   ;As a convenience, you can drop the quotes in some cases.
+   #> .#[]                                   ;You can drop the quotes sometimes.
    >>> []
    []
 
@@ -890,15 +934,15 @@ Lissp Quick Start
    []
 
 
-   #> [1,2,3]                                ;List, set, and dict atoms are a special case
+   #> [1,2,3]                                ;List/set/dict atoms are a kind of injection.
    >>> [1, 2, 3]
    [1, 2, 3]
 
-   #> {1,2,3}                                ; of Python injection. They read in as a single atom, so
+   #> {1,2,3}                                ; They read in as a single atom, so have
    >>> {1, 2, 3}
    {1, 2, 3}
 
-   #> {'a':1,2:b'b'}                         ; they have compile-time literals only--No interpolation!
+   #> {'a':1,2:b'b'}                         ; compile-time literals only--No interpolation!
    >>> {'a': 1, 2: b'b'}
    {'a': 1, 2: b'b'}
 
@@ -999,7 +1043,7 @@ Lissp Quick Start
    >>> (lambda a,b,c:())
    <function <lambda> at 0x...>
 
-   #> (lambda abc)                           ;Identifiers are also a special case of injection!
+   #> (lambda abc)                           ;Identifiers are also a kind of injection!
    >>> (lambda a,b,c:())
    <function <lambda> at 0x...>
 
@@ -1026,7 +1070,7 @@ Lissp Quick Start
 
 
    ;; See the macro expansion by calling it like a method with all arguments quoted.
-   #> (.define hissp.basic.._macro_ 'SPAM '"eggs") ;Method syntax is never a macro invocation.
+   #> (.define hissp.basic.._macro_ 'SPAM '"eggs") ;Method syntax is never macro invocation.
    >>> __import__('hissp.basic',fromlist='?')._macro_.define(
    ...   'SPAM',
    ...   "('eggs')")
@@ -1186,7 +1230,7 @@ Lissp Quick Start
    42
 
 
-   ;; Sometimes you really want a name captured, so don't qualify and don't generate a new symbol:
+   ;; Sometimes you really want a capture, so don't qualify and don't gensym:
    #> (setattr _macro_
    #..         'fnx
    #..         (lambda (: :* body)
@@ -1348,12 +1392,12 @@ Lissp Quick Start
    ;; ``$ lissp`` can run a .lissp file as __main__.
    ;; You cannot import .lissp directly. Compile it to .py first.
 
-   ;; Finds spam.lissp & eggs.lissp in the current package and compile them to spam.py & eggs.py
+   ;; Finds spam.lissp & eggs.lissp in the current package & compile to spam.py & eggs.py
    (os..system #"echo (print \"Hello World!\") > eggs.lissp")
    (os..system #"echo (print \"Hello from spam!\") (.__setitem__ (globals) 'x 42) > spam.lissp")
    (hissp.reader..transpile __package__ 'spam 'eggs)
 
-   spam..x                                ;Side effects happen upon both compilation and import!
+   spam..x                                ;Side effects on both compilation and import!
    ;; Hello from spam!
    ;; 42
 
@@ -1430,7 +1474,7 @@ Lissp Quick Start
    >>> b'bytes'
    b'bytes'
 
-   #> b'bytes'                                ;NameError: name 'bQz1QUOTE_bytesQz1QUOTE_' is not defined
+   #> b'bytes'                                ;NameError about 'bQz1QUOTE_bytesQz1QUOTE_'
    >>> bQz1QUOTE_bytesQz1QUOTE_
    Traceback (most recent call last):
      File "<console>", line 1, in <module>
@@ -1447,8 +1491,8 @@ Lissp Quick Start
 
    ;;; Side Effect
 
-   #> (prog1                                 ;Sequence for side effects, evaluating to the first.
-   #..  (progn (print 1)                     ;Sequence for side effects, evaluating to the last.
+   #> (prog1                                 ;Sequence for side effects, eval to first.
+   #..  (progn (print 1)                     ;Sequence for side effects, eval to last.
    #..         3)
    #..  (print 2))
    >>> # prog1
@@ -1644,7 +1688,7 @@ Lissp Quick Start
            (eq x 0) (print "Zero")
            (gt x 0) (print "Positive")
            :else (print "Not a number"))
-     (when (eq x 0)                       ;Conditional with side-effects, but no alternative.
+     (when (eq x 0)                       ;Conditional with side-effects & no alternative.
        (print "In when")
        (print "was zero"))
      (unless (eq x 0)
