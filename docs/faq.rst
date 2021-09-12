@@ -1237,7 +1237,7 @@ Some tips:
 
 -  Hissp macros are very similar to Clojure or Common Lisp macros.
 
-   -  Tutorals on writing macros in these languages are mostly
+   -  Tutorials on writing macros in these languages are mostly
       applicable to Hissp.
 
 -  Output qualified symbols so it works in other modules.

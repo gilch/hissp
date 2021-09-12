@@ -284,7 +284,7 @@ Even after deleting the trails, you can tell where the ``x`` belongs.
    Because indents have to be between parent and sibling brackets,
    lines in Lisp may have to start on *any column*, therefore,
    *Lisp cannot be indented properly with tabs alone.*
-   There are arguments to be made for using tab indents in other langauges,
+   There are arguments to be made for using tab indents in other languages,
    but they mostly don't apply to Lisp.
    You *have to* use spaces.
    It's possible to reach any column using an invisible mix of tabs and spaces,

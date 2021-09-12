@@ -476,7 +476,7 @@ Because symbols may contain special characters,
 but the Python identifiers they represent cannot,
 the reader `munges <munge>` symbols with forbidden characters
 to valid identifier strings by replacing them with special "Quotez"
-escape sequences, like ``QzFullxSTOP_``.
+escape sequences, like ``QzFULLxSTOP_``.
 
 This "Quotez" format was chosen because it contains an underscore
 and both lower-case and upper-case letters,
@@ -1064,7 +1064,7 @@ If you quote an example, you can see that intermediate step:
 
 .. code-block:: REPL
 
-   #> '`(:a ,@"bcd" ,(opearator..mul 2 3))
+   #> '`(:a ,@"bcd" ,(operator..mul 2 3))
    >>> (('lambda',
    ...   (':',
    ...    ':*',
@@ -1076,10 +1076,10 @@ If you quote an example, you can see that intermediate step:
    ...  ':*',
    ...  "('bcd')",
    ...  ':?',
-   ...  ('opearator..mul',
+   ...  ('operator..mul',
    ...   (2),
    ...   (3),),)
-   (('lambda', (':', ':*', ' _'), ' _'), ':', ':?', ':a', ':*', "('bcd')", ':?', ('opearator..mul', 2, 3))
+   (('lambda', (':', ':*', ' _'), ' _'), ':', ':?', ':a', ':*', "('bcd')", ':?', ('operator..mul', 2, 3))
 
 Templates are Lissp syntactic sugar based on what Hissp already has.
 
