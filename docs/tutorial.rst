@@ -211,7 +211,7 @@ metaprogramming abbreviations.
 
 Reader macro
   An abbreviation used by the reader.
-  These are not part of the Hissp langauge proper,
+  These are not part of the Hissp language proper,
   but rather are functions that *expand* to Hissp;
   They run at *read time* and return Hissp code.
 
@@ -710,6 +710,7 @@ Hissp has all of Python's parameter types:
 Everything left of the colon is implicitly paired with
 the placeholder control word ``:?``.
 You can do this explicitly by putting the colon first.
+The single section is never required.
 Sometimes it's easier to metaprogram this way.
 Notice the Python compilation is exactly the same as above.
 
@@ -807,9 +808,9 @@ Calls
 Any tuple that is not quoted, empty, or a special form or macro is
 a runtime call.
 
-Like Python, it has three parts::
+It has three parts::
 
-   (<callable> <args> : <kwargs>)
+   (<callable> <single> : <paired>)
 
 For example:
 
@@ -825,26 +826,26 @@ For example:
    1:2:3
    .
 
-Either ``<args>`` or ``<kwargs>`` may be empty:
+The single and the paired section may be empty:
 
 .. code-block:: REPL
 
-   #> (int :)
+   #> (int :) ; Both empty.
    >>> int()
    0
 
-   #> (print :foo :bar :)
+   #> (print :foo :bar :) ; No pairs.
    >>> print(
    ...   ':foo',
    ...   ':bar')
    :foo :bar
 
-   #> (print : end "X")
+   #> (print : end "X") ; No singles.
    >>> print(
    ...   end=('X'))
    X
 
-The ``:`` is optional if the ``<kwargs>`` part is empty:
+The ``:`` is optional if the paired section is empty:
 
 .. code-block:: REPL
 
@@ -857,7 +858,7 @@ The ``:`` is optional if the ``<kwargs>`` part is empty:
    ...   ('inf'))
    inf
 
-The ``<kwargs>`` part has implicit pairs; there must be an even number.
+The paired section has implicit pairs; there must be an even number.
 
 Use the control words ``:*`` for iterable unpacking,
 ``:?`` to pass by position, and ``:**`` for keyword unpacking:
@@ -881,9 +882,24 @@ This parallels the parameter syntax for lambdas.
 Unlike parameter names, these control words can be repeated,
 but (as in Python) a ``:*`` is not allowed to follow ``:**``.
 
+The items in the single section are implicitly paired with ``:?``,
+so the single section is only a convenience and never required:
+
+.. code-block:: REPL
+
+   #> (print : :? 1  :? 2  :? 3 sep ":"  end #"\n.")
+   >>> print(
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   sep=(':'),
+   ...   end=('\n.'))
+   1:2:3
+   .
+
 Method calls are similar to function calls::
 
-   (.<method name> <self> <args> : <kwargs>)
+   (.<method name> <self> <single> : <paired>)
 
 Like Clojure, a method on the first "argument" (``<self>``) is assumed if the
 function name starts with a dot:
