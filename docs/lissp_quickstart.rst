@@ -40,7 +40,7 @@ Lissp Quick Start
 
    Some examples depend on state set by previous examples to work.
    Prerequisites for examples not in the same section are marked with
-   '(!)'. Don't skip these. Re-enter them if you start a new session.
+   '(!)'. Don't skip these! Re-enter them if you start a new session.
    "
 
    ;;;; Installation
@@ -252,6 +252,10 @@ Lissp Quick Start
    >>> ('Say "Cheese!" ☺')
    'Say "Cheese!" ☺'
 
+   #> "Say \"Cheese!\" \u263a"               ;Raw strings don't.
+   >>> ('Say \\"Cheese!\\" \\u263a')
+   'Say \\"Cheese!\\" \\u263a'
+
 
    #> "string
    #..with
@@ -269,9 +273,10 @@ Lissp Quick Start
 
    ;;;; Calls
 
-   #> (print :)                              ;Paren before function! Note the colon.
+   #> (print :)                              ;Left paren before function! Notice the :.
    >>> print()
    <BLANKLINE>
+
 
    #> (print : :? 1  :? 2  :? 3  sep "-")    ;All arguments pair with a target! No commas!
    >>> print(
@@ -289,7 +294,7 @@ Lissp Quick Start
    ...   sep=('-'))
    1-2-3
 
-   #> (print 1 2 : :? 3  sep "-")            ;Same thing. Keep sliding it over.
+   #> (print 1 2 : :? 3  sep "-")            ;:? means positional target. Keep sliding :.
    >>> print(
    ...   (1),
    ...   (2),
@@ -305,7 +310,13 @@ Lissp Quick Start
    ...   sep=('-'))
    1-2-3
 
-   #> (print 1 : :* "abc"  :? 2  :** (dict : sep "-")) ;Pair with stars for unpacking!
+
+   #> (dict : sep "-")
+   >>> dict(
+   ...   sep=('-'))
+   {'sep': '-'}
+
+   #> (print 1 : :* "abc"  :? 2  :** (dict : sep "-")) ;Pair with :* :** for unpacking!
    >>> print(
    ...   (1),
    ...   *('abc'),
@@ -313,6 +324,7 @@ Lissp Quick Start
    ...   **dict(
    ...       sep=('-')))
    1-a-b-c-2
+
 
    #> (print : :? "Hello, World!")
    >>> print(
@@ -387,11 +399,11 @@ Lissp Quick Start
    >>> (lambda a,b,c=(1):())
    <function <lambda> at 0x...>
 
-   #> (lambda (a : b :?  c 1))               ;Like calls. Keep sliding.
+   #> (lambda (a : b :?  c 1))               ;Implicit :? like calls. Keep sliding.
    >>> (lambda a,b,c=(1):())
    <function <lambda> at 0x...>
 
-   #> (lambda (a b : c 1))                   ;Next isn't a :?. The : stops here.
+   #> (lambda (a b : c 1))                   ;Next isn't paired with :?. The : stops here.
    >>> (lambda a,b,c=(1):())
    <function <lambda> at 0x...>
 
@@ -400,17 +412,18 @@ Lissp Quick Start
    >>> (lambda *a:())
    <function <lambda> at 0x...>
 
+   #> (lambda (: :* :?  x :?))               ;Empty star arg; following x is keyword only.
+   >>> (lambda *,x:())
+   <function <lambda> at 0x...>
+
+   #> (lambda (:* x :))                      ;Implicit :? is the same. Compare.
+   >>> (lambda *,x:())
+   <function <lambda> at 0x...>
+
    #> (lambda (:* a))                        ;Kwonly! Not star arg! Final : implied.
    >>> (lambda *,a:())
    <function <lambda> at 0x...>
 
-   #> (lambda (:* a :))                      ;Same. Compare.
-   >>> (lambda *,a:())
-   <function <lambda> at 0x...>
-
-   #> (lambda (: :* :?  a :?))
-   >>> (lambda *,a:())
-   <function <lambda> at 0x...>
 
    #> (lambda (a b : x None  y None))        ;Normal, then positional defaults.
    >>> (lambda a,b,x=None,y=None:())
@@ -579,6 +592,7 @@ Lissp Quick Start
    ...  "('Hi')",)
    ('print', "('Hi')")
 
+
    ;;; Template Quote
 
    ;; (Like quasiquote, backquote, or syntax-quote from other Lisps.)
@@ -587,9 +601,9 @@ Lissp Quick Start
    >>> 'builtins..print'
    'builtins..print'
 
-   #> `foo                                   ;Compare.
-   >>> '__main__..foo'
-   '__main__..foo'
+   #> `foo+2                                 ;Not builtin. Still munges.
+   >>> '__main__..fooQzPLUS_2'
+   '__main__..fooQzPLUS_2'
 
 
    #> `(print "Hi")                          ;Code as data. Seems to act like quote.
@@ -620,9 +634,11 @@ Lissp Quick Start
    ('builtins..print', 'HI')
 
 
-   #> `,'foo                                 ;Interpolations not auto-qualified!
-   >>> 'foo'
-   'foo'
+   #> `(,'foo+2 foo+2)                       ;Interpolations not auto-qualified!
+   >>> (lambda * _: _)(
+   ...   'fooQzPLUS_2',
+   ...   '__main__..fooQzPLUS_2')
+   ('fooQzPLUS_2', '__main__..fooQzPLUS_2')
 
    #> `(print ,@"abc")                       ;Splice unquote (,@) interpolates and unpacks.
    >>> (lambda * _: _)(
@@ -630,13 +646,22 @@ Lissp Quick Start
    ...   *('abc'))
    ('builtins..print', 'a', 'b', 'c')
 
-   #> `(print ,@(.upper "abc"))
+   #> `(print (.upper "abc"))                ;Template quoting is recursive
+   >>> (lambda * _: _)(
+   ...   'builtins..print',
+   ...   (lambda * _: _)(
+   ...     '.upper',
+   ...     "('abc')"))
+   ('builtins..print', ('.upper', "('abc')"))
+
+   #> `(print ,@(.upper "abc"))              ; unless suppressed by an unquote.
    >>> (lambda * _: _)(
    ...   'builtins..print',
    ...   *('abc').upper())
    ('builtins..print', 'A', 'B', 'C')
 
-   #> `($#eggs $#spam $#bacon $#spam)        ;Generated symbols for macros.
+
+   #> `($#eggs $#spam $#bacon $#spam)        ;Generated symbols for macro hygiene.
    >>> (lambda * _: _)(
    ...   '_eggsQzAUTO9_',
    ...   '_spamQzAUTO9_',
@@ -644,10 +669,12 @@ Lissp Quick Start
    ...   '_spamQzAUTO9_')
    ('_eggsQzAUTO9_', '_spamQzAUTO9_', '_baconQzAUTO9_', '_spamQzAUTO9_')
 
-   #> `$#spam                                ;Gensym counter prevents name collisions.
+   #> `$#spam                                ;Template count in name prevents collisions.
    >>> '_spamQzAUTO10_'
    '_spamQzAUTO10_'
 
+
+   ;;; The Discard Macro
 
    #> _#"
    #..The discard reader macro _# omits the next form.
@@ -665,20 +692,24 @@ Lissp Quick Start
    1 2 3
 
 
-   ;; Invoke any importable unary callable at read time.
-   #> builtins..float#inf                    ;Extensible literals!
-   >>> __import__('pickle').loads(  # inf
-   ...     b'Finf\n.'
-   ... )
-   inf
+   ;;; Qualified Reader Macros
 
-   _#"Except for strings and tuples, objects in Hissp should evaluate to
-   themselves. But when the object's repr doesn't round trip, the
-   compiler is in a pickle!"
+   ;; Read-time unary invocation on the next parsed object.
+   #> builtins..hex#3840                     ;Qualified name ending in # is a reader macro.
+   >>> 0xf00
+   3840
+
+   #> builtins..ord#"Q"                      ;Reader macros make literal notation extensible.
+   >>> (81)
+   81
+
+   #> math..exp#1                            ;e^1. Or to whatever number. At read time.
+   >>> (2.718281828459045)
+   2.718281828459045
 
 
-   ;; Reader macros compose. Note the quote.
-   #> 'hissp.munger..demunge#Qz_QzGT_QzGT_
+   ;; Reader macros compose like functions.
+   #> 'hissp.munger..demunge#Qz_QzGT_QzGT_   ;Note the starting '.
    >>> '->>'
    '->>'
 
@@ -703,29 +734,61 @@ Lissp Quick Start
    THE FLOW.
 
 
-   ;; The "inject" reader macro evaluates the next form at read time
-   ;; and injects the resulting object directly into the Hissp tree.
-   #> .#(fractions..Fraction 1 2)            ;Fraction() is multiary.
+   _#"Except for strings and tuples, objects in Hissp should evaluate to
+   themselves. But when the object lacks a Python literal notation,
+   the compiler is in a pickle!
+   "
+   #> builtins..float#inf
+   >>> __import__('pickle').loads(  # inf
+   ...     b'Finf\n.'
+   ... )
+   inf
+
+   #> re..compile#"[1-9][0-9]*"
+   >>> __import__('pickle').loads(  # re.compile('[1-9][0-9]*')
+   ...     b'cre\n_compile\n(V[1-9][0-9]*\nI32\ntR.'
+   ... )
+   re.compile('[1-9][0-9]*')
+
+
+   _#"Such objects don't pickle until the compiler has to emit them as
+   Python code. That may never happen if another macro gets there first!
+   "
+   #> 'builtins..repr#(re..compile#"[1-9][0-9]*" builtins..float#inf)
+   >>> "(re.compile('[1-9][0-9]*'), inf)"
+   "(re.compile('[1-9][0-9]*'), inf)"
+
+
+   ;;; Inject
+
+   _#"The 'inject' reader macro evaluates the next form at read time
+   and injects the resulting object directly into the Hissp tree, like a
+   qualified reader macro.
+   "
+   ;; Use inject on a call for a muliary reader macro.
+   #> .#(fractions..Fraction 1 2)
    >>> __import__('pickle').loads(  # Fraction(1, 2)
    ...     b'cfractions\nFraction\n(V1/2\ntR.'
    ... )
    Fraction(1, 2)
 
 
-   ;; Recall that Hissp-level string objects can represent
-   ;; arbitrary Python code. It's usually used for identifiers,
-   ;; but can be anything, even complex formulas.
-   #> (lambda (a b c)
+   _#"Recall that Hissp-level string objects can represent
+   arbitrary Python code. It's usually used for identifiers,
+   but can be anything, even complex formulas.
+   "
+   #> (lambda abc
    #..  ;; Hissp may not have operators, but Python does.
    #..  .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
    >>> (lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a))
    <function <lambda> at 0x...>
 
 
-   ;; Remember the "..."/#"..." read syntax makes Python-level strings,
-   ;; via a Hissp-level string containing a Python string literal.
-   ;; It is NOT for creating a Hissp-level string, which would normally
-   ;; represent raw Python code. Use inject for that.
+   _#"Remember the raw string and hash string read syntax makes Python-
+   level strings, via a Hissp-level string containing a Python string
+   literal. It is NOT for creating a Hissp-level string, which would
+   normally represent raw Python code. Use inject for that.
+   "
    #> '"a string"                            ;Python code for a string. In a string.
    >>> "('a string')"
    "('a string')"
@@ -845,6 +908,15 @@ Lissp Quick Start
    #> (bytes.fromhex "6279746573")
    >>> bytes.fromhex(
    ...   ('6279746573'))
+   b'bytes'
+
+   ;; Read-time equivalents.
+   #> builtins..bytes.fromhex#"6279746573"
+   >>> b'bytes'
+   b'bytes'
+
+   #> builtins..bytes#(98 121 116 101 115)
+   >>> b'bytes'
    b'bytes'
 
    #> .#"b'bytes'"                           ;bytes literal Python injection
@@ -994,7 +1066,8 @@ Lissp Quick Start
 
    _#"Even though they evaluate the same, there's a subtle compile-time difference
    between a collection atom and a string injection. This can matter because
-   macros get all their arguments unevaluated."
+   macros get all their arguments unevaluated.
+   "
 
    #> '[1,'''2\ 3''']                        ;[1, '2 3']
    >>> [1, '2 3']
@@ -1054,7 +1127,8 @@ Lissp Quick Start
    work in readerless mode, or with alternative Hissp readers other than Lissp.
    Macros get all of their arguments unevaluated and the compiler
    inserts the resulting Hissp into that point in the program.
-   Like special forms, macro invocations look like function calls, but aren't."
+   Like special forms, macro invocations look like function calls, but aren't.
+   "
 
    ;; An invocation using an identifier qualified with ``_macro_`` is a macro invocation.
    #> (hissp.basic.._macro_.define SPAM "eggs") ;Note SPAM is not quoted.
@@ -1487,6 +1561,16 @@ Lissp Quick Start
    #.."                                      ;Same as b#"bytes\nwith\nnewlines\n".
    >>> b'bytes\nwith\nnewlines\n'
    b'bytes\nwith\nnewlines\n'
+
+
+   #> (help _macro_.b\#)                     ;Unqualified reader macros live in _macro_ too.
+   >>> help(
+   ...   _macro_.bQzHASH_)
+   Help on function <lambda> in module hissp.basic:
+   <BLANKLINE>
+   <lambda> lambda raw
+       ``b#`` bytes literal reader macro
+   <BLANKLINE>
 
 
    ;;; Side Effect
