@@ -1137,6 +1137,10 @@ You can nest these to create small, JSON-like data structures
 which can be very useful as inputs to macros,
 (especially reader macros, which can only take one argument).
 
+Tuples are different.
+Since they normally represent code,
+you must quote them to use them as data.
+
 .. sidebar:: Except for the empty tuple.
 
    You can quote it if you want, it doesn't change the result:
@@ -1153,10 +1157,6 @@ which can be very useful as inputs to macros,
 
    However, macros could distinguish these cases,
    because they act before evaluation.
-
-Tuples are different.
-Since they normally represent code,
-you must quote them to use them as data.
 
 .. Caution::
    Collection atoms are tokenized like the other basic atoms.
