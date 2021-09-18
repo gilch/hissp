@@ -333,6 +333,18 @@ However, they do work in Python injections:
    >>> b'injected bytes literal'
    b'injected bytes literal'
 
+And you can invoke bytes constructors at read time.
+
+.. code-block:: REPL
+
+   #> builtins..bytes.fromhex#"6279746573"
+   >>> b'bytes'
+   b'bytes'
+
+   #> builtins..bytes#(98 121 116 101 115)
+   >>> b'bytes'
+   b'bytes'
+
 And, if you have the basic macros loaded,
 you can use the `b# <bQzHASH_>` reader macro.
 
