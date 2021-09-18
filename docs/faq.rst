@@ -1520,6 +1520,27 @@ as long as unsupported features don't appear in the compiled output.
 Even more limited versions of Python (2.7?) might work with minor compiler modifications.
 The Hissp compiler is easy enough to understand that you could realistically try.
 
+Is Hissp ready?
+---------------
+
+The project is relatively new,
+but Hissp is certainly usable in its current form,
+and has been for some time now,
+although maybe some things could be nicer.
+
+Hissp is still unproven in any major project, so who knows?
+The only way it will get proven is if some early adopter like you tries it out and lets me know how it goes.
+
+While Hissp's basic macros may suffice for small or embedded Hissp projects,
+you'll probably want more than that for a larger application.
+Functional and data structure–manipulation libraries are especially useful.
+Hissp doesn't exactly have a standard library,
+relying instead on Python's,
+but I can recommend using a few more, currently:
+Hebigo's macro suite (and most of it even for Lissp),
+Pyrsistent_'s more basic data structures,
+and most of Toolz_ (or cytoolz_).
+
 Is Hissp stable?
 ----------------
 
@@ -1531,11 +1552,6 @@ or I've proven Hissp can do what I set out for it,
 including, at least, Hebigo, a microKanren, the goals in the README,
 nearly-full test coverage (not unrealistic),
 and a code-walking yield macro.
-
-This project is relatively new.
-Hissp is certainly usable in its current form,
-and has been for some time now,
-although maybe some things could be nicer.
 
 Expect some breaking changes each release.
 If you want to be an early adopter,
@@ -1551,19 +1567,6 @@ except perhaps to keep up with Python,
 since the macro system makes it so flexible.
 But if I discover that deeper changes are required to meet Hissp's goals as stated in the README,
 I will do it.
-
-Hissp is still unproven in any major project, so who knows?
-The only way it will get proven is if some early adopter like you tries it out and lets me know how it goes.
-
-While Hissp's basic macros may suffice for small or embedded Hissp projects,
-you'll probably want more than that for a larger application.
-Functional and data structure–manipulation libraries are especially useful.
-Hissp doesn't exactly have a standard library,
-relying instead on Python's,
-but I can recommend using a few more, currently:
-Hebigo's macro suite (and most of it even for Lissp),
-Pyrsistent_'s more basic data structures,
-and most of Toolz_ (or cytoolz_).
 
 .. _Hebigo: https://github.com/gilch/hebigo
 .. _Drython: https://github.com/gilch/drython
