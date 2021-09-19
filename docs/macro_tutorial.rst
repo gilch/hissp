@@ -386,7 +386,7 @@ To which I'd reply,
 *What do you think Lissp is?!*
 
 The C preprocessor is pretty limited.
-Lissp is a transplier.
+Lissp is a transpiler.
 That's *much* more powerful.
 
 But since Python is supposed to be such a marvelously high-level language compared to C,

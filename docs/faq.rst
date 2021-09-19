@@ -32,22 +32,32 @@ Why should I use Hissp?
 
    — Greenspun's Tenth Rule
 
+Because you want the highest-level language you can get your hands on,
+but don't want to write everything yourself.
+
+Hissp brings together the expressiveness of Lisp metaprogramming
+and the richness of the Python ecosystem.
+
+Python has had slow and steady growth for decades,
+and now it's a top industry language.
+Its ecosystem is very mature and widely used,
+and Hissp can participate in it as easily as Python can,
+because compiled Hissp *is Python*.
+
 If the only programming languages you've tried are those designed to feel familiar to C programmers,
-you might think they're all the same. I assure you, they are not.
+you might think they're all the same.
+I assure you, they are not.
+Languages can vary a great deal in expressiveness.
 
 At some level you already know this.
 Why not use assembly language for everything?
 Or why not the binary machine code?
 
-Because you want the highest-level language you can get your hands on.
-Lisp has few rivals in this regard, but many dialects, Hissp among them.
-
-You want access to the Python ecosystem.
-Python has had slow and steady growth for decades,
-and now it's a top industry language.
-Its ecosystem is very mature and widely used.
-And Hissp can use it and participate in it as easily as Python can,
-because compiled Hissp *is Python*.
+In terms of expressiveness,
+Lisp has few rivals.
+It's the programmable programming language:
+the compiler itself is readily extensible in the course of everyday coding.
+But there are many dialects of Lisp, and Hissp is one of them.
 
 But, Python's is not the only mature ecosystem.
 If you're attached to a different one,
@@ -97,8 +107,10 @@ including strings.
 
 However, the main use of Hissp is metaprogramming with syntactically-aware macros.
 If you wanted to do string metaprogramming you could have just used `exec()<exec>`,
+with Python string manipulation,
 so you're giving up a lot of Hissp's power.
-Expressions are relatively safe if you're careful,
+
+Python expressions are relatively safe to inject in Hissp if you're careful,
 but note that statements would only work at the top level.
 
 What's 1 + 1?
@@ -187,9 +199,9 @@ You can, of course, abbreviate these.
    ...   (1))
    2
 
-Yes, ``+`` is a valid symbol. It gets munged to ``QzPLUS_``. The result
-is all of the operators you might want, using the same prefix notation
-used by all the calls.
+Yes, ``+`` is a valid symbol in Lissp.
+It gets munged to ``QzPLUS_``.
+The result is all of the operators you might want, using the same prefix notation used by all the calls.
 
 You can define these however you want,
 like upgrading them to use a reduce so they're multiary like other Lisps:
@@ -239,7 +251,7 @@ are some basic macros that have no dependencies in their expansions,
 which is arguably not the right way to write macros.
 So I really don't want that collection to get bloated.
 But I needed a minimal set to test and demonstrate Hissp.
-A larger application with better alternatives should probably not be using the basic macros at all.
+A larger application with better alternatives need not use the basic macros at all.
 
 If you don't like Python's version,
 then add a dependency to something else.
@@ -263,15 +275,12 @@ arguments.
 
 Fine. You can write macros for any syntax you please.
 
-Consider using Hebigo_, which keeps all Python expressions, instead
-of Lissp.
-
 Recall that both reader and compiler macros can return arbitrary
 Python snippets and the compiler will emit them verbatim.
-You should generally avoid doing this, because
-then you're metaprogramming with strings instead of AST. You're giving
-up a lot of Hissp's power. But optimizing a complex formula is maybe one
-of the few times it's OK to do that.
+You should generally avoid doing this,
+because then you're metaprogramming with strings instead of AST.
+You're giving up a lot of Hissp's power.
+But optimizing a complex formula is maybe one of the few times it's OK to do that.
 
 Recall the inject ``.#`` reader macro executes a form and embeds its result
 into the Hissp.
@@ -288,7 +297,12 @@ into the Hissp.
    ...   (lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a)))
 
 But for a top-level `define` like this, you could have just used
-`exec()<exec>`.
+`exec()<exec>` on a ``def`` statement.
+At that point, why not import it from Python?
+
+Instead of Lissp,
+consider using Hebigo_,
+where bracketed Python expressions are idiomatic.
 
 How do I make bytes objects in Lissp?
 -------------------------------------
@@ -333,6 +347,18 @@ However, they do work in Python injections:
    >>> b'injected bytes literal'
    b'injected bytes literal'
 
+And you can invoke bytes constructors at read time.
+
+.. code-block:: REPL
+
+   #> builtins..bytes.fromhex#"6279746573"
+   >>> b'bytes'
+   b'bytes'
+
+   #> builtins..bytes#(98 121 116 101 115)
+   >>> b'bytes'
+   b'bytes'
+
 And, if you have the basic macros loaded,
 you can use the `b# <bQzHASH_>` reader macro.
 
@@ -345,10 +371,12 @@ you can use the `b# <bQzHASH_>` reader macro.
 Bytes literals can be implemented fairly easily in terms of a raw string and reader macro.
 That's close enough, right? You can make all sorts of "literals" the same way.
 
+See the `Macro Tutorial <macro_tutorial>` for more ideas.
+
 Why aren't any escape sequences working in Lissp strings?
 ---------------------------------------------------------
 
-Lissp's strings are raw by default.
+Lissp's strings are raw by default, like Python's r-strings.
 Lissp doesn't force you into any particular set of escapes.
 Some kinds of metaprogramming are easier if you don't have to fight Python.
 You're free to implement your own.
@@ -390,7 +418,7 @@ Not to mention Python code injections,
 which can contain their own strings with escapes.
 
 Clojure's hash strings are already regexes, not raws,
-and its "reader macros" (tagged literals) aren't so easy to use,
+and its "reader macros" (tagged literals) aren't as easy to use,
 so it doesn't come up as much.
 
 Look at your strings in Python and you'll find that
@@ -452,12 +480,12 @@ Python interpreter from the command line
 There's no ``macroexpand``. How do I look at expansions?
 ------------------------------------------------------------
 
-Invoke the macro indirectly somehow so the compiler sees it as a normal function,
+Invoke the macro indirectly somehow so the compiler sees it as a runtime function,
 and pass all arguments quoted.
 
 .. code-block:: Lissp
 
-   ((getattr hissp.basic.._macro_ "define") 'foo '"bar")
+   ((getattr hissp.basic.._macro_ 'define) 'foo '"bar")
 
 One could, of course, write a function or macro to automate this.
 
@@ -507,6 +535,8 @@ You can increase the recursion limit with `sys.setrecursionlimit`.
 Better not increase it too much if you don't like segfaults, but you can
 trampoline instead. See Drython_'s ``loop()`` function. Or use it. Or
 Hebigo_'s equivalent macro. Clojure does it about the same way.
+
+See also, `fn.py <https://pypi.org/project/fn/>`_'s ``@recur.tco`` decorator.
 
 Isn't that required for Lisp?
 -----------------------------
@@ -674,18 +704,47 @@ Use `tuple()`.
 But I have to already have an iterable, which is why I wanted a tuple in the first place!
 -----------------------------------------------------------------------------------------
 
-.. code-block:: Python
+For simple static values, use a collection atom like ``[1,2,3]``.
 
-   lambda *a: a
+Recall the template syntax :literal:`\`()` makes tuples.
+Unquote ``,`` or splice ``,@`` to interpolate runtime values.
 
-You can also make an empty list with ``[]`` or ``(list)``,
+While convenient for metaprogramming,
+beware of auto-qualification and string reader syntax
+when using templates to make static data.
+Remember to interpolate those too.
+
+This can get tricky when nesting templates.
+Alternative approaches may be easier to reason about.
+
+Constructor variants from Pyrsistent_ can take either an iterable
+or individual elements as arguments.
+
+A Python star parameter will similarly pack any number of arguments into a tuple.
+
+.. code-block:: REPL
+
+   #> (define entuple
+   #..  (lambda (: :* xs) xs))
+   >>> # define
+   ... __import__('operator').setitem(
+   ...   __import__('builtins').globals(),
+   ...   'entuple',
+   ...   (lambda *xs:xs))
+
+   #> (entuple 1 2 "foo")
+   >>> entuple(
+   ...   (1),
+   ...   (2),
+   ...   ('foo'))
+   (1, 2, 'foo')
+
+Notice that this is how templates work in the first place.
+
+If you really can't have dependencies and nested templates are too confusing,
+you can make an empty list with ``[]`` or ``(list)``,
 and then ``.append`` to it.
 (Try the `doto` macro.)
-
-Finally, the template syntax :literal:`\`()` makes tuples.
-Beware of auto-qualification and string reader syntax
-when using templates to make static data.
-Unquote ``,`` or splice ``,@`` to interpolate runtime values.
 
 There are no statements?! How can you get anything done?
 --------------------------------------------------------
@@ -726,8 +785,17 @@ But Scheme has ``set!`` and Clojure has atoms.
 
 And Python has `dict` and `types.SimpleNamespace`.
 
-(The walrus ``:=`` also works in an injection,
-but this use is discouraged in Hissp.)
+State makes code hard to reason about.
+You can mostly avoid it in the functional style.
+If you're tempted to reassign locals,
+think about transforming data through stages in a pipeline instead.
+
+The walrus ``:=`` also works on locals in an injection,
+but like most injections, this use is discouraged in Hissp.
+It's unreliable in the nested scopes often produced by control-flow macros,
+because you can't have ``nonlocal`` statements in lambdas.
+If you must mutate state,
+you're better off mutating an object than reassigning a local.
 
 But I need it for recursion. Where's the ``letrec``/``letfn``/``labels``?
 -------------------------------------------------------------------------
@@ -774,6 +842,10 @@ I've got some weird metaclass magic from a library. ``type()`` isn't working!
 
 Try `types.new_class` instead.
 
+Hebigo_'s class macro is based on this,
+so it should work properly with metaclasses.
+Remember that you can use Hebigo macros in Lissp if Hebigo is installed.
+
 How do I raise exceptions?
 --------------------------
 
@@ -783,16 +855,25 @@ themselves if you're not careful.
 But I need a raise statement for a specific exception message.
 --------------------------------------------------------------
 
-Exceptions are not good functional style. Haskell uses the Maybe monad
-instead, so you don't need them. If you must, you can still use a
-``raise`` in `exec()<exec>`. (Or use Drython_'s ``Raise()``, or Hebigo_'s
-equivalent macro.)
+Exceptions are not good functional style.
+Haskell uses other approaches instead,
+like the Maybe monad,
+demonstrating that you don't *need* exceptions in functional code.
 
-If you want a Maybe in Python,
+(If you want a Maybe in Python,
 `returns <https://pypi.org/project/returns/>`_
 has them.
 But should you use them?
-`Maybe not. <https://www.youtube.com/watch?v=YR5WdGrpoug>`_
+`Maybe not. <https://www.youtube.com/watch?v=YR5WdGrpoug>`_)
+
+If you can install an additional library,
+Drython_'s ``Raise()``,
+Hebigo_'s equivalent macro,
+or funcy_'s ``raiser()`` are options.
+
+If you can't but must use exceptions for compatibility,
+you can still use a ``raise`` in `exec()<exec>`
+without adding any dependencies.
 
 Use exec? Isn't that slow?
 --------------------------
@@ -1016,13 +1097,20 @@ on module import. Something like,
 
 Once on import is honestly not bad. Even the standard library does it,
 like for `named tuples <collections.namedtuple>`.
-But at this point, unless you really want a
-single-file script with no dependencies, you're better off defining the
-helper function in Python and importing it. You could handle the
-finally/else blocks similarly. See Drython_'s ``Try()`` for how to do it.
-Or just use Drython. Hebigo_ also implements one. If Hebigo is installed,
-you can import and use Hebigo's macros, even in Lissp, because they also
-take and return Hissp.
+
+But at this point,
+unless you really want a single-file script with no dependencies,
+you're better off defining the helper function in Python and importing it.
+You could handle the finally/else blocks similarly.
+See Drython_'s ``Try()`` for how to do it.
+(Or just use Drython.
+Or ``excepts()`` from Toolz_.)
+
+Hebigo_ also implements a try macro.
+If Hebigo is installed,
+you can import and use Hebigo's macros,
+even in Lissp,
+because they also take and return Hissp.
 
 Isn't Hissp slower than Python? Isn't Python slow enough already?
 -----------------------------------------------------------------
@@ -1219,7 +1307,7 @@ Some tips:
 
 -  Hissp macros are very similar to Clojure or Common Lisp macros.
 
-   -  Tutorals on writing macros in these languages are mostly
+   -  Tutorials on writing macros in these languages are mostly
       applicable to Hissp.
 
 -  Output qualified symbols so it works in other modules.
@@ -1490,6 +1578,27 @@ as long as unsupported features don't appear in the compiled output.
 Even more limited versions of Python (2.7?) might work with minor compiler modifications.
 The Hissp compiler is easy enough to understand that you could realistically try.
 
+Is Hissp ready?
+---------------
+
+The project is relatively new,
+but Hissp is certainly usable in its current form,
+and has been for some time now,
+although maybe some things could be nicer.
+
+Hissp is still unproven in any major project, so who knows?
+The only way it will get proven is if some early adopter like you tries it out and lets me know how it goes.
+
+While Hissp's basic macros may suffice for small or embedded Hissp projects,
+you'll probably want more than that for a larger application.
+Functional and data structure–manipulation libraries are especially useful.
+Hissp doesn't exactly have a standard library,
+relying instead on Python's,
+but I can recommend using a few more, currently:
+Hebigo's macro suite (and most of it even for Lissp),
+Pyrsistent_'s more basic data structures,
+and most of Toolz_ (or cytoolz_).
+
 Is Hissp stable?
 ----------------
 
@@ -1501,11 +1610,6 @@ or I've proven Hissp can do what I set out for it,
 including, at least, Hebigo, a microKanren, the goals in the README,
 nearly-full test coverage (not unrealistic),
 and a code-walking yield macro.
-
-This project is relatively new.
-Hissp is certainly usable in its current form,
-and has been for some time now,
-although maybe some things could be nicer.
 
 Expect some breaking changes each release.
 If you want to be an early adopter,
@@ -1522,19 +1626,10 @@ since the macro system makes it so flexible.
 But if I discover that deeper changes are required to meet Hissp's goals as stated in the README,
 I will do it.
 
-Hissp is still unproven in any major project, so who knows?
-The only way it will get proven is if some early adopter like you tries it out and lets me know how it goes.
-
-While Hissp's basic macros may suffice for small or embedded Hissp projects,
-you'll probably want more than that for a larger application.
-Hissp doesn't exactly have a standard library,
-relying instead on Python's,
-but I can recommend using a few more:
-Currently, that's Hebigo's macro suite (and most of it even for Lissp),
-Pyrsistent_'s more basic data structures,
-and most of Toolz_.
-
 .. _Hebigo: https://github.com/gilch/hebigo
 .. _Drython: https://github.com/gilch/drython
+
+.. _cytoolz: https://pypi.org/project/cytoolz/
+.. _funcy: https://pypi.org/project/funcy/
 .. _Pyrsistent: https://pypi.org/project/pyrsistent/
 .. _Toolz: https://pypi.org/project/toolz/

@@ -58,6 +58,10 @@ def main(__main__=None):
     """REPL command-line entry point."""
     if not __main__:
         __main__ = force_main()
+    try:
+        import readline
+    except ImportError:
+        pass
     repl = LisspREPL(locals=__main__.__dict__)
     repl.locals["_macro_"] = SimpleNamespace(**vars(hissp.basic._macro_))
     repl.interact()
