@@ -558,6 +558,13 @@ You also have to escape these if they begin a symbol to distinguish them from nu
 
 Notice that only the first digit had to be munged to make it a valid Python identifier.
 
+Unicode Normalization
+~~~~~~~~~~~~~~~~~~~~~
+
+.. Note::
+   If you plan on only using ASCII in symbols,
+   you can safely skip this section for now.
+
 The munger also normalizes Unicode characters to NFKC,
 because Python already does this when converting identifiers to strings:
 
