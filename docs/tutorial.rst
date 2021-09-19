@@ -373,6 +373,61 @@ The third double quote did end the string despite being adjacent to a backslash,
 because that was already paired with another backslash.
 Again, this is the same as Python's r-strings.
 
+Recall that the Hissp-level `str` type is used to represent Python identifiers in the compiled output,
+and must be quoted with the ``quote`` special form to represent text data instead.
+
+>>> readerless(
+...     ('print',  # str containing identifier
+...      ('quote','hi'),)  # string as data
+... )
+"print(\n  'hi')"
+>>> eval(_)
+hi
+
+Hissp-level strings can represent almost any raw Python code to inject in the compiled output,
+not just identifiers.
+So another way to represent text data in Hissp
+is a Hissp-level string that contains the Python code for a string literal.
+
+>>> readerless(
+...     ('print',  # str containing identifier
+...      '"hi"',)  # str containing a string literal
+... )
+'print(\n  "hi")'
+>>> eval(_)
+hi
+
+Quoting our entire example shows us how that Lissp would get translated to Hissp.
+(When quoted, it's just data.)
+
+.. code-block:: REPL
+
+   #> (quote
+   #..  (lambda (name)
+   #..    (print "Hello" name)))
+   >>> ('lambda',
+   ...  ('name',),
+   ...  ('print',
+   ...   "('Hello')",
+   ...   'name',),)
+   ('lambda', ('name',), ('print', "('Hello')", 'name'))
+
+This tuple is data, but it's also valid Hissp code.
+You could pass it to `readerless()` to get working Python code:
+
+>>> readerless(('lambda', ('name',), ('print', "('Hello')", 'name')))
+"(lambda name:\n  print(\n    ('Hello'),\n    name))"
+>>> print(_)
+(lambda name:
+  print(
+    ('Hello'),
+    name))
+
+Notice the raw string reader syntax
+``"Hello"`` produced a string in the Hissp output containing
+``('Hello')``, a Python string literal,
+which saved us a ``quote`` form.
+
 Hash Strings
 ############
 
@@ -393,32 +448,6 @@ These are called *hash strings*.
    Three
    lines
    total
-
-Recall that the Hissp-level `str` type is used to represent Python identifiers in the compiled output,
-and must be quoted with the ``quote`` special form to represent text data instead.
-
-Hissp-level strings can represent almost any raw Python code to inject in the compiled output,
-not just identifiers.
-So another way to represent text data in Hissp
-is a Hissp-level string that contains the Python code for a string literal.
-Quoting our entire example shows us how that Lissp would get translated to Hissp,
-because when quoted, it's just data:
-
-.. code-block:: REPL
-
-   #> (quote
-   #..  (lambda (name)
-   #..    (print "Hello" name)))
-   >>> ('lambda',
-   ...  ('name',),
-   ...  ('print',
-   ...   "('Hello')",
-   ...   'name',),)
-   ('lambda', ('name',), ('print', "('Hello')", 'name'))
-
-Notice that rather than using the ``quote`` special form for ``"Hello"``,
-Lissp reads in a double-quoted string as a Hissp-level string
-containing a Python string literal: ``('Hello')``.
 
 Symbols
 #######
