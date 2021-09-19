@@ -485,7 +485,7 @@ In other Lisps, symbols are a data type in their own right,
 but symbols only exist as a *reader syntax* in Lissp,
 where they represent the subset of Hissp-level strings that can act as identifiers.
 
-These symbols in Lissp become strings in Hissp which become identifiers in Python,
+Symbols in Lissp become strings in Hissp which become identifiers in Python,
 unless they're quoted, like ``('quote', 'Hello')``,
 in which case they become string literals in Python.
 
@@ -494,7 +494,7 @@ Experiment with this process in the REPL.
 Attributes
 ~~~~~~~~~~
 
-Symbols with an internal ``.`` access attributes when used as an identifier:
+Symbols with internal ``.``'s access attributes when used as an identifier:
 
 .. code-block:: REPL
 
@@ -505,6 +505,37 @@ Symbols with an internal ``.`` access attributes when used as an identifier:
    #> int.__name__.__class__  ; These chain.
    >>> int.__name__.__class__
    <class 'str'>
+
+.. _qualified identifiers:
+
+Module Literals and Qualified Identifiers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can refer to variables defined in any module by using a
+*qualified identifier*:
+
+.. code-block:: REPL
+
+   #> operator.  ; Module literals end in a dot and automatically import.
+   >>> __import__('operator')
+   <module 'operator' from '...operator.py'>
+
+   #> (operator..add 40 2)  ; Qualified identifiers include their module.
+   >>> __import__('operator').add(
+   ...   (40),
+   ...   (2))
+   42
+
+Notice the second dot required to access a module attribute.
+
+The translation of module literals to ``__import__`` calls happens at compile time,
+not read time, so this feature is still available in readerless mode.
+
+>>> readerless('re.')
+"__import__('re')"
+
+Qualification is important for macros that are defined in one module,
+but used in another.
 
 Munging
 ~~~~~~~
@@ -693,33 +724,6 @@ You must quote these like ``':**`` or ``":**"`` to pass them as data in that con
 
 Macros operate at compile time (before evaluation),
 so they can also distinguish a raw control word from a quoted one.
-
-.. _qualified identifiers:
-
-Module Literals and Qualified Identifiers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You can refer to variables defined in any module by using a
-*qualified identifier*:
-
-.. code-block:: REPL
-
-   #> operator.  ; Module literals end in a dot and automatically import.
-   >>> __import__('operator')
-   <module 'operator' from '...operator.py'>
-
-   #> (operator..add 40 2)  ; Qualified identifiers include their module.
-   >>> __import__('operator').add(
-   ...   (40),
-   ...   (2))
-   42
-
-Notice the second dot required to access a module attribute.
-
-The translation of module literals to ``__import__`` calls happens at compile time,
-so this feature is still available in readerless mode.
-Qualification is important for macros that are defined in one module,
-but used in another.
 
 Compound Expressions
 --------------------
