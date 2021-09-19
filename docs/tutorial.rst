@@ -131,7 +131,7 @@ Let's use it.
 ...      ('print',q('Hello'),'name',),)
 ... )
 "(lambda n,a,m,e:\n  print(\n    'Hello',\n    name))"
->>> print(_)
+>>> print(_)  # Remember, _ is the last result that wasn't None.
 (lambda n,a,m,e:
   print(
     'Hello',
@@ -580,21 +580,21 @@ as an identifier and as a string representing that identifier:
 
 .. code-block:: REPL
 
-   #> ((lambda (spam)
-   #..   (setattr spam
-   #..            '!@%$  ; Munges and compiles to string literal.
-   #..            'eggs)
-   #..   spam.!@%$)  ; Munges and compiles to attribute identifier.
-   #.. (lambda ()))  ; Call with something that can take attrs.
-   >>> (lambda spam:(
-   ...   setattr(
-   ...     spam,
-   ...     'QzBANG_QzAT_QzPCENT_QzDOLR_',
-   ...     'eggs'),
-   ...   spam.QzBANG_QzAT_QzPCENT_QzDOLR_)[-1])(
-   ...   (lambda :()))
-   'eggs'
+   #> (types..SimpleNamespace)
+   >>> __import__('types').SimpleNamespace()
+   namespace()
 
+   #> (setattr _ ; The namespace.
+   #..         '!@%$ ; Compiles to a string representing an identifier.
+   #..         42)
+   >>> setattr(
+   ...   _,
+   ...   'QzBANG_QzAT_QzPCENT_QzDOLR_',
+   ...   (42))
+
+   #> _.!@%$ ; Munges and compiles to attribute identifier.
+   >>> _.QzBANG_QzAT_QzPCENT_QzDOLR_
+   42
 
 Spaces, double quotes, parentheses, and semicolons are allowed in atoms,
 but they must each be escaped with a backslash to prevent it from terminating the symbol.
@@ -659,20 +659,21 @@ Remember our first munging example?
 
 .. code-block:: REPL
 
-   #> ((lambda (spam)
-   #..   (setattr spam
-   #..            '𝐀  ; Munged symbol compiles to a string.
-   #..            'eggs)
-   #..   spam.𝐀)  ; Munged symbol compiles to an identifier.
-   #.. (lambda ()))  ; Call with something that can take attrs.
-   >>> (lambda spam:(
-   ...   setattr(
-   ...     spam,
-   ...     'A',
-   ...     'eggs'),
-   ...   spam.A)[-1])(
-   ...   (lambda :()))
-   'eggs'
+   #> (types..SimpleNamespace)
+   >>> __import__('types').SimpleNamespace()
+   namespace()
+
+   #> (setattr _ ; The namespace.
+   #..         '𝐀 ; Compiles to a string representing an identifier.
+   #..         42)
+   >>> setattr(
+   ...   _,
+   ...   'A',
+   ...   (42))
+
+   #> _.𝐀 ; Munges and compiles to attribute identifier.
+   >>> _.A
+   42
 
 Notice that the compiled Python is pure ASCII in this case.
 This example couldn't work if the munger didn't normalize symbols,
