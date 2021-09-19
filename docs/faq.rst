@@ -32,22 +32,32 @@ Why should I use Hissp?
 
    — Greenspun's Tenth Rule
 
+Because you want the highest-level language you can get your hands on,
+but don't want to write everything yourself.
+
+Hissp brings together the expressiveness of Lisp metaprogramming
+and the richness of the Python ecosystem.
+
+Python has had slow and steady growth for decades,
+and now it's a top industry language.
+Its ecosystem is very mature and widely used,
+and Hissp can participate in it as easily as Python can,
+because compiled Hissp *is Python*.
+
 If the only programming languages you've tried are those designed to feel familiar to C programmers,
-you might think they're all the same. I assure you, they are not.
+you might think they're all the same.
+I assure you, they are not.
+Languages can vary a great deal in expressiveness.
 
 At some level you already know this.
 Why not use assembly language for everything?
 Or why not the binary machine code?
 
-Because you want the highest-level language you can get your hands on.
-Lisp has few rivals in this regard, but many dialects, Hissp among them.
-
-You want access to the Python ecosystem.
-Python has had slow and steady growth for decades,
-and now it's a top industry language.
-Its ecosystem is very mature and widely used.
-And Hissp can use it and participate in it as easily as Python can,
-because compiled Hissp *is Python*.
+In terms of expressiveness,
+Lisp has few rivals.
+It's the programmable programming language:
+the compiler itself is readily extensible in the course of everyday coding.
+But there are many dialects of Lisp, and Hissp is one of them.
 
 But, Python's is not the only mature ecosystem.
 If you're attached to a different one,
@@ -97,8 +107,10 @@ including strings.
 
 However, the main use of Hissp is metaprogramming with syntactically-aware macros.
 If you wanted to do string metaprogramming you could have just used `exec()<exec>`,
+with Python string manipulation,
 so you're giving up a lot of Hissp's power.
-Expressions are relatively safe if you're careful,
+
+Python expressions are relatively safe to inject in Hissp if you're careful,
 but note that statements would only work at the top level.
 
 What's 1 + 1?
@@ -187,9 +199,9 @@ You can, of course, abbreviate these.
    ...   (1))
    2
 
-Yes, ``+`` is a valid symbol. It gets munged to ``QzPLUS_``. The result
-is all of the operators you might want, using the same prefix notation
-used by all the calls.
+Yes, ``+`` is a valid symbol in Lissp.
+It gets munged to ``QzPLUS_``.
+The result is all of the operators you might want, using the same prefix notation used by all the calls.
 
 You can define these however you want,
 like upgrading them to use a reduce so they're multiary like other Lisps:
@@ -239,7 +251,7 @@ are some basic macros that have no dependencies in their expansions,
 which is arguably not the right way to write macros.
 So I really don't want that collection to get bloated.
 But I needed a minimal set to test and demonstrate Hissp.
-A larger application with better alternatives should probably not be using the basic macros at all.
+A larger application with better alternatives need not use the basic macros at all.
 
 If you don't like Python's version,
 then add a dependency to something else.
@@ -263,15 +275,12 @@ arguments.
 
 Fine. You can write macros for any syntax you please.
 
-Consider using Hebigo_, which keeps all Python expressions, instead
-of Lissp.
-
 Recall that both reader and compiler macros can return arbitrary
 Python snippets and the compiler will emit them verbatim.
-You should generally avoid doing this, because
-then you're metaprogramming with strings instead of AST. You're giving
-up a lot of Hissp's power. But optimizing a complex formula is maybe one
-of the few times it's OK to do that.
+You should generally avoid doing this,
+because then you're metaprogramming with strings instead of AST.
+You're giving up a lot of Hissp's power.
+But optimizing a complex formula is maybe one of the few times it's OK to do that.
 
 Recall the inject ``.#`` reader macro executes a form and embeds its result
 into the Hissp.
@@ -288,7 +297,12 @@ into the Hissp.
    ...   (lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a)))
 
 But for a top-level `define` like this, you could have just used
-`exec()<exec>`.
+`exec()<exec>` on a ``def`` statement.
+At that point, why not import it from Python?
+
+Instead of Lissp,
+consider using Hebigo_,
+where bracketed Python expressions are idiomatic.
 
 How do I make bytes objects in Lissp?
 -------------------------------------
@@ -357,10 +371,12 @@ you can use the `b# <bQzHASH_>` reader macro.
 Bytes literals can be implemented fairly easily in terms of a raw string and reader macro.
 That's close enough, right? You can make all sorts of "literals" the same way.
 
+See the `Macro Tutorial <macro_tutorial>` for more ideas.
+
 Why aren't any escape sequences working in Lissp strings?
 ---------------------------------------------------------
 
-Lissp's strings are raw by default.
+Lissp's strings are raw by default, like Python's r-strings.
 Lissp doesn't force you into any particular set of escapes.
 Some kinds of metaprogramming are easier if you don't have to fight Python.
 You're free to implement your own.
@@ -402,7 +418,7 @@ Not to mention Python code injections,
 which can contain their own strings with escapes.
 
 Clojure's hash strings are already regexes, not raws,
-and its "reader macros" (tagged literals) aren't so easy to use,
+and its "reader macros" (tagged literals) aren't as easy to use,
 so it doesn't come up as much.
 
 Look at your strings in Python and you'll find that
@@ -464,12 +480,12 @@ Python interpreter from the command line
 There's no ``macroexpand``. How do I look at expansions?
 ------------------------------------------------------------
 
-Invoke the macro indirectly somehow so the compiler sees it as a normal function,
+Invoke the macro indirectly somehow so the compiler sees it as a runtime function,
 and pass all arguments quoted.
 
 .. code-block:: Lissp
 
-   ((getattr hissp.basic.._macro_ "define") 'foo '"bar")
+   ((getattr hissp.basic.._macro_ 'define) 'foo '"bar")
 
 One could, of course, write a function or macro to automate this.
 
@@ -688,18 +704,47 @@ Use `tuple()`.
 But I have to already have an iterable, which is why I wanted a tuple in the first place!
 -----------------------------------------------------------------------------------------
 
-.. code-block:: Python
+For simple static values, use a collection atom like ``[1,2,3]``.
 
-   lambda *a: a
+Recall the template syntax :literal:`\`()` makes tuples.
+Unquote ``,`` or splice ``,@`` to interpolate runtime values.
 
-You can also make an empty list with ``[]`` or ``(list)``,
+While convenient for metaprogramming,
+beware of auto-qualification and string reader syntax
+when using templates to make static data.
+Remember to interpolate those too.
+
+This can get tricky when nesting templates.
+Alternative approaches may be easier to reason about.
+
+Constructor variants from Pyrsistent_ can take either an iterable
+or individual elements as arguments.
+
+A Python star parameter will similarly pack any number of arguments into a tuple.
+
+.. code-block:: REPL
+
+   #> (define entuple
+   #..  (lambda (: :* xs) xs))
+   >>> # define
+   ... __import__('operator').setitem(
+   ...   __import__('builtins').globals(),
+   ...   'entuple',
+   ...   (lambda *xs:xs))
+
+   #> (entuple 1 2 "foo")
+   >>> entuple(
+   ...   (1),
+   ...   (2),
+   ...   ('foo'))
+   (1, 2, 'foo')
+
+Notice that this is how templates work in the first place.
+
+If you really can't have dependencies and nested templates are too confusing,
+you can make an empty list with ``[]`` or ``(list)``,
 and then ``.append`` to it.
 (Try the `doto` macro.)
-
-Finally, the template syntax :literal:`\`()` makes tuples.
-Beware of auto-qualification and string reader syntax
-when using templates to make static data.
-Unquote ``,`` or splice ``,@`` to interpolate runtime values.
 
 There are no statements?! How can you get anything done?
 --------------------------------------------------------
@@ -740,8 +785,17 @@ But Scheme has ``set!`` and Clojure has atoms.
 
 And Python has `dict` and `types.SimpleNamespace`.
 
-(The walrus ``:=`` also works in an injection,
-but this use is discouraged in Hissp.)
+State makes code hard to reason about.
+You can mostly avoid it in the functional style.
+If you're tempted to reassign locals,
+think about transforming data through stages in a pipeline instead.
+
+The walrus ``:=`` also works on locals in an injection,
+but like most injections, this use is discouraged in Hissp.
+It's unreliable in the nested scopes often produced by control-flow macros,
+because you can't have ``nonlocal`` statements in lambdas.
+If you must mutate state,
+you're better off mutating an object than reassigning a local.
 
 But I need it for recursion. Where's the ``letrec``/``letfn``/``labels``?
 -------------------------------------------------------------------------
@@ -787,6 +841,10 @@ I've got some weird metaclass magic from a library. ``type()`` isn't working!
 -----------------------------------------------------------------------------
 
 Try `types.new_class` instead.
+
+Hebigo_'s class macro is based on this,
+so it should work properly with metaclasses.
+Remember that you can use Hebigo macros in Lissp if Hebigo is installed.
 
 How do I raise exceptions?
 --------------------------
