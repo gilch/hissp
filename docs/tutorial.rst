@@ -337,6 +337,7 @@ and have somewhat different behavior.
 
 *Raw strings* in Lissp are double-quoted and read backslashes and newlines literally,
 which makes them similar to triple-quoted r-strings in Python.
+In other words, escape sequences are not processed.
 
 .. code-block:: REPL
 
@@ -345,7 +346,13 @@ which makes them similar to triple-quoted r-strings in Python.
    >>> ('Two\nlines\\ntotal')
    'Two\nlines\\ntotal'
 
-Do note, however, that the `tokenizer <Lexer>` expects backslashes to be paired.
+   #> (print _)
+   >>> print(
+   ...   _)
+   Two
+   lines\ntotal
+
+Do note, however, that the `tokenizer <Lexer>` still expects backslashes to be paired with another character.
 
 .. code-block:: REPL
 
@@ -353,6 +360,12 @@ Do note, however, that the `tokenizer <Lexer>` expects backslashes to be paired.
    #..\\"  ; One string, not two!
    >>> ('\\"\n\\\\')
    '\\"\n\\\\'
+
+   #> (print _)
+   >>> print(
+   ...   _)
+   \"
+   \\
 
 The second double-quote character didn't end the raw string,
 but the backslash "escaping" it was still read literally.
@@ -373,6 +386,13 @@ These are called *hash strings*.
    #..lines\ntotal"
    >>> ('Three\nlines\ntotal')
    'Three\nlines\ntotal'
+
+   #> (print _)
+   >>> print(
+   ...   _)
+   Three
+   lines
+   total
 
 Recall that the Hissp-level `str` type is used to represent Python identifiers in the compiled output,
 and must be quoted with the ``quote`` special form to represent text data instead.
