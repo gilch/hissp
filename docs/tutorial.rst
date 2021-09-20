@@ -752,15 +752,59 @@ The anonymous function special form::
    (lambda <parameters>
      <body>)
 
-The separator control word ``:`` divides the parameters tuple [#LambdaList]_
-into single and paired sections.
+Python's parameter types are rather involved.
+Hissp's lambdas have a simplified format designed for metaprogramming.
+When the parameters tuple [#LambdaList]_
+starts with a colon,
+then all parameters are paired.
+Hissp can represent all of Python's parameter types this way.
 
-Hissp has all of Python's parameter types:
+.. code-block:: REPL
+
+   #> (lambda (: ; starts with : separator control word.
+   #..         a :? ; positional-only parameter, no default
+   #..         :/ :? ; positional-only separator words
+   #..         b :? ; normal parameter, no default value
+   #..         e 1 ; parameter with a default value of 1
+   #..         f 2 ; another one with a default value of 2
+   #..         :* args ; remaining positional args packed in a tuple
+   #..         h 4 ; parameters after * are keyword only
+   #..         i :? ; kwonly with no default
+   #..         j 1 ; another kwonly parameter with a default value
+   #..         :** kwargs) ; packs keyword args into a dict
+   #..  42)
+   >>> (lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
+   <function <lambda> at ...>
+
+The parameter name goes on the left of the pairs, and the default goes on the right.
+Notice that the ``:?`` control word indicates that the parameter has no default value.
+
+The ``:/`` separator ending the positional-only arguments is not a parameter,
+even though it gets listed like one,
+thus it can't have a default
+and must always be paired with ``:?``.
+
+The ``:*`` can likewise act as a separator starting the keyword-only arguments,
+and can likewise be paired with ``:?``.
+
+The normal parameters in between these can be passed in either as positional arguments
+or as keyword arguments.
+
+The ``:*`` can instead pair with a parameter name,
+which collects the remainder of the positional arguments into a tuple.
+This is one of two exceptions to the rule that the parameter name is the left of the pair.
+This matches Python's ordering.
+Notice that this means that the rule that the ``:?`` goes on the right has no exceptions.
+The other exception is the parameter name after ``:**``,
+which collects the remaining keyword arguments into a dict.
+
+The ``:`` control word that we started with is a convenience that abbreviates the common case
+of a pair with a ``:?``.
 
 .. code-block:: REPL
 
    #> (lambda (a :/  ; positional only
-   #..         b  ; positional
+   #..         b  ; normal
    #..         : e 1  f 2  ; default
    #..         :* args  h 4  i :?  j 1  ; kwonly
    #..         :** kwargs)
@@ -768,28 +812,11 @@ Hissp has all of Python's parameter types:
    >>> (lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
    <function <lambda> at ...>
 
-Everything left of the colon is implicitly paired with
+Each element before the ``:`` is implicitly paired with
 the placeholder control word ``:?``.
-You can do this explicitly by putting the colon first.
-The single section is never required.
-Sometimes it's easier to metaprogram this way.
-Notice the Python compilation is exactly the same as above.
-
-.. code-block:: REPL
-
-   #> (lambda (: a :?
-   #..         :/ :?
-   #..         b :?
-   #..         e 1
-   #..         f 2
-   #..         :* args
-   #..         h 4
-   #..         i :?
-   #..         j 1
-   #..         :** kwargs)
-   #..  42)
-   >>> (lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
-   <function <lambda> at ...>
+Notice the Python compilation is exactly the same as before,
+and that a ``:?`` was still required in the paired section to indicate that the
+``i`` parameter has no default value.
 
 The ``:*`` and ``:**`` control words mark their parameters as
 taking the remainder of the positional and keyword arguments,
@@ -799,14 +826,14 @@ respectively:
 
    #> (lambda (: :* args :** kwargs)
    #..  (print args)
-   #..  (print kwargs)  ; Body expressions evaluate in order.
-   #..  :return-value)  ; The last one is returned.
+   #..  (print kwargs) ; Body expressions evaluate in order.
+   #..  42) ; The last value is returned.
    >>> (lambda *args,**kwargs:(
    ...   print(
    ...     args),
    ...   print(
    ...     kwargs),
-   ...   ':return-value')[-1])
+   ...   (42))[-1])
    <function <lambda> at ...>
 
    #> (_ 1 : b :c)
@@ -815,11 +842,12 @@ respectively:
    ...   b=':c')
    (1,)
    {'b': ':c'}
-   ':return-value'
+   42
 
-You can omit the right of a pair with ``:?``
-(except the final ``**kwargs``).
-Also note that the body can be empty:
+You can omit the right of any pair with ``:?`` except the final ``**kwargs``.
+
+The lambda body can be empty,
+in which case an empty tuple is implied:
 
 .. code-block:: REPL
 
@@ -834,7 +862,8 @@ Everything on the paired side must be paired, no exceptions.
 adding another special case to not require the ``:?``
 would make metaprogramming more difficult.)
 
-The ``:`` may be omitted if there are no paired parameters:
+The ``:`` may be omitted if there are no explicitly paired parameters.
+Not having it is the same as putting it last:
 
 .. code-block:: REPL
 
@@ -854,8 +883,8 @@ The ``:`` may be omitted if there are no paired parameters:
    >>> (lambda :())
    <function <lambda> at ...>
 
-The ``:`` is required if there are any paired parameters, even if
-there are no single parameters:
+The ``:`` is required if there are any explicit pairs,
+even if there are no ``:?`` pairs:
 
 .. code-block:: REPL
 
