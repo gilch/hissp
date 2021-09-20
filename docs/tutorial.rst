@@ -1067,6 +1067,9 @@ We changed the case of a string here before the compiler even saw it.
 
 Are we giving up this kind of power by using Lissp instead?
 
+Inject
+######
+
 Remember our first metaprogram ``q()``?
 You've already seen the ``'`` reader macro.
 That much is doable.
@@ -1102,25 +1105,11 @@ like functions,
 at `read time`_.
 
 You can use inject to modify code at read time,
-to inject non-string objects that don't have their own read syntax in Lissp,
-and to inject raw Python code strings by bypassing the read syntax that would normally add quotation marks.
+to inject non-string objects that don't have their own reader syntax in Lissp,
+and to inject raw Python code strings by bypassing the reader syntax that would normally add quotation marks.
 It's pretty important.
 
-Inject
-######
-
-If you need more than one argument for a reader macro, use the built-in
-inject ``.#`` macro, which evaluates a form at `read time`_:
-
-.. code-block:: REPL
-
-   #> .#(fractions..Fraction 1 2)
-   >>> __import__('pickle').loads(  # Fraction(1, 2)
-   ...     b'cfractions\nFraction\n(V1/2\ntR.'
-   ... )
-   Fraction(1, 2)
-
-And can inject arbitrary text into the compiled output:
+Python injection:
 
 .. code-block:: REPL
 
@@ -1140,8 +1129,68 @@ Reader macros compose:
    >>> {(5, 6): 'pick up sticks'}
    {(5, 6): 'pick up sticks'}
 
-Qualified Unary
-###############
+Remember this example?
+
+>>> eval(readerless((print,1,2,3,':','sep',':')))
+1:2:3
+
+The ``print`` here isn't a string.
+It's a function object.
+
+>>> (print,1,2,3,':','sep',':')
+(<built-in function print>, 1, 2, 3, ':', 'sep', ':')
+
+But that repr isn't valid Python.
+How can the Hissp compiler generate Python code from this tuple?
+
+Let's see what it's doing.
+
+>>> print(readerless((print,1,2,3,':','sep',':')))
+__import__('pickle').loads(  # <built-in function print>
+    b'cbuiltins\nprint\n.'
+)(
+  (1),
+  (2),
+  (3),
+  sep=':')
+
+See the trick?
+Hissp falls back to `pickle` when it doesn't know how to emit an object as Python code.
+This code still works.
+Unfortunately, there are certain objects even pickle can't handle.
+
+When we tried this in the obvious way in Lissp,
+`print` used the symbol reader syntax,
+which became a string in the Hissp,
+and rendered as an identifier in the compiled Python,
+but if we had injected it instead,
+
+.. code-block:: REPL
+
+   #> (.#print 1 2 3 : sep :)
+   >>> __import__('pickle').loads(  # <built-in function print>
+   ...     b'cbuiltins\nprint\n.'
+   ... )(
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   sep=':')
+   1:2:3
+
+We get the pickle again.
+
+Many other object types work.
+
+.. code-block:: REPL
+
+   #> .#(fractions..Fraction 1 2)
+   >>> __import__('pickle').loads(  # Fraction(1, 2)
+   ...     b'cfractions\nFraction\n(V1/2\ntR.'
+   ... )
+   Fraction(1, 2)
+
+Qualified Reader Macros
+#######################
 
 Besides a few builtins,
 reader macros in Lissp consist of a symbol ending with a ``#``,
@@ -1159,6 +1208,16 @@ and the reader embeds the resulting object into the output Hissp:
    inf
 
 This inserts an actual `float` object at `read time`_ into the Hissp code.
+
+It's the same as using inject like this
+
+.. code-block:: REPL
+
+   #> .#(builtins..float 'inf)
+   >>> __import__('pickle').loads(  # inf
+   ...     b'Finf\n.'
+   ... )
+   inf
 
 It's neither a `str` nor a `tuple`, so Hissp tries its best to compile this as data,
 but because its repr, ``inf``, isn't a valid Python literal,
