@@ -618,68 +618,6 @@ You also have to escape these if they begin a symbol to distinguish them from nu
 
 Notice that only the first digit had to be munged to make it a valid Python identifier.
 
-Unicode Normalization
-~~~~~~~~~~~~~~~~~~~~~
-
-.. Note::
-   If you plan on only using ASCII in symbols,
-   you can safely skip this section for now.
-
-The munger also normalizes Unicode characters to NFKC,
-because Python already does this when converting identifiers to strings:
-
->>> ascii_a = 'A'
->>> unicode_a = '𝐀'
->>> ascii_a == unicode_a
-False
->>> import unicodedata
->>> ascii_a == unicodedata.normalize('NFKC', unicode_a)
-True
->>> A = unicodedata.name(ascii_a)
->>> A
-'LATIN CAPITAL LETTER A'
->>> 𝐀 = unicodedata.name(unicode_a)  # A Unicode variable name.
->>> 𝐀  # Different, as expected.
-'MATHEMATICAL BOLD CAPITAL A'
->>> A  # Huh?
-'MATHEMATICAL BOLD CAPITAL A'
->>> globals()[unicode_a]  # The Unicode name does not work!
-Traceback (most recent call last):
-  ...
-KeyError: '𝐀'
->>> globals()[ascii_a]  # Retrieve with the normalized name.
-'MATHEMATICAL BOLD CAPITAL A'
-
-The ASCII ``A`` and Unicode ``𝐀`` are aliases of the *same identifier*
-as far as Python is concerned.
-But the globals dict can only use one of them as its key,
-so it uses the normalized version.
-
-Remember our first munging example?
-
-.. code-block:: REPL
-
-   #> (types..SimpleNamespace)
-   >>> __import__('types').SimpleNamespace()
-   namespace()
-
-   #> (setattr _ ; The namespace.
-   #..         '𝐀 ; Compiles to a string representing an identifier.
-   #..         42)
-   >>> setattr(
-   ...   _,
-   ...   'A',
-   ...   (42))
-
-   #> _.𝐀 ; Munges and compiles to attribute identifier.
-   >>> _.A
-   42
-
-Notice that the compiled Python is pure ASCII in this case.
-This example couldn't work if the munger didn't normalize symbols,
-because ``setattr()`` would store the Unicode ``𝐀`` in ``spam``'s ``__dict__``,
-but ``spam.𝐀`` would do the same thing as ``spam.A``, and there's no such attribute.
-
 Control Words
 ~~~~~~~~~~~~~
 
@@ -1798,6 +1736,68 @@ it in other files until they are recompiled.
 That is why `transpile()` will recompile the named files unconditionally.
 Even if the corresponding source has not changed,
 the compiled output may be different due to an updated macro in another file.
+
+Unicode Normalization
+=====================
+
+.. Note::
+   If you plan on only using ASCII in symbols,
+   you can skip this section.
+
+The munger also normalizes Unicode characters to NFKC,
+because Python already does this when converting identifiers to strings:
+
+>>> ascii_a = 'A'
+>>> unicode_a = '𝐀'
+>>> ascii_a == unicode_a
+False
+>>> import unicodedata
+>>> ascii_a == unicodedata.normalize('NFKC', unicode_a)
+True
+>>> A = unicodedata.name(ascii_a)
+>>> A
+'LATIN CAPITAL LETTER A'
+>>> 𝐀 = unicodedata.name(unicode_a)  # A Unicode variable name.
+>>> 𝐀  # Different, as expected.
+'MATHEMATICAL BOLD CAPITAL A'
+>>> A  # Huh?
+'MATHEMATICAL BOLD CAPITAL A'
+>>> globals()[unicode_a]  # The Unicode name does not work!
+Traceback (most recent call last):
+  ...
+KeyError: '𝐀'
+>>> globals()[ascii_a]  # Retrieve with the normalized name.
+'MATHEMATICAL BOLD CAPITAL A'
+
+The ASCII ``A`` and Unicode ``𝐀`` are aliases of the *same identifier*
+as far as Python is concerned.
+But the globals dict can only use one of them as its key,
+so it uses the normalized version.
+
+Remember our first munging example?
+
+.. code-block:: REPL
+
+   #> (types..SimpleNamespace)
+   >>> __import__('types').SimpleNamespace()
+   namespace()
+
+   #> (setattr _ ; The namespace.
+   #..         '𝐀 ; Compiles to a string representing an identifier.
+   #..         42)
+   >>> setattr(
+   ...   _,
+   ...   'A',
+   ...   (42))
+
+   #> _.𝐀 ; Munges and compiles to attribute identifier.
+   >>> _.A
+   42
+
+Notice that the compiled Python is pure ASCII in this case.
+This example couldn't work if the munger didn't normalize symbols,
+because ``setattr()`` would store the Unicode ``𝐀`` in ``spam``'s ``__dict__``,
+but ``spam.𝐀`` would do the same thing as ``spam.A``, and there's no such attribute.
 
 .. rubric:: Footnotes
 
