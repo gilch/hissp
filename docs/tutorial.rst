@@ -131,7 +131,7 @@ Let's use it.
 ...      ('print',q('Hello'),'name',),)
 ... )
 "(lambda n,a,m,e:\n  print(\n    'Hello',\n    name))"
->>> print(_)
+>>> print(_)  # Remember, _ is the last result that wasn't None.
 (lambda n,a,m,e:
   print(
     'Hello',
@@ -337,6 +337,7 @@ and have somewhat different behavior.
 
 *Raw strings* in Lissp are double-quoted and read backslashes and newlines literally,
 which makes them similar to triple-quoted r-strings in Python.
+In other words, escape sequences are not processed.
 
 .. code-block:: REPL
 
@@ -345,7 +346,13 @@ which makes them similar to triple-quoted r-strings in Python.
    >>> ('Two\nlines\\ntotal')
    'Two\nlines\\ntotal'
 
-Do note, however, that the `tokenizer <Lexer>` expects backslashes to be paired.
+   #> (print _)
+   >>> print(
+   ...   _)
+   Two
+   lines\ntotal
+
+Do note, however, that the `tokenizer <Lexer>` still expects backslashes to be paired with another character.
 
 .. code-block:: REPL
 
@@ -354,11 +361,72 @@ Do note, however, that the `tokenizer <Lexer>` expects backslashes to be paired.
    >>> ('\\"\n\\\\')
    '\\"\n\\\\'
 
+   #> (print _)
+   >>> print(
+   ...   _)
+   \"
+   \\
+
 The second double-quote character didn't end the raw string,
 but the backslash "escaping" it was still read literally.
 The third double quote did end the string despite being adjacent to a backslash,
 because that was already paired with another backslash.
 Again, this is the same as Python's r-strings.
+
+Recall that the Hissp-level `str` type is used to represent Python identifiers in the compiled output,
+and must be quoted with the ``quote`` special form to represent text data instead.
+
+>>> readerless(
+...     ('print',  # str containing identifier
+...      ('quote','hi'),)  # string as data
+... )
+"print(\n  'hi')"
+>>> eval(_)
+hi
+
+Hissp-level strings can represent almost any raw Python code to inject in the compiled output,
+not just identifiers.
+So another way to represent text data in Hissp
+is a Hissp-level string that contains the Python code for a string literal.
+
+>>> readerless(
+...     ('print',  # str containing identifier
+...      '"hi"',)  # str containing a string literal
+... )
+'print(\n  "hi")'
+>>> eval(_)
+hi
+
+Quoting our entire example shows us how that Lissp would get translated to Hissp.
+(When quoted, it's just data.)
+
+.. code-block:: REPL
+
+   #> (quote
+   #..  (lambda (name)
+   #..    (print "Hello" name)))
+   >>> ('lambda',
+   ...  ('name',),
+   ...  ('print',
+   ...   "('Hello')",
+   ...   'name',),)
+   ('lambda', ('name',), ('print', "('Hello')", 'name'))
+
+This tuple is data, but it's also valid Hissp code.
+You could pass it to `readerless()` to get working Python code:
+
+>>> readerless(('lambda', ('name',), ('print', "('Hello')", 'name')))
+"(lambda name:\n  print(\n    ('Hello'),\n    name))"
+>>> print(_)
+(lambda name:
+  print(
+    ('Hello'),
+    name))
+
+Notice the raw string reader syntax
+``"Hello"`` produced a string in the Hissp output containing
+``('Hello')``, a Python string literal,
+which saved us a ``quote`` form.
 
 Hash Strings
 ############
@@ -374,31 +442,12 @@ These are called *hash strings*.
    >>> ('Three\nlines\ntotal')
    'Three\nlines\ntotal'
 
-Recall that the Hissp-level `str` type is used to represent Python identifiers in the compiled output,
-and must be quoted with the ``quote`` special form to represent text data instead.
-
-Hissp-level strings can represent almost any raw Python code to inject in the compiled output,
-not just identifiers.
-So another way to represent text data in Hissp
-is a Hissp-level string that contains the Python code for a string literal.
-Quoting our entire example shows us how that Lissp would get translated to Hissp,
-because when quoted, it's just data:
-
-.. code-block:: REPL
-
-   #> (quote
-   #..  (lambda (name)
-   #..    (print "Hello" name)))
-   >>> ('lambda',
-   ...  ('name',),
-   ...  ('print',
-   ...   "('Hello')",
-   ...   'name',),)
-   ('lambda', ('name',), ('print', "('Hello')", 'name'))
-
-Notice that rather than using the ``quote`` special form for ``"Hello"``,
-Lissp reads in a double-quoted string as a Hissp-level string
-containing a Python string literal: ``('Hello')``.
+   #> (print _)
+   >>> print(
+   ...   _)
+   Three
+   lines
+   total
 
 Symbols
 #######
@@ -436,7 +485,7 @@ In other Lisps, symbols are a data type in their own right,
 but symbols only exist as a *reader syntax* in Lissp,
 where they represent the subset of Hissp-level strings that can act as identifiers.
 
-These symbols in Lissp become strings in Hissp which become identifiers in Python,
+Symbols in Lissp become strings in Hissp which become identifiers in Python,
 unless they're quoted, like ``('quote', 'Hello')``,
 in which case they become string literals in Python.
 
@@ -445,7 +494,7 @@ Experiment with this process in the REPL.
 Attributes
 ~~~~~~~~~~
 
-Symbols with an internal ``.`` access attributes when used as an identifier:
+Symbols with internal ``.``'s access attributes when used as an identifier:
 
 .. code-block:: REPL
 
@@ -456,6 +505,37 @@ Symbols with an internal ``.`` access attributes when used as an identifier:
    #> int.__name__.__class__  ; These chain.
    >>> int.__name__.__class__
    <class 'str'>
+
+.. _qualified identifiers:
+
+Module Literals and Qualified Identifiers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can refer to variables defined in any module by using a
+*qualified identifier*:
+
+.. code-block:: REPL
+
+   #> operator.  ; Module literals end in a dot and automatically import.
+   >>> __import__('operator')
+   <module 'operator' from '...operator.py'>
+
+   #> (operator..add 40 2)  ; Qualified identifiers include their module.
+   >>> __import__('operator').add(
+   ...   (40),
+   ...   (2))
+   42
+
+Notice the second dot required to access a module attribute.
+
+The translation of module literals to ``__import__`` calls happens at compile time,
+not read time, so this feature is still available in readerless mode.
+
+>>> readerless('re.')
+"__import__('re')"
+
+Qualification is important for macros that are defined in one module,
+but used in another.
 
 Munging
 ~~~~~~~
@@ -500,21 +580,21 @@ as an identifier and as a string representing that identifier:
 
 .. code-block:: REPL
 
-   #> ((lambda (spam)
-   #..   (setattr spam
-   #..            '!@%$  ; Munges and compiles to string literal.
-   #..            'eggs)
-   #..   spam.!@%$)  ; Munges and compiles to attribute identifier.
-   #.. (lambda ()))  ; Call with something that can take attrs.
-   >>> (lambda spam:(
-   ...   setattr(
-   ...     spam,
-   ...     'QzBANG_QzAT_QzPCENT_QzDOLR_',
-   ...     'eggs'),
-   ...   spam.QzBANG_QzAT_QzPCENT_QzDOLR_)[-1])(
-   ...   (lambda :()))
-   'eggs'
+   #> (types..SimpleNamespace)
+   >>> __import__('types').SimpleNamespace()
+   namespace()
 
+   #> (setattr _ ; The namespace.
+   #..         '!@%$ ; Compiles to a string representing an identifier.
+   #..         42)
+   >>> setattr(
+   ...   _,
+   ...   'QzBANG_QzAT_QzPCENT_QzDOLR_',
+   ...   (42))
+
+   #> _.!@%$ ; Munges and compiles to attribute identifier.
+   >>> _.QzBANG_QzAT_QzPCENT_QzDOLR_
+   42
 
 Spaces, double quotes, parentheses, and semicolons are allowed in atoms,
 but they must each be escaped with a backslash to prevent it from terminating the symbol.
@@ -537,60 +617,6 @@ You also have to escape these if they begin a symbol to distinguish them from nu
    'QzDIGITxONE_08'
 
 Notice that only the first digit had to be munged to make it a valid Python identifier.
-
-The munger also normalizes Unicode characters to NFKC,
-because Python already does this when converting identifiers to strings:
-
->>> ascii_a = 'A'
->>> unicode_a = '𝐀'
->>> ascii_a == unicode_a
-False
->>> import unicodedata
->>> ascii_a == unicodedata.normalize('NFKC', unicode_a)
-True
->>> A = unicodedata.name(ascii_a)
->>> A
-'LATIN CAPITAL LETTER A'
->>> 𝐀 = unicodedata.name(unicode_a)  # A Unicode variable name.
->>> 𝐀  # Different, as expected.
-'MATHEMATICAL BOLD CAPITAL A'
->>> A  # Huh?
-'MATHEMATICAL BOLD CAPITAL A'
->>> globals()[unicode_a]  # The Unicode name does not work!
-Traceback (most recent call last):
-  ...
-KeyError: '𝐀'
->>> globals()[ascii_a]  # Retrieve with the normalized name.
-'MATHEMATICAL BOLD CAPITAL A'
-
-The ASCII ``A`` and Unicode ``𝐀`` are aliases of the *same identifier*
-as far as Python is concerned.
-But the globals dict can only use one of them as its key,
-so it uses the normalized version.
-
-Remember our first munging example?
-
-.. code-block:: REPL
-
-   #> ((lambda (spam)
-   #..   (setattr spam
-   #..            '𝐀  ; Munged symbol compiles to a string.
-   #..            'eggs)
-   #..   spam.𝐀)  ; Munged symbol compiles to an identifier.
-   #.. (lambda ()))  ; Call with something that can take attrs.
-   >>> (lambda spam:(
-   ...   setattr(
-   ...     spam,
-   ...     'A',
-   ...     'eggs'),
-   ...   spam.A)[-1])(
-   ...   (lambda :()))
-   'eggs'
-
-Notice that the compiled Python is pure ASCII in this case.
-This example couldn't work if the munger didn't normalize symbols,
-because ``setattr()`` would store the Unicode ``𝐀`` in ``spam``'s ``__dict__``,
-but ``spam.𝐀`` would do the same thing as ``spam.A``, and there's no such attribute.
 
 Control Words
 ~~~~~~~~~~~~~
@@ -638,33 +664,6 @@ You must quote these like ``':**`` or ``":**"`` to pass them as data in that con
 Macros operate at compile time (before evaluation),
 so they can also distinguish a raw control word from a quoted one.
 
-.. _qualified identifiers:
-
-Module Literals and Qualified Identifiers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You can refer to variables defined in any module by using a
-*qualified identifier*:
-
-.. code-block:: REPL
-
-   #> operator.  ; Module literals end in a dot and automatically import.
-   >>> __import__('operator')
-   <module 'operator' from '...operator.py'>
-
-   #> (operator..add 40 2)  ; Qualified identifiers include their module.
-   >>> __import__('operator').add(
-   ...   (40),
-   ...   (2))
-   42
-
-Notice the second dot required to access a module attribute.
-
-The translation of module literals to ``__import__`` calls happens at compile time,
-so this feature is still available in readerless mode.
-Qualification is important for macros that are defined in one module,
-but used in another.
-
 Compound Expressions
 --------------------
 
@@ -691,15 +690,59 @@ The anonymous function special form::
    (lambda <parameters>
      <body>)
 
-The separator control word ``:`` divides the parameters tuple [#LambdaList]_
-into single and paired sections.
+Python's parameter types are rather involved.
+Hissp's lambdas have a simplified format designed for metaprogramming.
+When the parameters tuple [#LambdaList]_
+starts with a colon,
+then all parameters are paired.
+Hissp can represent all of Python's parameter types this way.
 
-Hissp has all of Python's parameter types:
+.. code-block:: REPL
+
+   #> (lambda (: ; starts with : separator control word.
+   #..         a :? ; positional-only parameter, no default
+   #..         :/ :? ; positional-only separator words
+   #..         b :? ; normal parameter, no default value
+   #..         e 1 ; parameter with a default value of 1
+   #..         f 2 ; another one with a default value of 2
+   #..         :* args ; remaining positional args packed in a tuple
+   #..         h 4 ; parameters after * are keyword only
+   #..         i :? ; kwonly with no default
+   #..         j 1 ; another kwonly parameter with a default value
+   #..         :** kwargs) ; packs keyword args into a dict
+   #..  42)
+   >>> (lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
+   <function <lambda> at ...>
+
+The parameter name goes on the left of the pairs, and the default goes on the right.
+Notice that the ``:?`` control word indicates that the parameter has no default value.
+
+The ``:/`` separator ending the positional-only arguments is not a parameter,
+even though it gets listed like one,
+thus it can't have a default
+and must always be paired with ``:?``.
+
+The ``:*`` can likewise act as a separator starting the keyword-only arguments,
+and can likewise be paired with ``:?``.
+
+The normal parameters in between these can be passed in either as positional arguments
+or as keyword arguments.
+
+The ``:*`` can instead pair with a parameter name,
+which collects the remainder of the positional arguments into a tuple.
+This is one of two exceptions to the rule that the parameter name is the left of the pair.
+This matches Python's ordering.
+Notice that this means that the rule that the ``:?`` goes on the right has no exceptions.
+The other exception is the parameter name after ``:**``,
+which collects the remaining keyword arguments into a dict.
+
+The ``:`` control word that we started with is a convenience that abbreviates the common case
+of a pair with a ``:?``.
 
 .. code-block:: REPL
 
    #> (lambda (a :/  ; positional only
-   #..         b  ; positional
+   #..         b  ; normal
    #..         : e 1  f 2  ; default
    #..         :* args  h 4  i :?  j 1  ; kwonly
    #..         :** kwargs)
@@ -707,28 +750,11 @@ Hissp has all of Python's parameter types:
    >>> (lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
    <function <lambda> at ...>
 
-Everything left of the colon is implicitly paired with
+Each element before the ``:`` is implicitly paired with
 the placeholder control word ``:?``.
-You can do this explicitly by putting the colon first.
-The single section is never required.
-Sometimes it's easier to metaprogram this way.
-Notice the Python compilation is exactly the same as above.
-
-.. code-block:: REPL
-
-   #> (lambda (: a :?
-   #..         :/ :?
-   #..         b :?
-   #..         e 1
-   #..         f 2
-   #..         :* args
-   #..         h 4
-   #..         i :?
-   #..         j 1
-   #..         :** kwargs)
-   #..  42)
-   >>> (lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
-   <function <lambda> at ...>
+Notice the Python compilation is exactly the same as before,
+and that a ``:?`` was still required in the paired section to indicate that the
+``i`` parameter has no default value.
 
 The ``:*`` and ``:**`` control words mark their parameters as
 taking the remainder of the positional and keyword arguments,
@@ -738,14 +764,14 @@ respectively:
 
    #> (lambda (: :* args :** kwargs)
    #..  (print args)
-   #..  (print kwargs)  ; Body expressions evaluate in order.
-   #..  :return-value)  ; The last one is returned.
+   #..  (print kwargs) ; Body expressions evaluate in order.
+   #..  42) ; The last value is returned.
    >>> (lambda *args,**kwargs:(
    ...   print(
    ...     args),
    ...   print(
    ...     kwargs),
-   ...   ':return-value')[-1])
+   ...   (42))[-1])
    <function <lambda> at ...>
 
    #> (_ 1 : b :c)
@@ -754,11 +780,12 @@ respectively:
    ...   b=':c')
    (1,)
    {'b': ':c'}
-   ':return-value'
+   42
 
-You can omit the right of a pair with ``:?``
-(except the final ``**kwargs``).
-Also note that the body can be empty:
+You can omit the right of any pair with ``:?`` except the final ``**kwargs``.
+
+The lambda body can be empty,
+in which case an empty tuple is implied:
 
 .. code-block:: REPL
 
@@ -773,7 +800,8 @@ Everything on the paired side must be paired, no exceptions.
 adding another special case to not require the ``:?``
 would make metaprogramming more difficult.)
 
-The ``:`` may be omitted if there are no paired parameters:
+The ``:`` may be omitted if there are no explicitly paired parameters.
+Not having it is the same as putting it last:
 
 .. code-block:: REPL
 
@@ -793,8 +821,8 @@ The ``:`` may be omitted if there are no paired parameters:
    >>> (lambda :())
    <function <lambda> at ...>
 
-The ``:`` is required if there are any paired parameters, even if
-there are no single parameters:
+The ``:`` is required if there are any explicit pairs,
+even if there are no ``:?`` pairs:
 
 .. code-block:: REPL
 
@@ -808,7 +836,36 @@ Calls
 Any tuple that is not quoted, empty, or a special form or macro is
 a runtime call.
 
-It has three parts::
+The first element of a call tuple is the callable.
+The remaining elements are for the arguments.
+
+Like lambda's parameters tuple,
+when you start the arguments with ``:``,
+the rest are paired.
+
+.. code-block:: REPL
+
+   #> (print : :? 1  :? 2  :? 3  sep ":"  end #"\n.")
+   >>> print(
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   sep=(':'),
+   ...   end=('\n.'))
+   1:2:3
+   .
+
+Again, the values are on the right and the names are on the left for each pair,
+just like in lambda,
+the same order as Python's assignment statements.
+
+Here, the ``:?`` placeholder control word indicates that the argument is passed positionally,
+rather than by a keyword.
+Unlike in lambdas,
+this means that the ``:?`` is always the left of a pair.
+
+Like lambdas, the ``:`` is a convenience abbreviation for ``:?`` pairs,
+giving call forms three parts::
 
    (<callable> <single> : <paired>)
 
@@ -825,6 +882,8 @@ For example:
    ...   end=('\n.'))
    1:2:3
    .
+
+Notice the Python compilation is exactly the same as before.
 
 The single and the paired section may be empty:
 
@@ -858,6 +917,8 @@ The ``:`` is optional if the paired section is empty:
    ...   ('inf'))
    inf
 
+Again, this is like lambda.
+
 The paired section has implicit pairs; there must be an even number.
 
 Use the control words ``:*`` for iterable unpacking,
@@ -877,25 +938,11 @@ Use the control words ``:*`` for iterable unpacking,
    1:2:3:4
    .
 
-This parallels the parameter syntax for lambdas.
+These go on the left, like a keyword.
+These are the same control words used in lambdas.
 
 Unlike parameter names, these control words can be repeated,
 but (as in Python) a ``:*`` is not allowed to follow ``:**``.
-
-The items in the single section are implicitly paired with ``:?``,
-so the single section is only a convenience and never required:
-
-.. code-block:: REPL
-
-   #> (print : :? 1  :? 2  :? 3 sep ":"  end #"\n.")
-   >>> print(
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   sep=(':'),
-   ...   end=('\n.'))
-   1:2:3
-   .
 
 Method calls are similar to function calls::
 
@@ -913,6 +960,176 @@ function name starts with a dot:
 Reader Macros
 -------------
 
+Up until now, Lissp has been a pretty direct representation of Hissp.
+Metaprogramming changes that.
+
+So far, all of our Hissp examples written in readerless mode
+have been tuple trees with string leaves,
+
+>>> eval(readerless(('print','1','2','3',':','sep',':')))
+1:2:3
+
+but the Hissp compiler will accept other object types.
+
+>>> eval(readerless((print,1,2,3,':','sep',':')))
+1:2:3
+
+Tuples represent invocations in Hissp,
+strings represent raw Python code (and imports).
+Other objects simply represent themselves.
+In fact,
+some of the reader syntax we have already seen creates non-string objects in the Hissp.
+
+.. code-block:: REPL
+
+   #> '(print 1 2 3 : sep :)
+   >>> ('print',
+   ...  (1),
+   ...  (2),
+   ...  (3),
+   ...  ':',
+   ...  'sep',
+   ...  ':',)
+   ('print', 1, 2, 3, ':', 'sep', ':')
+
+In this case, we can see the integer objects were not read as strings.
+
+Consider how easily you can programmatically manipulate Hissp before compiling it if you write it in Python.
+
+>>> ('print',q('hello, world!'.title()))
+('print', ('quote', 'Hello, World!'))
+>>> eval(readerless(_))
+Hello, World!
+
+We changed the case of a string here before the compiler even saw it.
+
+Are we giving up this kind of power by using Lissp instead?
+
+Inject
+######
+
+Remember our first metaprogram ``q()``?
+You've already seen the ``'`` reader macro.
+That much is doable.
+
+Here's how you could do the rest.
+
+.. code-block:: REPL
+
+   #> (print '.#(.title "hello, world!"))
+   >>> print(
+   ...   'Hello, World!')
+   Hello, World!
+
+Let's quote the whole form to see the intermediate Hissp.
+
+.. code-block:: REPL
+
+   #> '(print '.#(.title "hello, world!"))
+   >>> ('print',
+   ...  ('quote',
+   ...   'Hello, World!',),)
+   ('print', ('quote', 'Hello, World!'))
+
+Notice the title casing method has already been applied.
+Just like our Python example,
+this ran a program to help generate the Hissp before passing it to the compiler.
+
+The ``.#`` is another builtin reader macro called *inject*.
+It evaluates the next form
+and injects the resulting object into the Hissp.
+Reader macros are unary operators that apply inside-out,
+like functions,
+at `read time`_.
+
+You can use inject to modify code at read time,
+to inject non-string objects that don't have their own reader syntax in Lissp,
+and to inject raw Python code strings by bypassing the reader syntax that would normally add quotation marks.
+It's pretty important.
+
+Python injection:
+
+.. code-block:: REPL
+
+   #> .##"{(1, 2): \"\"\"buckle my shoe\"\"\"}  # This is Python!"
+   >>> {(1, 2): """buckle my shoe"""}  # This is Python!
+   {(1, 2): 'buckle my shoe'}
+
+Reader macros compose:
+
+.. code-block:: REPL
+
+   #> '.#"{(3, 4): 'shut the door'}" ; this quoted inject is a string
+   >>> "{(3, 4): 'shut the door'}"
+   "{(3, 4): 'shut the door'}"
+
+   #> '.#.#"{(5, 6): 'pick up sticks'}" ; even quoted, this double inject is a dict
+   >>> {(5, 6): 'pick up sticks'}
+   {(5, 6): 'pick up sticks'}
+
+Remember this example?
+
+>>> eval(readerless((print,1,2,3,':','sep',':')))
+1:2:3
+
+The ``print`` here isn't a string.
+It's a function object.
+
+>>> (print,1,2,3,':','sep',':')
+(<built-in function print>, 1, 2, 3, ':', 'sep', ':')
+
+But that repr isn't valid Python.
+How can the Hissp compiler generate Python code from this tuple?
+
+Let's see what it's doing.
+
+>>> print(readerless((print,1,2,3,':','sep',':')))
+__import__('pickle').loads(  # <built-in function print>
+    b'cbuiltins\nprint\n.'
+)(
+  (1),
+  (2),
+  (3),
+  sep=':')
+
+See the trick?
+Hissp falls back to `pickle` when it doesn't know how to emit an object as Python code.
+This code still works.
+Unfortunately, there are certain objects even pickle can't handle.
+
+When we tried this in the obvious way in Lissp,
+`print` used the symbol reader syntax,
+which became a string in the Hissp,
+and rendered as an identifier in the compiled Python,
+but if we had injected it instead,
+
+.. code-block:: REPL
+
+   #> (.#print 1 2 3 : sep :)
+   >>> __import__('pickle').loads(  # <built-in function print>
+   ...     b'cbuiltins\nprint\n.'
+   ... )(
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   sep=':')
+   1:2:3
+
+We get the pickle again.
+
+Many other object types work.
+
+.. code-block:: REPL
+
+   #> .#(fractions..Fraction 1 2)
+   >>> __import__('pickle').loads(  # Fraction(1, 2)
+   ...     b'cfractions\nFraction\n(V1/2\ntR.'
+   ... )
+   Fraction(1, 2)
+
+Qualified Reader Macros
+#######################
+
 Besides a few builtins,
 reader macros in Lissp consist of a symbol ending with a ``#``,
 followed by another form.
@@ -929,6 +1146,16 @@ and the reader embeds the resulting object into the output Hissp:
    inf
 
 This inserts an actual `float` object at `read time`_ into the Hissp code.
+
+It's the same as using inject like this
+
+.. code-block:: REPL
+
+   #> .#(builtins..float 'inf)
+   >>> __import__('pickle').loads(  # inf
+   ...     b'Finf\n.'
+   ... )
+   inf
 
 It's neither a `str` nor a `tuple`, so Hissp tries its best to compile this as data,
 but because its repr, ``inf``, isn't a valid Python literal,
@@ -948,36 +1175,8 @@ Inject ``.#``, discard ``_#``, and gensym ``$#``.
 The reader will also check the current module's ``_macro_`` namespace (if it has one)
 when it encounters an unqualified macro name.
 
-If you need more than one argument for a reader macro, use the built-in
-inject ``.#`` macro, which evaluates a form at `read time`_:
-
-.. code-block:: REPL
-
-   #> .#(fractions..Fraction 1 2)
-   >>> __import__('pickle').loads(  # Fraction(1, 2)
-   ...     b'cfractions\nFraction\n(V1/2\ntR.'
-   ... )
-   Fraction(1, 2)
-
-And can inject arbitrary text into the compiled output:
-
-.. code-block:: REPL
-
-   #> .##"{(1, 2): \"\"\"buckle my shoe\"\"\"}  # This is Python!"
-   >>> {(1, 2): """buckle my shoe"""}  # This is Python!
-   {(1, 2): 'buckle my shoe'}
-
-Reader macros compose:
-
-.. code-block:: REPL
-
-   #> '.#"{(3, 4): 'shut the door'}" ; this quoted inject is a string
-   >>> "{(3, 4): 'shut the door'}"
-   "{(3, 4): 'shut the door'}"
-
-   #> '.#.#"{(5, 6): 'pick up sticks'}" ; even quoted, this double inject is a dict
-   >>> {(5, 6): 'pick up sticks'}
-   {(5, 6): 'pick up sticks'}
+Discard
+#######
 
 The discard ``_#`` macro omits the next expression,
 even if it's a tuple.
@@ -1537,6 +1736,68 @@ it in other files until they are recompiled.
 That is why `transpile()` will recompile the named files unconditionally.
 Even if the corresponding source has not changed,
 the compiled output may be different due to an updated macro in another file.
+
+Unicode Normalization
+=====================
+
+.. Note::
+   If you plan on only using ASCII in symbols,
+   you can skip this section.
+
+The munger also normalizes Unicode characters to NFKC,
+because Python already does this when converting identifiers to strings:
+
+>>> ascii_a = 'A'
+>>> unicode_a = '𝐀'
+>>> ascii_a == unicode_a
+False
+>>> import unicodedata
+>>> ascii_a == unicodedata.normalize('NFKC', unicode_a)
+True
+>>> A = unicodedata.name(ascii_a)
+>>> A
+'LATIN CAPITAL LETTER A'
+>>> 𝐀 = unicodedata.name(unicode_a)  # A Unicode variable name.
+>>> 𝐀  # Different, as expected.
+'MATHEMATICAL BOLD CAPITAL A'
+>>> A  # Huh?
+'MATHEMATICAL BOLD CAPITAL A'
+>>> globals()[unicode_a]  # The Unicode name does not work!
+Traceback (most recent call last):
+  ...
+KeyError: '𝐀'
+>>> globals()[ascii_a]  # Retrieve with the normalized name.
+'MATHEMATICAL BOLD CAPITAL A'
+
+The ASCII ``A`` and Unicode ``𝐀`` are aliases of the *same identifier*
+as far as Python is concerned.
+But the globals dict can only use one of them as its key,
+so it uses the normalized version.
+
+Remember our first munging example?
+
+.. code-block:: REPL
+
+   #> (types..SimpleNamespace)
+   >>> __import__('types').SimpleNamespace()
+   namespace()
+
+   #> (setattr _ ; The namespace.
+   #..         '𝐀 ; Compiles to a string representing an identifier.
+   #..         42)
+   >>> setattr(
+   ...   _,
+   ...   'A',
+   ...   (42))
+
+   #> _.𝐀 ; Munges and compiles to attribute identifier.
+   >>> _.A
+   42
+
+Notice that the compiled Python is pure ASCII in this case.
+This example couldn't work if the munger didn't normalize symbols,
+because ``setattr()`` would store the Unicode ``𝐀`` in ``spam``'s ``__dict__``,
+but ``spam.𝐀`` would do the same thing as ``spam.A``, and there's no such attribute.
 
 .. rubric:: Footnotes
 
