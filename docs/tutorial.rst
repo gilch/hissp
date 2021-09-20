@@ -1106,6 +1106,40 @@ to inject non-string objects that don't have their own read syntax in Lissp,
 and to inject raw Python code strings by bypassing the read syntax that would normally add quotation marks.
 It's pretty important.
 
+Inject
+######
+
+If you need more than one argument for a reader macro, use the built-in
+inject ``.#`` macro, which evaluates a form at `read time`_:
+
+.. code-block:: REPL
+
+   #> .#(fractions..Fraction 1 2)
+   >>> __import__('pickle').loads(  # Fraction(1, 2)
+   ...     b'cfractions\nFraction\n(V1/2\ntR.'
+   ... )
+   Fraction(1, 2)
+
+And can inject arbitrary text into the compiled output:
+
+.. code-block:: REPL
+
+   #> .##"{(1, 2): \"\"\"buckle my shoe\"\"\"}  # This is Python!"
+   >>> {(1, 2): """buckle my shoe"""}  # This is Python!
+   {(1, 2): 'buckle my shoe'}
+
+Reader macros compose:
+
+.. code-block:: REPL
+
+   #> '.#"{(3, 4): 'shut the door'}" ; this quoted inject is a string
+   >>> "{(3, 4): 'shut the door'}"
+   "{(3, 4): 'shut the door'}"
+
+   #> '.#.#"{(5, 6): 'pick up sticks'}" ; even quoted, this double inject is a dict
+   >>> {(5, 6): 'pick up sticks'}
+   {(5, 6): 'pick up sticks'}
+
 Qualified Unary
 ###############
 
@@ -1143,40 +1177,6 @@ These three macros are built into the reader:
 Inject ``.#``, discard ``_#``, and gensym ``$#``.
 The reader will also check the current module's ``_macro_`` namespace (if it has one)
 when it encounters an unqualified macro name.
-
-Inject
-######
-
-If you need more than one argument for a reader macro, use the built-in
-inject ``.#`` macro, which evaluates a form at `read time`_:
-
-.. code-block:: REPL
-
-   #> .#(fractions..Fraction 1 2)
-   >>> __import__('pickle').loads(  # Fraction(1, 2)
-   ...     b'cfractions\nFraction\n(V1/2\ntR.'
-   ... )
-   Fraction(1, 2)
-
-And can inject arbitrary text into the compiled output:
-
-.. code-block:: REPL
-
-   #> .##"{(1, 2): \"\"\"buckle my shoe\"\"\"}  # This is Python!"
-   >>> {(1, 2): """buckle my shoe"""}  # This is Python!
-   {(1, 2): 'buckle my shoe'}
-
-Reader macros compose:
-
-.. code-block:: REPL
-
-   #> '.#"{(3, 4): 'shut the door'}" ; this quoted inject is a string
-   >>> "{(3, 4): 'shut the door'}"
-   "{(3, 4): 'shut the door'}"
-
-   #> '.#.#"{(5, 6): 'pick up sticks'}" ; even quoted, this double inject is a dict
-   >>> {(5, 6): 'pick up sticks'}
-   {(5, 6): 'pick up sticks'}
 
 Discard
 #######
