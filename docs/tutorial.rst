@@ -1022,6 +1022,12 @@ function name starts with a dot:
 Reader Macros
 -------------
 
+Up until now, Lissp has been a pretty direct representation of Hissp.
+Metaprogramming changes that.
+
+Qualified Unary
+###############
+
 Besides a few builtins,
 reader macros in Lissp consist of a symbol ending with a ``#``,
 followed by another form.
@@ -1057,6 +1063,9 @@ Inject ``.#``, discard ``_#``, and gensym ``$#``.
 The reader will also check the current module's ``_macro_`` namespace (if it has one)
 when it encounters an unqualified macro name.
 
+Inject
+######
+
 If you need more than one argument for a reader macro, use the built-in
 inject ``.#`` macro, which evaluates a form at `read time`_:
 
@@ -1087,6 +1096,9 @@ Reader macros compose:
    #> '.#.#"{(5, 6): 'pick up sticks'}" ; even quoted, this double inject is a dict
    >>> {(5, 6): 'pick up sticks'}
    {(5, 6): 'pick up sticks'}
+
+Discard
+#######
 
 The discard ``_#`` macro omits the next expression,
 even if it's a tuple.
