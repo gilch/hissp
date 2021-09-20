@@ -1025,6 +1025,87 @@ Reader Macros
 Up until now, Lissp has been a pretty direct representation of Hissp.
 Metaprogramming changes that.
 
+So far, all of our Hissp examples written in readerless mode
+have been tuple trees with string leaves,
+
+>>> eval(readerless(('print','1','2','3',':','sep',':')))
+1:2:3
+
+but the Hissp compiler will accept other object types.
+
+>>> eval(readerless((print,1,2,3,':','sep',':')))
+1:2:3
+
+Tuples represent invocations in Hissp,
+strings represent raw Python code (and imports).
+Other objects simply represent themselves.
+In fact,
+some of the reader syntax we have already seen creates non-string objects in the Hissp.
+
+.. code-block:: REPL
+
+   #> '(print 1 2 3 : sep :)
+   >>> ('print',
+   ...  (1),
+   ...  (2),
+   ...  (3),
+   ...  ':',
+   ...  'sep',
+   ...  ':',)
+   ('print', 1, 2, 3, ':', 'sep', ':')
+
+In this case, we can see the integer objects were not read as strings.
+
+Consider how easily you can programmatically manipulate Hissp before compiling it if you write it in Python.
+
+>>> ('print',q('hello, world!'.title()))
+('print', ('quote', 'Hello, World!'))
+>>> eval(readerless(_))
+Hello, World!
+
+We changed the case of a string here before the compiler even saw it.
+
+Are we giving up this kind of power by using Lissp instead?
+
+Remember our first metaprogram ``q()``?
+You've already seen the ``'`` reader macro.
+That much is doable.
+
+Here's how you could do the rest.
+
+.. code-block:: REPL
+
+   #> (print '.#(.title "hello, world!"))
+   >>> print(
+   ...   'Hello, World!')
+   Hello, World!
+
+Let's quote the whole form to see the intermediate Hissp.
+
+.. code-block:: REPL
+
+   #> '(print '.#(.title "hello, world!"))
+   >>> ('print',
+   ...  ('quote',
+   ...   'Hello, World!',),)
+   ('print', ('quote', 'Hello, World!'))
+
+Notice the title casing method has already been applied.
+Just like our Python example,
+this ran a program to help generate the Hissp before passing it to the compiler.
+
+The ``.#`` is another builtin reader macro called *inject*.
+It evaluates the next form
+and injects the resulting object into the Hissp.
+Reader macros are unary operators that apply inside-out,
+like functions,
+at `read time`_.
+
+You can use inject to modify code at read time,
+to inject non-string objects that don't have their own read syntax in Lissp,
+and to inject raw Python code strings by bypassing the read syntax that would normally add quotation marks.
+It's pretty important.
+
 Qualified Unary
 ###############
 
