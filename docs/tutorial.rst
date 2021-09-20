@@ -898,7 +898,36 @@ Calls
 Any tuple that is not quoted, empty, or a special form or macro is
 a runtime call.
 
-It has three parts::
+The first element of a call tuple is the callable.
+The remaining elements are for the arguments.
+
+Like lambda's parameters tuple,
+when you start the arguments with ``:``,
+the rest are paired.
+
+.. code-block:: REPL
+
+   #> (print : :? 1  :? 2  :? 3  sep ":"  end #"\n.")
+   >>> print(
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   sep=(':'),
+   ...   end=('\n.'))
+   1:2:3
+   .
+
+Again, the values are on the right and the names are on the left for each pair,
+just like in lambda,
+the same order as Python's assignment statements.
+
+Here, the ``:?`` placeholder control word indicates that the argument is passed positionally,
+rather than by a keyword.
+Unlike in lambdas,
+this means that the ``:?`` is always the left of a pair.
+
+Like lambdas, the ``:`` is a convenience abbreviation for ``:?`` pairs,
+giving call forms three parts::
 
    (<callable> <single> : <paired>)
 
@@ -915,6 +944,8 @@ For example:
    ...   end=('\n.'))
    1:2:3
    .
+
+Notice the Python compilation is exactly the same as before.
 
 The single and the paired section may be empty:
 
@@ -948,6 +979,8 @@ The ``:`` is optional if the paired section is empty:
    ...   ('inf'))
    inf
 
+Again, this is like lambda.
+
 The paired section has implicit pairs; there must be an even number.
 
 Use the control words ``:*`` for iterable unpacking,
@@ -967,25 +1000,11 @@ Use the control words ``:*`` for iterable unpacking,
    1:2:3:4
    .
 
-This parallels the parameter syntax for lambdas.
+These go on the left, like a keyword.
+These are the same control words used in lambdas.
 
 Unlike parameter names, these control words can be repeated,
 but (as in Python) a ``:*`` is not allowed to follow ``:**``.
-
-The items in the single section are implicitly paired with ``:?``,
-so the single section is only a convenience and never required:
-
-.. code-block:: REPL
-
-   #> (print : :? 1  :? 2  :? 3 sep ":"  end #"\n.")
-   >>> print(
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   sep=(':'),
-   ...   end=('\n.'))
-   1:2:3
-   .
 
 Method calls are similar to function calls::
 
