@@ -280,7 +280,7 @@ zrqvgngr ba guvf.
   Pairs are implied. Default is ``()``. Use ``:else`` to change it.
   For example::
 
-   (cond)  ; ()
+   (cond) ; ()
    ;; Assume some number 'x
    (cond (operator..gt x 0) (print \"positive\")
          (operator..lt x 0) (print \"negative\")

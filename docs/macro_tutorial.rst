@@ -562,7 +562,7 @@ that anaphoric macro we did in the previous tutorial.
 .. Lissp::
 
    #> (defmacro L (: :* expr)
-   #..  `(lambda (,'X)  ; Interpolate anaphors to prevent qualification!
+   #..  `(lambda (,'X) ; Interpolate anaphors to prevent qualification!
    #..     ,expr))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
