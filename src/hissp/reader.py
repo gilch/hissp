@@ -28,7 +28,7 @@ from threading import Lock
 from types import ModuleType
 from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union
 
-from hissp.compiler import Compiler, readerless
+from hissp.compiler import Compiler, MAYBE, readerless
 from hissp.munger import force_qz_encode, munge
 
 # fmt: off
@@ -355,7 +355,7 @@ class Lissp:
         if symbol in dir(builtins) and symbol.split(".", 1)[0] not in self.ns:
             return f"builtins..{symbol}"  # Known builtin, not shadowed (yet).
         if invocation and "." not in symbol:  # Could still be a recursive macro.
-            return f"{self.qualname}..QzAUTO_.{symbol}"
+            return f"{self.qualname}{MAYBE}{symbol}"
         return f"{self.qualname}..{symbol}"
 
     def _macro_has(self, symbol):
