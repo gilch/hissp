@@ -29,7 +29,7 @@ from types import ModuleType
 from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union
 
 from hissp.compiler import Compiler, readerless
-from hissp.munger import munge
+from hissp.munger import force_qz_encode, munge
 
 # fmt: off
 ENTUPLE = ("lambda",(":",":*"," _")," _",)
@@ -303,7 +303,7 @@ class Lissp:
             module, function = tag.split("..", 1)
             return reduce(getattr, function.split("."), import_module(module))(form)
         try:
-            m = getattr(self.ns["_macro_"], tag + "QzHASH_")
+            m = getattr(self.ns["_macro_"], tag + munge("#"))
         except (AttributeError, KeyError):
             raise SyntaxError(f"Unknown reader macro {tag}", self.position())
         with self.compiler.macro_context():
@@ -312,7 +312,7 @@ class Lissp:
     @staticmethod
     def escape(atom):
         """Process the backslashes in a token."""
-        atom = atom.replace(r"\.", "QzFULLxSTOP_")
+        atom = atom.replace(r"\.", force_qz_encode("."))
         return re.sub(r"\\(.)", lambda m: m[1], atom)
 
     def template(self, form):
