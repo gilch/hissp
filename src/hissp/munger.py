@@ -91,38 +91,38 @@ TO_NAME = {
     {
         # ASCII control characters don't munge to names.
         "!": "BANG",
-        '"': "2QUOTE",
+        '"': "QUOT",
         "#": "HASH",
         "$": "DOLR",
         "%": "PCENT",
         "&": "ET",
-        "'": "1QUOTE",
-        "(": "PAREN",
-        ")": "THESES",
+        "'": "APOS",
+        "(": "LPAR",
+        ")": "RPAR",
         "*": "STAR",
         "+": "PLUS",
         # COMMA is fine.
         "-": "",  # Hyphen-minus
         # Full stop reserved for imports and attributes.
-        "/": "SLASH",
+        "/": "SOL",
         # Digits only munge if first character.
-        ";": "SCOLON",
+        ";": "SEMI",
         "<": "LT",  # Less Than or LefT.
         "=": "EQ",
         ">": "GT",  # Greater Than or riGhT.
         "?": "QUERY",
         "@": "AT",
         # Capital letters are always valid in Python identifiers.
-        "[": "SQUARE",
-        "\\": "BSLASH",
-        "]": "BRACKETS",
+        "[": "LSQB",
+        "\\": "BSOL",
+        "]": "RSQB",
         "^": "CARET",
         # Underscore is valid in Python identifiers.
         "`": "GRAVE",
         # Small letters are also always valid.
-        "{": "CURLY",
+        "{": "LCUB",
         "|": "BAR",
-        "}": "BRACES",
+        "}": "RCUB",
         # TILDE is fine.
     }.items()
 }

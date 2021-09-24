@@ -21,9 +21,9 @@ class TestMunger(TestCase):
     def test_munge_basic(self):
         self.assertEqual(
             munger.munge(r"""~!@#$%^&*()_+{}|:"<>?`-=[]\;',./"""),
-            "QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzCARET_QzET_QzSTAR_QzPAREN_QzTHESES_"
-            "_QzPLUS_QzCURLY_QzBRACES_QzBAR_QzCOLON_Qz2QUOTE_QzLT_QzGT_QzQUERY_QzGRAVE_Qz_QzEQ_"
-            "QzSQUARE_QzBRACKETS_QzBSLASH_QzSCOLON_Qz1QUOTE_QzCOMMA_.QzSLASH_"
+            "QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzCARET_QzET_QzSTAR_QzLPAR_QzRPAR_"
+            "_QzPLUS_QzLCUB_QzRCUB_QzBAR_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_QzGRAVE_Qz_QzEQ_"
+            "QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_.QzSOL_"
         )
 
     @given(st.text(st.characters(["Sm"]), min_size=1))

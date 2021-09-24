@@ -213,8 +213,8 @@ Lissp Quick Start
 
 
    #> 'SPAM\ \"\(\)\;EGGS                    ;These would terminate a symbol if not escaped.
-   >>> 'SPAMQzSPACE_Qz2QUOTE_QzPAREN_QzTHESES_QzSCOLON_EGGS'
-   'SPAMQzSPACE_Qz2QUOTE_QzPAREN_QzTHESES_QzSCOLON_EGGS'
+   >>> 'SPAMQzSPACE_QzQUOT_QzLPAR_QzRPAR_QzSEMI_EGGS'
+   'SPAMQzSPACE_QzQUOT_QzLPAR_QzRPAR_QzSEMI_EGGS'
 
    #> '\42                                   ;Digits can't start identifiers.
    >>> 'QzDIGITxFOUR_2'
@@ -225,8 +225,8 @@ Lissp Quick Start
    'QzFULLxSTOP_'
 
    #> '\\
-   >>> 'QzBSLASH_'
-   'QzBSLASH_'
+   >>> 'QzBSOL_'
+   'QzBSOL_'
 
    #> '\a\b\c                                ;Escapes allowed, but not required here.
    >>> 'abc'
@@ -245,8 +245,8 @@ Lissp Quick Start
    'raw string'
 
    #> 'not-string'                           ;symbol
-   >>> 'notQz_stringQz1QUOTE_'
-   'notQz_stringQz1QUOTE_'
+   >>> 'notQz_stringQzAPOS_'
+   'notQz_stringQzAPOS_'
 
    #> #"Say \"Cheese!\" \u263a"              ;Hash strings process Python escapes.
    >>> ('Say "Cheese!" ☺')
@@ -719,8 +719,8 @@ Lissp Quick Start
    ('quote', 'x')
 
    #> '\'x
-   >>> 'Qz1QUOTE_x'
-   'Qz1QUOTE_x'
+   >>> 'QzAPOS_x'
+   'QzAPOS_x'
 
 
    #> (print (.upper 'textwrap..dedent##"\
@@ -1505,7 +1505,7 @@ Lissp Quick Start
    ... # hissp.basic.._macro_.defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fnQzAUTO7_=(lambda _GQzAUTO31_:(
-   ...   'Aliases hissp.basic.._macro_. as bQzSLASH_#',
+   ...   'Aliases hissp.basic.._macro_. as bQzSOL_#',
    ...   ('{}{}').format(
    ...     'hissp.basic.._macro_.',
    ...     _GQzAUTO31_))[-1]):(
@@ -1514,12 +1514,12 @@ Lissp Quick Start
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
-   ...        'bQzSLASH_QzHASH_',))),
+   ...        'bQzSOL_QzHASH_',))),
    ...   __import__('builtins').setattr(
    ...     __import__('operator').getitem(
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
-   ...     'bQzSLASH_QzHASH_',
+   ...     'bQzSOL_QzHASH_',
    ...     _fnQzAUTO7_))[-1])()
 
    #> 'b/#alias                              ;Now short for 'hissp.basic.._macro_.alias'.
@@ -1548,11 +1548,11 @@ Lissp Quick Start
    >>> b'bytes'
    b'bytes'
 
-   #> b'bytes'                                ;NameError about 'bQz1QUOTE_bytesQz1QUOTE_'
-   >>> bQz1QUOTE_bytesQz1QUOTE_
+   #> b'bytes'                                ;NameError about 'bQzAPOS_bytesQzAPOS_'
+   >>> bQzAPOS_bytesQzAPOS_
    Traceback (most recent call last):
      File "<console>", line 1, in <module>
-   NameError: name 'bQz1QUOTE_bytesQz1QUOTE_' is not defined
+   NameError: name 'bQzAPOS_bytesQzAPOS_' is not defined
 
 
    #> b#"bytes

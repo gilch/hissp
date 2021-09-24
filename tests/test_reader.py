@@ -170,16 +170,16 @@ object.__class__.__name__ ; Attributes chain.
     "('')",
 ],
 '''b""''': ['b', "('')"],
-"b''": ['bQz1QUOTE_Qz1QUOTE_'],
-"b''''''": ['bQz1QUOTE_Qz1QUOTE_Qz1QUOTE_Qz1QUOTE_Qz1QUOTE_Qz1QUOTE_'],
+"b''": ['bQzAPOS_QzAPOS_'],
+"b''''''": ['bQzAPOS_QzAPOS_QzAPOS_QzAPOS_QzAPOS_QzAPOS_'],
 '''b""""""''': [
     'b', "('')", "('')", "('')"
 ],
 '''rb'' br'' RB'' BR'' rb"" br"" B"" ''': [
-    'rbQz1QUOTE_Qz1QUOTE_',
-    'brQz1QUOTE_Qz1QUOTE_',
-    'RBQz1QUOTE_Qz1QUOTE_',
-    'BRQz1QUOTE_Qz1QUOTE_',
+    'rbQzAPOS_QzAPOS_',
+    'brQzAPOS_QzAPOS_',
+    'RBQzAPOS_QzAPOS_',
+    'BRQzAPOS_QzAPOS_',
     'rb',
     "('')",
     'br',
@@ -207,23 +207,23 @@ newlines"
 ''': [('lambda', ('a', 'b', 'c'), '(-b + (b**2 - 4*a*c)**0.5)/(2*a)')],
 r''''\~\!\@\#\$\%\^\&\*\(\)\_\+\{\}\|\:\"\<\>\?\`\-\=\[\]\\\;\'\,\.\/''':
     [('quote',
-      'QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzCARET_QzET_QzSTAR_QzPAREN_QzTHESES__'
-      'QzPLUS_QzCURLY_QzBRACES_QzBAR_QzCOLON_Qz2QUOTE_QzLT_QzGT_QzQUERY_QzGRAVE_Qz_QzEQ_'
-      'QzSQUARE_QzBRACKETS_QzBSLASH_QzSCOLON_Qz1QUOTE_QzCOMMA_QzFULLxSTOP_QzSLASH_')],
+      'QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzCARET_QzET_QzSTAR_QzLPAR_QzRPAR__'
+      'QzPLUS_QzLCUB_QzRCUB_QzBAR_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_QzGRAVE_Qz_QzEQ_'
+      'QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_QzFULLxSTOP_QzSOL_')],
 r'''\1 \12 \[] \(\) \{} \[] \; \# \` \, \' \" \\ \ ''':
     ['QzDIGITxONE_',
      'QzDIGITxONE_2',
-     'QzSQUARE_QzBRACKETS_',
-     'QzPAREN_QzTHESES_',
-     'QzCURLY_QzBRACES_',
-     'QzSQUARE_QzBRACKETS_',
-     'QzSCOLON_',
+     'QzLSQB_QzRSQB_',
+     'QzLPAR_QzRPAR_',
+     'QzLCUB_QzRCUB_',
+     'QzLSQB_QzRSQB_',
+     'QzSEMI_',
      'QzHASH_',
      'QzGRAVE_',
      'QzCOMMA_',
-     'Qz1QUOTE_',
-     'Qz2QUOTE_',
-     'QzBSLASH_',
+     'QzAPOS_',
+     'QzQUOT_',
+     'QzBSOL_',
      'QzSPACE_'],
 r'''\b\u\i\l\t\i\n\s..\f\l\o\a\t#\i\n\f''': [math.inf],
 }
