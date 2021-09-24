@@ -592,6 +592,10 @@ as an identifier and as a string representing that identifier:
    ...   'QzBANG_QzAT_QzPCENT_QzDOLR_',
    ...   (42))
 
+   #> _
+   >>> _
+   namespace(QzBANG_QzAT_QzPCENT_QzDOLR_=42)
+
    #> _.!@%$ ; Munges and compiles to attribute identifier.
    >>> _.QzBANG_QzAT_QzPCENT_QzDOLR_
    42
@@ -1789,6 +1793,10 @@ Remember our first munging example?
    ...   _,
    ...   'A',
    ...   (42))
+
+   #> _
+   >>> _
+   namespace(A=42)
 
    #> _.𝐀 ; Munges and compiles to attribute identifier.
    >>> _.A
