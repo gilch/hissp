@@ -386,7 +386,7 @@ class Lissp:
     def gensym(self, form: str):
         """Generate a symbol unique to the current template."""
         try:
-            return f"_{munge(form)}QzAUTO{self.gensym_stack[-1]}_"
+            return f"_{munge(form)}_QzNo{self.gensym_stack[-1]}_"
         except IndexError:
             raise SyntaxError("Gensym outside of template.", self.position()) from None
 
@@ -441,7 +441,7 @@ def is_qualifiable(symbol):
     return (
             symbol not in {"quote", "__import__"}
             and not _iskeyword(symbol)
-            and not re.match(r".*QzAUTO\d+_$", symbol)
+            and not re.match(r".*_QzNo\d+_$", symbol)
             and all(map(str.isidentifier, symbol.split(".")))
     )
 

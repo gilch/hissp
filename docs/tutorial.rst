@@ -1306,17 +1306,17 @@ Within a template, the same gensym name always makes the same gensym:
 
    #> `($#hiss $#hiss)
    >>> (lambda * _: _)(
-   ...   '_hissQzAUTO41_',
-   ...   '_hissQzAUTO41_')
-   ('_hissQzAUTO41_', '_hissQzAUTO41_')
+   ...   '_hiss_QzNo41_',
+   ...   '_hiss_QzNo41_')
+   ('_hiss_QzNo41_', '_hiss_QzNo41_')
 
 But each new template increments the counter.
 
 .. code-block:: REPL
 
    #> `$#hiss
-   >>> '_hissQzAUTO42_'
-   '_hissQzAUTO42_'
+   >>> '_hiss_QzNo42_'
+   '_hiss_QzNo42_'
 
 Gensyms are mainly used to prevent accidental name collisions in generated code,
 which is very important for reliable compiler macros.

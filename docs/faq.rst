@@ -978,16 +978,16 @@ Like this
    ...       __init__=(lambda self,catch,handler:(
    ...                  # attach
    ...                  # hissp.basic.._macro_.let
-   ...                  (lambda _targetQzAUTO16_=self:(
+   ...                  (lambda _target_QzNo16_=self:(
    ...                    __import__('builtins').setattr(
-   ...                      _targetQzAUTO16_,
+   ...                      _target_QzNo16_,
    ...                      'catch',
    ...                      catch),
    ...                    __import__('builtins').setattr(
-   ...                      _targetQzAUTO16_,
+   ...                      _target_QzNo16_,
    ...                      'handler',
    ...                      handler),
-   ...                    _targetQzAUTO16_)[-1])(),
+   ...                    _target_QzNo16_)[-1])(),
    ...                  None)[-1]),
    ...       __enter__=(lambda self:()),
    ...       __exit__=(lambda self,exc_type,exception,traceback:
