@@ -26,7 +26,7 @@ PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
 MACROS = "_macro_"
 # Macro from foreign module foo.bar.._macro_.baz
 MACRO = f"..{MACROS}."
-MAYBE = "..QzAUTO_."
+MAYBE = "..Qz_MAYBE_."
 RE_MACRO = re.compile(rf"({re.escape(MACRO)}|{re.escape(MAYBE)})")
 
 NS = ContextVar("NS", default=())

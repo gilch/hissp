@@ -1180,10 +1180,10 @@ Lissp Quick Start
    ...   'triple',
    ...   (lambda x:
    ...     (lambda * _: _)(
-   ...       '__main__..QzAUTO_.QzPLUS_',
+   ...       '__main__..Qz_MAYBE_.QzPLUS_',
    ...       x,
    ...       (lambda * _: _)(
-   ...         '__main__..QzAUTO_.QzPLUS_',
+   ...         '__main__..Qz_MAYBE_.QzPLUS_',
    ...         x,
    ...         x))))
 
@@ -1244,10 +1244,10 @@ Lissp Quick Start
    ...           '__main__..x',
    ...           x),
    ...         (lambda * _: _)(
-   ...           '__main__..QzAUTO_.QzPLUS_',
+   ...           '__main__..Qz_MAYBE_.QzPLUS_',
    ...           '__main__..x',
    ...           (lambda * _: _)(
-   ...             '__main__..QzAUTO_.QzPLUS_',
+   ...             '__main__..Qz_MAYBE_.QzPLUS_',
    ...             '__main__..x',
    ...             '__main__..x'))))))
 
@@ -1284,10 +1284,10 @@ Lissp Quick Start
    ...           '_xQzAUTO22_',
    ...           x),
    ...         (lambda * _: _)(
-   ...           '__main__..QzAUTO_.QzPLUS_',
+   ...           '__main__..Qz_MAYBE_.QzPLUS_',
    ...           '_xQzAUTO22_',
    ...           (lambda * _: _)(
-   ...             '__main__..QzAUTO_.QzPLUS_',
+   ...             '__main__..Qz_MAYBE_.QzPLUS_',
    ...             '_xQzAUTO22_',
    ...             '_xQzAUTO22_'))))))
 
@@ -1348,10 +1348,10 @@ Lissp Quick Start
    ...     (lambda * _: _)(
    ...       first,
    ...       (lambda * _: _)(
-   ...         '__main__..QzAUTO_.add',
+   ...         '__main__..Qz_MAYBE_.add',
    ...         first,
    ...         (lambda * _: _)(
-   ...           '__main__..QzAUTO_.QzPLUS_',
+   ...           '__main__..Qz_MAYBE_.QzPLUS_',
    ...           *args))).__getitem__(
    ...       bool(
    ...         args))))
@@ -1360,13 +1360,13 @@ Lissp Quick Start
    >>> # QzPLUS_
    ... __import__('builtins').globals()['add'](
    ...   (1),
-   ...   # __main__..QzAUTO_.QzPLUS_
+   ...   # __main__..Qz_MAYBE_.QzPLUS_
    ...   __import__('builtins').globals()['add'](
    ...     (2),
-   ...     # __main__..QzAUTO_.QzPLUS_
+   ...     # __main__..Qz_MAYBE_.QzPLUS_
    ...     __import__('builtins').globals()['add'](
    ...       (3),
-   ...       # __main__..QzAUTO_.QzPLUS_
+   ...       # __main__..Qz_MAYBE_.QzPLUS_
    ...       (4))))
    10
 
@@ -1384,10 +1384,10 @@ Lissp Quick Start
    ...     (lambda * _: _)(
    ...       first,
    ...       (lambda * _: _)(
-   ...         '__main__..QzAUTO_.mul',
+   ...         '__main__..Qz_MAYBE_.mul',
    ...         first,
    ...         (lambda * _: _)(
-   ...           '__main__..QzAUTO_.QzSTAR_',
+   ...           '__main__..Qz_MAYBE_.QzSTAR_',
    ...           *args))).__getitem__(
    ...       bool(
    ...         args))))
@@ -1396,13 +1396,13 @@ Lissp Quick Start
    >>> # QzSTAR_
    ... __import__('builtins').globals()['mul'](
    ...   (1),
-   ...   # __main__..QzAUTO_.QzSTAR_
+   ...   # __main__..Qz_MAYBE_.QzSTAR_
    ...   __import__('builtins').globals()['mul'](
    ...     (2),
-   ...     # __main__..QzAUTO_.QzSTAR_
+   ...     # __main__..Qz_MAYBE_.QzSTAR_
    ...     __import__('builtins').globals()['mul'](
    ...       (3),
-   ...       # __main__..QzAUTO_.QzSTAR_
+   ...       # __main__..Qz_MAYBE_.QzSTAR_
    ...       (4))))
    24
 
@@ -1427,7 +1427,7 @@ Lissp Quick Start
    ...     # QzSTAR_
    ...     __import__('builtins').globals()['mul'](
    ...       x,
-   ...       # __main__..QzAUTO_.QzSTAR_
+   ...       # __main__..Qz_MAYBE_.QzSTAR_
    ...       y)),
    ...   ((1),
    ...    (2),
@@ -1441,13 +1441,13 @@ Lissp Quick Start
    >>> # QzPLUS_
    ... __import__('builtins').globals()['add'](
    ...   (1),
-   ...   # __main__..QzAUTO_.QzPLUS_
+   ...   # __main__..Qz_MAYBE_.QzPLUS_
    ...   __import__('builtins').globals()['add'](
    ...     (2),
-   ...     # __main__..QzAUTO_.QzPLUS_
+   ...     # __main__..Qz_MAYBE_.QzPLUS_
    ...     __import__('builtins').globals()['add'](
    ...       (3),
-   ...       # __main__..QzAUTO_.QzPLUS_
+   ...       # __main__..Qz_MAYBE_.QzPLUS_
    ...       (4))))
    10
 
@@ -1640,7 +1640,7 @@ Lissp Quick Start
    ... # hissp.basic.._macro_.let
    ... (lambda _fnQzAUTO7_=(lambda x:
    ...   (lambda * _: _)(
-   ...     '__main__..QzAUTO_.QzPLUS_',
+   ...     '__main__..Qz_MAYBE_.QzPLUS_',
    ...     x,
    ...     x,
    ...     x)):(
@@ -1727,10 +1727,10 @@ Lissp Quick Start
    #..    (.title)
    #..    (->> (print "Hello")))             ;Thread-last
    >>> # Qz_QzGT_
-   ... # hissp.basic..QzAUTO_.Qz_QzGT_
-   ... # hissp.basic..QzAUTO_.Qz_QzGT_
+   ... # hissp.basic..Qz_MAYBE_.Qz_QzGT_
+   ... # hissp.basic..Qz_MAYBE_.Qz_QzGT_
    ... # Qz_QzGT_QzGT_
-   ... # hissp.basic..QzAUTO_.Qz_QzGT_QzGT_
+   ... # hissp.basic..Qz_MAYBE_.Qz_QzGT_QzGT_
    ... print(
    ...   ('Hello'),
    ...   ('world!').title())
@@ -1792,7 +1792,7 @@ Lissp Quick Start
    ...         test))())(
    ...     _GQzAUTO33_,
    ...     (lambda :
-   ...       # hissp.basic..QzAUTO_.QzET_QzET_
+   ...       # hissp.basic..Qz_MAYBE_.QzET_QzET_
    ...       # hissp.basic.._macro_.let
    ...       (lambda _GQzAUTO33_=True:
    ...         # hissp.basic.._macro_.ifQz_else
@@ -1803,7 +1803,7 @@ Lissp Quick Start
    ...               test))())(
    ...           _GQzAUTO33_,
    ...           (lambda :
-   ...             # hissp.basic..QzAUTO_.QzET_QzET_
+   ...             # hissp.basic..Qz_MAYBE_.QzET_QzET_
    ...             False),
    ...           (lambda :_GQzAUTO33_)))()),
    ...     (lambda :_GQzAUTO33_)))()
@@ -1821,7 +1821,7 @@ Lissp Quick Start
    ...         test))())(
    ...     _GQzAUTO33_,
    ...     (lambda :
-   ...       # hissp.basic..QzAUTO_.QzET_QzET_
+   ...       # hissp.basic..Qz_MAYBE_.QzET_QzET_
    ...       print(
    ...         ('oops'))),
    ...     (lambda :_GQzAUTO33_)))()
@@ -1842,7 +1842,7 @@ Lissp Quick Start
    ...     _firstQzAUTO34_,
    ...     (lambda :_firstQzAUTO34_),
    ...     (lambda :
-   ...       # hissp.basic..QzAUTO_.QzBAR_QzBAR_
+   ...       # hissp.basic..Qz_MAYBE_.QzBAR_QzBAR_
    ...       print(
    ...         ('oops')))))()
    True

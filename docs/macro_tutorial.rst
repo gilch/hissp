@@ -1497,7 +1497,7 @@ Can we just iterate through the expression and check?
    ...               _firstQzAUTO33_,
    ...               (lambda :_firstQzAUTO33_),
    ...               (lambda :
-   ...                 # hissp.basic..QzAUTO_.QzBAR_QzBAR_
+   ...                 # hissp.basic..Qz_MAYBE_.QzBAR_QzBAR_
    ...                 (0))))()),
    ...         expr))))
 
@@ -1690,7 +1690,7 @@ Now we can fix ``max-X``.
    ...               _firstQzAUTO33_,
    ...               (lambda :_firstQzAUTO33_),
    ...               (lambda :
-   ...                 # hissp.basic..QzAUTO_.QzBAR_QzBAR_
+   ...                 # hissp.basic..Qz_MAYBE_.QzBAR_QzBAR_
    ...                 (0))))()),
    ...         flatten(
    ...           expr)))))
@@ -2042,7 +2042,7 @@ Here you go:
    ...                  _firstQzAUTO28_,
    ...                  (lambda :_firstQzAUTO28_),
    ...                  (lambda :
-   ...                    # hissp.basic..QzAUTO_.QzBAR_QzBAR_
+   ...                    # hissp.basic..Qz_MAYBE_.QzBAR_QzBAR_
    ...                    contains(
    ...                      flatten(
    ...                        expr),
