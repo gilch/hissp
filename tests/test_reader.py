@@ -49,11 +49,11 @@ class TestReader(TestCase):
     def test_auto_qualification(self):
         self.assertEqual(
             [('entuple',
-              ':', ':?', ('quote', '__main__..Qz_MAYBE_.x'),
+              ':', ':?', ('quote', '__main__..QzMaybe_.x'),
               ':?', ('quote', '__main__..x'),
               ':?', ('quote', '__main__..x'),
               ':?', ('entuple',
-                     ':', ':?', ('quote', '__main__..Qz_MAYBE_.y'),
+                     ':', ':?', ('quote', '__main__..QzMaybe_.y'),
                      ':?', ('quote', '__main__..y')),
               ':?', ('entuple', ':', ':?', 1, ':?', ('quote', '__main__..z')))
              ],
@@ -65,11 +65,11 @@ class TestReader(TestCase):
         self.parser.ns.update(x=1, y=2, z=3)
         self.assertEqual(
             [('entuple',
-              ':', ':?', ('quote', '__main__..Qz_MAYBE_.x'),
+              ':', ':?', ('quote', '__main__..QzMaybe_.x'),
               ':?', ('quote', '__main__..x'),
               ':?', ('quote', '__main__..x'),
               ':?', ('entuple',
-                     ':', ':?', ('quote', '__main__..Qz_MAYBE_.y'),
+                     ':', ':?', ('quote', '__main__..QzMaybe_.y'),
                      ':?', ('quote', '__main__..y')),
               ':?', ('entuple', ':', ':?', 1, ':?', ('quote', '__main__..z')))
              ],
@@ -123,12 +123,12 @@ class TestReader(TestCase):
               ('quote', '__main__..int.x'),
               ':?',
               ('quote', '__main__..int.float')),
-             ('entuple', ':', ':?', ('quote', '__main__..Qz_MAYBE_.int'), ':?', 1),
+             ('entuple', ':', ':?', ('quote', '__main__..QzMaybe_.int'), ':?', 1),
              ('entuple', ':', ':?', ('quote', 'builtins..float'), ':?', 1),
              ('entuple',
               ':',
               ':?',
-              ('quote', '__main__..Qz_MAYBE_.x'),
+              ('quote', '__main__..QzMaybe_.x'),
               ':?',
               ('quote', '__main__..x'))],
             [*self.parser.reads(

@@ -1024,8 +1024,8 @@ Like this
    ...   __import__('builtins').globals(),
    ...   'bad_idea',
    ...   # Qz_QzGT_
-   ...   # hissp.basic..Qz_MAYBE_.Qz_QzGT_
-   ...   # hissp.basic..Qz_MAYBE_.Qz_QzGT_
+   ...   # hissp.basic..QzMaybe_.Qz_QzGT_
+   ...   # hissp.basic..QzMaybe_.Qz_QzGT_
    ...   Except(
    ...     (lambda * _: _)(
    ...       TypeError,
