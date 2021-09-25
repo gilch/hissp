@@ -296,15 +296,15 @@ Most literals work just like Python:
    >>> (1)
    1
 
-   #> -1.0  ; float
+   #> -1.0 ; float
    >>> (-1.0)
    -1.0
 
-   #> 1e10  ; exponent notation
+   #> 1e10 ; exponent notation
    >>> (10000000000.0)
    10000000000.0
 
-   #> 2+3j  ; complex
+   #> 2+3j ; complex
    >>> ((2+3j))
    (2+3j)
 
@@ -357,7 +357,7 @@ Do note, however, that the `tokenizer <Lexer>` still expects backslashes to be p
 .. code-block:: REPL
 
    #> "\"
-   #..\\"  ; One string, not two!
+   #..\\" ; One string, not two!
    >>> ('\\"\n\\\\')
    '\\"\n\\\\'
 
@@ -502,7 +502,7 @@ Symbols with internal ``.``'s access attributes when used as an identifier:
    >>> int.__name__
    'int'
 
-   #> int.__name__.__class__  ; These chain.
+   #> int.__name__.__class__ ; These chain.
    >>> int.__name__.__class__
    <class 'str'>
 
@@ -516,11 +516,11 @@ You can refer to variables defined in any module by using a
 
 .. code-block:: REPL
 
-   #> operator.  ; Module literals end in a dot and automatically import.
+   #> operator. ; Module literals end in a dot and automatically import.
    >>> __import__('operator')
    <module 'operator' from '...operator.py'>
 
-   #> (operator..add 40 2)  ; Qualified identifiers include their module.
+   #> (operator..add 40 2) ; Qualified identifiers include their module.
    >>> __import__('operator').add(
    ...   (40),
    ...   (2))
@@ -544,7 +544,7 @@ Symbols have another important difference from raw strings:
 
 .. code-block:: REPL
 
-   #> 'foo->bar?  ; Qz_ is for "Hyphen", QzGT_ for "Greater Than/riGhT".
+   #> 'foo->bar? ; Qz_ is for "Hyphen", QzGT_ for "Greater Than/riGhT".
    >>> 'fooQz_QzGT_barQzQUERY_'
    'fooQz_QzGT_barQzQUERY_'
 
@@ -591,6 +591,10 @@ as an identifier and as a string representing that identifier:
    ...   _,
    ...   'QzBANG_QzAT_QzPCENT_QzDOLR_',
    ...   (42))
+
+   #> _
+   >>> _
+   namespace(QzBANG_QzAT_QzPCENT_QzDOLR_=42)
 
    #> _.!@%$ ; Munges and compiles to attribute identifier.
    >>> _.QzBANG_QzAT_QzPCENT_QzDOLR_
@@ -741,10 +745,10 @@ of a pair with a ``:?``.
 
 .. code-block:: REPL
 
-   #> (lambda (a :/  ; positional only
-   #..         b  ; normal
-   #..         : e 1  f 2  ; default
-   #..         :* args  h 4  i :?  j 1  ; kwonly
+   #> (lambda (a :/ ; positional only
+   #..         b ; normal
+   #..         : e 1  f 2 ; default
+   #..         :* args  h 4  i :?  j 1 ; kwonly
    #..         :** kwargs)
    #..  42)
    >>> (lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
@@ -805,19 +809,19 @@ Not having it is the same as putting it last:
 
 .. code-block:: REPL
 
-   #> (lambda (a b c :))  ; No pairs after ':'.
+   #> (lambda (a b c :)) ; No pairs after ':'.
    >>> (lambda a,b,c:())
    <function <lambda> at ...>
 
-   #> (lambda (a b c))  ; The ':' was omitted.
+   #> (lambda (a b c)) ; The ':' was omitted.
    >>> (lambda a,b,c:())
    <function <lambda> at ...>
 
-   #> (lambda (:))  ; Colon isn't doing anything.
+   #> (lambda (:)) ; Colon isn't doing anything.
    >>> (lambda :())
    <function <lambda> at ...>
 
-   #> (lambda ())  ; You can omit it.
+   #> (lambda ()) ; You can omit it.
    >>> (lambda :())
    <function <lambda> at ...>
 
@@ -1204,13 +1208,13 @@ The template quote works much like a normal quote:
 
 .. code-block:: REPL
 
-   #> '(1 2 3)  ; quote
+   #> '(1 2 3) ; quote
    >>> ((1),
    ...  (2),
    ...  (3),)
    (1, 2, 3)
 
-   #> `(1 2 3)  ; template quote
+   #> `(1 2 3) ; template quote
    >>> (lambda * _: _)(
    ...   (1),
    ...   (2),
@@ -1227,7 +1231,7 @@ much like a format string:
 
 .. code-block:: REPL
 
-   #> '(1 2 (operator..add 1 2))  ; normal quote
+   #> '(1 2 (operator..add 1 2)) ; normal quote
    >>> ((1),
    ...  (2),
    ...  ('operator..add',
@@ -1235,7 +1239,7 @@ much like a format string:
    ...   (2),),)
    (1, 2, ('operator..add', 1, 2))
 
-   #> `(1 2 ,(operator..add 1 2))  ; template and unquote
+   #> `(1 2 ,(operator..add 1 2)) ; template and unquote
    >>> (lambda * _: _)(
    ...   (1),
    ...   (2),
@@ -1302,17 +1306,17 @@ Within a template, the same gensym name always makes the same gensym:
 
    #> `($#hiss $#hiss)
    >>> (lambda * _: _)(
-   ...   '_hissQzAUTO41_',
-   ...   '_hissQzAUTO41_')
-   ('_hissQzAUTO41_', '_hissQzAUTO41_')
+   ...   '_hiss_QzNo41_',
+   ...   '_hiss_QzNo41_')
+   ('_hiss_QzNo41_', '_hiss_QzNo41_')
 
 But each new template increments the counter.
 
 .. code-block:: REPL
 
    #> `$#hiss
-   >>> '_hissQzAUTO42_'
-   '_hissQzAUTO42_'
+   >>> '_hiss_QzNo42_'
+   '_hiss_QzNo42_'
 
 Gensyms are mainly used to prevent accidental name collisions in generated code,
 which is very important for reliable compiler macros.
@@ -1476,7 +1480,7 @@ namespace with all of the `basic macros <hissp.basic._macro_>`:
    >>> _macro_.define
    <function _macro_.define at ...>
 
-   #> (define eggs :spam)  ; unqualified macro
+   #> (define eggs :spam) ; unqualified macro
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
@@ -1543,7 +1547,7 @@ with `builtins` (if applicable) or the current ``__name__``
 
 .. code-block:: REPL
 
-   #> `int  ; Works directly on symbols too.
+   #> `int ; Works directly on symbols too.
    >>> 'builtins..int'
    'builtins..int'
 
@@ -1789,6 +1793,10 @@ Remember our first munging example?
    ...   _,
    ...   'A',
    ...   (42))
+
+   #> _
+   >>> _
+   namespace(A=42)
 
    #> _.𝐀 ; Munges and compiles to attribute identifier.
    >>> _.A

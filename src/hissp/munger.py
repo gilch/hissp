@@ -79,43 +79,52 @@ def _munge_part(part):
             assert part.isidentifier(), f"{part!r} is not identifier"
     return part
 
+QUOTEZ = 'Qz{}_'
+"""Format string for creating Quotez."""
+
+FIND_QUOTEZ = re.compile(QUOTEZ.format("([0-9A-Z][0-9A-Zhx]*?)?"))
+"""Regex pattern to find Quotez. Used by `demunge`."""
 
 TO_NAME = {
-    # ASCII control characters don't munge to names.
-    "!": "QzBANG_",
-    '"': "Qz2QUOTE_",
-    "#": "QzHASH_",
-    "$": "QzDOLR_",
-    "%": "QzPCENT_",
-    "&": "QzET_",
-    "'": "Qz1QUOTE_",
-    "(": "QzPAREN_",
-    ")": "QzTHESES_",
-    "*": "QzSTAR_",
-    "+": "QzPLUS_",
-    # QzCOMMA_ is fine.
-    "-": "Qz_",  # Hyphen-minus
-    # Full stop reserved for imports and attributes.
-    "/": "QzSLASH_",
-    # Digits only munge if first character.
-    ";": "QzSCOLON_",
-    "<": "QzLT_",  # Less Than or LefT.
-    "=": "QzEQ_",
-    ">": "QzGT_",  # Greater Than or riGhT.
-    "?": "QzQUERY_",
-    "@": "QzAT_",
-    # Capital letters are always valid in Python identifiers.
-    "[": "QzSQUARE_",
-    "\\": "QzBSLASH_",
-    "]": "QzBRACKETS_",
-    "^": "QzCARET_",
-    # Underscore is valid in Python identifiers.
-    "`": "QzGRAVE_",
-    # Small letters are also always valid.
-    "{": "QzCURLY_",
-    "|": "QzBAR_",
-    "}": "QzBRACES_",
-    # QzTILDE_ is fine.
+    k: QUOTEZ.format(v)
+    for k, v in
+    {
+        # ASCII control characters don't munge to names.
+        "!": "BANG",
+        '"': "QUOT",
+        "#": "HASH",
+        "$": "DOLR",
+        "%": "PCENT",
+        "&": "ET",
+        "'": "APOS",
+        "(": "LPAR",
+        ")": "RPAR",
+        "*": "STAR",
+        "+": "PLUS",
+        # COMMA is fine.
+        "-": "",  # Hyphen-minus
+        # Full stop reserved for imports and attributes.
+        "/": "SOL",
+        # Digits only munge if first character.
+        ";": "SEMI",
+        "<": "LT",  # Less Than or LefT.
+        "=": "EQ",
+        ">": "GT",  # Greater Than or riGhT.
+        "?": "QUERY",
+        "@": "AT",
+        # Capital letters are always valid in Python identifiers.
+        "[": "LSQB",
+        "\\": "BSOL",
+        "]": "RSQB",
+        "^": "CARET",
+        # Underscore is valid in Python identifiers.
+        "`": "GRAVE",
+        # Small letters are also always valid.
+        "{": "LCUB",
+        "|": "BAR",
+        "}": "RCUB",
+        # TILDE is fine.
+    }.items()
 }
 """Shorter names for Quotez."""
 
@@ -140,8 +149,8 @@ def force_qz_encode(c: str) -> str:
     with suppress(LookupError):
         return TO_NAME[c]
     with suppress(ValueError):
-        return f"Qz{unicodedata.name(c).translate(QZ_NAME)}_"
-    return f"Qz{ord(c)}_"
+        return QUOTEZ.format(unicodedata.name(c).translate(QZ_NAME))
+    return QUOTEZ.format(ord(c))
 
 
 K = TypeVar("K", bound=Hashable)
@@ -172,4 +181,4 @@ def _qz_decode(match: Match[str]) -> str:
 
 def demunge(s: str) -> str:
     """The inverse of `munge`. Decodes any Quotez into characters."""
-    return re.sub("Qz([0-9A-Z][0-9A-Zhx]*?)?_", _qz_decode, s)
+    return FIND_QUOTEZ.sub(_qz_decode, s)
