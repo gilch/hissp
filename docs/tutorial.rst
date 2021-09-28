@@ -1771,6 +1771,89 @@ If you don't think it needs to be a gensym,
 that's a sign that the macro could maybe be an ordinary function
 instead.
 
+There are a couple of special cases worth pointing out here.
+
+.. code-block:: REPL
+
+   #> (setattr _macro_ 'p123 (lambda () `(p 1 2 3 : sep :)))
+   >>> setattr(
+   ...   _macro_,
+   ...   'p123',
+   ...   (lambda :
+   ...     (lambda * _: _)(
+   ...       '__main__..QzMaybe_.p',
+   ...       (1),
+   ...       (2),
+   ...       (3),
+   ...       ':',
+   ...       '__main__..sep',
+   ...       ':')))
+
+Notice the ``QzMaybe_`` qualifying ``p``,
+which means the reader could not determine if ``p`` should be qualified as a global or as a macro,
+and the ``__main__`` qualifying ``sep``, which looks like it's going to be a problem.
+
+The ``QzMaybe_`` means that the compiler will try to resolve this symbol as a macro,
+and fall back to a global if it can't.
+
+If we were to define a ``p`` global,
+
+.. code-block:: REPL
+
+   #> (define p print)
+   >>> # define
+   ... __import__('operator').setitem(
+   ...   __import__('builtins').globals(),
+   ...   'p',
+   ...   print)
+
+Then the ``p123`` macro works.
+
+.. code-block:: REPL
+
+   #> (p123)
+   >>> # p123
+   ... __import__('builtins').globals()['p'](
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   sep=':')
+   1:2:3
+
+The compiler ignores qualifications on kwargs in normal calls to make metaprogramming easier;
+It looks like a problem, but it's not.
+This is fine.
+The templating system, on the other hand,
+*has to* qualify symbols, even if they might be kwargs.
+It can't tell if a tuple is going to be a normal call or a macro invocation,
+where the qualification could be necessary.
+
+We can resolve the ``QzMaybe_`` the other way by defining a ``p`` macro.
+
+.. code-block:: REPL
+
+   #> (setattr _macro_ 'p (lambda (: :* body) `(print ,@body)))
+   >>> setattr(
+   ...   _macro_,
+   ...   'p',
+   ...   (lambda *body:
+   ...     (lambda * _: _)(
+   ...       'builtins..print',
+   ...       *body)))
+
+   #> (p123)
+   >>> # p123
+   ... # __main__..QzMaybe_.p
+   ... __import__('builtins').print(
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   sep=':')
+   1:2:3
+
+Notice the comments indicating *two* compiler macroexpansions,
+and the use of a builtin instead of the global like last time.
+
 If you *want* to *capture* [#capture]_ an identifier (collide on purpose),
 you can still put unqualified symbols into templates
 by interpolating in an expression that evaluates to an unqualified
@@ -1790,7 +1873,7 @@ symbol. (Like a quoted symbol):
    ...   'inf')
    ('builtins..float', 'inf')
 
-Let's try again.
+Let's try again. Note the three reader macros in a row: ``','``.
 
 .. code-block:: REPL
 
