@@ -1071,6 +1071,125 @@ Reader macros compose:
    >>> {(5, 6): 'pick up sticks'}
    {(5, 6): 'pick up sticks'}
 
+Let's look at another double-inject example.
+Keeping the phases of compilation straight can be confusing.
+
+.. code-block:: REPL
+
+   #> .#"[1,2,3]*3" ; Injects the expression string.
+   >>> [1,2,3]*3
+   [1, 2, 3, 1, 2, 3, 1, 2, 3]
+
+   #> .#.#"[1,2,3]*3" ; Injects the object resulting from evaluation.
+   >>> [1, 2, 3, 1, 2, 3, 1, 2, 3]
+   [1, 2, 3, 1, 2, 3, 1, 2, 3]
+
+Same result, but the Python part is different.
+The list multiplication didn't happen until runtime in the first instance,
+but happened before the Python was generated in the second.
+
+Compare that to the equivalent readerless mode.
+
+>>> readerless('[1,2,3]*3')  # Compile an expression string.
+'[1,2,3]*3'
+>>> eval(_)
+[1, 2, 3, 1, 2, 3, 1, 2, 3]
+>>> readerless([1,2,3]*3)  # Compile a list object.
+'[1, 2, 3, 1, 2, 3, 1, 2, 3]'
+>>> eval(_)
+[1, 2, 3, 1, 2, 3, 1, 2, 3]
+
+How about these?
+
+.. code-block:: REPL
+
+   #> .#"[[]]*3" ; Injects the expression string.
+   >>> [[]]*3
+   [[], [], []]
+
+   #> .#.#"[[]]*3" ; Injects a list object.
+   >>> __import__('pickle').loads(  # [[], [], []]
+   ...     b'(l(lp0\nag0\nag0\na.'
+   ... )
+   [[], [], []]
+
+What's with the pickle expression?
+It seems to produce the right object.
+Is this the reader's doing?
+
+>>> readerless('[[]]*3')
+'[[]]*3'
+>>> eval(_)
+[[], [], []]
+>>> readerless([[]]*3)
+"__import__('pickle').loads(  # [[], [], []]\n    b'(l(lp0\\nag0\\nag0\\na.'\n)"
+>>> eval(_)
+[[], [], []]
+
+Nope.
+Not the reader;
+the compiler still does this in readerless mode.
+Why?
+
+Well, what *should* it compile to?
+
+.. code-block:: REPL
+
+   #> .#"[[],[],[]]" ; Maybe this?
+   >>> [[],[],[]]
+   [[], [], []]
+
+   #> (.append (operator..getitem _ 0) 7)
+   >>> __import__('operator').getitem(
+   ...   _,
+   ...   (0)).append(
+   ...   (7))
+
+   #> _
+   >>> _
+   [[7], [], []]
+
+   #> .#.#"[[]]*3"
+   >>> __import__('pickle').loads(  # [[], [], []]
+   ...     b'(l(lp0\nag0\nag0\na.'
+   ... )
+   [[], [], []]
+
+   #> (.append (operator..getitem _ 0) 7)
+   >>> __import__('operator').getitem(
+   ...   _,
+   ...   (0)).append(
+   ...   (7))
+
+   #> _ ; Not the same, is it?
+   >>> _
+   [[7], [7], [7]]
+
+The pickle-loading expression could produce an equivalent object,
+even though the literal notation can't.
+Objects in Hissp that aren't strings or tuples are supposed to evaluate to themselves.
+In theory,
+there are an infinite number of Python expressions that would produce an equivalent object.
+(In practice, computers do not have infinite memory.)
+When the compiler must emit Python code to produce such an object,
+it has to pick one of these representations.
+It might not be the one you started with.
+
+>>> readerless(('print',0b1010,0o12,--10,1_0,5*2,+10,int(10),((((10)))),0xA,))
+'print(\n  (10),\n  (10),\n  (10),\n  (10),\n  (10),\n  (10),\n  (10),\n  (10),\n  (10))'
+
+Notice that these have all compiled the same way: ``(10)``.
+There were many possible representations in code,
+but by the time the compiler got to them,
+they were just references to an int object in memory,
+and there is no way for the compiler to know what code you started with.
+
+When an object has a Python literal representation,
+the compiler can produce one,
+but when it doesn't,
+the compiler falls back to emitting a pickle expression,
+which covers a fairly broad range of objects in a very general way.
+
 Remember this example?
 
 >>> eval(readerless((print,1,2,3,':','sep',':')))
@@ -1083,11 +1202,21 @@ It's a function object.
 (<built-in function print>, 1, 2, 3, ':', 'sep', ':')
 
 But that repr isn't valid Python.
+If you tried to run
+
+.. code-block:: Python
+
+    readerless((<built-in function print>, 1, 2, 3, ':', 'sep', ':'))
+
+then you'd get a syntax error.
+
 How can the Hissp compiler generate Python code from this tuple?
 
 Let's see what it's doing.
 
->>> print(readerless((print,1,2,3,':','sep',':')))
+>>> readerless((print,1,2,3,':','sep',':'))
+"__import__('pickle').loads(  # <built-in function print>\n    b'cbuiltins\\nprint\\n.'\n)(\n  (1),\n  (2),\n  (3),\n  sep=':')"
+>>> print(_)
 __import__('pickle').loads(  # <built-in function print>
     b'cbuiltins\nprint\n.'
 )(
@@ -1095,11 +1224,12 @@ __import__('pickle').loads(  # <built-in function print>
   (2),
   (3),
   sep=':')
+>>> eval(_)
+1:2:3
 
-See the trick?
-Hissp falls back to `pickle` when it doesn't know how to emit an object as Python code.
-This code still works.
-Unfortunately, there are certain objects even pickle can't handle.
+It's using pickle again,
+and because of that, this code still works,
+even though the `print` function does not have a literal notation.
 
 When we tried this in the obvious way in Lissp,
 `print` used the symbol reader syntax,
@@ -1119,7 +1249,7 @@ but if we had injected it instead,
    ...   sep=':')
    1:2:3
 
-We get the pickle again.
+we get the pickle again.
 
 Many other object types work.
 
@@ -1130,6 +1260,19 @@ Many other object types work.
    ...     b'cfractions\nFraction\n(V1/2\ntR.'
    ... )
    Fraction(1, 2)
+
+Unfortunately, there are some objects even pickle can't handle.
+
+.. code-block:: REPL
+
+   #> .#(lambda ())
+     File "<string>", line None
+   hissp.compiler.CompileError:
+   (>   >  > >><function <lambda> at ...><< <  <   <)
+   # Compiler.pickle() PicklingError:
+   #  Can't pickle <function <lambda> at ...>: attribute lookup <lambda> on __main__ failed
+
+Hissp had to give up with an error this time.
 
 Qualified Reader Macros
 #######################
@@ -1155,17 +1298,29 @@ It's the same as using inject like this
 
 .. code-block:: REPL
 
-   #> .#(builtins..float 'inf)
+   #> .#(float 'inf)
    >>> __import__('pickle').loads(  # inf
    ...     b'Finf\n.'
    ... )
    inf
 
-It's neither a `str` nor a `tuple`, so Hissp tries its best to compile this as data,
+Or readerless mode like this
+
+>>> readerless(float('inf'))
+"__import__('pickle').loads(  # inf\n    b'Finf\\n.'\n)"
+
+A float is neither a `str` nor a `tuple`,
+so Hissp tries its best to compile this as data representing itself,
 but because its repr, ``inf``, isn't a valid Python literal,
 it has to compile to a pickle instead.
 But if it's used by something *before* compile time,
 like another macro, then it won't have been serialized yet.
+
+.. code-block:: REPL
+
+   #> 'builtins..repr#builtins..float#inf ; No pickles here.
+   >>> 'inf'
+   'inf'
 
 You should normally try to avoid emitting pickles
 (e.g. use ``(float 'inf)`` or `math..inf <math.inf>` instead).
@@ -1173,11 +1328,30 @@ While unpickling does have some overhead,
 it may be worth it if constructing the object normally has even more.
 Naturally, the object must be picklable to emit a pickle.
 
+Qualified reader macros don't always result in pickles though.
+
+.. code-block:: REPL
+
+   #> builtins..ord#"Q"
+   >>> (81)
+   81
+
+In certain circumstances,
+for certain purposes,
+this might be a clearer way of expressing the number 81.
+(In other circumstances,
+other representations,
+like ``0x51`` could be better.)
+If you evaluate it at read time like this,
+then there is no runtime overhead for the alternative notation,
+just like there's no runtime overhead for using a hex literal instead of decimal.
+
 Reader macros can also be unqualified.
 These three macros are built into the reader:
 Inject ``.#``, discard ``_#``, and gensym ``$#``.
 The reader will also check the current module's ``_macro_`` namespace (if it has one)
-when it encounters an unqualified macro name.
+for attributes ending in ``#`` (i.e. ``QzHASH_``)
+when it encounters an unqualified reader macro name.
 
 Discard
 #######
@@ -1222,8 +1396,8 @@ The template quote works much like a normal quote:
    (1, 2, 3)
 
 Notice the results are the same,
-but the template quote compiles to the *code* that evaluates to the result,
-instead of to the result itself.
+but the template quote compiles to a call that evaluates to the result,
+instead of a literal representation of the result itself.
 
 This gives you the ability to *interpolate*
 data into the tuple at the time it is evaluated,
@@ -1284,17 +1458,37 @@ If you quote an example, you can see that intermediate step:
    ...   (3),),)
    (('lambda', (':', ':*', ' _'), ' _'), ':', ':?', ':a', ':*', "('bcd')", ':?', ('operator..mul', 2, 3))
 
+If we format that a little more nicely,
+then it's easier to read.
+
+>>> readerless(
+...     (('lambda',(':',':*',' _',),' _'),
+...      ':',':?',':a',
+...      ':*',"('bcd')",
+...      ':?',('operator..mul', 2, 3,),)
+... )
+"(lambda * _: _)(\n  ':a',\n  *('bcd'),\n  __import__('operator').mul(\n    (2),\n    (3)))"
+>>> print(_)
+(lambda * _: _)(
+  ':a',
+  *('bcd'),
+  __import__('operator').mul(
+    (2),
+    (3)))
+
 Templates are Lissp syntactic sugar based on what Hissp already has.
 
-Judicious use of sugar can make code much easier to read and write.
+Templates are extremely valuable tools for metaprogramming.
+It's a domain-specific language for programmatically writing Hissp code.
+Most compiler macros will use at least one internally.
+
+Judicious use of sugar like this can make code much easier to read and write.
 While all Turing-complete languages have the same theoretical *power*,
 they are not equally *expressive*.
 Metaprogramming makes a language more expressive.
 Reader macros are a kind of metaprogramming.
-Because you can make your own reader macros, you can make your own sugar.
-
-Templates are extremely valuable tools for metaprogramming.
-Most compiler macros will use at least one internally.
+Because you can make your own reader macros,
+you can make your own sugar for your own purposes.
 
 Gensyms
 #######
@@ -1372,6 +1566,8 @@ you must quote them to use them as data.
    must be written like that,
    with backslash escape codes,
    even in nested string literals.
+   This includes spaces!
+   ``[1, 2, 3]`` tokenizes as three atoms.
 
    While a significantly more complex reader could distinguish these cases without escapes
    (as Python does), the Lissp reader's source is meant to be simple and comprehensible,
@@ -1383,7 +1579,9 @@ you must quote them to use them as data.
 
 Unlike Python's notation,
 because these collections are read in as a *single atom*,
-they may contain only static values discernible at `read time`_.
+they may contain only simple static values discernible at `read time`_:
+literals, no calls.
+
 If you want to interpolate runtime data,
 use function calls and templates instead:
 
@@ -1592,7 +1790,7 @@ symbol. (Like a quoted symbol):
    ...   'inf')
    ('builtins..float', 'inf')
 
-Let's try again. (Yes, reader macros compose like that.):
+Let's try again.
 
 .. code-block:: REPL
 
