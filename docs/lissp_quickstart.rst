@@ -40,7 +40,7 @@ Lissp Quick Start
 
    Some examples depend on state set by previous examples to work.
    Prerequisites for examples not in the same section are marked with
-   '(!)'. Don't skip these! Re-enter them if you start a new session.
+   '/!\'. Don't skip these! Re-enter them if you start a new session.
    "
 
    ;;;; Installation
@@ -477,7 +477,7 @@ Lissp Quick Start
    ...   (2))
    42
 
-   #> (.__setitem__ (globals) '+ operator..add) ;(!) Assignment. Symbols munge.
+   #> (.__setitem__ (globals) '+ operator..add) ;/!\ Assignment. Symbols munge.
    >>> globals().__setitem__(
    ...   'QzPLUS_',
    ...   __import__('operator').add)
@@ -800,7 +800,7 @@ Lissp Quick Start
 
 
    ;; Statement injections work at the top level only.
-   #> .#"from operator import *"          ;(!) All your operator are belong to us.
+   #> .#"from operator import *"          ;/!\ All your operator are belong to us.
    >>> from operator import *
 
 
