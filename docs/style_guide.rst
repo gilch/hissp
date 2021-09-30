@@ -585,15 +585,16 @@ and are not followed by a blank line.
 Comments about a line begin with one semicolon and a space ``; x``,
 starting one space after the code. They never get their own line.
 
-Margin comments begin with one semicolon ``;x`` and are aligned to column 40,
+Margin comments begin with one semicolon ``;x``.
+The semicolon must be aligned with spaces to rest on column 40,
 or one space after the code, whichever is greater.
-The semicolon is not followed by a space unless it continues a
+The semicolon is not followed by a space unless it continues a margin
 comment from the previous line.
 Margin comment continuations may have their own line.
 
 **Never** put a single-semicolon comment on its own line unless
 it's a continuation aligned to the margin!
-Experience Lispers set their editors to automatically indent these.
+Experienced Lispers set their editors to automatically indent these to column 40.
 You will make them angry when they have to fix all your comments.
 
 Complete sentences should start with a capital letter and end with

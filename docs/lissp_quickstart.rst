@@ -60,18 +60,18 @@ Lissp Quick Start
    #> None
    >>> None
 
-   #> ...                                    ;Ellipsis
+   #> ...                                 ;Ellipsis
    >>> ...
    Ellipsis
 
 
    ;;; Boolean
 
-   #> False                                  ;False == 0
+   #> False                               ;False == 0
    >>> False
    False
 
-   #> True                                   ;True == 1
+   #> True                                ;True == 1
    >>> True
    True
 
@@ -128,48 +128,48 @@ Lissp Quick Start
 
    ;;; Complex
 
-   #> 5j                                     ;imaginary
+   #> 5j                                  ;imaginary
    >>> (5j)
    5j
 
-   #> 4+2j                                   ;complex
+   #> 4+2j                                ;complex
    >>> ((4+2j))
    (4+2j)
 
-   #> -1_2.3_4e-5_6-7_8.9_8e-7_6j            ;Very complex!
+   #> -1_2.3_4e-5_6-7_8.9_8e-7_6j         ;Very complex!
    >>> ((-1.234e-55-7.898e-75j))
    (-1.234e-55-7.898e-75j)
 
 
    ;;;; Symbolic
 
-   #> object                                 ;Normal identifier.
+   #> object                              ;Normal identifier.
    >>> object
    <class 'object'>
 
-   #> object.__class__                       ;Attribute identifier with dot, as Python.
+   #> object.__class__                    ;Attribute identifier with dot, as Python.
    >>> object.__class__
    <class 'type'>
 
 
-   #> math.                                  ;Module literals import!
+   #> math.                               ;Module literals import!
    >>> __import__('math')
    <module 'math' ...>
 
-   #> math..tau                              ;Qualified identifier. Attribute of a module.
+   #> math..tau                           ;Qualified identifier. Attribute of a module.
    >>> __import__('math').tau
    6.283185307179586
 
-   #> collections.abc.                       ;Submodule literal. Has package name.
+   #> collections.abc.                    ;Submodule literal. Has package name.
    >>> __import__('collections.abc',fromlist='?')
    <module 'collections.abc' from '...abc.py'>
 
 
-   #> builtins..object.__class__             ;Qualified attribute identifier.
+   #> builtins..object.__class__          ;Qualified attribute identifier.
    >>> __import__('builtins').object.__class__
    <class 'type'>
 
-   #> object.__class__.__name__              ;Attributes chain.
+   #> object.__class__.__name__           ;Attributes chain.
    >>> object.__class__.__name__
    'type'
 
@@ -178,24 +178,24 @@ Lissp Quick Start
    'ABCMeta'
 
 
-   #> :control-word                          ;Colon prefix. Similar to Lisp ":keywords".
+   #> :control-word                       ;Colon prefix. Similar to Lisp ":keywords".
    >>> ':control-word'
    ':control-word'
 
-   #> 'symbol                                ;Apostrophe prefix. Represents identifier.
+   #> 'symbol                             ;Apostrophe prefix. Represents identifier.
    >>> 'symbol'
    'symbol'
 
 
-   #> '+                                     ;Read-time munging of invalid identifiers.
+   #> '+                                  ;Read-time munging of invalid identifiers.
    >>> 'QzPLUS_'
    'QzPLUS_'
 
-   #> 'Also-a-symbol!                        ;Alias for 'AlsoQz_aQz_symbolQzBANG_
+   #> 'Also-a-symbol!                     ;Alias for 'AlsoQz_aQz_symbolQzBANG_
    >>> 'AlsoQz_aQz_symbolQzBANG_'
    'AlsoQz_aQz_symbolQzBANG_'
 
-   #> '𝐀                                     ;Alias for 'A (unicode normal form KC)
+   #> '𝐀                                  ;Alias for 'A (unicode normal form KC)
    >>> 'A'
    'A'
 
@@ -203,20 +203,20 @@ Lissp Quick Start
    >>> 'Qz_QzGT_QzGT_'
    'Qz_QzGT_QzGT_'
 
-   #> :->>                                   ;Don't represent identifiers, don't munge.
+   #> :->>                                ;Don't represent identifiers, don't munge.
    >>> ':->>'
    ':->>'
 
-   #> :                                      ;Still a control word.
+   #> :                                   ;Still a control word.
    >>> ':'
    ':'
 
 
-   #> 'SPAM\ \"\(\)\;EGGS                    ;These would terminate a symbol if not escaped.
+   #> 'SPAM\ \"\(\)\;EGGS                 ;These would terminate a symbol if not escaped.
    >>> 'SPAMQzSPACE_QzQUOT_QzLPAR_QzRPAR_QzSEMI_EGGS'
    'SPAMQzSPACE_QzQUOT_QzLPAR_QzRPAR_QzSEMI_EGGS'
 
-   #> '\42                                   ;Digits can't start identifiers.
+   #> '\42                                ;Digits can't start identifiers.
    >>> 'QzDIGITxFOUR_2'
    'QzDIGITxFOUR_2'
 
@@ -228,11 +228,11 @@ Lissp Quick Start
    >>> 'QzBSOL_'
    'QzBSOL_'
 
-   #> '\a\b\c                                ;Escapes allowed, but not required here.
+   #> '\a\b\c                             ;Escapes allowed, but not required here.
    >>> 'abc'
    'abc'
 
-   #> 1\2                                    ;Backslashes work in other atoms.
+   #> 1\2                                 ;Backslashes work in other atoms.
    >>> (12)
    12
 
@@ -244,15 +244,15 @@ Lissp Quick Start
    >>> ('raw string')
    'raw string'
 
-   #> 'not-string'                           ;symbol
+   #> 'not-string'                        ;symbol
    >>> 'notQz_stringQzAPOS_'
    'notQz_stringQzAPOS_'
 
-   #> #"Say \"Cheese!\" \u263a"              ;Hash strings process Python escapes.
+   #> #"Say \"Cheese!\" \u263a"           ;Hash strings process Python escapes.
    >>> ('Say "Cheese!" ☺')
    'Say "Cheese!" ☺'
 
-   #> "Say \"Cheese!\" \u263a"               ;Raw strings don't.
+   #> "Say \"Cheese!\" \u263a"            ;Raw strings don't.
    >>> ('Say \\"Cheese!\\" \\u263a')
    'Say \\"Cheese!\\" \\u263a'
 
@@ -260,25 +260,25 @@ Lissp Quick Start
    #> "string
    #..with
    #..newlines
-   #.."                                      ;Same as #"string\nwith\nnewlines\n".
+   #.."                                   ;Same as #"string\nwith\nnewlines\n".
    >>> ('string\nwith\nnewlines\n')
    'string\nwith\nnewlines\n'
 
 
    #> "one\"
-   #..string\\"                              ;Tokenizer expects paired \'s, even raw.
+   #..string\\"                           ;Tokenizer expects paired \'s, even raw.
    >>> ('one\\"\nstring\\\\')
    'one\\"\nstring\\\\'
 
 
    ;;;; Calls
 
-   #> (print :)                              ;Left paren before function! Notice the :.
+   #> (print :)                           ;Left paren before function! Notice the :.
    >>> print()
    <BLANKLINE>
 
 
-   #> (print : :? 1  :? 2  :? 3  sep "-")    ;All arguments pair with a target! No commas!
+   #> (print : :? 1  :? 2  :? 3  sep "-") ;All arguments pair with a target! No commas!
    >>> print(
    ...   (1),
    ...   (2),
@@ -286,7 +286,7 @@ Lissp Quick Start
    ...   sep=('-'))
    1-2-3
 
-   #> (print 1 : :? 2  :? 3  sep "-")        ;Arguments left of : implicitly pair with :?.
+   #> (print 1 : :? 2  :? 3  sep "-")     ;Arguments left of : implicitly pair with :?.
    >>> print(
    ...   (1),
    ...   (2),
@@ -294,7 +294,7 @@ Lissp Quick Start
    ...   sep=('-'))
    1-2-3
 
-   #> (print 1 2 : :? 3  sep "-")            ;:? means positional target. Keep sliding :.
+   #> (print 1 2 : :? 3  sep "-")         ;:? means positional target. Keep sliding :.
    >>> print(
    ...   (1),
    ...   (2),
@@ -302,7 +302,7 @@ Lissp Quick Start
    ...   sep=('-'))
    1-2-3
 
-   #> (print 1 2 3 : sep "-")                ;Next isn't a :?. The : stops here.
+   #> (print 1 2 3 : sep "-")             ;Next isn't a :?. The : stops here.
    >>> print(
    ...   (1),
    ...   (2),
@@ -331,33 +331,33 @@ Lissp Quick Start
    ...   ('Hello, World!'))
    Hello, World!
 
-   #> (print "Hello, World!" :)              ;Same. Compare.
+   #> (print "Hello, World!" :)           ;Same. Compare.
    >>> print(
    ...   ('Hello, World!'))
    Hello, World!
 
-   #> (print "Hello, World!")                ;No : is the same as putting it last!
+   #> (print "Hello, World!")             ;No : is the same as putting it last!
    >>> print(
    ...   ('Hello, World!'))
    Hello, World!
 
 
-   #> (.upper "shout!")                      ;Method calls require a "self".
+   #> (.upper "shout!")                   ;Method calls require a "self".
    >>> ('shout!').upper()
    'SHOUT!'
 
-   #> (.float builtins. 'inf)                ;Method call syntax, though not a method.
+   #> (.float builtins. 'inf)             ;Method call syntax, though not a method.
    >>> __import__('builtins').float(
    ...   'inf')
    inf
 
-   #> (builtins..float 'inf)                 ;Same effect, but not method syntax.
+   #> (builtins..float 'inf)              ;Same effect, but not method syntax.
    >>> __import__('builtins').float(
    ...   'inf')
    inf
 
 
-   #> (help sum)                             ;Python's online help function still works.
+   #> (help sum)                          ;Python's online help function still works.
    >>> help(
    ...   sum)
    Help on built-in function sum in module builtins:
@@ -377,15 +377,15 @@ Lissp Quick Start
 
    ;; Python parameter types are rather involved. Lambda does all of them.
    ;; Like calls, they are all paired. :? means no default.
-   #> (lambda (: a :?  b :?  :/ :?           ;positional only
-   #..         c :?  d :?                    ;normal
-   #..         e 1  f 2                      ;default
-   #..         :* args  h 4  i :?  j 1       ;star args, key word
+   #> (lambda (: a :?  b :?  :/ :?        ;positional only
+   #..         c :?  d :?                 ;normal
+   #..         e 1  f 2                   ;default
+   #..         :* args  h 4  i :?  j 1    ;star args, key word
    #..         :** kwargs)
    #..  ;; Body. (Lambdas return empty tuple when body is empty.)
    #..  (print (globals))
-   #..  (print (locals))                     ;side effects
-   #..  b)                                   ;last value is returned
+   #..  (print (locals))                  ;side effects
+   #..  b)                                ;last value is returned
    >>> (lambda a,b,/,c,d,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(
    ...   print(
    ...     globals()),
@@ -395,51 +395,51 @@ Lissp Quick Start
    <function <lambda> at 0x...>
 
 
-   #> (lambda (: a :?  b :?  c 1))           ;Parameters left of : pair with :?.
+   #> (lambda (: a :?  b :?  c 1))        ;Parameters left of : pair with :?.
    >>> (lambda a,b,c=(1):())
    <function <lambda> at 0x...>
 
-   #> (lambda (a : b :?  c 1))               ;Implicit :? like calls. Keep sliding.
+   #> (lambda (a : b :?  c 1))            ;Implicit :? like calls. Keep sliding.
    >>> (lambda a,b,c=(1):())
    <function <lambda> at 0x...>
 
-   #> (lambda (a b : c 1))                   ;Next isn't paired with :?. The : stops here.
+   #> (lambda (a b : c 1))                ;Next isn't paired with :?. The : stops here.
    >>> (lambda a,b,c=(1):())
    <function <lambda> at 0x...>
 
 
-   #> (lambda (: :* a))                      ;Star arg must pair with star, as Python.
+   #> (lambda (: :* a))                   ;Star arg must pair with star, as Python.
    >>> (lambda *a:())
    <function <lambda> at 0x...>
 
-   #> (lambda (: :* :?  x :?))               ;Empty star arg; following x is keyword only.
+   #> (lambda (: :* :?  x :?))            ;Empty star arg; following x is keyword only.
    >>> (lambda *,x:())
    <function <lambda> at 0x...>
 
-   #> (lambda (:* x :))                      ;Implicit :? is the same. Compare.
+   #> (lambda (:* x :))                   ;Implicit :? is the same. Compare.
    >>> (lambda *,x:())
    <function <lambda> at 0x...>
 
-   #> (lambda (:* a))                        ;Kwonly! Not star arg! Final : implied.
+   #> (lambda (:* a))                     ;Kwonly! Not star arg! Final : implied.
    >>> (lambda *,a:())
    <function <lambda> at 0x...>
 
 
-   #> (lambda (a b : x None  y None))        ;Normal, then positional defaults.
+   #> (lambda (a b : x None  y None))     ;Normal, then positional defaults.
    >>> (lambda a,b,x=None,y=None:())
    <function <lambda> at 0x...>
 
-   #> (lambda (:* a b : x None  y None))     ;Keyword only, then keyword defaults.
+   #> (lambda (:* a b : x None  y None))  ;Keyword only, then keyword defaults.
    >>> (lambda *,a,b,x=None,y=None:())
    <function <lambda> at 0x...>
 
 
-   #> (lambda (spam eggs) eggs)              ;Simple cases look like other Lisps, but
+   #> (lambda (spam eggs) eggs)           ;Simple cases look like other Lisps, but
    >>> (lambda spam,eggs:eggs)
    <function <lambda> at 0x...>
 
-   #> ((lambda abc                           ; params not strictly required to be a tuple.
-   #..   (print c b a))                      ;There are three parameters.
+   #> ((lambda abc                        ; params not strictly required to be a tuple.
+   #..   (print c b a))                   ;There are three parameters.
    #.. 3 2 1)
    >>> (lambda a,b,c:
    ...   print(
@@ -452,17 +452,17 @@ Lissp Quick Start
    1 2 3
 
 
-   #> (lambda (:))                           ;Explicit : still allowed with no params.
+   #> (lambda (:))                        ;Explicit : still allowed with no params.
    >>> (lambda :())
    <function <lambda> at 0x...>
 
-   #> (lambda : (print "oops"))              ;Thunk resembles Python.
+   #> (lambda : (print "oops"))           ;Thunk resembles Python.
    >>> (lambda :
    ...   print(
    ...     ('oops')))
    <function <lambda> at 0x...>
 
-   #> ((lambda :x1 x))                       ;Control words are strings are iterable.
+   #> ((lambda :x1 x))                    ;Control words are strings are iterable.
    >>> (lambda x=1:x)()
    1
 
@@ -482,7 +482,7 @@ Lissp Quick Start
    ...   'QzPLUS_',
    ...   __import__('operator').add)
 
-   #> (+ 40 2)                               ;No operators. This is still a function call!
+   #> (+ 40 2)                            ;No operators. This is still a function call!
    >>> QzPLUS_(
    ...   (40),
    ...   (2))
@@ -493,7 +493,7 @@ Lissp Quick Start
 
    ;; Hissp is simpler than Python. No control flow! Use higher-order functions instead.
 
-   #> (any (map (lambda c (print c))         ;Loops!
+   #> (any (map (lambda c (print c))      ;Loops!
    #..          "abc"))
    >>> any(
    ...   map(
@@ -530,7 +530,7 @@ Lissp Quick Start
    ;; but can be anything. Quoting suppresses this evaluation, rendering
    ;; the raw Python code as string data, and the invocations as tuples.
 
-   #> (quote (print 1 2 3 : sep "-"))        ;Just a tuple.
+   #> (quote (print 1 2 3 : sep "-"))     ;Just a tuple.
    >>> ('print',
    ...  (1),
    ...  (2),
@@ -540,38 +540,38 @@ Lissp Quick Start
    ...  "('-')",)
    ('print', 1, 2, 3, ':', 'sep', "('-')")
 
-   #> (quote identifier)                     ;Just a string.
+   #> (quote identifier)                  ;Just a string.
    >>> 'identifier'
    'identifier'
 
-   #> (quote 42)                             ;Just a number. It was before though.
+   #> (quote 42)                          ;Just a number. It was before though.
    >>> (42)
    42
 
 
    ;; The "..."/#"..." Lissp read syntax is for creating a Python-level string.
    ;; It is NOT for creating a Hissp-level string.
-   #> (quote "a string")                     ;Unexpected? "..."/#"..." is read syntax!
+   #> (quote "a string")                  ;Unexpected? "..."/#"..." is read syntax!
    >>> "('a string')"
    "('a string')"
 
-   #> (eval (quote "a string"))              ;Raw Python code. For a string.
+   #> (eval (quote "a string"))           ;Raw Python code. For a string.
    >>> eval(
    ...   "('a string')")
    'a string'
 
 
-   #> :?                                     ;Just a string?
+   #> :?                                  ;Just a string?
    >>> ':?'
    ':?'
 
-   #> ((lambda (: a :?) a))                  ;Not that simple!
+   #> ((lambda (: a :?) a))               ;Not that simple!
    >>> (lambda a:a)()
    Traceback (most recent call last):
      ...
    TypeError: <lambda>() missing 1 required positional argument: 'a'
 
-   #> ((lambda (: a (quote :?)) a))          ;Just a string.
+   #> ((lambda (: a (quote :?)) a))       ;Just a string.
    >>> (lambda a=':?':a)()
    ':?'
 
@@ -583,11 +583,11 @@ Lissp Quick Start
 
    ;;; Quote
 
-   #> 'x                                     ;(quote x). Symbols are just quoted identifiers!
+   #> 'x                                  ;(quote x). Symbols are just quoted identifiers!
    >>> 'x'
    'x'
 
-   #> '(print "Hi")                          ;Quote to reveal the Hissp.
+   #> '(print "Hi")                       ;Quote to reveal the Hissp.
    >>> ('print',
    ...  "('Hi')",)
    ('print', "('Hi')")
@@ -597,22 +597,22 @@ Lissp Quick Start
 
    ;; (Like quasiquote, backquote, or syntax-quote from other Lisps.)
 
-   #> `print                                 ;Automatic qualification!
+   #> `print                              ;Automatic qualification!
    >>> 'builtins..print'
    'builtins..print'
 
-   #> `foo+2                                 ;Not builtin. Still munges.
+   #> `foo+2                              ;Not builtin. Still munges.
    >>> '__main__..fooQzPLUS_2'
    '__main__..fooQzPLUS_2'
 
 
-   #> `(print "Hi")                          ;Code as data. Seems to act like quote.
+   #> `(print "Hi")                       ;Code as data. Seems to act like quote.
    >>> (lambda * _: _)(
    ...   'builtins..print',
    ...   "('Hi')")
    ('builtins..print', "('Hi')")
 
-   #> '`(print "Hi")                         ;But it's making a program to create the data.
+   #> '`(print "Hi")                      ;But it's making a program to create the data.
    >>> (('lambda',
    ...   (':',
    ...    ':*',
@@ -627,26 +627,26 @@ Lissp Quick Start
    ...   "('Hi')",),)
    (('lambda', (':', ':*', ' _'), ' _'), ':', ':?', ('quote', 'builtins..print'), ':?', ('quote', "('Hi')"))
 
-   #> `(print ,(.upper "Hi"))                ;Unquote (,) interpolates.
+   #> `(print ,(.upper "Hi"))             ;Unquote (,) interpolates.
    >>> (lambda * _: _)(
    ...   'builtins..print',
    ...   ('Hi').upper())
    ('builtins..print', 'HI')
 
 
-   #> `(,'foo+2 foo+2)                       ;Interpolations not auto-qualified!
+   #> `(,'foo+2 foo+2)                    ;Interpolations not auto-qualified!
    >>> (lambda * _: _)(
    ...   'fooQzPLUS_2',
    ...   '__main__..fooQzPLUS_2')
    ('fooQzPLUS_2', '__main__..fooQzPLUS_2')
 
-   #> `(print ,@"abc")                       ;Splice unquote (,@) interpolates and unpacks.
+   #> `(print ,@"abc")                    ;Splice unquote (,@) interpolates and unpacks.
    >>> (lambda * _: _)(
    ...   'builtins..print',
    ...   *('abc'))
    ('builtins..print', 'a', 'b', 'c')
 
-   #> `(print (.upper "abc"))                ;Template quoting is recursive
+   #> `(print (.upper "abc"))             ;Template quoting is recursive
    >>> (lambda * _: _)(
    ...   'builtins..print',
    ...   (lambda * _: _)(
@@ -654,14 +654,14 @@ Lissp Quick Start
    ...     "('abc')"))
    ('builtins..print', ('.upper', "('abc')"))
 
-   #> `(print ,@(.upper "abc"))              ; unless suppressed by an unquote.
+   #> `(print ,@(.upper "abc"))           ; unless suppressed by an unquote.
    >>> (lambda * _: _)(
    ...   'builtins..print',
    ...   *('abc').upper())
    ('builtins..print', 'A', 'B', 'C')
 
 
-   #> `($#eggs $#spam $#bacon $#spam)        ;Generated symbols for macro hygiene.
+   #> `($#eggs $#spam $#bacon $#spam)     ;Generated symbols for macro hygiene.
    >>> (lambda * _: _)(
    ...   '_eggs_QzNo9_',
    ...   '_spam_QzNo9_',
@@ -669,7 +669,7 @@ Lissp Quick Start
    ...   '_spam_QzNo9_')
    ('_eggs_QzNo9_', '_spam_QzNo9_', '_bacon_QzNo9_', '_spam_QzNo9_')
 
-   #> `$#spam                                ;Template count in name prevents collisions.
+   #> `$#spam                             ;Template count in name prevents collisions.
    >>> '_spam_QzNo10_'
    '_spam_QzNo10_'
 
@@ -695,15 +695,15 @@ Lissp Quick Start
    ;;; Qualified Reader Macros
 
    ;; Read-time unary invocation on the next parsed object.
-   #> builtins..hex#3840                     ;Qualified name ending in # is a reader macro.
+   #> builtins..hex#3840                  ;Qualified name ending in # is a reader macro.
    >>> 0xf00
    3840
 
-   #> builtins..ord#"Q"                      ;Reader macros make literal notation extensible.
+   #> builtins..ord#"Q"                   ;Reader macros make literal notation extensible.
    >>> (81)
    81
 
-   #> math..exp#1                            ;e^1. Or to whatever number. At read time.
+   #> math..exp#1                         ;e^1. Or to whatever number. At read time.
    >>> (2.718281828459045)
    2.718281828459045
 
@@ -789,18 +789,18 @@ Lissp Quick Start
    literal. It is NOT for creating a Hissp-level string, which would
    normally represent raw Python code. Use inject for that.
    "
-   #> '"a string"                            ;Python code for a string. In a string.
+   #> '"a string"                         ;Python code for a string. In a string.
    >>> "('a string')"
    "('a string')"
 
    ;; Injection of an object to the Hissp level. In this case, a string object.
-   #> '.#"a string"                          ;Quoting renders a Hissp-level string as data.
+   #> '.#"a string"                       ;Quoting renders a Hissp-level string as data.
    >>> 'a string'
    'a string'
 
 
    ;; Statement injections work at the top level only.
-   #> .#"from operator import *"             ;(!) All your operator are belong to us.
+   #> .#"from operator import *"          ;(!) All your operator are belong to us.
    >>> from operator import *
 
 
@@ -808,13 +808,13 @@ Lissp Quick Start
 
    ;;; Templates and Tuples
 
-   #> '(1 2 3)                               ;tuple
+   #> '(1 2 3)                            ;tuple
    >>> ((1),
    ...  (2),
    ...  (3),)
    (1, 2, 3)
 
-   #> `(,(pow 42 0) ,(+ 1 1) 3)              ;Interpolate with templates.
+   #> `(,(pow 42 0) ,(+ 1 1) 3)           ;Interpolate with templates.
    >>> (lambda * _: _)(
    ...   pow(
    ...     (42),
@@ -825,7 +825,7 @@ Lissp Quick Start
    ...   (3))
    (1, 2, 3)
 
-   #> `("a" 'b c ,'d ,"e")                   ;These can be tricky. Careful.
+   #> `("a" 'b c ,'d ,"e")                ;These can be tricky. Careful.
    >>> (lambda * _: _)(
    ...   "('a')",
    ...   (lambda * _: _)(
@@ -836,17 +836,17 @@ Lissp Quick Start
    ...   ('e'))
    ("('a')", ('quote', '__main__..b'), '__main__..c', 'd', 'e')
 
-   #> '(1 "a")                               ;Recursive quoting.
+   #> '(1 "a")                            ;Recursive quoting.
    >>> ((1),
    ...  "('a')",)
    (1, "('a')")
 
-   #> '(1 .#"a")                             ;Injected Hissp-level string.
+   #> '(1 .#"a")                          ;Injected Hissp-level string.
    >>> ((1),
    ...  'a',)
    (1, 'a')
 
-   #> `(1 ,"a")                              ;Interpolated string.
+   #> `(1 ,"a")                           ;Interpolated string.
    >>> (lambda * _: _)(
    ...   (1),
    ...   ('a'))
@@ -919,24 +919,24 @@ Lissp Quick Start
    >>> b'bytes'
    b'bytes'
 
-   #> .#"b'bytes'"                           ;bytes literal Python injection
+   #> .#"b'bytes'"                        ;bytes literal Python injection
    >>> b'bytes'
    b'bytes'
 
 
-   #> (dict : + 0  a 1  b 2)                 ;Symbol keys are easy. The common case.
+   #> (dict : + 0  a 1  b 2)              ;Symbol keys are easy. The common case.
    >>> dict(
    ...   QzPLUS_=(0),
    ...   a=(1),
    ...   b=(2))
    {'QzPLUS_': 0, 'a': 1, 'b': 2}
 
-   #> (.__getitem__ _ '+)                    ;_: the last result that wasn't None, in the REPL.
+   #> (.__getitem__ _ '+)                 ;_: the last result that wasn't None, in the REPL.
    >>> _.__getitem__(
    ...   'QzPLUS_')
    0
 
-   #> (dict (zip '(1 2 3) "abc"))            ;Non-symbol keys are possible.
+   #> (dict (zip '(1 2 3) "abc"))         ;Non-symbol keys are possible.
    >>> dict(
    ...   zip(
    ...     ((1),
@@ -945,7 +945,7 @@ Lissp Quick Start
    ...     ('abc')))
    {1: 'a', 2: 'b', 3: 'c'}
 
-   #> (dict '((a 1) (2 b)))                  ;Mixed key types. Beware of quoting strings.
+   #> (dict '((a 1) (2 b)))               ;Mixed key types. Beware of quoting strings.
    >>> dict(
    ...   (('a',
    ...     (1),),
@@ -954,7 +954,7 @@ Lissp Quick Start
    {'a': 1, 2: 'b'}
 
    #> (dict `((,'+ 42)
-   #..        (,(+ 1 1) ,'b)))               ;Runtime interpolation with a template.
+   #..        (,(+ 1 1) ,'b)))            ;Runtime interpolation with a template.
    >>> dict(
    ...   (lambda * _: _)(
    ...     (lambda * _: _)(
@@ -974,7 +974,7 @@ Lissp Quick Start
 
 
    #> (.__setitem__ (globals)
-   #..              'endict                  ;dict helper function
+   #..              'endict               ;dict helper function
    #..              (lambda (: :* pairs)
    #..                ;; Injections work on any Python expression, even comprehensions!
    #..                .#"{k: next(it) for it in [iter(pairs)] for k in it}"))
@@ -993,32 +993,32 @@ Lissp Quick Start
 
    ;;; Collection Atoms
 
-   #> .#"[]"                                 ;List from a Python injection.
+   #> .#"[]"                              ;List from a Python injection.
    >>> []
    []
 
-   #> .#[]                                   ;You can drop the quotes sometimes.
+   #> .#[]                                ;You can drop the quotes sometimes.
    >>> []
    []
 
-   #> []                                     ; And the reader macro!
+   #> []                                  ; And the reader macro!
    >>> []
    []
 
 
-   #> [1,2,3]                                ;List/set/dict atoms are a kind of injection.
+   #> [1,2,3]                             ;List/set/dict atoms are a kind of injection.
    >>> [1, 2, 3]
    [1, 2, 3]
 
-   #> {1,2,3}                                ; They read in as a single atom, so have
+   #> {1,2,3}                             ; They read in as a single atom, so have
    >>> {1, 2, 3}
    {1, 2, 3}
 
-   #> {'a':1,2:b'b'}                         ; compile-time literals only--No interpolation!
+   #> {'a':1,2:b'b'}                      ; compile-time literals only--No interpolation!
    >>> {'a': 1, 2: b'b'}
    {'a': 1, 2: b'b'}
 
-   #> [1,{2},{3:[4,5]},'six']                ;Nesting is allowed.
+   #> [1,{2},{3:[4,5]},'six']             ;Nesting is allowed.
    >>> [1, {2}, {3: [4, 5]}, 'six']
    [1, {2}, {3: [4, 5]}, 'six']
 
@@ -1029,7 +1029,7 @@ Lissp Quick Start
    ['1 2', '3', (4, 5), '6;7\\8']
 
    ;; After dropping quotes, these tokenize like other atoms, so you need escapes.
-   #> ['1\ 2',\"3\",\(4,5\),r'6\;7\\8']      ;Not so convenient now. Simple cases only!
+   #> ['1\ 2',\"3\",\(4,5\),r'6\;7\\8']   ;Not so convenient now. Simple cases only!
    >>> ['1 2', '3', (4, 5), '6;7\\8']
    ['1 2', '3', (4, 5), '6;7\\8']
 
@@ -1069,30 +1069,30 @@ Lissp Quick Start
    macros get all their arguments unevaluated.
    "
 
-   #> '[1,'''2\ 3''']                        ;[1, '2 3']
+   #> '[1,'''2\ 3''']                     ;[1, '2 3']
    >>> [1, '2 3']
    [1, '2 3']
 
-   #> '.#"[1,'''2 3''']"                     ;"[1,'''2 3''']"
+   #> '.#"[1,'''2 3''']"                  ;"[1,'''2 3''']"
    >>> "[1,'''2 3''']"
    "[1,'''2 3''']"
 
 
    ;; But you can still get a real collection at compile time.
-   #> '.#(eval "[1,'''2 3''']")              ;[1, '2 3']
+   #> '.#(eval "[1,'''2 3''']")           ;[1, '2 3']
    >>> [1, '2 3']
    [1, '2 3']
 
-   #> '.#.#"[1,'''2 3''']"                   ;[1, '2 3']
+   #> '.#.#"[1,'''2 3''']"                ;[1, '2 3']
    >>> [1, '2 3']
    [1, '2 3']
 
 
-   #> (lambda ['a','b','c'])                 ;I don't recommend this, but it works.
+   #> (lambda ['a','b','c'])              ;I don't recommend this, but it works.
    >>> (lambda a,b,c:())
    <function <lambda> at 0x...>
 
-   #> (lambda .#"['a','b','c']")             ;Oops. Compare.
+   #> (lambda .#"['a','b','c']")          ;Oops. Compare.
    >>> (lambda [,',a,',,,',b,',,,',c,',]:())
    Traceback (most recent call last):
      ...
@@ -1100,11 +1100,11 @@ Lissp Quick Start
                ^
    SyntaxError: invalid syntax
 
-   #> (lambda .#.#"['a','b','c']")           ;Another inject fixes it.
+   #> (lambda .#.#"['a','b','c']")        ;Another inject fixes it.
    >>> (lambda a,b,c:())
    <function <lambda> at 0x...>
 
-   #> (lambda "abc")                         ;Oops.
+   #> (lambda "abc")                      ;Oops.
    >>> (lambda (,',a,b,c,',):())
    Traceback (most recent call last):
      ...
@@ -1112,11 +1112,11 @@ Lissp Quick Start
                ^
    SyntaxError: invalid syntax
 
-   #> (lambda .#"abc")                       ;Inject fixes it.
+   #> (lambda .#"abc")                    ;Inject fixes it.
    >>> (lambda a,b,c:())
    <function <lambda> at 0x...>
 
-   #> (lambda abc)                           ;Identifiers are also a kind of injection!
+   #> (lambda abc)                        ;Identifiers are also a kind of injection!
    >>> (lambda a,b,c:())
    <function <lambda> at 0x...>
 
@@ -1138,7 +1138,7 @@ Lissp Quick Start
    ...   'SPAM',
    ...   ('eggs'))
 
-   #> SPAM                                   ;'eggs'
+   #> SPAM                                ;'eggs'
    >>> SPAM
    'eggs'
 
@@ -1174,7 +1174,7 @@ Lissp Quick Start
    #> (setattr _macro_
    #..         'triple
    #..         (lambda (x)
-   #..           `(+ ,x (+ ,x ,x))))         ;Use a template to make Hissp.
+   #..           `(+ ,x (+ ,x ,x))))      ;Use a template to make Hissp.
    >>> setattr(
    ...   _macro_,
    ...   'triple',
@@ -1187,7 +1187,7 @@ Lissp Quick Start
    ...         x,
    ...         x))))
 
-   #> (triple 4)                             ;12
+   #> (triple 4)                          ;12
    >>> # triple
    ... __import__('builtins').globals()['QzPLUS_'](
    ...   (4),
@@ -1210,7 +1210,7 @@ Lissp Quick Start
    ...       x),
    ...     x)[-1]))
 
-   #> (triple (loud-number 14))              ;Triples the *code*, not just the *value*.
+   #> (triple (loud-number 14))           ;Triples the *code*, not just the *value*.
    >>> # triple
    ... __import__('builtins').globals()['QzPLUS_'](
    ...   loudQz_number(
@@ -1230,7 +1230,7 @@ Lissp Quick Start
    #> (setattr _macro_
    #..         'oops-triple
    #..         (lambda x
-   #..           `((lambda (: x ,x)          ;Expand to lambda to make a local variable.
+   #..           `((lambda (: x ,x)       ;Expand to lambda to make a local variable.
    #..               (+ x (+ x x))))))
    >>> setattr(
    ...   _macro_,
@@ -1251,7 +1251,7 @@ Lissp Quick Start
    ...             '__main__..x',
    ...             '__main__..x'))))))
 
-   #> (oops-triple 14)                       ;Don't forget that templates qualify symbols!
+   #> (oops-triple 14)                    ;Don't forget that templates qualify symbols!
    >>> # oopsQz_triple
    ... (lambda __main__..x=(14):
    ...   __import__('builtins').globals()['QzPLUS_'](
@@ -1308,7 +1308,7 @@ Lissp Quick Start
    #> (setattr _macro_
    #..         'fnx
    #..         (lambda (: :* body)
-   #..           `(lambda (,'X)              ;,'X instead of $#X
+   #..           `(lambda (,'X)           ;,'X instead of $#X
    #..              (,@body))))
    >>> setattr(
    ...   _macro_,
@@ -1408,7 +1408,7 @@ Lissp Quick Start
 
 
    ;; Macros only work as invocations, not arguments!
-   #> (functools..reduce * '(1 2 3 4))       ;Oops.
+   #> (functools..reduce * '(1 2 3 4))    ;Oops.
    >>> __import__('functools').reduce(
    ...   QzSTAR_,
    ...   ((1),
@@ -1420,7 +1420,7 @@ Lissp Quick Start
    NameError: name 'QzSTAR_' is not defined
 
    #> (functools..reduce (lambda xy
-   #..                     (* x y))          ;Invocation.
+   #..                     (* x y))       ;Invocation.
    #..                   '(1 2 3 4))
    >>> __import__('functools').reduce(
    ...   (lambda x,y:
@@ -1437,7 +1437,7 @@ Lissp Quick Start
 
 
    ;; It's possible for a macro to shadow a global. They live in different namespaces.
-   #> (+ 1 2 3 4)                            ;_macro_.+, not the global.
+   #> (+ 1 2 3 4)                         ;_macro_.+, not the global.
    >>> # QzPLUS_
    ... __import__('builtins').globals()['add'](
    ...   (1),
@@ -1451,7 +1451,7 @@ Lissp Quick Start
    ...       (4))))
    10
 
-   #> (functools..reduce + '(1 2 3 4))       ;Global function, not the macro!
+   #> (functools..reduce + '(1 2 3 4))    ;Global function, not the macro!
    >>> __import__('functools').reduce(
    ...   QzPLUS_,
    ...   ((1),
@@ -1490,7 +1490,7 @@ Lissp Quick Start
    qualified from hissp.basic.._macro_.
    "
 
-   #> (help _macro_.->>)                     ;Macros have docstrings and live in _macro_.
+   #> (help _macro_.->>)                  ;Macros have docstrings and live in _macro_.
    >>> help(
    ...   _macro_.Qz_QzGT_QzGT_)
    Help on function <lambda> in module hissp.basic:
@@ -1522,7 +1522,7 @@ Lissp Quick Start
    ...     'bQzSOL_QzHASH_',
    ...     _fn_QzNo7_))[-1])()
 
-   #> 'b/#alias                              ;Now short for 'hissp.basic.._macro_.alias'.
+   #> 'b/#alias                           ;Now short for 'hissp.basic.._macro_.alias'.
    >>> 'hissp.basic.._macro_.alias'
    'hissp.basic.._macro_.alias'
 
@@ -1544,11 +1544,11 @@ Lissp Quick Start
 
    ;;; Reader
 
-   #> b#"bytes"                               ;Bytes reader macro.
+   #> b#"bytes"                           ;Bytes reader macro.
    >>> b'bytes'
    b'bytes'
 
-   #> b'bytes'                                ;NameError about 'bQzAPOS_bytesQzAPOS_'
+   #> b'bytes'                            ;NameError about 'bQzAPOS_bytesQzAPOS_'
    >>> bQzAPOS_bytesQzAPOS_
    Traceback (most recent call last):
      File "<console>", line 1, in <module>
@@ -1558,12 +1558,12 @@ Lissp Quick Start
    #> b#"bytes
    #..with
    #..newlines
-   #.."                                      ;Same as b#"bytes\nwith\nnewlines\n".
+   #.."                                   ;Same as b#"bytes\nwith\nnewlines\n".
    >>> b'bytes\nwith\nnewlines\n'
    b'bytes\nwith\nnewlines\n'
 
 
-   #> (help _macro_.b\#)                     ;Unqualified reader macros live in _macro_ too.
+   #> (help _macro_.b\#)                  ;Unqualified reader macros live in _macro_ too.
    >>> help(
    ...   _macro_.bQzHASH_)
    Help on function <lambda> in module hissp.basic:
@@ -1575,8 +1575,8 @@ Lissp Quick Start
 
    ;;; Side Effect
 
-   #> (prog1                                 ;Sequence for side effects, eval to first.
-   #..  (progn (print 1)                     ;Sequence for side effects, eval to last.
+   #> (prog1                              ;Sequence for side effects, eval to first.
+   #..  (progn (print 1)                  ;Sequence for side effects, eval to last.
    #..         3)
    #..  (print 2))
    >>> # prog1
@@ -1596,7 +1596,7 @@ Lissp Quick Start
 
    ;;; Definition
 
-   #> (define answer 42)                     ;Add a global.
+   #> (define answer 42)                  ;Add a global.
    >>> # define
    ... __import__('operator').setitem(
    ...   __import__('builtins').globals(),
@@ -1625,7 +1625,7 @@ Lissp Quick Start
    ...                     x,
    ...                     y))))))
 
-   #> (Point2D 1 2)                          ;(1, 2)
+   #> (Point2D 1 2)                       ;(1, 2)
    >>> Point2D(
    ...   (1),
    ...   (2))
@@ -1658,11 +1658,11 @@ Lissp Quick Start
    ...     _fn_QzNo7_))[-1])()
 
 
-   #> (let (x "a"                            ;Create locals.
-   #..      y "b")                           ;Any number of pairs.
+   #> (let (x "a"                         ;Create locals.
+   #..      y "b")                        ;Any number of pairs.
    #..  (print x y)
    #..  (let (x "x"
-   #..        y (+ x x))                     ;Not in scope until body.
+   #..        y (+ x x))                  ;Not in scope until body.
    #..    (print x y))
    #..  (print x y))
    >>> # let
@@ -1723,9 +1723,9 @@ Lissp Quick Start
 
    ;;; Threading
 
-   #> (-> "world!"                           ;Thread-first
+   #> (-> "world!"                        ;Thread-first
    #..    (.title)
-   #..    (->> (print "Hello")))             ;Thread-last
+   #..    (->> (print "Hello")))          ;Thread-last
    >>> # Qz_QzGT_
    ... # hissp.basic..QzMaybe_.Qz_QzGT_
    ... # hissp.basic..QzMaybe_.Qz_QzGT_
@@ -1741,7 +1741,7 @@ Lissp Quick Start
 
    ;; Hissp has no control flow, but you can build them with macros.
 
-   #> (any-for i (range 1 11)                ;Imperative loop with break.
+   #> (any-for i (range 1 11)             ;Imperative loop with break.
    #..  (print i : end " ")
    #..  (not_ (mod i 7)))
    >>> # anyQz_for
