@@ -1529,18 +1529,25 @@ Lissp Quick Start
 
    ;; Imports a copy of hissp.basic.._macro_ (if available)
    ;; and star imports from operator and itertools.
-   #> (b/#prelude)
+   #> (b/#prelude)                        ;/!\
    >>> # hissp.basic.._macro_.prelude
    ... __import__('builtins').exec(
-   ...   ('from operator import *\n'
-   ...    'from itertools import *\n'
+   ...   ('from functools import partial,reduce\n'
+   ...    'from itertools import *;from operator import *\n'
+   ...    'def entuple(*xs):return xs\n'
+   ...    'def enlist(*xs):return[*xs]\n'
+   ...    'def enset(*xs):return{*xs}\n'
+   ...    'def enfrost(*xs):return frozenset(xs)\n'
+   ...    'def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}\n'
+   ...    "def enstr(*xs):return''.join(map(str,xs))\n"
+   ...    'def engarde(xs,f,*a,**kw):\n'
+   ...    ' try:return f(*a,**kw)\n'
+   ...    ' except xs as e:return e\n'
    ...    'try:\n'
-   ...    '    from hissp.basic import _macro_\n'
-   ...    "    _macro_ = __import__('types').SimpleNamespace(**vars(_macro_))\n"
-   ...    'except ModuleNotFoundError:\n'
-   ...    '    pass'),
+   ...    ' from hissp.basic import _macro_\n'
+   ...    " _macro_=__import__('types').SimpleNamespace(**vars(_macro_))\n"
+   ...    'except ModuleNotFoundError:pass'),
    ...   __import__('builtins').globals())
-
 
    ;;; Reader
 
@@ -1846,5 +1853,112 @@ Lissp Quick Start
    ...       print(
    ...         ('oops')))))()
    True
+
+
+   ;;;; The En- Group
+
+   _#"These are small utility functions defined by the basic prelude.
+   Most of them put their arguments into a collection, hence the en-.
+   You've already seen some of these defined earlier.
+   "
+   #> (entuple 1 2 3)
+   >>> entuple(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   (1, 2, 3)
+
+   #> (enlist 1 2 3)
+   >>> enlist(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   [1, 2, 3]
+
+   #> (enset 1 2 3)
+   >>> enset(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   {1, 2, 3}
+
+
+   ;; From [en]- [fro]zen [s]e[t], because "enfrozenset" is too long.
+   #> (enfrost 1 2 3)
+   >>> enfrost(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   frozenset({1, 2, 3})
+
+
+   ;; Unlike (dict) with kwargs, keys need not be identifiers.
+   #> (endict 1 2  3 4)                   ;Note the implied pairs.
+   >>> endict(
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   (4))
+   {1: 2, 3: 4}
+
+
+   ;; The need for endict is apparent, considering alternatives.
+   #> (dict (enlist (entuple 1 2) (entuple 3 4)))
+   >>> dict(
+   ...   enlist(
+   ...     entuple(
+   ...       (1),
+   ...       (2)),
+   ...     entuple(
+   ...       (3),
+   ...       (4))))
+   {1: 2, 3: 4}
+
+
+   _#"Converts to str and joins. Usually .format is good enough, but
+   sometimes you need interpolations inline, like f-strings. Don't forget
+   the format builtin can apply formatting specs.
+   "
+   #> (enstr "<p>"(format 40 ".2f")" + "(add 1 1)"</p>")
+   >>> enstr(
+   ...   ('<p>'),
+   ...   format(
+   ...     (40),
+   ...     ('.2f')),
+   ...   (' + '),
+   ...   add(
+   ...     (1),
+   ...     (1)),
+   ...   ('</p>'))
+   '<p>40.00 + 2</p>'
+
+
+   ;; OK, so this one's not a collection. Guards against the targeted exception classes.
+   #> (engarde (entuple FloatingPointError ZeroDivisionError)          ;two targets
+   #..  truediv 6 0)                                                   ;returned exception
+   >>> engarde(
+   ...   entuple(
+   ...     FloatingPointError,
+   ...     ZeroDivisionError),
+   ...   truediv,
+   ...   (6),
+   ...   (0))
+   ZeroDivisionError('division by zero')
+
+   #> (engarde ArithmeticError truediv 6 0)                            ;superclass target
+   >>> engarde(
+   ...   ArithmeticError,
+   ...   truediv,
+   ...   (6),
+   ...   (0))
+   ZeroDivisionError('division by zero')
+
+   #> (engarde ArithmeticError truediv 6 2)                            ;returned answer
+   >>> engarde(
+   ...   ArithmeticError,
+   ...   truediv,
+   ...   (6),
+   ...   (2))
+   3.0
 
 

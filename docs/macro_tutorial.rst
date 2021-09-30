@@ -225,13 +225,21 @@ And push it to the REPL as well:
    #> (hissp.basic.._macro_.prelude)
    >>> # hissp.basic.._macro_.prelude
    ... __import__('builtins').exec(
-   ...   ('from operator import *\n'
-   ...    'from itertools import *\n'
+   ...   ('from functools import partial,reduce\n'
+   ...    'from itertools import *;from operator import *\n'
+   ...    'def entuple(*xs):return xs\n'
+   ...    'def enlist(*xs):return[*xs]\n'
+   ...    'def enset(*xs):return{*xs}\n'
+   ...    'def enfrost(*xs):return frozenset(xs)\n'
+   ...    'def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}\n'
+   ...    "def enstr(*xs):return''.join(map(str,xs))\n"
+   ...    'def engarde(xs,f,*a,**kw):\n'
+   ...    ' try:return f(*a,**kw)\n'
+   ...    ' except xs as e:return e\n'
    ...    'try:\n'
-   ...    '    from hissp.basic import _macro_\n'
-   ...    "    _macro_ = __import__('types').SimpleNamespace(**vars(_macro_))\n"
-   ...    'except ModuleNotFoundError:\n'
-   ...    '    pass'),
+   ...    ' from hissp.basic import _macro_\n'
+   ...    " _macro_=__import__('types').SimpleNamespace(**vars(_macro_))\n"
+   ...    'except ModuleNotFoundError:pass'),
    ...   __import__('builtins').globals())
 
 .. caution::
