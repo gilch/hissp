@@ -881,6 +881,18 @@ Use exec? Isn't that slow?
 If the exceptions are only for exceptional cases, then does it matter?
 Premature optimization is the root of all evil.
 
+But if you insist, there is another way to do it in the standard library.
+
+.. code-block:: REPL
+
+   #> ((unittest.mock..Mock : side_effect (ValueError "Oops!")))
+   >>> __import__('unittest.mock',fromlist='?').Mock(
+   ...   side_effect=ValueError(
+   ...                 ('Oops!')))()
+   Traceback (most recent call last):
+     ...
+   ValueError: Oops!
+
 What about catching them?
 -------------------------
 
