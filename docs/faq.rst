@@ -740,6 +740,8 @@ A Python star parameter will similarly pack any number of arguments into a tuple
    (1, 2, 'foo')
 
 Notice that this is how templates work in the first place.
+The basic `prelude` defines this function for you,
+along with a some others.
 
 If you really can't have dependencies and nested templates are too confusing,
 you can make an empty list with ``[]`` or ``(list)``,
@@ -1117,6 +1119,8 @@ on module import. Something like,
 
 Once on import is honestly not bad. Even the standard library does it,
 like for `named tuples <collections.namedtuple>`.
+
+The basic `prelude` actually defines very minimal exception catcher called ``engarde``.
 
 But at this point,
 unless you really want a single-file script with no dependencies,
