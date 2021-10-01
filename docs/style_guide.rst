@@ -516,6 +516,41 @@ Readerless style is similar:
    ('function','arg1','arg2',
                ':','kw1','kwarg1', 'kw2','kwarg2',)
 
+Alignment styles can be bent a little in the interest of readability,
+especially for macros, but even for calls,
+as long as the two absolute rules are respected.
+For example, the ``enstr`` function from the basic `prelude` builds a string from multiple arguments.
+Omitting spaces between atoms and having a variable number per line is acceptable,
+because the string's structure is more important for readability than the tuple's.
+
+.. code-block:: Lissp
+
+   (enstr                                 ;Preferred.
+     "Weather in "location" for "date" will be "weather"
+    with a "chance"% of rain.")
+
+   (enstr "Weather in "                   ;OK.
+          location
+          " for "
+          date
+          " will be "
+          weather
+          " with a
+    "
+          chance
+          "% of rain.")
+
+Exactly where the implied groups are can depend on the function's semantics,
+not just the fact that it's a call.
+
+.. code-block:: Lissp
+
+   (engarde (entuple FloatingPointError ZeroDivisionError)
+            truediv 6 0)                  ;(truediv 6 0) is a deferred call, so groups.
+
+   (endict 1 2  3 4  5 6)                 ;Extra space between key-value pairs.
+
+
 Strings
 -------
 

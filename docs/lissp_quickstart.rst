@@ -1996,7 +1996,7 @@ Lissp Quick Start
 
    ;; OK, so this one's not a collection. Guards against the targeted exception classes.
    #> (engarde (entuple FloatingPointError ZeroDivisionError)          ;two targets
-   #..  truediv 6 0)                                                   ;returned exception
+   #..         truediv 6 0)                                            ;returned exception
    >>> engarde(
    ...   entuple(
    ...     FloatingPointError,
