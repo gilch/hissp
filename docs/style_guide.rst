@@ -414,7 +414,7 @@ Your code should look like these examples, recursively applied to subforms:
      data3)
 
    '(                                     ;This is better for linewise version control.
-     data1                                ; Probably only worth it if there's a lot more than 3.
+     data1                                ; Probably only worth it if there's a lot more than 3,
      data2                                ; or it changes frequently. Use this style sparingly.
      data3
      _#_)                                 ;Trails NEVER get their own line.
