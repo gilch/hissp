@@ -740,6 +740,8 @@ A Python star parameter will similarly pack any number of arguments into a tuple
    (1, 2, 'foo')
 
 Notice that this is how templates work in the first place.
+The basic `prelude` defines this function for you,
+along with a some others.
 
 If you really can't have dependencies and nested templates are too confusing,
 you can make an empty list with ``[]`` or ``(list)``,
@@ -881,6 +883,18 @@ Use exec? Isn't that slow?
 If the exceptions are only for exceptional cases, then does it matter?
 Premature optimization is the root of all evil.
 
+But if you insist, there is another way to do it in the standard library.
+
+.. code-block:: REPL
+
+   #> ((unittest.mock..Mock : side_effect (ValueError "Oops!")))
+   >>> __import__('unittest.mock',fromlist='?').Mock(
+   ...   side_effect=ValueError(
+   ...                 ('Oops!')))()
+   Traceback (most recent call last):
+     ...
+   ValueError: Oops!
+
 What about catching them?
 -------------------------
 
@@ -946,13 +960,21 @@ Like this
    #> (hissp.basic.._macro_.prelude)
    >>> # hissp.basic.._macro_.prelude
    ... __import__('builtins').exec(
-   ...   ('from operator import *\n'
-   ...    'from itertools import *\n'
+   ...   ('from functools import partial,reduce\n'
+   ...    'from itertools import *;from operator import *\n'
+   ...    'def entuple(*xs):return xs\n'
+   ...    'def enlist(*xs):return[*xs]\n'
+   ...    'def enset(*xs):return{*xs}\n'
+   ...    'def enfrost(*xs):return frozenset(xs)\n'
+   ...    'def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}\n'
+   ...    "def enstr(*xs):return''.join(map(str,xs))\n"
+   ...    'def engarde(xs,f,*a,**kw):\n'
+   ...    ' try:return f(*a,**kw)\n'
+   ...    ' except xs as e:return e\n'
    ...    'try:\n'
-   ...    '    from hissp.basic import _macro_\n'
-   ...    "    _macro_ = __import__('types').SimpleNamespace(**vars(_macro_))\n"
-   ...    'except ModuleNotFoundError:\n'
-   ...    '    pass'),
+   ...    ' from hissp.basic import _macro_\n'
+   ...    " _macro_=__import__('types').SimpleNamespace(**vars(_macro_))\n"
+   ...    'except ModuleNotFoundError:pass'),
    ...   __import__('builtins').globals())
 
 
@@ -1097,6 +1119,8 @@ on module import. Something like,
 
 Once on import is honestly not bad. Even the standard library does it,
 like for `named tuples <collections.namedtuple>`.
+
+The basic `prelude` actually defines very minimal exception catcher called ``engarde``.
 
 But at this point,
 unless you really want a single-file script with no dependencies,

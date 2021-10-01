@@ -44,7 +44,7 @@ There are, of course, many more layers of abstractions below Hissp,
 but at the bottom of Hissp's hierarchy are tuples of atoms.
 Conceptually, it's a box with a label and contents.
 
-::
+.. code-block:: Text
 
    LABEL item1 item2 ...
 
@@ -414,7 +414,7 @@ Your code should look like these examples, recursively applied to subforms:
      data3)
 
    '(                                     ;This is better for linewise version control.
-     data1                                ; Probably only worth it if there's a lot more than 3.
+     data1                                ; Probably only worth it if there's a lot more than 3,
      data2                                ; or it changes frequently. Use this style sparingly.
      data3
      _#_)                                 ;Trails NEVER get their own line.
@@ -516,6 +516,41 @@ Readerless style is similar:
    ('function','arg1','arg2',
                ':','kw1','kwarg1', 'kw2','kwarg2',)
 
+Alignment styles can be bent a little in the interest of readability,
+especially for macros, but even for calls,
+as long as the two absolute rules are respected.
+For example, the ``enstr`` function from the basic `prelude` builds a string from multiple arguments.
+Omitting spaces between atoms and having a variable number per line is acceptable,
+because the string's structure is more important for readability than the tuple's.
+
+.. code-block:: Lissp
+
+   (enstr                                 ;Preferred.
+     "Weather in "location" for "date" will be "weather"
+    with a "chance"% of rain.")
+
+   (enstr "Weather in "                   ;OK.
+          location
+          " for "
+          date
+          " will be "
+          weather
+          " with a
+    "
+          chance
+          "% of rain.")
+
+Exactly where the implied groups are can depend on the function's semantics,
+not just the fact that it's a call.
+
+.. code-block:: Lissp
+
+   (engarde (entuple FloatingPointError ZeroDivisionError)
+            truediv 6 0)                  ;(truediv 6 0) is a deferred call, so groups.
+
+   (endict 1 2  3 4  5 6)                 ;Extra space between key-value pairs.
+
+
 Strings
 -------
 
@@ -585,15 +620,16 @@ and are not followed by a blank line.
 Comments about a line begin with one semicolon and a space ``; x``,
 starting one space after the code. They never get their own line.
 
-Margin comments begin with one semicolon ``;x`` and are aligned to column 40,
+Margin comments begin with one semicolon ``;x``.
+The semicolon must be aligned with spaces to rest on column 40,
 or one space after the code, whichever is greater.
-The semicolon is not followed by a space unless it continues a
+The semicolon is not followed by a space unless it continues a margin
 comment from the previous line.
 Margin comment continuations may have their own line.
 
 **Never** put a single-semicolon comment on its own line unless
 it's a continuation aligned to the margin!
-Experience Lispers set their editors to automatically indent these.
+Experienced Lispers set their editors to automatically indent these to column 40.
 You will make them angry when they have to fix all your comments.
 
 Complete sentences should start with a capital letter and end with

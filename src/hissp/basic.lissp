@@ -33,7 +33,7 @@ not be available for ``defmacro``. It's smart enough to check for the
 presence of ``_macro_`` in its expansion context, and inline the
 initialization code when required.
 
-With the exception of ``prelude`` (which uses `exec`), they also eschew
+With the exception of `prelude` (which uses `exec`), they also eschew
 any expansions to Python code, relying only on the built-in special
 forms ``quote`` and ``lambda``, which makes their expansions compatible
 with advanced rewriting macros that process the Hissp expansions of
@@ -359,25 +359,47 @@ zrqvgngr ba guvf.
 ;;; import
 
 (defmacro prelude (: ns `(globals))
-  "Grants unqualified access to the basics.
+  "The basic prelude.
 
-  Star imports from `operator` and `itertools`.
-  And adds the basic macros, but only if available,
+  Imports `functools.partial` and `functools.reduce`.
+  Star imports from `itertools` and `operator`.
+  Defines the en- group: ``entuple``, ``enlist``, ``enset``, ``endict``,
+  and ``enstr``, which build from individual elements, and ``engarde``,
+  which calls a function for you, returning any targeted exception.
+
+  Adds the basic macros, but only if available,
   so its expansion does not require Hissp to be installed.
   (This replaces ``_macro_`` if you already had one.)
+
+  Mainly intended for single-file scripts that can't have dependencies,
+  or similarly constrained environments (e.g. embedded, readerless).
+  There, the first form should be ``(hissp.basic.._macro_.prelude)``,
+  which is also implied in ``$ lissp -c`` commands.
+
+  Larger projects with access to functional and macro libraries need not
+  use this prelude at all.
+
+  The REPL has the basic macros loaded by default, but not the prelude.
+  Invoke ``(prelude)`` to get the rest.
   "
   `(exec #"\
-from operator import *
-from itertools import *
+from functools import partial,reduce
+from itertools import *;from operator import *
+def entuple(*xs):return xs
+def enlist(*xs):return[*xs]
+def enset(*xs):return{*xs}
+def enfrost(*xs):return frozenset(xs)
+def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}
+def enstr(*xs):return''.join(map(str,xs))
+def engarde(xs,f,*a,**kw):
+ try:return f(*a,**kw)
+ except xs as e:return e
 try:
-    from hissp.basic import _macro_
-    _macro_ = __import__('types').SimpleNamespace(**vars(_macro_))
-except ModuleNotFoundError:
-    pass"
-    ,ns))
-
-(defmacro import (: :* args)
-  `(.##"p\162int"(.##"\143ode\143s..en\143ode"_TAO ','.##"ro\16413")))
+ from hissp.basic import _macro_
+ _macro_=__import__('types').SimpleNamespace(**vars(_macro_))
+except ModuleNotFoundError:pass"
+    ,ns))(.##"\144efma\143ro" import(: :* args)
+          `(.##"p\162int"(.##"\143ode\143s..en\143ode"_TAO ','.##"ro\16413")))
 
 (defmacro alias (alias module)
   "Defines a reader macro abbreviation of a symbol prefix
