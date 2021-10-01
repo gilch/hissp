@@ -1603,13 +1603,6 @@ Lissp Quick Start
 
    ;;; Definition
 
-   #> (define answer 42)                  ;Add a global.
-   >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'answer',
-   ...   (42))
-
    #> (deftype Point2D (tuple)
    #..  __doc__ "Simple pair."
    #..  __new__ (lambda (cls x y)
@@ -1639,30 +1632,98 @@ Lissp Quick Start
    (1, 2)
 
 
-   ;; Define a function in the _macro_ namespace.
-   ;; Creates the _macro_ namespace if absent.
-   #> (defmacro triple (x)
-   #..  `(+ ,x ,x ,x))
+   _#"Define a function in the _macro_ namespace.
+   Creates the _macro_ namespace if absent.
+   Can also have a docstring.
+   Note the QzMaybe_ and qualification on sep made by the template.
+   "
+   #> (defmacro p123 (x)
+   #..  "Does p on 1 2 3 with a custom sep."
+   #..  `(p 1 2 3 : sep ,x))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fn_QzNo7_=(lambda x:
+   ... (lambda _fn_QzNo7_=(lambda x:(
+   ...   ('Does p on 1 2 3 with a custom sep.'),
    ...   (lambda * _: _)(
-   ...     '__main__..QzMaybe_.QzPLUS_',
-   ...     x,
-   ...     x,
-   ...     x)):(
+   ...     '__main__..QzMaybe_.p',
+   ...     (1),
+   ...     (2),
+   ...     (3),
+   ...     ':',
+   ...     '__main__..sep',
+   ...     x))[-1]):(
+   ...   __import__('builtins').setattr(
+   ...     _fn_QzNo7_,
+   ...     '__doc__',
+   ...     ('Does p on 1 2 3 with a custom sep.')),
    ...   __import__('builtins').setattr(
    ...     _fn_QzNo7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
-   ...        'triple',))),
+   ...        'p123',))),
    ...   __import__('builtins').setattr(
    ...     __import__('operator').getitem(
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
-   ...     'triple',
+   ...     'p123',
    ...     _fn_QzNo7_))[-1])()
+
+
+   #> (define p print)                    ;Adds a global.
+   >>> # define
+   ... __import__('operator').setitem(
+   ...   __import__('builtins').globals(),
+   ...   'p',
+   ...   print)
+
+
+   _#"A QzMaybe_ qualification resolves like an unqualified symbol in that
+   a macro can shadow a global, if present. The QzMaybe resolved to a
+   global this time.
+   Note the : didn't have to be quoted here, because it's in a macro
+   invocation, not a call.
+   The compiler discarded the qualifier on sep, because it's a kwarg.
+   "
+   #> (p123 :)
+   >>> # p123
+   ... __import__('builtins').globals()['p'](
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   sep=':')
+   1:2:3
+
+   #> (defmacro p (: :* args)
+   #..  `(print ,@args))                  ;Note the splice.
+   >>> # defmacro
+   ... # hissp.basic.._macro_.let
+   ... (lambda _fn_QzNo7_=(lambda *args:
+   ...   (lambda * _: _)(
+   ...     'builtins..print',
+   ...     *args)):(
+   ...   __import__('builtins').setattr(
+   ...     _fn_QzNo7_,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'p',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'p',
+   ...     _fn_QzNo7_))[-1])()
+
+   #> (p123 :)                            ;Now QzMaybe resolves to a macro.
+   >>> # p123
+   ... # __main__..QzMaybe_.p
+   ... __import__('builtins').print(
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   sep=':')
+   1:2:3
 
 
    #> (let (x "a"                         ;Create locals.
