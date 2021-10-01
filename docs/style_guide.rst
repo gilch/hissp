@@ -44,7 +44,7 @@ There are, of course, many more layers of abstractions below Hissp,
 but at the bottom of Hissp's hierarchy are tuples of atoms.
 Conceptually, it's a box with a label and contents.
 
-::
+.. code-block:: Text
 
    LABEL item1 item2 ...
 
