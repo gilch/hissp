@@ -48,6 +48,13 @@ __name__='__main__' __package__=None
     assert err[BANNER_LEN:] == ">>> answer\n" + EXIT_MSG
 
 
+def test_repl_read_exception():
+    out, err = cmd("python -m hissp.repl", ".#(operator..truediv 1 0)\n")
+    assert ">>> # Compilation Failed!\nTraceback (most recent call last):\n  F" in err
+    assert "\nZeroDivisionError: division by zero" in err
+    assert out.count("#> ") == 2
+
+
 def repl(input, out: str = '#> '*2, err: str = "", exitmsg=EXIT_MSG):
     actual_out, actual_err = cmd("lissp", input)
     assert actual_out.split('\n') == out.split('\n')

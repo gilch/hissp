@@ -5,6 +5,7 @@ The Lissp Read-Evaluate-Print Loop. For interactive use.
 """
 
 import sys
+import traceback
 from code import InteractiveConsole
 from types import ModuleType, SimpleNamespace
 
@@ -38,8 +39,7 @@ class LisspREPL(InteractiveConsole):
             self.showsyntaxerror()
             return False
         except BaseException:
-            import traceback
-
+            print('>>> # Compilation Failed!', file=sys.stderr)
             traceback.print_exc()
             return False
         print(">>>", source.replace("\n", "\n... "), file=sys.stderr)
