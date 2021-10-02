@@ -109,6 +109,7 @@ class Compiler:
             result.extend(self.eval(form))
             if self.abort:
                 print("\n\n".join(result), file=sys.stderr)
+                self.abort = False  # To allow REPL debugging.
                 sys.exit(1)
         return "\n\n".join(result)
 
