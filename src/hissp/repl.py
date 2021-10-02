@@ -45,6 +45,14 @@ class LisspREPL(InteractiveConsole):
         print(">>>", source.replace("\n", "\n... "), file=sys.stderr)
         super().runsource(source, filename, symbol)
 
+    def interact(self, banner=None, exitmsg=None):
+        """Imports readline if available, then super().interact()."""
+        try:
+            import readline
+        except ImportError:
+            pass
+        super().interact(banner, exitmsg)
+
 
 def force_main():
     """:meta private:"""
@@ -58,10 +66,6 @@ def main(__main__=None):
     """REPL command-line entry point."""
     if not __main__:
         __main__ = force_main()
-    try:
-        import readline
-    except ImportError:
-        pass
     repl = LisspREPL(locals=__main__.__dict__)
     repl.locals["_macro_"] = SimpleNamespace(**vars(hissp.basic._macro_))
     repl.interact()
