@@ -29,8 +29,7 @@ def main():
 
 def _cmd(args, ns):
     sys.argv = ["-c"]
-    if args.file is not None:
-        sys.argv.extend([args.file, *args.args])
+    sys.argv.extend([args.file, *args.args])
     args.i("(hissp.basic.._macro_.prelude)\n" + args.c, ns)
 
 
