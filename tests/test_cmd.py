@@ -55,6 +55,15 @@ def test_repl_read_exception():
     assert out.count("#> ") == 2
 
 
+def test_ic_error():
+    out, err = cmd(["lissp", "-i", "-c", "(define answer 42)(truediv 1 0)"], "answer\n")
+    assert "# Traceback (most" in err
+    assert "# ZeroDivisionError: division by zero\n" in err
+    assert ">>> answer\n" in err
+    assert out.count("#> ") == 2
+    assert "42" in out
+
+
 def repl(input, out: str = '#> '*2, err: str = "", exitmsg=EXIT_MSG):
     actual_out, actual_err = cmd("lissp", input)
     assert actual_out.split('\n') == out.split('\n')
@@ -251,5 +260,19 @@ def test_repl_paren_continue():
         '! >>> ((1),\n',
         '! ...  (2),)\n',
         '> (1, 2)\n',
+        '> #> ',
+    )
+
+
+def test_compile_error():
+    call_response(
+        '> #> ','< (lambda :x)',
+        """! \
+  File "<string>", line None
+hissp.compiler.CompileError:\N{SPACE}
+(>   >  > >>('lambda', ':x')<< <  <   <)
+# Compiler.function() CompileError:
+#  Incomplete pair.
+""",
         '> #> ',
     )
