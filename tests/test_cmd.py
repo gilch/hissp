@@ -6,7 +6,7 @@ import subprocess as sp
 
 def cmd(cmd, input=""):
     return sp.Popen(
-        cmd, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE, text=True, shell=False
+        cmd, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE, text=True, shell=True
     ).communicate(input=input)
 
 
@@ -15,7 +15,7 @@ BANNER_LEN = len(cmd("lissp")[1]) - len(EXIT_MSG)
 
 
 def test_c_args():
-    out, err = cmd(["lissp", "-c", "(print sys..argv)", "1", "2", "3"])
+    out, err = cmd(["python", "-m", "hissp", "-c", "(print sys..argv)", "1", "2", "3"])
     assert out == "['-c', '1', '2', '3']\n"
     assert err == ""
 
