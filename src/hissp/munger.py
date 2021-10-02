@@ -180,5 +180,16 @@ def _qz_decode(match: Match[str]) -> str:
 
 
 def demunge(s: str) -> str:
-    """The inverse of `munge`. Decodes any Quotez into characters."""
+    """The inverse of `munge`. Decodes any Quotez into characters.
+
+    Characters can be encoded in one of three ways:
+    Short names, Unicode names, and ordinals.
+    `demunge` will decode any of these, even though `munge` will
+    consistently pick only one of these for any given encoding.
+    `demunge` will also leave the remaining text as-is, along with any
+    invalid Quotez.
+
+    >>> demunge("QzFOO_QzGT_QzHYPHENhMINUS_Qz62_bar")
+    'QzFOO_>->bar'
+    """
     return FIND_QUOTEZ.sub(_qz_decode, s)
