@@ -212,10 +212,9 @@ class Lissp:
                 raise SoftSyntaxError("Incomplete token.", self.position())
             elif k == "atom":
                 yield self._atom(v)
-            elif k == "error":
-                raise SyntaxError("Can't read this.", self.position())
             else:
-                assert False, "unknown token: " + repr(k)
+                assert k == "error", "unknown token: " + repr(k)
+                raise SyntaxError("Can't read this.", self.position())
         if self.depth:
             raise SoftSyntaxError(
                 "Ran out of tokens before completing form.", self.position()
