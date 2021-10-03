@@ -1,4 +1,4 @@
-# Copyright 2019, 2020 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 import re
@@ -57,3 +57,7 @@ class TestCompileGeneral(TestCase):
         match = re.fullmatch("x(.*?)_", x)
         if match:
             self.assertEqual(char, munger._qz_decode(match))
+
+    def test_maybe_macro_error(self):
+        with self.assertRaises(compiler.CompileError):
+            compiler.readerless(('hissp.basic.._macro_.foobar',))
