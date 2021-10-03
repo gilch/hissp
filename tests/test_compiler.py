@@ -1,7 +1,6 @@
 # Copyright 2019, 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
-import re
 from unittest import TestCase
 
 import hypothesis.strategies as st
@@ -45,18 +44,6 @@ class TestCompileGeneral(TestCase):
     @given(literals)
     def test_compile_literal(self, form):
         self.assertEqual(form, eval(compiler.Compiler().atom(form)))
-
-    @given(
-        st.characters(
-            whitelist_categories=["Lu", "Ll", "Lt", "Nl", "Sm"],
-        )
-    )
-    def test_un_x_quote(self, char):
-        x = munger.qz_encode(char)
-        self.assertTrue(("x" + x).isidentifier())
-        match = re.fullmatch("x(.*?)_", x)
-        if match:
-            self.assertEqual(char, munger._qz_decode(match))
 
     def test_maybe_macro_error(self):
         with self.assertRaises(compiler.CompileError):
