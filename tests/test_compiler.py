@@ -48,3 +48,23 @@ class TestCompileGeneral(TestCase):
     def test_maybe_macro_error(self):
         with self.assertRaises(compiler.CompileError):
             compiler.readerless(('hissp.basic.._macro_.foobar',))
+
+    def test_post_compile_warn(self):
+        c = compiler.Compiler('oops')
+        with self.assertWarns(compiler.PostCompileWarning):
+            python = c.compile([
+                ('operator..truediv',0,0,),
+                ('print',('quote','oops',),),
+            ])
+        self.assertIn("""\
+__import__('operator').truediv(
+  (0),
+  (0))
+
+# Traceback (most recent call last):""", python)
+        self.assertIn("""\
+# ZeroDivisionError: division by zero
+# 
+
+print(
+  'oops')""", python)
