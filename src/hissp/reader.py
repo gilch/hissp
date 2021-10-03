@@ -175,15 +175,15 @@ class Lissp:
     def reinit(self):
         """Reset position, nesting depth, and gensym stack."""
         self.gensym_stack = []
-        self.depth = 0
+        self.depth = []
         self._p = 0
 
-    def position(self):
+    def position(self, position=None):
         """
         Get the ``filename``, ``lineno``, ``offset`` and ``text``
         for a `SyntaxError`, from the `Lexer` given to `parse`.
         """
-        return self.tokens.position(self._p)
+        return self.tokens.position(position or self._p)
 
     def parse(self, tokens: Lexer) -> Iterator:
         """Build Hissp forms from a `Lexer`."""
@@ -209,7 +209,7 @@ class Lissp:
             elif k == "string":
                 yield self._string(v)
             elif k == "continue":
-                raise SoftSyntaxError("Incomplete token.", self.position())
+                raise SoftSyntaxError("Incomplete string token.", self.position())
             elif k == "atom":
                 yield self._atom(v)
             else:
@@ -217,17 +217,18 @@ class Lissp:
                 raise SyntaxError("Can't read this.", self.position())
         if self.depth:
             raise SoftSyntaxError(
-                "Ran out of tokens before completing form.", self.position()
+                "Ran out of tokens before completing form.",
+                self.position(self.depth.pop())
             )
 
     def _open(self):
-        self.depth += 1
+        self.depth.append(self._p)
         yield (*self.parse(self.tokens),)
 
     def _close(self):
-        self.depth -= 1
-        if self.depth < 0:
+        if not self.depth:
             raise SyntaxError("Unopened ')'.", self.position())
+        self.depth.pop()
 
     @staticmethod
     def _string(v):
@@ -245,10 +246,10 @@ class Lissp:
             ",@": self.unquote_context,
         }.get(v, nullcontext)():
             try:
-                depth = self.depth
+                depth = len(self.depth)
                 form = next(self.parse(self.tokens))
             except StopIteration:
-                if self.depth == depth:
+                if len(self.depth) == depth:
                     raise SoftSyntaxError(
                         f"Reader macro {v!r} missing argument.", self.position()
                     ) from None
