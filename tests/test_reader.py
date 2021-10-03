@@ -148,6 +148,11 @@ class TestReader(TestCase):
         with self.assertRaises(SyntaxError):
             next(self.parser.reads('\\'))
 
+    def test_bad_macro(self):
+        with self.assertRaises(SyntaxError):
+            next(self.parser.reads('foo#bar'))
+
+
 EXPECTED = {
 # Numeric
 '''False True''': [False, True],
