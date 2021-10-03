@@ -140,6 +140,9 @@ class TestReader(TestCase):
         self.parser.ns = object()
         self.assertIs(self.parser.ns, self.parser.compiler.ns)
 
+    def test_badspace(self):
+        with self.assertRaises(SyntaxError):
+            next(self.parser.reads('\t7'))
 
 EXPECTED = {
 # Numeric
