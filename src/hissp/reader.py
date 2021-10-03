@@ -17,6 +17,7 @@ import builtins
 import os
 import re
 import sys
+from collections import namedtuple
 from contextlib import contextmanager, nullcontext
 from functools import reduce
 from importlib import import_module, resources
@@ -127,9 +128,7 @@ class Lexer(Iterator):
         return self.file, lineno, offset, self.code.split("\n")[lineno - 1]
 
 
-class _Unquote(tuple):
-    def __repr__(self):
-        return f"_Unquote{super().__repr__()}"
+_Unquote = namedtuple('_Unquote', ['target', 'value'])
 
 
 def gensym_counter(_count=[0], _lock=Lock()):
@@ -283,9 +282,9 @@ class Lissp:
         if tag == "`":
             return self.template(form)
         if tag == ",":
-            return _Unquote([":?", form])
+            return _Unquote(":?", form)
         if tag == ",@":
-            return _Unquote([":*", form])
+            return _Unquote(":*", form)
         assert tag.endswith("#")
         return self._parse_tag(tag[:-1], form)
 
@@ -328,8 +327,8 @@ class Lissp:
             )
         if case is str and not form.startswith(":"):
             return "quote", self.qualify(form)
-        if case is _Unquote and form[0] == ":?":
-            return form[1]
+        if case is _Unquote and form.target == ":?":
+            return form.value
         return form
 
     def _template(self, forms: Iterable) -> Iterable[Tuple[str, Any]]:
