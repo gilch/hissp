@@ -136,6 +136,10 @@ class TestReader(TestCase):
             )],
         )
 
+    def test_swap_ns(self):
+        self.parser.ns = object()
+        self.assertIs(self.parser.ns, self.parser.compiler.ns)
+
 
 EXPECTED = {
 # Numeric
