@@ -221,11 +221,8 @@ class Lissp:
             )
 
     def _open(self):
-        depth = self.depth
         self.depth += 1
         yield (*self.parse(self.tokens),)
-        if self.depth != depth:
-            raise SoftSyntaxError("Unclosed '('.", self.position())
 
     def _close(self):
         self.depth -= 1
