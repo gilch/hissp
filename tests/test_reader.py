@@ -144,6 +144,10 @@ class TestReader(TestCase):
         with self.assertRaises(SyntaxError):
             next(self.parser.reads('\t7'))
 
+    def test_bad_token(self):
+        with self.assertRaises(SyntaxError):
+            next(self.parser.reads('\\'))
+
 EXPECTED = {
 # Numeric
 '''False True''': [False, True],
