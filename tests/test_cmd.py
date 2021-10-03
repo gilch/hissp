@@ -15,14 +15,14 @@ BANNER_LEN = len(cmd("lissp")[1]) - len(EXIT_MSG)
 
 
 def test_c_args():
-    out, err = cmd(["python", "-m", "hissp", "-c", "(print sys..argv)", "1", "2", "3"])
+    out, err = cmd('python -m hissp -c "(print sys..argv)" 1 2 3')
     assert out == "['-c', '1', '2', '3']\n"
     assert err == ""
 
 
 def test_ic_args():
     out, err = cmd(
-        ["lissp", "-i", "-c", "(print sys..argv)(define answer 42)", "1", "2", "3"],
+        'lissp -i -c "(print sys..argv)(define answer 42)" 1 2 3',
         "answer\n"
     )
     assert out == "['-c', '1', '2', '3']\n#> 42\n#> "
@@ -30,7 +30,7 @@ def test_ic_args():
 
 
 def test_file_args():
-    out, err = cmd(["lissp", "tests/argv.lissp", "1", "2", "3"])
+    out, err = cmd("lissp tests/argv.lissp 1 2 3")
     assert out == """\
 ['tests/argv.lissp', '1', '2', '3']
 __name__='__main__' __package__=None
@@ -39,7 +39,7 @@ __name__='__main__' __package__=None
 
 
 def test_i_file_args():
-    out, err = cmd(["lissp", "-i", "tests/argv.lissp", "1", "2", "3"], "answer\n")
+    out, err = cmd("lissp -i tests/argv.lissp 1 2 3", "answer\n")
     assert out == """\
 ['tests/argv.lissp', '1', '2', '3']
 __name__='__main__' __package__=None
@@ -50,13 +50,13 @@ __name__='__main__' __package__=None
 
 def test_repl_read_exception():
     out, err = cmd("python -m hissp.repl", ".#(operator..truediv 1 0)\n")
-    assert ">>> # Compilation Failed!\nTraceback (most recent call last):\n  F" in err
+    assert ">>> # Compilation failed!\nTraceback (most recent call last):\n  F" in err
     assert "\nZeroDivisionError: division by zero" in err
     assert out.count("#> ") == 2
 
 
 def test_ic_error():
-    out, err = cmd(["lissp", "-i", "-c", "(define answer 42)(truediv 1 0)"], "answer\n")
+    out, err = cmd('lissp -i -c "(define answer 42)(truediv 1 0)"', "answer\n")
     assert "# Traceback (most" in err
     assert "# ZeroDivisionError: division by zero\n" in err
     assert ">>> answer\n" in err
@@ -268,8 +268,8 @@ def test_compile_error():
     call_response(
         '> #> ','< (lambda :x)',
         """! \
-  File "<string>", line None
-hissp.compiler.CompileError:\N{SPACE}
+>>> # CompileError
+
 (>   >  > >>('lambda', ':x')<< <  <   <)
 # Compiler.function() CompileError:
 #  Incomplete pair.

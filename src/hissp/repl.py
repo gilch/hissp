@@ -10,6 +10,7 @@ from code import InteractiveConsole
 from types import ModuleType, SimpleNamespace
 
 import hissp.basic
+from hissp.compiler import CompileError
 from hissp.reader import Lissp, SoftSyntaxError
 
 
@@ -35,12 +36,16 @@ class LisspREPL(InteractiveConsole):
             source = self.lissp.compile(source)
         except SoftSyntaxError:
             return True
+        except CompileError as e:
+            print('>>> # CompileError', file=sys.stderr)
+            print(e, file=sys.stderr)
+            return False
         except SyntaxError:
             self.showsyntaxerror()
             return False
         except BaseException:
-            print('>>> # Compilation Failed!', file=sys.stderr)
-            traceback.print_exc()
+            print('>>> # Compilation failed!', file=sys.stderr)
+            self.showtraceback()
             return False
         print(">>>", source.replace("\n", "\n... "), file=sys.stderr)
         super().runsource(source, filename, symbol)
