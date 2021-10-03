@@ -26,6 +26,6 @@ class TestMunger(TestCase):
             "QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_.QzSOL_"
         )
 
-    @given(st.text(st.characters(["Sm"]), min_size=1))
+    @given(st.text(st.characters(whitelist_categories=["Sm"]), min_size=1))
     def test_munge_symbol(self, s):
         self.assertTrue(munger.munge(s).isidentifier())
