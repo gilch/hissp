@@ -1537,9 +1537,9 @@ Lissp Quick Start
    ...    'def entuple(*xs):return xs\n'
    ...    'def enlist(*xs):return[*xs]\n'
    ...    'def enset(*xs):return{*xs}\n'
-   ...    'def enfrost(*xs):return frozenset(xs)\n'
+   ...    "def enfrost(*xs):return __import__('builtins').frozenset(xs)\n"
    ...    'def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}\n'
-   ...    "def enstr(*xs):return''.join(map(str,xs))\n"
+   ...    "def enstr(*xs):return''.join(''.__class__(x)for x in xs)\n"
    ...    'def engarde(xs,f,*a,**kw):\n'
    ...    ' try:return f(*a,**kw)\n'
    ...    ' except xs as e:return e\n'
