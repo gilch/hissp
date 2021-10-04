@@ -158,6 +158,9 @@ class TestReader(TestCase):
             [*self.parser.reads('`"foo" `,7')]
         )
 
+    def test_is_string_code(self):
+        self.assertFalse(reader.is_string('(1+1)'))
+
 
 EXPECTED = {
 # Numeric
