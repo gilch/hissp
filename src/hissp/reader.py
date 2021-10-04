@@ -17,6 +17,7 @@ import builtins
 import os
 import re
 import sys
+from collections import namedtuple
 from contextlib import contextmanager, nullcontext
 from functools import reduce
 from importlib import import_module, resources
@@ -127,9 +128,7 @@ class Lexer(Iterator):
         return self.file, lineno, offset, self.code.split("\n")[lineno - 1]
 
 
-class _Unquote(tuple):
-    def __repr__(self):
-        return f"_Unquote{super().__repr__()}"
+_Unquote = namedtuple('_Unquote', ['target', 'value'])
 
 
 def gensym_counter(_count=[0], _lock=Lock()):
@@ -154,13 +153,11 @@ class Lissp:
         self,
         qualname="__main__",
         ns=None,
-        verbose=False,
         evaluate=False,
         filename="<?>",
     ):
         self.qualname = qualname
         self.compiler = Compiler(self.qualname, ns, evaluate)
-        self.verbose = verbose
         self.filename = filename
         self.reinit()
 
@@ -176,15 +173,15 @@ class Lissp:
     def reinit(self):
         """Reset position, nesting depth, and gensym stack."""
         self.gensym_stack = []
-        self.depth = 0
+        self.depth = []
         self._p = 0
 
-    def position(self):
+    def position(self, index=None):
         """
         Get the ``filename``, ``lineno``, ``offset`` and ``text``
         for a `SyntaxError`, from the `Lexer` given to `parse`.
         """
-        return self.tokens.position(self._p)
+        return self.tokens.position(self._p if index is None else index)
 
     def parse(self, tokens: Lexer) -> Iterator:
         """Build Hissp forms from a `Lexer`."""
@@ -210,29 +207,26 @@ class Lissp:
             elif k == "string":
                 yield self._string(v)
             elif k == "continue":
-                raise SoftSyntaxError("Incomplete token.", self.position())
+                raise SoftSyntaxError("Incomplete string token.", self.position())
             elif k == "atom":
                 yield self._atom(v)
-            elif k == "error":
-                raise SyntaxError("Can't read this.", self.position())
             else:
-                assert False, "unknown token: " + repr(k)
+                assert k == "error", "unknown token: " + repr(k)
+                raise SyntaxError("Can't read this.", self.position())
         if self.depth:
             raise SoftSyntaxError(
-                "Ran out of tokens before completing form.", self.position()
+                "Ran out of tokens before completing form.",
+                self.position(self.depth.pop())
             )
 
     def _open(self):
-        depth = self.depth
-        self.depth += 1
+        self.depth.append(self._p)
         yield (*self.parse(self.tokens),)
-        if self.depth != depth:
-            raise SoftSyntaxError("Unclosed '('.", self.position())
 
     def _close(self):
-        self.depth -= 1
-        if self.depth < 0:
+        if not self.depth:
             raise SyntaxError("Unopened ')'.", self.position())
+        self.depth.pop()
 
     @staticmethod
     def _string(v):
@@ -250,10 +244,10 @@ class Lissp:
             ",@": self.unquote_context,
         }.get(v, nullcontext)():
             try:
-                depth = self.depth
+                depth = len(self.depth)
                 form = next(self.parse(self.tokens))
             except StopIteration:
-                if self.depth == depth:
+                if len(self.depth) == depth:
                     raise SoftSyntaxError(
                         f"Reader macro {v!r} missing argument.", self.position()
                     ) from None
@@ -283,9 +277,9 @@ class Lissp:
         if tag == "`":
             return self.template(form)
         if tag == ",":
-            return _Unquote([":?", form])
+            return _Unquote(":?", form)
         if tag == ",@":
-            return _Unquote([":*", form])
+            return _Unquote(":*", form)
         assert tag.endswith("#")
         return self._parse_tag(tag[:-1], form)
 
@@ -328,8 +322,8 @@ class Lissp:
             )
         if case is str and not form.startswith(":"):
             return "quote", self.qualify(form)
-        if case is _Unquote and form[0] == ":?":
-            return form[1]
+        if case is _Unquote and form.target == ":?":
+            return form.value
         return form
 
     def _template(self, forms: Iterable) -> Iterable[Tuple[str, Any]]:
@@ -373,9 +367,6 @@ class Lissp:
         """Read Hissp forms from code string."""
         res: Iterable[object] = self.parse(Lexer(code, self.filename))
         self.reinit()
-        if self.verbose:
-            res = list(res)
-            pprint(res)
         return res
 
     def compile(self, code: str) -> str:

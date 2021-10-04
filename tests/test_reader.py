@@ -1,4 +1,4 @@
-# Copyright 2019, 2020 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 import math
@@ -135,6 +135,31 @@ class TestReader(TestCase):
                 '`(x.y x.y) `(int.x int.float) `(int 1) `(float 1) `(x x)'
             )],
         )
+
+    def test_swap_ns(self):
+        self.parser.ns = object()
+        self.assertIs(self.parser.ns, self.parser.compiler.ns)
+
+    def test_badspace(self):
+        with self.assertRaises(SyntaxError):
+            next(self.parser.reads('\t7'))
+
+    def test_bad_token(self):
+        with self.assertRaises(SyntaxError):
+            next(self.parser.reads('\\'))
+
+    def test_bad_macro(self):
+        with self.assertRaises(SyntaxError):
+            next(self.parser.reads('foo#bar'))
+
+    def test_template(self):
+        self.assertEqual(
+            [('quote', "('foo')",), 7],
+            [*self.parser.reads('`"foo" `,7')]
+        )
+
+    def test_is_string_code(self):
+        self.assertFalse(reader.is_string('(1+1)'))
 
 
 EXPECTED = {

@@ -1,7 +1,6 @@
-# Copyright 2019, 2020 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
-import re
 from unittest import TestCase
 
 import hypothesis.strategies as st
@@ -46,14 +45,26 @@ class TestCompileGeneral(TestCase):
     def test_compile_literal(self, form):
         self.assertEqual(form, eval(compiler.Compiler().atom(form)))
 
-    @given(
-        st.characters(
-            whitelist_categories=["Lu", "Ll", "Lt", "Nl", "Sm"],
-        )
-    )
-    def test_un_x_quote(self, char):
-        x = munger.qz_encode(char)
-        self.assertTrue(("x" + x).isidentifier())
-        match = re.fullmatch("x(.*?)_", x)
-        if match:
-            self.assertEqual(char, munger._qz_decode(match))
+    def test_maybe_macro_error(self):
+        with self.assertRaises(compiler.CompileError):
+            compiler.readerless(('hissp.basic.._macro_.foobar',))
+
+    def test_post_compile_warn(self):
+        c = compiler.Compiler('oops')
+        with self.assertWarns(compiler.PostCompileWarning):
+            python = c.compile([
+                ('operator..truediv',0,0,),
+                ('print',('quote','oops',),),
+            ])
+        self.assertIn("""\
+__import__('operator').truediv(
+  (0),
+  (0))
+
+# Traceback (most recent call last):""", python)
+        self.assertIn("""\
+# ZeroDivisionError: division by zero
+# 
+
+print(
+  'oops')""", python)

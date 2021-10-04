@@ -6,9 +6,11 @@ The Lissp Read-Evaluate-Print Loop. For interactive use.
 
 import sys
 from code import InteractiveConsole
+from contextlib import suppress
 from types import ModuleType, SimpleNamespace
 
 import hissp.basic
+from hissp.compiler import CompileError
 from hissp.reader import Lissp, SoftSyntaxError
 
 
@@ -34,23 +36,24 @@ class LisspREPL(InteractiveConsole):
             source = self.lissp.compile(source)
         except SoftSyntaxError:
             return True
+        except CompileError as e:
+            print('>>> # CompileError', file=sys.stderr)
+            print(e, file=sys.stderr)
+            return False
         except SyntaxError:
             self.showsyntaxerror()
             return False
         except BaseException:
-            import traceback
-
-            traceback.print_exc()
+            print('>>> # Compilation failed!', file=sys.stderr)
+            self.showtraceback()
             return False
         print(">>>", source.replace("\n", "\n... "), file=sys.stderr)
         super().runsource(source, filename, symbol)
 
     def interact(self, banner=None, exitmsg=None):
         """Imports readline if available, then super().interact()."""
-        try:
+        with suppress(ImportError):
             import readline
-        except ImportError:
-            pass
         super().interact(banner, exitmsg)
 
 
