@@ -388,9 +388,9 @@ from itertools import *;from operator import *
 def entuple(*xs):return xs
 def enlist(*xs):return[*xs]
 def enset(*xs):return{*xs}
-def enfrost(*xs):return frozenset(xs)
+def enfrost(*xs):return __import__('builtins').frozenset(xs)
 def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}
-def enstr(*xs):return''.join(map(str,xs))
+def enstr(*xs):return''.join(''.__class__(x)for x in xs)
 def engarde(xs,f,*a,**kw):
  try:return f(*a,**kw)
  except xs as e:return e
