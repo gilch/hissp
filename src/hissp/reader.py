@@ -176,12 +176,12 @@ class Lissp:
         self.depth = []
         self._p = 0
 
-    def position(self, position=None):
+    def position(self, index=None):
         """
         Get the ``filename``, ``lineno``, ``offset`` and ``text``
         for a `SyntaxError`, from the `Lexer` given to `parse`.
         """
-        return self.tokens.position(position or self._p)
+        return self.tokens.position(self._p if index is None else index)
 
     def parse(self, tokens: Lexer) -> Iterator:
         """Build Hissp forms from a `Lexer`."""

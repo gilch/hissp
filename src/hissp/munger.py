@@ -185,7 +185,7 @@ def demunge(s: str) -> str:
     Characters can be encoded in one of three ways:
     Short names, Unicode names, and ordinals.
     `demunge` will decode any of these, even though `munge` will
-    consistently pick only one of these for any given encoding.
+    consistently pick only one of these for any given character.
     `demunge` will also leave the remaining text as-is, along with any
     invalid Quotez.
 

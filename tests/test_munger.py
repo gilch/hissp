@@ -30,11 +30,7 @@ class TestMunger(TestCase):
     def test_munge_symbol(self, s):
         self.assertTrue(munger.munge(s).isidentifier())
 
-    @given(
-        st.characters(
-            whitelist_categories=["Lu", "Ll", "Lt", "Nl", "Sm"],
-        )
-    )
+    @given(st.characters(whitelist_categories=["Lu", "Ll", "Lt", "Nl", "Sm"]))
     def test_un_qz_quote(self, char):
         x = munger.qz_encode(char)
         self.assertTrue(("x" + x).isidentifier())
