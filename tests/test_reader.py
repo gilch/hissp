@@ -152,6 +152,12 @@ class TestReader(TestCase):
         with self.assertRaises(SyntaxError):
             next(self.parser.reads('foo#bar'))
 
+    def test_template(self):
+        self.assertEqual(
+            [('quote', "('foo')",), 7],
+            [*self.parser.reads('`"foo" `,7')]
+        )
+
 
 EXPECTED = {
 # Numeric
