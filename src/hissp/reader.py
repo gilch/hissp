@@ -153,13 +153,11 @@ class Lissp:
         self,
         qualname="__main__",
         ns=None,
-        verbose=False,
         evaluate=False,
         filename="<?>",
     ):
         self.qualname = qualname
         self.compiler = Compiler(self.qualname, ns, evaluate)
-        self.verbose = verbose
         self.filename = filename
         self.reinit()
 
@@ -369,9 +367,6 @@ class Lissp:
         """Read Hissp forms from code string."""
         res: Iterable[object] = self.parse(Lexer(code, self.filename))
         self.reinit()
-        if self.verbose:
-            res = list(res)
-            pprint(res)
         return res
 
     def compile(self, code: str) -> str:
