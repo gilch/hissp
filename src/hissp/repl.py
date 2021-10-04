@@ -43,17 +43,17 @@ class LisspREPL(InteractiveConsole):
         except SoftSyntaxError:
             return True
         except CompileError as e:
-            print('>>> # CompileError', file=sys.stderr)
+            print(f'{sys.ps1}# CompileError', file=sys.stderr)
             print(e, file=sys.stderr)
             return False
         except SyntaxError:
             self.showsyntaxerror()
             return False
         except BaseException:
-            print('>>> # Compilation failed!', file=sys.stderr)
+            print(f'{sys.ps1}# Compilation failed!', file=sys.stderr)
             self.showtraceback()
             return False
-        print(">>>", source.replace("\n", "\n... "), file=sys.stderr)
+        print(sys.ps1, source.replace("\n", f"\n{sys.ps2}"), sep="", file=sys.stderr)
         return super().runsource(source, filename, symbol)
 
     def raw_input(self, prompt=""):
