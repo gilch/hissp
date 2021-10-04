@@ -14,6 +14,14 @@ from hissp.compiler import CompileError
 from hissp.reader import Lissp, SoftSyntaxError
 
 
+ps1 = "#> "
+"""String specifying the primary prompt of the REPL."""
+
+
+ps2 = "#.."
+"""String specifying the secondary prompt of the REPL."""
+
+
 class LisspREPL(InteractiveConsole):
     """Lissp's Read-Evaluate-Print Loop, layered on Python's.
 
@@ -24,8 +32,6 @@ class LisspREPL(InteractiveConsole):
 
     def __init__(self, locals=None, filename="<console>"):
         super().__init__(locals, filename)
-        sys.ps1 = "#> "
-        sys.ps2 = "#.."
         self.lissp = Lissp(ns=locals)
         self.locals = self.lissp.ns
 
@@ -37,24 +43,29 @@ class LisspREPL(InteractiveConsole):
         except SoftSyntaxError:
             return True
         except CompileError as e:
-            print('>>> # CompileError', file=sys.stderr)
+            print(f'{sys.ps1}# CompileError', file=sys.stderr)
             print(e, file=sys.stderr)
             return False
         except SyntaxError:
             self.showsyntaxerror()
             return False
         except BaseException:
-            print('>>> # Compilation failed!', file=sys.stderr)
+            print(f'{sys.ps1}# Compilation failed!', file=sys.stderr)
             self.showtraceback()
             return False
-        print(">>>", source.replace("\n", "\n... "), file=sys.stderr)
-        super().runsource(source, filename, symbol)
+        print(sys.ps1, source.replace("\n", f"\n{sys.ps2}"), sep="", file=sys.stderr)
+        return super().runsource(source, filename, symbol)
+
+    def raw_input(self, prompt=""):
+        prompt = {sys.ps2: ps2, sys.ps1: ps1}.get(prompt, prompt)
+        return super().raw_input(prompt)
 
     def interact(self, banner=None, exitmsg=None):
         """Imports readline if available, then super().interact()."""
         with suppress(ImportError):
+            # noinspection PyUnresolvedReferences
             import readline
-        super().interact(banner, exitmsg)
+        return super().interact(banner, exitmsg)
 
 
 def force_main():
