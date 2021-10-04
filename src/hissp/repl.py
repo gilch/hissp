@@ -5,8 +5,8 @@ The Lissp Read-Evaluate-Print Loop. For interactive use.
 """
 
 import sys
-import traceback
 from code import InteractiveConsole
+from contextlib import suppress
 from types import ModuleType, SimpleNamespace
 
 import hissp.basic
@@ -52,10 +52,8 @@ class LisspREPL(InteractiveConsole):
 
     def interact(self, banner=None, exitmsg=None):
         """Imports readline if available, then super().interact()."""
-        try:
+        with suppress(ImportError):
             import readline
-        except ImportError:
-            pass
         super().interact(banner, exitmsg)
 
 
