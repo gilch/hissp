@@ -57,6 +57,7 @@ class LisspREPL(InteractiveConsole):
         return super().runsource(source, filename, symbol)
 
     def raw_input(self, prompt=""):
+        """:meta private:"""
         prompt = {sys.ps2: ps2, sys.ps1: ps1}.get(prompt, prompt)
         return super().raw_input(prompt)
 
