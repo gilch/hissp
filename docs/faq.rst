@@ -1222,12 +1222,27 @@ Or equivalently, in Python:
 
    transpile(__package__, "sausage", "bacon")
 
-Consider putting the above in each package's ``__init__.py`` to
-auto-compile each Hissp module in the package on package import during
-development. You can disable it again on release, if desired, but this
-gives you fine-grained control over what gets compiled when. Note that
-you usually would want to recompile the whole project rather than only
-the changed files like Python does, because macros run at compile time.
+Consider putting the above in each package's ``__init__.py``
+to auto-compile each Hissp module in the package on package import during development.
+This gives you fine-grained control over what gets compiled when.
+If desired for a release,
+you can remove these lines after compilation,
+or disable them via some externally set parameter,
+such as an environment variable, config file, or global "constant".
+
+For example,
+
+.. code-block:: python
+
+   if __import__('os').getenv('AUTOCOMPILING_LISSP_PROJECT_FOO'):
+       from hissp.reader import transpile
+
+       transpile(__package__, "sausage", "bacon")
+
+
+Note that you usually *would* want to recompile the whole project
+rather than only the changed files like Python does,
+because macros run at compile time.
 Changing a macro in one file normally doesn't affect the code that uses
 it in other files until they are recompiled.
 
