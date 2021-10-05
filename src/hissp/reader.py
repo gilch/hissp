@@ -14,9 +14,7 @@ and track its position for error messages.
 
 import ast
 import builtins
-import os
 import re
-import sys
 from collections import namedtuple
 from contextlib import contextmanager, nullcontext
 from functools import reduce
@@ -24,10 +22,9 @@ from importlib import import_module, resources
 from itertools import chain
 from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
-from pprint import pformat, pprint
+from pprint import pformat
 from threading import Lock
-from types import ModuleType
-from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union
+from typing import Any, Iterable, Iterator, NewType, Tuple, Union
 
 from hissp.compiler import Compiler, MAYBE, readerless
 from hissp.munger import force_qz_encode, munge
@@ -437,54 +434,35 @@ def is_qualifiable(symbol):
     )
 
 
-def transpile(package: Optional[resources.Package], *modules: Union[str, PurePath]):
+def transpile(package, *modules):
+    """Transpiles the named Python modules from Lissp.
+
+    A .lissp file of the same name must be present. If the package is
+    empty, `transpile` writes modules to the current working
+    directory without a package.
     """
-    Compiles the named modules to Python files.
-    If the package is None or "", it uses the current working directory without using a package.
-    Lissp files must know their package at compile time to resolve imports correctly.
-    """
-    # TODO: allow pathname without + ".lissp"?
-    if package:
-        for module in modules:
-            transpile_module(package, module + ".lissp")
-    else:
-        for module in modules:
-            with open(module + ".lissp") as f:
-                code = f.read()
-            out = module + ".py"
-            _write_py(out, module, code)
+    t = transpile_package if package else transpile_file
+    for m in modules:
+        t(package, f"{m}.lissp")
 
 
-def transpile_module(
-    package: resources.Package,
-    resource: Union[str, PurePath],
-    out: Union[None, str, bytes, Path] = None,
-):
-    """Transpile a single submodule in a package."""
-    code = resources.read_text(package, resource)
-    path: Path
+def transpile_package(package, resource):
+    """Locates & transpiles a packaged .lissp resource file to .py."""
     with resources.path(package, resource) as path:
-        out = out or path.with_suffix(".py")
-        if isinstance(package, ModuleType):
-            package = package.__package__
-        if isinstance(package, os.PathLike):
-            resource = resource.stem
-        _write_py(out, f"{package}.{resource.split('.')[0]}", code)
+        transpile_file(package, path)
 
 
-def _write_py(out, qualname, code):
-    with open(out, "w") as f:
-        print(f"compiling {qualname} as", out, file=sys.stderr)
-        if code.startswith("#!"):  # ignore shebang line
-            _, _, code = code.partition("\n")
-        f.write(Lissp(qualname, evaluate=True, filename=str(out)).compile(code))
+def transpile_file(package, path: Union[Path, str]):
+    """Transpiles a single .lissp file to .py in the same location.
 
-
-def main():
-    """Calls `transpile` with arguments from `sys.argv`."""
-    transpile(*sys.argv[1:])
-
-
-if __name__ == "__main__":
-    # TODO: test CLI
-    main()
+    Code in .lissp files is executed upon compilation. This is necessary
+    because macro definitions can alter the compilation of subsequent
+    top-level forms. Lissp files must know their package at compile time
+    to resolve imports correctly. The package can be empty.
+    """
+    path = Path(path).resolve(strict=True)
+    qualname = f"{package or ''}{'.' if package else ''}{PurePath(path.name).stem}"
+    python = Lissp(
+        qualname=qualname, evaluate=True, filename=str(path)
+    ).compile(re.sub(r'^#!.*\n', '', path.read_text()))
+    path.with_suffix('.py').write_text(python, 'utf8')

@@ -32,15 +32,17 @@ whose minimal options were modeled after Python's most commonly used:
 The Lissp Compiler
 ------------------
 
-While the recommended way to compile Lissp modules is with
-`transpile <hissp.reader.transpile>`
-calls in the REPL, the main module, and the package ``__init__.py`` files,
-there is also a command-line interface in case that is needed by an external build system.
+The recommended way to compile Lissp modules is with
+`transpile <hissp.reader.transpile>` calls in `__init__.py` files (or the main module).
 
-The command usage is ``python -m hissp.reader package [module [module ...]]``,
-and it takes the same arguments as ``transpile``.
+This can be done manually in the REPL.
+However, an external build system may need to use shell commands.
+It is possible to run transpile commands in the shell via `python -c` or `lissp -c`.
 
-The package can be an empty string for top-level modules.
-Remember to use the *module* names, not the *file* names.
-E.g. ``python -m hissp.reader "" spam eggs``,
-not ``python -m hissp.reader "" spam.lissp eggs.lissp``.
+For example,
+
+.. code-block:: shell
+
+   $ alias lisspc="lissp -c '(hissp.reader..transpile_file None (getitem sys..argv -1))'"
+   $ lisspc spam.lissp
+
