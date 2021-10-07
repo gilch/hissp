@@ -170,7 +170,7 @@ def test_repl_unopened_error():
   File "<console>", line 1
     )
     ^
-SyntaxError: Unopened ')'.
+SyntaxError: Extra `)`.
 """
     repl(")\n", err=err)
 

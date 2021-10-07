@@ -212,7 +212,7 @@ class Lissp:
                 raise SyntaxError("Can't read this.", self.position())
         if self.depth:
             raise SoftSyntaxError(
-                "Ran out of tokens before completing form.",
+                "This form is missing a `)`.",
                 self.position(self.depth.pop())
             )
 
@@ -222,7 +222,7 @@ class Lissp:
 
     def _close(self):
         if not self.depth:
-            raise SyntaxError("Unopened ')'.", self.position())
+            raise SyntaxError("Extra `)`.", self.position())
         self.depth.pop()
 
     @staticmethod
