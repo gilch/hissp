@@ -235,21 +235,22 @@ class Lissp:
         return v if (v := pformat(val)).startswith("(") else f"({v})"
 
     def _macro(self, v):
+        p = self._p
         with {
             "`": self.gensym_context,
             ",": self.unquote_context,
             ",@": self.unquote_context,
         }.get(v, nullcontext)():
+            depth = len(self.depth)
             try:
-                depth = len(self.depth)
                 form = next(self.parse(self.tokens))
             except StopIteration:
                 if len(self.depth) == depth:
                     raise SoftSyntaxError(
-                        f"Reader macro {v!r} missing argument.", self.position()
+                        f"Reader macro {v!r} missing argument.", self.position(p)
                     ) from None
                 raise SyntaxError(
-                    f"Reader macro {v!r} missing argument.", self.position()
+                    f"Reader macro {v!r} missing argument.", self.position(p)
                 ) from None
             yield self.parse_macro(v, form)
 

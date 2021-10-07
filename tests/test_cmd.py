@@ -122,7 +122,7 @@ def test_repl_empty_template_error():
         "> #> ", "< (`)\n",
         '!   File "<console>", line 1\n',
         "!     (`)\n",
-        "!       ^\n",
+        "!      ^\n",
         "! SyntaxError: Reader macro '`' missing argument.\n",
         "> #> ",
     )
@@ -149,7 +149,7 @@ def test_repl_empty_reader_macro_error():
         "> #> ", "< (builtins..float#)\n",
         '!   File "<console>", line 1\n',
         "!     (builtins..float#)\n",
-        "!                      ^\n",
+        "!                     ^\n",
         "! SyntaxError: Reader macro 'builtins..float#' missing argument.\n",
         "> #> ",
     )
