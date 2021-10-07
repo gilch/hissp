@@ -25,7 +25,7 @@ class TestReader(TestCase):
         tally = Counter(lissp)
         if tally["("] != tally[")"]:
             self.assertRaisesRegex(
-                (SyntaxError, ValueError), r"^Un(?:opened|closed)|Ran out of tokens", list, self.parser.reads(lissp)
+                SyntaxError, r"Extra `\)`.|This form is missing a `\)`.", list, self.parser.reads(lissp)
             )
 
     @given(st.text(max_size=5))
