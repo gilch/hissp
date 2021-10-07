@@ -24,7 +24,7 @@ from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
 from threading import Lock
-from typing import Any, Iterable, Iterator, NewType, Tuple, Union
+from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union
 
 from hissp.compiler import Compiler, MAYBE, readerless
 from hissp.munger import force_qz_encode, munge
@@ -435,31 +435,32 @@ def is_qualifiable(symbol):
     )
 
 
-def transpile(package, *modules):
+def transpile(package: Optional[str], *modules: str):
     """Transpiles the named Python modules from Lissp.
 
-    A .lissp file of the same name must be present. If the package is
-    empty, `transpile` writes modules to the current working
-    directory without a package.
+    A .lissp file of the same name must be present in the module's
+    location. The Python modules are overwritten. Missing modules are
+    created. If the package is "" or ``None``, `transpile` writes non-
+    packaged modules to the current working directory instead.
     """
-    t = transpile_package if package else transpile_file
+    t = transpile_packaged if package else transpile_file
     for m in modules:
-        t(package, f"{m}.lissp")
+        t(f"{m}.lissp", package)
 
 
-def transpile_package(package, resource):
+def transpile_packaged(resource: str, package: str):
     """Locates & transpiles a packaged .lissp resource file to .py."""
     with resources.path(package, resource) as path:
-        transpile_file(package, path)
+        transpile_file(path, package)
 
 
-def transpile_file(package, path: Union[Path, str]):
+def transpile_file(path: Union[Path, str], package: Optional[str] = None):
     """Transpiles a single .lissp file to .py in the same location.
 
     Code in .lissp files is executed upon compilation. This is necessary
     because macro definitions can alter the compilation of subsequent
-    top-level forms. Lissp files must know their package at compile time
-    to resolve imports correctly. The package can be empty.
+    top-level forms. A packaged Lissp file must know its package at
+    compile time to resolve imports correctly.
     """
     path = Path(path).resolve(strict=True)
     qualname = f"{package or ''}{'.' if package else ''}{PurePath(path.name).stem}"
