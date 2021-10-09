@@ -49,7 +49,7 @@ TOKENS = re.compile(
 |(?P<close>\))
 |(?P<macro>
    ,@
-  |['`,]
+  |['`,!]
    # Any atom that ends in (an unescaped) ``#``
   |(?:[^\\ \n"();#]|\\.)+[#]
  )
@@ -127,6 +127,7 @@ class Lexer(Iterator):
 
 _Unquote = namedtuple('_Unquote', ['target', 'value'])
 Comment = namedtuple('Comment', ['content'])
+Promote = namedtuple('Promote', ['argument'])
 
 def gensym_counter(_count=[0], _lock=Lock()):
     """
@@ -277,6 +278,8 @@ class Lissp:
         """Apply a reader macro to a form."""
         if tag == "'":
             return "quote", form
+        if tag == "!":
+            return Promote(form)
         if tag == "`":
             return self.template(form)
         if tag == ",":
@@ -295,16 +298,22 @@ class Lissp:
             return eval(readerless(form, self.ns), self.ns)
         if is_string(form):
             form = ast.literal_eval(form)
+        extras = []
+        while isinstance(form, Promote):
+            extras.append(form.argument)
+            form = next(self._filter_drop())
         tag = munge(self.escape(tag))
         if ".." in tag and not tag.startswith(".."):
             module, function = tag.split("..", 1)
-            return reduce(getattr, function.split("."), import_module(module))(form)
+            return reduce(
+                getattr, function.split("."), import_module(module)
+            )(form, *extras)
         try:
             m = getattr(self.ns["_macro_"], tag + munge("#"))
         except (AttributeError, KeyError):
             raise SyntaxError(f"Unknown reader macro {tag}", self.position())
         with self.compiler.macro_context():
-            return m(form)
+            return m(form, *extras)
 
     @staticmethod
     def escape(atom):
