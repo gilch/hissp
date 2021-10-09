@@ -279,6 +279,8 @@ class Lissp:
         if tag == "'":
             return "quote", form
         if tag == "!":
+            if is_string(form):
+                form = ast.literal_eval(form)
             return Promote(form)
         if tag == "`":
             return self.template(form)
