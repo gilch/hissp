@@ -127,7 +127,7 @@ class Lexer(Iterator):
 
 _Unquote = namedtuple('_Unquote', ['target', 'value'])
 Comment = namedtuple('Comment', ['content'])
-Promote = namedtuple('Promote', ['argument'])
+Extra = namedtuple('Extra', ['argument'])
 
 def gensym_counter(_count=[0], _lock=Lock()):
     """
@@ -248,7 +248,7 @@ class Lissp:
             depth = len(self.depth)
             try:
                 form = next(self._filter_drop())
-                while isinstance(form, Promote):
+                while isinstance(form, Extra):
                     extras.append(form.argument)
                     form = next(self._filter_drop())
             except StopIteration:
@@ -286,7 +286,7 @@ class Lissp:
         if tag == "!":
             if is_string(form):
                 form = ast.literal_eval(form)
-            return Promote(form)
+            return Extra(form)
         if tag == "`":
             return self.template(form)
         if tag == ",":
