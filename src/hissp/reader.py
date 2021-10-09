@@ -239,6 +239,7 @@ class Lissp:
 
     def _macro(self, v):
         p = self._p
+        extras = []
         with {
             "`": self.gensym_context,
             ",": self.unquote_context,
@@ -247,9 +248,8 @@ class Lissp:
             depth = len(self.depth)
             try:
                 form = next(self._filter_drop())
-                self.extras = []
                 while isinstance(form, Promote):
-                    self.extras.append(form.argument)
+                    extras.append(form.argument)
                     form = next(self._filter_drop())
             except StopIteration:
                 if len(self.depth) == depth:
@@ -259,7 +259,7 @@ class Lissp:
                 raise SyntaxError(
                     f"Reader macro {v!r} missing argument.", self.position(p)
                 ) from None
-            yield self.parse_macro(v, form)
+            yield self.parse_macro(v, form, extras)
 
     def _filter_drop(self):
         return (x for x in self._parse() if x is not DROP)
@@ -278,8 +278,9 @@ class Lissp:
         except (ValueError, SyntaxError):
             return munge(v)
 
-    def parse_macro(self, tag: str, form):
+    def parse_macro(self, tag: str, form, extras):
         """Apply a reader macro to a form."""
+        # TODO: error instead of ignoring unused extras
         if tag == "'":
             return "quote", form
         if tag == "!":
@@ -293,9 +294,9 @@ class Lissp:
         if tag == ",@":
             return _Unquote(":*", form)
         assert tag.endswith("#")
-        return self._parse_tag(tag[:-1], form)
+        return self._parse_tag(tag[:-1], form, extras)
 
-    def _parse_tag(self, tag, form):
+    def _parse_tag(self, tag, form, extras):
         if tag == "_":
             return DROP
         if tag == "$":
@@ -309,13 +310,13 @@ class Lissp:
             module, function = tag.split("..", 1)
             return reduce(
                 getattr, function.split("."), import_module(module)
-            )(form, *self.extras)
+            )(form, *extras)
         try:
             m = getattr(self.ns["_macro_"], tag + munge("#"))
         except (AttributeError, KeyError):
             raise SyntaxError(f"Unknown reader macro {tag}", self.position())
         with self.compiler.macro_context():
-            return m(form, *self.extras)
+            return m(form, *extras)
 
     @staticmethod
     def escape(atom):
