@@ -247,6 +247,10 @@ class Lissp:
             depth = len(self.depth)
             try:
                 form = next(self._filter_drop())
+                self.extras = []
+                while isinstance(form, Promote):
+                    self.extras.append(form.argument)
+                    form = next(self._filter_drop())
             except StopIteration:
                 if len(self.depth) == depth:
                     raise SoftSyntaxError(
@@ -300,22 +304,18 @@ class Lissp:
             return eval(readerless(form, self.ns), self.ns)
         if is_string(form):
             form = ast.literal_eval(form)
-        extras = []
-        while isinstance(form, Promote):
-            extras.append(form.argument)
-            form = next(self._filter_drop())
         tag = munge(self.escape(tag))
         if ".." in tag and not tag.startswith(".."):
             module, function = tag.split("..", 1)
             return reduce(
                 getattr, function.split("."), import_module(module)
-            )(form, *extras)
+            )(form, *self.extras)
         try:
             m = getattr(self.ns["_macro_"], tag + munge("#"))
         except (AttributeError, KeyError):
             raise SyntaxError(f"Unknown reader macro {tag}", self.position())
         with self.compiler.macro_context():
-            return m(form, *extras)
+            return m(form, *self.extras)
 
     @staticmethod
     def escape(atom):
