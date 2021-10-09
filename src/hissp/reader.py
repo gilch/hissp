@@ -126,7 +126,7 @@ class Lexer(Iterator):
 
 
 _Unquote = namedtuple('_Unquote', ['target', 'value'])
-
+Comment = namedtuple('Comment', ['content'])
 
 def gensym_counter(_count=[0], _lock=Lock()):
     """
@@ -183,12 +183,14 @@ class Lissp:
     def parse(self, tokens: Lexer) -> Iterator:
         """Build Hissp forms from a `Lexer`."""
         self.tokens = tokens
-        return (form for form in self._parse() if form is not DROP)
+        return (x for x in self._filter_drop() if not isinstance(x, Comment))
 
     def _parse(self) -> Iterator:
         for k, v, self._p in self.tokens:
-            if k in {"comment", "whitespace"}:
+            if k == "whitespace":
                 continue
+            elif k == "comment":
+                yield Comment(v[1:])
             elif k == "badspace":
                 raise SyntaxError(
                     f"{v!r} is not whitespace in Lissp. Indent with spaces only.",
@@ -243,7 +245,7 @@ class Lissp:
         }.get(v, nullcontext)():
             depth = len(self.depth)
             try:
-                form = next(self.parse(self.tokens))
+                form = next(self._filter_drop())
             except StopIteration:
                 if len(self.depth) == depth:
                     raise SoftSyntaxError(
@@ -253,6 +255,9 @@ class Lissp:
                     f"Reader macro {v!r} missing argument.", self.position(p)
                 ) from None
             yield self.parse_macro(v, form)
+
+    def _filter_drop(self):
+        return (x for x in self._parse() if x is not DROP)
 
     @staticmethod
     def _atom(v):
