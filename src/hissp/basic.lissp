@@ -356,6 +356,35 @@ zrqvgngr ba guvf.
       (->> (.format "b'{}'"))
       (ast..literal_eval)))
 
+(defmacro <<\# (single : :* lines)
+  #"``<<#`` comment-string reader macro.
+
+  Converts a line comment to a raw string.
+
+  .. code-block:: REPL
+
+     #> <<#;Don't worry about the \"quotes\".
+     >>> 'Don\'t worry about the \"quotes\".'
+     'Don\'t worry about the \"quotes\".'
+
+  Or joins extra comments with a string object,
+  such as ``#\"\\n\"``.
+
+  .. code-block:: REPL
+
+     #> <<#
+     #..!;C:\\bin
+     #..!;C:\\Users\\ME\\Documents
+     #..!;C:\\Users\\ME\\Pictures
+     #..\";\"
+     >>> 'C:\\\\bin;C:\\\\Users\\\\ME\\\\Documents;C:\\\\Users\\\\ME\\\\Pictures'
+     'C:\\\\bin;C:\\\\Users\\\\ME\\\\Documents;C:\\\\Users\\\\ME\\\\Pictures'
+
+  "
+  (if-else lines
+    `',(.join single (map (operator..attrgetter 'content) lines))
+    `',(getattr single 'content)))
+
 ;;; import
 
 (defmacro prelude (: ns `(globals))
