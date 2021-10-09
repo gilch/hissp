@@ -1500,36 +1500,62 @@ Lissp Quick Start
 
 
    ;; Makes a new reader macro to abbreviate a qualifier.
-   #> (hissp.basic.._macro_.alias b/ hissp.basic.._macro_.)
+   #> (hissp.basic.._macro_.alias M/ hissp.basic.._macro_)
    >>> # hissp.basic.._macro_.alias
    ... # hissp.basic.._macro_.defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fn_QzNo7_=(lambda _G_QzNo31_:(
-   ...   'Aliases hissp.basic.._macro_. as bQzSOL_#',
-   ...   ('{}{}').format(
-   ...     'hissp.basic.._macro_.',
-   ...     _G_QzNo31_))[-1]):(
+   ... (lambda _fn_QzNo7_=(lambda _prime_QzNo34_,_reader_QzNo34_=None,*_args_QzNo34_:(
+   ...   "('Aliases hissp.basic.._macro_ as MQzSOL_#')",
+   ...   # hissp.basic.._macro_.ifQz_else
+   ...   (lambda test,*thenQz_else:
+   ...     __import__('operator').getitem(
+   ...       thenQz_else,
+   ...       __import__('operator').not_(
+   ...         test))())(
+   ...     _reader_QzNo34_,
+   ...     (lambda :
+   ...       __import__('builtins').getattr(
+   ...         __import__('hissp.basic',fromlist='?')._macro_,
+   ...         ('{}{}').format(
+   ...           _reader_QzNo34_,
+   ...           # hissp.basic.._macro_.ifQz_else
+   ...           (lambda test,*thenQz_else:
+   ...             __import__('operator').getitem(
+   ...               thenQz_else,
+   ...               __import__('operator').not_(
+   ...                 test))())(
+   ...             __import__('operator').contains(
+   ...               'hissp.basic.._macro_',
+   ...               '_macro_'),
+   ...             (lambda :'QzHASH_'),
+   ...             (lambda :('')))))(
+   ...         _prime_QzNo34_,
+   ...         *_args_QzNo34_)),
+   ...     (lambda :
+   ...       ('{}.{}').format(
+   ...         'hissp.basic.._macro_',
+   ...         _prime_QzNo34_))))[-1]):(
    ...   __import__('builtins').setattr(
    ...     _fn_QzNo7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
-   ...        'bQzSOL_QzHASH_',))),
+   ...        'MQzSOL_QzHASH_',))),
    ...   __import__('builtins').setattr(
    ...     __import__('operator').getitem(
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
-   ...     'bQzSOL_QzHASH_',
+   ...     'MQzSOL_QzHASH_',
    ...     _fn_QzNo7_))[-1])()
 
-   #> 'b/#alias                           ;Now short for 'hissp.basic.._macro_.alias'.
+   #> 'M/#alias                           ;Now short for 'hissp.basic.._macro_.alias'.
    >>> 'hissp.basic.._macro_.alias'
    'hissp.basic.._macro_.alias'
 
 
    ;; Imports a copy of hissp.basic.._macro_ (if available)
    ;; and star imports from operator and itertools.
-   #> (b/#prelude)                        ;/!\
+   #> (M/#prelude)                        ;/!\
    >>> # hissp.basic.._macro_.prelude
    ... __import__('builtins').exec(
    ...   ('from functools import partial,reduce\n'

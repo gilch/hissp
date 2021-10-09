@@ -585,19 +585,19 @@ as an identifier and as a string representing that identifier:
    namespace()
 
    #> (setattr _ ; The namespace.
-   #..         '!@%$ ; Compiles to a string representing an identifier.
+   #..         '@%$! ; Compiles to a string representing an identifier.
    #..         42)
    >>> setattr(
    ...   _,
-   ...   'QzBANG_QzAT_QzPCENT_QzDOLR_',
+   ...   'QzAT_QzPCENT_QzDOLR_QzBANG_',
    ...   (42))
 
    #> _
    >>> _
-   namespace(QzBANG_QzAT_QzPCENT_QzDOLR_=42)
+   namespace(QzAT_QzPCENT_QzDOLR_QzBANG_=42)
 
-   #> _.!@%$ ; Munges and compiles to attribute identifier.
-   >>> _.QzBANG_QzAT_QzPCENT_QzDOLR_
+   #> _.@%$! ; Munges and compiles to attribute identifier.
+   >>> _.QzAT_QzPCENT_QzDOLR_QzBANG_
    42
 
 Spaces, double quotes, parentheses, and semicolons are allowed in atoms,
