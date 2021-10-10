@@ -209,7 +209,7 @@ class Lissp:
             elif k == "continue":
                 raise SoftSyntaxError("Incomplete string token.", self.position())
             elif k == "atom":
-                yield self._atom(v)
+                yield self.atom(v)
             else:
                 assert k == "error", "unknown token: " + repr(k)
                 raise SyntaxError("Can't read this.", self.position())
@@ -265,7 +265,8 @@ class Lissp:
         return (x for x in self._parse() if x is not DROP)
 
     @staticmethod
-    def _atom(v):
+    def atom(v):
+        """Preprocesses atoms. Handles escapes and munging."""
         is_symbol = "\\" == v[0]
         v = Lissp.escape(v)
         if is_symbol:

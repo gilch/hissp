@@ -1,55 +1,82 @@
 # Copyright 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
-import ast
+# TODO: rename file?
 import re
-from contextlib import suppress
 
 import pygments.token as pt
 from pygments.lexer import RegexLexer, bygroups, using
 from pygments.lexers.python import Python3Lexer, PythonConsoleLexer
 
+from hissp.reader import Lissp, TOKENS
 
-# TODO: rename file?
+
 class LisspLexer(RegexLexer):
     name = 'Lissp'
     aliases = ['lissp']
     filenames = ['*.lissp']
 
-    def python_atom_callback(lexer, match):
-        value: str = match[0]
-        index = match.start()
-        token_type = pt.Name
-        v = value.replace('\\', '')
-        with suppress(ValueError, SyntaxError):
-            lit = ast.literal_eval(v)
-            if isinstance(lit, bytes):
-                raise ValueError
-            if isinstance(lit, complex):
-                token_type = pt.Number.Float
-            else:  # Ask Python's lexer. Last one is probably it.
-                m = re.match('.*', v)
-                [*_, [_, token_type, _]] = using(Python3Lexer)(lexer, m)
-        if value.startswith('\\') and not token_type.split()[1] == pt.Name:
-            token_type = pt.Name
-        yield index, token_type, value
+    class CommentSubLexer(RegexLexer):
+        tokens = {
+            'root': [
+                (r';;;;.*', pt.Generic.Heading),
+                (r';;;.*', pt.Generic.Subheading),
+                (r';.*', pt.Comment),
+            ]
+        }
+
+    class AtomSubLexer(RegexLexer):
+        def preprocess_atom(lexer, match, ctx=None):
+            value: str = match.group(0)
+            index: int = match.start()
+            v = Lissp.atom(value)
+            if isinstance(v, (complex, float)):
+                yield index, pt.Number.Float, value
+                return
+            if type(v) in {dict, list, set}:
+                yield index, pt.Literal, value
+                return
+            if not isinstance(v, str):
+                v = value.replace('\\', '')
+            elif re.fullmatch(r'.+\.$', v):  # module
+                yield index, pt.Name.Other, value
+                return
+            elif m:=re.fullmatch(r'((?:[^.]*[^.\\]\.)+)(\..+)', value):
+                yield index, pt.Name.Other, m[1]
+                index+=len(m[1])
+                yield index, pt.Name, m[2]
+                return
+            # Ask Python's lexer. Last one is probably it.
+            m = re.match(r'.+', v)
+            [*_, [_, token_type, _]] = using(Python3Lexer)(lexer, m)
+            yield index, token_type, value
+
+        tokens = {
+            'root': [
+                (r'\.\.\.', pt.Keyword.Constant),  # Ellipsis
+                (r'quote', pt.Keyword),
+                (r'_macro_', pt.Name.Variable.Magic),
+                (r'(?::|\\:).*', pt.String.Symbol),  # :control-words
+                (r'.+', preprocess_atom),
+            ]
+        }
 
     tokens = {
         'root': [
-            (r';;;;.*', pt.Generic.Heading),
-            (r';;;.*', pt.Generic.Subheading),
-            (r';.*', pt.Comment),
-            (r'[\n ]+', pt.Text),
-            (r'\s|\r', pt.Error),
-            (r'([(])(lambda|quote)', bygroups(pt.Punctuation, pt.Keyword)),
-            (r'[()]', pt.Punctuation),
-            (r''',@|['`,!]|$#|.#|_#''', pt.Operator),
-            (r'#?"(?:[^"\\]|\\(?:.|\n))*"', pt.String),
-            (r'''(?:[^\\ \n"();#]|\\.)+[#]''', pt.Operator.Word),
-            (r'"', pt.Error),
-            (r'\.\.\.', pt.Keyword.Constant),
-            (r':(?:[^\\ \n"();]|\\.)*', pt.String.Symbol),  # :control-words
-            (r'(?:[^\\ \n"();]|\\.)+', python_atom_callback),
-            (r'.', pt.Error),
+            (
+                TOKENS.pattern,
+                bygroups(
+                    using(CommentSubLexer),
+                    pt.Text,  # whitespace
+                    pt.Error,  # badspace
+                    pt.Punctuation,  # open
+                    pt.Punctuation,  # close
+                    pt.Operator,  # macro
+                    pt.String,
+                    pt.Error,  # continue
+                    using(AtomSubLexer),
+                    pt.Error,
+                )
+            )
         ]
     }
 
