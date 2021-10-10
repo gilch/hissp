@@ -579,7 +579,8 @@ Lissp Quick Start
    ;;;; Reader Macros
 
    ;; Reader macros are metaprograms to abbreviate Hissp and don't represent it directly.
-   ;; They apply to the next form. They end in # except for a few builtins-- ' ` , ,@
+   ;; They apply to the next parsed object at read time, before the compiler sees it.
+   ;; They end in # except for a few builtins-- ' ! ` , ,@
 
    ;;; Quote
 
@@ -734,6 +735,12 @@ Lissp Quick Start
    THE FLOW.
 
 
+   ;; The reader normally discards them, but
+   #> 'builtins..repr#;comments are parsed objects too!
+   >>> "Comment(content='comments are parsed objects too!')"
+   "Comment(content='comments are parsed objects too!')"
+
+
    _#"Except for strings and tuples, objects in Hissp should evaluate to
    themselves. But when the object lacks a Python literal notation,
    the compiler is in a pickle!
@@ -802,6 +809,54 @@ Lissp Quick Start
    ;; Statement injections work at the top level only.
    #> .#"from operator import *"          ;/!\ All your operator are belong to us.
    >>> from operator import *
+
+
+   ;;; Extra !
+
+   _#"Reader macros take one primary argument, but additional arguments
+   can be passed in with the extra macro !. They must be written in
+   between the # and primary argument, but because they're often
+   optional refinements, which are easier to define as trailing optional
+   parameters in in Python functions, they get passed in after the
+   primary argument.
+   "
+   #> builtins..Exception#"oops"
+   >>> __import__('pickle').loads(  # Exception('oops')
+   ...     b'cbuiltins\nException\n(Voops\ntR.'
+   ... )
+   Exception('oops')
+
+   #> builtins..Exception#!1"oops"
+   >>> __import__('pickle').loads(  # Exception('oops', 1)
+   ...     b'cbuiltins\nException\n(Voops\nI1\ntR.'
+   ... )
+   Exception('oops', 1)
+
+   #> builtins..Exception# !1 !2 "oops"   ;Note the order!
+   >>> __import__('pickle').loads(  # Exception('oops', 1, 2)
+   ...     b'cbuiltins\nException\n(Voops\nI1\nI2\ntR.'
+   ... )
+   Exception('oops', 1, 2)
+
+   #> .#(Exception "oops" 1 2)            ;Inject. Note the order.
+   >>> __import__('pickle').loads(  # Exception('oops', 1, 2)
+   ...     b'cbuiltins\nException\n(Voops\nI1\nI2\ntR.'
+   ... )
+   Exception('oops', 1, 2)
+
+   #> builtins..Exception#!1!2"oops"      ;Careful, ! is only a macro at the start.
+   >>> __import__('pickle').loads(  # Exception('oops', 'QzDIGITxONE_QzBANG_2')
+   ...     b'cbuiltins\nException\n(Voops\nVQzDIGITxONE_QzBANG_2\ntR.'
+   ... )
+   Exception('oops', 'QzDIGITxONE_QzBANG_2')
+
+
+   ;; Yeah, you can nest these.
+   #> builtins..Exception# !x !builtins..Exception#!1 builtins..Exception#!A"uh-oh" !y "oops"
+   >>> __import__('pickle').loads(  # Exception('oops', 'x', Exception(Exception('uh-oh', 'A'), 1), 'y')
+   ...     b'cbuiltins\nException\np0\n(Voops\nVx\ng0\n(g0\n(Vuh-oh\nVA\ntRI1\ntRVy\ntR.'
+   ... )
+   Exception('oops', 'x', Exception(Exception('uh-oh', 'A'), 1), 'y')
 
 
    ;;;; Collections
@@ -1552,9 +1607,29 @@ Lissp Quick Start
    >>> 'hissp.basic.._macro_.alias'
    'hissp.basic.._macro_.alias'
 
+   #> M/#b\#                              ;b# macro callable
+   >>> __import__('hissp.basic',fromlist='?')._macro_.bQzHASH_
+   <function _macro_.bQzHASH_ at ...>
 
-   ;; Imports a copy of hissp.basic.._macro_ (if available)
-   ;; and star imports from operator and itertools.
+   #> (M/#b\# .#"b# macro at compile time")
+   >>> # hissp.basic.._macro_.bQzHASH_
+   ... b'b# macro at compile time'
+   b'b# macro at compile time'
+
+   #> hissp.basic.._macro_.b\##"Fully qualified b# macro at read time."
+   >>> b'Fully qualified b# macro at read time.'
+   b'Fully qualified b# macro at read time.'
+
+   #> M/#!b"Read-time b# via alias."      ;Extra arg for alias with !
+   >>> b'Read-time b# via alias.'
+   b'Read-time b# via alias.'
+
+
+   _#"Imports partial and reduce; star imports from operator and
+   itertools; defines the en-group utilities; and imports a copy of
+   hissp.basic.._macro_ (if available). Usually the first form in a file,
+   because it overwrites _macro_, but completely optional.
+   "
    #> (M/#prelude)                        ;/!\
    >>> # hissp.basic.._macro_.prelude
    ... __import__('builtins').exec(
@@ -1575,8 +1650,10 @@ Lissp Quick Start
    ...    'except ModuleNotFoundError:pass'),
    ...   __import__('builtins').globals())
 
+
    ;;; Reader
 
+   ;; No need for the alias after prelude. b# is now in _macro_.
    #> b#"bytes"                           ;Bytes reader macro.
    >>> b'bytes'
    b'bytes'
@@ -1604,6 +1681,37 @@ Lissp Quick Start
    <lambda> lambda raw
        ``b#`` bytes literal reader macro
    <BLANKLINE>
+
+
+   ;; Comment string.
+   #> <<#;Don't worry about the "quotes".
+   >>> 'Don\'t worry about the "quotes".'
+   'Don\'t worry about the "quotes".'
+
+
+   ;; Joined comment string.
+   #> <<#!;C:\bin
+   #..!;C:\Users\ME\Documents
+   #..!;C:\Users\ME\Pictures
+   #..";"
+   >>> 'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
+   'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
+
+
+   ;; Embed other languages without escapes.
+   #> (exec <<#
+   #..  !;for i in 'abc':
+   #..  !;    for j in 'xyz':
+   #..  !;        print(i+j, end=" ")
+   #..  !;print('.')
+   #..  !;
+   #..  #"\n")
+   >>> exec(
+   ...   ("for i in 'abc':\n"
+   ...    "    for j in 'xyz':\n"
+   ...    '        print(i+j, end=" ")\n'
+   ...    "print('.')\n"))
+   ax ay az bx by bz cx cy cz .
 
 
    ;;; Side Effect

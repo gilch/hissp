@@ -25,7 +25,7 @@ class LisspLexer(RegexLexer):
             (r'\s|\r', pt.Error),
             (r'([(])(lambda|quote)', bygroups(pt.Punctuation, pt.Keyword)),
             (r'[()]', pt.Punctuation),
-            (r''',@|['`,]|$#|.#|_#''', pt.Operator),
+            (r''',@|['`,!]|$#|.#|_#''', pt.Operator),
             (r'#?"(?:[^"\\]|\\(?:.|\n))*"', pt.String),
             (r'''(?:[^\\ \n"();#]|\\.)+[#]''', pt.Operator.Word),
 
