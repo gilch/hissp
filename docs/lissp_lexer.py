@@ -1,6 +1,5 @@
 # Copyright 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
-# TODO: rename file?
 import re
 
 import pygments.token as pt
