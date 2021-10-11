@@ -278,7 +278,10 @@ class Lissp:
 
     def parse_macro(self, tag: str, form, extras):
         """Apply a reader macro to a form."""
-        def case(s): return tag == s
+        def case(s):
+            if (b := tag == s) and extras:
+                raise SyntaxError(f"Extra for {s!r} reader macro.")
+            return b
         if case("'"): return "quote", form
         if case("!"): return Extra(_eval_if_string(form))
         if case("`"): return self.template(form)
