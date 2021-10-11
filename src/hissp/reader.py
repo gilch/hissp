@@ -239,27 +239,24 @@ class Lissp:
 
     def _macro(self, v):
         p = self._p
-        extras = []
         with {
             "`": self.gensym_context,
             ",": self.unquote_context,
             ",@": self.unquote_context,
         }.get(v, nullcontext)():
-            depth = len(self.depth)
-            try:
-                form = next(self._filter_drop())
-                while isinstance(form, Extra):
-                    extras.append(form.argument)
-                    form = next(self._filter_drop())
-            except StopIteration:
-                if len(self.depth) == depth:
-                    raise SoftSyntaxError(
-                        f"Reader macro {v!r} missing argument.", self.position(p)
-                    ) from None
-                raise SyntaxError(
-                    f"Reader macro {v!r} missing argument.", self.position(p)
-                ) from None
-            yield self.parse_macro(v, form, extras)
+            yield self.parse_macro(v, *self._extras(p, v))
+
+    def _extras(self, p, v):
+        extras = []
+        depth = len(self.depth)
+        nondrop = self._filter_drop()
+        try:
+            while isinstance(form:=next(nondrop), Extra):
+                extras.append(form.argument)
+        except StopIteration:
+            e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
+            raise e(f"Reader macro {v!r} missing argument.", self.position(p)) from None
+        return form, extras
 
     def _filter_drop(self):
         return (x for x in self._parse() if x is not DROP)
@@ -281,41 +278,29 @@ class Lissp:
 
     def parse_macro(self, tag: str, form, extras):
         """Apply a reader macro to a form."""
-        # TODO: error instead of ignoring unused extras
-        if tag == "'":
-            return "quote", form
-        if tag == "!":
-            if is_string(form):
-                form = ast.literal_eval(form)
-            return Extra(form)
-        if tag == "`":
-            return self.template(form)
-        if tag == ",":
-            return _Unquote(":?", form)
-        if tag == ",@":
-            return _Unquote(":*", form)
-        assert tag.endswith("#")
-        return self._parse_tag(tag[:-1], form, extras)
+        def case(s): return tag == s
+        if case("'"): return "quote", form
+        if case("!"): return Extra(_eval_if_string(form))
+        if case("`"): return self.template(form)
+        if case(","): return _Unquote(":?", form)
+        if case(",@"): return _Unquote(":*", form)
+        if case("_#"): return DROP
+        if case("$#"): return self.gensym(form)
+        if case(".#"): return eval(readerless(form, self.ns), self.ns)
+        return self._custom_macro(form, tag, extras)
 
-    def _parse_tag(self, tag, form, extras):
-        if tag == "_":
-            return DROP
-        if tag == "$":
-            return self.gensym(form)
-        if tag == ".":
-            return eval(readerless(form, self.ns), self.ns)
-        if is_string(form):
-            form = ast.literal_eval(form)
-        tag = munge(self.escape(tag))
-        if ".." in tag and not tag.startswith(".."):
+    def _custom_macro(self, form, tag, extras):
+        assert tag.endswith("#")
+        tag = munge(self.escape(tag[:-1]))
+        form = _eval_if_string(form)
+        if ".." in tag:
             module, function = tag.split("..", 1)
-            return reduce(
-                getattr, function.split("."), import_module(module)
-            )(form, *extras)
-        try:
-            m = getattr(self.ns["_macro_"], tag + munge("#"))
-        except (AttributeError, KeyError):
-            raise SyntaxError(f"Unknown reader macro {tag}", self.position())
+            m = reduce(getattr, function.split("."), import_module(module))
+        else:
+            try:
+                m = getattr(self.ns["_macro_"], tag + munge("#"))
+            except (AttributeError, KeyError):
+                raise SyntaxError(f"Unknown reader macro {tag!r}.", self.position())
         with self.compiler.macro_context():
             return m(form, *extras)
 
@@ -436,6 +421,12 @@ def is_string(form):
         )
     except:
         return False
+
+
+def _eval_if_string(form):
+    if is_string(form):
+        form = ast.literal_eval(form)
+    return form
 
 
 def is_qualifiable(symbol):
