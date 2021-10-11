@@ -416,6 +416,10 @@ Lissp Quick Start
    >>> (lambda *,x:())
    <function <lambda> at 0x...>
 
+   #> (lambda (:* : x :?))                ;Slid : over one. Still a kwonly.
+   >>> (lambda *,x:())
+   <function <lambda> at 0x...>
+
    #> (lambda (:* x :))                   ;Implicit :? is the same. Compare.
    >>> (lambda *,x:())
    <function <lambda> at 0x...>
@@ -519,16 +523,24 @@ Lissp Quick Start
 
    ;; Quote is the only other special form. Looks like a call, but isn't.
 
-   ;; Quotation prevents evaluation.
+   ;; A "form" is any Hissp data that can be evaluated.
+   ;; Not all data is a valid program in Hissp. E.g. ``(7 42)`` is a
+   ;; tuple, containing the integers 7 in the function position, and 42
+   ;; after in the first argument position, but it would crash, because
+   ;; ints are not callable in Python.
+
+   ;; Quotation suppresses evaluation of Hissp data.
    ;; Treating the code itself as data is the key concept in metaprogramming.
+
+   #> (quote (7 42))
+   >>> ((7),
+   ...  (42),)
+   (7, 42)
+
 
    ;; Other objects evaluate to themselves, but strings and tuples have
    ;; special evaluation rules in Hissp. Tuples represent invocations of
-   ;; functions, macros, and special forms, while strings represent raw
-   ;; Python code to include in the compiled output (as well as module
-   ;; literals and control words), which are usually used for identifiers,
-   ;; but can be anything. Quoting suppresses this evaluation, rendering
-   ;; the raw Python code as string data, and the invocations as tuples.
+   ;; functions, macros, and special forms.
 
    #> (quote (print 1 2 3 : sep "-"))     ;Just a tuple.
    >>> ('print',
@@ -540,38 +552,68 @@ Lissp Quick Start
    ...  "('-')",)
    ('print', 1, 2, 3, ':', 'sep', "('-')")
 
+
+   ;; Hissp-level strings contain Python code to include in the compiled
+   ;; output. These usually contain identifiers, but can be anything.
+   ;; Thus, Lissp identifiers read as strings at the Hissp level.
    #> (quote identifier)                  ;Just a string.
    >>> 'identifier'
    'identifier'
 
+
+   ;; Quoting does not suppress munging, however. That happens at read
+   ;; time. Quoting doesn't happen until compile time.
+   #> (quote +)
+   >>> 'QzPLUS_'
+   'QzPLUS_'
+
+
+   ;; Quoting works on any Hissp data.
    #> (quote 42)                          ;Just a number. It was before though.
    >>> (42)
    42
 
 
-   ;; The "..."/#"..." Lissp read syntax is for creating a Python-level string.
-   ;; It is NOT for creating a Hissp-level string.
+   ;; The raw strings and hash strings in Lissp ("..."/#"..." syntax)
+   ;; also read as strings at the Hissp level, but they contain Python
+   ;; code for a string, which distinguishes them from identifiers.
    #> (quote "a string")                  ;Unexpected? "..."/#"..." is read syntax!
    >>> "('a string')"
    "('a string')"
 
-   #> (eval (quote "a string"))           ;Raw Python code. For a string.
+   #> (eval (quote "a string"))           ;Python code. For a string.
    >>> eval(
    ...   "('a string')")
    'a string'
 
 
+   ;; Strings in Hissp are also used for module literals and control
+   ;; words. The compiler does a little preprocessing here. Quoting
+   ;; suppresses this evaluation too.
+
+   #> math.                               ;This string gets preprocessed.
+   >>> __import__('math')
+   <module 'math' (built-in)>
+
+   #> (quote math.)                       ;Quoting suppresses. No __import__.
+   >>> 'math.'
+   'math.'
+
+   #> (quote :?)                          ;Just a string. It was before though?
+   >>> ':?'
+   ':?'
+
    #> :?                                  ;Just a string?
    >>> ':?'
    ':?'
 
-   #> ((lambda (: a :?) a))               ;Not that simple!
+   #> ((lambda (: a :?) a))               ;Not quite! Some have contextual meaning.
    >>> (lambda a:a)()
    Traceback (most recent call last):
      ...
    TypeError: <lambda>() missing 1 required positional argument: 'a'
 
-   #> ((lambda (: a (quote :?)) a))       ;Just a string.
+   #> ((lambda (: a (quote :?)) a))       ;Just a string. Even in context.
    >>> (lambda a=':?':a)()
    ':?'
 
@@ -597,6 +639,8 @@ Lissp Quick Start
    ;;; Template Quote
 
    ;; (Like quasiquote, backquote, or syntax-quote from other Lisps.)
+   ;; This is a DSL for making Hissp trees programmatically.
+   ;; They're very useful for metaprogramming.
 
    #> `print                              ;Automatic qualification!
    >>> 'builtins..print'
@@ -677,10 +721,9 @@ Lissp Quick Start
 
    ;;; The Discard Macro
 
-   #> _#"
-   #..The discard reader macro _# omits the next form.
+   #> _#"The discard reader macro _# omits the next form.
    #..It's a way to comment out code structurally.
-   #..It can also make comments like this one.
+   #..It can also make block comments like this one.
    #..This would show up when compiled if not for _#.
    #.."
    >>>
@@ -794,7 +837,7 @@ Lissp Quick Start
    _#"Remember the raw string and hash string read syntax makes Python-
    level strings, via a Hissp-level string containing a Python string
    literal. It is NOT for creating a Hissp-level string, which would
-   normally represent raw Python code. Use inject for that.
+   normally contain Python code. Use inject for that.
    "
    #> '"a string"                         ;Python code for a string. In a string.
    >>> "('a string')"
@@ -851,7 +894,7 @@ Lissp Quick Start
    Exception('oops', 'QzDIGITxONE_QzBANG_2')
 
 
-   ;; Yeah, you can nest these.
+   ;; Yeah, you can nest these if you have to.
    #> builtins..Exception# !"!" !builtins..Exception#!1 builtins..Exception#!A"uh-oh" !"?" "oops"
    >>> __import__('pickle').loads(  # Exception('oops', '!', Exception(Exception('uh-oh', 'A'), 1), '?')
    ...     b'cbuiltins\nException\np0\n(Voops\nV!\ng0\n(g0\n(Vuh-oh\nVA\ntRI1\ntRV?\ntR.'
@@ -1626,7 +1669,7 @@ Lissp Quick Start
 
 
    _#"Imports partial and reduce; star imports from operator and
-   itertools; defines the en-group utilities; and imports a copy of
+   itertools; defines the en- group utilities; and imports a copy of
    hissp.basic.._macro_ (if available). Usually the first form in a file,
    because it overwrites _macro_, but completely optional.
    "
