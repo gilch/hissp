@@ -374,7 +374,7 @@ class Lissp:
             except (AttributeError, KeyError):
                 raise SyntaxError(f"Unknown reader macro {tag!r}.", self.position())
         with self.compiler.macro_context():
-            return m(form, *extras)
+            return m(form, *extras)  # TODO: how to pass kwonly?
 
     @staticmethod
     def escape(atom):
@@ -478,5 +478,5 @@ def transpile_file(path: Union[Path, str], package: Optional[str] = None):
     qualname = f"{package or ''}{'.' if package else ''}{PurePath(path.name).stem}"
     python = Lissp(
         qualname=qualname, evaluate=True, filename=str(path)
-    ).compile(re.sub(r'^#!.*\n', '', path.read_text()))
+    ).compile(re.sub(r'^#!.*\n', '', path.read_text('utf8')))
     path.with_suffix('.py').write_text(python, 'utf8')
