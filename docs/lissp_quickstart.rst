@@ -852,11 +852,11 @@ Lissp Quick Start
 
 
    ;; Yeah, you can nest these.
-   #> builtins..Exception# !x !builtins..Exception#!1 builtins..Exception#!A"uh-oh" !y "oops"
-   >>> __import__('pickle').loads(  # Exception('oops', 'x', Exception(Exception('uh-oh', 'A'), 1), 'y')
-   ...     b'cbuiltins\nException\np0\n(Voops\nVx\ng0\n(g0\n(Vuh-oh\nVA\ntRI1\ntRVy\ntR.'
+   #> builtins..Exception# !"!" !builtins..Exception#!1 builtins..Exception#!A"uh-oh" !"?" "oops"
+   >>> __import__('pickle').loads(  # Exception('oops', '!', Exception(Exception('uh-oh', 'A'), 1), '?')
+   ...     b'cbuiltins\nException\np0\n(Voops\nV!\ng0\n(g0\n(Vuh-oh\nVA\ntRI1\ntRV?\ntR.'
    ... )
-   Exception('oops', 'x', Exception(Exception('uh-oh', 'A'), 1), 'y')
+   Exception('oops', '!', Exception(Exception('uh-oh', 'A'), 1), '?')
 
 
    ;;;; Collections
