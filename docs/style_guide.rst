@@ -833,6 +833,47 @@ if it's not obvious from the identifier::
 
   "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
 
+Method Syntax vs Attribute Calls
+--------------------------------
+
+Often, code like ``(.foo bar spam eggs)``
+could also be written like ``(bar.foo spam eggs)``.
+In some cases, the choice is clear,
+because they compile differently,
+but in others, these would compile exactly the same way.
+Which is preferred then depends on whether ``bar`` is a namespace or an argument.
+
+For a namespace, prefer ``bar.foo``.
+Internal use of ``self`` in methods and ``cls`` in classmethods,
+is also more namespace than argument.
+For an argument, i.e. other method calls, prefer ``.foo bar``.
+
+.. code-block:: Lissp
+
+   (_macro_.define greeting "hi")         ;Compiler Macro
+   (.define _macro_ 'greeting '"hi")      ;Run-time expansion.
+
+   ;;; Arguments
+
+   (.upper "hi")                          ;Preferred.
+   ("hi".upper)                           ;SyntaxError
+
+   (.upper greeting)                      ;Preferred.
+   (greeting.upper)                       ;Bad.
+
+   ;;; Namespaces
+
+   (tkinter..Tk)                          ;Preferred.
+   (.Tk tkinter.)                         ;Bad.
+
+   ;;; Kind of Both
+
+   (self.foo spam eggs)                   ;Preferred
+   (.foo self spam eggs)                  ;OK.
+
+   (cls.foo spam eggs)                    ;Preferred
+   (.foo cls spam eggs)                   ;OK.
+
 The End of the Line
 ===================
 
