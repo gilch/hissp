@@ -874,6 +874,9 @@ For an argument, i.e. other method calls, prefer ``.foo bar``.
    (cls.foo spam eggs)                    ;Preferred
    (.foo cls spam eggs)                   ;OK.
 
+   ;; self as namespace, self.accumulator as argument
+   (.append self.accumulator x)
+
 The End of the Line
 ===================
 
