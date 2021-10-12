@@ -1052,7 +1052,7 @@ Lissp Quick Start
    {'a': 1, 2: 'b'}
 
    #> (dict `((,'+ 42)
-   #..        (,(+ 1 1) ,'b)))            ;Runtime interpolation with a template.
+   #..        (,(+ 1 1) ,'b)))            ;Run-time interpolation with a template.
    >>> dict(
    ...   (lambda * _: _)(
    ...     (lambda * _: _)(
@@ -1132,7 +1132,7 @@ Lissp Quick Start
    ['1 2', '3', (4, 5), '6;7\\8']
 
 
-   ;; Constructors or helpers also work. (And can interpolate runtime data.)
+   ;; Constructors or helpers also work. (And can interpolate run-time data.)
    #> (list `(,"1 2" ,"3" (4 5) ,"6;7\8"))
    >>> list(
    ...   (lambda * _: _)(

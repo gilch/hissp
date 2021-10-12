@@ -24,7 +24,7 @@ The basic macros are deliberately restricted in design.
 They have NO DEPENDENCIES in their expansions; they use only the
 standard library with no extra helper functions. This means that all
 helper code must be inlined, resulting in larger expansions than might
-otherwise be necessary. But because macros expand before runtime, the
+otherwise be necessary. But because macros expand before run time, the
 compiled code does not require Hissp to be installed to work.
 
 They also have no prerequisite initialization, beyond what is available

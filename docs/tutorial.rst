@@ -845,7 +845,7 @@ Calls
 #####
 
 Any tuple that is not quoted, empty, or a special form or macro is
-a runtime call.
+a run-time call.
 
 The first element of a call tuple is the callable.
 The remaining elements are for the arguments.
@@ -1079,7 +1079,7 @@ Reader macros compose inside-out:
    [1, 2, 3, 1, 2, 3, 1, 2, 3]
 
 Same result, but the Python part is different.
-The list multiplication didn't happen until runtime in the first instance,
+The list multiplication didn't happen until run time in the first instance,
 but happened before the Python was generated in the second.
 
 Compare that to the equivalent readerless mode.
@@ -1382,9 +1382,9 @@ this might be a clearer way of expressing the number 81.
 other representations,
 like ``0x51`` could be better.)
 If you evaluate it at read time like this,
-then there is no runtime overhead for the alternative notation,
+then there is no run-time overhead for the alternative notation,
 because it's compiled to ``(81)``,
-just like there's no runtime overhead for using a hex literal instead of decimal in Python.
+just like there's no run-time overhead for using a hex literal instead of decimal in Python.
 
 Reader macros can also be unqualified.
 These three macros are built into the reader:
@@ -1656,7 +1656,7 @@ because these collections are read in as a *single atom*,
 they may contain only simple static values discernible at `read time`_:
 literals, no calls.
 
-If you want to interpolate runtime data,
+If you want to interpolate run-time data,
 use function calls and templates instead:
 
 .. code-block:: REPL

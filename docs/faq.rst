@@ -480,7 +480,7 @@ Python interpreter from the command line
 There's no ``macroexpand``. How do I look at expansions?
 ------------------------------------------------------------
 
-Invoke the macro indirectly somehow so the compiler sees it as a runtime function,
+Invoke the macro indirectly somehow so the compiler sees it as a run-time function,
 and pass all arguments quoted.
 
 .. code-block:: Lissp
@@ -628,7 +628,7 @@ You have to define three lambdas just for an ``if``?! isn't this really slow? It
 -------------------------------------------------------------------------------------------------------------------
 
 It's not *that* slow. Like most things, performance is really only an
-issue in a bottleneck. If you find one, there's no runtime overhead for
+issue in a bottleneck. If you find one, there's no run-time overhead for
 using ``.#`` to inject some Python.
 
 Also recall that macros are allowed to return strings of Python code.
@@ -673,7 +673,7 @@ You can splice ``,@`` into a template to approximate ``cons`` pretty well.
 Allocating new arrays may be slightly less efficient than adding a link,
 but this is mostly only done in macros which run at compile time when it doesn't matter so much.
 
-If you need to accumulate values into a collection at runtime,
+If you need to accumulate values into a collection at run time,
 learn to use more efficient alternatives,
 like Python's `list`.
 
@@ -707,7 +707,7 @@ But I have to already have an iterable, which is why I wanted a tuple in the fir
 For simple static values, use a collection atom like ``[1,2,3]``.
 
 Recall the template syntax :literal:`\`()` makes tuples.
-Unquote ``,`` or splice ``,@`` to interpolate runtime values.
+Unquote ``,`` or splice ``,@`` to interpolate run-time values.
 
 While convenient for metaprogramming,
 beware of auto-qualification and string reader syntax
@@ -1318,11 +1318,11 @@ so make a copy, or make a new one and insert individual macros into it.
 
 The basic macros have no dependencies on the Hissp package in their expansions,
 which allows you to use their compiled output on another Python that doesn't have Hissp installed.
-However, if you import a ``_macro_`` at runtime,
-you're creating a runtime dependency on whatever module you import it from.
+However, if you import a ``_macro_`` at run time,
+you're creating a run-time dependency on whatever module you import it from.
 
 The `hissp.basic.._macro_.prelude<prelude>` macro will clone the basic macro namespace
-only if available. It avoids creating a runtime dependency this way.
+only if available. It avoids creating a run-time dependency this way.
 
 `hissp.basic.._macro_.prelude<prelude>` is a convenience for short scripts,
 especially those used as the main module.
