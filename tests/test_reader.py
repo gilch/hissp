@@ -162,6 +162,18 @@ class TestReader(TestCase):
             with self.subTest(macro=m), self.assertRaises(SyntaxError):
                 next(self.parser.reads(f'`({m}!x y)'))
 
+    def test_reader_missing(self):
+        with self.assertRaises(SyntaxError):
+            next(self.parser.reads("(x#)"))
+
+    def test_reader_no_primary(self):
+        with self.assertRaises(SyntaxError):
+            next(self.parser.reads("(x# !2)"))
+
+    def test_reader_soft_no_primary(self):
+        with self.assertRaises(SyntaxError):
+            next(self.parser.reads("(x# !2"))
+
     def test_template(self):
         self.assertEqual(
             [('quote', "('foo')",), 7],
