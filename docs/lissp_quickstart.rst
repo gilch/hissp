@@ -593,7 +593,7 @@ Lissp Quick Start
 
    #> math.                               ;This string gets preprocessed.
    >>> __import__('math')
-   <module 'math' (built-in)>
+   <module 'math' ...>
 
    #> (quote math.)                       ;Quoting suppresses. No __import__.
    >>> 'math.'
