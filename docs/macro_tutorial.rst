@@ -189,7 +189,7 @@ A genexpr doesn't really help us in a `reduce <functools.reduce>`.
 They say that in Python everything is an object.
 But it's not quite true, is it?
 ``lambda`` isn't an object in Python.
-It's a reserved word, but at runtime, that's not an object.
+It's a reserved word, but at run time, that's not an object.
 It's not anything.
 If you're rolling your eyes and thinking,
 "Why would I even expect this to work?"
@@ -429,7 +429,7 @@ Can we do better?
 
 Nope.
 And there are good reasons to avoid `eval` in Python:
-We have to compile code at runtime,
+We have to compile code at run time,
 and put more than we wanted to in a string,
 and deal with separate namespaces. Ick.
 Lissp had none of those problems.
@@ -1858,8 +1858,8 @@ It's the way you invoke it that makes it happen at read time:
    [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
 
 
-Reader macros like this effectively create new read syntax
-by reinterpreting existing read syntax.
+Reader macros like this effectively create new reader syntax
+by reinterpreting existing reader syntax.
 
 So now we have function literals.
 
@@ -2362,7 +2362,7 @@ Lissp gives us a better option.
 
 We've defined a tag that turns hexadecimal strings into ints.
 And it does it so at *read time*.
-There's no runtime overhead for the conversion;
+There's no run-time overhead for the conversion;
 the result is compiled in.
 
 .. code-block:: REPL

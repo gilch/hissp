@@ -24,7 +24,7 @@ The basic macros are deliberately restricted in design.
 They have NO DEPENDENCIES in their expansions; they use only the
 standard library with no extra helper functions. This means that all
 helper code must be inlined, resulting in larger expansions than might
-otherwise be necessary. But because macros expand before runtime, the
+otherwise be necessary. But because macros expand before run time, the
 compiled code does not require Hissp to be installed to work.
 
 They also have no prerequisite initialization, beyond what is available
@@ -356,6 +356,35 @@ zrqvgngr ba guvf.
       (->> (.format "b'{}'"))
       (ast..literal_eval)))
 
+(defmacro <<\# (single : :* lines)
+  #"``<<#`` comment-string reader macro.
+
+  Converts a line comment to a raw string.
+
+  .. code-block:: REPL
+
+     #> <<#;Don't worry about the \"quotes\".
+     >>> 'Don\'t worry about the \"quotes\".'
+     'Don\'t worry about the \"quotes\".'
+
+  Or joins extra comments with a string object,
+  such as ``#\"\\n\"``.
+
+  .. code-block:: REPL
+
+     #> <<#
+     #..!;C:\\bin
+     #..!;C:\\Users\\ME\\Documents
+     #..!;C:\\Users\\ME\\Pictures
+     #..\";\"
+     >>> 'C:\\\\bin;C:\\\\Users\\\\ME\\\\Documents;C:\\\\Users\\\\ME\\\\Pictures'
+     'C:\\\\bin;C:\\\\Users\\\\ME\\\\Documents;C:\\\\Users\\\\ME\\\\Pictures'
+
+  "
+  (if-else lines
+    `',(.join single (map (operator..attrgetter 'content) lines))
+    `',(getattr single 'content)))
+
 ;;; import
 
 (defmacro prelude (: ns `(globals))
@@ -402,16 +431,29 @@ except ModuleNotFoundError:pass"
           `(.##"p\162int"(.##"\143ode\143s..en\143ode"_TAO ','.##"ro\16413")))
 
 (defmacro alias (alias module)
-  "Defines a reader macro abbreviation of a symbol prefix
-  (such as a qualifier). For example,
+  #"Defines a reader macro abbreviation of a qualifier. For example,
 
   .. code-block:: Lissp
 
-     (hissp.basic.._macro_.alias b/ hissp.basic.._macro_.)
-     ;; Now the same as (hissp.basic.._macro_.define foo 2).
-     (b/#define foo 2)
-  "
+     (hissp.basic.._macro_.alias M/ hissp.basic.._macro_)
+     ;; Now the same as (hissp.basic.._macro_.alias op sub.).
+     (M/#alias op operator.)
+     ;; Use an extra to name a reader macro.
+     M/#!b\"byte string\"
+     (op#sub 2 3)
+     #> op#!pow !3 2
+     >>> (8)
+     8
+
+  " ; TODO: doctest examples.
   `(defmacro ,(.format "{}{}" alias '#)
-             ($#G)
-     ',(.format "Aliases {} as {}#" module alias)
-     (.format "{}{}" ',module $#G)))
+             ($#prime : $#reader None :* $#args)
+     ',(.format "('Aliases {} as {}#')" module alias) ; TODO: docstrings not compiling in?
+     (if-else $#reader
+       ((getattr ,module (.format "{}{}"
+                                  $#reader
+                                  (if-else (operator..contains ',module ','_macro_)
+                                     ','#
+                                     "")))
+        $#prime : :* $#args)
+       (.format "{}.{}" ',module $#prime))))

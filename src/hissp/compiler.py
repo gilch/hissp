@@ -296,7 +296,7 @@ class Compiler:
         Compile call form.
 
         Any tuple that is not quoted, ``()``, or a `special` form or
-        `macro` is a runtime call.
+        `macro` is a run-time call.
 
         Like Python, it has three parts:
         (<callable> <args> : <kwargs>).

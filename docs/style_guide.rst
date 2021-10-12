@@ -417,7 +417,7 @@ Your code should look like these examples, recursively applied to subforms:
      data1                                ; Probably only worth it if there's a lot more than 3,
      data2                                ; or it changes frequently. Use this style sparingly.
      data3
-     _#_)                                 ;Trails NEVER get their own line.
+     _##)                                 ;Trails NEVER get their own line.
                                           ; But you can hold it open with a discarded item.
 
    (function arg1 arg2 arg3)
@@ -682,6 +682,113 @@ and it's done for the entire project.
 But reStructuredText is the default in the Python ecosystem.
 You can automatically generate API documentation with these.
 
+Reader Macros
+-------------
+
+Reader macros should not be separated from each other
+or from their primary argument with whitespace.
+
+.. code-block:: Lissp
+
+   ' builtins..repr# .# (lambda :)        ;Bad
+   'builtins..repr#.#(lambda :)           ;Preferred
+
+However, if a primary argument spans multiple lines,
+it's acceptable to separate with a newline,
+but be careful not to accidentally put a comment in between,
+unless you explicitly discard it.
+
+.. code-block:: Lissp
+
+   _# ; Bad. Comments are valid reader macro arguments!
+   ((lambda abc                           ;This wasn't discarded!
+      (frobnicate a b c))
+    arg)
+
+   _#
+   ;; Bad. This comment would have been discarded anyway.
+   ((lambda abc                           ;But this wasn't discarded!
+      (frobnicate a b c))
+    arg)
+
+   _#_#
+   ;; OK. This actually works.
+   ((lambda abc                           ;This was discarded too.
+      (frobnicate a b c))
+    arg)
+
+   _#((lambda abc
+      (frobnicate a b c))                 ;Bad. Wrong indentation!
+    arg)
+
+   ;; Better. Put the tag after the comment on its own line.
+   _#
+   ((lambda abc
+      (frobnicate a b c))
+    arg)
+
+   _#((lambda abc                         ;Preferred. No separation, good indents.
+        (frobnicate a b c))
+      arg)
+
+   ;; OK. Composed macros can group. Primary spanned multiple lines.
+   `',
+   ((lambda abc
+      (frobnicate a b c))
+    arg)
+
+   `',((lambda abc                        ;Preferred. No separation.
+         (frobnicate a b c))
+       arg)
+
+Extras may always be separated,
+but like function arguments,
+break for all or none,
+and only imply groups with whitespace if they are semantically grouped.
+
+.. code-block:: Lissp
+
+   builtins..int#!6"21"                   ;Preferred. Spacing not required.
+   builtins..int# !6 "21"                 ;OK. Extras may always be separated.
+
+   'foo# !spam !eggs bar                  ;Preferred
+   'foo#!spam !eggs bar                   ;Bad. Inconsistent groups.
+
+   'foo#!(spam)!(eggs)bar                 ;Preferred. Spacing not required.
+   'foo# !(spam) !(eggs) bar              ;OK. Extras may always be separated.
+
+Align extras spanning lines like tuple contents.
+
+.. code-block:: Lissp
+
+   ;; Extras aligned with the first extra.
+   <<#!;C:\bin
+      !;C:\Users\ME\Documents
+      !;C:\Users\ME\Pictures
+   ";"                                    ;Primary isn't an extra. Aligned with tag.
+
+   ;; Extras aligned with the first extra.
+   (exec
+     <<#
+     !;for i in 'abc':
+     !;    for j in 'xyz':
+     !;        print(i+j, end=" ")
+     !;print('.')
+     !;
+     #"\n")
+
+   ;; Indent recursively.
+   foo#!;spam
+       !bar#!;sausage
+            !;bacon
+       :tomato
+       !;eggs
+   :beans
+
+   ;; Don't dangle brackets!
+   (print <<#;Hello, World!
+          _##)
+
 Identifiers
 ===========
 
@@ -725,6 +832,50 @@ followed by the pronunciation in single quotes,
 if it's not obvious from the identifier::
 
   "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
+
+Method Syntax vs Attribute Calls
+--------------------------------
+
+Often, code like ``(.foo bar spam eggs)``
+could also be written like ``(bar.foo spam eggs)``.
+In some cases, the choice is clear,
+because they compile differently,
+but in others, these would compile exactly the same way.
+Which is preferred then depends on whether ``bar`` is a namespace or an argument.
+
+For a namespace, prefer ``bar.foo``.
+Internal use of ``self`` in methods and ``cls`` in classmethods,
+is also more namespace than argument.
+For an argument, i.e. other method calls, prefer ``.foo bar``.
+
+.. code-block:: Lissp
+
+   (_macro_.define greeting "hi")         ;Compiler Macro
+   (.define _macro_ 'greeting '"hi")      ;Run-time expansion.
+
+   ;;; Arguments
+
+   (.upper "hi")                          ;Preferred.
+   ("hi".upper)                           ;SyntaxError
+
+   (.upper greeting)                      ;Preferred.
+   (greeting.upper)                       ;Bad.
+
+   ;;; Namespaces
+
+   (tkinter..Tk)                          ;Preferred.
+   (.Tk tkinter.)                         ;Bad.
+
+   ;;; Kind of Both
+
+   (self.foo spam eggs)                   ;Preferred
+   (.foo self spam eggs)                  ;OK.
+
+   (cls.foo spam eggs)                    ;Preferred
+   (.foo cls spam eggs)                   ;OK.
+
+   ;; self as namespace, self.accumulator as argument
+   (.append self.accumulator x)
 
 The End of the Line
 ===================

@@ -2,233 +2,219 @@
 ;; Copyright 2019, 2020 Matthew Egan Odendahl
 ;; SPDX-License-Identifier: Apache-2.0
 
-(hissp.basic.._macro_.alias ! hissp.basic.._macro_.)
+(hissp.basic.._macro_.alias * hissp.basic.._macro_)
 
-(!#define enlist
+(*#define enlist
   (lambda (: :* a) (list a)))
 
-(!#defmacro tqs ()
+(*#defmacro tqs ()
   `(enlist 'enlist))
 
-(!#defmacro tqs2 ()
+(*#defmacro tqs2 ()
   "test qualified symbol, with docstring"
   `(enlist 'enlist))
 
-(!#defmacro nil () None)
+(*#defmacro nil () None)
 
-(!#deftype TestBasic (unittest..TestCase)
+(*#deftype TestBasic (unittest..TestCase)
   test_same_gensym
   (lambda (self)
-    (.assertEqual self : :* `($#test $#test)))
+    (self.assertEqual : :* `($#test $#test)))
 
   test_qualified_symbol
   (lambda (self)
-    (.assertEqual self
-                  (tqs)
-                  ['tests.test_basic..enlist']))
+    (self.assertEqual (tqs)
+                      ['tests.test_basic..enlist']))
 
   test_none_doc
   (lambda (self)
-    (.assertIsNone self _macro_.tqs.__doc__))
+    (self.assertIsNone _macro_.tqs.__doc__))
 
   test_qualified_symbol2
   (lambda (self)
-    (.assertEqual self
-                  (tqs2)
-                  ['tests.test_basic..enlist']))
+    (self.assertEqual (tqs2)
+                      ['tests.test_basic..enlist']))
 
   test_doc
   (lambda (self)
-    (.assertEqual self _macro_.tqs2.__doc__ "test qualified symbol, with docstring"))
+    (self.assertEqual _macro_.tqs2.__doc__ "test qualified symbol, with docstring"))
 
   test_expand_none
   (lambda (self)
-    (.assertIsNone self (nil)))
+    (self.assertIsNone (nil)))
 
   test_let
   (lambda (self)
-    (!#let (x 1
+    (*#let (x 1
             y 2)
-      (.assertEqual self x 1)
-      (.assertEqual self y 2)))
+      (self.assertEqual x 1)
+      (self.assertEqual y 2)))
 
   test_doto
   (lambda (self)
-    (.assertEqual self
-                  (!#doto []
-                    (.append 3)
-                    (.extend [1,2])
-                    (.sort))
-                  [1,2,3]))
+    (self.assertEqual (*#doto []
+                        (.append 3)
+                        (.extend [1,2])
+                        (.sort))
+                      [1,2,3]))
 
   test_if-else
   (lambda (self)
-    (.assertEqual self (!#if-else False :yes :no) :no)
-    (.assertEqual self (!#if-else True :yes :no) :yes)
-    (!#let (xs [])
-      (!#if-else False
+    (self.assertEqual (*#if-else False :yes :no) :no)
+    (self.assertEqual (*#if-else True :yes :no) :yes)
+    (*#let (xs [])
+      (*#if-else False
                (.append xs :yes)
                (.append xs :no))
-      (!#if-else True
+      (*#if-else True
                (.append xs :yes)
                (.append xs :no))
-      (.assertEqual self xs [':no',':yes'])))
+      (self.assertEqual xs [':no',':yes'])))
 
   test_cond
   (lambda (self)
-    (!#let (xs [])
-      (.append xs (!#cond))
-      (!#cond False (.append xs :oops))
-      (!#cond :else (.append xs 1))
-      (!#cond False (.append xs :oops)
+    (*#let (xs [])
+      (.append xs (*#cond))
+      (*#cond False (.append xs :oops))
+      (*#cond :else (.append xs 1))
+      (*#cond False (.append xs :oops)
               :else (.append xs 2))
-      (!#cond True (.append xs 3)
+      (*#cond True (.append xs 3)
               :else (.append xs :oops))
-      (!#cond
+      (*#cond
         False (.append xs :oops)
         0 (.append xs :oops)
         True (.append xs 4)
         () (.append xs :oops))
-      (.assertEqual self xs (enlist () 1 2 3 4))))
+      (self.assertEqual xs (enlist () 1 2 3 4))))
 
   test_any-for
   (lambda (self)
-    (!#let (xs [])
-      (!#any-for i (range 1 10)
+    (*#let (xs [])
+      (*#any-for i (range 1 10)
         (.append xs i)
         (operator..not_ (operator..mod i 7)))
-      (.assertEqual self xs (enlist 1 2 3 4 5 6 7))))
+      (self.assertEqual xs (enlist 1 2 3 4 5 6 7))))
 
   test_&&
   (lambda (self)
-    (!#let (xs [])
-      (!#doto xs
-        (.append (!#&&))
-        (.append (!#&& 0))
-        (.append (!#&& 1))
-        (.append (!#&& 0 (.append xs :oops)))
-        (.append (!#&& 1 (.append xs 2)))
-        (.append (!#&& True
+    (*#let (xs [])
+      (*#doto xs
+        (.append (*#&&))
+        (.append (*#&& 0))
+        (.append (*#&& 1))
+        (.append (*#&& 0 (.append xs :oops)))
+        (.append (*#&& 1 (.append xs 2)))
+        (.append (*#&& True
                        (.append xs 3)
                        (.append xs :oops)))
-        (.append (!#&& True
-                       (!#progn (.append xs 4)
+        (.append (*#&& True
+                       (*#progn (.append xs 4)
                                 :oops)
                        (.append xs 5)))
-        (.append (!#&& 1 2 (!#progn (.append xs 6) 7))))
-      (.assertEqual self
-                    [True,0,1,0,2,None,3,None,4,5,None,6,7]
-                    xs)))
+        (.append (*#&& 1 2 (*#progn (.append xs 6) 7))))
+      (self.assertEqual [True,0,1,0,2,None,3,None,4,5,None,6,7]
+                        xs)))
 
   test_||
   (lambda (self)
-    (!#let (xs [])
-      (!#doto xs
-        (.append (!#||))
-        (.append (!#|| 0))
-        (.append (!#|| 1))
-        (.append (!#|| 2 (.append xs :oops)))
-        (.append (!#|| 0 (.append xs 3)))
-        (.append (!#|| 0 (.append xs 5) 6)))
-      (.assertEqual self
-                    (enlist () 0 1 2 3 None 5 6)
-                    xs)))
+    (*#let (xs [])
+      (*#doto xs
+        (.append (*#||))
+        (.append (*#|| 0))
+        (.append (*#|| 1))
+        (.append (*#|| 2 (.append xs :oops)))
+        (.append (*#|| 0 (.append xs 3)))
+        (.append (*#|| 0 (.append xs 5) 6)))
+      (self.assertEqual (enlist () 0 1 2 3 None 5 6)
+                        xs)))
 
   test_progn
   (lambda (self)
-    (.assertEqual self
-                  (!#let (xs [])
-                    (!#progn
-                      (.append xs 1)
-                      (.extend xs "bc")
-                      xs))
-                  [1,'b','c']))
+    (self.assertEqual (*#let (xs [])
+                        (*#progn
+                          (.append xs 1)
+                          (.extend xs "bc")
+                          xs))
+                      [1,'b','c']))
 
   test_prog1
   (lambda (self)
-    (!#let (xs [])
-      (.append xs (!#prog1 3
+    (*#let (xs [])
+      (.append xs (*#prog1 3
                     (.append xs 1)
                     (.append xs 2)))
-      (.assertEqual self [1,2,3] xs)))
+      (self.assertEqual [1,2,3] xs)))
 
   test_attach
   (lambda (self)
-    (!#let (ns (types..SimpleNamespace)
+    (*#let (ns (types..SimpleNamespace)
             x 1
             y 2
             z 3)
-      (!#attach ns x y z : p 4  q 5  r 6)
-      (.assertEqual self
-                    (types..SimpleNamespace : x 1  y 2  z 3  p 4  q 5  r 6)
-                    ns)))
+      (*#attach ns x y z : p 4  q 5  r 6)
+      (self.assertEqual (types..SimpleNamespace : x 1  y 2  z 3  p 4  q 5  r 6)
+                        ns)))
 
   test_when
   (lambda (self)
-    (!#let (xs [])
-      (!#when 1
+    (*#let (xs [])
+      (*#when 1
         (.append xs 1)
         (.append xs 2))
-      (!#when 0
+      (*#when 0
         (.append xs :oops)
         (.append xs :oops))
-      (.assertEqual self [1,2] xs)))
+      (self.assertEqual [1,2] xs)))
 
   test_unless
   (lambda (self)
-    (!#let (xs [])
-      (!#unless 0
+    (*#let (xs [])
+      (*#unless 0
         (.append xs 1)
         (.append xs 2))
-      (!#unless 1
+      (*#unless 1
         (.append xs :oops)
         (.append xs :oops))
-      (.assertEqual self [1,2] xs)))
+      (self.assertEqual [1,2] xs)))
 
   test_->
   (lambda (self)
-    (.assertEqual self
-                  (!#-> "-x-" (.replace "x" "y") (.strip "-") (.upper))
-                  "Y"))
+    (self.assertEqual (*#-> "-x-" (.replace "x" "y") (.strip "-") (.upper))
+                      "Y"))
 
   test_->>
   (lambda (self)
-    (.assertEqual self
-                  (!#->> (range 3)
-                         (map (lambda (x) (operator..mul x x)))
-                         (filter (lambda (x) ; even?
-                                   (operator..eq 0 (operator..mod x 2))))
-                         (list))
-                  [0,4]))
+    (self.assertEqual (*#->> (range 3)
+                             (map (lambda (x) (operator..mul x x)))
+                             (filter (lambda (x) ; even?
+                                       (operator..eq 0 (operator..mod x 2))))
+                             (list))
+                      [0,4]))
 
   test_prelude
   (lambda (self)
-    (!#let (ns {})
-      (!#prelude ns)
-      (.assertEqual self
-                    (set operator..__all__)
-                    (.intersection (set operator..__all__) (.keys ns)))
+    (*#let (ns {})
+      (*#prelude ns)
+      (self.assertEqual (set operator..__all__)
+                        (.intersection (set operator..__all__)
+                                       (.keys ns)))
       ;; Asserts everything public in itertools is in ns.
-      (!#let (members (set (itertools..filterfalse (lambda x (.startswith x "_"))
+      (*#let (members (set (itertools..filterfalse (lambda x (.startswith x "_"))
                                                    (dir itertools.))))
-        (.assertEqual self
-                      members
-                      (.intersection members (.keys ns))))
-      (.assertIn self '_macro_ ns)
-      (.assertEqual self
-                    (set (dir hissp.basic.._macro_))
-                    (.keys (vars (.__getitem__ ns '_macro_))))))
+        (self.assertEqual members (.intersection members (.keys ns))))
+      (self.assertIn '_macro_ ns)
+      (self.assertEqual (set (dir hissp.basic.._macro_))
+                        (.keys (vars (.__getitem__ ns '_macro_))))))
 
   test_string_newline
   (lambda (self)
-    (.assertEqual self
-                  #"\
+    (self.assertEqual #"\
 foo\
 bar\nbaz"
                   "foobar
 baz")
-    (.assertEqual self
-                  "
+    (self.assertEqual "
 
 foo
 bar
@@ -237,6 +223,5 @@ bar
 
   test_string_reader_macro
   (lambda (self)
-    (.assertEqual self
-                  fractions..Fraction#"1/3"
-                  .#(fractions..Fraction 1 3))))
+    (self.assertEqual fractions..Fraction#"1/3"
+                      .#(fractions..Fraction 1 3))))

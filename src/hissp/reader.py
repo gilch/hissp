@@ -49,7 +49,7 @@ TOKENS = re.compile(
 |(?P<close>\))
 |(?P<macro>
    ,@
-  |['`,]
+  |['`,!]
    # Any atom that ends in (an unescaped) ``#``
   |(?:[^\\ \n"();#]|\\.)+[#]
  )
@@ -126,7 +126,8 @@ class Lexer(Iterator):
 
 
 _Unquote = namedtuple('_Unquote', ['target', 'value'])
-
+Comment = namedtuple('Comment', ['content'])
+Extra = namedtuple('Extra', ['argument'])
 
 def gensym_counter(_count=[0], _lock=Lock()):
     """
@@ -158,6 +159,12 @@ class Lissp:
         self.filename = filename
         self.reinit()
 
+    def reinit(self):
+        """Reset position, nesting depth, and gensym stack."""
+        self.gensym_stack = []
+        self.depth = []
+        self._p = 0
+
     @property
     def ns(self):
         """The wrapped `Compiler`'s ``ns``."""
@@ -167,28 +174,31 @@ class Lissp:
     def ns(self, ns):
         self.compiler.ns = ns
 
-    def reinit(self):
-        """Reset position, nesting depth, and gensym stack."""
-        self.gensym_stack = []
-        self.depth = []
-        self._p = 0
+    def compile(self, code: str) -> str:
+        """Read Lissp code and pass it on to the Hissp compiler."""
+        hissp = self.reads(code)
+        return self.compiler.compile(hissp)
 
-    def position(self, index=None):
-        """
-        Get the ``filename``, ``lineno``, ``offset`` and ``text``
-        for a `SyntaxError`, from the `Lexer` given to `parse`.
-        """
-        return self.tokens.position(self._p if index is None else index)
+    def reads(self, code: str) -> Iterable:
+        """Read Hissp forms from code string."""
+        res: Iterable[object] = self.parse(Lexer(code, self.filename))
+        self.reinit()
+        return res
 
     def parse(self, tokens: Lexer) -> Iterator:
         """Build Hissp forms from a `Lexer`."""
         self.tokens = tokens
-        return (form for form in self._parse() if form is not DROP)
+        return (x for x in self._filter_drop() if not isinstance(x, Comment))
+
+    def _filter_drop(self):
+        return (x for x in self._parse() if x is not DROP)
 
     def _parse(self) -> Iterator:
         for k, v, self._p in self.tokens:
-            if k in {"comment", "whitespace"}:
+            if k == "whitespace":
                 continue
+            elif k == "comment":
+                yield Comment(v[1:])
             elif k == "badspace":
                 raise SyntaxError(
                     f"{v!r} is not whitespace in Lissp. Indent with spaces only.",
@@ -206,7 +216,7 @@ class Lissp:
             elif k == "continue":
                 raise SoftSyntaxError("Incomplete string token.", self.position())
             elif k == "atom":
-                yield self._atom(v)
+                yield self.atom(v)
             else:
                 assert k == "error", "unknown token: " + repr(k)
                 raise SyntaxError("Can't read this.", self.position())
@@ -215,6 +225,13 @@ class Lissp:
                 "This form is missing a `)`.",
                 self.position(self.depth.pop())
             )
+
+    def position(self, index=None):
+        """
+        Get the ``filename``, ``lineno``, ``offset`` and ``text``
+        for a `SyntaxError`, from the `Lexer` given to `parse`.
+        """
+        return self.tokens.position(self._p if index is None else index)
 
     def _open(self):
         self.depth.append(self._p)
@@ -225,15 +242,6 @@ class Lissp:
             raise SyntaxError("Extra `)`.", self.position())
         self.depth.pop()
 
-    @staticmethod
-    def _string(v):
-        if v[0] == "#":  # Let Python process escapes.
-            v = v.replace("\\\n", "").replace("\n", r"\n")
-            val = ast.literal_eval(v[1:])
-        else:  # raw
-            val = v[1:-1]  # Only remove quotes.
-        return v if (v := pformat(val)).startswith("(") else f"({v})"
-
     def _macro(self, v):
         p = self._p
         with {
@@ -241,71 +249,56 @@ class Lissp:
             ",": self.unquote_context,
             ",@": self.unquote_context,
         }.get(v, nullcontext)():
-            depth = len(self.depth)
-            try:
-                form = next(self.parse(self.tokens))
-            except StopIteration:
-                if len(self.depth) == depth:
-                    raise SoftSyntaxError(
-                        f"Reader macro {v!r} missing argument.", self.position(p)
-                    ) from None
-                raise SyntaxError(
-                    f"Reader macro {v!r} missing argument.", self.position(p)
-                ) from None
-            yield self.parse_macro(v, form)
+            yield self.parse_macro(v, *self._extras(p, v))
 
-    @staticmethod
-    def _atom(v):
-        is_symbol = "\\" == v[0]
-        v = Lissp.escape(v)
-        if is_symbol:
-            return munge(v)
+    @contextmanager
+    def gensym_context(self):
+        """Start a new gensym context for the current template."""
+        self.gensym_stack.append(gensym_counter())
         try:
-            val = ast.literal_eval(v)
-            if isinstance(val, bytes):  # bytes have their own literals.
-                return munge(v)
-            return val
-        except (ValueError, SyntaxError):
-            return munge(v)
+            yield
+        finally:
+            self.gensym_stack.pop()
 
-    def parse_macro(self, tag: str, form):
+    @contextmanager
+    def unquote_context(self):
+        """Start a new unquote context for the current template."""
+        try:
+            gensym_number = self.gensym_stack.pop()
+        except IndexError:
+            raise SyntaxError("Unquote outside of template.", self.position()) from None
+        try:
+            yield
+        finally:
+            self.gensym_stack.append(gensym_number)
+
+    def _extras(self, p, v):
+        extras = []
+        depth = len(self.depth)
+        nondrop = self._filter_drop()
+        try:
+            while isinstance(form:=next(nondrop), Extra):
+                extras.append(form.argument)
+        except StopIteration:
+            e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
+            raise e(f"Reader macro {v!r} missing argument.", self.position(p)) from None
+        return form, extras
+
+    def parse_macro(self, tag: str, form, extras):
         """Apply a reader macro to a form."""
-        if tag == "'":
-            return "quote", form
-        if tag == "`":
-            return self.template(form)
-        if tag == ",":
-            return _Unquote(":?", form)
-        if tag == ",@":
-            return _Unquote(":*", form)
-        assert tag.endswith("#")
-        return self._parse_tag(tag[:-1], form)
-
-    def _parse_tag(self, tag, form):
-        if tag == "_":
-            return DROP
-        if tag == "$":
-            return self.gensym(form)
-        if tag == ".":
-            return eval(readerless(form, self.ns), self.ns)
-        if is_string(form):
-            form = ast.literal_eval(form)
-        tag = munge(self.escape(tag))
-        if ".." in tag and not tag.startswith(".."):
-            module, function = tag.split("..", 1)
-            return reduce(getattr, function.split("."), import_module(module))(form)
-        try:
-            m = getattr(self.ns["_macro_"], tag + munge("#"))
-        except (AttributeError, KeyError):
-            raise SyntaxError(f"Unknown reader macro {tag}", self.position())
-        with self.compiler.macro_context():
-            return m(form)
-
-    @staticmethod
-    def escape(atom):
-        """Process the backslashes in a token."""
-        atom = atom.replace(r"\.", force_qz_encode("."))
-        return re.sub(r"\\(.)", lambda m: m[1], atom)
+        def case(s):
+            if (b := tag == s) and extras:
+                raise SyntaxError(f"Extra for {s!r} reader macro.")
+            return b
+        if case("'"): return "quote", form
+        if case("!"): return Extra(_eval_if_string(form))
+        if case("`"): return self.template(form)
+        if case(","): return _Unquote(":?", form)
+        if case(",@"): return _Unquote(":*", form)
+        if case("_#"): return DROP
+        if case("$#"): return self.gensym(form)
+        if case(".#"): return eval(readerless(form, self.ns), self.ns)
+        return self._custom_macro(form, tag, extras)
 
     def template(self, form):
         """Process form as template."""
@@ -361,17 +354,6 @@ class Lissp:
             return False
         return True
 
-    def reads(self, code: str) -> Iterable:
-        """Read Hissp forms from code string."""
-        res: Iterable[object] = self.parse(Lexer(code, self.filename))
-        self.reinit()
-        return res
-
-    def compile(self, code: str) -> str:
-        """Read Lissp code and pass it on to the Hissp compiler."""
-        hissp = self.reads(code)
-        return self.compiler.compile(hissp)
-
     def gensym(self, form: str):
         """Generate a symbol unique to the current template."""
         try:
@@ -379,26 +361,50 @@ class Lissp:
         except IndexError:
             raise SyntaxError("Gensym outside of template.", self.position()) from None
 
-    @contextmanager
-    def gensym_context(self):
-        """Start a new gensym context for the current template."""
-        self.gensym_stack.append(gensym_counter())
-        try:
-            yield
-        finally:
-            self.gensym_stack.pop()
+    def _custom_macro(self, form, tag, extras):
+        assert tag.endswith("#")
+        tag = munge(self.escape(tag[:-1]))
+        form = _eval_if_string(form)
+        if ".." in tag:
+            module, function = tag.split("..", 1)
+            m = reduce(getattr, function.split("."), import_module(module))
+        else:
+            try:
+                m = getattr(self.ns["_macro_"], tag + munge("#"))
+            except (AttributeError, KeyError):
+                raise SyntaxError(f"Unknown reader macro {tag!r}.", self.position())
+        with self.compiler.macro_context():
+            return m(form, *extras)  # TODO: how to pass kwonly?
 
-    @contextmanager
-    def unquote_context(self):
-        """Start a new unquote context for the current template."""
+    @staticmethod
+    def escape(atom):
+        """Process the backslashes in a token."""
+        atom = atom.replace(r"\.", force_qz_encode("."))
+        return re.sub(r"\\(.)", lambda m: m[1], atom)
+
+    @staticmethod
+    def _string(v):
+        if v[0] == "#":  # Let Python process escapes.
+            v = v.replace("\\\n", "").replace("\n", r"\n")
+            val = ast.literal_eval(v[1:])
+        else:  # raw
+            val = v[1:-1]  # Only remove quotes.
+        return v if (v := pformat(val)).startswith("(") else f"({v})"
+
+    @staticmethod
+    def atom(v):
+        """Preprocesses atoms. Handles escapes and munging."""
+        is_symbol = "\\" == v[0]
+        v = Lissp.escape(v)
+        if is_symbol:
+            return munge(v)
         try:
-            gensym_number = self.gensym_stack.pop()
-        except IndexError:
-            raise SyntaxError("Unquote outside of template.", self.position()) from None
-        try:
-            yield
-        finally:
-            self.gensym_stack.append(gensym_number)
+            val = ast.literal_eval(v)
+            if isinstance(val, bytes):  # bytes have their own literals.
+                return munge(v)
+            return val
+        except (ValueError, SyntaxError):
+            return munge(v)
 
 
 def is_string(form):
@@ -418,6 +424,12 @@ def is_string(form):
         )
     except:
         return False
+
+
+def _eval_if_string(form):
+    if is_string(form):
+        form = ast.literal_eval(form)
+    return form
 
 
 def is_qualifiable(symbol):
@@ -466,5 +478,5 @@ def transpile_file(path: Union[Path, str], package: Optional[str] = None):
     qualname = f"{package or ''}{'.' if package else ''}{PurePath(path.name).stem}"
     python = Lissp(
         qualname=qualname, evaluate=True, filename=str(path)
-    ).compile(re.sub(r'^#!.*\n', '', path.read_text()))
+    ).compile(re.sub(r'^#!.*\n', '', path.read_text('utf8')))
     path.with_suffix('.py').write_text(python, 'utf8')

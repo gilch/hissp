@@ -30,7 +30,7 @@ To understand code at all, in any programming language,
 you must have an understanding of how to *parse* it, mentally.
 
 Python itself has an AST representation used by its compiler
-(the `ast` module)
+(see the `ast` module)
 which is accessible to Python programs,
 but because it represents all of the possible Python syntax,
 `which is considerable <https://docs.python.org/3/reference/grammar.html>`_,
@@ -64,7 +64,7 @@ which represent the syntax tree structure.
 
 >>> hissp_program = (
 ...     ('lambda',('name',),
-...      ('print',('quote','Hello'),'name',),)
+...      ('print',('quote','Hello',),'name',),)
 ... )
 
 You can invoke the Hissp compiler directly from Python.
@@ -87,7 +87,7 @@ Hello World
 Let's break this Hissp program down.
 Notice that the first element of each tuple designates its function.
 
-In the case of ``('print',('quote','Hello'),'name',)``,
+In the case of ``('print',('quote','Hello',),'name',)``,
 the first element represents a call to the `print()<print>` function.
 The remaining elements are the arguments.
 
@@ -97,7 +97,7 @@ It represents a lambda expression, rather than a function call.
 The remainder is its body.
 
 Note that ``'name'`` became an identifier in the Python translation,
-but the ``('quote','Hello')`` expression became a string.
+but the ``('quote','Hello',)`` expression became a string.
 That's the interpretation of ``quote``:
 its argument is seen as "data" rather than code by the compiler.
 
@@ -106,7 +106,7 @@ known to the compiler.
 There are ways to define more forms with special interpretations,
 called "macros", which is how Hissp gets much of its expressive power.
 
-``('quote','Hello')`` seems a little verbose compared to its Python
+``('quote','Hello',)`` seems a little verbose compared to its Python
 translation.
 This could get tedious every time we need a string.
 Isn't there something we can do?
@@ -163,7 +163,8 @@ so the characters ``n``, ``a``, ``m``, and ``e`` got compiled to the parameters.
    The parentheses only control evaluation order.
    There are some contexts where tuples don't require parentheses at all.
 
-Let's try that again.
+Let's try that again,
+with the comma this time.
 
 >>> readerless(
 ...     ('lambda',('name',),
@@ -319,7 +320,7 @@ Most literals work just like Python:
    #> None ; These don't print.
    >>> None
 
-Comments, as one might expect, are ignored by the reader,
+Comments, as one might expect, are discarded by the reader,
 and do not appear in the output.
 
 .. code-block:: REPL
@@ -384,7 +385,7 @@ and must be quoted with the ``quote`` special form to represent text data instea
 >>> eval(_)
 hi
 
-Hissp-level strings can represent almost any raw Python code to inject in the compiled output,
+Hissp-level strings can represent almost any Python code to include in the compiled output,
 not just identifiers.
 So another way to represent text data in Hissp
 is a Hissp-level string that contains the Python code for a string literal.
@@ -463,7 +464,7 @@ In our basic example:
 ``name`` are *symbols*.
 
 Symbols are meant for variable names and the like.
-Quoting our example again to see how Lissp would get read as Hissp:
+Quoting our example again to see how Lissp would get read as Hissp,
 
 .. code-block:: REPL
 
@@ -478,7 +479,7 @@ Quoting our example again to see how Lissp would get read as Hissp:
    ...   'name',),)
    ('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
 
-We see that there are *no symbol objects* at the Hissp level.
+we see that there are *no symbol objects* at the Hissp level.
 The Lissp symbols are read in as strings.
 
 In other Lisps, symbols are a data type in their own right,
@@ -486,7 +487,7 @@ but symbols only exist as a *reader syntax* in Lissp,
 where they represent the subset of Hissp-level strings that can act as identifiers.
 
 Symbols in Lissp become strings in Hissp which become identifiers in Python,
-unless they're quoted, like ``('quote', 'Hello')``,
+unless they're quoted, like ``('quote', 'Hello',)``,
 in which case they become string literals in Python.
 
 Experiment with this process in the REPL.
@@ -494,7 +495,7 @@ Experiment with this process in the REPL.
 Attributes
 ~~~~~~~~~~
 
-Symbols with internal ``.``'s access attributes when used as an identifier:
+Symbols can have internal ``.``'s to access attributes.
 
 .. code-block:: REPL
 
@@ -573,7 +574,7 @@ but it's important that the munged symbols still be human-readable.
 The "Qz" bigram is almost unheard of in English text,
 and "Q" almost never ends a word (except perhaps in brand names),
 making "Qz" a visually distinct escape sequence,
-easy to read, and very unlikely to cause a collision when demunging.
+easy to read, and very unlikely to appear by accident.
 
 Munging happens at `read time`_, which means you can use a munged symbol both
 as an identifier and as a string representing that identifier:
@@ -585,19 +586,19 @@ as an identifier and as a string representing that identifier:
    namespace()
 
    #> (setattr _ ; The namespace.
-   #..         '!@%$ ; Compiles to a string representing an identifier.
+   #..         '@%$! ; Compiles to a string representing an identifier.
    #..         42)
    >>> setattr(
    ...   _,
-   ...   'QzBANG_QzAT_QzPCENT_QzDOLR_',
+   ...   'QzAT_QzPCENT_QzDOLR_QzBANG_',
    ...   (42))
 
    #> _
    >>> _
-   namespace(QzBANG_QzAT_QzPCENT_QzDOLR_=42)
+   namespace(QzAT_QzPCENT_QzDOLR_QzBANG_=42)
 
-   #> _.!@%$ ; Munges and compiles to attribute identifier.
-   >>> _.QzBANG_QzAT_QzPCENT_QzDOLR_
+   #> _.@%$! ; Munges and compiles to attribute identifier.
+   >>> _.QzAT_QzPCENT_QzDOLR_QzBANG_
    42
 
 Spaces, double quotes, parentheses, and semicolons are allowed in atoms,
@@ -612,7 +613,7 @@ but they must each be escaped with a backslash to prevent it from terminating th
 
 Python does not allow some characters to start an identifier that it allows inside identifiers,
 such as digits.
-You also have to escape these if they begin a symbol to distinguish them from numbers.
+You may have to escape these if they begin a symbol to distinguish them from numbers.
 
 .. code-block:: REPL
 
@@ -621,6 +622,12 @@ You also have to escape these if they begin a symbol to distinguish them from nu
    'QzDIGITxONE_08'
 
 Notice that only the first digit had to be munged to make it a valid Python identifier.
+
+.. code-block:: REPL
+
+   #> '1o8 ; Clearly not a number, so no escape required.
+   >>> 'QzDIGITxONE_o8'
+   'QzDIGITxONE_o8'
 
 Control Words
 ~~~~~~~~~~~~~
@@ -838,7 +845,7 @@ Calls
 #####
 
 Any tuple that is not quoted, empty, or a special form or macro is
-a runtime call.
+a run-time call.
 
 The first element of a call tuple is the callable.
 The remaining elements are for the arguments.
@@ -979,7 +986,7 @@ but the Hissp compiler will accept other object types.
 1:2:3
 
 Tuples represent invocations in Hissp,
-strings represent raw Python code (and imports).
+strings are Python code (and imports and control words).
 Other objects simply represent themselves.
 In fact,
 some of the reader syntax we have already seen creates non-string objects in the Hissp.
@@ -1005,7 +1012,7 @@ Consider how easily you can programmatically manipulate Hissp before compiling i
 >>> eval(readerless(_))
 Hello, World!
 
-We changed the case of a string here before the compiler even saw it.
+Here, we changed a lowercase string to title case before the compiler even saw it.
 
 Are we giving up this kind of power by using Lissp instead?
 
@@ -1039,9 +1046,9 @@ Notice the title casing method has already been applied.
 Just like our Python example,
 this ran a program to help generate the Hissp before passing it to the compiler.
 
-The ``.#`` is another builtin reader macro called *inject*.
-It evaluates the next form
-and injects the resulting object into the Hissp.
+The ``.#`` is another built-in reader macro called *inject*.
+It compiles and evaluates the next form
+and is replaced with the resulting object in the Hissp.
 Reader macros are unary operators that apply inside-out,
 like functions,
 at `read time`_.
@@ -1059,20 +1066,7 @@ Python injection:
    >>> {(1, 2): """buckle my shoe"""}  # This is Python!
    {(1, 2): 'buckle my shoe'}
 
-Reader macros compose:
-
-.. code-block:: REPL
-
-   #> '.#"{(3, 4): 'shut the door'}" ; this quoted inject is a string
-   >>> "{(3, 4): 'shut the door'}"
-   "{(3, 4): 'shut the door'}"
-
-   #> '.#.#"{(5, 6): 'pick up sticks'}" ; even quoted, this double inject is a dict
-   >>> {(5, 6): 'pick up sticks'}
-   {(5, 6): 'pick up sticks'}
-
-Let's look at another double-inject example.
-Keeping the phases of compilation straight can be confusing.
+Reader macros compose inside-out:
 
 .. code-block:: REPL
 
@@ -1085,7 +1079,7 @@ Keeping the phases of compilation straight can be confusing.
    [1, 2, 3, 1, 2, 3, 1, 2, 3]
 
 Same result, but the Python part is different.
-The list multiplication didn't happen until runtime in the first instance,
+The list multiplication didn't happen until run time in the first instance,
 but happened before the Python was generated in the second.
 
 Compare that to the equivalent readerless mode.
@@ -1098,6 +1092,50 @@ Compare that to the equivalent readerless mode.
 '[1, 2, 3, 1, 2, 3, 1, 2, 3]'
 >>> eval(_)
 [1, 2, 3, 1, 2, 3, 1, 2, 3]
+
+Let's look at another double-inject example.
+Keeping the phases of compilation straight can be confusing.
+
+.. code-block:: REPL
+
+   #> '"{(1, 2): 'buckle my shoe'}" ; quoted raw string contains a Python literal
+   >>> '("{(1, 2): \'buckle my shoe\'}")'
+   '("{(1, 2): \'buckle my shoe\'}")'
+
+   #> '.#"{(3, 4): 'shut the door'}" ; quoted injected raw contains a dict
+   >>> "{(3, 4): 'shut the door'}"
+   "{(3, 4): 'shut the door'}"
+
+   #> '.#.#"{(5, 6): 'pick up sticks'}" ; even quoted, this double inject is a dict
+   >>> {(5, 6): 'pick up sticks'}
+   {(5, 6): 'pick up sticks'}
+
+Still confused?
+Remember, inject compiles the next parsed object as Hissp,
+evaluates it as Python,
+then is replaced with the resulting object.
+Let's look at this process in readerless mode,
+so we can see some intermediate values.
+
+>>> '("{(3, 4): \'shut the door\'}")'  # next parsed object
+'("{(3, 4): \'shut the door\'}")'
+>>> eval(readerless(_))  # The inject. Innermost reader macro first.
+"{(3, 4): 'shut the door'}"
+>>> eval(readerless(_))  # Then the quote.
+{(3, 4): 'shut the door'}
+
+With one inject the result was a string object.
+
+>>> '("{(5, 6): \'pick up sticks\'}")'  # next parsed object
+'("{(5, 6): \'pick up sticks\'}")'
+>>> eval(readerless(_))  # First inject, on the right.
+"{(5, 6): 'pick up sticks'}"
+>>> eval(readerless(_))  # Second inject, in the middle.
+{(5, 6): 'pick up sticks'}
+>>> eval(readerless(q(_)))  # Finally, quote, on the left.
+{(5, 6): 'pick up sticks'}
+
+With two, it's a dict.
 
 How about these?
 
@@ -1113,7 +1151,7 @@ How about these?
    ... )
    [[], [], []]
 
-What's with the pickle expression?
+What's with the `pickle.loads` expression?
 It seems to produce the right object.
 Is this the reader's doing?
 
@@ -1165,7 +1203,8 @@ Well, what *should* it compile to?
    >>> _
    [[7], [7], [7]]
 
-The pickle-loading expression could produce an equivalent object,
+It's three references to the same list, not to three lists.
+The pickle expression could produce an equivalent object graph,
 even though the literal notation can't.
 Objects in Hissp that aren't strings or tuples are supposed to evaluate to themselves.
 In theory,
@@ -1277,7 +1316,7 @@ Hissp had to give up with an error this time.
 Qualified Reader Macros
 #######################
 
-Besides a few builtins,
+Besides a few built-ins,
 reader macros in Lissp consist of a symbol ending with a ``#``,
 followed by another form.
 
@@ -1343,8 +1382,9 @@ this might be a clearer way of expressing the number 81.
 other representations,
 like ``0x51`` could be better.)
 If you evaluate it at read time like this,
-then there is no runtime overhead for the alternative notation,
-just like there's no runtime overhead for using a hex literal instead of decimal.
+then there is no run-time overhead for the alternative notation,
+because it's compiled to ``(81)``,
+just like there's no run-time overhead for using a hex literal instead of decimal in Python.
 
 Reader macros can also be unqualified.
 These three macros are built into the reader:
@@ -1372,6 +1412,7 @@ Templates
 #########
 
 Besides ``'``, which we've already seen,
+and ``!``, which we'll cover later,
 Lissp has three other built-in reader macros that don't require a ``#``:
 
 * ````` template quote
@@ -1478,8 +1519,8 @@ then it's easier to read.
 
 Templates are Lissp syntactic sugar based on what Hissp already has.
 
-Templates are extremely valuable tools for metaprogramming.
-It's a domain-specific language for programmatically writing Hissp code.
+Templates are a domain-specific language for programmatically writing Hissp code,
+making them valuable tools for metaprogramming.
 Most compiler macros will use at least one internally.
 
 Judicious use of sugar like this can make code much easier to read and write.
@@ -1488,11 +1529,12 @@ they are not equally *expressive*.
 Metaprogramming makes a language more expressive.
 Reader macros are a kind of metaprogramming.
 Because you can make your own reader macros,
-you can make your own sugar for your own purposes.
+you can make your own sugar.
 
 Gensyms
 #######
-The final builtin reader macro ``$#`` creates a *generated symbol*
+
+The built-in reader macro ``$#`` creates a *generated symbol*
 (gensym) based on the given symbol.
 Within a template, the same gensym name always makes the same gensym:
 
@@ -1515,6 +1557,39 @@ But each new template increments the counter.
 Gensyms are mainly used to prevent accidental name collisions in generated code,
 which is very important for reliable compiler macros.
 
+Extra
+#####
+
+The final built-in reader macro ``!``
+is used to pass extra arguments to other reader macros.
+None of Lissp's built-in reader macros use it,
+but extras can be helpful quick refinements for functions with optional arguments,
+without the need to create a new reader macro for each specialization.
+
+.. code-block:: REPL
+
+   #> builtins..int#"21" ; normal base ten
+   >>> (21)
+   21
+
+   #> builtins..int#!6"21" ; base six with optional base arg
+   >>> (13)
+   13
+
+A reader macro can have more than one extra.
+
+Note that since extras are often optional arguments,
+they're passed in *after* the reader macro's primary argument,
+even though they're written first.
+
+.. code-block:: REPL
+
+   #> builtins..range# !0 !-1 20
+   >>> __import__('pickle').loads(  # range(20, 0, -1)
+   ...     b'cbuiltins\nrange\n(I20\nI0\nI-1\ntR.'
+   ... )
+   range(20, 0, -1)
+
 Collection Atoms
 ----------------
 
@@ -1531,8 +1606,7 @@ A subset of Python's data structure notation works in Lissp as well:
    {'foo': 2}
 
 You can nest these to create small, JSON-like data structures
-which can be very useful as inputs to macros,
-(especially reader macros, which can only take one argument).
+which can be very useful as inputs to reader macros.
 
 Tuples are different.
 Since they normally represent code,
@@ -1582,7 +1656,7 @@ because these collections are read in as a *single atom*,
 they may contain only simple static values discernible at `read time`_:
 literals, no calls.
 
-If you want to interpolate runtime data,
+If you want to interpolate run-time data,
 use function calls and templates instead:
 
 .. code-block:: REPL
@@ -1873,7 +1947,8 @@ symbol. (Like a quoted symbol):
    ...   'inf')
    ('builtins..float', 'inf')
 
-Let's try again. Note the three reader macros in a row: ``','``.
+Let's try the greet again with what we've learned about auto-qualification.
+Note the three reader macros in a row: ``','``.
 
 .. code-block:: REPL
 
@@ -1965,11 +2040,15 @@ but you can't delay the evaluation of the `.upper()<str.upper>`
 without a lambda,
 which really negates the whole point of creating a shorter lambda.
 
-One of the main uses of macros is delaying evaluation.
+Delaying (and then reordering, repeating or skipping)
+evaluation is one of the main uses of macros.
 You can do that much with a lambda in Python.
-But advanced macros can inject anaphors,
-delay evaluation,
-and do a find-and-replace on symbols in code all at once.
+But advanced macros can do other things:
+inject anaphors,
+introduce new bindings,
+do a find-and-replace on symbols in code,
+implement whole DSLs,
+or all of these at once.
 You have full programmatic control over the *code itself*,
 with the full power of Python's ecosystem.
 

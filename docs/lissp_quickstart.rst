@@ -416,6 +416,10 @@ Lissp Quick Start
    >>> (lambda *,x:())
    <function <lambda> at 0x...>
 
+   #> (lambda (:* : x :?))                ;Slid : over one. Still a kwonly.
+   >>> (lambda *,x:())
+   <function <lambda> at 0x...>
+
    #> (lambda (:* x :))                   ;Implicit :? is the same. Compare.
    >>> (lambda *,x:())
    <function <lambda> at 0x...>
@@ -519,16 +523,24 @@ Lissp Quick Start
 
    ;; Quote is the only other special form. Looks like a call, but isn't.
 
-   ;; Quotation prevents evaluation.
+   ;; A "form" is any Hissp data that can be evaluated.
+   ;; Not all data is a valid program in Hissp. E.g. ``(7 42)`` is a
+   ;; tuple, containing the integers 7 in the function position, and 42
+   ;; after in the first argument position, but it would crash, because
+   ;; ints are not callable in Python.
+
+   ;; Quotation suppresses evaluation of Hissp data.
    ;; Treating the code itself as data is the key concept in metaprogramming.
+
+   #> (quote (7 42))
+   >>> ((7),
+   ...  (42),)
+   (7, 42)
+
 
    ;; Other objects evaluate to themselves, but strings and tuples have
    ;; special evaluation rules in Hissp. Tuples represent invocations of
-   ;; functions, macros, and special forms, while strings represent raw
-   ;; Python code to include in the compiled output (as well as module
-   ;; literals and control words), which are usually used for identifiers,
-   ;; but can be anything. Quoting suppresses this evaluation, rendering
-   ;; the raw Python code as string data, and the invocations as tuples.
+   ;; functions, macros, and special forms.
 
    #> (quote (print 1 2 3 : sep "-"))     ;Just a tuple.
    >>> ('print',
@@ -540,38 +552,68 @@ Lissp Quick Start
    ...  "('-')",)
    ('print', 1, 2, 3, ':', 'sep', "('-')")
 
+
+   ;; Hissp-level strings contain Python code to include in the compiled
+   ;; output. These usually contain identifiers, but can be anything.
+   ;; Thus, Lissp identifiers read as strings at the Hissp level.
    #> (quote identifier)                  ;Just a string.
    >>> 'identifier'
    'identifier'
 
+
+   ;; Quoting does not suppress munging, however. That happens at read
+   ;; time. Quoting doesn't happen until compile time.
+   #> (quote +)
+   >>> 'QzPLUS_'
+   'QzPLUS_'
+
+
+   ;; Quoting works on any Hissp data.
    #> (quote 42)                          ;Just a number. It was before though.
    >>> (42)
    42
 
 
-   ;; The "..."/#"..." Lissp read syntax is for creating a Python-level string.
-   ;; It is NOT for creating a Hissp-level string.
-   #> (quote "a string")                  ;Unexpected? "..."/#"..." is read syntax!
+   ;; The raw strings and hash strings in Lissp ("..."/#"..." syntax)
+   ;; also read as strings at the Hissp level, but they contain Python
+   ;; code for a string, which distinguishes them from identifiers.
+   #> (quote "a string")                  ;Unexpected? "..."/#"..." is reader syntax!
    >>> "('a string')"
    "('a string')"
 
-   #> (eval (quote "a string"))           ;Raw Python code. For a string.
+   #> (eval (quote "a string"))           ;Python code. For a string.
    >>> eval(
    ...   "('a string')")
    'a string'
 
 
+   ;; Strings in Hissp are also used for module literals and control
+   ;; words. The compiler does a little preprocessing here. Quoting
+   ;; suppresses this evaluation too.
+
+   #> math.                               ;This string gets preprocessed.
+   >>> __import__('math')
+   <module 'math' ...>
+
+   #> (quote math.)                       ;Quoting suppresses. No __import__.
+   >>> 'math.'
+   'math.'
+
+   #> (quote :?)                          ;Just a string. It was before though?
+   >>> ':?'
+   ':?'
+
    #> :?                                  ;Just a string?
    >>> ':?'
    ':?'
 
-   #> ((lambda (: a :?) a))               ;Not that simple!
+   #> ((lambda (: a :?) a))               ;Not quite! Some have contextual meaning.
    >>> (lambda a:a)()
    Traceback (most recent call last):
      ...
    TypeError: <lambda>() missing 1 required positional argument: 'a'
 
-   #> ((lambda (: a (quote :?)) a))       ;Just a string.
+   #> ((lambda (: a (quote :?)) a))       ;Just a string. Even in context.
    >>> (lambda a=':?':a)()
    ':?'
 
@@ -579,7 +621,8 @@ Lissp Quick Start
    ;;;; Reader Macros
 
    ;; Reader macros are metaprograms to abbreviate Hissp and don't represent it directly.
-   ;; They apply to the next form. They end in # except for a few builtins-- ' ` , ,@
+   ;; They apply to the next parsed object at read time, before the compiler sees it.
+   ;; They end in # except for a few builtins-- ' ! ` , ,@
 
    ;;; Quote
 
@@ -596,6 +639,8 @@ Lissp Quick Start
    ;;; Template Quote
 
    ;; (Like quasiquote, backquote, or syntax-quote from other Lisps.)
+   ;; This is a DSL for making Hissp trees programmatically.
+   ;; They're very useful for metaprogramming.
 
    #> `print                              ;Automatic qualification!
    >>> 'builtins..print'
@@ -676,10 +721,9 @@ Lissp Quick Start
 
    ;;; The Discard Macro
 
-   #> _#"
-   #..The discard reader macro _# omits the next form.
+   #> _#"The discard reader macro _# omits the next form.
    #..It's a way to comment out code structurally.
-   #..It can also make comments like this one.
+   #..It can also make block comments like this one.
    #..This would show up when compiled if not for _#.
    #.."
    >>>
@@ -734,6 +778,12 @@ Lissp Quick Start
    THE FLOW.
 
 
+   ;; The reader normally discards them, but
+   #> 'builtins..repr#;comments are parsed objects too!
+   >>> "Comment(content='comments are parsed objects too!')"
+   "Comment(content='comments are parsed objects too!')"
+
+
    _#"Except for strings and tuples, objects in Hissp should evaluate to
    themselves. But when the object lacks a Python literal notation,
    the compiler is in a pickle!
@@ -784,10 +834,10 @@ Lissp Quick Start
    <function <lambda> at 0x...>
 
 
-   _#"Remember the raw string and hash string read syntax makes Python-
+   _#"Remember the raw string and hash string reader syntax makes Python-
    level strings, via a Hissp-level string containing a Python string
    literal. It is NOT for creating a Hissp-level string, which would
-   normally represent raw Python code. Use inject for that.
+   normally contain Python code. Use inject for that.
    "
    #> '"a string"                         ;Python code for a string. In a string.
    >>> "('a string')"
@@ -802,6 +852,54 @@ Lissp Quick Start
    ;; Statement injections work at the top level only.
    #> .#"from operator import *"          ;/!\ All your operator are belong to us.
    >>> from operator import *
+
+
+   ;;; Extra !
+
+   _#"Reader macros take one primary argument, but additional arguments
+   can be passed in with the extra macro !. They must be written in
+   between the # and primary argument, but because they're often
+   optional refinements, which are easier to define as trailing optional
+   parameters in in Python functions, they get passed in after the
+   primary argument.
+   "
+   #> builtins..Exception#"oops"
+   >>> __import__('pickle').loads(  # Exception('oops')
+   ...     b'cbuiltins\nException\n(Voops\ntR.'
+   ... )
+   Exception('oops')
+
+   #> builtins..Exception#!1"oops"
+   >>> __import__('pickle').loads(  # Exception('oops', 1)
+   ...     b'cbuiltins\nException\n(Voops\nI1\ntR.'
+   ... )
+   Exception('oops', 1)
+
+   #> builtins..Exception# !1 !2 "oops"   ;Note the order!
+   >>> __import__('pickle').loads(  # Exception('oops', 1, 2)
+   ...     b'cbuiltins\nException\n(Voops\nI1\nI2\ntR.'
+   ... )
+   Exception('oops', 1, 2)
+
+   #> .#(Exception "oops" 1 2)            ;Inject. Note the order.
+   >>> __import__('pickle').loads(  # Exception('oops', 1, 2)
+   ...     b'cbuiltins\nException\n(Voops\nI1\nI2\ntR.'
+   ... )
+   Exception('oops', 1, 2)
+
+   #> builtins..Exception#!1!2"oops"      ;Careful, ! is only a macro at the start.
+   >>> __import__('pickle').loads(  # Exception('oops', 'QzDIGITxONE_QzBANG_2')
+   ...     b'cbuiltins\nException\n(Voops\nVQzDIGITxONE_QzBANG_2\ntR.'
+   ... )
+   Exception('oops', 'QzDIGITxONE_QzBANG_2')
+
+
+   ;; Yeah, you can nest these if you have to.
+   #> builtins..Exception# !"!" !builtins..Exception#!1 builtins..Exception#!A"uh-oh" !"?" "oops"
+   >>> __import__('pickle').loads(  # Exception('oops', '!', Exception(Exception('uh-oh', 'A'), 1), '?')
+   ...     b'cbuiltins\nException\np0\n(Voops\nV!\ng0\n(g0\n(Vuh-oh\nVA\ntRI1\ntRV?\ntR.'
+   ... )
+   Exception('oops', '!', Exception(Exception('uh-oh', 'A'), 1), '?')
 
 
    ;;;; Collections
@@ -954,7 +1052,7 @@ Lissp Quick Start
    {'a': 1, 2: 'b'}
 
    #> (dict `((,'+ 42)
-   #..        (,(+ 1 1) ,'b)))            ;Runtime interpolation with a template.
+   #..        (,(+ 1 1) ,'b)))            ;Run-time interpolation with a template.
    >>> dict(
    ...   (lambda * _: _)(
    ...     (lambda * _: _)(
@@ -1034,7 +1132,7 @@ Lissp Quick Start
    ['1 2', '3', (4, 5), '6;7\\8']
 
 
-   ;; Constructors or helpers also work. (And can interpolate runtime data.)
+   ;; Constructors or helpers also work. (And can interpolate run-time data.)
    #> (list `(,"1 2" ,"3" (4 5) ,"6;7\8"))
    >>> list(
    ...   (lambda * _: _)(
@@ -1500,36 +1598,82 @@ Lissp Quick Start
 
 
    ;; Makes a new reader macro to abbreviate a qualifier.
-   #> (hissp.basic.._macro_.alias b/ hissp.basic.._macro_.)
+   #> (hissp.basic.._macro_.alias M/ hissp.basic.._macro_)
    >>> # hissp.basic.._macro_.alias
    ... # hissp.basic.._macro_.defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fn_QzNo7_=(lambda _G_QzNo31_:(
-   ...   'Aliases hissp.basic.._macro_. as bQzSOL_#',
-   ...   ('{}{}').format(
-   ...     'hissp.basic.._macro_.',
-   ...     _G_QzNo31_))[-1]):(
+   ... (lambda _fn_QzNo7_=(lambda _prime_QzNo34_,_reader_QzNo34_=None,*_args_QzNo34_:(
+   ...   "('Aliases hissp.basic.._macro_ as MQzSOL_#')",
+   ...   # hissp.basic.._macro_.ifQz_else
+   ...   (lambda test,*thenQz_else:
+   ...     __import__('operator').getitem(
+   ...       thenQz_else,
+   ...       __import__('operator').not_(
+   ...         test))())(
+   ...     _reader_QzNo34_,
+   ...     (lambda :
+   ...       __import__('builtins').getattr(
+   ...         __import__('hissp.basic',fromlist='?')._macro_,
+   ...         ('{}{}').format(
+   ...           _reader_QzNo34_,
+   ...           # hissp.basic.._macro_.ifQz_else
+   ...           (lambda test,*thenQz_else:
+   ...             __import__('operator').getitem(
+   ...               thenQz_else,
+   ...               __import__('operator').not_(
+   ...                 test))())(
+   ...             __import__('operator').contains(
+   ...               'hissp.basic.._macro_',
+   ...               '_macro_'),
+   ...             (lambda :'QzHASH_'),
+   ...             (lambda :('')))))(
+   ...         _prime_QzNo34_,
+   ...         *_args_QzNo34_)),
+   ...     (lambda :
+   ...       ('{}.{}').format(
+   ...         'hissp.basic.._macro_',
+   ...         _prime_QzNo34_))))[-1]):(
    ...   __import__('builtins').setattr(
    ...     _fn_QzNo7_,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
-   ...        'bQzSOL_QzHASH_',))),
+   ...        'MQzSOL_QzHASH_',))),
    ...   __import__('builtins').setattr(
    ...     __import__('operator').getitem(
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
-   ...     'bQzSOL_QzHASH_',
+   ...     'MQzSOL_QzHASH_',
    ...     _fn_QzNo7_))[-1])()
 
-   #> 'b/#alias                           ;Now short for 'hissp.basic.._macro_.alias'.
+   #> 'M/#alias                           ;Now short for 'hissp.basic.._macro_.alias'.
    >>> 'hissp.basic.._macro_.alias'
    'hissp.basic.._macro_.alias'
 
+   #> M/#b\#                              ;b# macro callable
+   >>> __import__('hissp.basic',fromlist='?')._macro_.bQzHASH_
+   <function _macro_.bQzHASH_ at ...>
 
-   ;; Imports a copy of hissp.basic.._macro_ (if available)
-   ;; and star imports from operator and itertools.
-   #> (b/#prelude)                        ;/!\
+   #> (M/#b\# .#"b# macro at compile time")
+   >>> # hissp.basic.._macro_.bQzHASH_
+   ... b'b# macro at compile time'
+   b'b# macro at compile time'
+
+   #> hissp.basic.._macro_.b\##"Fully qualified b# macro at read time."
+   >>> b'Fully qualified b# macro at read time.'
+   b'Fully qualified b# macro at read time.'
+
+   #> M/#!b"Read-time b# via alias."      ;Extra arg for alias with !
+   >>> b'Read-time b# via alias.'
+   b'Read-time b# via alias.'
+
+
+   _#"Imports partial and reduce; star imports from operator and
+   itertools; defines the en- group utilities; and imports a copy of
+   hissp.basic.._macro_ (if available). Usually the first form in a file,
+   because it overwrites _macro_, but completely optional.
+   "
+   #> (M/#prelude)                        ;/!\
    >>> # hissp.basic.._macro_.prelude
    ... __import__('builtins').exec(
    ...   ('from functools import partial,reduce\n'
@@ -1549,8 +1693,10 @@ Lissp Quick Start
    ...    'except ModuleNotFoundError:pass'),
    ...   __import__('builtins').globals())
 
+
    ;;; Reader
 
+   ;; No need for the alias after prelude. b# is now in _macro_.
    #> b#"bytes"                           ;Bytes reader macro.
    >>> b'bytes'
    b'bytes'
@@ -1578,6 +1724,38 @@ Lissp Quick Start
    <lambda> lambda raw
        ``b#`` bytes literal reader macro
    <BLANKLINE>
+
+
+   ;; Comment string.
+   #> <<#;Don't worry about the "quotes".
+   >>> 'Don\'t worry about the "quotes".'
+   'Don\'t worry about the "quotes".'
+
+
+   ;; Joined comment string.
+   #> <<#!;C:\bin
+   #..   !;C:\Users\ME\Documents
+   #..   !;C:\Users\ME\Pictures
+   #..";"
+   >>> 'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
+   'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
+
+
+   ;; Embed other languages without escapes.
+   #> (exec
+   #..  <<#
+   #..  !;for i in 'abc':
+   #..  !;    for j in 'xyz':
+   #..  !;        print(i+j, end=" ")
+   #..  !;print('.')
+   #..  !;
+   #..  #"\n")
+   >>> exec(
+   ...   ("for i in 'abc':\n"
+   ...    "    for j in 'xyz':\n"
+   ...    '        print(i+j, end=" ")\n'
+   ...    "print('.')\n"))
+   ax ay az bx by bz cx cy cz .
 
 
    ;;; Side Effect

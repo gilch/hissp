@@ -34,7 +34,7 @@ def _cmd(args, ns):
 
 
 def _with_args(args, ns):
-    with argparse.FileType("r")(args.file) as file:
+    with argparse.FileType("r", encoding="utf8")(args.file) as file:
         sys.argv = [file.name, *args.args]
         code = file.read()
     args.i(re.sub("^#!.*\n", "\n", code), ns)
