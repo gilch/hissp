@@ -1734,15 +1734,16 @@ Lissp Quick Start
 
    ;; Joined comment string.
    #> <<#!;C:\bin
-   #..!;C:\Users\ME\Documents
-   #..!;C:\Users\ME\Pictures
+   #..   !;C:\Users\ME\Documents
+   #..   !;C:\Users\ME\Pictures
    #..";"
    >>> 'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
    'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
 
 
    ;; Embed other languages without escapes.
-   #> (exec <<#
+   #> (exec
+   #..  <<#
    #..  !;for i in 'abc':
    #..  !;    for j in 'xyz':
    #..  !;        print(i+j, end=" ")
