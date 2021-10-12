@@ -985,7 +985,7 @@ Like this
    #..  __enter__ (lambda (self))
    #..  __exit__ (lambda (self exc_type exception traceback)
    #..             (when (isinstance exception self.catch)
-   #..               (.handler self exception)
+   #..               (self.handler exception)
    #..               True)))
    >>> # deftype
    ... # hissp.basic.._macro_.define
