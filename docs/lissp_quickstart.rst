@@ -577,7 +577,7 @@ Lissp Quick Start
    ;; The raw strings and hash strings in Lissp ("..."/#"..." syntax)
    ;; also read as strings at the Hissp level, but they contain Python
    ;; code for a string, which distinguishes them from identifiers.
-   #> (quote "a string")                  ;Unexpected? "..."/#"..." is read syntax!
+   #> (quote "a string")                  ;Unexpected? "..."/#"..." is reader syntax!
    >>> "('a string')"
    "('a string')"
 
@@ -834,7 +834,7 @@ Lissp Quick Start
    <function <lambda> at 0x...>
 
 
-   _#"Remember the raw string and hash string read syntax makes Python-
+   _#"Remember the raw string and hash string reader syntax makes Python-
    level strings, via a Hissp-level string containing a Python string
    literal. It is NOT for creating a Hissp-level string, which would
    normally contain Python code. Use inject for that.

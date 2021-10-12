@@ -1858,8 +1858,8 @@ It's the way you invoke it that makes it happen at read time:
    [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
 
 
-Reader macros like this effectively create new read syntax
-by reinterpreting existing read syntax.
+Reader macros like this effectively create new reader syntax
+by reinterpreting existing reader syntax.
 
 So now we have function literals.
 

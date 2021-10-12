@@ -392,7 +392,7 @@ Python's are still available in injections:
    >>> '\u263a'
    '☺'
 
-Or use the hash-string read syntax for short:
+Or use the hash-string reader syntax for short:
 
 .. code-block:: REPL
 
