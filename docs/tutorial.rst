@@ -59,7 +59,7 @@ Install the Hissp version matching this document with::
 Hello World
 ===========
 
-A Hissp program is made of Python objects composed into tuples
+A Hissp program is made of Python objects in tuples
 which represent the syntax tree structure.
 
 >>> hissp_program = (

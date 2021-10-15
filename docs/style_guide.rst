@@ -417,7 +417,7 @@ Your code should look like these examples, recursively applied to subforms:
      data1                                ; Probably only worth it if there's a lot more than 3,
      data2                                ; or it changes frequently. Use this style sparingly.
      data3
-     _##)                                 ;Trails NEVER get their own line.
+     _#/)                                 ;Trails NEVER get their own line.
                                           ; But you can hold it open with a discarded item.
 
    (function arg1 arg2 arg3)
@@ -784,7 +784,7 @@ Align extras spanning lines like tuple contents.
 
    ;; Don't dangle brackets!
    (print <<#;Hello, World!
-          _##)
+          _#/)
 
 Identifiers
 ===========

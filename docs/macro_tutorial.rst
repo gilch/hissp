@@ -249,8 +249,8 @@ And push it to the REPL as well:
    In Lissp files, the prelude is meant to be used before any definitions,
    when it is used at all.
    Likewise, in the REPL, enter it first, or be prepared to re-enter your definitions.
-   The REPL already comes with the `basic` macros,
-   but not the `itertools` or `operator`\ s.
+   The REPL already comes with the `basic` macros loaded,
+   but not the en- group or imports.
 
 I'll mostly be showing the REPL from here on.
 Remember, compose in your Lissp file,
@@ -391,7 +391,7 @@ but you C people are thinking,
 We can do that much in C with the preprocessor.
 I bet we could preprocess Python too somehow."
 To which I'd reply,
-*What do you think Lissp is?!*
+*What do you think Lissp is?*
 
 The C preprocessor is pretty limited.
 Lissp is a transpiler.
@@ -417,7 +417,7 @@ Compare:
    lambda x: x * x
 
 It didn't help, did it?
-It got longer!
+It got *longer*.
 Can we do better?
 
 >>> e = eval
@@ -1858,8 +1858,10 @@ It's the way you invoke it that makes it happen at read time:
    [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
 
 
-.. sidebar:: Beware of side effects when defining reader macros.
+.. Caution:: Avoid side effects in reader macros.
 
+   Well-written reader macros should not have side effects at read time,
+   or at least make them idempotent.
    Tooling that reads Lissp may have to backtrack
    or restart reading of an invalid form.
    E.g. before compiling a form,
@@ -1867,8 +1869,6 @@ It's the way you invoke it that makes it happen at read time:
    If it isn't, it will ask for another line and attempt to read it again.
    Thus, a reader macro on the first line will get evaluated again for each line input after,
    until the form is completed or aborted.
-   Well-written reader macros should therefore not have side effects at read time,
-   or at least make them idempotent.
 
 Reader macros like this effectively create new reader syntax
 by reinterpreting existing reader syntax.
@@ -2479,7 +2479,7 @@ we'd have to put the sign after.
    >>> (-1)
    -1
 
-That worked! Not.
+That worked. Not.
 
 .. code-block:: REPL
 
