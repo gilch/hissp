@@ -19,7 +19,7 @@ from collections import namedtuple
 from contextlib import contextmanager, nullcontext
 from functools import reduce
 from importlib import import_module, resources
-from itertools import chain
+from itertools import chain, takewhile
 from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
@@ -61,7 +61,7 @@ TOKENS = re.compile(
     )*  # Zero or more times.
   "  # Close quote.
  )
-|(?P<continue>")
+|(?P<continue>[#]?")  # String not closed.
 |(?P<atom>(?:[^\\ \n"();]|\\.)+)  # Let Python deal with it.
 |(?P<error>.)
 """
@@ -127,7 +127,13 @@ class Lexer(Iterator):
 
 _Unquote = namedtuple('_Unquote', ['target', 'value'])
 Comment = namedtuple('Comment', ['content'])
-Extra = namedtuple('Extra', ['argument'])
+
+
+class Extra(tuple):
+    """Designates Extra read-time arguments for reader macros."""
+    def __repr__(self):
+        return f"Extra({list(self)!r})"
+
 
 def gensym_counter(_count=[0], _lock=Lock()):
     """
@@ -278,7 +284,7 @@ class Lissp:
         nondrop = self._filter_drop()
         try:
             while isinstance(form:=next(nondrop), Extra):
-                extras.append(form.argument)
+                extras.extend(form)
         except StopIteration:
             e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
             raise e(f"Reader macro {v!r} missing argument.", self.position(p)) from None
@@ -291,7 +297,7 @@ class Lissp:
                 raise SyntaxError(f"Extra for {s!r} reader macro.")
             return b
         if case("'"): return "quote", form
-        if case("!"): return Extra(_eval_if_string(form))
+        if case("!"): return Extra([form])
         if case("`"): return self.template(form)
         if case(","): return _Unquote(":?", form)
         if case(",@"): return _Unquote(":*", form)
@@ -364,7 +370,6 @@ class Lissp:
     def _custom_macro(self, form, tag, extras):
         assert tag.endswith("#")
         tag = munge(self.escape(tag[:-1]))
-        form = _eval_if_string(form)
         if ".." in tag:
             module, function = tag.split("..", 1)
             m = reduce(getattr, function.split("."), import_module(module))
@@ -374,7 +379,8 @@ class Lissp:
             except (AttributeError, KeyError):
                 raise SyntaxError(f"Unknown reader macro {tag!r}.", self.position())
         with self.compiler.macro_context():
-            return m(form, *extras)  # TODO: how to pass kwonly?
+            args, kwargs = _parse_extras(extras)
+            return m(form, *args, **kwargs)
 
     @staticmethod
     def escape(atom):
@@ -426,10 +432,17 @@ def is_string(form):
         return False
 
 
-def _eval_if_string(form):
-    if is_string(form):
-        form = ast.literal_eval(form)
-    return form
+def _parse_extras(extras):
+    it = iter(extras)
+    args = [*takewhile(lambda x: x != ':', it)]
+    kwargs = {}
+    for k in it:
+        v = next(it)
+        if k == ':?': args.append(v)
+        elif k == ':*': args.extend(v)
+        elif k == ':**': kwargs.update(v)
+        else: kwargs[k] = v
+    return args, kwargs
 
 
 def is_qualifiable(symbol):

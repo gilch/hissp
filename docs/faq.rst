@@ -351,7 +351,7 @@ And you can invoke bytes constructors at read time.
 
 .. code-block:: REPL
 
-   #> builtins..bytes.fromhex#"6279746573"
+   #> builtins..bytes.fromhex#.#"6279746573"
    >>> b'bytes'
    b'bytes'
 
