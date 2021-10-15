@@ -351,6 +351,7 @@ zrqvgngr ba guvf.
 (defmacro b\# (raw)
   "``b#`` bytes literal reader macro"
   (-> raw
+      (ast..literal_eval)
       (.replace "'" "\'")
       (.replace #"\n" "\n")
       (->> (.format "b'{}'"))
@@ -382,7 +383,8 @@ zrqvgngr ba guvf.
 
   "
   (if-else lines
-    `',(.join single (map (operator..attrgetter 'content) lines))
+    `',(.join (ast..literal_eval single)
+              (map (operator..attrgetter 'content) lines))
     `',(getattr single 'content)))
 
 ;;; import

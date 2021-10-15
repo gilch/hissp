@@ -565,7 +565,7 @@ use a dedent string, which can be safely indented:
 
 .. code-block:: REPL
 
-   #> (print (.upper 'textwrap..dedent##"\
+   #> (print (.upper 'textwrap..dedent#.##"\
    #..               These lines
    #..               Don't interrupt
    #..               the flow."))
@@ -690,8 +690,8 @@ or from their primary argument with whitespace.
 
 .. code-block:: Lissp
 
-   ' builtins..repr# .# (lambda :)        ;Bad
-   'builtins..repr#.#(lambda :)           ;Preferred
+   ' builtins..repr# .# (lambda :)        ;Bad.
+   'builtins..repr#.#(lambda :)           ;Preferred.
 
 However, if a primary argument spans multiple lines,
 it's acceptable to separate with a newline,
@@ -717,14 +717,14 @@ unless you explicitly discard it.
       (frobnicate a b c))
     arg)
 
-   _#((lambda abc
-      (frobnicate a b c))                 ;Bad. Wrong indentation!
-    arg)
-
-   ;; Better. Put the tag after the comment on its own line.
+   ;; OK. Put the tag after the comment on its own line.
    _#
    ((lambda abc
       (frobnicate a b c))
+    arg)
+
+   _#((lambda abc
+      (frobnicate a b c))                 ;Bad. Wrong indentation!
     arg)
 
    _#((lambda abc                         ;Preferred. No separation, good indents.
@@ -742,20 +742,17 @@ unless you explicitly discard it.
        arg)
 
 Extras may always be separated,
-but like function arguments,
-break for all or none,
-and only imply groups with whitespace if they are semantically grouped.
+but only imply groups of extras with whitespace if they are semantically grouped.
 
 .. code-block:: Lissp
 
-   builtins..int#!6"21"                   ;Preferred. Spacing not required.
+   builtins..int#!6 .#"21"                ;Preferred. Spacing not required.
    builtins..int# !6 "21"                 ;OK. Extras may always be separated.
-
-   'foo# !spam !eggs bar                  ;Preferred
-   'foo#!spam !eggs bar                   ;Bad. Inconsistent groups.
 
    'foo#!(spam)!(eggs)bar                 ;Preferred. Spacing not required.
    'foo# !(spam) !(eggs) bar              ;OK. Extras may always be separated.
+   'foo# !(spam)!(eggs) bar               ;Bad if grouping not meaningful.
+   'foo#!(spam) !(eggs) bar               ;Same.
 
 Align extras spanning lines like tuple contents.
 
@@ -868,10 +865,10 @@ For an argument, i.e. other method calls, prefer ``.foo bar``.
 
    ;;; Kind of Both
 
-   (self.foo spam eggs)                   ;Preferred
+   (self.foo spam eggs)                   ;Preferred.
    (.foo self spam eggs)                  ;OK.
 
-   (cls.foo spam eggs)                    ;Preferred
+   (cls.foo spam eggs)                    ;Preferred.
    (.foo cls spam eggs)                   ;OK.
 
    ;; self as namespace, self.accumulator as argument

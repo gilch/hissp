@@ -1858,6 +1858,18 @@ It's the way you invoke it that makes it happen at read time:
    [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
 
 
+.. sidebar:: Beware of side effects when defining reader macros.
+
+   Tooling that reads Lissp may have to backtrack
+   or restart reading of an invalid form.
+   E.g. before compiling a form,
+   the bundled `LisspREPL` attempts to read it to see if it is complete.
+   If it isn't, it will ask for another line and attempt to read it again.
+   Thus, a reader macro on the first line will get evaluated again for each line input after,
+   until the form is completed or aborted.
+   Well-written reader macros should therefore not have side effects at read time,
+   or at least make them idempotent.
+
 Reader macros like this effectively create new reader syntax
 by reinterpreting existing reader syntax.
 
@@ -2365,18 +2377,7 @@ And it does it so at *read time*.
 There's no run-time overhead for the conversion;
 the result is compiled in.
 
-.. code-block:: REPL
-
-   #> 16#"FF"
-   >>> (255)
-   255
-
-   #> 16#"12"
-   >>> (18)
-   18
-
-It even works without the quotes,
-since symbols read as strings as well.
+This works,
 
 .. code-block:: REPL
 
@@ -2384,7 +2385,7 @@ since symbols read as strings as well.
    >>> (255)
    255
 
-Or does it?
+however, this doesn't.
 
 .. code-block:: REPL
 
@@ -2394,7 +2395,9 @@ Or does it?
    TypeError: int() can't convert non-string with explicit base
 
 What's going on?
-Well, ``12`` is a valid base-ten int,
+Well, ``FF`` is a valid identifier,
+so it reads as a string containing that identifier,
+but ``12`` is a valid base-ten int,
 so it's read as an int.
 Python's `int` builtin doesn't do base conversions for those.
 
@@ -2489,7 +2492,7 @@ But this is fine.
 
 .. code-block:: REPL
 
-   #> 16#"-FF"
+   #> 16#.#"-FF"
    >>> (-255)
    -255
 
@@ -2498,7 +2501,7 @@ But this is fine.
    An alternate reader could certainly do reader macros differently.
    But Lissp's lexer is *intentionally* not extensible,
    for the same reasons that Clojure does not give the programmer access to its read table:
-   your tooling would no longer be able to parse your code.
+   your tooling would no longer be able to tokenize your code.
 
 What's going on?
 Symbols do read as strings,
@@ -2689,7 +2692,7 @@ you can already use `decimal.Decimal` as a reader macro:
 
 .. code-block:: REPL
 
-   #> (mul decimal..Decimal#".2" 3)
+   #> (mul decimal..Decimal#.#".2" 3)
    >>> mul(
    ...   __import__('pickle').loads(  # Decimal('0.2')
    ...       b'cdecimal\nDecimal\n(V0.2\ntR.'
@@ -2713,7 +2716,7 @@ Something like this never goes through a pickle.
 
 .. code-block:: REPL
 
-   #> 'builtins..repr#decimal..Decimal#".2"
+   #> 'builtins..repr#decimal..Decimal#.#".2"
    >>> "Decimal('0.2')"
    "Decimal('0.2')"
 
@@ -2791,7 +2794,7 @@ But there's still a subtle problem:
    ...   '0.12345678901234568')
    Decimal('0.12345678901234568')
 
-   #> 10#".1234567890_1234567890_000"
+   #> 10#.#".1234567890_1234567890_000"
    >>> __import__('decimal').Decimal(
    ...   '.1234567890_1234567890_000')
    Decimal('0.12345678901234567890000')

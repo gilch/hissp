@@ -743,7 +743,7 @@ Lissp Quick Start
    >>> 0xf00
    3840
 
-   #> builtins..ord#"Q"                   ;Reader macros make literal notation extensible.
+   #> builtins..ord#Q                     ;Reader macros make literal notation extensible.
    >>> (81)
    81
 
@@ -767,17 +767,6 @@ Lissp Quick Start
    'QzAPOS_x'
 
 
-   #> (print (.upper 'textwrap..dedent##"\
-   #..               These lines
-   #..               Don't interrupt
-   #..               the flow."))
-   >>> print(
-   ...   "These lines\nDon't interrupt\nthe flow.".upper())
-   THESE LINES
-   DON'T INTERRUPT
-   THE FLOW.
-
-
    ;; The reader normally discards them, but
    #> 'builtins..repr#;comments are parsed objects too!
    >>> "Comment(content='comments are parsed objects too!')"
@@ -794,28 +783,29 @@ Lissp Quick Start
    ... )
    inf
 
-   #> re..compile#"[1-9][0-9]*"
-   >>> __import__('pickle').loads(  # re.compile('[1-9][0-9]*')
-   ...     b'cre\n_compile\n(V[1-9][0-9]*\nI32\ntR.'
-   ... )
-   re.compile('[1-9][0-9]*')
-
-
-   _#"Such objects don't pickle until the compiler has to emit them as
-   Python code. That may never happen if another macro gets there first!
-   "
-   #> 'builtins..repr#(re..compile#"[1-9][0-9]*" builtins..float#inf)
-   >>> "(re.compile('[1-9][0-9]*'), inf)"
-   "(re.compile('[1-9][0-9]*'), inf)"
-
 
    ;;; Inject
 
-   _#"The 'inject' reader macro evaluates the next form at read time
-   and injects the resulting object directly into the Hissp tree, like a
-   qualified reader macro.
+   _#"The 'inject' reader macro compiles and evaluates the next form at
+   read time and injects the resulting object directly into the Hissp
+   tree, like a qualified reader macro does.
    "
-   ;; Use inject on a call for a muliary reader macro.
+
+   #> '(1 2 (operator..add 1 2))          ;Quoting happens at compile time.
+   >>> ((1),
+   ...  (2),
+   ...  ('operator..add',
+   ...   (1),
+   ...   (2),),)
+   (1, 2, ('operator..add', 1, 2))
+
+   #> '(1 2 .#(operator..add 1 2))        ;Inject happens at read time.
+   >>> ((1),
+   ...  (2),
+   ...  (3),)
+   (1, 2, 3)
+
+
    #> .#(fractions..Fraction 1 2)
    >>> __import__('pickle').loads(  # Fraction(1, 2)
    ...     b'cfractions\nFraction\n(V1/2\ntR.'
@@ -849,6 +839,48 @@ Lissp Quick Start
    'a string'
 
 
+   _#"Remember, reader macros get the next parsed object, unevaluated.
+   Without inject, we're operating on the string literal code, not its contents!
+   "
+   #> (print (.upper 'textwrap..dedent##"\
+   #..               These lines
+   #..               Don't interrupt
+   #..               the flow."))
+   >>> print(
+   ...   ("('               These lines\\n'\n"
+   ...    ' "               Don\'t interrupt\\n"\n'
+   ...    " '               the flow.')").upper())
+   ('               THESE LINES\N'
+    "               DON'T INTERRUPT\N"
+    '               THE FLOW.')
+
+
+   ;; With inject, the string literal got evaluated and re-inserted.
+   #> (print (.upper 'textwrap..dedent#.##"\
+   #..               These lines
+   #..               Don't interrupt
+   #..               the flow."))
+   >>> print(
+   ...   "These lines\nDon't interrupt\nthe flow.".upper())
+   THESE LINES
+   DON'T INTERRUPT
+   THE FLOW.
+
+
+   _#"Objects without literals don't pickle until the compiler has to emit
+   them as Python code. That may never happen if another macro gets there first!
+   "
+   #> 'builtins..repr#(re..compile#.#"[1-9][0-9]*" builtins..float#inf)
+   >>> "(re.compile('[1-9][0-9]*'), inf)"
+   "(re.compile('[1-9][0-9]*'), inf)"
+
+   #> re..compile#.#"[1-9][0-9]*"
+   >>> __import__('pickle').loads(  # re.compile('[1-9][0-9]*')
+   ...     b'cre\n_compile\n(V[1-9][0-9]*\nI32\ntR.'
+   ... )
+   re.compile('[1-9][0-9]*')
+
+
    ;; Statement injections work at the top level only.
    #> .#"from operator import *"          ;/!\ All your operator are belong to us.
    >>> from operator import *
@@ -857,25 +889,31 @@ Lissp Quick Start
    ;;; Extra !
 
    _#"Reader macros take one primary argument, but additional arguments
-   can be passed in with the extra macro !. They must be written in
-   between the # and primary argument, but because they're often
-   optional refinements, which are easier to define as trailing optional
+   can be passed in with the extra macro !. They must be written between
+   the # and primary argument, but because they're often optional
+   refinements, which are easier to define as trailing optional
    parameters in in Python functions, they get passed in after the
    primary argument.
    "
-   #> builtins..Exception#"oops"
+   #> !1
+   >>> __import__('pickle').loads(  # Extra([1])
+   ...     b'ccopyreg\n_reconstructor\n(chissp.reader\nExtra\ncbuiltins\ntuple\n(I1\nttR.'
+   ... )
+   Extra([1])
+
+   #> builtins..Exception#oops
    >>> __import__('pickle').loads(  # Exception('oops')
    ...     b'cbuiltins\nException\n(Voops\ntR.'
    ... )
    Exception('oops')
 
-   #> builtins..Exception#!1"oops"
+   #> builtins..Exception#!1 oops
    >>> __import__('pickle').loads(  # Exception('oops', 1)
    ...     b'cbuiltins\nException\n(Voops\nI1\ntR.'
    ... )
    Exception('oops', 1)
 
-   #> builtins..Exception# !1 !2 "oops"   ;Note the order!
+   #> builtins..Exception# !1 !2 oops     ;Note the order!
    >>> __import__('pickle').loads(  # Exception('oops', 1, 2)
    ...     b'cbuiltins\nException\n(Voops\nI1\nI2\ntR.'
    ... )
@@ -887,19 +925,35 @@ Lissp Quick Start
    ... )
    Exception('oops', 1, 2)
 
-   #> builtins..Exception#!1!2"oops"      ;Careful, ! is only a macro at the start.
-   >>> __import__('pickle').loads(  # Exception('oops', 'QzDIGITxONE_QzBANG_2')
-   ...     b'cbuiltins\nException\n(Voops\nVQzDIGITxONE_QzBANG_2\ntR.'
+   #> builtins..Exception#!: !:? !0 !:* !(1 2 3)oops ;Unpacking works like calls.
+   >>> __import__('pickle').loads(  # Exception('oops', 0, 1, 2, 3)
+   ...     b'cbuiltins\nException\n(Voops\nI0\nI1\nI2\nI3\ntR.'
    ... )
-   Exception('oops', 'QzDIGITxONE_QzBANG_2')
+   Exception('oops', 0, 1, 2, 3)
+
+   #> builtins..Exception#hissp.reader..Extra#(: :? 0 :* (1 2 3))oops ;Same
+   >>> __import__('pickle').loads(  # Exception('oops', 0, 1, 2, 3)
+   ...     b'cbuiltins\nException\n(Voops\nI0\nI1\nI2\nI3\ntR.'
+   ... )
+   Exception('oops', 0, 1, 2, 3)
+
+
+   ;; Kwargs also work like calls.
+   #> builtins..dict#()
+   >>> {}
+   {}
+
+   #> builtins..dict#!: !spam !1  !foo !2  !:** !.#(dict : eggs 3  bar 4)()
+   >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
+   {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
 
 
    ;; Yeah, you can nest these if you have to.
-   #> builtins..Exception# !"!" !builtins..Exception#!1 builtins..Exception#!A"uh-oh" !"?" "oops"
-   >>> __import__('pickle').loads(  # Exception('oops', '!', Exception(Exception('uh-oh', 'A'), 1), '?')
-   ...     b'cbuiltins\nException\np0\n(Voops\nV!\ng0\n(g0\n(Vuh-oh\nVA\ntRI1\ntRV?\ntR.'
+   #> builtins..Exception# !x !builtins..Exception#!1 builtins..Exception#!A .#"uh-oh" !y oops
+   >>> __import__('pickle').loads(  # Exception('oops', 'x', Exception(Exception('uh-oh', 'A'), 1), 'y')
+   ...     b'cbuiltins\nException\np0\n(Voops\nVx\ng0\n(g0\n(Vuh-oh\nVA\ntRI1\ntRVy\ntR.'
    ... )
-   Exception('oops', '!', Exception(Exception('uh-oh', 'A'), 1), '?')
+   Exception('oops', 'x', Exception(Exception('uh-oh', 'A'), 1), 'y')
 
 
    ;;;; Collections
@@ -1009,7 +1063,7 @@ Lissp Quick Start
    b'bytes'
 
    ;; Read-time equivalents.
-   #> builtins..bytes.fromhex#"6279746573"
+   #> builtins..bytes.fromhex#.#"6279746573"
    >>> b'bytes'
    b'bytes'
 
@@ -1598,12 +1652,12 @@ Lissp Quick Start
 
 
    ;; Makes a new reader macro to abbreviate a qualifier.
-   #> (hissp.basic.._macro_.alias M/ hissp.basic.._macro_)
+   #> (hissp.basic.._macro_.alias M: hissp.basic.._macro_)
    >>> # hissp.basic.._macro_.alias
    ... # hissp.basic.._macro_.defmacro
    ... # hissp.basic.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda _prime_QzNo34_,_reader_QzNo34_=None,*_args_QzNo34_:(
-   ...   "('Aliases hissp.basic.._macro_ as MQzSOL_#')",
+   ...   "('Aliases hissp.basic.._macro_ as MQzCOLON_#')",
    ...   # hissp.basic.._macro_.ifQz_else
    ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
@@ -1638,23 +1692,23 @@ Lissp Quick Start
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
-   ...        'MQzSOL_QzHASH_',))),
+   ...        'MQzCOLON_QzHASH_',))),
    ...   __import__('builtins').setattr(
    ...     __import__('operator').getitem(
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
-   ...     'MQzSOL_QzHASH_',
+   ...     'MQzCOLON_QzHASH_',
    ...     _fn_QzNo7_))[-1])()
 
-   #> 'M/#alias                           ;Now short for 'hissp.basic.._macro_.alias'.
+   #> 'M:#alias                           ;Now short for 'hissp.basic.._macro_.alias'.
    >>> 'hissp.basic.._macro_.alias'
    'hissp.basic.._macro_.alias'
 
-   #> M/#b\#                              ;b# macro callable
+   #> M:#b\#                              ;b# macro callable
    >>> __import__('hissp.basic',fromlist='?')._macro_.bQzHASH_
    <function _macro_.bQzHASH_ at ...>
 
-   #> (M/#b\# .#"b# macro at compile time")
+   #> (M:#b\# "b# macro at compile time")
    >>> # hissp.basic.._macro_.bQzHASH_
    ... b'b# macro at compile time'
    b'b# macro at compile time'
@@ -1663,7 +1717,7 @@ Lissp Quick Start
    >>> b'Fully qualified b# macro at read time.'
    b'Fully qualified b# macro at read time.'
 
-   #> M/#!b"Read-time b# via alias."      ;Extra arg for alias with !
+   #> M:#!b"Read-time b# via alias."      ;Extra arg for alias with !
    >>> b'Read-time b# via alias.'
    b'Read-time b# via alias.'
 
@@ -1673,7 +1727,7 @@ Lissp Quick Start
    hissp.basic.._macro_ (if available). Usually the first form in a file,
    because it overwrites _macro_, but completely optional.
    "
-   #> (M/#prelude)                        ;/!\
+   #> (M:#prelude)                        ;/!\
    >>> # hissp.basic.._macro_.prelude
    ... __import__('builtins').exec(
    ...   ('from functools import partial,reduce\n'

@@ -1050,12 +1050,12 @@ The ``.#`` is another built-in reader macro called *inject*.
 It compiles and evaluates the next form
 and is replaced with the resulting object in the Hissp.
 Reader macros are unary operators that apply inside-out,
-like functions,
+like functions do,
 at `read time`_.
 
 You can use inject to modify code at read time,
 to inject non-string objects that don't have their own reader syntax in Lissp,
-and to inject raw Python code strings by bypassing the reader syntax that would normally add quotation marks.
+and to inject Python code strings by evaluating the reader syntax that would normally add quotation marks.
 It's pretty important.
 
 Python injection:
@@ -1199,7 +1199,7 @@ Well, what *should* it compile to?
    ...   (0)).append(
    ...   (7))
 
-   #> _ ; Not the same, is it?
+   #> _ ; Big win! Not the same, is it?
    >>> _
    [[7], [7], [7]]
 
@@ -1371,7 +1371,7 @@ Qualified reader macros don't always result in pickles though.
 
 .. code-block:: REPL
 
-   #> builtins..ord#"Q"
+   #> builtins..ord#Q
    >>> (81)
    81
 
@@ -1568,11 +1568,11 @@ without the need to create a new reader macro for each specialization.
 
 .. code-block:: REPL
 
-   #> builtins..int#"21" ; normal base ten
+   #> builtins..int#.#"21" ; normal base ten
    >>> (21)
    21
 
-   #> builtins..int#!6"21" ; base six with optional base arg
+   #> builtins..int#!6 .#"21" ; base six via optional base arg
    >>> (13)
    13
 
@@ -1589,6 +1589,15 @@ even though they're written first.
    ...     b'cbuiltins\nrange\n(I20\nI0\nI-1\ntR.'
    ... )
    range(20, 0, -1)
+
+Pass in keyword arguments by pairing with a name after ``:``,
+like calls. ``:*`` and ``:**`` unpacking also work here.
+
+.. code-block:: REPL
+
+   #> builtins..int# !: !base !6 .#"21"
+   >>> (13)
+   13
 
 Collection Atoms
 ----------------
