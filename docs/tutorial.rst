@@ -1683,15 +1683,14 @@ remember that you can use helper functions or metaprogramming to simplify:
 
 .. code-block:: REPL
 
-   #> (.__setitem__ (globals)
-   #..              'enlist
-   #..              (lambda (: :* args)
-   #..                (list args)))
-   >>> globals().__setitem__(
-   ...   'enlist',
-   ...   (lambda *args:
-   ...     list(
-   ...       args)))
+   #> (.update (globals)
+   #..         : enlist
+   #..         (lambda (: :* args)
+   #..           (list args)))
+   >>> globals().update(
+   ...   enlist=(lambda *args:
+   ...            list(
+   ...              args)))
 
    #> (enlist 'A 'B 'C (enlist 1 2 3) (.title "zed"))
    >>> enlist(
@@ -1738,10 +1737,8 @@ from a ``_macro_`` namespace:
 
    #> (hissp.basic.._macro_.define spam :eggs) ; qualified macro
    >>> # hissp.basic.._macro_.define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'spam',
-   ...   ':eggs')
+   ... __import__('builtins').globals().update(
+   ...   spam=':eggs')
 
    #> spam
    >>> spam
@@ -1763,10 +1760,8 @@ namespace with all of the `basic macros <hissp.basic._macro_>`:
 
    #> (define eggs :spam) ; unqualified macro
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'eggs',
-   ...   ':spam')
+   ... __import__('builtins').globals().update(
+   ...   eggs=':spam')
 
    #> eggs
    >>> eggs
@@ -1885,10 +1880,8 @@ If we were to define a ``p`` global,
 
    #> (define p print)
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'p',
-   ...   print)
+   ... __import__('builtins').globals().update(
+   ...   p=print)
 
 Then the ``p123`` macro works.
 
@@ -1915,14 +1908,14 @@ We can resolve the ``QzMaybe_`` the other way by defining a ``p`` macro.
 
 .. code-block:: REPL
 
-   #> (setattr _macro_ 'p (lambda (: :* body) `(print ,@body)))
+   #> (setattr _macro_ 'p (lambda (: :* args) `(print ,@args)))
    >>> setattr(
    ...   _macro_,
    ...   'p',
-   ...   (lambda *body:
+   ...   (lambda *args:
    ...     (lambda * _: _)(
    ...       'builtins..print',
-   ...       *body)))
+   ...       *args)))
 
    #> (p123)
    >>> # p123
@@ -2012,7 +2005,7 @@ But there are times when a function will not do:
 
 .. code-block:: REPL
 
-   #> (setattr _macro_ '# (lambda (: :* body) `(lambda (,'#) (,@body))))
+   #> (setattr _macro_ '# (lambda (: :* body) `(lambda (,'#) ,body)))
    >>> setattr(
    ...   _macro_,
    ...   'QzHASH_',
@@ -2021,8 +2014,25 @@ But there are times when a function will not do:
    ...       'lambda',
    ...       (lambda * _: _)(
    ...         'QzHASH_'),
-   ...       (lambda * _: _)(
-   ...         *body))))
+   ...       body)))
+
+   #> ((lambda (#)
+   #..   (print (.upper #)))              ;This lambda expression
+   #.. "q")
+   >>> (lambda QzHASH_:
+   ...   print(
+   ...     QzHASH_.upper()))(
+   ...   ('q'))
+   Q
+
+   #> ((# print (.upper #))               ; can now be abbreviated.
+   ... "q")
+   >>> # QzHASH_
+   ... (lambda QzHASH_:
+   ...   print(
+   ...     QzHASH_.upper()))(
+   ...   ('q'))
+   Q
 
    #> (any (map (# print (.upper #) ":" #)
    #..          "abc"))

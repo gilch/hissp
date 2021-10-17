@@ -188,10 +188,8 @@ You can, of course, abbreviate these.
 
    #> (define + operator..add)
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'QzPLUS_',
-   ...   __import__('operator').add)
+   ... __import__('builtins').globals().update(
+   ...   QzPLUS_=__import__('operator').add)
 
    #> (+ 1 1)
    >>> QzPLUS_(
@@ -212,13 +210,11 @@ like upgrading them to use a reduce so they're multiary like other Lisps:
    #..  (lambda (: :* args)
    #..    (functools..reduce operator..add args)))
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'QzPLUS_',
-   ...   (lambda *args:
-   ...     __import__('functools').reduce(
-   ...       __import__('operator').add,
-   ...       args)))
+   ... __import__('builtins').globals().update(
+   ...   QzPLUS_=(lambda *args:
+   ...             __import__('functools').reduce(
+   ...               __import__('operator').add,
+   ...               args)))
 
    #> (+ 1 2 3)
    >>> QzPLUS_(
@@ -291,10 +287,8 @@ into the Hissp.
    #..  (lambda (a b c)
    #..    .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)"))
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'quadratic',
-   ...   (lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a)))
+   ... __import__('builtins').globals().update(
+   ...   quadratic=(lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a)))
 
 But for a top-level `define` like this, you could have just used
 `exec()<exec>` on a ``def`` statement.
@@ -727,10 +721,8 @@ A Python star parameter will similarly pack any number of arguments into a tuple
    #> (define entuple
    #..  (lambda (: :* xs) xs))
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'entuple',
-   ...   (lambda *xs:xs))
+   ... __import__('builtins').globals().update(
+   ...   entuple=(lambda *xs:xs))
 
    #> (entuple 1 2 "foo")
    >>> entuple(
@@ -989,47 +981,45 @@ Like this
    #..               True)))
    >>> # deftype
    ... # hissp.basic.._macro_.define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'Except',
-   ...   __import__('builtins').type(
-   ...     'Except',
-   ...     (lambda * _: _)(
-   ...       __import__('contextlib').ContextDecorator),
-   ...     __import__('builtins').dict(
-   ...       __init__=(lambda self,catch,handler:(
-   ...                  # attach
-   ...                  # hissp.basic.._macro_.let
-   ...                  (lambda _target_QzNo16_=self:(
-   ...                    __import__('builtins').setattr(
-   ...                      _target_QzNo16_,
-   ...                      'catch',
-   ...                      catch),
-   ...                    __import__('builtins').setattr(
-   ...                      _target_QzNo16_,
-   ...                      'handler',
-   ...                      handler),
-   ...                    _target_QzNo16_)[-1])(),
-   ...                  None)[-1]),
-   ...       __enter__=(lambda self:()),
-   ...       __exit__=(lambda self,exc_type,exception,traceback:
-   ...                  # when
-   ...                  # hissp.basic.._macro_.ifQz_else
-   ...                  (lambda test,*thenQz_else:
-   ...                    __import__('operator').getitem(
-   ...                      thenQz_else,
-   ...                      __import__('operator').not_(
-   ...                        test))())(
-   ...                    isinstance(
-   ...                      exception,
-   ...                      self.catch),
-   ...                    (lambda :
-   ...                      # hissp.basic.._macro_.progn
-   ...                      (lambda :(
-   ...                        self.handler(
-   ...                          exception),
-   ...                        True)[-1])()),
-   ...                    (lambda :()))))))
+   ... __import__('builtins').globals().update(
+   ...   Except=__import__('builtins').type(
+   ...            'Except',
+   ...            (lambda * _: _)(
+   ...              __import__('contextlib').ContextDecorator),
+   ...            __import__('builtins').dict(
+   ...              __init__=(lambda self,catch,handler:(
+   ...                         # attach
+   ...                         # hissp.basic.._macro_.let
+   ...                         (lambda _target_QzNo15_=self:(
+   ...                           __import__('builtins').setattr(
+   ...                             _target_QzNo15_,
+   ...                             'catch',
+   ...                             catch),
+   ...                           __import__('builtins').setattr(
+   ...                             _target_QzNo15_,
+   ...                             'handler',
+   ...                             handler),
+   ...                           _target_QzNo15_)[-1])(),
+   ...                         None)[-1]),
+   ...              __enter__=(lambda self:()),
+   ...              __exit__=(lambda self,exc_type,exception,traceback:
+   ...                         # when
+   ...                         # hissp.basic.._macro_.ifQz_else
+   ...                         (lambda test,*thenQz_else:
+   ...                           __import__('operator').getitem(
+   ...                             thenQz_else,
+   ...                             __import__('operator').not_(
+   ...                               test))())(
+   ...                           isinstance(
+   ...                             exception,
+   ...                             self.catch),
+   ...                           (lambda :
+   ...                             # hissp.basic.._macro_.progn
+   ...                             (lambda :(
+   ...                               self.handler(
+   ...                                 exception),
+   ...                               True)[-1])()),
+   ...                           (lambda :()))))))
 
 
    #> (define bad_idea
@@ -1042,28 +1032,26 @@ Like this
    #..               (lambda (e)
    #..                 (print e))))))
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'bad_idea',
-   ...   # Qz_QzGT_
-   ...   # hissp.basic..QzMaybe_.Qz_QzGT_
-   ...   # hissp.basic..QzMaybe_.Qz_QzGT_
-   ...   Except(
-   ...     (lambda * _: _)(
-   ...       TypeError,
-   ...       ValueError),
-   ...     (lambda e:
-   ...       print(
-   ...         e)))(
-   ...     Except(
-   ...       ZeroDivisionError,
-   ...       (lambda e:
-   ...         print(
-   ...           ('oops'))))(
-   ...       (lambda x:
-   ...         __import__('operator').truediv(
-   ...           (1),
-   ...           x)))))
+   ... __import__('builtins').globals().update(
+   ...   bad_idea=# Qz_QzGT_
+   ...            # hissp.basic..QzMaybe_.Qz_QzGT_
+   ...            # hissp.basic..QzMaybe_.Qz_QzGT_
+   ...            Except(
+   ...              (lambda * _: _)(
+   ...                TypeError,
+   ...                ValueError),
+   ...              (lambda e:
+   ...                print(
+   ...                  e)))(
+   ...              Except(
+   ...                ZeroDivisionError,
+   ...                (lambda e:
+   ...                  print(
+   ...                    ('oops'))))(
+   ...                (lambda x:
+   ...                  __import__('operator').truediv(
+   ...                    (1),
+   ...                    x)))))
 
 Remarkable how much that threading macro makes it resemble a Python
 ``try`` statement, isn't it?
@@ -1262,10 +1250,20 @@ So assign it to a global:
 
    #> (define Generator collections.abc..Generator)
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'Generator',
-   ...   __import__('collections.abc',fromlist='?').Generator)
+   ... __import__('builtins').globals().update(
+   ...   Generator=__import__('collections.abc',fromlist='?').Generator)
+
+   #> (.update (globals) :
+   #..  + operator..add
+   #..  - operator..sub
+   #..  * operator..mul
+   #..  / operator..truediv
+   #..  _#/)
+   >>> globals().update(
+   ...   QzPLUS_=__import__('operator').add,
+   ...   Qz_=__import__('operator').sub,
+   ...   QzSTAR_=__import__('operator').mul,
+   ...   QzSOL_=__import__('operator').truediv)
 
 But be aware of the effects that has on qualification in templates.
 

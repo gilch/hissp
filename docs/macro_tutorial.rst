@@ -263,10 +263,8 @@ Let's try the same idea in Lissp:
 
    #> (define L lambda)
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'L',
-   ...   lambda)
+   ... __import__('builtins').globals().update(
+   ...   L=lambda)
    Traceback (most recent call last):
      ...
      File "<console>", line 5
@@ -282,10 +280,8 @@ You can use Hissp's other special form, ``quote``, to prevent evaluation.
 
    #> (define L 'lambda)
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'L',
-   ...   'lambda')
+   ... __import__('builtins').globals().update(
+   ...   L='lambda')
 
 OK, but that just turned it into a string.
 We could have done that much in Python:
@@ -317,17 +313,15 @@ and push it to the REPL:
    #..                       (mul x x))
    #..                     (range 10)))
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'squares',
-   ...   map(
-   ...     L(
-   ...       x(),
-   ...       mul(
-   ...         x,
-   ...         x)),
-   ...     range(
-   ...       (10))))
+   ... __import__('builtins').globals().update(
+   ...   squares=map(
+   ...             L(
+   ...               x(),
+   ...               mul(
+   ...                 x,
+   ...                 x)),
+   ...             range(
+   ...               (10))))
    Traceback (most recent call last):
      File "<console>", line 7, in <module>
    NameError: name 'x' is not defined
@@ -367,16 +361,14 @@ Inject:
    #..                       (mul x x))
    #..                     (range 10)))
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'squares',
-   ...   map(
-   ...     (lambda x:
-   ...       mul(
-   ...         x,
-   ...         x)),
-   ...     range(
-   ...       (10))))
+   ... __import__('builtins').globals().update(
+   ...   squares=map(
+   ...             (lambda x:
+   ...               mul(
+   ...                 x,
+   ...                 x)),
+   ...             range(
+   ...               (10))))
 
    #> (list squares)
    >>> list(
@@ -457,10 +449,8 @@ If you like, we can give `mul <operator.mul>` a shorter name:
 
    #> (define * mul)
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'QzSTAR_',
-   ...   mul)
+   ... __import__('builtins').globals().update(
+   ...   QzSTAR_=mul)
 
 And the params tuple doesn't technically have to be a tuple:
 
@@ -1453,61 +1443,59 @@ Can we just iterate through the expression and check?
    #..                    0))
    #..              expr))))
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'maxQz_X',
-   ...   (lambda expr:
-   ...     max(
-   ...       map(
-   ...         (lambda x:
-   ...           # QzBAR_QzBAR_
-   ...           # hissp.basic.._macro_.let
-   ...           (lambda _first_QzNo33_=# when
-   ...           # hissp.basic.._macro_.ifQz_else
-   ...           (lambda test,*thenQz_else:
-   ...             __import__('operator').getitem(
-   ...               thenQz_else,
-   ...               __import__('operator').not_(
-   ...                 test))())(
-   ...             is_(
-   ...               str,
-   ...               type(
-   ...                 x)),
-   ...             (lambda :
-   ...               # hissp.basic.._macro_.progn
-   ...               (lambda :
-   ...                 # let
-   ...                 (lambda match=__import__('re').fullmatch(
-   ...                   ('X([1-9][0-9]*)'),
-   ...                   x):
-   ...                   # when
+   ... __import__('builtins').globals().update(
+   ...   maxQz_X=(lambda expr:
+   ...             max(
+   ...               map(
+   ...                 (lambda x:
+   ...                   # QzBAR_QzBAR_
+   ...                   # hissp.basic.._macro_.let
+   ...                   (lambda _first_QzNo27_=# when
    ...                   # hissp.basic.._macro_.ifQz_else
    ...                   (lambda test,*thenQz_else:
    ...                     __import__('operator').getitem(
    ...                       thenQz_else,
    ...                       __import__('operator').not_(
    ...                         test))())(
-   ...                     match,
+   ...                     is_(
+   ...                       str,
+   ...                       type(
+   ...                         x)),
    ...                     (lambda :
    ...                       # hissp.basic.._macro_.progn
    ...                       (lambda :
-   ...                         int(
-   ...                           match.group(
-   ...                             (1))))()),
-   ...                     (lambda :())))())()),
-   ...             (lambda :())):
-   ...             # hissp.basic.._macro_.ifQz_else
-   ...             (lambda test,*thenQz_else:
-   ...               __import__('operator').getitem(
-   ...                 thenQz_else,
-   ...                 __import__('operator').not_(
-   ...                   test))())(
-   ...               _first_QzNo33_,
-   ...               (lambda :_first_QzNo33_),
-   ...               (lambda :
-   ...                 # hissp.basic..QzMaybe_.QzBAR_QzBAR_
-   ...                 (0))))()),
-   ...         expr))))
+   ...                         # let
+   ...                         (lambda match=__import__('re').fullmatch(
+   ...                           ('X([1-9][0-9]*)'),
+   ...                           x):
+   ...                           # when
+   ...                           # hissp.basic.._macro_.ifQz_else
+   ...                           (lambda test,*thenQz_else:
+   ...                             __import__('operator').getitem(
+   ...                               thenQz_else,
+   ...                               __import__('operator').not_(
+   ...                                 test))())(
+   ...                             match,
+   ...                             (lambda :
+   ...                               # hissp.basic.._macro_.progn
+   ...                               (lambda :
+   ...                                 int(
+   ...                                   match.group(
+   ...                                     (1))))()),
+   ...                             (lambda :())))())()),
+   ...                     (lambda :())):
+   ...                     # hissp.basic.._macro_.ifQz_else
+   ...                     (lambda test,*thenQz_else:
+   ...                       __import__('operator').getitem(
+   ...                         thenQz_else,
+   ...                         __import__('operator').not_(
+   ...                           test))())(
+   ...                       _first_QzNo27_,
+   ...                       (lambda :_first_QzNo27_),
+   ...                       (lambda :
+   ...                         # hissp.basic..QzMaybe_.QzBAR_QzBAR_
+   ...                         (0))))()),
+   ...                 expr))))
 
 
 Does that make sense?
@@ -1574,42 +1562,40 @@ Lissp can do that with a class.
    #..            self.accumulator))
    >>> # deftype
    ... # hissp.basic.._macro_.define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'Flattener',
-   ...   __import__('builtins').type(
-   ...     'Flattener',
-   ...     (lambda * _: _)(),
-   ...     __import__('builtins').dict(
-   ...       __init__=(lambda self:
-   ...                  setattr(
-   ...                    self,
-   ...                    'accumulator',
-   ...                    [])),
-   ...       flatten=(lambda self,form:(
-   ...                 # anyQz_for
-   ...                 __import__('builtins').any(
-   ...                   __import__('builtins').map(
-   ...                     (lambda x:(
-   ...                       # ifQz_else
-   ...                       (lambda test,*thenQz_else:
-   ...                         __import__('operator').getitem(
-   ...                           thenQz_else,
-   ...                           __import__('operator').not_(
-   ...                             test))())(
-   ...                         is_(
-   ...                           type(
-   ...                             x),
-   ...                           tuple),
-   ...                         (lambda :
-   ...                           self.flatten(
-   ...                             x)),
-   ...                         (lambda :
-   ...                           self.accumulator.append(
-   ...                             x))),
-   ...                       False)[-1]),
-   ...                     form)),
-   ...                 self.accumulator)[-1]))))
+   ... __import__('builtins').globals().update(
+   ...   Flattener=__import__('builtins').type(
+   ...               'Flattener',
+   ...               (lambda * _: _)(),
+   ...               __import__('builtins').dict(
+   ...                 __init__=(lambda self:
+   ...                            setattr(
+   ...                              self,
+   ...                              'accumulator',
+   ...                              [])),
+   ...                 flatten=(lambda self,form:(
+   ...                           # anyQz_for
+   ...                           __import__('builtins').any(
+   ...                             __import__('builtins').map(
+   ...                               (lambda x:(
+   ...                                 # ifQz_else
+   ...                                 (lambda test,*thenQz_else:
+   ...                                   __import__('operator').getitem(
+   ...                                     thenQz_else,
+   ...                                     __import__('operator').not_(
+   ...                                       test))())(
+   ...                                   is_(
+   ...                                     type(
+   ...                                       x),
+   ...                                     tuple),
+   ...                                   (lambda :
+   ...                                     self.flatten(
+   ...                                       x)),
+   ...                                   (lambda :
+   ...                                     self.accumulator.append(
+   ...                                       x))),
+   ...                                 False)[-1]),
+   ...                               form)),
+   ...                           self.accumulator)[-1]))))
 
 
 More basic macros here.
@@ -1624,12 +1610,10 @@ Let's give it a nicer interface.
    #..  (lambda (form)
    #..    (.flatten (Flattener) form)))
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'flatten',
-   ...   (lambda form:
-   ...     Flattener().flatten(
-   ...       form)))
+   ... __import__('builtins').globals().update(
+   ...   flatten=(lambda form:
+   ...             Flattener().flatten(
+   ...               form)))
 
 
 Now we can fix ``max-X``.
@@ -1646,62 +1630,60 @@ Now we can fix ``max-X``.
    #..                    0))
    #..              (flatten expr)))))
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'maxQz_X',
-   ...   (lambda expr:
-   ...     max(
-   ...       map(
-   ...         (lambda x:
-   ...           # QzBAR_QzBAR_
-   ...           # hissp.basic.._macro_.let
-   ...           (lambda _first_QzNo33_=# when
-   ...           # hissp.basic.._macro_.ifQz_else
-   ...           (lambda test,*thenQz_else:
-   ...             __import__('operator').getitem(
-   ...               thenQz_else,
-   ...               __import__('operator').not_(
-   ...                 test))())(
-   ...             is_(
-   ...               str,
-   ...               type(
-   ...                 x)),
-   ...             (lambda :
-   ...               # hissp.basic.._macro_.progn
-   ...               (lambda :
-   ...                 # let
-   ...                 (lambda match=__import__('re').fullmatch(
-   ...                   ('X([1-9][0-9]*)'),
-   ...                   x):
-   ...                   # when
+   ... __import__('builtins').globals().update(
+   ...   maxQz_X=(lambda expr:
+   ...             max(
+   ...               map(
+   ...                 (lambda x:
+   ...                   # QzBAR_QzBAR_
+   ...                   # hissp.basic.._macro_.let
+   ...                   (lambda _first_QzNo27_=# when
    ...                   # hissp.basic.._macro_.ifQz_else
    ...                   (lambda test,*thenQz_else:
    ...                     __import__('operator').getitem(
    ...                       thenQz_else,
    ...                       __import__('operator').not_(
    ...                         test))())(
-   ...                     match,
+   ...                     is_(
+   ...                       str,
+   ...                       type(
+   ...                         x)),
    ...                     (lambda :
    ...                       # hissp.basic.._macro_.progn
    ...                       (lambda :
-   ...                         int(
-   ...                           match.group(
-   ...                             (1))))()),
-   ...                     (lambda :())))())()),
-   ...             (lambda :())):
-   ...             # hissp.basic.._macro_.ifQz_else
-   ...             (lambda test,*thenQz_else:
-   ...               __import__('operator').getitem(
-   ...                 thenQz_else,
-   ...                 __import__('operator').not_(
-   ...                   test))())(
-   ...               _first_QzNo33_,
-   ...               (lambda :_first_QzNo33_),
-   ...               (lambda :
-   ...                 # hissp.basic..QzMaybe_.QzBAR_QzBAR_
-   ...                 (0))))()),
-   ...         flatten(
-   ...           expr)))))
+   ...                         # let
+   ...                         (lambda match=__import__('re').fullmatch(
+   ...                           ('X([1-9][0-9]*)'),
+   ...                           x):
+   ...                           # when
+   ...                           # hissp.basic.._macro_.ifQz_else
+   ...                           (lambda test,*thenQz_else:
+   ...                             __import__('operator').getitem(
+   ...                               thenQz_else,
+   ...                               __import__('operator').not_(
+   ...                                 test))())(
+   ...                             match,
+   ...                             (lambda :
+   ...                               # hissp.basic.._macro_.progn
+   ...                               (lambda :
+   ...                                 int(
+   ...                                   match.group(
+   ...                                     (1))))()),
+   ...                             (lambda :())))())()),
+   ...                     (lambda :())):
+   ...                     # hissp.basic.._macro_.ifQz_else
+   ...                     (lambda test,*thenQz_else:
+   ...                       __import__('operator').getitem(
+   ...                         thenQz_else,
+   ...                         __import__('operator').not_(
+   ...                           test))())(
+   ...                       _first_QzNo27_,
+   ...                       (lambda :_first_QzNo27_),
+   ...                       (lambda :
+   ...                         # hissp.basic..QzMaybe_.QzBAR_QzBAR_
+   ...                         (0))))()),
+   ...                 flatten(
+   ...                   expr)))))
 
 
 Let's try again.

@@ -550,6 +550,18 @@ not just the fact that it's a call.
 
    (endict 1 2  3 4  5 6)                 ;Extra space between key-value pairs.
 
+   (.update (globals) :                   ;OK. Easier for linewise version control.
+     + operator..add
+     - operator..sub
+     * operator..mul
+     / operator..truediv
+     _#/)
+
+   (.update (globals)                     ;Preferred. Standard style.
+            : + operator..add
+            - operator..sub
+            * operator..mul
+            / operator..truediv)
 
 Strings
 -------

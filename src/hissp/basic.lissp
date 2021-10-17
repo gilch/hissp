@@ -67,7 +67,7 @@ judicious use can improve performance and maintainability.
 ;;;; Bootstrap Macros
 
 ;; Bootstrap macro namespace using builtins.
-(operator..setitem (globals) '_macro_ (types..ModuleType '_macro_))
+(.update (globals) : _macro_ (types..ModuleType '_macro_))
 
 ;; Bootstrap enough macros to define the 'defmacro' macro. Dawg.
 
@@ -136,7 +136,7 @@ judicious use can improve performance and maintainability.
   (let ($fn `$#fn)
     (let (fn `(lambda ,parameters ,docstring ,@body)
           ns (unless (operator..contains (.get hissp.compiler..NS) '_macro_)
-               `((operator..setitem (globals) ','_macro_ (types..ModuleType ','_macro_))))
+               `((.update (globals) : _macro_ (types..ModuleType ','_macro_))))
           dc (when (hissp.reader..is_string docstring)
                `((setattr ,$fn ','__doc__ ,docstring)))
           qn `(setattr ,$fn ','__qualname__ (.join "." '(,'_macro_ ,name))))
@@ -151,9 +151,9 @@ judicious use can improve performance and maintainability.
 
 (defmacro define (name value)
   "Assigns a global the value in the current module."
-  `(operator..setitem (builtins..globals)
-                      ',name
-                      ,value))
+  `(.update (globals)
+            : ,name
+            ,value))
 
 (defmacro deftype (name bases : :* body)
   "Defines a type (class) in the current module.

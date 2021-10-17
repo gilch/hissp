@@ -481,10 +481,9 @@ Lissp Quick Start
    ...   (2))
    42
 
-   #> (.__setitem__ (globals) '+ operator..add) ;/!\ Assignment. Symbols munge.
-   >>> globals().__setitem__(
-   ...   'QzPLUS_',
-   ...   __import__('operator').add)
+   #> (.update (globals) : + operator..add) ;/!\ Assignment. Symbols munge.
+   >>> globals().update(
+   ...   QzPLUS_=__import__('operator').add)
 
    #> (+ 40 2)                            ;No operators. This is still a function call!
    >>> QzPLUS_(
@@ -1023,10 +1022,9 @@ Lissp Quick Start
    ...   ':c')
    (0, 'a', 'b', ':c')
 
-   #> (.__setitem__ (globals) 'entuple (lambda (: :* xs) xs))
-   >>> globals().__setitem__(
-   ...   'entuple',
-   ...   (lambda *xs:xs))
+   #> (.update (globals) : entuple (lambda (: :* xs) xs))
+   >>> globals().update(
+   ...   entuple=(lambda *xs:xs))
 
    #> (entuple 0 "a" 'b :c)
    >>> entuple(
@@ -1134,14 +1132,13 @@ Lissp Quick Start
    42
 
 
-   #> (.__setitem__ (globals)
-   #..              'endict               ;dict helper function
-   #..              (lambda (: :* pairs)
-   #..                ;; Injections work on any Python expression, even comprehensions!
-   #..                .#"{k: next(it) for it in [iter(pairs)] for k in it}"))
-   >>> globals().__setitem__(
-   ...   'endict',
-   ...   (lambda *pairs:{k: next(it) for it in [iter(pairs)] for k in it}))
+   #> (.update (globals)
+   #..         : endict                   ;dict helper function
+   #..         (lambda (: :* pairs)
+   #..           ;; Injections work on any Python expression, even comprehensions!
+   #..           .#"{k: next(it) for it in [iter(pairs)] for k in it}"))
+   >>> globals().update(
+   ...   endict=(lambda *pairs:{k: next(it) for it in [iter(pairs)] for k in it}))
 
    #> (endict 1 2  'a 'b)
    >>> endict(
@@ -1208,12 +1205,11 @@ Lissp Quick Start
    ['1 2', '3', (4, 5), '6;7\\8']
 
 
-   #> (.__setitem__ (globals) 'enlist (lambda (: :* xs) (list xs))) ;helper function
-   >>> globals().__setitem__(
-   ...   'enlist',
-   ...   (lambda *xs:
-   ...     list(
-   ...       xs)))
+   #> (.update (globals) : enlist (lambda (: :* xs) (list xs))) ;helper function
+   >>> globals().update(
+   ...   enlist=(lambda *xs:
+   ...            list(
+   ...              xs)))
 
    #> (enlist "1 2" "3" '(4 5) "6;7\8")
    >>> enlist(
@@ -1294,10 +1290,8 @@ Lissp Quick Start
    ;; An invocation using an identifier qualified with ``_macro_`` is a macro invocation.
    #> (hissp.basic.._macro_.define SPAM "eggs") ;Note SPAM is not quoted.
    >>> # hissp.basic.._macro_.define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'SPAM',
-   ...   ('eggs'))
+   ... __import__('builtins').globals().update(
+   ...   SPAM=('eggs'))
 
    #> SPAM                                ;'eggs'
    >>> SPAM
@@ -1309,7 +1303,7 @@ Lissp Quick Start
    >>> __import__('hissp.basic',fromlist='?')._macro_.define(
    ...   'SPAM',
    ...   "('eggs')")
-   ('operator..setitem', ('builtins..globals',), ('quote', 'SPAM'), "('eggs')")
+   ('.update', ('builtins..globals',), ':', 'SPAM', "('eggs')")
 
 
    ;; Unqualified invocations are macro invocations if the identifier is in
@@ -1322,10 +1316,8 @@ Lissp Quick Start
    ;; Unqualified macro invocations really look like function calls, but aren't.
    #> (define EGGS "spam")
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'EGGS',
-   ...   ('spam'))
+   ... __import__('builtins').globals().update(
+   ...   EGGS=('spam'))
 
    #> EGGS
    >>> EGGS
@@ -1363,13 +1355,11 @@ Lissp Quick Start
    #..    (print x)
    #..    x))
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'loudQz_number',
-   ...   (lambda x:(
-   ...     print(
-   ...       x),
-   ...     x)[-1]))
+   ... __import__('builtins').globals().update(
+   ...   loudQz_number=(lambda x:(
+   ...                   print(
+   ...                     x),
+   ...                   x)[-1]))
 
    #> (triple (loud-number 14))           ;Triples the *code*, not just the *value*.
    >>> # triple
@@ -1629,7 +1619,7 @@ Lissp Quick Start
 
    ;; Finds spam.lissp & eggs.lissp in the current package & compile to spam.py & eggs.py
    (os..system #"echo (print \"Hello World!\") > eggs.lissp")
-   (os..system #"echo (print \"Hello from spam!\") (.__setitem__ (globals) 'x 42) > spam.lissp")
+   (os..system #"echo (print \"Hello from spam!\") (.update (globals) : x 42) > spam.lissp")
    (hissp.reader..transpile __package__ 'spam 'eggs)
 
    spam..x                                ;Side effects on both compilation and import!
@@ -1850,21 +1840,19 @@ Lissp Quick Start
    #..            (.__new__ tuple cls `(,x ,y))))
    >>> # deftype
    ... # hissp.basic.._macro_.define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'Point2D',
-   ...   __import__('builtins').type(
-   ...     'Point2D',
-   ...     (lambda * _: _)(
-   ...       tuple),
-   ...     __import__('builtins').dict(
-   ...       __doc__=('Simple pair.'),
-   ...       __new__=(lambda cls,x,y:
-   ...                 tuple.__new__(
-   ...                   cls,
-   ...                   (lambda * _: _)(
-   ...                     x,
-   ...                     y))))))
+   ... __import__('builtins').globals().update(
+   ...   Point2D=__import__('builtins').type(
+   ...             'Point2D',
+   ...             (lambda * _: _)(
+   ...               tuple),
+   ...             __import__('builtins').dict(
+   ...               __doc__=('Simple pair.'),
+   ...               __new__=(lambda cls,x,y:
+   ...                         tuple.__new__(
+   ...                           cls,
+   ...                           (lambda * _: _)(
+   ...                             x,
+   ...                             y))))))
 
    #> (Point2D 1 2)                       ;(1, 2)
    >>> Point2D(
@@ -1913,10 +1901,8 @@ Lissp Quick Start
 
    #> (define p print)                    ;Adds a global.
    >>> # define
-   ... __import__('operator').setitem(
-   ...   __import__('builtins').globals(),
-   ...   'p',
-   ...   print)
+   ... __import__('builtins').globals().update(
+   ...   p=print)
 
 
    _#"A QzMaybe_ qualification resolves like an unqualified symbol in that
