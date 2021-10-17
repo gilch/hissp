@@ -890,11 +890,12 @@ Lissp Quick Start
    ;;; Extra !
 
    _#"Reader macros take one primary argument, but additional arguments
-   can be passed in with the extra macro !. They must be written between
-   the # and primary argument, but because they're often optional
-   refinements, which are easier to define as trailing optional
-   parameters in in Python functions, they get passed in after the
-   primary argument.
+   can be passed in with the extra macro !. A reader macro consumes the
+   next parsed object, and if it's an Extra, consumes one again. Thus,
+   extras must be written between the # and primary argument, but because
+   they're often optional refinements, which are easier to define as
+   trailing optional parameters in in Python functions, they get passed
+   in after the primary argument.
    "
    #> builtins..Exception#oops
    >>> __import__('pickle').loads(  # Exception('oops')
@@ -927,19 +928,31 @@ Lissp Quick Start
    ... )
    Extra([1])
 
-   #> hissp.reader..Extra#(: :? 0 :* (1 2 3)) ; but multiple are possible.
+   #> hissp.reader..Extra#(: :? 0 :* (1 2 3)) ; but Extra can have multiple elements.
    >>> __import__('pickle').loads(  # Extra([':', ':?', 0, ':*', (1, 2, 3)])
    ...     b'ccopyreg\n_reconstructor\n(chissp.reader\nExtra\ncbuiltins\ntuple\n(V:\nV:?\nI0\nV:*\n(I1\nI2\nI3\ntttR.'
    ... )
    Extra([':', ':?', 0, ':*', (1, 2, 3)])
 
-   #> builtins..Exception#!: !:? !0 !:* !(1 2 3)oops ;Unpacking works like calls.
+   #> builtins..Exception#!: !:* !(0 1 2) !:? !3 oops ;Unpacking works like calls.
    >>> __import__('pickle').loads(  # Exception('oops', 0, 1, 2, 3)
    ...     b'cbuiltins\nException\n(Voops\nI0\nI1\nI2\nI3\ntR.'
    ... )
    Exception('oops', 0, 1, 2, 3)
 
-   #> builtins..Exception#hissp.reader..Extra#(: :? 0 :* (1 2 3))oops ;Same effect.
+   #> builtins..Exception#!0 !: !:* !(1 2 3)oops ;Same effect.
+   >>> __import__('pickle').loads(  # Exception('oops', 0, 1, 2, 3)
+   ...     b'cbuiltins\nException\n(Voops\nI0\nI1\nI2\nI3\ntR.'
+   ... )
+   Exception('oops', 0, 1, 2, 3)
+
+   #> builtins..Exception#hissp.reader..Extra#(0 : :* (1 2 3))oops ;Same effect.
+   >>> __import__('pickle').loads(  # Exception('oops', 0, 1, 2, 3)
+   ...     b'cbuiltins\nException\n(Voops\nI0\nI1\nI2\nI3\ntR.'
+   ... )
+   Exception('oops', 0, 1, 2, 3)
+
+   #> builtins..Exception# !0 hissp.reader..Extra#(1 2) !3 oops ;Same effect.
    >>> __import__('pickle').loads(  # Exception('oops', 0, 1, 2, 3)
    ...     b'cbuiltins\nException\n(Voops\nI0\nI1\nI2\nI3\ntR.'
    ... )

@@ -1599,6 +1599,8 @@ like calls. ``:*`` and ``:**`` unpacking also work here.
    >>> (13)
    13
 
+See the `quick start <lissp_quickstart>` for more examples.
+
 Collection Atoms
 ----------------
 
