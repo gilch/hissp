@@ -957,7 +957,11 @@ Lissp Quick Start
 
 
    ;; Yeah, you can nest these if you have to.
-   #> builtins..Exception# !x !builtins..Exception#!1 builtins..Exception#!A .#"uh-oh" !y oops
+   #> builtins..Exception# !x
+   #..                     !builtins..Exception# !1
+   #..                     builtins..Exception# !A .#"uh-oh"
+   #..                     !y
+   #..oops
    >>> __import__('pickle').loads(  # Exception('oops', 'x', Exception(Exception('uh-oh', 'A'), 1), 'y')
    ...     b'cbuiltins\nException\np0\n(Voops\nVx\ng0\n(g0\n(Vuh-oh\nVA\ntRI1\ntRVy\ntR.'
    ... )
