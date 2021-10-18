@@ -203,9 +203,7 @@
       (*#let (members (set (itertools..filterfalse (lambda x (.startswith x "_"))
                                                    (dir itertools.))))
         (self.assertEqual members (.intersection members (.keys ns))))
-      (self.assertIn '_macro_ ns)
-      (self.assertEqual (set (dir hissp.basic.._macro_))
-                        (.keys (vars (.__getitem__ ns '_macro_))))))
+      (self.assertIn '_macro_ ns)))
 
   test_string_newline
   (lambda (self)

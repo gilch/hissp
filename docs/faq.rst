@@ -963,9 +963,8 @@ Like this
    ...    'def engarde(xs,f,*a,**kw):\n'
    ...    ' try:return f(*a,**kw)\n'
    ...    ' except xs as e:return e\n'
-   ...    'try:\n'
-   ...    ' from hissp.basic import _macro_\n'
-   ...    " _macro_=__import__('types').SimpleNamespace(**vars(_macro_))\n"
+   ...    "_macro_=__import__('types').SimpleNamespace()\n"
+   ...    "try:exec('from hissp.basic._macro_ import *',vars(_macro_))\n"
    ...    'except ModuleNotFoundError:pass'),
    ...   __import__('builtins').globals())
 

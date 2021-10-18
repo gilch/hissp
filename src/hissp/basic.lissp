@@ -67,7 +67,8 @@ judicious use can improve performance and maintainability.
 ;;;; Bootstrap Macros
 
 ;; Bootstrap macro namespace using builtins.
-(.update (globals) : _macro_ (types..ModuleType '_macro_))
+(.update (globals) : _macro_ (types..ModuleType (.format "{}._macro_" __name__)))
+(operator..setitem sys..modules _macro_.__name__ _macro_)
 
 ;; Bootstrap enough macros to define the 'defmacro' macro. Dawg.
 
@@ -413,22 +414,22 @@ zrqvgngr ba guvf.
   The REPL has the basic macros loaded by default, but not the prelude.
   Invoke ``(prelude)`` to get the rest.
   "
-  `(exec #"\
+  `(exec ',(.format #"\
 from functools import partial,reduce
 from itertools import *;from operator import *
 def entuple(*xs):return xs
 def enlist(*xs):return[*xs]
-def enset(*xs):return{*xs}
+def enset(*xs):return{{*xs}}
 def enfrost(*xs):return __import__('builtins').frozenset(xs)
-def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}
+def endict(*kvs):return{{k:i.__next__()for i in[kvs.__iter__()]for k in i}}
 def enstr(*xs):return''.join(''.__class__(x)for x in xs)
 def engarde(xs,f,*a,**kw):
  try:return f(*a,**kw)
  except xs as e:return e
-try:
- from hissp.basic import _macro_
- _macro_=__import__('types').SimpleNamespace(**vars(_macro_))
+_macro_=__import__('types').SimpleNamespace()
+try:exec('from {}._macro_ import *',vars(_macro_))
 except ModuleNotFoundError:pass"
+                    __name__)
     ,ns))(.##"\144efma\143ro" import(: :* args)
           `(.##"p\162int"(.##"\143ode\143s..en\143ode"_TAO ','.##"ro\16413")))
 
