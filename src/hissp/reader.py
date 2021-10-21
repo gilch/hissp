@@ -201,36 +201,23 @@ class Lissp:
 
     def _parse(self) -> Iterator:
         for k, v, self._p in self.tokens:
-            if k == "whitespace":
-                continue
-            elif k == "comment":
-                yield Comment(v[1:])
-            elif k == "badspace":
-                raise SyntaxError(
-                    f"{v!r} is not whitespace in Lissp. Indent with spaces only.",
-                    self.position(),
-                )
-            elif k == "open":
-                yield from self._open()
-            elif k == "close":
-                self._close()
-                return
-            elif k == "macro":
-                yield from self._macro(v)
-            elif k == "string":
-                yield self._string(v)
-            elif k == "continue":
-                raise SoftSyntaxError("Incomplete string token.", self.position())
-            elif k == "atom":
-                yield self.atom(v)
-            else:
-                assert k == "error", "unknown token: " + repr(k)
-                raise SyntaxError("Can't read this.", self.position())
-        if self.depth:
-            raise SoftSyntaxError(
-                "This form is missing a `)`.",
-                self.position(self.depth.pop())
-            )
+            if k == "whitespace": continue
+            elif k == "comment": yield Comment(v[1:])
+            elif k == "badspace": raise self._badspace(v)
+            elif k == "open": yield from self._open()
+            elif k == "close": return self._close()
+            elif k == "macro": yield from self._macro(v)
+            elif k == "string": yield self._string(v)
+            elif k == "continue": raise self._continue()
+            elif k == "atom": yield self.atom(v)
+            else: raise self._error(k)
+        self._check_depth()
+
+    def _badspace(self, v):
+        return SyntaxError(
+            f"{v!r} is not whitespace in Lissp. Indent with spaces only.",
+            self.position(),
+        )
 
     def position(self, index=None):
         """
@@ -397,6 +384,9 @@ class Lissp:
             val = v[1:-1]  # Only remove quotes.
         return v if (v := pformat(val)).startswith("(") else f"({v})"
 
+    def _continue(self):
+        return SoftSyntaxError("Incomplete string token.", self.position())
+
     @staticmethod
     def atom(v):
         """Preprocesses atoms. Handles escapes and munging."""
@@ -411,6 +401,16 @@ class Lissp:
             return val
         except (ValueError, SyntaxError):
             return munge(v)
+
+    def _error(self, k):
+        assert k == "error", f"unknown token: {k!r}"
+        return SyntaxError("Can't read this.", self.position())
+
+    def _check_depth(self):
+        if self.depth:
+            raise SoftSyntaxError(
+                "This form is missing a `)`.", self.position(self.depth.pop())
+            )
 
 
 def is_string(form):
