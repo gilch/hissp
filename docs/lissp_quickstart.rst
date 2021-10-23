@@ -338,12 +338,21 @@ Lissp Quick Start
 
    ;;;; Advanced Calls
 
-   #> (print :)                           ;Left paren before function! Notice the :.
-   >>> print()
-   <BLANKLINE>
+   #> (dict :)                            ;Left paren before function! Notice the :.
+   >>> dict()
+   {}
 
 
-   #> (print : :? 1  :? 2  :? 3  sep "-") ;All arguments pair with a target! No commas!
+   ;; All arguments pair with a target! No commas!
+   #> (dict : spam "foo"  eggs "bar"  ham "baz")
+   >>> dict(
+   ...   spam=('foo'),
+   ...   eggs=('bar'),
+   ...   ham=('baz'))
+   {'spam': 'foo', 'eggs': 'bar', 'ham': 'baz'}
+
+
+   #> (print : :? 1  :? 2  :? 3  sep "-") ;:? is a positional target.
    >>> print(
    ...   (1),
    ...   (2),
@@ -359,7 +368,7 @@ Lissp Quick Start
    ...   sep=('-'))
    1-2-3
 
-   #> (print 1 2 : :? 3  sep "-")         ;:? means positional target. Keep sliding :.
+   #> (print 1 2 : :? 3  sep "-")         ;Keep sliding : over. It's shorter.
    >>> print(
    ...   (1),
    ...   (2),
@@ -376,19 +385,24 @@ Lissp Quick Start
    1-2-3
 
 
-   #> (dict : sep "-")
-   >>> dict(
-   ...   sep=('-'))
-   {'sep': '-'}
-
-   #> (print 1 : :* "abc"  :? 2  :** (dict : sep "-")) ;Pair with :* :** for unpacking!
+   #> (print 1                            ;Implicitly a positional :? target.
+   #..       : :* "abc"                   ;Target :* to unpack iterable.
+   #..       :? 2                         ;:? is still allowed after :*.
+   #..       :* "xyz"                     ;:* is a repeatable positional target.
+   #..       :** (dict : sep "-")         ;Target :** to unpack mapping.
+   #..       flush True                   ;Kwargs still allowed after :**.
+   #..       :** (dict : end #"!?\n"))    ;Multiple :** allowed too.
    >>> print(
    ...   (1),
    ...   *('abc'),
    ...   (2),
+   ...   *('xyz'),
    ...   **dict(
-   ...       sep=('-')))
-   1-a-b-c-2
+   ...       sep=('-')),
+   ...   flush=True,
+   ...   **dict(
+   ...       end=('!?\n')))
+   1-a-b-c-2-x-y-z!?
 
 
    #> (print : :? "Hello, World!")
@@ -396,7 +410,7 @@ Lissp Quick Start
    ...   ('Hello, World!'))
    Hello, World!
 
-   #> (print "Hello, World!" :)           ;Same. Compare.
+   #> (print "Hello, World!" :)           ;Same. Slid : over. Compare.
    >>> print(
    ...   ('Hello, World!'))
    Hello, World!
