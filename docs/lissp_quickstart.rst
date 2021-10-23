@@ -803,19 +803,6 @@ Lissp Quick Start
    42
 
 
-   ;; The raw strings and hash strings in Lissp ("..."/#"..." syntax)
-   ;; also read as strings at the Hissp level, but they contain Python
-   ;; code for a string, which distinguishes them from identifiers.
-   #> (quote "a string")                  ;Unexpected? "..."/#"..." is reader syntax!
-   >>> "('a string')"
-   "('a string')"
-
-   #> (eval (quote "a string"))           ;Python code. For a string.
-   >>> eval(
-   ...   "('a string')")
-   'a string'
-
-
    ;; Strings in Hissp are also used for module literals and control
    ;; words. The compiler does some extra processing before emitting these
    ;; as Python code. Quoting suppresses this processing too.
