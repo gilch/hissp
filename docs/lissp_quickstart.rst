@@ -837,7 +837,7 @@ Lissp Quick Start
    >>> ':?'
    ':?'
 
-   #> ((lambda (: a :?) a))               ;Not quite! Some have contextual meaning.
+   #> ((lambda (: a :?) a))               ;Oops, not quite! Contextual meaning here.
    >>> (lambda a:a)()
    Traceback (most recent call last):
      ...
