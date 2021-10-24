@@ -655,11 +655,11 @@ Lissp Quick Start
    <function <lambda> at 0x...>
 
 
-   #> (lambda (: a :?  b :?  c 1))        ;Parameters left of : pair with :?.
+   #> (lambda (: a :?  b :?  c 1))        ;Note the : separator like calls.
    >>> (lambda a,b,c=(1):())
    <function <lambda> at 0x...>
 
-   #> (lambda (a : b :?  c 1))            ;Implicit :? like calls. Keep sliding.
+   #> (lambda (a : b :?  c 1))            ;`a` now implicitly paired with :?.
    >>> (lambda a,b,c=(1):())
    <function <lambda> at 0x...>
 
