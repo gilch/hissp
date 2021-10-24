@@ -1349,8 +1349,7 @@ Lissp Quick Start
      ...
    NameError: name 'QzSTAR_' is not defined
 
-   #> (functools..reduce (lambda xy
-   #..                     (* x y))       ;Invocation, not argument.
+   #> (functools..reduce (lambda xy (* x y)) ;Invocation, not argument.
    #..                   '(1 2 3 4))
    >>> __import__('functools').reduce(
    ...   (lambda x,y:
