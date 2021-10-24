@@ -1253,11 +1253,11 @@ Lissp Quick Start
    ;; been qualified like a global instead, the recursion wouldn't work.
    #> (setattr _macro_
    #..         '+
-   #..          (lambda (first : :* args)
-   #..            (.__getitem__ ; Tuple method. Templates produce tuples.
-   #..              `(,first ; Result when no args left.
-   #..                (operator..add ,first (+ ,@args))) ; Otherwise recur.
-   #..              (bool args))))        ;Bools are ints, remember?
+   #..         (lambda (first : :* args)
+   #..           (.__getitem__ ; Tuple method. Templates produce tuples.
+   #..             `(,first ; Result when no args left.
+   #..               (operator..add ,first (+ ,@args))) ; Otherwise recur.
+   #..             (bool args))))        ;Bools are ints, remember?
    >>> setattr(
    ...   _macro_,
    ...   'QzPLUS_',
