@@ -1125,23 +1125,54 @@ Lissp Quick Start
    42
 
 
-   ;; Maybe the expanded code could only run it once?
+   ;; But what if we want the expanded code to only run it once?
+   ;; We can use a lambda to make a local variable and immediately call it.
+   #> ((lambda (x)
+   #..   (+ x (+ x x)))
+   #.. (loud-number 14))
+   >>> (lambda x:
+   ...   QzPLUS_(
+   ...     x,
+   ...     QzPLUS_(
+   ...       x,
+   ...       x)))(
+   ...   loudQz_number(
+   ...     (14)))
+   14
+   42
+
+
+   ;; Python also allows us to use a default argument up front.
+   #> ((lambda (: x (loud-number 14))
+   #..   (+ x (+ x x))))
+   >>> (lambda x=loudQz_number(
+   ...   (14)):
+   ...   QzPLUS_(
+   ...     x,
+   ...     QzPLUS_(
+   ...       x,
+   ...       x)))()
+   14
+   42
+
+
+   ;; Let's try making a template to produce code like that.
    #> (setattr _macro_
    #..         'oops-triple
-   #..         (lambda x
-   #..           `((lambda (: x ,x)       ;Expand to lambda call for a local variable.
+   #..         (lambda (expression)
+   #..           `((lambda (: x ,expression) ;Expand to lambda call for a local.
    #..               (+ x (+ x x))))))
    >>> setattr(
    ...   _macro_,
    ...   'oopsQz_triple',
-   ...   (lambda x:
+   ...   (lambda expression:
    ...     (lambda * _: _)(
    ...       (lambda * _: _)(
    ...         'lambda',
    ...         (lambda * _: _)(
    ...           ':',
    ...           '__main__..x',
-   ...           x),
+   ...           expression),
    ...         (lambda * _: _)(
    ...           '__main__..QzMaybe_.QzPLUS_',
    ...           '__main__..x',
@@ -1150,7 +1181,7 @@ Lissp Quick Start
    ...             '__main__..x',
    ...             '__main__..x'))))))
 
-   #> (oops-triple 14)                    ;Don't forget that templates qualify symbols!
+   #> (oops-triple 14)                    ;Oops. Templates qualify symbols!
    >>> # oopsQz_triple
    ... (lambda __main__..x=(14):
    ...   __import__('builtins').globals()['QzPLUS_'](
