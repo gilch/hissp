@@ -1375,7 +1375,7 @@ Lissp Quick Start
    #..         'XY
    #..         (lambda (: :* body)
    #..           `(lambda (,'X ,'Y)       ;,'X instead of $#X
-   #..              (,@body))))
+   #..              ,body)))
    >>> setattr(
    ...   _macro_,
    ...   'XY',
@@ -1385,8 +1385,7 @@ Lissp Quick Start
    ...       (lambda * _: _)(
    ...         'X',
    ...         'Y'),
-   ...       (lambda * _: _)(
-   ...         *body))))
+   ...       body)))
 
 
    #> (functools..reduce (XY * X Y)       ;Invocation, not argument!
