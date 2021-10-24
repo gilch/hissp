@@ -1483,16 +1483,58 @@ Lissp Quick Start
    ;; You cannot import .lissp directly. Compile it to .py first.
 
    ;; Finds spam.lissp & eggs.lissp in the current package & compile to spam.py & eggs.py
-   (os..system #"echo (print \"Hello World!\") > eggs.lissp")
-   (os..system #"echo (print \"Hello from spam!\") (.update (globals) : x 42) > spam.lissp")
-   (hissp.reader..transpile __package__ 'spam 'eggs)
+   #> (.write_text (pathlib..Path "eggs.lissp")
+   #..             #"(print \"Hello World!\")")
+   >>> __import__('pathlib').Path(
+   ...   ('eggs.lissp')).write_text(
+   ...   ('(print "Hello World!")'))
+   22
 
-   spam..x                                ;Side effects on both compilation and import!
-   ;; Hello from spam!
-   ;; 42
+   #> (.write_text (pathlib..Path "spam.lissp")
+   #..             #"(print \"Hello from spam!\")
+   #..(.update (globals) : x 42)")
+   >>> __import__('pathlib').Path(
+   ...   ('spam.lissp')).write_text(
+   ...   ('(print "Hello from spam!")\n(.update (globals) : x 42)'))
+   53
 
-   spam..x                                ;42
-   eggs.                                  ;Hello, World!
+   #> (hissp.reader..transpile __package__ 'spam 'eggs) ; Side effects on compilation
+   >>> __import__('hissp.reader',fromlist='?').transpile(
+   ...   __package__,
+   ...   'spam',
+   ...   'eggs')
+   Hello from spam!
+   Hello World!
+
+
+   #> spam..x                             ; and import!
+   >>> __import__('spam').x
+   Hello from spam!
+   42
+
+   #> spam..x                             ;Python caches imports.
+   >>> __import__('spam').x
+   42
+
+   #> eggs.
+   >>> __import__('eggs')
+   Hello World!
+   <module 'eggs' from ...>
+
+
+   #> (any (map (lambda f (os..remove f)) ;Cleanup.
+   #..     '(eggs.lissp spam.lissp spam.py eggs.py)))
+   >>> any(
+   ...   map(
+   ...     (lambda f:
+   ...       __import__('os').remove(
+   ...         f)),
+   ...     ('eggs.lissp',
+   ...      'spam.lissp',
+   ...      'spam.py',
+   ...      'eggs.py',)))
+   False
+
 
    ;;;; The Basic Macros
 
