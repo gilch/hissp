@@ -23,20 +23,23 @@ Lissp Quick Start
 
    ;;;; Lissp Quick Start
 
-   "Lissp is a lightweight text language representing the Hissp data-
-   structure language. The Lissp reader converts Lissp's symbolic
-   expressions to Hissp's syntax trees. The Hissp compiler then translates
-   Hissp to a functional subset of Python.
+   "Lissp is a lightweight text language representing the Hissp
+   intermediate language. The Lissp reader parses the Lissp language's
+   symbolic expressions as Python objects. The Hissp compiler
+   then translates these syntax trees to Python expressions.
 
    This document is written like a .lissp file, demonstrating Lissp's (and
-   thereby Hissp's) features with minimal exposition. Some familiarity with
-   Python is assumed. Familiarity with another Lisp dialect is not assumed,
-   but helpful. If you get confused or stuck, read the Hissp tutorial.
+   thereby Hissp's) features with minimal exposition. This element
+   enclosed in double quotes is a docstring for the module.
 
-   To fully understand these examples, you must see their output. Install
-   the Hissp version matching this document. Follow along by entering these
-   examples in the REPL. It will show you the compiled Python and evaluate
-   it. Try variations that occur to you.
+   To fully understand these examples, you must see their Python
+   compilation and output. Some familiarity with Python is assumed.
+   Install the Hissp version matching this document. Follow along by
+   entering these examples in the REPL. It will show you the compiled
+   Python and evaluate it. Try variations that occur to you.
+
+   Familiarity with another Lisp dialect is not assumed, but helpful. If
+   you get confused or stuck, read the Hissp tutorial.
 
    Some examples depend on state set by previous examples to work.
    Prerequisites for examples not in the same section are marked with
@@ -53,7 +56,12 @@ Lissp Quick Start
    ;; $ lissp
    ;; You can quit with EOF or (exit).
 
-   ;;;; Atoms
+   ;;;; Simple Atoms
+
+   ;; To a first approximation, the Hissp intermediate language is made
+   ;; of Python tuples representing syntax trees. The nodes are tuples
+   ;; and we call the leaves "atoms". Simple atoms in Lissp are written
+   ;; the same way as Python.
 
    ;;; Singleton
 
@@ -141,9 +149,27 @@ Lissp Quick Start
    (-1.234e-55-7.898e-75j)
 
 
-   ;;;; Symbolic
+   ;;;; Simple Tuples
 
-   #> object                              ;Normal identifier.
+   ;; Tuples group any atoms with (). Data tuples start with '.
+   #> '(None 2 3)
+   >>> (None,
+   ...  (2),
+   ...  (3),)
+   (None, 2, 3)
+
+   #> '(True
+   #..  False)
+   >>> (True,
+   ...  False,)
+   (True, False)
+
+
+   ;;;; Symbolic Atoms
+
+   ;;; Identifiers
+
+   #> object                              ;Python identifiers work in Lissp.
    >>> object
    <class 'object'>
 
@@ -151,6 +177,12 @@ Lissp Quick Start
    >>> object.__class__
    <class 'type'>
 
+   #> object.__class__.__name__           ;Attributes chain.
+   >>> object.__class__.__name__
+   'type'
+
+
+   ;;; Imports
 
    #> math.                               ;Module literals import!
    >>> __import__('math')
@@ -169,14 +201,41 @@ Lissp Quick Start
    >>> __import__('builtins').object.__class__
    <class 'type'>
 
-   #> object.__class__.__name__           ;Attributes chain.
-   >>> object.__class__.__name__
-   'type'
-
-   #> collections.abc..Sequence.__class__.__name__ ;All together now.
+   #> collections.abc..Sequence.__class__.__name__ ;Chaining.
    >>> __import__('collections.abc',fromlist='?').Sequence.__class__.__name__
    'ABCMeta'
 
+
+   ;;;; Simple Forms and Calls
+
+   ;; "Forms" are any data structures that can be evaluated as a Hissp program.
+   ;; Simple atoms are forms. They simply evaluate to an equivalent object.
+
+   #> 0x2a
+   >>> (42)
+   42
+
+
+   ;; Tuples can also be forms, but their evaluation rules are more complex.
+   ;; The common case is a function call. For that, the first element must
+   ;; be a callable. The remainder are arguments.
+
+   #> (print 1 2 3)                       ;This one compiles to a function call.
+   >>> print(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   1 2 3
+
+   #> '(print 1 2 3)                      ;This one is a data tuple.
+   >>> ('print',
+   ...  (1),
+   ...  (2),
+   ...  (3),)
+   ('print', 1, 2, 3)
+
+
+   ;;;; String Atoms
 
    #> :control-word                       ;Colon prefix. Similar to Lisp ":keywords".
    >>> ':control-word'
@@ -186,6 +245,8 @@ Lissp Quick Start
    >>> 'symbol'
    'symbol'
 
+
+   ;;; Munging
 
    #> '+                                  ;Read-time munging of invalid identifiers.
    >>> 'QzPLUS_'
@@ -211,6 +272,8 @@ Lissp Quick Start
    >>> ':'
    ':'
 
+
+   ;;; Escaping
 
    #> 'SPAM\ \"\(\)\;EGGS                 ;These would terminate a symbol if not escaped.
    >>> 'SPAMQzSPACE_QzQUOT_QzLPAR_QzRPAR_QzSEMI_EGGS'
@@ -239,6 +302,8 @@ Lissp Quick Start
    #> N\one
    >>> None
 
+
+   ;;; String literals
 
    #> "raw string"
    >>> ('raw string')
@@ -271,14 +336,23 @@ Lissp Quick Start
    'one\\"\nstring\\\\'
 
 
-   ;;;; Calls
+   ;;;; Advanced Calls
 
-   #> (print :)                           ;Left paren before function! Notice the :.
-   >>> print()
-   <BLANKLINE>
+   #> (dict :)                            ;Left paren before function! Notice the :.
+   >>> dict()
+   {}
 
 
-   #> (print : :? 1  :? 2  :? 3  sep "-") ;All arguments pair with a target! No commas!
+   ;; All arguments pair with a target! No commas!
+   #> (dict : spam "foo"  eggs "bar"  ham "baz")
+   >>> dict(
+   ...   spam=('foo'),
+   ...   eggs=('bar'),
+   ...   ham=('baz'))
+   {'spam': 'foo', 'eggs': 'bar', 'ham': 'baz'}
+
+
+   #> (print : :? 1  :? 2  :? 3  sep "-") ;:? is a positional target.
    >>> print(
    ...   (1),
    ...   (2),
@@ -286,7 +360,7 @@ Lissp Quick Start
    ...   sep=('-'))
    1-2-3
 
-   #> (print 1 : :? 2  :? 3  sep "-")     ;Arguments left of : implicitly pair with :?.
+   #> (print 1 : :? 2  :? 3  sep "-")     ;Arguments before : implicitly pair with :?.
    >>> print(
    ...   (1),
    ...   (2),
@@ -294,7 +368,7 @@ Lissp Quick Start
    ...   sep=('-'))
    1-2-3
 
-   #> (print 1 2 : :? 3  sep "-")         ;:? means positional target. Keep sliding :.
+   #> (print 1 2 : :? 3  sep "-")         ;Keep sliding : over. It's shorter.
    >>> print(
    ...   (1),
    ...   (2),
@@ -311,19 +385,24 @@ Lissp Quick Start
    1-2-3
 
 
-   #> (dict : sep "-")
-   >>> dict(
-   ...   sep=('-'))
-   {'sep': '-'}
-
-   #> (print 1 : :* "abc"  :? 2  :** (dict : sep "-")) ;Pair with :* :** for unpacking!
+   #> (print 1                            ;Implicitly a positional :? target.
+   #..       : :* "abc"                   ;Target :* to unpack iterable.
+   #..       :? 2                         ;:? is still allowed after :*.
+   #..       :* "xyz"                     ;:* is a repeatable positional target.
+   #..       :** (dict : sep "-")         ;Target :** to unpack mapping.
+   #..       flush True                   ;Kwargs still allowed after :**.
+   #..       :** (dict : end #"!?\n"))    ;Multiple :** allowed too.
    >>> print(
    ...   (1),
    ...   *('abc'),
    ...   (2),
+   ...   *('xyz'),
    ...   **dict(
-   ...       sep=('-')))
-   1-a-b-c-2
+   ...       sep=('-')),
+   ...   flush=True,
+   ...   **dict(
+   ...       end=('!?\n')))
+   1-a-b-c-2-x-y-z!?
 
 
    #> (print : :? "Hello, World!")
@@ -331,7 +410,7 @@ Lissp Quick Start
    ...   ('Hello, World!'))
    Hello, World!
 
-   #> (print "Hello, World!" :)           ;Same. Compare.
+   #> (print "Hello, World!" :)           ;Same. Slid : over. Compare.
    >>> print(
    ...   ('Hello, World!'))
    Hello, World!
@@ -342,7 +421,7 @@ Lissp Quick Start
    Hello, World!
 
 
-   #> (.upper "shout!")                   ;Method calls require a "self".
+   #> (.upper "shout!")                   ;Method calls need a . and a "self".
    >>> ('shout!').upper()
    'SHOUT!'
 
@@ -371,9 +450,190 @@ Lissp Quick Start
    <BLANKLINE>
 
 
-   ;;;; Lambda
+   ;;; Operators
 
-   ;; Lambda is one of only two special forms--looks like a call, but isn't.
+   ;; Hissp is simpler than Python. No operators! Use calls instead.
+
+   #> (operator..add 40 2)
+   >>> __import__('operator').add(
+   ...   (40),
+   ...   (2))
+   42
+
+   #> (.update (globals) : + operator..add) ;/!\ Assignment. Identifier munged.
+   >>> globals().update(
+   ...   QzPLUS_=__import__('operator').add)
+
+   #> (+ 40 2)                            ;No operators. This is still a function call!
+   >>> QzPLUS_(
+   ...   (40),
+   ...   (2))
+   42
+
+
+   ;;;; Simple Lambdas
+
+   ;; Lambdas are one of Hissp's two "special forms".
+   ;; They look like calls, but are special-cased in the Hissp compiler
+   ;; to work differently. The first element must be 'lambda', the second
+   ;; is the parameters, and finally the body.
+
+   #> (.update (globals)
+   #..         : greet
+   #..         (lambda (salutation name)
+   #..           (print (.format "{}, {}!"
+   #..                           (.title salutation)
+   #..                           name))))
+   >>> globals().update(
+   ...   greet=(lambda salutation,name:
+   ...           print(
+   ...             ('{}, {}!').format(
+   ...               salutation.title(),
+   ...               name))))
+
+   #> (greet "hello" "World")
+   >>> greet(
+   ...   ('hello'),
+   ...   ('World'))
+   Hello, World!
+
+   #> (greet "hi" "Bob")
+   >>> greet(
+   ...   ('hi'),
+   ...   ('Bob'))
+   Hi, Bob!
+
+
+   ;;; Obligatory Factorial I
+
+   ;; We now have just enough to make more interesting programs.
+
+   #> (.update (globals)
+   #..         : factorial_I
+   #..         (lambda (i)
+   #..           (functools..reduce operator..mul
+   #..                              (range i 0 -1)
+   #..                              1)))
+   >>> globals().update(
+   ...   factorial_I=(lambda i:
+   ...                 __import__('functools').reduce(
+   ...                   __import__('operator').mul,
+   ...                   range(
+   ...                     i,
+   ...                     (0),
+   ...                     (-1)),
+   ...                   (1))))
+
+   #> (factorial_I 0)
+   >>> factorial_I(
+   ...   (0))
+   1
+
+   #> (factorial_I 3)
+   >>> factorial_I(
+   ...   (3))
+   6
+
+   #> (factorial_I 5)
+   >>> factorial_I(
+   ...   (5))
+   120
+
+
+   ;;; Control Flow
+
+   ;; Hissp is simpler than Python. No control flow! Use higher-order functions instead.
+
+   #> (any (map (lambda (c) (print c))      ;Loops!
+   #..          "abc"))
+   >>> any(
+   ...   map(
+   ...     (lambda c:
+   ...       print(
+   ...         c)),
+   ...     ('abc')))
+   a
+   b
+   c
+   False
+
+
+   ((.get (dict : y (lambda () (print "Yes!")) ;Branches!
+                n (lambda () (print "Canceled.")))
+          (input "enter y/n> ")
+          (lambda () (print "Unrecognized input."))))
+
+   ;; Don't worry, Hissp metaprogramming will make this much easier,
+   ;; but our limited tools so far are enough to implement a ternary.
+
+   #> (.update (globals) : bool->caller (dict))
+   >>> globals().update(
+   ...   boolQz_QzGT_caller=dict())
+
+
+   ;; True calls left.
+   #> (operator..setitem bool->caller True (lambda (L R) (L)))
+   >>> __import__('operator').setitem(
+   ...   boolQz_QzGT_caller,
+   ...   True,
+   ...   (lambda L,R:L()))
+
+
+   ;; False calls right.
+   #> (operator..setitem bool->caller False (lambda (L R) (R)))
+   >>> __import__('operator').setitem(
+   ...   boolQz_QzGT_caller,
+   ...   False,
+   ...   (lambda L,R:R()))
+
+
+   #> (.update (globals)
+   #..         : ternary
+   #..         (lambda (condition then_thunk else_thunk)
+   #..           ((operator..getitem bool->caller (bool condition))
+   #..            then_thunk else_thunk)))
+   >>> globals().update(
+   ...   ternary=(lambda condition,then_thunk,else_thunk:
+   ...             __import__('operator').getitem(
+   ...               boolQz_QzGT_caller,
+   ...               bool(
+   ...                 condition))(
+   ...               then_thunk,
+   ...               else_thunk)))
+
+
+   ;;; Obligatory Factorial II
+
+   ;; Now we have enough for a recursive version.
+   #> (.update (globals)
+   #..         : factorial_II
+   #..         (lambda (i)
+   #..           (ternary (operator..le i 1)
+   #..                    (lambda () 1)
+   #..                    (lambda ()
+   #..                      (operator..mul i (factorial_II (operator..sub i 1)))))))
+   >>> globals().update(
+   ...   factorial_II=(lambda i:
+   ...                  ternary(
+   ...                    __import__('operator').le(
+   ...                      i,
+   ...                      (1)),
+   ...                    (lambda :(1)),
+   ...                    (lambda :
+   ...                      __import__('operator').mul(
+   ...                        i,
+   ...                        factorial_II(
+   ...                          __import__('operator').sub(
+   ...                            i,
+   ...                            (1))))))))
+
+   #> (factorial_II 5)
+   >>> factorial_II(
+   ...   (5))
+   120
+
+
+   ;;;; Advanced Lambdas
 
    ;; Python parameter types are rather involved. Lambda does all of them.
    ;; Like calls, they are all paired. :? means no default.
@@ -395,11 +655,11 @@ Lissp Quick Start
    <function <lambda> at 0x...>
 
 
-   #> (lambda (: a :?  b :?  c 1))        ;Parameters left of : pair with :?.
+   #> (lambda (: a :?  b :?  c 1))        ;Note the : separator like calls.
    >>> (lambda a,b,c=(1):())
    <function <lambda> at 0x...>
 
-   #> (lambda (a : b :?  c 1))            ;Implicit :? like calls. Keep sliding.
+   #> (lambda (a : b :?  c 1))            ;`a` now implicitly paired with :?.
    >>> (lambda a,b,c=(1):())
    <function <lambda> at 0x...>
 
@@ -471,53 +731,6 @@ Lissp Quick Start
    1
 
 
-   ;;;; Operators
-
-   ;; Hissp is simpler than Python. No operators! Use calls instead.
-
-   #> (operator..add 40 2)
-   >>> __import__('operator').add(
-   ...   (40),
-   ...   (2))
-   42
-
-   #> (.update (globals) : + operator..add) ;/!\ Assignment. Symbols munge.
-   >>> globals().update(
-   ...   QzPLUS_=__import__('operator').add)
-
-   #> (+ 40 2)                            ;No operators. This is still a function call!
-   >>> QzPLUS_(
-   ...   (40),
-   ...   (2))
-   42
-
-
-   ;;;; Control Flow
-
-   ;; Hissp is simpler than Python. No control flow! Use higher-order functions instead.
-
-   #> (any (map (lambda c (print c))      ;Loops!
-   #..          "abc"))
-   >>> any(
-   ...   map(
-   ...     (lambda c:
-   ...       print(
-   ...         c)),
-   ...     ('abc')))
-   a
-   b
-   c
-   False
-
-
-   ((.get (dict :                         ;Branches!
-                y (lambda : (print "Yes!"))
-                n (lambda : (print "Canceled.")))
-          (input "enter y/n> ")
-          (lambda : (print "Unrecognized input."))))
-
-   ;; Don't worry, macros make this much easier.
-
    ;;;; Quote
 
    ;; Quote is the only other special form. Looks like a call, but isn't.
@@ -552,12 +765,43 @@ Lissp Quick Start
    ('print', 1, 2, 3, ':', 'sep', "('-')")
 
 
+   ;; Notice how the string gets an extra layer of quotes vs identifiers.
+   ;; This particular tuple happens to be a valid form.
+   ;; The readerless function runs the Hissp compiler without the Lissp reader.
+   ;; (Remember, _ is the last result that wasn't None in the Python REPL.)
+   #> (hissp.compiler..readerless _)      ;It compiles to Python
+   >>> __import__('hissp.compiler',fromlist='?').readerless(
+   ...   _)
+   "print(\n  (1),\n  (2),\n  (3),\n  sep=('-'))"
+
+   #> (eval _)                            ; and Python can evaluate that.
+   >>> eval(
+   ...   _)
+   1-2-3
+
+
+   ;; Programmatically modifying the data before compiling it is when
+   ;; things start to get interesting, but more on that later.
+
    ;; Hissp-level strings contain Python code to include in the compiled
    ;; output. These usually contain identifiers, but can be anything.
    ;; Thus, Lissp identifiers read as strings at the Hissp level.
    #> (quote identifier)                  ;Just a string.
    >>> 'identifier'
    'identifier'
+
+
+   ;; The raw strings and hash strings in Lissp ("..."/#"..." syntax)
+   ;; also read as strings at the Hissp level, but they contain a Python
+   ;; string literal instead of a Python identifier.
+   #> (quote "a string")                  ;Unexpected? "..."/#"..." is reader syntax!
+   >>> "('a string')"
+   "('a string')"
+
+   #> (eval (quote "a string"))           ;Python code. For a string.
+   >>> eval(
+   ...   "('a string')")
+   'a string'
 
 
    ;; Quoting does not suppress munging, however. That happens at read
@@ -573,24 +817,11 @@ Lissp Quick Start
    42
 
 
-   ;; The raw strings and hash strings in Lissp ("..."/#"..." syntax)
-   ;; also read as strings at the Hissp level, but they contain Python
-   ;; code for a string, which distinguishes them from identifiers.
-   #> (quote "a string")                  ;Unexpected? "..."/#"..." is reader syntax!
-   >>> "('a string')"
-   "('a string')"
-
-   #> (eval (quote "a string"))           ;Python code. For a string.
-   >>> eval(
-   ...   "('a string')")
-   'a string'
-
-
    ;; Strings in Hissp are also used for module literals and control
-   ;; words. The compiler does a little preprocessing here. Quoting
-   ;; suppresses this evaluation too.
+   ;; words. The compiler does some extra processing before emitting these
+   ;; as Python code. Quoting suppresses this processing too.
 
-   #> math.                               ;This string gets preprocessed.
+   #> math.                               ;Compiler coverts this to an import.
    >>> __import__('math')
    <module 'math' ...>
 
@@ -606,7 +837,7 @@ Lissp Quick Start
    >>> ':?'
    ':?'
 
-   #> ((lambda (: a :?) a))               ;Not quite! Some have contextual meaning.
+   #> ((lambda (: a :?) a))               ;Oops, not quite! Contextual meaning here.
    >>> (lambda a:a)()
    Traceback (most recent call last):
      ...
@@ -617,7 +848,7 @@ Lissp Quick Start
    ':?'
 
 
-   ;;;; Reader Macros
+   ;;;; Simple Reader Macros
 
    ;; Reader macros are metaprograms to abbreviate Hissp and don't
    ;; represent it directly. They apply to the next parsed Hissp object
@@ -627,11 +858,13 @@ Lissp Quick Start
 
    ;;; Quote
 
+   ;; The ' reader macro is simply an abbreviation for the quote special form.
+
    #> 'x                                  ;(quote x). Symbols are just quoted identifiers!
    >>> 'x'
    'x'
 
-   #> '(print "Hi")                       ;Quote to reveal the Hissp.
+   #> '(print "Hi")                       ;Quote to reveal the Hissp syntax tree.
    >>> ('print',
    ...  "('Hi')",)
    ('print', "('Hi')")
@@ -707,6 +940,12 @@ Lissp Quick Start
    ('builtins..print', 'A', 'B', 'C')
 
 
+   ;; Qualification prevents accidental name collisions in
+   ;; programmatically generated code. But qualification doesn't work on
+   ;; local variables, which can't be imported. For these, we use a template
+   ;; counter suffix instead of a qualifier to ensure a variable can only
+   ;; be used in the same template it was defined in. The gensym reader
+   ;; macro ($#) generates a symbol with the current template's count.
    #> `($#eggs $#spam $#bacon $#spam)     ;Generated symbols for macro hygiene.
    >>> (lambda * _: _)(
    ...   '_eggs_QzNo9_',
@@ -720,591 +959,96 @@ Lissp Quick Start
    '_spam_QzNo10_'
 
 
-   ;;; The Discard Macro
-
-   #> _#"The discard reader macro _# omits the next form.
-   #..It's a way to comment out code structurally.
-   #..It can also make block comments like this one.
-   #..This would show up when compiled if not for _#.
-   #.."
-   >>>
-
-   #> (print 1 _#(I'm not here!) 2 3)
-   >>> print(
-   ...   (1),
-   ...   (2),
-   ...   (3))
-   1 2 3
-
-
-   ;;; Qualified Reader Macros
-
-   ;; Read-time unary invocation on the next parsed object.
-   #> builtins..hex#3840                  ;Qualified name ending in # is a reader macro.
-   >>> 0xf00
-   3840
-
-   #> builtins..ord#Q                     ;Reader macros make literal notation extensible.
-   >>> (81)
-   81
-
-   #> math..exp#1                         ;e^1. Or to whatever number. At read time.
-   >>> (2.718281828459045)
-   2.718281828459045
-
-
-   ;; Reader macros compose like functions.
-   #> 'hissp.munger..demunge#Qz_QzGT_QzGT_   ;Note the starting '.
-   >>> '->>'
-   '->>'
-
-   #> ''x
-   >>> ('quote',
-   ...  'x',)
-   ('quote', 'x')
-
-   #> '\'x
-   >>> 'QzAPOS_x'
-   'QzAPOS_x'
-
-
-   ;; The reader normally discards them, but
-   #> 'builtins..repr#;comments are parsed objects too!
-   >>> "Comment(content='comments are parsed objects too!')"
-   "Comment(content='comments are parsed objects too!')"
-
-
-   _#"Except for strings and tuples, objects in Hissp should evaluate to
-   themselves. But when the object lacks a Python literal notation,
-   the compiler is in a pickle!
-   "
-   #> builtins..float#inf
-   >>> __import__('pickle').loads(  # inf
-   ...     b'Finf\n.'
-   ... )
-   inf
-
-
-   ;;; Inject
-
-   _#"The 'inject' reader macro compiles and evaluates the next form at
-   read time and injects the resulting object directly into the Hissp
-   tree, like a qualified reader macro does.
-   "
-
-   #> '(1 2 (operator..add 1 2))          ;Quoting happens at compile time.
-   >>> ((1),
-   ...  (2),
-   ...  ('operator..add',
-   ...   (1),
-   ...   (2),),)
-   (1, 2, ('operator..add', 1, 2))
-
-   #> '(1 2 .#(operator..add 1 2))        ;Inject happens at read time.
-   >>> ((1),
-   ...  (2),
-   ...  (3),)
-   (1, 2, 3)
-
-
-   #> .#(fractions..Fraction 1 2)
-   >>> __import__('pickle').loads(  # Fraction(1, 2)
-   ...     b'cfractions\nFraction\n(V1/2\ntR.'
-   ... )
-   Fraction(1, 2)
-
-
-   _#"Recall that Hissp-level string objects can represent
-   arbitrary Python code. It's usually used for identifiers,
-   but can be anything, even complex formulas.
-   "
-   #> (lambda abc
-   #..  ;; Hissp may not have operators, but Python does.
-   #..  .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
-   >>> (lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a))
-   <function <lambda> at 0x...>
-
-
-   _#"Remember the raw string and hash string reader syntax makes Python-
-   level strings, via a Hissp-level string containing a Python string
-   literal. It is NOT for creating a Hissp-level string, which would
-   normally contain Python code. Use inject for that.
-   "
-   #> '"a string"                         ;Python code for a string. In a string.
-   >>> "('a string')"
-   "('a string')"
-
-   ;; Injection of an object to the Hissp level. In this case, a string object.
-   #> '.#"a string"                       ;Quoting renders a Hissp-level string as data.
-   >>> 'a string'
-   'a string'
-
-
-   _#"Remember, reader macros get the next parsed object, unevaluated.
-   Without inject, we're operating on the string literal code, not its contents!
-   "
-   #> (print (.upper 'textwrap..dedent##"\
-   #..               These lines
-   #..               Don't interrupt
-   #..               the flow."))
-   >>> print(
-   ...   ("('               These lines\\n'\n"
-   ...    ' "               Don\'t interrupt\\n"\n'
-   ...    " '               the flow.')").upper())
-   ('               THESE LINES\N'
-    "               DON'T INTERRUPT\N"
-    '               THE FLOW.')
-
-
-   ;; With inject, the string literal got evaluated and re-inserted.
-   #> (print (.upper 'textwrap..dedent#.##"\
-   #..               These lines
-   #..               Don't interrupt
-   #..               the flow."))
-   >>> print(
-   ...   "These lines\nDon't interrupt\nthe flow.".upper())
-   THESE LINES
-   DON'T INTERRUPT
-   THE FLOW.
-
-
-   _#"Objects without literals don't pickle until the compiler has to emit
-   them as Python code. That may never happen if another macro gets there first!
-   "
-   #> 'builtins..repr#(re..compile#.#"[1-9][0-9]*" builtins..float#inf)
-   >>> "(re.compile('[1-9][0-9]*'), inf)"
-   "(re.compile('[1-9][0-9]*'), inf)"
-
-   #> re..compile#.#"[1-9][0-9]*"
-   >>> __import__('pickle').loads(  # re.compile('[1-9][0-9]*')
-   ...     b'cre\n_compile\n(V[1-9][0-9]*\nI32\ntR.'
-   ... )
-   re.compile('[1-9][0-9]*')
-
-
-   ;; Statement injections work at the top level only.
-   #> .#"from operator import *"          ;/!\ All your operator are belong to us.
-   >>> from operator import *
-
-
-   ;;; Extra !
-
-   _#"Reader macros take one primary argument, but additional arguments
-   can be passed in with the extra macro !. A reader macro consumes the
-   next parsed object, and if it's an Extra, consumes one again. Thus,
-   extras must be written between the # and primary argument, but because
-   they're often optional refinements, which are easier to define as
-   trailing optional parameters in in Python functions, they get passed
-   in after the primary argument.
-   "
-   #> builtins..Exception#oops
-   >>> __import__('pickle').loads(  # Exception('oops')
-   ...     b'cbuiltins\nException\n(Voops\ntR.'
-   ... )
-   Exception('oops')
-
-   #> builtins..Exception#!1 oops
-   >>> __import__('pickle').loads(  # Exception('oops', 1)
-   ...     b'cbuiltins\nException\n(Voops\nI1\ntR.'
-   ... )
-   Exception('oops', 1)
-
-   #> builtins..Exception# !1 !2 oops     ;Note the order!
-   >>> __import__('pickle').loads(  # Exception('oops', 1, 2)
-   ...     b'cbuiltins\nException\n(Voops\nI1\nI2\ntR.'
-   ... )
-   Exception('oops', 1, 2)
-
-   #> .#(Exception "oops" 1 2)            ;Inject. Note the order.
-   >>> __import__('pickle').loads(  # Exception('oops', 1, 2)
-   ...     b'cbuiltins\nException\n(Voops\nI1\nI2\ntR.'
-   ... )
-   Exception('oops', 1, 2)
-
-
-   #> !1                                  ;! is for a single Extra.
-   >>> __import__('pickle').loads(  # Extra([1])
-   ...     b'ccopyreg\n_reconstructor\n(chissp.reader\nExtra\ncbuiltins\ntuple\n(I1\nttR.'
-   ... )
-   Extra([1])
-
-   #> hissp.reader..Extra#(: :? 0 :* (1 2 3)) ; but Extra can have multiple elements.
-   >>> __import__('pickle').loads(  # Extra([':', ':?', 0, ':*', (1, 2, 3)])
-   ...     b'ccopyreg\n_reconstructor\n(chissp.reader\nExtra\ncbuiltins\ntuple\n(V:\nV:?\nI0\nV:*\n(I1\nI2\nI3\ntttR.'
-   ... )
-   Extra([':', ':?', 0, ':*', (1, 2, 3)])
-
-   #> builtins..Exception#!: !:* !(0 1 2) !:? !3 oops ;Unpacking works like calls.
-   >>> __import__('pickle').loads(  # Exception('oops', 0, 1, 2, 3)
-   ...     b'cbuiltins\nException\n(Voops\nI0\nI1\nI2\nI3\ntR.'
-   ... )
-   Exception('oops', 0, 1, 2, 3)
-
-   #> builtins..Exception#!0 !: !:* !(1 2 3)oops ;Same effect.
-   >>> __import__('pickle').loads(  # Exception('oops', 0, 1, 2, 3)
-   ...     b'cbuiltins\nException\n(Voops\nI0\nI1\nI2\nI3\ntR.'
-   ... )
-   Exception('oops', 0, 1, 2, 3)
-
-   #> builtins..Exception#hissp.reader..Extra#(0 : :* (1 2 3))oops ;Same effect.
-   >>> __import__('pickle').loads(  # Exception('oops', 0, 1, 2, 3)
-   ...     b'cbuiltins\nException\n(Voops\nI0\nI1\nI2\nI3\ntR.'
-   ... )
-   Exception('oops', 0, 1, 2, 3)
-
-   #> builtins..Exception# !0 hissp.reader..Extra#(1 2) !3 oops ;Same effect.
-   >>> __import__('pickle').loads(  # Exception('oops', 0, 1, 2, 3)
-   ...     b'cbuiltins\nException\n(Voops\nI0\nI1\nI2\nI3\ntR.'
-   ... )
-   Exception('oops', 0, 1, 2, 3)
-
-
-   ;; Kwargs also work like calls.
-   #> builtins..dict#()
-   >>> {}
-   {}
-
-   #> builtins..dict#!: !spam !1  !foo !2  !:** !.#(dict : eggs 3  bar 4)()
-   >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
-   {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
-
-
-   ;; Yeah, you can nest these if you have to.
-   #> builtins..Exception# !x
-   #..                     !builtins..Exception# !1
-   #..                     builtins..Exception# !A .#"uh-oh"
-   #..                     !y
-   #..oops
-   >>> __import__('pickle').loads(  # Exception('oops', 'x', Exception(Exception('uh-oh', 'A'), 1), 'y')
-   ...     b'cbuiltins\nException\np0\n(Voops\nVx\ng0\n(g0\n(Vuh-oh\nVA\ntRI1\ntRVy\ntR.'
-   ... )
-   Exception('oops', 'x', Exception(Exception('uh-oh', 'A'), 1), 'y')
-
-
-   ;;;; Collections
-
-   ;;; Templates and Tuples
-
-   #> '(1 2 3)                            ;tuple
-   >>> ((1),
-   ...  (2),
-   ...  (3),)
-   (1, 2, 3)
-
-   #> `(,(pow 42 0) ,(+ 1 1) 3)           ;Interpolate with templates.
-   >>> (lambda * _: _)(
-   ...   pow(
-   ...     (42),
-   ...     (0)),
-   ...   QzPLUS_(
-   ...     (1),
-   ...     (1)),
-   ...   (3))
-   (1, 2, 3)
-
-   #> `("a" 'b c ,'d ,"e")                ;These can be tricky. Careful.
-   >>> (lambda * _: _)(
-   ...   "('a')",
-   ...   (lambda * _: _)(
-   ...     'quote',
-   ...     '__main__..b'),
-   ...   '__main__..c',
-   ...   'd',
-   ...   ('e'))
-   ("('a')", ('quote', '__main__..b'), '__main__..c', 'd', 'e')
-
-   #> '(1 "a")                            ;Recursive quoting.
-   >>> ((1),
-   ...  "('a')",)
-   (1, "('a')")
-
-   #> '(1 .#"a")                          ;Injected Hissp-level string.
-   >>> ((1),
-   ...  'a',)
-   (1, 'a')
-
-   #> `(1 ,"a")                           ;Interpolated string.
-   >>> (lambda * _: _)(
-   ...   (1),
-   ...   ('a'))
-   (1, 'a')
-
-
-   ;; Helper functions may be easier than templates for data.
-   #> ((lambda (: :* xs) xs) 0 "a" 'b :c)
-   >>> (lambda *xs:xs)(
-   ...   (0),
-   ...   ('a'),
-   ...   'b',
-   ...   ':c')
-   (0, 'a', 'b', ':c')
-
-   #> (.update (globals) : entuple (lambda (: :* xs) xs))
-   >>> globals().update(
-   ...   entuple=(lambda *xs:xs))
-
-   #> (entuple 0 "a" 'b :c)
-   >>> entuple(
-   ...   (0),
-   ...   ('a'),
-   ...   'b',
-   ...   ':c')
-   (0, 'a', 'b', ':c')
-
-
-   ;;; Other Collection Types
-
-   #> (list `(1 ,(+ 1 1) 3))
-   >>> list(
-   ...   (lambda * _: _)(
-   ...     (1),
-   ...     QzPLUS_(
-   ...       (1),
-   ...       (1)),
-   ...     (3)))
-   [1, 2, 3]
-
-   #> (set '(1 2 3))
-   >>> set(
-   ...   ((1),
-   ...    (2),
-   ...    (3),))
-   {1, 2, 3}
-
-
-   #> (bytes '(98 121 116 101 115))
-   >>> bytes(
-   ...   ((98),
-   ...    (121),
-   ...    (116),
-   ...    (101),
-   ...    (115),))
-   b'bytes'
-
-   #> (bytes.fromhex "6279746573")
-   >>> bytes.fromhex(
-   ...   ('6279746573'))
-   b'bytes'
-
-   ;; Read-time equivalents.
-   #> builtins..bytes.fromhex#.#"6279746573"
-   >>> b'bytes'
-   b'bytes'
-
-   #> builtins..bytes#(98 121 116 101 115)
-   >>> b'bytes'
-   b'bytes'
-
-   #> .#"b'bytes'"                        ;bytes literal Python injection
-   >>> b'bytes'
-   b'bytes'
-
-
-   #> (dict : + 0  a 1  b 2)              ;Symbol keys are easy. The common case.
-   >>> dict(
-   ...   QzPLUS_=(0),
-   ...   a=(1),
-   ...   b=(2))
-   {'QzPLUS_': 0, 'a': 1, 'b': 2}
-
-   #> (.__getitem__ _ '+)                 ;_: the last result that wasn't None, in the REPL.
-   >>> _.__getitem__(
-   ...   'QzPLUS_')
-   0
-
-   #> (dict (zip '(1 2 3) "abc"))         ;Non-symbol keys are possible.
-   >>> dict(
-   ...   zip(
-   ...     ((1),
-   ...      (2),
-   ...      (3),),
-   ...     ('abc')))
-   {1: 'a', 2: 'b', 3: 'c'}
-
-   #> (dict '((a 1) (2 b)))               ;Mixed key types. Beware of quoting strings.
-   >>> dict(
-   ...   (('a',
-   ...     (1),),
-   ...    ((2),
-   ...     'b',),))
-   {'a': 1, 2: 'b'}
-
-   #> (dict `((,'+ 42)
-   #..        (,(+ 1 1) ,'b)))            ;Run-time interpolation with a template.
-   >>> dict(
-   ...   (lambda * _: _)(
-   ...     (lambda * _: _)(
-   ...       'QzPLUS_',
-   ...       (42)),
-   ...     (lambda * _: _)(
-   ...       QzPLUS_(
-   ...         (1),
-   ...         (1)),
-   ...       'b')))
-   {'QzPLUS_': 42, 2: 'b'}
-
-   #> (.__getitem__ _ '+)
-   >>> _.__getitem__(
-   ...   'QzPLUS_')
-   42
-
-
-   #> (.update (globals)
-   #..         : endict                   ;dict helper function
-   #..         (lambda (: :* pairs)
-   #..           ;; Injections work on any Python expression, even comprehensions!
-   #..           .#"{k: next(it) for it in [iter(pairs)] for k in it}"))
-   >>> globals().update(
-   ...   endict=(lambda *pairs:{k: next(it) for it in [iter(pairs)] for k in it}))
-
-   #> (endict 1 2  'a 'b)
-   >>> endict(
-   ...   (1),
-   ...   (2),
-   ...   'a',
-   ...   'b')
-   {1: 2, 'a': 'b'}
-
-
-   ;;; Collection Atoms
-
-   #> .#"[]"                              ;List from a Python injection.
-   >>> []
-   []
-
-   #> .#[]                                ;You can drop the quotes sometimes.
-   >>> []
-   []
-
-   #> []                                  ; And the reader macro!
-   >>> []
-   []
-
-
-   #> [1,2,3]                             ;List/set/dict atoms are a kind of injection.
-   >>> [1, 2, 3]
-   [1, 2, 3]
-
-   #> {1,2,3}                             ; They read in as a single atom, so have
-   >>> {1, 2, 3}
-   {1, 2, 3}
-
-   #> {'a':1,2:b'b'}                      ; compile-time literals only--No interpolation!
-   >>> {'a': 1, 2: b'b'}
-   {'a': 1, 2: b'b'}
-
-   #> [1,{2},{3:[4,5]},'six']             ;Nesting is allowed.
-   >>> [1, {2}, {3: [4, 5]}, 'six']
-   [1, {2}, {3: [4, 5]}, 'six']
-
-
-   ;; Collection atoms are a convenience for simple cases only.
-   #> .#"['1 2','3',(4,5),r'6;7\8']"
-   >>> ['1 2','3',(4,5),r'6;7\8']
-   ['1 2', '3', (4, 5), '6;7\\8']
-
-   ;; After dropping quotes, these tokenize like other atoms, so you need escapes.
-   #> ['1\ 2',\"3\",\(4,5\),r'6\;7\\8']   ;Not so convenient now. Simple cases only!
-   >>> ['1 2', '3', (4, 5), '6;7\\8']
-   ['1 2', '3', (4, 5), '6;7\\8']
-
-
-   ;; Constructors or helpers also work. (And can interpolate run-time data.)
-   #> (list `(,"1 2" ,"3" (4 5) ,"6;7\8"))
-   >>> list(
-   ...   (lambda * _: _)(
-   ...     ('1 2'),
-   ...     ('3'),
-   ...     (lambda * _: _)(
-   ...       (4),
-   ...       (5)),
-   ...     ('6;7\\8')))
-   ['1 2', '3', (4, 5), '6;7\\8']
-
-
-   #> (.update (globals) : enlist (lambda (: :* xs) (list xs))) ;helper function
-   >>> globals().update(
-   ...   enlist=(lambda *xs:
-   ...            list(
-   ...              xs)))
-
-   #> (enlist "1 2" "3" '(4 5) "6;7\8")
-   >>> enlist(
-   ...   ('1 2'),
-   ...   ('3'),
-   ...   ((4),
-   ...    (5),),
-   ...   ('6;7\\8'))
-   ['1 2', '3', (4, 5), '6;7\\8']
-
-
-   _#"Even though they evaluate the same, there's a subtle compile-time difference
-   between a collection atom and a string injection. This can matter because
-   macros get all their arguments unevaluated.
-   "
-
-   #> '[1,'''2\ 3''']                     ;[1, '2 3']
-   >>> [1, '2 3']
-   [1, '2 3']
-
-   #> '.#"[1,'''2 3''']"                  ;"[1,'''2 3''']"
-   >>> "[1,'''2 3''']"
-   "[1,'''2 3''']"
-
-
-   ;; But you can still get a real collection at compile time.
-   #> '.#(eval "[1,'''2 3''']")           ;[1, '2 3']
-   >>> [1, '2 3']
-   [1, '2 3']
-
-   #> '.#.#"[1,'''2 3''']"                ;[1, '2 3']
-   >>> [1, '2 3']
-   [1, '2 3']
-
-
-   #> (lambda ['a','b','c'])              ;I don't recommend this, but it works.
-   >>> (lambda a,b,c:())
-   <function <lambda> at 0x...>
-
-   #> (lambda .#"['a','b','c']")          ;Oops. Compare.
-   >>> (lambda [,',a,',,,',b,',,,',c,',]:())
-   Traceback (most recent call last):
-     ...
-       (lambda [,',a,',,,',b,',,,',c,',]:())
-               ^
-   SyntaxError: invalid syntax
-
-   #> (lambda .#.#"['a','b','c']")        ;Another inject fixes it.
-   >>> (lambda a,b,c:())
-   <function <lambda> at 0x...>
-
-   #> (lambda "abc")                      ;Oops.
-   >>> (lambda (,',a,b,c,',):())
-   Traceback (most recent call last):
-     ...
-       (lambda (,',a,b,c,',):())
-               ^
-   SyntaxError: invalid syntax
-
-   #> (lambda .#"abc")                    ;Inject fixes it.
-   >>> (lambda a,b,c:())
-   <function <lambda> at 0x...>
-
-   #> (lambda abc)                        ;Identifiers are also a kind of injection!
-   >>> (lambda a,b,c:())
-   <function <lambda> at 0x...>
-
-
    ;;;; Compiler Macros
 
-   _#"Macroexpansion happens at compile time, after the reader, so macros also
-   work in readerless mode, or with alternative Hissp readers other than Lissp.
-   Macros get all of their arguments unevaluated and the compiler
-   inserts the resulting Hissp into that point in the program.
-   Like special forms, macro invocations look like function calls, but aren't.
-   "
+   ;; We can use functions to to create forms for evaluation.
+   ;; This is metaprogramming: code that writes code.
 
-   ;; An invocation using an identifier qualified with ``_macro_`` is a macro invocation.
+   #> (.update (globals)                  ;assign fills in a template to make a form.
+   #..         : assign
+   #..         (lambda (key value)
+   #..           `(.update (globals) : ,key ,value)))
+   >>> globals().update(
+   ...   assign=(lambda key,value:
+   ...            (lambda * _: _)(
+   ...              '.update',
+   ...              (lambda * _: _)(
+   ...                'builtins..globals'),
+   ...              ':',
+   ...              key,
+   ...              value)))
+
+
+   ;; Notice the arguments to it are quoted.
+   #> (assign 'SPAM '"eggs")              ;The result is a valid Hissp form.
+   >>> assign(
+   ...   'SPAM',
+   ...   "('eggs')")
+   ('.update', ('builtins..globals',), ':', 'SPAM', "('eggs')")
+
+   #> (hissp.compiler..readerless _)      ;Hissp can compile it,
+   >>> __import__('hissp.compiler',fromlist='?').readerless(
+   ...   _)
+   "__import__('builtins').globals().update(\n  SPAM=('eggs'))"
+
+   #> (eval _)                            ; and Python can evaluate that.
+   >>> eval(
+   ...   _)
+
+   #> SPAM                                ;'eggs'
+   >>> SPAM
+   'eggs'
+
+
+   ;; We can accomplish this more easily with a macro invocation.
+
+   ;; Unqualified invocations are macro invocations if the identifier is in
+   ;; the current module's _macro_ namespace. The REPL includes one, but
+   ;; .lissp files don't have one until you create it.
+   (dir)
+   (dir _macro_)
+
+   ;; Macros run at compile time, so they get all of their arguments
+   ;; unevaluated. The compiler inserts the resulting Hissp at that point
+   ;; in the program. Like special forms, macro invocations look like
+   ;; function calls, but aren't.
+   #> (setattr _macro_ 'assign assign)    ;We can use our assign function as a macro!
+   >>> setattr(
+   ...   _macro_,
+   ...   'assign',
+   ...   assign)
+
+
+   ;; Macro invocations look like ordinary function calls, but they aren't.
+   #> (assign SPAM "ham")                 ;This runs a metaprogram!
+   >>> # assign
+   ... __import__('builtins').globals().update(
+   ...   SPAM=('ham'))
+
+   #> SPAM                                ;'ham'
+   >>> SPAM
+   'ham'
+
+
+   ;; We almost could have accomplished this one with a function, but we'd
+   ;; have to either quote the variable name or use a : to pass it in as a
+   ;; keyword. The macro invocation is a little shorter. Furthermore, the
+   ;; globals function gets the globals dict for the current module. Thus,
+   ;; an assign function would assign globals to the module it is defined
+   ;; in, not the one where it is used! You could get around this by
+   ;; walking up a stack frame with inspect, but that's brittle. The macro
+   ;; version just works because it writes the code in line for you, so
+   ;; the globals call appears in the right module.
+
+   ;; Macros are a feature of the Hissp compiler. Macroexpansion happens at
+   ;; compile time, after the reader, so macros also work in readerless
+   ;; mode, or with Hissp readers other than Lissp, like Hebigo.
+
+   ;; Hissp already comes with a define macro for global assignment.
+   ;; Our assign macro just re-implemented this.
+   (help hissp.basic.._macro_.define)
+
+   ;; An invocation qualified with _macro_ is a macro invocation.
    #> (hissp.basic.._macro_.define SPAM "eggs") ;Note SPAM is not quoted.
    >>> # hissp.basic.._macro_.define
    ... __import__('builtins').globals().update(
@@ -1316,6 +1060,7 @@ Lissp Quick Start
 
 
    ;; See the macro expansion by calling it like a method with all arguments quoted.
+   ;; This way, the callable isn't qualified with _macro_, so it's a normal call.
    #> (.define hissp.basic.._macro_ 'SPAM '"eggs") ;Method syntax is never macro invocation.
    >>> __import__('hissp.basic',fromlist='?')._macro_.define(
    ...   'SPAM',
@@ -1323,22 +1068,8 @@ Lissp Quick Start
    ('.update', ('builtins..globals',), ':', 'SPAM', "('eggs')")
 
 
-   ;; Unqualified invocations are macro invocations if the identifier is in
-   ;; the current module's _macro_ namespace. The REPL includes one, but
-   ;; .lissp files don't have one until you create it.
-   (dir)
-   (dir _macro_)
+   ;; The REPL's default _macro_ namespace already has the basic macros.
    (help _macro_.define)
-
-   ;; Unqualified macro invocations really look like function calls, but aren't.
-   #> (define EGGS "spam")
-   >>> # define
-   ... __import__('builtins').globals().update(
-   ...   EGGS=('spam'))
-
-   #> EGGS
-   >>> EGGS
-   'spam'
 
 
    #> (setattr _macro_
@@ -1394,23 +1125,54 @@ Lissp Quick Start
    42
 
 
-   ;; Maybe the expanded code could only run it once?
+   ;; But what if we want the expanded code to only run it once?
+   ;; We can use a lambda to make a local variable and immediately call it.
+   #> ((lambda (x)
+   #..   (+ x (+ x x)))
+   #.. (loud-number 14))
+   >>> (lambda x:
+   ...   QzPLUS_(
+   ...     x,
+   ...     QzPLUS_(
+   ...       x,
+   ...       x)))(
+   ...   loudQz_number(
+   ...     (14)))
+   14
+   42
+
+
+   ;; Python also allows us to use a default argument up front.
+   #> ((lambda (: x (loud-number 14))
+   #..   (+ x (+ x x))))
+   >>> (lambda x=loudQz_number(
+   ...   (14)):
+   ...   QzPLUS_(
+   ...     x,
+   ...     QzPLUS_(
+   ...       x,
+   ...       x)))()
+   14
+   42
+
+
+   ;; Let's try making a template to produce code like that.
    #> (setattr _macro_
    #..         'oops-triple
-   #..         (lambda x
-   #..           `((lambda (: x ,x)       ;Expand to lambda to make a local variable.
+   #..         (lambda (expression)
+   #..           `((lambda (: x ,expression) ;Expand to lambda call for a local.
    #..               (+ x (+ x x))))))
    >>> setattr(
    ...   _macro_,
    ...   'oopsQz_triple',
-   ...   (lambda x:
+   ...   (lambda expression:
    ...     (lambda * _: _)(
    ...       (lambda * _: _)(
    ...         'lambda',
    ...         (lambda * _: _)(
    ...           ':',
    ...           '__main__..x',
-   ...           x),
+   ...           expression),
    ...         (lambda * _: _)(
    ...           '__main__..QzMaybe_.QzPLUS_',
    ...           '__main__..x',
@@ -1419,7 +1181,7 @@ Lissp Quick Start
    ...             '__main__..x',
    ...             '__main__..x'))))))
 
-   #> (oops-triple 14)                    ;Don't forget that templates qualify symbols!
+   #> (oops-triple 14)                    ;Oops. Templates qualify symbols!
    >>> # oopsQz_triple
    ... (lambda __main__..x=(14):
    ...   __import__('builtins').globals()['QzPLUS_'](
@@ -1434,7 +1196,8 @@ Lissp Quick Start
    SyntaxError: invalid syntax
 
 
-   ;; If you didn't want it qualified, that's a sign you should use a gensym instead:
+   ;; Remember, gensyms are an alternative to qualification for locals.
+   ;; (Thus, gensyms are never auto-qualified by templates.)
    #> (setattr _macro_
    #..         'once-triple
    #..         (lambda x
@@ -1472,43 +1235,29 @@ Lissp Quick Start
    42
 
 
-   ;; Sometimes you really want a capture, so don't qualify and don't gensym:
-   #> (setattr _macro_
-   #..         'fnx
-   #..         (lambda (: :* body)
-   #..           `(lambda (,'X)           ;,'X instead of $#X
-   #..              (,@body))))
-   >>> setattr(
-   ...   _macro_,
-   ...   'fnx',
-   ...   (lambda *body:
-   ...     (lambda * _: _)(
-   ...       'lambda',
-   ...       (lambda * _: _)(
-   ...         'X'),
-   ...       (lambda * _: _)(
-   ...         *body))))
-
-   #> (list (map (fnx mul X X) (range 6)))   ;Shorter lambda! Don't nest them.
-   >>> list(
-   ...   map(
-   ...     # fnx
-   ...     (lambda X:
-   ...       mul(
-   ...         X,
-   ...         X)),
-   ...     range(
-   ...       (6))))
-   [0, 1, 4, 9, 16, 25]
+   ;; Notice the special QzMaybe_ qualifier generated by this template.
+   ;; Templates creates these for symbols in the invocation position when
+   ;; they can't tell if _macro_ would work. The compiler skips QzMaybe_
+   ;; unless it can resolve the symbol with QzMaybe_ as _macro_.
+   #> `(+ 1 2 3 4)
+   >>> (lambda * _: _)(
+   ...   '__main__..QzMaybe_.QzPLUS_',
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   (4))
+   ('__main__..QzMaybe_.QzPLUS_', 1, 2, 3, 4)
 
 
-   ;; Recursive macro. (Multiary +)
+   ;; Recursive macro. (A multiary +). Note the QzMaybe_. If this had
+   ;; been qualified like a global instead, the recursion wouldn't work.
    #> (setattr _macro_
    #..         '+
-   #..          (lambda (first : :* args)
-   #..            (.__getitem__
-   #..              `(,first (add ,first (+ ,@args)))
-   #..              (bool args))))
+   #..         (lambda (first : :* args)
+   #..           (.__getitem__ ; Tuple method. Templates produce tuples.
+   #..             `(,first ; Result when no args left.
+   #..               (operator..add ,first (+ ,@args))) ; Otherwise recur.
+   #..             (bool args))))        ;Bools are ints, remember?
    >>> setattr(
    ...   _macro_,
    ...   'QzPLUS_',
@@ -1516,7 +1265,7 @@ Lissp Quick Start
    ...     (lambda * _: _)(
    ...       first,
    ...       (lambda * _: _)(
-   ...         '__main__..QzMaybe_.add',
+   ...         'operator..add',
    ...         first,
    ...         (lambda * _: _)(
    ...           '__main__..QzMaybe_.QzPLUS_',
@@ -1526,25 +1275,38 @@ Lissp Quick Start
 
    #> (+ 1 2 3 4)
    >>> # QzPLUS_
-   ... __import__('builtins').globals()['add'](
+   ... __import__('operator').add(
    ...   (1),
    ...   # __main__..QzMaybe_.QzPLUS_
-   ...   __import__('builtins').globals()['add'](
+   ...   __import__('operator').add(
    ...     (2),
    ...     # __main__..QzMaybe_.QzPLUS_
-   ...     __import__('builtins').globals()['add'](
+   ...     __import__('operator').add(
    ...       (3),
    ...       # __main__..QzMaybe_.QzPLUS_
    ...       (4))))
    10
 
 
+   ;; Notice that a new template doesn't qualify + with QzMaybe_ now that
+   ;; it detects a macro with that name.
+   #> `(+ 1 2 3 4)
+   >>> (lambda * _: _)(
+   ...   '__main__.._macro_.QzPLUS_',
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   (4))
+   ('__main__.._macro_.QzPLUS_', 1, 2, 3, 4)
+
+
    #> (setattr _macro_
    #..         '*
-   #..          (lambda (first : :* args)
-   #..            (.__getitem__
-   #..              `(,first (mul ,first (* ,@args)))
-   #..              (bool args))))
+   #..         (lambda (first : :* args)
+   #..           (.__getitem__
+   #..             `(,first
+   #..               (operator..mul ,first (* ,@args)))
+   #..             (bool args))))
    >>> setattr(
    ...   _macro_,
    ...   'QzSTAR_',
@@ -1552,7 +1314,7 @@ Lissp Quick Start
    ...     (lambda * _: _)(
    ...       first,
    ...       (lambda * _: _)(
-   ...         '__main__..QzMaybe_.mul',
+   ...         'operator..mul',
    ...         first,
    ...         (lambda * _: _)(
    ...           '__main__..QzMaybe_.QzSTAR_',
@@ -1562,13 +1324,13 @@ Lissp Quick Start
 
    #> (* 1 2 3 4)
    >>> # QzSTAR_
-   ... __import__('builtins').globals()['mul'](
+   ... __import__('operator').mul(
    ...   (1),
    ...   # __main__..QzMaybe_.QzSTAR_
-   ...   __import__('builtins').globals()['mul'](
+   ...   __import__('operator').mul(
    ...     (2),
    ...     # __main__..QzMaybe_.QzSTAR_
-   ...     __import__('builtins').globals()['mul'](
+   ...     __import__('operator').mul(
    ...       (3),
    ...       # __main__..QzMaybe_.QzSTAR_
    ...       (4))))
@@ -1587,13 +1349,12 @@ Lissp Quick Start
      ...
    NameError: name 'QzSTAR_' is not defined
 
-   #> (functools..reduce (lambda xy
-   #..                     (* x y))       ;Invocation.
+   #> (functools..reduce (lambda xy (* x y)) ;Invocation, not argument.
    #..                   '(1 2 3 4))
    >>> __import__('functools').reduce(
    ...   (lambda x,y:
    ...     # QzSTAR_
-   ...     __import__('builtins').globals()['mul'](
+   ...     __import__('operator').mul(
    ...       x,
    ...       # __main__..QzMaybe_.QzSTAR_
    ...       y)),
@@ -1604,16 +1365,68 @@ Lissp Quick Start
    24
 
 
+   ;; Sometimes you actually do want a name collision (or "capture"),
+   ;; when the macro user should expect an implicit new local binding
+   ;; (an "anaphor"). Don't qualify and don't gensym in that case.
+   ;; Unquoting suppresses the recursive template quoting of tuples,
+   ;; while the normal quote doesn't qualify symbols, so this combination
+   ;; suppresses auto-qualification.
+   #> (setattr _macro_
+   #..         'XY
+   #..         (lambda (: :* body)
+   #..           `(lambda (,'X ,'Y)       ;,'X instead of $#X
+   #..              ,body)))
+   >>> setattr(
+   ...   _macro_,
+   ...   'XY',
+   ...   (lambda *body:
+   ...     (lambda * _: _)(
+   ...       'lambda',
+   ...       (lambda * _: _)(
+   ...         'X',
+   ...         'Y'),
+   ...       body)))
+
+
+   #> (functools..reduce (XY * X Y)       ;Invocation, not argument!
+   #..                   '(1 2 3 4))
+   >>> __import__('functools').reduce(
+   ...   # XY
+   ...   (lambda X,Y:
+   ...     # QzSTAR_
+   ...     __import__('operator').mul(
+   ...       X,
+   ...       # __main__..QzMaybe_.QzSTAR_
+   ...       Y)),
+   ...   ((1),
+   ...    (2),
+   ...    (3),
+   ...    (4),))
+   24
+
+   #> ((XY + Y X) "Eggs" "Spam")
+   >>> # XY
+   ... (lambda X,Y:
+   ...   # QzPLUS_
+   ...   __import__('operator').add(
+   ...     Y,
+   ...     # __main__..QzMaybe_.QzPLUS_
+   ...     X))(
+   ...   ('Eggs'),
+   ...   ('Spam'))
+   'SpamEggs'
+
+
    ;; It's possible for a macro to shadow a global. They live in different namespaces.
    #> (+ 1 2 3 4)                         ;_macro_.+, not the global.
    >>> # QzPLUS_
-   ... __import__('builtins').globals()['add'](
+   ... __import__('operator').add(
    ...   (1),
    ...   # __main__..QzMaybe_.QzPLUS_
-   ...   __import__('builtins').globals()['add'](
+   ...   __import__('operator').add(
    ...     (2),
    ...     # __main__..QzMaybe_.QzPLUS_
-   ...     __import__('builtins').globals()['add'](
+   ...     __import__('operator').add(
    ...       (3),
    ...       # __main__..QzMaybe_.QzPLUS_
    ...       (4))))
@@ -1628,206 +1441,146 @@ Lissp Quick Start
    ...    (4),))
    10
 
-   (dir)                                  ;Has QzPLUS_, but not QzSTAR_.
-   (dir _macro_)                          ;Has both.
+
+   (dir)                               ;Has QzPLUS_, but not QzSTAR_.
+   (dir _macro_)                       ;Has both.
+
+   ;; Notice the qualifier on sep. Qualifying a keyword doesn't make sense.
+   #> (setattr _macro_
+   #..         'p123
+   #..         (lambda (sep)
+   #..           `(print 1 2 3 : sep ,sep)))
+   >>> setattr(
+   ...   _macro_,
+   ...   'p123',
+   ...   (lambda sep:
+   ...     (lambda * _: _)(
+   ...       'builtins..print',
+   ...       (1),
+   ...       (2),
+   ...       (3),
+   ...       ':',
+   ...       '__main__..sep',
+   ...       sep)))
+
+
+   ;; Note the : didn't have to be quoted here, because it's in a macro
+   ;; invocation, not a call. The compiler also discarded the qualifier
+   ;; on sep, because it's a kwarg.
+   #> (p123 :)
+   >>> # p123
+   ... __import__('builtins').print(
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   sep=':')
+   1:2:3
+
+
+   ;;;; Compiling and Running Files
 
    ;; ``$ lissp`` can run a .lissp file as __main__.
    ;; You cannot import .lissp directly. Compile it to .py first.
 
    ;; Finds spam.lissp & eggs.lissp in the current package & compile to spam.py & eggs.py
-   (os..system #"echo (print \"Hello World!\") > eggs.lissp")
-   (os..system #"echo (print \"Hello from spam!\") (.update (globals) : x 42) > spam.lissp")
-   (hissp.reader..transpile __package__ 'spam 'eggs)
+   #> (.write_text (pathlib..Path "eggs.lissp")
+   #..             #"(print \"Hello World!\")")
+   >>> __import__('pathlib').Path(
+   ...   ('eggs.lissp')).write_text(
+   ...   ('(print "Hello World!")'))
+   22
 
-   spam..x                                ;Side effects on both compilation and import!
-   ;; Hello from spam!
-   ;; 42
+   #> (.write_text (pathlib..Path "spam.lissp")
+   #..             #"(print \"Hello from spam!\")
+   #..(.update (globals) : x 42)")
+   >>> __import__('pathlib').Path(
+   ...   ('spam.lissp')).write_text(
+   ...   ('(print "Hello from spam!")\n(.update (globals) : x 42)'))
+   53
 
-   spam..x                                ;42
-   eggs.                                  ;Hello, World!
+   #> (hissp.reader..transpile __package__ 'spam 'eggs) ; Side effects on compilation
+   >>> __import__('hissp.reader',fromlist='?').transpile(
+   ...   __package__,
+   ...   'spam',
+   ...   'eggs')
+   Hello from spam!
+   Hello World!
+
+
+   #> spam..x                             ; and import!
+   >>> __import__('spam').x
+   Hello from spam!
+   42
+
+   #> spam..x                             ;Python caches imports.
+   >>> __import__('spam').x
+   42
+
+   #> eggs.
+   >>> __import__('eggs')
+   Hello World!
+   <module 'eggs' from ...>
+
+
+   #> (any (map (lambda f (os..remove f)) ;Cleanup.
+   #..     '(eggs.lissp spam.lissp spam.py eggs.py)))
+   >>> any(
+   ...   map(
+   ...     (lambda f:
+   ...       __import__('os').remove(
+   ...         f)),
+   ...     ('eggs.lissp',
+   ...      'spam.lissp',
+   ...      'spam.py',
+   ...      'eggs.py',)))
+   False
+
 
    ;;;; The Basic Macros
 
-   _#"To make the REPL more usable, it comes with some basic macros already
-   defined. Their design has been deliberately restricted so that their
-   compiled output does not require the hissp package to be installed to
-   work. While these may suffice for small or embedded Hissp projects, you
-   will probably want a more capable macro suite (such as Hebigo's) for
-   general use. You are not required to use the basic macros at all, so by
-   default, they don't work in .lissp files unqualified. They're available
-   qualified from hissp.basic.._macro_.
-   "
-
-   #> (help _macro_.->>)                  ;Macros have docstrings and live in _macro_.
-   >>> help(
-   ...   _macro_.Qz_QzGT_QzGT_)
-   Help on function <lambda> in module hissp.basic:
-   <BLANKLINE>
-   <lambda> lambda expr, *forms
-       ``->>`` 'Thread-last'...
-
-
-   ;; Makes a new reader macro to abbreviate a qualifier.
-   #> (hissp.basic.._macro_.alias M: hissp.basic.._macro_)
-   >>> # hissp.basic.._macro_.alias
-   ... # hissp.basic.._macro_.defmacro
-   ... # hissp.basic.._macro_.let
-   ... (lambda _fn_QzNo7_=(lambda _prime_QzNo34_,_reader_QzNo34_=None,*_args_QzNo34_:(
-   ...   "('Aliases hissp.basic.._macro_ as MQzCOLON_#')",
-   ...   # hissp.basic.._macro_.ifQz_else
-   ...   (lambda test,*thenQz_else:
-   ...     __import__('operator').getitem(
-   ...       thenQz_else,
-   ...       __import__('operator').not_(
-   ...         test))())(
-   ...     _reader_QzNo34_,
-   ...     (lambda :
-   ...       __import__('builtins').getattr(
-   ...         __import__('hissp.basic',fromlist='?')._macro_,
-   ...         ('{}{}').format(
-   ...           _reader_QzNo34_,
-   ...           # hissp.basic.._macro_.ifQz_else
-   ...           (lambda test,*thenQz_else:
-   ...             __import__('operator').getitem(
-   ...               thenQz_else,
-   ...               __import__('operator').not_(
-   ...                 test))())(
-   ...             __import__('operator').contains(
-   ...               'hissp.basic.._macro_',
-   ...               '_macro_'),
-   ...             (lambda :'QzHASH_'),
-   ...             (lambda :('')))))(
-   ...         _prime_QzNo34_,
-   ...         *_args_QzNo34_)),
-   ...     (lambda :
-   ...       ('{}.{}').format(
-   ...         'hissp.basic.._macro_',
-   ...         _prime_QzNo34_))))[-1]):(
-   ...   __import__('builtins').setattr(
-   ...     _fn_QzNo7_,
-   ...     '__qualname__',
-   ...     ('.').join(
-   ...       ('_macro_',
-   ...        'MQzCOLON_QzHASH_',))),
-   ...   __import__('builtins').setattr(
-   ...     __import__('operator').getitem(
-   ...       __import__('builtins').globals(),
-   ...       '_macro_'),
-   ...     'MQzCOLON_QzHASH_',
-   ...     _fn_QzNo7_))[-1])()
-
-   #> 'M:#alias                           ;Now short for 'hissp.basic.._macro_.alias'.
-   >>> 'hissp.basic.._macro_.alias'
-   'hissp.basic.._macro_.alias'
-
-   #> M:#b\#                              ;b# macro callable
-   >>> __import__('hissp.basic',fromlist='?')._macro_.bQzHASH_
-   <function _macro_.bQzHASH_ at ...>
-
-   #> (M:#b\# "b# macro at compile time")
-   >>> # hissp.basic.._macro_.bQzHASH_
-   ... b'b# macro at compile time'
-   b'b# macro at compile time'
-
-   #> hissp.basic.._macro_.b\##"Fully qualified b# macro at read time."
-   >>> b'Fully qualified b# macro at read time.'
-   b'Fully qualified b# macro at read time.'
-
-   #> M:#!b"Read-time b# via alias."      ;Extra arg for alias with !
-   >>> b'Read-time b# via alias.'
-   b'Read-time b# via alias.'
-
-
-   _#"Imports partial and reduce; star imports from operator and
-   itertools; defines the en- group utilities; and imports a copy of
-   hissp.basic.._macro_ (if available). Usually the first form in a file,
-   because it overwrites _macro_, but completely optional.
-   "
-   #> (M:#prelude)                        ;/!\
-   >>> # hissp.basic.._macro_.prelude
-   ... __import__('builtins').exec(
-   ...   ('from functools import partial,reduce\n'
-   ...    'from itertools import *;from operator import *\n'
-   ...    'def entuple(*xs):return xs\n'
-   ...    'def enlist(*xs):return[*xs]\n'
-   ...    'def enset(*xs):return{*xs}\n'
-   ...    "def enfrost(*xs):return __import__('builtins').frozenset(xs)\n"
-   ...    'def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}\n'
-   ...    "def enstr(*xs):return''.join(''.__class__(x)for x in xs)\n"
-   ...    'def engarde(xs,f,*a,**kw):\n'
-   ...    ' try:return f(*a,**kw)\n'
-   ...    ' except xs as e:return e\n'
-   ...    "_macro_=__import__('types').SimpleNamespace()\n"
-   ...    "try:exec('from hissp.basic._macro_ import *',vars(_macro_))\n"
-   ...    'except ModuleNotFoundError:pass'),
-   ...   __import__('builtins').globals())
-
-
-   ;;; Reader
-
-   ;; No need for the alias after prelude. b# is now in _macro_.
-   #> b#"bytes"                           ;Bytes reader macro.
-   >>> b'bytes'
-   b'bytes'
-
-   #> b'bytes'                            ;NameError about 'bQzAPOS_bytesQzAPOS_'
-   >>> bQzAPOS_bytesQzAPOS_
-   Traceback (most recent call last):
-     File "<console>", line 1, in <module>
-   NameError: name 'bQzAPOS_bytesQzAPOS_' is not defined
-
-
-   #> b#"bytes
-   #..with
-   #..newlines
-   #.."                                   ;Same as b#"bytes\nwith\nnewlines\n".
-   >>> b'bytes\nwith\nnewlines\n'
-   b'bytes\nwith\nnewlines\n'
-
-
-   #> (help _macro_.b\#)                  ;Unqualified reader macros live in _macro_ too.
-   >>> help(
-   ...   _macro_.bQzHASH_)
-   Help on function <lambda> in module hissp.basic:
-   <BLANKLINE>
-   <lambda> lambda raw
-       ``b#`` bytes literal reader macro
-   <BLANKLINE>
-
-
-   ;; Comment string.
-   #> <<#;Don't worry about the "quotes".
-   >>> 'Don\'t worry about the "quotes".'
-   'Don\'t worry about the "quotes".'
-
-
-   ;; Joined comment string.
-   #> <<#!;C:\bin
-   #..   !;C:\Users\ME\Documents
-   #..   !;C:\Users\ME\Pictures
-   #..";"
-   >>> 'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
-   'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
-
-
-   ;; Embed other languages without escapes.
-   #> (exec
-   #..  <<#
-   #..  !;for i in 'abc':
-   #..  !;    for j in 'xyz':
-   #..  !;        print(i+j, end=" ")
-   #..  !;print('.')
-   #..  !;
-   #..  #"\n")
-   >>> exec(
-   ...   ("for i in 'abc':\n"
-   ...    "    for j in 'xyz':\n"
-   ...    '        print(i+j, end=" ")\n'
-   ...    "print('.')\n"))
-   ax ay az bx by bz cx cy cz .
-
+   ;; To make the REPL more usable, it comes with some basic macros already
+   ;; defined. Their design has been deliberately restricted so that their
+   ;; compiled output does not require the Hissp package to be installed to
+   ;; work. While these may suffice for small or embedded Hissp projects,
+   ;; you will probably want a more capable macro suite (such as Hebigo's)
+   ;; for general use. You are not required to use the basic macros at all,
+   ;; so by default, they don't work in .lissp files unqualified. They're
+   ;; available qualified from hissp.basic.._macro_.
 
    ;;; Side Effect
+
+   #> (print (prog1 0                     ;Sequence for side effects, eval to first.
+   #..         (print 1)
+   #..         (print 2)))
+   >>> print(
+   ...   # prog1
+   ...   # hissp.basic.._macro_.let
+   ...   (lambda _value1_QzNo28_=(0):(
+   ...     print(
+   ...       (1)),
+   ...     print(
+   ...       (2)),
+   ...     _value1_QzNo28_)[-1])())
+   1
+   2
+   0
+
+
+   #> (print (progn (print 1)             ;Sequence for side effects, eval to last.
+   #..              (print 2)
+   #..              3))
+   >>> print(
+   ...   # progn
+   ...   (lambda :(
+   ...     print(
+   ...       (1)),
+   ...     print(
+   ...       (2)),
+   ...     (3))[-1])())
+   1
+   2
+   3
+
 
    #> (prog1                              ;Sequence for side effects, eval to first.
    #..  (progn (print 1)                  ;Sequence for side effects, eval to last.
@@ -1851,9 +1604,11 @@ Lissp Quick Start
    ;;; Definition
 
    #> (deftype Point2D (tuple)
-   #..  __doc__ "Simple pair."
+   #..  __doc__ "Simple ordered pair."
    #..  __new__ (lambda (cls x y)
-   #..            (.__new__ tuple cls `(,x ,y))))
+   #..            (.__new__ tuple cls `(,x ,y)))
+   #..  __repr__ (lambda (self)
+   #..             (.format "Point2D({!r}, {!r})" : :* self)))
    >>> # deftype
    ... # hissp.basic.._macro_.define
    ... __import__('builtins').globals().update(
@@ -1862,45 +1617,46 @@ Lissp Quick Start
    ...             (lambda * _: _)(
    ...               tuple),
    ...             __import__('builtins').dict(
-   ...               __doc__=('Simple pair.'),
+   ...               __doc__=('Simple ordered pair.'),
    ...               __new__=(lambda cls,x,y:
    ...                         tuple.__new__(
    ...                           cls,
    ...                           (lambda * _: _)(
    ...                             x,
-   ...                             y))))))
+   ...                             y))),
+   ...               __repr__=(lambda self:
+   ...                          ('Point2D({!r}, {!r})').format(
+   ...                            *self)))))
 
-   #> (Point2D 1 2)                       ;(1, 2)
+   #> (Point2D 1 2)
    >>> Point2D(
    ...   (1),
    ...   (2))
-   (1, 2)
+   Point2D(1, 2)
 
 
-   _#"Define a function in the _macro_ namespace.
-   Creates the _macro_ namespace if absent.
-   Can also have a docstring.
-   Note the QzMaybe_ and qualification on sep made by the template.
-   "
-   #> (defmacro p123 (x)
-   #..  "Does p on 1 2 3 with a custom sep."
-   #..  `(p 1 2 3 : sep ,x))
+   ;; Define a function in the _macro_ namespace.
+   ;; Creates the _macro_ namespace if absent.
+   ;; Can also have a docstring.
+   #> (defmacro p123 (sep)
+   #..  "Prints 1 2 3 with the given separator"
+   #..  `(print 1 2 3 : sep ,sep))
    >>> # defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fn_QzNo7_=(lambda x:(
-   ...   ('Does p on 1 2 3 with a custom sep.'),
+   ... (lambda _fn_QzNo7_=(lambda sep:(
+   ...   ('Prints 1 2 3 with the given separator'),
    ...   (lambda * _: _)(
-   ...     '__main__..QzMaybe_.p',
+   ...     'builtins..print',
    ...     (1),
    ...     (2),
    ...     (3),
    ...     ':',
    ...     '__main__..sep',
-   ...     x))[-1]):(
+   ...     sep))[-1]):(
    ...   __import__('builtins').setattr(
    ...     _fn_QzNo7_,
    ...     '__doc__',
-   ...     ('Does p on 1 2 3 with a custom sep.')),
+   ...     ('Prints 1 2 3 with the given separator')),
    ...   __import__('builtins').setattr(
    ...     _fn_QzNo7_,
    ...     '__qualname__',
@@ -1915,58 +1671,16 @@ Lissp Quick Start
    ...     _fn_QzNo7_))[-1])()
 
 
-   #> (define p print)                    ;Adds a global.
+   (help _macro_.p123)
+
+   #> (define SPAM "tomato")              ;We've seen this one already.
    >>> # define
    ... __import__('builtins').globals().update(
-   ...   p=print)
+   ...   SPAM=('tomato'))
 
-
-   _#"A QzMaybe_ qualification resolves like an unqualified symbol in that
-   a macro can shadow a global, if present. The QzMaybe resolved to a
-   global this time.
-   Note the : didn't have to be quoted here, because it's in a macro
-   invocation, not a call.
-   The compiler discarded the qualifier on sep, because it's a kwarg.
-   "
-   #> (p123 :)
-   >>> # p123
-   ... __import__('builtins').globals()['p'](
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   sep=':')
-   1:2:3
-
-   #> (defmacro p (: :* args)
-   #..  `(print ,@args))                  ;Note the splice.
-   >>> # defmacro
-   ... # hissp.basic.._macro_.let
-   ... (lambda _fn_QzNo7_=(lambda *args:
-   ...   (lambda * _: _)(
-   ...     'builtins..print',
-   ...     *args)):(
-   ...   __import__('builtins').setattr(
-   ...     _fn_QzNo7_,
-   ...     '__qualname__',
-   ...     ('.').join(
-   ...       ('_macro_',
-   ...        'p',))),
-   ...   __import__('builtins').setattr(
-   ...     __import__('operator').getitem(
-   ...       __import__('builtins').globals(),
-   ...       '_macro_'),
-   ...     'p',
-   ...     _fn_QzNo7_))[-1])()
-
-   #> (p123 :)                            ;Now QzMaybe resolves to a macro.
-   >>> # p123
-   ... # __main__..QzMaybe_.p
-   ... __import__('builtins').print(
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   sep=':')
-   1:2:3
+   #> SPAM
+   >>> SPAM
+   'tomato'
 
 
    #> (let (x "a"                         ;Create locals.
@@ -1974,16 +1688,18 @@ Lissp Quick Start
    #..  (print x y)
    #..  (let (x "x"
    #..        y (+ x x))                  ;Not in scope until body.
-   #..    (print x y))
-   #..  (print x y))
+   #..    (print x y))                    ;Outer variables shadowed.
+   #..  (print x y))                      ;Inner went out of scope.
    >>> # let
    ... (lambda x=('a'),y=('b'):(
    ...   print(
    ...     x,
    ...     y),
    ...   # let
-   ...   (lambda x=('x'),y=QzPLUS_(
+   ...   (lambda x=('x'),y=# QzPLUS_
+   ...   __import__('operator').add(
    ...     x,
+   ...     # __main__..QzMaybe_.QzPLUS_
    ...     x):
    ...     print(
    ...       x,
@@ -2047,6 +1763,8 @@ Lissp Quick Start
    ...   ('world!').title())
    Hello World!
 
+   (help _macro_.->)
+   (help _macro_.->>)
 
    ;;; Control Flow
 
@@ -2054,7 +1772,7 @@ Lissp Quick Start
 
    #> (any-for i (range 1 11)             ;Imperative loop with break.
    #..  (print i : end " ")
-   #..  (not_ (mod i 7)))
+   #..  (operator..not_ (operator..mod i 7)))
    >>> # anyQz_for
    ... __import__('builtins').any(
    ...   __import__('builtins').map(
@@ -2062,8 +1780,8 @@ Lissp Quick Start
    ...       print(
    ...         i,
    ...         end=(' ')),
-   ...       not_(
-   ...         mod(
+   ...       __import__('operator').not_(
+   ...         __import__('operator').mod(
    ...           i,
    ...           (7))))[-1]),
    ...     range(
@@ -2138,6 +1856,23 @@ Lissp Quick Start
    ...     (lambda :_G_QzNo33_)))()
    False
 
+   #> (&& True 42)
+   >>> # QzET_QzET_
+   ... # hissp.basic.._macro_.let
+   ... (lambda _G_QzNo26_=True:
+   ...   # hissp.basic.._macro_.ifQz_else
+   ...   (lambda test,*thenQz_else:
+   ...     __import__('operator').getitem(
+   ...       thenQz_else,
+   ...       __import__('operator').not_(
+   ...         test))())(
+   ...     _G_QzNo26_,
+   ...     (lambda :
+   ...       # hissp.basic..QzMaybe_.QzET_QzET_
+   ...       (42)),
+   ...     (lambda :_G_QzNo26_)))()
+   42
+
 
    ;; Shortcutting logical or.
    #> (|| True (print "oops"))
@@ -2158,13 +1893,91 @@ Lissp Quick Start
    ...         ('oops')))))()
    True
 
+   #> (|| 42 False)
+   >>> # QzBAR_QzBAR_
+   ... # hissp.basic.._macro_.let
+   ... (lambda _first_QzNo27_=(42):
+   ...   # hissp.basic.._macro_.ifQz_else
+   ...   (lambda test,*thenQz_else:
+   ...     __import__('operator').getitem(
+   ...       thenQz_else,
+   ...       __import__('operator').not_(
+   ...         test))())(
+   ...     _first_QzNo27_,
+   ...     (lambda :_first_QzNo27_),
+   ...     (lambda :
+   ...       # hissp.basic..QzMaybe_.QzBAR_QzBAR_
+   ...       False)))()
+   42
+
+
+   ;;; The Basic Prelude
+
+   ;; An inline convenience micro-prelude for Hissp.
+   ;; Imports partial and reduce; star imports from operator and
+   ;; itertools; defines the en- group utilities; and imports a copy of
+   ;; hissp.basic.._macro_ (if available). Usually the first form in a file,
+   ;; because it overwrites _macro_, but completely optional.
+   ;; Implied for $ lissp -c commands.
+   #> (prelude)                           ;/!\ Or (hissp.basic.._macro_.prelude)
+   >>> # prelude
+   ... __import__('builtins').exec(
+   ...   ('from functools import partial,reduce\n'
+   ...    'from itertools import *;from operator import *\n'
+   ...    'def entuple(*xs):return xs\n'
+   ...    'def enlist(*xs):return[*xs]\n'
+   ...    'def enset(*xs):return{*xs}\n'
+   ...    "def enfrost(*xs):return __import__('builtins').frozenset(xs)\n"
+   ...    'def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}\n'
+   ...    "def enstr(*xs):return''.join(''.__class__(x)for x in xs)\n"
+   ...    'def engarde(xs,f,*a,**kw):\n'
+   ...    ' try:return f(*a,**kw)\n'
+   ...    ' except xs as e:return e\n'
+   ...    "_macro_=__import__('types').SimpleNamespace()\n"
+   ...    "try:exec('from hissp.basic._macro_ import *',vars(_macro_))\n"
+   ...    'except ModuleNotFoundError:pass'),
+   ...   __import__('builtins').globals())
+
+
+   ;;; Obligatory Factorial III
+
+   ;; With the prelude, we can define a nicer-looking version.
+   #> (define factorial-III
+   #..  (lambda i
+   #..    (if-else (le i 1)
+   #..      1
+   #..      (mul i (factorial-III (sub i 1))))))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   factorialQz_III=(lambda i:
+   ...                     # ifQz_else
+   ...                     (lambda test,*thenQz_else:
+   ...                       __import__('operator').getitem(
+   ...                         thenQz_else,
+   ...                         __import__('operator').not_(
+   ...                           test))())(
+   ...                       le(
+   ...                         i,
+   ...                         (1)),
+   ...                       (lambda :(1)),
+   ...                       (lambda :
+   ...                         mul(
+   ...                           i,
+   ...                           factorialQz_III(
+   ...                             sub(
+   ...                               i,
+   ...                               (1))))))))
+
+   #> (factorial-III 7)
+   >>> factorialQz_III(
+   ...   (7))
+   5040
+
 
    ;;;; The En- Group
 
-   _#"These are small utility functions defined by the basic prelude.
-   Most of them put their arguments into a collection, hence the en-.
-   You've already seen some of these defined earlier.
-   "
+   ;; These are small utility functions defined by the basic prelude.
+   ;; Most of them put their arguments into a collection, hence the en-.
    #> (entuple 1 2 3)
    >>> entuple(
    ...   (1),
@@ -2219,10 +2032,9 @@ Lissp Quick Start
    {1: 2, 3: 4}
 
 
-   _#"Converts to str and joins. Usually .format is good enough, but
-   sometimes you need interpolations inline, like f-strings. Don't forget
-   the format builtin can apply formatting specs.
-   "
+   ;; Converts to str and joins. Usually .format is good enough, but
+   ;; sometimes you need interpolations inline, like f-strings. Don't forget
+   ;; the format builtin can apply formatting specs.
    #> (enstr "<p>"(format 40 ".2f")" + "(add 1 1)"</p>")
    >>> enstr(
    ...   ('<p>'),
@@ -2265,4 +2077,719 @@ Lissp Quick Start
    ...   (2))
    3.0
 
+
+   ;;;; Advanced Reader Macros
+
+   ;;; The Discard Macro
+
+   #> _#"The discard reader macro _# omits the next form.
+   #..It's a way to comment out code structurally.
+   #..It can also make block comments like this one.
+   #..This would show up when compiled if not for _#.
+   #.."
+   >>>
+
+   #> (print 1 _#(I'm not here!) 2 3)
+   >>> print(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   1 2 3
+
+
+   ;;; Qualified Reader Macros
+
+   ;; Invoke any qualified callable on the next parsed object at read time.
+   #> builtins..hex#3840                  ;Qualified name ending in # is a reader macro.
+   >>> 0xf00
+   3840
+
+   #> builtins..ord#Q                     ;Reader macros make literal notation extensible.
+   >>> (81)
+   81
+
+   #> math..exp#1                         ;e^1. Or to whatever number. At read time.
+   >>> (2.718281828459045)
+   2.718281828459045
+
+
+   ;; Reader macros compose like functions.
+   #> 'hissp.munger..demunge#Qz_QzGT_QzGT_   ;Note the starting '.
+   >>> '->>'
+   '->>'
+
+   #> ''x
+   >>> ('quote',
+   ...  'x',)
+   ('quote', 'x')
+
+   #> '\'x
+   >>> 'QzAPOS_x'
+   'QzAPOS_x'
+
+
+   ;; The reader normally discards them, but
+   #> 'builtins..repr#;comments are parsed objects too!
+   >>> "Comment(content='comments are parsed objects too!')"
+   "Comment(content='comments are parsed objects too!')"
+
+
+   _#"Except for strings and tuples, objects in Hissp should evaluate to
+   themselves. But when the object lacks a Python literal notation,
+   the compiler is in a pickle!
+   "
+   #> builtins..float#inf
+   >>> __import__('pickle').loads(  # inf
+   ...     b'Finf\n.'
+   ... )
+   inf
+
+
+   ;;; Inject
+
+   _#"The 'inject' reader macro compiles and evaluates the next form at
+   read time and injects the resulting object directly into the Hissp
+   tree, like a qualified reader macro does.
+   "
+
+   #> '(1 2 (operator..add 1 2))          ;Quoting happens at compile time.
+   >>> ((1),
+   ...  (2),
+   ...  ('operator..add',
+   ...   (1),
+   ...   (2),),)
+   (1, 2, ('operator..add', 1, 2))
+
+   #> '(1 2 .#(operator..add 1 2))        ;Inject happens at read time.
+   >>> ((1),
+   ...  (2),
+   ...  (3),)
+   (1, 2, 3)
+
+
+   #> (fractions..Fraction 1 2)           ;Run time eval. Compiles to equivalent code.
+   >>> __import__('fractions').Fraction(
+   ...   (1),
+   ...   (2))
+   Fraction(1, 2)
+
+   #> .#(fractions..Fraction 1 2)         ;Read time eval. Compiles to equivalent object.
+   >>> __import__('pickle').loads(  # Fraction(1, 2)
+   ...     b'cfractions\nFraction\n(V1/2\ntR.'
+   ... )
+   Fraction(1, 2)
+
+
+   _#"Recall that Hissp-level string objects can represent
+   arbitrary Python code. It's usually used for identifiers,
+   but can be anything, even complex formulas.
+   "
+   #> (lambda abc
+   #..  ;; Hissp may not have operators, but Python does.
+   #..  .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
+   >>> (lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a))
+   <function <lambda> at 0x...>
+
+
+   _#"Remember the raw string and hash string reader syntax makes Python-
+   level strings, via a Hissp-level string containing a Python string
+   literal. It is NOT for creating a Hissp-level string, which would
+   normally contain Python code. Use inject for that.
+   "
+   #> '"a string"                         ;Python code for a string. In a string.
+   >>> "('a string')"
+   "('a string')"
+
+   ;; Injection of an object to the Hissp level. In this case, a string object.
+   #> '.#"a string"                       ;Quoting renders a Hissp-level string as data.
+   >>> 'a string'
+   'a string'
+
+
+   _#"Objects without literals don't pickle until the compiler has to emit
+   them as Python code. That may never happen if another macro gets there first.
+   "
+   #> 'builtins..repr#(re..compile#.#"[1-9][0-9]*" builtins..float#inf)
+   >>> "(re.compile('[1-9][0-9]*'), inf)"
+   "(re.compile('[1-9][0-9]*'), inf)"
+
+   #> re..compile#.#"[1-9][0-9]*"
+   >>> __import__('pickle').loads(  # re.compile('[1-9][0-9]*')
+   ...     b'cre\n_compile\n(V[1-9][0-9]*\nI32\ntR.'
+   ... )
+   re.compile('[1-9][0-9]*')
+
+
+   ;; Statement injections work at the top level only.
+   #> .#"from operator import *"          ;All your operator are belong to us.
+   >>> from operator import *
+
+
+   ;;;; The Basic Reader Macros
+
+   #> b#"bytes"                           ;Bytes reader macro.
+   >>> b'bytes'
+   b'bytes'
+
+   #> b'bytes'                            ;NameError about 'bQzAPOS_bytesQzAPOS_'
+   >>> bQzAPOS_bytesQzAPOS_
+   Traceback (most recent call last):
+     File "<console>", line 1, in <module>
+   NameError: name 'bQzAPOS_bytesQzAPOS_' is not defined
+
+
+   #> b#"bytes
+   #..with
+   #..newlines
+   #.."                                   ;Same as b#"bytes\nwith\nnewlines\n".
+   >>> b'bytes\nwith\nnewlines\n'
+   b'bytes\nwith\nnewlines\n'
+
+
+   #> (help _macro_.b\#)                  ;Unqualified reader macros live in _macro_ too.
+   >>> help(
+   ...   _macro_.bQzHASH_)
+   Help on function <lambda> in module hissp.basic:
+   <BLANKLINE>
+   <lambda> lambda raw
+       ``b#`` bytes literal reader macro
+   <BLANKLINE>
+
+
+   ;; Not technically a basic reader macro, but a basic macro for defining them.
+   ;; Alias makes a new reader macro to abbreviate a qualifier.
+   ;; This is an alternative to adding an import to _macro_ or globals.
+   #> (hissp.basic.._macro_.alias M: hissp.basic.._macro_)
+   >>> # hissp.basic.._macro_.alias
+   ... # hissp.basic.._macro_.defmacro
+   ... # hissp.basic.._macro_.let
+   ... (lambda _fn_QzNo7_=(lambda _prime_QzNo34_,_reader_QzNo34_=None,*_args_QzNo34_:(
+   ...   "('Aliases hissp.basic.._macro_ as MQzCOLON_#')",
+   ...   # hissp.basic.._macro_.ifQz_else
+   ...   (lambda test,*thenQz_else:
+   ...     __import__('operator').getitem(
+   ...       thenQz_else,
+   ...       __import__('operator').not_(
+   ...         test))())(
+   ...     _reader_QzNo34_,
+   ...     (lambda :
+   ...       __import__('builtins').getattr(
+   ...         __import__('hissp.basic',fromlist='?')._macro_,
+   ...         ('{}{}').format(
+   ...           _reader_QzNo34_,
+   ...           # hissp.basic.._macro_.ifQz_else
+   ...           (lambda test,*thenQz_else:
+   ...             __import__('operator').getitem(
+   ...               thenQz_else,
+   ...               __import__('operator').not_(
+   ...                 test))())(
+   ...             __import__('operator').contains(
+   ...               'hissp.basic.._macro_',
+   ...               '_macro_'),
+   ...             (lambda :'QzHASH_'),
+   ...             (lambda :('')))))(
+   ...         _prime_QzNo34_,
+   ...         *_args_QzNo34_)),
+   ...     (lambda :
+   ...       ('{}.{}').format(
+   ...         'hissp.basic.._macro_',
+   ...         _prime_QzNo34_))))[-1]):(
+   ...   __import__('builtins').setattr(
+   ...     _fn_QzNo7_,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'MQzCOLON_QzHASH_',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'MQzCOLON_QzHASH_',
+   ...     _fn_QzNo7_))[-1])()
+
+   #> 'M:#alias                           ;Now short for 'hissp.basic.._macro_.alias'.
+   >>> 'hissp.basic.._macro_.alias'
+   'hissp.basic.._macro_.alias'
+
+   #> M:#b\#                              ;b# macro callable
+   >>> __import__('hissp.basic',fromlist='?')._macro_.bQzHASH_
+   <function _macro_.bQzHASH_ at ...>
+
+   #> (M:#b\# "b# macro at compile time")
+   >>> # hissp.basic.._macro_.bQzHASH_
+   ... b'b# macro at compile time'
+   b'b# macro at compile time'
+
+   #> hissp.basic.._macro_.b\##"Fully qualified b# macro at read time."
+   >>> b'Fully qualified b# macro at read time.'
+   b'Fully qualified b# macro at read time.'
+
+
+   ;; Comment string.
+   #> <<#;Don't worry about the "quotes".
+   >>> 'Don\'t worry about the "quotes".'
+   'Don\'t worry about the "quotes".'
+
+
+   ;;; Aside: Extra (!), the Final Builtin Reader Macro
+
+   _#"Reader macros take one primary argument, but additional arguments
+   can be passed in with the extra macro !. A reader macro consumes the
+   next parsed object, and if it's an Extra, consumes one again. Thus,
+   extras must be written between the # and primary argument, but because
+   they're often optional refinements, which are easier to define as
+   trailing optional parameters in in Python functions, they get passed
+   in after the primary argument.
+   "
+   #> (setattr _macro_ 'L\# enlist)
+   >>> setattr(
+   ...   _macro_,
+   ...   'LQzHASH_',
+   ...   enlist)
+
+
+   #> L#primary
+   >>> ['primary']
+   ['primary']
+
+   #> L#!1 primary
+   >>> ['primary', 1]
+   ['primary', 1]
+
+
+   ;; Alias can work on reader macros too!
+   #> M:#!b"Read-time b# via alias."      ;Extra arg for alias with (!)
+   >>> b'Read-time b# via alias.'
+   b'Read-time b# via alias.'
+
+
+   #> L# !1 !2 primary                    ;Note the order!
+   >>> ['primary', 1, 2]
+   ['primary', 1, 2]
+
+   #> .#(enlist "primary" 1 2)            ;Inject. Note the order.
+   >>> ['primary', 1, 2]
+   ['primary', 1, 2]
+
+
+   #> !1                                  ;! is for a single Extra.
+   >>> __import__('pickle').loads(  # Extra([1])
+   ...     b'ccopyreg\n_reconstructor\n(chissp.reader\nExtra\ncbuiltins\ntuple\n(I1\nttR.'
+   ... )
+   Extra([1])
+
+   #> hissp.reader..Extra#(: :? 0 :* (1 2 3)) ; but Extra can have multiple elements.
+   >>> __import__('pickle').loads(  # Extra([':', ':?', 0, ':*', (1, 2, 3)])
+   ...     b'ccopyreg\n_reconstructor\n(chissp.reader\nExtra\ncbuiltins\ntuple\n(V:\nV:?\nI0\nV:*\n(I1\nI2\nI3\ntttR.'
+   ... )
+   Extra([':', ':?', 0, ':*', (1, 2, 3)])
+
+
+   #> L#!: !:* !(0 1 2) !:? !3 primary    ;Unpacking works like calls.
+   >>> ['primary', 0, 1, 2, 3]
+   ['primary', 0, 1, 2, 3]
+
+   #> L#!0 !: !:* !(1 2 3)primary         ;Same effect.
+   >>> ['primary', 0, 1, 2, 3]
+   ['primary', 0, 1, 2, 3]
+
+   #> L#hissp.reader..Extra#(0 : :* (1 2 3))primary ;Same effect.
+   >>> ['primary', 0, 1, 2, 3]
+   ['primary', 0, 1, 2, 3]
+
+
+   #> (setattr _macro_ 'X\# hissp.reader..Extra)
+   >>> setattr(
+   ...   _macro_,
+   ...   'XQzHASH_',
+   ...   __import__('hissp.reader',fromlist='?').Extra)
+
+
+   #> L# !0 X#(1 2) !3 primary            ;Same effect.
+   >>> ['primary', 0, 1, 2, 3]
+   ['primary', 0, 1, 2, 3]
+
+   #> L#X#(0 : :* (1 2 3))primary         ;Same effect.
+   >>> ['primary', 0, 1, 2, 3]
+   ['primary', 0, 1, 2, 3]
+
+
+   ;; Kwargs also work like calls.
+   #> builtins..dict#()
+   >>> {}
+   {}
+
+   #> builtins..dict#!: !spam !1  !foo !2  !:** !.#(dict : eggs 3  bar 4)()
+   >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
+   {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
+
+   #> builtins..dict#X#(: spam 1  foo 2  :** .#(dict : eggs 3  bar 4))()
+   >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
+   {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
+
+
+   ;; Yeah, you can nest these if you have to.
+   #> L# !x
+   #..   !L# !1 L# !A
+   #..          inner
+   #..   !y
+   #..outer
+   >>> ['outer', 'x', [['inner', 'A'], 1], 'y']
+   ['outer', 'x', [['inner', 'A'], 1], 'y']
+
+
+   ;; The compiler will evaluate tuples no matter how the reader produces them.
+   #> builtins..tuple#L# !"Hello" !"World!" print
+   >>> print(
+   ...   ('Hello'),
+   ...   ('World!'))
+   Hello World!
+
+
+   ;;; Joined Comment String
+
+   #> <<#!;C:\bin
+   #..   !;C:\Users\ME\Documents
+   #..   !;C:\Users\ME\Pictures
+   #..";"
+   >>> 'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
+   'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
+
+
+   ;; Embed other languages without escapes.
+   #> (exec
+   #..  <<#
+   #..  !;for i in 'abc':
+   #..  !;    for j in 'xyz':
+   #..  !;        print(i+j, end=" ")
+   #..  !;print('.')
+   #..  !;
+   #..  #"\n")
+   >>> exec(
+   ...   ("for i in 'abc':\n"
+   ...    "    for j in 'xyz':\n"
+   ...    '        print(i+j, end=" ")\n'
+   ...    "print('.')\n"))
+   ax ay az bx by bz cx cy cz .
+
+
+   ;;;; Collections
+
+   ;;; Templates and Tuples
+
+   #> '(1 2 3)                            ;tuple
+   >>> ((1),
+   ...  (2),
+   ...  (3),)
+   (1, 2, 3)
+
+   #> `(,(pow 42 0) ,(+ 1 1) 3)           ;Interpolate with templates.
+   >>> (lambda * _: _)(
+   ...   pow(
+   ...     (42),
+   ...     (0)),
+   ...   QzPLUS_(
+   ...     (1),
+   ...     (1)),
+   ...   (3))
+   (1, 2, 3)
+
+   #> `("a" 'b c ,'d ,"e")                ;These can be tricky. Careful.
+   >>> (lambda * _: _)(
+   ...   "('a')",
+   ...   (lambda * _: _)(
+   ...     'quote',
+   ...     '__main__..b'),
+   ...   '__main__..c',
+   ...   'd',
+   ...   ('e'))
+   ("('a')", ('quote', '__main__..b'), '__main__..c', 'd', 'e')
+
+   #> '(1 "a")                            ;Recursive quoting.
+   >>> ((1),
+   ...  "('a')",)
+   (1, "('a')")
+
+   #> '(1 .#"a")                          ;Injected Hissp-level string.
+   >>> ((1),
+   ...  'a',)
+   (1, 'a')
+
+   #> `(1 ,"a")                           ;Interpolated string.
+   >>> (lambda * _: _)(
+   ...   (1),
+   ...   ('a'))
+   (1, 'a')
+
+
+   ;; Helper functions may be easier than templates for data.
+   #> (entuple 0 "a" 'b :c)
+   >>> entuple(
+   ...   (0),
+   ...   ('a'),
+   ...   'b',
+   ...   ':c')
+   (0, 'a', 'b', ':c')
+
+
+   ;;; Other Collection Types
+
+   #> (list `(1 ,(+ 1 1) 3))
+   >>> list(
+   ...   (lambda * _: _)(
+   ...     (1),
+   ...     QzPLUS_(
+   ...       (1),
+   ...       (1)),
+   ...     (3)))
+   [1, 2, 3]
+
+   #> (set '(1 2 3))
+   >>> set(
+   ...   ((1),
+   ...    (2),
+   ...    (3),))
+   {1, 2, 3}
+
+
+   #> (bytes '(98 121 116 101 115))
+   >>> bytes(
+   ...   ((98),
+   ...    (121),
+   ...    (116),
+   ...    (101),
+   ...    (115),))
+   b'bytes'
+
+   #> (bytes.fromhex "6279746573")
+   >>> bytes.fromhex(
+   ...   ('6279746573'))
+   b'bytes'
+
+   ;; Read-time equivalents.
+   #> builtins..bytes.fromhex#.#"6279746573"
+   >>> b'bytes'
+   b'bytes'
+
+   #> builtins..bytes#(98 121 116 101 115)
+   >>> b'bytes'
+   b'bytes'
+
+   #> .#"b'bytes'"                        ;bytes literal Python injection
+   >>> b'bytes'
+   b'bytes'
+
+
+   #> (dict : + 0  a 1  b 2)              ;Symbol keys are easy. The common case.
+   >>> dict(
+   ...   QzPLUS_=(0),
+   ...   a=(1),
+   ...   b=(2))
+   {'QzPLUS_': 0, 'a': 1, 'b': 2}
+
+   #> (.__getitem__ _ '+)
+   >>> _.__getitem__(
+   ...   'QzPLUS_')
+   0
+
+   #> (dict (zip '(1 2 3) "abc"))         ;Non-symbol keys are possible.
+   >>> dict(
+   ...   zip(
+   ...     ((1),
+   ...      (2),
+   ...      (3),),
+   ...     ('abc')))
+   {1: 'a', 2: 'b', 3: 'c'}
+
+   #> (dict '((a 1) (2 b)))               ;Mixed key types. Beware of quoting strings.
+   >>> dict(
+   ...   (('a',
+   ...     (1),),
+   ...    ((2),
+   ...     'b',),))
+   {'a': 1, 2: 'b'}
+
+   #> (dict `((,'+ 42)
+   #..        (,(+ 1 1) ,'b)))            ;Run-time interpolation with a template.
+   >>> dict(
+   ...   (lambda * _: _)(
+   ...     (lambda * _: _)(
+   ...       'QzPLUS_',
+   ...       (42)),
+   ...     (lambda * _: _)(
+   ...       QzPLUS_(
+   ...         (1),
+   ...         (1)),
+   ...       'b')))
+   {'QzPLUS_': 42, 2: 'b'}
+
+   #> (.__getitem__ _ '+)
+   >>> _.__getitem__(
+   ...   'QzPLUS_')
+   42
+
+
+   #> (endict 1 2  'a 'b)
+   >>> endict(
+   ...   (1),
+   ...   (2),
+   ...   'a',
+   ...   'b')
+   {1: 2, 'a': 'b'}
+
+
+   ;;; Collection Atoms
+
+   #> .#"[]"                              ;List from a Python injection.
+   >>> []
+   []
+
+   #> .#[]                                ;You can drop the quotes sometimes.
+   >>> []
+   []
+
+   #> []                                  ; And the reader macro!
+   >>> []
+   []
+
+
+   #> [1,2,3]                             ;List/set/dict atoms are a kind of injection.
+   >>> [1, 2, 3]
+   [1, 2, 3]
+
+   #> {1,2,3}                             ; They read in as a single atom, so have
+   >>> {1, 2, 3}
+   {1, 2, 3}
+
+   #> {'a':1,2:b'b'}                      ; compile-time literals only--No interpolation!
+   >>> {'a': 1, 2: b'b'}
+   {'a': 1, 2: b'b'}
+
+   #> [1,{2},{3:[4,5]},'six']             ;Nesting is allowed.
+   >>> [1, {2}, {3: [4, 5]}, 'six']
+   [1, {2}, {3: [4, 5]}, 'six']
+
+
+   ;; Collection atoms are a convenience for simple cases only.
+   #> .#"['1 2','3',(4,5),r'6;7\8']"
+   >>> ['1 2','3',(4,5),r'6;7\8']
+   ['1 2', '3', (4, 5), '6;7\\8']
+
+   ;; After dropping quotes, these tokenize like other atoms, so you need escapes.
+   #> ['1\ 2',\"3\",\(4,5\),r'6\;7\\8']   ;Not so convenient now. Simple cases only!
+   >>> ['1 2', '3', (4, 5), '6;7\\8']
+   ['1 2', '3', (4, 5), '6;7\\8']
+
+
+   ;; Constructors or helpers also work. (And can interpolate run-time data.)
+   #> (list `(,"1 2" ,"3" (4 5) ,"6;7\8"))
+   >>> list(
+   ...   (lambda * _: _)(
+   ...     ('1 2'),
+   ...     ('3'),
+   ...     (lambda * _: _)(
+   ...       (4),
+   ...       (5)),
+   ...     ('6;7\\8')))
+   ['1 2', '3', (4, 5), '6;7\\8']
+
+   #> (enlist "1 2" "3" '(4 5) "6;7\8")
+   >>> enlist(
+   ...   ('1 2'),
+   ...   ('3'),
+   ...   ((4),
+   ...    (5),),
+   ...   ('6;7\\8'))
+   ['1 2', '3', (4, 5), '6;7\\8']
+
+
+   _#"Even though they evaluate the same, there's a subtle compile-time difference
+   between a collection atom and a string injection. This can matter because
+   macros get all their arguments unevaluated.
+   "
+
+   #> '[1,'''2\ 3''']                     ;[1, '2 3']
+   >>> [1, '2 3']
+   [1, '2 3']
+
+   #> '.#"[1,'''2 3''']"                  ;"[1,'''2 3''']"
+   >>> "[1,'''2 3''']"
+   "[1,'''2 3''']"
+
+
+   ;; But you can still get a real collection at compile time.
+   #> '.#(eval "[1,'''2 3''']")           ;[1, '2 3']
+   >>> [1, '2 3']
+   [1, '2 3']
+
+   #> '.#.#"[1,'''2 3''']"                ;[1, '2 3']
+   >>> [1, '2 3']
+   [1, '2 3']
+
+
+   #> (lambda ['a','b','c'])              ;I don't recommend this, but it works.
+   >>> (lambda a,b,c:())
+   <function <lambda> at 0x...>
+
+   #> (lambda .#"['a','b','c']")          ;Oops.
+   >>> (lambda [,',a,',,,',b,',,,',c,',]:())
+   Traceback (most recent call last):
+     ...
+       (lambda [,',a,',,,',b,',,,',c,',]:())
+               ^
+   SyntaxError: invalid syntax
+
+   #> (lambda .#.#"['a','b','c']")        ;Another inject fixes it.
+   >>> (lambda a,b,c:())
+   <function <lambda> at 0x...>
+
+
+   #> '(lambda ['a','b','c'])             ;Params is a list.
+   >>> ('lambda',
+   ...  ['a', 'b', 'c'],)
+   ('lambda', ['a', 'b', 'c'])
+
+   #> '(lambda .#"['a','b','c']")         ;Params is a string.
+   >>> ('lambda',
+   ...  "['a','b','c']",)
+   ('lambda', "['a','b','c']")
+
+   #> '(lambda .#.#"['a','b','c']")       ;Params is a list.
+   >>> ('lambda',
+   ...  ['a', 'b', 'c'],)
+   ('lambda', ['a', 'b', 'c'])
+
+
+   #> (lambda "abc")                      ;Oops.
+   >>> (lambda (,',a,b,c,',):())
+   Traceback (most recent call last):
+     ...
+       (lambda (,',a,b,c,',):())
+               ^
+   SyntaxError: invalid syntax
+
+   #> (lambda .#"abc")                    ;Inject fixes it.
+   >>> (lambda a,b,c:())
+   <function <lambda> at 0x...>
+
+
+   #> '(lambda "abc")                     ;See why? Extra characters.
+   >>> ('lambda',
+   ...  "('abc')",)
+   ('lambda', "('abc')")
+
+   #> '(lambda .#"abc")                   ;Evaluated object.
+   >>> ('lambda',
+   ...  'abc',)
+   ('lambda', 'abc')
+
+
+   #> (lambda abc)                        ;Compare to using a symbol.
+   >>> (lambda a,b,c:())
+   <function <lambda> at 0x...>
+
+   #> '(lambda abc)
+   >>> ('lambda',
+   ...  'abc',)
+   ('lambda', 'abc')
 
