@@ -1302,11 +1302,11 @@ Lissp Quick Start
 
    #> (setattr _macro_
    #..         '*
-   #..          (lambda (first : :* args)
-   #..            (.__getitem__
-   #..              `(,first
-   #..                (operator..mul ,first (* ,@args)))
-   #..              (bool args))))
+   #..         (lambda (first : :* args)
+   #..           (.__getitem__
+   #..             `(,first
+   #..               (operator..mul ,first (* ,@args)))
+   #..             (bool args))))
    >>> setattr(
    ...   _macro_,
    ...   'QzSTAR_',
