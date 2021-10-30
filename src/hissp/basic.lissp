@@ -350,7 +350,7 @@ zrqvgngr ba guvf.
 ;;; reader
 
 (defmacro b\# (raw)
-  "``b#`` bytes literal reader macro"
+  "``b#`` bytes literal parse-time macro"
   (-> raw
       (ast..literal_eval)
       (.replace "'" "\'")
@@ -359,7 +359,7 @@ zrqvgngr ba guvf.
       (ast..literal_eval)))
 
 (defmacro <<\# (single : :* lines)
-  #"``<<#`` comment-string reader macro.
+  #"``<<#`` comment-string parse-time macro.
 
   Converts a line comment to a raw string.
 
@@ -434,14 +434,14 @@ except ModuleNotFoundError:pass"
           `(.##"p\162int"(.##"\143ode\143s..en\143ode"_TAO ','.##"ro\16413")))
 
 (defmacro alias (alias module)
-  #"Defines a reader macro abbreviation of a qualifier. For example,
+  #"Defines a parse-time macro abbreviation of a qualifier. For example,
 
   .. code-block:: Lissp
 
      (hissp.basic.._macro_.alias M/ hissp.basic.._macro_)
      ;; Now the same as (hissp.basic.._macro_.alias op sub.).
      (M/#alias op operator.)
-     ;; Use an extra to name a reader macro.
+     ;; Use an extra to name a parse-time macro.
      M/#!b\"byte string\"
      (op#sub 2 3)
      #> op#!pow !3 2
@@ -450,11 +450,11 @@ except ModuleNotFoundError:pass"
 
   " ; TODO: doctest examples.
   `(defmacro ,(.format "{}{}" alias '#)
-             ($#prime : $#reader None :* $#args)
+             ($#prime : $#macro None :* $#args)
      ',(.format "('Aliases {} as {}#')" module alias) ; TODO: docstrings not compiling in?
-     (if-else $#reader
+     (if-else $#macro
        ((getattr ,module (.format "{}{}"
-                                  $#reader
+                                  $#macro
                                   (if-else (operator..contains ',module ','_macro_)
                                      ','#
                                      "")))

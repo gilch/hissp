@@ -848,17 +848,17 @@ Lissp Quick Start
    ':?'
 
 
-   ;;;; Simple Reader Macros
+   ;;;; Simple Parse-Time Macros
 
-   ;; Reader macros are metaprograms to abbreviate Hissp and don't
+   ;; Parse-time macros are metaprograms to abbreviate Hissp and don't
    ;; represent it directly. They apply to the next parsed Hissp object
-   ;; at read time, before the Hissp compiler sees it, and thus before
-   ;; they are compiled and evaluated. They end in # except for a few
-   ;; builtins-- ' ! ` , ,@
+   ;; before the Hissp compiler sees it, and thus before they are
+   ;; compiled and evaluated. They end in # except for a few builtins:
+   ;; ' ! ` , ,@
 
    ;;; Quote
 
-   ;; The ' reader macro is simply an abbreviation for the quote special form.
+   ;; The ' parse-time macro is simply an abbreviation for the quote special form.
 
    #> 'x                                  ;(quote x). Symbols are just quoted identifiers!
    >>> 'x'
@@ -944,7 +944,7 @@ Lissp Quick Start
    ;; programmatically generated code. But qualification doesn't work on
    ;; local variables, which can't be imported. For these, we use a template
    ;; counter suffix instead of a qualifier to ensure a variable can only
-   ;; be used in the same template it was defined in. The gensym reader
+   ;; be used in the same template it was defined in. The gensym parse-time
    ;; macro ($#) generates a symbol with the current template's count.
    #> `($#eggs $#spam $#bacon $#spam)     ;Generated symbols for macro hygiene.
    >>> (lambda * _: _)(
@@ -959,7 +959,7 @@ Lissp Quick Start
    '_spam_QzNo10_'
 
 
-   ;;;; Compiler Macros
+   ;;;; Compile-Time Macros
 
    ;; We can use functions to to create forms for evaluation.
    ;; This is metaprogramming: code that writes code.
@@ -2078,11 +2078,11 @@ Lissp Quick Start
    3.0
 
 
-   ;;;; Advanced Reader Macros
+   ;;;; Advanced Parse-Time Macros
 
    ;;; The Discard Macro
 
-   #> _#"The discard reader macro _# omits the next form.
+   #> _#"The discard parse-time macro _# omits the next form.
    #..It's a way to comment out code structurally.
    #..It can also make block comments like this one.
    #..This would show up when compiled if not for _#.
@@ -2097,14 +2097,14 @@ Lissp Quick Start
    1 2 3
 
 
-   ;;; Qualified Reader Macros
+   ;;; Qualified Parse-Time Macros
 
    ;; Invoke any qualified callable on the next parsed object at read time.
-   #> builtins..hex#3840                  ;Qualified name ending in # is a reader macro.
+   #> builtins..hex#3840                  ;Qualified name ending in # is a parse-time macro.
    >>> 0xf00
    3840
 
-   #> builtins..ord#Q                     ;Reader macros make literal notation extensible.
+   #> builtins..ord#Q                     ;Parse-time macros make literal notation extensible.
    >>> (81)
    81
 
@@ -2113,7 +2113,7 @@ Lissp Quick Start
    2.718281828459045
 
 
-   ;; Reader macros compose like functions.
+   ;; Parse-time macros compose like functions.
    #> 'hissp.munger..demunge#Qz_QzGT_QzGT_   ;Note the starting '.
    >>> '->>'
    '->>'
@@ -2147,9 +2147,9 @@ Lissp Quick Start
 
    ;;; Inject
 
-   _#"The 'inject' reader macro compiles and evaluates the next form at
+   _#"The 'inject' parse-time macro compiles and evaluates the next form at
    read time and injects the resulting object directly into the Hissp
-   tree, like a qualified reader macro does.
+   tree, like a qualified parse-time macro does.
    "
 
    #> '(1 2 (operator..add 1 2))          ;Quoting happens at compile time.
@@ -2225,9 +2225,9 @@ Lissp Quick Start
    >>> from operator import *
 
 
-   ;;;; The Basic Reader Macros
+   ;;;; The Basic Parse-Time Macros
 
-   #> b#"bytes"                           ;Bytes reader macro.
+   #> b#"bytes"                           ;Bytes parse-time macro.
    >>> b'bytes'
    b'bytes'
 
@@ -2246,24 +2246,24 @@ Lissp Quick Start
    b'bytes\nwith\nnewlines\n'
 
 
-   #> (help _macro_.b\#)                  ;Unqualified reader macros live in _macro_ too.
+   #> (help _macro_.b\#)                  ;Unqualified parse-time macros live in _macro_ too.
    >>> help(
    ...   _macro_.bQzHASH_)
    Help on function <lambda> in module hissp.basic:
    <BLANKLINE>
    <lambda> lambda raw
-       ``b#`` bytes literal reader macro
+       ``b#`` bytes literal parse-time macro
    <BLANKLINE>
 
 
-   ;; Not technically a basic reader macro, but a basic macro for defining them.
-   ;; Alias makes a new reader macro to abbreviate a qualifier.
-   ;; This is an alternative to adding an import to _macro_ or globals.
+   ;; Not technically a basic parse-time macro, but a basic compile-time macro for
+   ;; defining them; it makes a new parse-time macro to abbreviate a qualifier.
+   ;; Aliasing is an alternative to adding an import to _macro_ or globals.
    #> (hissp.basic.._macro_.alias M: hissp.basic.._macro_)
    >>> # hissp.basic.._macro_.alias
    ... # hissp.basic.._macro_.defmacro
    ... # hissp.basic.._macro_.let
-   ... (lambda _fn_QzNo7_=(lambda _prime_QzNo34_,_reader_QzNo34_=None,*_args_QzNo34_:(
+   ... (lambda _fn_QzNo7_=(lambda _prime_QzNo34_,_macro_QzNo34_=None,*_args_QzNo34_:(
    ...   "('Aliases hissp.basic.._macro_ as MQzCOLON_#')",
    ...   # hissp.basic.._macro_.ifQz_else
    ...   (lambda test,*thenQz_else:
@@ -2271,12 +2271,12 @@ Lissp Quick Start
    ...       thenQz_else,
    ...       __import__('operator').not_(
    ...         test))())(
-   ...     _reader_QzNo34_,
+   ...     _macro_QzNo34_,
    ...     (lambda :
    ...       __import__('builtins').getattr(
    ...         __import__('hissp.basic',fromlist='?')._macro_,
    ...         ('{}{}').format(
-   ...           _reader_QzNo34_,
+   ...           _macro_QzNo34_,
    ...           # hissp.basic.._macro_.ifQz_else
    ...           (lambda test,*thenQz_else:
    ...             __import__('operator').getitem(
@@ -2331,10 +2331,10 @@ Lissp Quick Start
    'Don\'t worry about the "quotes".'
 
 
-   ;;; Aside: Extra (!), the Final Builtin Reader Macro
+   ;;; Aside: Extra (!), the Final Builtin Parse-Time Macro
 
-   _#"Reader macros take one primary argument, but additional arguments
-   can be passed in with the extra macro !. A reader macro consumes the
+   _#"Parse-time macros take one primary argument, but additional arguments
+   can be passed in with the extra macro !. A parse-time macro consumes the
    next parsed object, and if it's an Extra, consumes one again. Thus,
    extras must be written between the # and primary argument, but because
    they're often optional refinements, which are easier to define as
@@ -2357,7 +2357,7 @@ Lissp Quick Start
    ['primary', 1]
 
 
-   ;; Alias can work on reader macros too!
+   ;; Alias can work on parse-time macros too!
    #> M:#!b"Read-time b# via alias."      ;Extra arg for alias with (!)
    >>> b'Read-time b# via alias.'
    b'Read-time b# via alias.'
@@ -2648,7 +2648,7 @@ Lissp Quick Start
    >>> []
    []
 
-   #> []                                  ; And the reader macro!
+   #> []                                  ; And the parse-time macro!
    >>> []
    []
 

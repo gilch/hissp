@@ -694,10 +694,10 @@ and it's done for the entire project.
 But reStructuredText is the default in the Python ecosystem.
 You can automatically generate API documentation with these.
 
-Reader Macros
--------------
+Parse-Time Macros
+-----------------
 
-Reader macros should not be separated from each other
+Parse-time macros should not be separated from each other
 or from their primary argument with whitespace.
 
 .. code-block:: Lissp
@@ -712,7 +712,7 @@ unless you explicitly discard it.
 
 .. code-block:: Lissp
 
-   _# ; Bad. Comments are valid reader macro arguments!
+   _# ; Bad. Comments are valid parse-time macro arguments!
    ((lambda abc                           ;This wasn't discarded!
       (frobnicate a b c))
     arg)
@@ -859,7 +859,7 @@ For an argument, i.e. other method calls, prefer ``.foo bar``.
 
 .. code-block:: Lissp
 
-   (_macro_.define greeting "hi")         ;Compiler Macro
+   (_macro_.define greeting "hi")         ;Compile-time macro.
    (.define _macro_ 'greeting '"hi")      ;Run-time expansion.
 
    ;;; Arguments

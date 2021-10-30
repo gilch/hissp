@@ -443,7 +443,7 @@ by writing these tuples in Python.
 Batteries are not included because Python already has them.
 Hissp's standard library is Python's.
 There are only two special forms: ``quote`` and ``lambda``.
-Hissp does include a few basic macros and reader macros,
+Hissp does include a few basic macros,
 just enough to write native unit tests,
 but you are not obligated to use them when writing Hissp.
 

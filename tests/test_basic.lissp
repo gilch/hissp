@@ -219,7 +219,7 @@ bar
 "
                   #"\n\nfoo\nbar\n"))
 
-  test_string_reader_macro
+  test_string_parse_macro
   (lambda (self)
     (self.assertEqual fractions..Fraction#.#"1/3"
                       .#(fractions..Fraction 1 3))))

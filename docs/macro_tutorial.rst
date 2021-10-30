@@ -430,8 +430,8 @@ was so awkward in Python.
 
 But Lissp does more than substitutions.
 
-Simple Compiler Macros
-~~~~~~~~~~~~~~~~~~~~~~
+Simple Compile-Time Macros
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Despite my recent boasting,
 our Lissp version is not actually shorter than Python's yet:
@@ -1265,7 +1265,7 @@ But let's look at this Lissp snippet again, more carefully.
                     (range 27)))
 
 It's injecting some Hissp we generated with a template.
-That's the first two reader macros ``.#`` and :literal:`\``.
+That's the first two parse-time macros ``.#`` and :literal:`\``.
 The `progn` sequences multiple expressions for their side effects.
 It's like having multiple "statements" in a single expression.
 We splice in multiple expressions generated with a `map`.
@@ -1771,12 +1771,12 @@ You can use the resulting macro as a shorter lambda for higher-order functions:
 It's still a little awkward.
 It feels like the ``add`` should be in the first position,
 but that's taken by the ``L``.
-We can fix that with a reader macro.
+We can fix that with a parse-time macro.
 
 Reader Syntax
 `````````````
 
-To use reader macros unqualified,
+To use parse-time macros unqualified,
 you must define them in ``_macro_`` with a name ending in a ``#``.
 
 .. Lissp::
@@ -1806,7 +1806,7 @@ We have to escape the ``#`` with a backslash
 or the reader will recognize the name as a macro rather than a symbol
 and immediately try to apply it to ``(expr)``, which is not what we want.
 Notice that we still used a `defmacro`,
-like we do for compiler macros.
+like we do for compile-time macros.
 It's the way you invoke it that makes it happen at read time:
 
 .. code-block:: REPL
@@ -1839,19 +1839,19 @@ It's the way you invoke it that makes it happen at read time:
    [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
 
 
-.. Caution:: Avoid side effects in reader macros.
+.. Caution:: Avoid side effects in parse-time macros.
 
-   Well-written reader macros should not have side effects at read time,
+   Well-written parse-time macros should not have side effects at parse time,
    or at least make them idempotent.
    Tooling that reads Lissp may have to backtrack
    or restart reading of an invalid form.
    E.g. before compiling a form,
    the bundled `LisspREPL` attempts to read it to see if it is complete.
    If it isn't, it will ask for another line and attempt to read it again.
-   Thus, a reader macro on the first line will get evaluated again for each line input after,
+   Thus, a parse-time macro on the first line will get evaluated again for each line input after,
    until the form is completed or aborted.
 
-Reader macros like this effectively create new reader syntax
+Parse-time macros like this effectively create new reader syntax
 by reinterpreting existing reader syntax.
 
 So now we have function literals.
@@ -2292,7 +2292,7 @@ many desirable notations would collide and then be ambiguous.
 
 Hissp has a better way: extensibility through simplicity.
 
-With Lissp's reader macros, we can create new notation as-needed,
+With Lissp's parse-time macros, we can create new notation as-needed,
 with an overhead of just a few characters for a tag to disambiguate from the built-ins
 (and each other).
 You only have to learn a new notation when it's worth your while.
@@ -2447,7 +2447,7 @@ Or does it?
      File "<console>", line 1
        -16#1
            ^
-   SyntaxError: Unknown reader macro Qz_16
+   SyntaxError: Unknown parse-time macro Qz_16
 
 The minus sign changed the tag!
 If we don't want to define a new ``-16#`` tag
@@ -2477,10 +2477,10 @@ But this is fine.
    >>> (-255)
    -255
 
-.. sidebar:: Lissp's reader macros are a feature of Lissp itself, not of the Hissp compiler.
+.. sidebar:: Lissp's parse-time macros are a feature of Lissp itself, not of the Hissp compiler.
 
-   An alternate reader could certainly do reader macros differently.
-   But Lissp's lexer is *intentionally* not extensible,
+   An alternate reader could certainly do lexing-time macros, like Common Lisp does,
+   but Lissp's lexer is *intentionally* not extensible,
    for the same reasons that Clojure does not give the programmer access to its read table:
    your tooling would no longer be able to tokenize your code.
 
@@ -2488,13 +2488,13 @@ What's going on?
 Symbols do read as strings,
 but special characters get munged!
 
-Remember, Lissp's reader macros are applied to the next *parsed object*,
+Remember, Lissp's parse-time macros are applied to the next *parsed object*,
 not to the next token from the lexer,
 and certainly not to the raw character stream.
 This makes them more like Clojure's tagged literals
 than like Common Lisp's reader macros.
 
-The ``16#`` reader macro was very easy to implement when you only applied it to strings,
+The ``16#`` parse-time macro was very easy to implement when you only applied it to strings,
 but since it can take multiple types you have to be sure to handle each of them.
 
 Fortunately, we can fix this too,
@@ -2539,7 +2539,7 @@ because munging is (mostly) reversible.
    -255
 
 But what's the point of all of this when we already have hexadecimal notation built in?
-Well, with reader macros, you can implement any base you want.
+Well, with parse-time macros, you can implement any base you want.
 
 .. Lissp::
 
@@ -2669,7 +2669,7 @@ For exact decimals, you need decimal floating-point.
    Decimal('0.6')
 
 Because it takes a single string argument,
-you can already use `decimal.Decimal` as a reader macro:
+you can already use `decimal.Decimal` as a parse-time macro:
 
 .. code-block:: REPL
 
@@ -2687,8 +2687,8 @@ Notice that Hissp had to use a pickle here,
 because it had to emit code for the object,
 but Python has no literal notation for Decimal objects.
 
-The reader macro didn't inject the code for making a Decimal,
-but an actual Decimal object, at read time.
+The parse-time macro didn't inject the code for making a Decimal,
+but an actual Decimal object.
 The pickling isn't done by the reader.
 It doesn't happen until the compiler has to emit something
 that it doesn't have a round-tripping representation for.
@@ -2789,7 +2789,7 @@ But floats never do this, even when the precision is available.
 
 It would be nice if the macro could deal with it for us,
 but there's just no getting around these issues when using a float.
-Lissp reader macros get the parsed object,
+Lissp parse-time macros get the parsed object,
 and by then, some information has been lost.
 One could argue that a float literal written with more precision than is
 available should be a syntax error,

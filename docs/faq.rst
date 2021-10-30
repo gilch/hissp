@@ -102,7 +102,7 @@ Strings at the Hissp level represent raw Python code,
 although the compiler does do some minimal preprocessing for the qualifiers,
 it pretty much injects the string contents verbatim.
 This is usually used for identifiers, but could be anything.
-Hissp macros and Lissp reader macros can return any type of object,
+Hissp compile-time macros and Lissp parse-time macros can return any type of object,
 including strings.
 
 However, the main use of Hissp is metaprogramming with syntactically-aware macros.
@@ -271,14 +271,14 @@ arguments.
 
 Fine. You can write macros for any syntax you please.
 
-Recall that both reader and compiler macros can return arbitrary
+Recall that both parse- and compile-time macros can return arbitrary
 Python snippets and the compiler will emit them verbatim.
 You should generally avoid doing this,
 because then you're metaprogramming with strings instead of AST.
 You're giving up a lot of Hissp's power.
 But optimizing a complex formula is maybe one of the few times it's OK to do that.
 
-Recall the inject ``.#`` reader macro executes a form and embeds its result
+Recall the inject ``.#`` parse-time macro executes a form and embeds its result
 into the Hissp.
 
 .. code-block:: REPL
@@ -354,15 +354,15 @@ And you can invoke bytes constructors at read time.
    b'bytes'
 
 And, if you have the basic macros loaded,
-you can use the `b# <bQzHASH_>` reader macro.
+you can use the `b# <bQzHASH_>` parse-time macro.
 
 .. code-block:: REPL
 
-   #> b#"bytes from reader macro"
-   >>> b'bytes from reader macro'
-   b'bytes from reader macro'
+   #> b#"bytes from parse-time macro"
+   >>> b'bytes from parse-time macro'
+   b'bytes from parse-time macro'
 
-Bytes literals can be implemented fairly easily in terms of a raw string and reader macro.
+Bytes literals can be implemented fairly easily in terms of a raw string and parse-time macro.
 That's close enough, right? You can make all sorts of "literals" the same way.
 
 See the `Macro Tutorial <macro_tutorial>` for more ideas.
@@ -400,19 +400,19 @@ Wait, hash strings take escapes? Why are raw strings the default? In Clojure it'
 Then we'd have to write byte strings like ``b##"spam"``.
 Python has various other prefixes for string types.
 Raw, bytes, format, unicode, and various combinations of these.
-Reader macros let us handle these in a unified way in Lissp and create more as needed,
+Parse-time macros let us handle these in a unified way in Lissp and create more as needed,
 such as regex patterns, among many other types that can be initialized with a single string,
 and that makes raw strings the most sensible default.
-With a supporting reader macro,
+With a supporting parse-time macro,
 all of these are practically literals.
 
-It's easy to process escapes in reader macros;
+It's easy to process escapes in parse-time macros;
 it isn't easy to unprocess them.
 Not to mention Python code injections,
 which can contain their own strings with escapes.
 
 Clojure's hash strings are already regexes, not raws,
-and its "reader macros" (tagged literals) aren't as easy to use,
+and its tagged literals aren't as easy to use as Lissp's parse-time macros,
 so it doesn't come up as much.
 
 Look at your strings in Python and you'll find that
@@ -1301,7 +1301,7 @@ How do I import a macro?
 ------------------------
 
 The same way you import anything else: with a qualified identifier.
-In Lissp, you can use a reader macro to abbreviate qualifiers.
+In Lissp, you can use a parse-time macro to abbreviate qualifiers.
 `hissp.basic.._macro_.alias<hissp.basic._macro_.alias>` can define these for you.
 
 Any callable in the current module's ``_macro_`` namespace will work unqualified.
@@ -1355,13 +1355,13 @@ Some tips:
 
 -  Use gensyms (``$#spam``) to avoid accidental capture of identifiers.
 
-How do I define a reader macro?
--------------------------------
+How do I define a parse-time macro?
+-----------------------------------
 
 Make a function that accepts the syntax you want as its parameter and
 returns its transformation as Hissp code.
 
-You can use it directly as a qualified reader macro.
+You can use it directly as a qualified parse-time macro.
 Or add it to the ``_macro_`` namespace with a name ending in ``#`` to use it unqualified.
 
 Remember `hissp.basic.._macro_.defmacro<defmacro>` can do this for you.
@@ -1401,7 +1401,7 @@ A text editor works. It's just a Python file.
 I don't want to have to do that manually every time I recompile!
 ----------------------------------------------------------------
 
-You can use the ``.#`` reader macro to inject arbitrary text in the
+You can use the ``.#`` parse-time macro to inject arbitrary text in the
 compiled output. Use e.g. ``.#"#/usr/bin/env python"`` as the first
 compiled line.
 

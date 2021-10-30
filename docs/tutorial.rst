@@ -206,21 +206,21 @@ Lissp
   A lightweight textual language representing Hissp,
   as defined by :mod:`hissp.reader`.
 
-Lissp also includes *reader macros*,
+Lissp also includes *parse-time macros*,
 that act like the ``q()`` example:
 metaprogramming abbreviations.
 
-Reader macro
-  An abbreviation used by the reader.
+Parse-time macro
+  An abbreviation used by the Lissp reader.
   These are not part of the Hissp language proper,
   but rather are functions that *expand* to Hissp;
-  They run at *read time* and return Hissp code.
+  They run at *parse time* and return Hissp code.
 
-.. _read time:
+.. _parse time:
 
-Read time
-  The pre-compile phase that translates Lissp to Hissp:
-  when the reader runs.
+Parse time
+  Part of the pre-compile phase that translates Lissp to Hissp:
+  when the Lissp reader runs, before the compiler and after the lexer.
 
 Let's see our "Hello World" example in Lissp:
 
@@ -236,7 +236,7 @@ There are no commas to miss, because there are no commas at all.
 As you can see, the Hissp structure is exactly the same as before.
 But now you don't have to quote identifiers either.
 
-The ``'`` is a built-in reader macro that acts just like the ``q()``
+The ``'`` is a built-in parse-time macro that acts just like the ``q()``
 function we defined earlier: it wraps the next expression in a ``quote`` form.
 
 The REPL
@@ -281,7 +281,7 @@ and Hissp does its best to compile it that way.
 
 In addition to the special behaviors from the Hissp level for tuple
 and string lexical elements,
-the Lissp level has special behavior for *reader macros*.
+the Lissp level has special behavior for *parse-time macros*.
 (And ignores things like whitespace and comments.)
 Everything else is an *atom*,
 which is passed through to the Hissp level with minimal processing.
@@ -968,8 +968,8 @@ function name starts with a dot:
    >>> (1j).conjugate()
    -1j
 
-Reader Macros
--------------
+Parse-Time Macros
+-----------------
 
 Up until now, Lissp has been a pretty direct representation of Hissp.
 Metaprogramming changes that.
@@ -1020,7 +1020,7 @@ Inject
 ######
 
 Remember our first metaprogram ``q()``?
-You've already seen the ``'`` reader macro.
+You've already seen the ``'`` parse-time macro.
 That much is doable.
 
 Here's how you could do the rest.
@@ -1049,7 +1049,7 @@ this ran a program to help generate the Hissp before passing it to the compiler.
 The ``.#`` is another built-in reader macro called *inject*.
 It compiles and evaluates the next form
 and is replaced with the resulting object in the Hissp.
-Reader macros are unary operators that apply inside-out,
+Parse-time macros are unary operators that apply inside-out,
 like functions do,
 at `read time`_.
 
@@ -1066,7 +1066,7 @@ Python injection:
    >>> {(1, 2): """buckle my shoe"""}  # This is Python!
    {(1, 2): 'buckle my shoe'}
 
-Reader macros compose inside-out:
+Parse-time macros compose inside-out:
 
 .. code-block:: REPL
 
@@ -1119,7 +1119,7 @@ so we can see some intermediate values.
 
 >>> '("{(3, 4): \'shut the door\'}")'  # next parsed object
 '("{(3, 4): \'shut the door\'}")'
->>> eval(readerless(_))  # The inject. Innermost reader macro first.
+>>> eval(readerless(_))  # The inject. Innermost macro first.
 "{(3, 4): 'shut the door'}"
 >>> eval(readerless(_))  # Then the quote.
 {(3, 4): 'shut the door'}
@@ -1313,11 +1313,11 @@ Unfortunately, there are some objects even pickle can't handle.
 
 Hissp had to give up with an error this time.
 
-Qualified Reader Macros
-#######################
+Qualified Parse-Time Macros
+###########################
 
 Besides a few built-ins,
-reader macros in Lissp consist of a symbol ending with a ``#``,
+parse-time macros in Lissp consist of a symbol ending with a ``#``,
 followed by another form.
 
 A function named by a qualified identifier is invoked on the form,
@@ -1331,7 +1331,7 @@ and the reader embeds the resulting object into the output Hissp:
    ... )
    inf
 
-This inserts an actual `float` object at `read time`_ into the Hissp code.
+This inserts an actual `float` object at `parse time`_ into the Hissp code.
 
 It's the same as using inject like this
 
@@ -1367,7 +1367,7 @@ While unpickling does have some overhead,
 it may be worth it if constructing the object normally has even more.
 Naturally, the object must be picklable to emit a pickle.
 
-Qualified reader macros don't always result in pickles though.
+Qualified parse-time macros don't always result in pickles though.
 
 .. code-block:: REPL
 
@@ -1386,12 +1386,12 @@ then there is no run-time overhead for the alternative notation,
 because it's compiled to ``(81)``,
 just like there's no run-time overhead for using a hex literal instead of decimal in Python.
 
-Reader macros can also be unqualified.
+Parse-time macros can also be unqualified.
 These three macros are built into the reader:
 Inject ``.#``, discard ``_#``, and gensym ``$#``.
 The reader will also check the current module's ``_macro_`` namespace (if it has one)
 for attributes ending in ``#`` (i.e. ``QzHASH_``)
-when it encounters an unqualified reader macro name.
+when it encounters an unqualified parse-time macro name.
 
 Discard
 #######
@@ -1413,7 +1413,7 @@ Templates
 
 Besides ``'``, which we've already seen,
 and ``!``, which we'll cover later,
-Lissp has three other built-in reader macros that don't require a ``#``:
+Lissp has three other built-in parse-time macros that don't require a ``#``:
 
 * ````` template quote
 * ``,`` unquote
@@ -1474,7 +1474,7 @@ The splice unquote is similar, but unpacks its result:
    ...   ':e')
    (':a', 'b', 'c', 'd', ':e')
 
-Templates are *reader syntax*: because they're reader macros,
+Because templates are parse-time macros,
 they only exist in Lissp, not Hissp.
 They are abbreviations for the Hissp that they return.
 
@@ -1521,20 +1521,20 @@ Templates are Lissp syntactic sugar based on what Hissp already has.
 
 Templates are a domain-specific language for programmatically writing Hissp code,
 making them valuable tools for metaprogramming.
-Most compiler macros will use at least one internally.
+Most compile-time macros will use at least one internally.
 
 Judicious use of sugar like this can make code much easier to read and write.
 While all Turing-complete languages have the same theoretical *power*,
 they are not equally *expressive*.
 Metaprogramming makes a language more expressive.
-Reader macros are a kind of metaprogramming.
-Because you can make your own reader macros,
+Parse-time macros are a kind of metaprogramming.
+Because you can make your own parse-time macros,
 you can make your own sugar.
 
 Gensyms
 #######
 
-The built-in reader macro ``$#`` creates a *generated symbol*
+The built-in parse-time macro ``$#`` creates a *generated symbol*
 (gensym) based on the given symbol.
 Within a template, the same gensym name always makes the same gensym:
 
@@ -1555,16 +1555,16 @@ But each new template increments the counter.
    '_hiss_QzNo42_'
 
 Gensyms are mainly used to prevent accidental name collisions in generated code,
-which is very important for reliable compiler macros.
+which is very important for reliable compile-time macros.
 
 Extra
 #####
 
-The final built-in reader macro ``!``
-is used to pass extra arguments to other reader macros.
-None of Lissp's built-in reader macros use it,
+The final built-in parse-time macro ``!``
+is used to pass extra arguments to other parse-time macros.
+None of Lissp's built-in parse-time macros use it,
 but extras can be helpful quick refinements for functions with optional arguments,
-without the need to create a new reader macro for each specialization.
+without the need to create a new parse-time macro for each specialization.
 
 .. code-block:: REPL
 
@@ -1576,10 +1576,10 @@ without the need to create a new reader macro for each specialization.
    >>> (13)
    13
 
-A reader macro can have more than one extra.
+A parse-time macro can have more than one extra.
 
 Note that since extras are often optional arguments,
-they're passed in *after* the reader macro's primary argument,
+they're passed in *after* the parse-time macro's primary argument,
 even though they're written first.
 
 .. code-block:: REPL
@@ -1617,7 +1617,7 @@ A subset of Python's data structure notation works in Lissp as well:
    {'foo': 2}
 
 You can nest these to create small, JSON-like data structures
-which can be very useful as inputs to reader macros.
+which can be very useful as inputs to parse-time macros.
 
 Tuples are different.
 Since they normally represent code,
@@ -1730,7 +1730,7 @@ The compiler inserts the expansion in the macro invocation's place in the code,
 and then continues as normal.
 If another macro invocation appears in the expansion,
 it is expanded as well (this pattern is known as a *recursive macro*),
-which is an ability that the reader macros lack.
+which is an ability that the parse-time macros lack.
 
 The compiler recognizes a callable as a macro if it is invoked directly
 from a ``_macro_`` namespace:
@@ -1929,7 +1929,7 @@ We can resolve the ``QzMaybe_`` the other way by defining a ``p`` macro.
    ...   sep=':')
    1:2:3
 
-Notice the comments indicating *two* compiler macroexpansions,
+Notice the comments indicating *two* compile-time macroexpansions,
 and the use of a builtin instead of the global like last time.
 
 If you *want* to *capture* [#capture]_ an identifier (collide on purpose),
@@ -1952,7 +1952,7 @@ symbol. (Like a quoted symbol):
    ('builtins..float', 'inf')
 
 Let's try the greet again with what we've learned about auto-qualification.
-Note the three reader macros in a row: ``','``.
+Note the three parse-time macros in a row: ``','``.
 
 .. code-block:: REPL
 
@@ -1999,7 +1999,7 @@ a raw string might have been a better idea:
    Hello Bob
 
 While the parentheses around the 'Hello' don't change the meaning of the expression in Python,
-it does prevent the template reader macro from qualifying it like a symbol.
+it does prevent the template parse-time macro from qualifying it like a symbol.
 
 There's really no need to use a macro when a function will do.
 The above are for illustrative purposes only.

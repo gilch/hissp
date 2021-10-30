@@ -6,7 +6,7 @@ The Lissp language reader and associated helper functions.
 Compiles Lissp files to Python files when run as the main module.
 
 The reader is organized as a lexer and parser.
-The parser is extensible with Lissp reader macros.
+The parser is extensible with Lissp parse-time macros.
 The lexer is not extensible,
 and doesn't do much more than pull tokens from a relatively simple regex
 and track its position for error messages.
@@ -72,8 +72,7 @@ Token = NewType("Token", Tuple[str, str, int])
 DROP = object()
 """
 The sentinel value returned by the discard macro ``_#``, which the
-reader skips over when parsing. Reader macros can have read-time side
-effects with no Hissp output by returning this.
+reader skips over when parsing.
 """
 
 
@@ -130,7 +129,7 @@ Comment = namedtuple('Comment', ['content'])
 
 
 class Extra(tuple):
-    """Designates Extra read-time arguments for reader macros."""
+    """Designates Extra arguments for parse-time macros."""
     def __repr__(self):
         return f"Extra({list(self)!r})"
 
@@ -138,7 +137,8 @@ class Extra(tuple):
 def gensym_counter(_count=[0], _lock=Lock()):
     """
     Call to increment the gensym counter, and return the new count.
-    Used by the gensym reader macro ``$#`` to ensure symbols are unique.
+    Used by the gensym parse-time macro ``$#`` to ensure locals can only
+    be used in the same template that defined them.
     """
     with _lock:
         _count[0] += 1
@@ -274,14 +274,16 @@ class Lissp:
                 extras.extend(form)
         except StopIteration:
             e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
-            raise e(f"Reader macro {v!r} missing argument.", self.position(p)) from None
+            raise e(
+                f"Parse-time macro {v!r} missing argument.", self.position(p)
+            ) from None
         return form, extras
 
     def parse_macro(self, tag: str, form, extras):
-        """Apply a reader macro to a form."""
+        """Apply a parse-time macro to a form."""
         def case(s):
             if (b := tag == s) and extras:
-                raise SyntaxError(f"Extra for {s!r} reader macro.")
+                raise SyntaxError(f"Extra for {s!r} macro.")
             return b
         if case("'"): return "quote", form
         if case("!"): return Extra([form])
@@ -364,7 +366,7 @@ class Lissp:
             try:
                 m = getattr(self.ns["_macro_"], tag + munge("#"))
             except (AttributeError, KeyError):
-                raise SyntaxError(f"Unknown reader macro {tag!r}.", self.position())
+                raise SyntaxError(f"Unknown parse-time macro {tag!r}.", self.position())
         with self.compiler.macro_context():
             args, kwargs = _parse_extras(extras)
             return m(form, *args, **kwargs)
