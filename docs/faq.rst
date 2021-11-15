@@ -793,7 +793,7 @@ A Python star parameter will similarly pack any number of arguments into a tuple
 
 Notice that this is how templates work in the first place.
 The basic `prelude` defines this function for you,
-along with a some others.
+along with some others.
 
 If you really can't have dependencies and nested templates are too confusing,
 you can make an empty list with ``[]`` or ``(list)``,
