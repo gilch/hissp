@@ -1766,13 +1766,41 @@ Lissp Quick Start
    (help _macro_.->)
    (help _macro_.->>)
 
+   ;;; The Basic Prelude
+
+   ;; An inline convenience micro-prelude for Hissp.
+   ;; Imports partial and reduce; star imports from operator and
+   ;; itertools; defines the en- group utilities; and imports a copy of
+   ;; hissp.basic.._macro_ (if available). Usually the first form in a file,
+   ;; because it overwrites _macro_, but completely optional.
+   ;; Implied for $ lissp -c commands.
+   #> (prelude)                           ;/!\ Or (hissp.basic.._macro_.prelude)
+   >>> # prelude
+   ... __import__('builtins').exec(
+   ...   ('from functools import partial,reduce\n'
+   ...    'from itertools import *;from operator import *\n'
+   ...    'def entuple(*xs):return xs\n'
+   ...    'def enlist(*xs):return[*xs]\n'
+   ...    'def enset(*xs):return{*xs}\n'
+   ...    "def enfrost(*xs):return __import__('builtins').frozenset(xs)\n"
+   ...    'def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}\n'
+   ...    "def enstr(*xs):return''.join(''.__class__(x)for x in xs)\n"
+   ...    'def engarde(xs,f,*a,**kw):\n'
+   ...    ' try:return f(*a,**kw)\n'
+   ...    ' except xs as e:return e\n'
+   ...    "_macro_=__import__('types').SimpleNamespace()\n"
+   ...    "try:exec('from hissp.basic._macro_ import *',vars(_macro_))\n"
+   ...    'except ModuleNotFoundError:pass'),
+   ...   __import__('builtins').globals())
+
+
    ;;; Control Flow
 
    ;; Hissp has no control flow, but you can build them with macros.
 
    #> (any-for i (range 1 11)             ;Imperative loop with break.
    #..  (print i : end " ")
-   #..  (operator..not_ (operator..mod i 7)))
+   #..  (not_ (mod i 7)))
    >>> # anyQz_for
    ... __import__('builtins').any(
    ...   __import__('builtins').map(
@@ -1780,8 +1808,8 @@ Lissp Quick Start
    ...       print(
    ...         i,
    ...         end=(' ')),
-   ...       __import__('operator').not_(
-   ...         __import__('operator').mod(
+   ...       not_(
+   ...         mod(
    ...           i,
    ...           (7))))[-1]),
    ...     range(
@@ -1909,34 +1937,6 @@ Lissp Quick Start
    ...       # hissp.basic..QzMaybe_.QzBAR_QzBAR_
    ...       False)))()
    42
-
-
-   ;;; The Basic Prelude
-
-   ;; An inline convenience micro-prelude for Hissp.
-   ;; Imports partial and reduce; star imports from operator and
-   ;; itertools; defines the en- group utilities; and imports a copy of
-   ;; hissp.basic.._macro_ (if available). Usually the first form in a file,
-   ;; because it overwrites _macro_, but completely optional.
-   ;; Implied for $ lissp -c commands.
-   #> (prelude)                           ;/!\ Or (hissp.basic.._macro_.prelude)
-   >>> # prelude
-   ... __import__('builtins').exec(
-   ...   ('from functools import partial,reduce\n'
-   ...    'from itertools import *;from operator import *\n'
-   ...    'def entuple(*xs):return xs\n'
-   ...    'def enlist(*xs):return[*xs]\n'
-   ...    'def enset(*xs):return{*xs}\n'
-   ...    "def enfrost(*xs):return __import__('builtins').frozenset(xs)\n"
-   ...    'def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}\n'
-   ...    "def enstr(*xs):return''.join(''.__class__(x)for x in xs)\n"
-   ...    'def engarde(xs,f,*a,**kw):\n'
-   ...    ' try:return f(*a,**kw)\n'
-   ...    ' except xs as e:return e\n'
-   ...    "_macro_=__import__('types').SimpleNamespace()\n"
-   ...    "try:exec('from hissp.basic._macro_ import *',vars(_macro_))\n"
-   ...    'except ModuleNotFoundError:pass'),
-   ...   __import__('builtins').globals())
 
 
    ;;; Obligatory Factorial III
