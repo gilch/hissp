@@ -3,11 +3,13 @@
 There are many ways to contribute to an open-source project,
 even without writing code.
 
-Questions are allowed on the issue tracker,
-they help illustrate deficiencies in our documentation,
+Questions are allowed in the Discussions section,
+they help illustrate deficiencies in the documentation,
 but do check there first!
+(Discussion topics in the issue tracker will be moved to Discussions.)
+We also have a chat room.
 
-Bug reports are welcome.
+Bug reports are welcome in the issue tracker.
 
 PRs to help improve documentation,
 structure, or compatibility will also be considered.
@@ -23,13 +25,13 @@ Small, focused changes are more likely to be reviewed.
 Changes to the source code must be properly formatted and have full test
 coverage before the PR can be accepted.
 Manual tests may suffice for configuration files.
-Our Python source uses Black formatting.
+The Python source uses Black formatting.
 Disable this using `# fmt: off` tags for "readerless mode" Hissp snippets
 which should be formatted Lisp-style (play with Parinfer until you get it),
 or anywhere the extra effort of manual formatting is worth it.
 In readerless mode, Hissp tuples shall always include the trailing `,`.
 Follow PEP 8 even when Black has no opinion.
-Our .lissp source uses Emacs lisp-mode for indentation.
+The .lissp source uses the style guide for formatting.
 It must also pass Parlinter.
 
 Documentation is expected to have correct (American English) spelling
@@ -41,19 +43,17 @@ Hissp has no dependencies, but its test suite does.
 ```
 $ pip install -r requirements-dev.txt
 ```
-```
-$ pytest --doctest-modules --cov=hissp
-```
+See the workflow file for the full test pipeline.
 
 We merge to master without squashing.
-Commits must be small enough to be reviewable.
-We don't accept PRs on faith.
+Commits must be small enough to be reviewable;
+PRs can't be accepted on faith.
 
 Note section 5 of the LICENSE.
 You must have the legal rights to the patch to submit them under those terms:
 either you own the copyright
 (e.g. because you are the author of the patch and it was not a work for hire)
-or have appropriate license to do it.
+or have appropriate license from the rightsholders to do it.
 
 The git repository itself will normally suffice as a record of
 authorship for copyright purposes.
