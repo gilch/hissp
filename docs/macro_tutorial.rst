@@ -233,7 +233,7 @@ And push it to the REPL as well:
    ...    "def enfrost(*xs):return __import__('builtins').frozenset(xs)\n"
    ...    'def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}\n'
    ...    "def enstr(*xs):return''.join(''.__class__(x)for x in xs)\n"
-   ...    'def engarde(xs,h,f,*a,**kw):\n'
+   ...    'def engarde(xs,h,f,/,*a,**kw):\n'
    ...    ' try:return f(*a,**kw)\n'
    ...    ' except xs as e:return h(e)\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"

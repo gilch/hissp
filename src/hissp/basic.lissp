@@ -424,7 +424,7 @@ def enset(*xs):return{{*xs}}
 def enfrost(*xs):return __import__('builtins').frozenset(xs)
 def endict(*kvs):return{{k:i.__next__()for i in[kvs.__iter__()]for k in i}}
 def enstr(*xs):return''.join(''.__class__(x)for x in xs)
-def engarde(xs,h,f,*a,**kw):
+def engarde(xs,h,f,/,*a,**kw):
  try:return f(*a,**kw)
  except xs as e:return h(e)
 _macro_=__import__('types').SimpleNamespace()

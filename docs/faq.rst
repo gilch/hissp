@@ -960,7 +960,7 @@ Like this
    ...    "def enfrost(*xs):return __import__('builtins').frozenset(xs)\n"
    ...    'def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}\n'
    ...    "def enstr(*xs):return''.join(''.__class__(x)for x in xs)\n"
-   ...    'def engarde(xs,h,f,*a,**kw):\n'
+   ...    'def engarde(xs,h,f,/,*a,**kw):\n'
    ...    ' try:return f(*a,**kw)\n'
    ...    ' except xs as e:return h(e)\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
@@ -1605,13 +1605,23 @@ The compiler itself currently requires Python 3.8+.
 However, the *compiled output* targets such a small subset of Python
 that Hissp would probably work on 3.0 if you're careful not to use unsupported features in lambda,
 invocations, injections, or any parts of the standard library that didn't exist yet.
-The output of Lissp's template syntax may require Python 3.5+ to work.
 
+The output of Lissp's template syntax may require multiple unpacking calls
+from Python 3.5+ to work,
+but this is mostly used in macros at compile time, which must run on 3.8+ anyway.
 Qualified macros might still be able to use the 3.8+ features,
 because they run at compile time,
 as long as unsupported features don't appear in the compiled output.
 
-Even more limited versions of Python (2.7?) might work with minor compiler modifications.
+The ``engarde`` function from the `prelude` has positional-only parameters (3.8+),
+but that's in a string which won't get executed on import,
+and use of the prelude is completely optional,
+except in the `lissp -c<lissp command>` command,
+which must run on 3.8+ anyway,
+because that runs the compiler.
+
+Even more limited versions of Python (2.7?) might run the output
+with some minor compiler modifications.
 The Hissp compiler is easy enough to understand that you could realistically try.
 
 Is Hissp ready?
