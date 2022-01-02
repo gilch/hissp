@@ -2052,7 +2052,7 @@ Lissp Quick Start
    ;; OK, so this one's not a collection. Guards against the targeted exception classes.
    #> (engarde (entuple FloatingPointError ZeroDivisionError)          ;two targets
    #..         (lambda e (print "Oops!") e)                            ;handler (returns exception)
-   #..         truediv 6 0)                                            ;calls on your behalf
+   #..         truediv 6 0)                                            ;calls it on your behalf
    >>> engarde(
    ...   entuple(
    ...     FloatingPointError,
@@ -2066,6 +2066,7 @@ Lissp Quick Start
    ...   (0))
    Oops!
    ZeroDivisionError('division by zero')
+
 
    #> (engarde ArithmeticError repr truediv 6 0)                       ;superclass target
    >>> engarde(
@@ -2084,6 +2085,26 @@ Lissp Quick Start
    ...   (6),
    ...   (2))
    3.0
+
+
+   ;; You can nest them.
+   #> (engarde Exception                                               ;The outer engarde
+   #..  print
+   #..  engarde ZeroDivisionError                                      ; calls the inner.
+   #..  (lambda e (print "It means what you want it to mean."))
+   #..  truediv "6" 0)                                                 ;Try variations.
+   >>> engarde(
+   ...   Exception,
+   ...   print,
+   ...   engarde,
+   ...   ZeroDivisionError,
+   ...   (lambda e:
+   ...     print(
+   ...       ('It means what you want it to mean.'))),
+   ...   truediv,
+   ...   ('6'),
+   ...   (0))
+   unsupported operand type(s) for /: 'str' and 'int'
 
 
    ;;;; Advanced Reader Macros
