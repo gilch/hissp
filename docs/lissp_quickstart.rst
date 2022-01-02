@@ -1785,9 +1785,9 @@ Lissp Quick Start
    ...    "def enfrost(*xs):return __import__('builtins').frozenset(xs)\n"
    ...    'def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}\n'
    ...    "def enstr(*xs):return''.join(''.__class__(x)for x in xs)\n"
-   ...    'def engarde(xs,f,*a,**kw):\n'
+   ...    'def engarde(xs,h,f,*a,**kw):\n'
    ...    ' try:return f(*a,**kw)\n'
-   ...    ' except xs as e:return e\n'
+   ...    ' except xs as e:return h(e)\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
    ...    "try:exec('from hissp.basic._macro_ import *',vars(_macro_))\n"
    ...    'except ModuleNotFoundError:pass'),
@@ -2051,27 +2051,35 @@ Lissp Quick Start
 
    ;; OK, so this one's not a collection. Guards against the targeted exception classes.
    #> (engarde (entuple FloatingPointError ZeroDivisionError)          ;two targets
-   #..         truediv 6 0)                                            ;returned exception
+   #..         (lambda e (print "Oops!") e)                            ;handler (returns exception)
+   #..         truediv 6 0)                                            ;calls on your behalf
    >>> engarde(
    ...   entuple(
    ...     FloatingPointError,
    ...     ZeroDivisionError),
+   ...   (lambda e:(
+   ...     print(
+   ...       ('Oops!')),
+   ...     e)[-1]),
    ...   truediv,
    ...   (6),
    ...   (0))
+   Oops!
    ZeroDivisionError('division by zero')
 
-   #> (engarde ArithmeticError truediv 6 0)                            ;superclass target
+   #> (engarde ArithmeticError repr truediv 6 0)                       ;superclass target
    >>> engarde(
    ...   ArithmeticError,
+   ...   repr,
    ...   truediv,
    ...   (6),
    ...   (0))
-   ZeroDivisionError('division by zero')
+   "ZeroDivisionError('division by zero')"
 
-   #> (engarde ArithmeticError truediv 6 2)                            ;returned answer
+   #> (engarde ArithmeticError repr truediv 6 2)                       ;returned answer
    >>> engarde(
    ...   ArithmeticError,
+   ...   repr,
    ...   truediv,
    ...   (6),
    ...   (2))
