@@ -629,15 +629,75 @@ Also recall that macros are allowed to return strings of Python code.
 All the usual caveats for text-substitution macros apply. Use
 parentheses.
 
-.. code-block:: Lissp
+.. Lissp::
 
-   (defmacro !if (test then otherwise)
-     "Compiles to if/else expression."
-     (.format "(({}) if ({}) else ({}))"
-              : :* (map hissp.compiler..readerless
-                        `(,then ,test ,otherwise))))
+   #> (defmacro if! (test then otherwise)
+   #..  "Compiles to if/else ternary conditional expression."
+   #..  (.format #"(({})\n if ({})\n else ({}))"
+   #..           : :* (map hissp.compiler..readerless
+   #..                     `(,then ,test ,otherwise))))
+   >>> # defmacro
+   ... # hissp.basic.._macro_.let
+   ... (lambda _fn_QzNo7_=(lambda test,then,otherwise:(
+   ...   ('Compiles to if/else ternary conditional expression.'),
+   ...   ('(({})\n if ({})\n else ({}))').format(
+   ...     *map(
+   ...        __import__('hissp.compiler',fromlist='?').readerless,
+   ...        (lambda * _: _)(
+   ...          then,
+   ...          test,
+   ...          otherwise))))[-1]):(
+   ...   __import__('builtins').setattr(
+   ...     _fn_QzNo7_,
+   ...     '__doc__',
+   ...     ('Compiles to if/else ternary conditional expression.')),
+   ...   __import__('builtins').setattr(
+   ...     _fn_QzNo7_,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'ifQzBANG_',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'ifQzBANG_',
+   ...     _fn_QzNo7_))[-1])()
 
-Take it from Knuth:
+The result is (effectively) a new special form.
+
+.. code-block:: REPL
+
+   #> (if! (operator..lt 1 10) ; Look ma, no lambdas!
+   #..  (print "small")
+   #..  (print "big"))
+   >>> # ifQzBANG_
+   ... ((print(
+   ...   ('small')))
+   ...  if (__import__('operator').lt(
+   ...   (1),
+   ...   (10)))
+   ...  else (print(
+   ...   ('big'))))
+   small
+
+   #> (if! (operator..lt 100 10)
+   #..  (print "small")
+   #..  (print "big"))
+   >>> # ifQzBANG_
+   ... ((print(
+   ...   ('small')))
+   ...  if (__import__('operator').lt(
+   ...   (100),
+   ...   (10)))
+   ...  else (print(
+   ...   ('big'))))
+   big
+
+If you can express it in Python expressions,
+a metaprogram can do it too.
+
+But take it from Knuth:
 Premature optimization is the root of all evil (or at least most of it) in programming.
 
 Don't use text macros unless
