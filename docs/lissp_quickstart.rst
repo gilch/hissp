@@ -2285,6 +2285,26 @@ Lissp Quick Start
    <BLANKLINE>
 
 
+   ;; en- reader macro
+   #> (en#list 1 2 3)                     ;like enlist
+   >>> (lambda *_xs_QzNo31_:
+   ...   list(
+   ...     _xs_QzNo31_))(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   [1, 2, 3]
+
+   #> (en#collections..deque 1 2 3)       ;Generalizes to any function of 1 iterable.
+   >>> (lambda *_xs_QzNo31_:
+   ...   __import__('collections').deque(
+   ...     _xs_QzNo31_))(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   deque([1, 2, 3])
+
+
    ;; Not technically a basic reader macro, but a basic macro for defining them.
    ;; Alias makes a new reader macro to abbreviate a qualifier.
    ;; This is an alternative to adding an import to _macro_ or globals.

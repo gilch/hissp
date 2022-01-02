@@ -1,4 +1,4 @@
-;; Copyright 2019, 2020, 2021 Matthew Egan Odendahl
+;; Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
 ;; SPDX-License-Identifier: Apache-2.0
 "Hissp's basic macros.
 
@@ -387,6 +387,33 @@ zrqvgngr ba guvf.
     `',(.join (ast..literal_eval single)
               (map (operator..attrgetter 'content) lines))
     `',(getattr single 'content)))
+
+(defmacro en\# (f)
+  "Wrap a function of one iterable as a function of its elements.
+
+  .. code-block:: REPL
+
+     #> (en#list 1 2 3)
+     >>> (lambda *_xs_QzNo31_:
+     ...   list(
+     ...     _xs_QzNo31_))(
+     ...   (1),
+     ...   (2),
+     ...   (3))
+     [1, 2, 3]
+
+     #> (en#collections..deque 1 2 3)
+     >>> (lambda *_xs_QzNo31_:
+     ...   __import__('collections').deque(
+     ...     _xs_QzNo31_))(
+     ...   (1),
+     ...   (2),
+     ...   (3))
+     deque([1, 2, 3])
+
+  " ; TODO: doctest examples
+  `(lambda (: :* $#xs)
+     (,f $#xs)))
 
 ;;; import
 
