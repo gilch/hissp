@@ -389,7 +389,8 @@ zrqvgngr ba guvf.
     `',(getattr single 'content)))
 
 (defmacro en\# (f)
-  "Wrap a function of one iterable as a function of its elements.
+  "``en#`` reader macro.
+  Wrap a function of one iterable as a function of its elements.
 
   .. code-block:: REPL
 
@@ -402,18 +403,26 @@ zrqvgngr ba guvf.
      ...   (3))
      [1, 2, 3]
 
-     #> (en#collections..deque 1 2 3)
-     >>> (lambda *_xs_QzNo31_:
-     ...   __import__('collections').deque(
+     #> (en#.extend _ 4 5 6) ; Methods too.
+     >>> (lambda _self_QzNo31_,*_xs_QzNo31_:
+     ...   _self_QzNo31_.extend(
      ...     _xs_QzNo31_))(
-     ...   (1),
-     ...   (2),
-     ...   (3))
-     deque([1, 2, 3])
+     ...   _,
+     ...   (4),
+     ...   (5),
+     ...   (6))
+
+     #> _
+     >>> _
+     [1, 2, 3, 4, 5, 6]
 
   " ; TODO: doctest examples
-  `(lambda (: :* $#xs)
-     (,f $#xs)))
+  (if-else (&& (operator..is_ str (type f))
+               (.startswith f "."))
+    `(lambda ($#self : :* $#xs)
+       (,f $#self $#xs))
+    `(lambda (: :* $#xs)
+       (,f $#xs))))
 
 ;;; import
 

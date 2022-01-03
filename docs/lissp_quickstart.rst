@@ -2285,8 +2285,8 @@ Lissp Quick Start
    <BLANKLINE>
 
 
-   ;; en- reader macro
-   #> (en#list 1 2 3)                     ;like enlist
+   ;; The en- reader macro.
+   #> (en#list 1 2 3)                     ;Like enlist.
    >>> (lambda *_xs_QzNo31_:
    ...   list(
    ...     _xs_QzNo31_))(
@@ -2294,6 +2294,20 @@ Lissp Quick Start
    ...   (2),
    ...   (3))
    [1, 2, 3]
+
+   #> (en#.extend _ 4 5 6)                ;Methods too.
+   >>> (lambda _self_QzNo31_,*_xs_QzNo31_:
+   ...   _self_QzNo31_.extend(
+   ...     _xs_QzNo31_))(
+   ...   _,
+   ...   (4),
+   ...   (5),
+   ...   (6))
+
+   #> _
+   >>> _
+   [1, 2, 3, 4, 5, 6]
+
 
    #> (en#collections..deque 1 2 3)       ;Generalizes to any function of 1 iterable.
    >>> (lambda *_xs_QzNo31_:
@@ -2580,6 +2594,15 @@ Lissp Quick Start
    ...   ':c')
    (0, 'a', 'b', ':c')
 
+   #> (en#tuple 0 "a" 'b :c)
+>>> (lambda *_xs_QzNo32_:
+...   tuple(
+...     _xs_QzNo32_))(
+...   (0),
+...   ('a'),
+...   'b',
+...   ':c')
+(0, 'a', 'b', ':c')
 
    ;;; Other Collection Types
 
