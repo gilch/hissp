@@ -1,4 +1,4 @@
-.. Copyright 2020, 2021 Matthew Egan Odendahl
+.. Copyright 2020, 2021, 2022 Matthew Egan Odendahl
    SPDX-License-Identifier: Apache-2.0
 
 .. This hidden doctest adds basic macros for REPL-consistent behavior.
@@ -1785,9 +1785,9 @@ Lissp Quick Start
    ...    "def enfrost(*xs):return __import__('builtins').frozenset(xs)\n"
    ...    'def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}\n'
    ...    "def enstr(*xs):return''.join(''.__class__(x)for x in xs)\n"
-   ...    'def engarde(xs,f,*a,**kw):\n'
+   ...    'def engarde(xs,h,f,/,*a,**kw):\n'
    ...    ' try:return f(*a,**kw)\n'
-   ...    ' except xs as e:return e\n'
+   ...    ' except xs as e:return h(e)\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
    ...    "try:exec('from hissp.basic._macro_ import *',vars(_macro_))\n"
    ...    'except ModuleNotFoundError:pass'),
@@ -2051,31 +2051,60 @@ Lissp Quick Start
 
    ;; OK, so this one's not a collection. Guards against the targeted exception classes.
    #> (engarde (entuple FloatingPointError ZeroDivisionError)          ;two targets
-   #..         truediv 6 0)                                            ;returned exception
+   #..         (lambda e (print "Oops!") e)                            ;handler (returns exception)
+   #..         truediv 6 0)                                            ;calls it on your behalf
    >>> engarde(
    ...   entuple(
    ...     FloatingPointError,
    ...     ZeroDivisionError),
+   ...   (lambda e:(
+   ...     print(
+   ...       ('Oops!')),
+   ...     e)[-1]),
    ...   truediv,
    ...   (6),
    ...   (0))
+   Oops!
    ZeroDivisionError('division by zero')
 
-   #> (engarde ArithmeticError truediv 6 0)                            ;superclass target
+
+   #> (engarde ArithmeticError repr truediv 6 0)                       ;superclass target
    >>> engarde(
    ...   ArithmeticError,
+   ...   repr,
    ...   truediv,
    ...   (6),
    ...   (0))
-   ZeroDivisionError('division by zero')
+   "ZeroDivisionError('division by zero')"
 
-   #> (engarde ArithmeticError truediv 6 2)                            ;returned answer
+   #> (engarde ArithmeticError repr truediv 6 2)                       ;returned answer
    >>> engarde(
    ...   ArithmeticError,
+   ...   repr,
    ...   truediv,
    ...   (6),
    ...   (2))
    3.0
+
+
+   ;; You can nest them.
+   #> (engarde Exception                                               ;The outer engarde
+   #..  print
+   #..  engarde ZeroDivisionError                                      ; calls the inner.
+   #..  (lambda e (print "It means what you want it to mean."))
+   #..  truediv "6" 0)                                                 ;Try variations.
+   >>> engarde(
+   ...   Exception,
+   ...   print,
+   ...   engarde,
+   ...   ZeroDivisionError,
+   ...   (lambda e:
+   ...     print(
+   ...       ('It means what you want it to mean.'))),
+   ...   truediv,
+   ...   ('6'),
+   ...   (0))
+   unsupported operand type(s) for /: 'str' and 'int'
 
 
    ;;;; Advanced Reader Macros
@@ -2254,6 +2283,40 @@ Lissp Quick Start
    <lambda> lambda raw
        ``b#`` bytes literal reader macro
    <BLANKLINE>
+
+
+   ;; The en- reader macro.
+   #> (en#list 1 2 3)                     ;Like enlist.
+   >>> (lambda *_xs_QzNo31_:
+   ...   list(
+   ...     _xs_QzNo31_))(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   [1, 2, 3]
+
+   #> (en#.extend _ 4 5 6)                ;Methods too.
+   >>> (lambda _self_QzNo31_,*_xs_QzNo31_:
+   ...   _self_QzNo31_.extend(
+   ...     _xs_QzNo31_))(
+   ...   _,
+   ...   (4),
+   ...   (5),
+   ...   (6))
+
+   #> _
+   >>> _
+   [1, 2, 3, 4, 5, 6]
+
+
+   #> (en#collections..deque 1 2 3)       ;Generalizes to any function of 1 iterable.
+   >>> (lambda *_xs_QzNo31_:
+   ...   __import__('collections').deque(
+   ...     _xs_QzNo31_))(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   deque([1, 2, 3])
 
 
    ;; Not technically a basic reader macro, but a basic macro for defining them.
@@ -2531,6 +2594,15 @@ Lissp Quick Start
    ...   ':c')
    (0, 'a', 'b', ':c')
 
+   #> (en#tuple 0 "a" 'b :c)
+>>> (lambda *_xs_QzNo32_:
+...   tuple(
+...     _xs_QzNo32_))(
+...   (0),
+...   ('a'),
+...   'b',
+...   ':c')
+(0, 'a', 'b', ':c')
 
    ;;; Other Collection Types
 

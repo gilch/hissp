@@ -1,4 +1,4 @@
-.. Copyright 2019, 2020, 2021 Matthew Egan Odendahl
+.. Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 .. Hidden doctest requires basic macros for REPL-consistent behavior.
@@ -629,15 +629,75 @@ Also recall that macros are allowed to return strings of Python code.
 All the usual caveats for text-substitution macros apply. Use
 parentheses.
 
-.. code-block:: Lissp
+.. Lissp::
 
-   (defmacro !if (test then otherwise)
-     "Compiles to if/else expression."
-     (.format "(({}) if ({}) else ({}))"
-              : :* (map hissp.compiler..readerless
-                        `(,then ,test ,otherwise))))
+   #> (defmacro if! (test then otherwise)
+   #..  "Compiles to if/else ternary conditional expression."
+   #..  (.format #"(({})\n if ({})\n else ({}))"
+   #..           : :* (map hissp.compiler..readerless
+   #..                     `(,then ,test ,otherwise))))
+   >>> # defmacro
+   ... # hissp.basic.._macro_.let
+   ... (lambda _fn_QzNo7_=(lambda test,then,otherwise:(
+   ...   ('Compiles to if/else ternary conditional expression.'),
+   ...   ('(({})\n if ({})\n else ({}))').format(
+   ...     *map(
+   ...        __import__('hissp.compiler',fromlist='?').readerless,
+   ...        (lambda * _: _)(
+   ...          then,
+   ...          test,
+   ...          otherwise))))[-1]):(
+   ...   __import__('builtins').setattr(
+   ...     _fn_QzNo7_,
+   ...     '__doc__',
+   ...     ('Compiles to if/else ternary conditional expression.')),
+   ...   __import__('builtins').setattr(
+   ...     _fn_QzNo7_,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'ifQzBANG_',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'ifQzBANG_',
+   ...     _fn_QzNo7_))[-1])()
 
-Take it from Knuth:
+The result is (effectively) a new special form.
+
+.. code-block:: REPL
+
+   #> (if! (operator..lt 1 10) ; Look ma, no lambdas!
+   #..  (print "small")
+   #..  (print "big"))
+   >>> # ifQzBANG_
+   ... ((print(
+   ...   ('small')))
+   ...  if (__import__('operator').lt(
+   ...   (1),
+   ...   (10)))
+   ...  else (print(
+   ...   ('big'))))
+   small
+
+   #> (if! (operator..lt 100 10)
+   #..  (print "small")
+   #..  (print "big"))
+   >>> # ifQzBANG_
+   ... ((print(
+   ...   ('small')))
+   ...  if (__import__('operator').lt(
+   ...   (100),
+   ...   (10)))
+   ...  else (print(
+   ...   ('big'))))
+   big
+
+If you can express it in Python expressions,
+a metaprogram can do it too.
+
+But take it from Knuth:
 Premature optimization is the root of all evil (or at least most of it) in programming.
 
 Don't use text macros unless
@@ -960,9 +1020,9 @@ Like this
    ...    "def enfrost(*xs):return __import__('builtins').frozenset(xs)\n"
    ...    'def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}\n'
    ...    "def enstr(*xs):return''.join(''.__class__(x)for x in xs)\n"
-   ...    'def engarde(xs,f,*a,**kw):\n'
+   ...    'def engarde(xs,h,f,/,*a,**kw):\n'
    ...    ' try:return f(*a,**kw)\n'
-   ...    ' except xs as e:return e\n'
+   ...    ' except xs as e:return h(e)\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
    ...    "try:exec('from hissp.basic._macro_ import *',vars(_macro_))\n"
    ...    'except ModuleNotFoundError:pass'),
@@ -1605,13 +1665,23 @@ The compiler itself currently requires Python 3.8+.
 However, the *compiled output* targets such a small subset of Python
 that Hissp would probably work on 3.0 if you're careful not to use unsupported features in lambda,
 invocations, injections, or any parts of the standard library that didn't exist yet.
-The output of Lissp's template syntax may require Python 3.5+ to work.
 
+The output of Lissp's template syntax may require multiple unpacking calls
+from Python 3.5+ to work,
+but this is mostly used in macros at compile time, which must run on 3.8+ anyway.
 Qualified macros might still be able to use the 3.8+ features,
 because they run at compile time,
 as long as unsupported features don't appear in the compiled output.
 
-Even more limited versions of Python (2.7?) might work with minor compiler modifications.
+The ``engarde`` function from the `prelude` has positional-only parameters (3.8+),
+but that's in a string which won't get executed on import,
+and use of the prelude is completely optional,
+except in the `lissp -c<lissp command>` command,
+which must run on 3.8+ anyway,
+because that runs the compiler.
+
+Even more limited versions of Python (2.7?) might run the output
+with some minor compiler modifications.
 The Hissp compiler is easy enough to understand that you could realistically try.
 
 Is Hissp ready?

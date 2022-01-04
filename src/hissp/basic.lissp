@@ -1,4 +1,4 @@
-;; Copyright 2019, 2020, 2021 Matthew Egan Odendahl
+;; Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
 ;; SPDX-License-Identifier: Apache-2.0
 "Hissp's basic macros.
 
@@ -388,6 +388,42 @@ zrqvgngr ba guvf.
               (map (operator..attrgetter 'content) lines))
     `',(getattr single 'content)))
 
+(defmacro en\# (f)
+  "``en#`` reader macro.
+  Wrap a function of one iterable as a function of its elements.
+
+  .. code-block:: REPL
+
+     #> (en#list 1 2 3)
+     >>> (lambda *_xs_QzNo31_:
+     ...   list(
+     ...     _xs_QzNo31_))(
+     ...   (1),
+     ...   (2),
+     ...   (3))
+     [1, 2, 3]
+
+     #> (en#.extend _ 4 5 6) ; Methods too.
+     >>> (lambda _self_QzNo31_,*_xs_QzNo31_:
+     ...   _self_QzNo31_.extend(
+     ...     _xs_QzNo31_))(
+     ...   _,
+     ...   (4),
+     ...   (5),
+     ...   (6))
+
+     #> _
+     >>> _
+     [1, 2, 3, 4, 5, 6]
+
+  " ; TODO: doctest examples
+  (if-else (&& (operator..is_ str (type f))
+               (.startswith f "."))
+    `(lambda ($#self : :* $#xs)
+       (,f $#self $#xs))
+    `(lambda (: :* $#xs)
+       (,f $#xs))))
+
 ;;; import
 
 (defmacro prelude (: ns `(globals))
@@ -396,8 +432,9 @@ zrqvgngr ba guvf.
   Imports `functools.partial` and `functools.reduce`.
   Star imports from `itertools` and `operator`.
   Defines the en- group: ``entuple``, ``enlist``, ``enset``, ``endict``,
-  and ``enstr``, which build from individual elements, and ``engarde``,
-  which calls a function for you, returning any targeted exception.
+  and ``enstr``, which build collections from individual elements,
+  and ``engarde``, which calls a function for you, handling any targeted
+  exception with the given handler.
 
   Adds the basic macros, but only if available,
   so its expansion does not require Hissp to be installed.
@@ -423,9 +460,9 @@ def enset(*xs):return{{*xs}}
 def enfrost(*xs):return __import__('builtins').frozenset(xs)
 def endict(*kvs):return{{k:i.__next__()for i in[kvs.__iter__()]for k in i}}
 def enstr(*xs):return''.join(''.__class__(x)for x in xs)
-def engarde(xs,f,*a,**kw):
+def engarde(xs,h,f,/,*a,**kw):
  try:return f(*a,**kw)
- except xs as e:return e
+ except xs as e:return h(e)
 _macro_=__import__('types').SimpleNamespace()
 try:exec('from {}._macro_ import *',vars(_macro_))
 except ModuleNotFoundError:pass"
