@@ -2595,14 +2595,15 @@ Lissp Quick Start
    (0, 'a', 'b', ':c')
 
    #> (en#tuple 0 "a" 'b :c)
->>> (lambda *_xs_QzNo32_:
-...   tuple(
-...     _xs_QzNo32_))(
-...   (0),
-...   ('a'),
-...   'b',
-...   ':c')
-(0, 'a', 'b', ':c')
+   >>> (lambda *_xs_QzNo32_:
+   ...   tuple(
+   ...     _xs_QzNo32_))(
+   ...   (0),
+   ...   ('a'),
+   ...   'b',
+   ...   ':c')
+   (0, 'a', 'b', ':c')
+
 
    ;;; Other Collection Types
 
