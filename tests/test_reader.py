@@ -156,7 +156,7 @@ class TestReader(TestCase):
             next(self.parser.reads('foo#bar'))
 
     def test_bad_extra(self):
-        for m in {"'", "`", "!", "_#", ".#"}:
+        for m in {"'", "`", "_#", ".#"}:
             with self.subTest(macro=m), self.assertRaises(SyntaxError):
                 next(self.parser.reads(f'{m}!x()'))
 

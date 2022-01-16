@@ -284,7 +284,7 @@ class Lissp:
                 raise SyntaxError(f"Extra for {s!r} reader macro.")
             return b
         if case("'"): return "quote", form
-        if case("!"): return Extra([form])
+        if tag == "!": return Extra([*extras, form])
         if case("`"): return self.template(form)
         if case(","): return _Unquote(":?", form)
         if case(",@"): return _Unquote(":*", form)
