@@ -2447,6 +2447,12 @@ Lissp Quick Start
    ... )
    Extra([':', ':?', 0, ':*', (1, 2, 3)])
 
+   #> !!!1 2 3                            ;Extras can have extras. They stack.
+   >>> __import__('pickle').loads(  # Extra([1, 2, 3])
+   ...     b'ccopyreg\n_reconstructor\n(chissp.reader\nExtra\ncbuiltins\ntuple\n(I1\nI2\nI3\nttR.'
+   ... )
+   Extra([1, 2, 3])
+
 
    #> L#!: !:* !(0 1 2) !:? !3 primary    ;Unpacking works like calls.
    >>> ['primary', 0, 1, 2, 3]
@@ -2487,6 +2493,10 @@ Lissp Quick Start
    {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
 
    #> builtins..dict#X#(: spam 1  foo 2  :** .#(dict : eggs 3  bar 4))()
+   >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
+   {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
+
+   #> builtins..dict#!: !!spam 1 !!foo 2 !!:** .#(dict : eggs 3  bar 4)()
    >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
    {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
 

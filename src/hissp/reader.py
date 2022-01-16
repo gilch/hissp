@@ -1,4 +1,4 @@
-# Copyright 2019, 2020, 2021 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 """
 The Lissp language reader and associated helper functions.
@@ -232,7 +232,7 @@ class Lissp:
 
     def _close(self):
         if not self.depth:
-            raise SyntaxError("Extra `)`.", self.position())
+            raise SyntaxError("Too many `)`s.", self.position())
         self.depth.pop()
 
     def _macro(self, v):
@@ -284,7 +284,7 @@ class Lissp:
                 raise SyntaxError(f"Extra for {s!r} reader macro.")
             return b
         if case("'"): return "quote", form
-        if case("!"): return Extra([form])
+        if tag == "!": return Extra([*extras, form])
         if case("`"): return self.template(form)
         if case(","): return _Unquote(":?", form)
         if case(",@"): return _Unquote(":*", form)

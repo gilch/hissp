@@ -1,4 +1,4 @@
-.. Copyright 2020, 2021 Matthew Egan Odendahl
+.. Copyright 2020, 2021, 2022 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 ===========
@@ -765,6 +765,17 @@ but only imply groups of extras with whitespace if they are semantically grouped
    'foo# !(spam) !(eggs) bar              ;OK. Extras may always be separated.
    'foo# !(spam)!(eggs) bar               ;Bad if grouping not meaningful.
    'foo#!(spam) !(eggs) bar               ;Same.
+
+You can also imply groups by stacking bangs,
+but no more than three in a row.
+
+.. code-block:: Lissp
+
+   builtins..dict# !: !foo !2  !bar !4 () ;OK. Grouped by extra space.
+   builtins..dict#!: !foo!2 !bar!4()      ;Bad. {'fooQzBANG_2': 'barQzBANG_4'}
+   builtins..dict# !!!: foo 2 !! bar 4 () ;OK. Meaningful breaks, no more than !!!.
+   builtins..dict#!: !!foo 2 !!bar 4()    ;Preferred. Pairs grouped by stacking.
+   builtins..dict#!!!!!: foo 2  bar 4  () ;Bad. Have to count bangs.
 
 Align extras spanning lines like tuple contents.
 

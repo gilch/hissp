@@ -1,4 +1,4 @@
-# Copyright 2019, 2020, 2021 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 import math
@@ -25,7 +25,10 @@ class TestReader(TestCase):
         tally = Counter(lissp)
         if tally["("] != tally[")"]:
             self.assertRaisesRegex(
-                SyntaxError, r"Extra `\)`.|This form is missing a `\)`.", list, self.parser.reads(lissp)
+                SyntaxError,
+                r"Too many `\)`s.|This form is missing a `\)`.",
+                list,
+                self.parser.reads(lissp),
             )
 
     @given(st.text(max_size=5))
@@ -153,7 +156,7 @@ class TestReader(TestCase):
             next(self.parser.reads('foo#bar'))
 
     def test_bad_extra(self):
-        for m in {"'", "`", "!", "_#", ".#"}:
+        for m in {"'", "`", "_#", ".#"}:
             with self.subTest(macro=m), self.assertRaises(SyntaxError):
                 next(self.parser.reads(f'{m}!x()'))
 
