@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import math
+import textwrap
 from collections import Counter
 from fractions import Fraction
 from types import SimpleNamespace
@@ -46,7 +47,7 @@ class TestReader(TestCase):
                 parsed = [*self.parser.parse(reader.Lexer(k))]
                 print(parsed)
                 self.assertEqual(v, parsed)
-                print('OK')
+                print("OK")
 
     @patch("hissp.reader.ENTUPLE", "entuple")
     def test_auto_qualification(self):
@@ -145,25 +146,25 @@ class TestReader(TestCase):
 
     def test_badspace(self):
         with self.assertRaises(SyntaxError):
-            next(self.parser.reads('\t7'))
+            next(self.parser.reads("\t7"))
 
     def test_bad_token(self):
         with self.assertRaises(SyntaxError):
-            next(self.parser.reads('\\'))
+            next(self.parser.reads("\\"))
 
     def test_bad_macro(self):
         with self.assertRaises(SyntaxError):
-            next(self.parser.reads('foo#bar'))
+            next(self.parser.reads("foo#bar"))
 
     def test_bad_extra(self):
         for m in {"'", "`", "_#", ".#"}:
             with self.subTest(macro=m), self.assertRaises(SyntaxError):
-                next(self.parser.reads(f'{m}!x()'))
+                next(self.parser.reads(f"{m}!x()"))
 
     def test_bad_template_extra(self):
         for m in {",", ",@", "$#"}:
             with self.subTest(macro=m), self.assertRaises(SyntaxError):
-                next(self.parser.reads(f'`({m}!x y)'))
+                next(self.parser.reads(f"`({m}!x y)"))
 
     def test_reader_missing(self):
         with self.assertRaises(SyntaxError):
@@ -184,96 +185,125 @@ class TestReader(TestCase):
         )
 
     def test_is_string_code(self):
-        self.assertFalse(reader.is_string('(1+1)'))
+        self.assertFalse(reader.is_string("(1+1)"))
+
+
+class DedentOperator:
+    def __rfloordiv__(self, other):
+        return textwrap.dedent(other)
+
+
+dedented = DedentOperator()
 
 
 EXPECTED = {
-# Numeric
-'''False True''': [False, True],
-'''42 0x10 0o10 0b10 0b1111_0000_0000''': [42, 16, 8, 2, 0xF00],
-'''-4.2 4e2 -1.6e-2''': [-4.2,400,-0.016],
-'''5j 4+2j -1_2.3_4e-5_6-7_8.9_8e-7_6j''': [5j,4+2j,-1.234e-55-7.898e-75j],
-# Singleton
-'''None ...''': [None, ...],
-# Symbolic
-'''object math..tau''': ['object', 'math..tau'],
-'''\
-builtins..object ; qualified identifier
-object.__class__ ; attribute identifier
-builtins..object.__class__ ; qualified attribute identifier
-object.__class__.__name__ ; Attributes chain.
-''': [
-    'builtins..object',
-    'object.__class__',
-    'builtins..object.__class__',
-    'object.__class__.__name__',
-],
-''':control-word''': [':control-word'],
-"'symbol": [('quote', 'symbol')],
-"'Also-a-symbol! '+ '->>": [
-    ('quote', 'AlsoQz_aQz_symbolQzBANG_'),
-    ('quote', 'QzPLUS_'),
-    ('quote', 'Qz_QzGT_QzGT_'),
-],
-'''"string" ""''': [
-    "('string')",
-    "('')",
-],
-'''b""''': ['b', "('')"],
-"b''": ['bQzAPOS_QzAPOS_'],
-"b''''''": ['bQzAPOS_QzAPOS_QzAPOS_QzAPOS_QzAPOS_QzAPOS_'],
-'''b""""""''': [
-    'b', "('')", "('')", "('')"
-],
-'''rb'' br'' RB'' BR'' rb"" br"" B"" ''': [
-    'rbQzAPOS_QzAPOS_',
-    'brQzAPOS_QzAPOS_',
-    'RBQzAPOS_QzAPOS_',
-    'BRQzAPOS_QzAPOS_',
-    'rb',
-    "('')",
-    'br',
-    "('')",
-    'B',
-    "('')"
-],
-'''b"not bytes"''': ['b', "('not bytes')"],
-'''\
-b"not bytes
-with
-newlines"
-''': ['b', r"('not bytes\nwith\nnewlines')"],
-# invocation
-'''(print "Hello, World!")''': [
-    ('print', "('Hello, World!')")
-],
-# reader
-'''_#foobar''': [],
-'''builtins..float#inf''': [math.inf],
-'''.#(fractions..Fraction 1 2)''': [Fraction(1, 2)],
-'''\
-(lambda (a b c)
-  .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
-''': [('lambda', ('a', 'b', 'c'), '(-b + (b**2 - 4*a*c)**0.5)/(2*a)')],
-r''''\~\!\@\#\$\%\^\&\*\(\)\_\+\{\}\|\:\"\<\>\?\`\-\=\[\]\\\;\'\,\.\/''':
-    [('quote',
-      'QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzCARET_QzET_QzSTAR_QzLPAR_QzRPAR__'
-      'QzPLUS_QzLCUB_QzRCUB_QzBAR_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_QzGRAVE_Qz_QzEQ_'
-      'QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_QzFULLxSTOP_QzSOL_')],
-r'''\1 \12 \[] \(\) \{} \[] \; \# \` \, \' \" \\ \ ''':
-    ['QzDIGITxONE_',
-     'QzDIGITxONE_2',
-     'QzLSQB_QzRSQB_',
-     'QzLPAR_QzRPAR_',
-     'QzLCUB_QzRCUB_',
-     'QzLSQB_QzRSQB_',
-     'QzSEMI_',
-     'QzHASH_',
-     'QzGRAVE_',
-     'QzCOMMA_',
-     'QzAPOS_',
-     'QzQUOT_',
-     'QzBSOL_',
-     'QzSPACE_'],
-r'''\b\u\i\l\t\i\n\s..\f\l\o\a\t#\i\n\f''': [math.inf],
+    # Numeric
+    """False True""": [False, True],
+    """42 0x10 0o10 0b10 0b1111_0000_0000""": [42, 16, 8, 2, 0xF00],
+    """-4.2 4e2 -1.6e-2""": [-4.2, 400, -0.016],
+    """5j 4+2j -1_2.3_4e-5_6-7_8.9_8e-7_6j""": [5j, 4 + 2j, -1.234e-55 - 7.898e-75j],
+
+    # Singleton
+    """None ...""": [None, ...],
+
+    # Symbolic
+    """object math..tau""": ["object", "math..tau"],
+
+    """\
+    builtins..object ; qualified identifier
+    object.__class__ ; attribute identifier
+    builtins..object.__class__ ; qualified attribute identifier
+    object.__class__.__name__ ; Attributes chain.
+    """
+    // dedented: [
+        "builtins..object",
+        "object.__class__",
+        "builtins..object.__class__",
+        "object.__class__.__name__",
+    ],
+
+    """:control-word""": [":control-word"],
+    "'symbol": [("quote", "symbol",)],
+
+    "'Also-a-symbol! '+ '->>": [
+        ("quote", "AlsoQz_aQz_symbolQzBANG_",),
+        ("quote", "QzPLUS_",),
+        ("quote", "Qz_QzGT_QzGT_",),
+    ],
+
+    '''"string" ""''': [
+        "('string')",
+        "('')",
+    ],
+
+    '''b""''': ["b", "('')"],
+    "b''": ["bQzAPOS_QzAPOS_"],
+    "b''''''": ["bQzAPOS_QzAPOS_QzAPOS_QzAPOS_QzAPOS_QzAPOS_"],
+    '''b""""""''': ["b", "('')", "('')", "('')"],
+
+    """rb'' br'' RB'' BR'' rb"" br"" B"" """: [
+        "rbQzAPOS_QzAPOS_",
+        "brQzAPOS_QzAPOS_",
+        "RBQzAPOS_QzAPOS_",
+        "BRQzAPOS_QzAPOS_",
+        "rb",
+        "('')",
+        "br",
+        "('')",
+        "B",
+        "('')",
+    ],
+
+    '''b"not bytes"''': ["b", "('not bytes')"],
+
+    """\
+    b"not bytes
+    with
+    newlines"
+    """
+    // dedented: [
+        "b",
+        r"('not bytes\nwith\nnewlines')",
+    ],
+
+    # invocation
+    """(print "Hello, World!")""": [("print", "('Hello, World!')",)],
+
+    # reader
+    """_#foobar""": [],
+    """builtins..float#inf""": [math.inf],
+    """.#(fractions..Fraction 1 2)""": [Fraction(1, 2)],
+
+    """\
+    (lambda (a b c)
+      .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
+    """: [
+        ("lambda", ("a", "b", "c",), "(-b + (b**2 - 4*a*c)**0.5)/(2*a)",)
+    ],
+
+    r"""'\~\!\@\#\$\%\^\&\*\(\)\_\+\{\}\|\:\"\<\>\?\`\-\=\[\]\\\;\'\,\.\/""": [
+        ("quote",
+         "QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzCARET_QzET_QzSTAR_QzLPAR_QzRPAR__"
+         "QzPLUS_QzLCUB_QzRCUB_QzBAR_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_QzGRAVE_Qz_QzEQ_"
+         "QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_QzFULLxSTOP_QzSOL_",)
+    ],
+
+    r"""\1 \12 \[] \(\) \{} \[] \; \# \` \, \' \" \\ \ """: [
+        "QzDIGITxONE_",
+        "QzDIGITxONE_2",
+        "QzLSQB_QzRSQB_",
+        "QzLPAR_QzRPAR_",
+        "QzLCUB_QzRCUB_",
+        "QzLSQB_QzRSQB_",
+        "QzSEMI_",
+        "QzHASH_",
+        "QzGRAVE_",
+        "QzCOMMA_",
+        "QzAPOS_",
+        "QzQUOT_",
+        "QzBSOL_",
+        "QzSPACE_",
+    ],
+
+    r"""\b\u\i\l\t\i\n\s..\f\l\o\a\t#\i\n\f""": [math.inf],
 }
