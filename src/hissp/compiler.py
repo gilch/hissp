@@ -376,8 +376,8 @@ class Compiler:
 
     def _pair_arg(self, k, v):
         k = PAIR_WORDS.get(k, k + "=")
-        if '..' in k:
-            k = k.split('.')[-1]
+        if ".." in k:
+            k = k.split(".")[-1]
         return k + self.form(v).replace("\n", "\n" + " " * len(k))
 
     @_trace

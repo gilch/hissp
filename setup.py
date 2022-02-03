@@ -7,8 +7,10 @@ with open("README.md", encoding="utf8") as f:
     long_description = f.read()
 
 import sys
-sys.path.insert(0, 'src')
+
+sys.path.insert(0, "src")
 import hissp.reader
+
 hissp.reader.transpile(hissp.__package__, "basic")
 
 setuptools.setup(

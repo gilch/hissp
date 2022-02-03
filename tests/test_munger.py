@@ -23,7 +23,7 @@ class TestMunger(TestCase):
             munger.munge(r"""~!@#$%^&*()_+{}|:"<>?`-=[]\;',./"""),
             "QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzCARET_QzET_QzSTAR_QzLPAR_QzRPAR_"
             "_QzPLUS_QzLCUB_QzRCUB_QzBAR_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_QzGRAVE_Qz_QzEQ_"
-            "QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_.QzSOL_"
+            "QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_.QzSOL_",
         )
 
     @given(st.text(st.characters(whitelist_categories=["Sm"]), min_size=1))

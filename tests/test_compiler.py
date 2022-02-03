@@ -23,7 +23,7 @@ literals = st.recursive(
     | st.sets(quoted)
     | st.builds(tuple, st.lists(children))
     | st.dictionaries(quoted, children),
-    max_leaves=5
+    max_leaves=5,
 )
 
 
@@ -47,10 +47,10 @@ class TestCompileGeneral(TestCase):
 
     def test_maybe_macro_error(self):
         with self.assertRaises(compiler.CompileError):
-            compiler.readerless(('hissp.basic.._macro_.foobar',))
+            compiler.readerless(("hissp.basic.._macro_.foobar",))
 
     def test_post_compile_warn(self):
-        c = compiler.Compiler('oops')
+        c = compiler.Compiler("oops")
         with self.assertWarns(compiler.PostCompileWarning):
             python = c.compile([
                 ('operator..truediv',0,0,),
