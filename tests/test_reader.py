@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import math
-import textwrap
 from collections import Counter
 from fractions import Fraction
 from types import SimpleNamespace
@@ -13,6 +12,7 @@ import hypothesis.strategies as st
 from hypothesis import given
 
 from hissp import reader
+from util import dedented
 
 STRING_ANY_ = [("string", ANY, ANY)]
 
@@ -52,93 +52,93 @@ class TestReader(TestCase):
     @patch("hissp.reader.ENTUPLE", "entuple")
     def test_auto_qualification(self):
         self.assertEqual(
-            [('entuple',
-              ':', ':?', ('quote', '__main__..QzMaybe_.x'),
-              ':?', ('quote', '__main__..x'),
-              ':?', ('quote', '__main__..x'),
-              ':?', ('entuple',
-                     ':', ':?', ('quote', '__main__..QzMaybe_.y'),
-                     ':?', ('quote', '__main__..y')),
-              ':?', ('entuple', ':', ':?', 1, ':?', ('quote', '__main__..z')))
+            [("entuple",
+              ":", ":?", ("quote", "__main__..QzMaybe_.x"),
+              ":?", ("quote", "__main__..x"),
+              ":?", ("quote", "__main__..x"),
+              ":?", ("entuple",
+                     ":", ":?", ("quote", "__main__..QzMaybe_.y"),
+                     ":?", ("quote", "__main__..y")),
+              ":?", ("entuple", ":", ":?", 1, ":?", ("quote", "__main__..z")))
              ],
-            [*self.parser.reads('`(x x x (y y) (1 z))')],
-        )
+            [*self.parser.reads("`(x x x (y y) (1 z))")],
+        )  # fmt: skip
 
     @patch("hissp.reader.ENTUPLE", "entuple")
     def test_module_qualification(self):
         self.parser.ns.update(x=1, y=2, z=3)
         self.assertEqual(
-            [('entuple',
-              ':', ':?', ('quote', '__main__..QzMaybe_.x'),
-              ':?', ('quote', '__main__..x'),
-              ':?', ('quote', '__main__..x'),
-              ':?', ('entuple',
-                     ':', ':?', ('quote', '__main__..QzMaybe_.y'),
-                     ':?', ('quote', '__main__..y')),
-              ':?', ('entuple', ':', ':?', 1, ':?', ('quote', '__main__..z')))
+            [("entuple",
+              ":", ":?", ("quote", "__main__..QzMaybe_.x"),
+              ":?", ("quote", "__main__..x"),
+              ":?", ("quote", "__main__..x"),
+              ":?", ("entuple",
+                     ":", ":?", ("quote", "__main__..QzMaybe_.y"),
+                     ":?", ("quote", "__main__..y")),
+              ":?", ("entuple", ":", ":?", 1, ":?", ("quote", "__main__..z")))
              ],
-            [*self.parser.reads('`(x x x (y y) (1 z))')],
-        )
+            [*self.parser.reads("`(x x x (y y) (1 z))")],
+        )  # fmt: skip
 
     @patch("hissp.reader.ENTUPLE", "entuple")
     def test_macro_qualification(self):
         self.parser.ns.update(_macro_=SimpleNamespace(x=1, y=2, z=3))
         self.assertEqual(
-            [('entuple',
-              ':', ':?', ('quote', '__main__.._macro_.x'),
-              ':?', ('quote', '__main__..x'),
-              ':?', ('quote', '__main__..x'),
-              ':?', ('entuple',
-                     ':', ':?', ('quote', '__main__.._macro_.y'),
-                     ':?', ('quote', '__main__..y')),
-              ':?', ('entuple', ':', ':?', 1, ':?', ('quote', '__main__..z')))
+            [("entuple",
+              ":", ":?", ("quote", "__main__.._macro_.x"),
+              ":?", ("quote", "__main__..x"),
+              ":?", ("quote", "__main__..x"),
+              ":?", ("entuple",
+                     ":", ":?", ("quote", "__main__.._macro_.y"),
+                     ":?", ("quote", "__main__..y")),
+              ":?", ("entuple", ":", ":?", 1, ":?", ("quote", "__main__..z")))
              ],
-            [*self.parser.reads('`(x x x (y y) (1 z))')],
-        )
+            [*self.parser.reads("`(x x x (y y) (1 z))")],
+        )  # fmt: skip
 
     @patch("hissp.reader.ENTUPLE", "entuple")
     def test_no_qualification(self):
         self.assertEqual(
-            [('entuple', ':', ':?', ('quote', '.x')),
-             ('entuple', ':', ':?', ('quote', 'quote'), ':?', 1),
-             ('entuple', ':', ':?', ('quote', 'lambda'), ':?', ':'),
-             ('quote', '__import__'),
-             ('quote', '_QzNo0_'),
-             ('quote', 'foo..bar'),
-             ('quote', 'foo.')],
+            [("entuple", ":", ":?", ("quote", ".x")),
+             ("entuple", ":", ":?", ("quote", "quote"), ":?", 1),
+             ("entuple", ":", ":?", ("quote", "lambda"), ":?", ":"),
+             ("quote", "__import__"),
+             ("quote", "_QzNo0_"),
+             ("quote", "foo..bar"),
+             ("quote", "foo.")],
             [*self.parser.reads(
-                '`(.x) `(quote 1) `(lambda :) `__import__ `_QzNo0_ `foo..bar `foo.'
+                "`(.x) `(quote 1) `(lambda :) `__import__ `_QzNo0_ `foo..bar `foo."
             )],
-        )
+        )  # fmt: skip
 
     @patch("hissp.reader.ENTUPLE", "entuple")
     def test_auto_qualify_attr(self):
         self.parser.ns.update(x=SimpleNamespace(y=1), int=SimpleNamespace(float=1))
         self.assertEqual(
-            [('entuple',
-              ':',
-              ':?',
-              ('quote', '__main__..x.y'),
-              ':?',
-              ('quote', '__main__..x.y')),
-             ('entuple',
-              ':',
-              ':?',
-              ('quote', '__main__..int.x'),
-              ':?',
-              ('quote', '__main__..int.float')),
-             ('entuple', ':', ':?', ('quote', '__main__..QzMaybe_.int'), ':?', 1),
-             ('entuple', ':', ':?', ('quote', 'builtins..float'), ':?', 1),
-             ('entuple',
-              ':',
-              ':?',
-              ('quote', '__main__..QzMaybe_.x'),
-              ':?',
-              ('quote', '__main__..x'))],
+            [("entuple",
+              ":",
+              ":?",
+              ("quote", "__main__..x.y"),
+              ":?",
+              ("quote", "__main__..x.y")),
+             ("entuple",
+              ":",
+              ":?",
+              ("quote", "__main__..int.x"),
+              ":?",
+              ("quote", "__main__..int.float")),
+             ("entuple", ":", ":?", ("quote", "__main__..QzMaybe_.int"), ":?", 1),
+             ("entuple", ":", ":?", ("quote", "builtins..float"), ":?", 1),
+             ("entuple",
+              ":",
+              ":?",
+              ("quote", "__main__..QzMaybe_.x"),
+              ":?",
+              ("quote", "__main__..x"))],
             [*self.parser.reads(
-                '`(x.y x.y) `(int.x int.float) `(int 1) `(float 1) `(x x)'
+                "`(x.y x.y) `(int.x int.float) `(int 1) `(float 1) `(x x)"
             )],
-        )
+        )  # fmt: skip
 
     def test_swap_ns(self):
         self.parser.ns = object()
@@ -180,20 +180,12 @@ class TestReader(TestCase):
 
     def test_template(self):
         self.assertEqual(
-            [('quote', "('foo')",), 7],
+            [("quote", "('foo')",), 7],
             [*self.parser.reads('`"foo" `,7')]
-        )
+        )  # fmt: skip
 
     def test_is_string_code(self):
         self.assertFalse(reader.is_string("(1+1)"))
-
-
-class DedentOperator:
-    def __rfloordiv__(self, other):
-        return textwrap.dedent(other)
-
-
-dedented = DedentOperator()
 
 
 EXPECTED = {
@@ -202,13 +194,10 @@ EXPECTED = {
     """42 0x10 0o10 0b10 0b1111_0000_0000""": [42, 16, 8, 2, 0xF00],
     """-4.2 4e2 -1.6e-2""": [-4.2, 400, -0.016],
     """5j 4+2j -1_2.3_4e-5_6-7_8.9_8e-7_6j""": [5j, 4 + 2j, -1.234e-55 - 7.898e-75j],
-
     # Singleton
     """None ...""": [None, ...],
-
     # Symbolic
     """object math..tau""": ["object", "math..tau"],
-
     """\
     builtins..object ; qualified identifier
     object.__class__ ; attribute identifier
@@ -306,4 +295,4 @@ EXPECTED = {
     ],
 
     r"""\b\u\i\l\t\i\n\s..\f\l\o\a\t#\i\n\f""": [math.inf],
-}
+}  # fmt: skip

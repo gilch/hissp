@@ -1,4 +1,4 @@
-# Copyright 2019, 2020, 2021 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
@@ -6,7 +6,8 @@ from unittest import TestCase
 import hypothesis.strategies as st
 from hypothesis import given
 
-from hissp import compiler, munger
+from hissp import compiler
+from util import dedented
 
 quoted = (
     st.none()
@@ -55,16 +56,24 @@ class TestCompileGeneral(TestCase):
             python = c.compile([
                 ('operator..truediv',0,0,),
                 ('print',('quote','oops',),),
-            ])
-        self.assertIn("""\
-__import__('operator').truediv(
-  (0),
-  (0))
-
-# Traceback (most recent call last):""", python)
-        self.assertIn("""\
-# ZeroDivisionError: division by zero
-# 
-
-print(
-  'oops')""", python)
+            ])  # fmt: skip
+        self.assertIn(
+            """\
+            __import__('operator').truediv(
+              (0),
+              (0))
+            
+            # Traceback (most recent call last):"""
+            // dedented,
+            python,
+        )
+        self.assertIn(
+            """\
+            # ZeroDivisionError: division by zero
+            # 
+            
+            print(
+              'oops')"""
+            // dedented,
+            python,
+        )
