@@ -3,6 +3,7 @@
 
 import re
 from collections.abc import Container
+from difflib import context_diff
 from doctest import ELLIPSIS
 from fnmatch import fnmatch
 from textwrap import indent
@@ -49,8 +50,6 @@ class ParseLissp(DocTestParser):
             parser.compiler.ns = example.namespace
             hissp = parser.reads(lissp)
             compiled = parser.compiler.compile(hissp) + "\n"
-            from difflib import context_diff
-
             assert norm_gensym_eq(compiled, python), "".join(
                 context_diff(
                     indent(python, "  ").splitlines(True),
