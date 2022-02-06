@@ -19,7 +19,7 @@ ps1 = "#> "
 
 
 ps2 = "#.."
-"""String specifying the secondary prompt of the REPL."""
+"""String specifying the secondary (continuation) prompt of the REPL."""
 
 
 class LisspREPL(InteractiveConsole):
