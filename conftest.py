@@ -26,11 +26,11 @@ class ParseLissp(DocTestParser):
         super().__init__(*a, **kw)
         self._EXAMPLE_RE = re.compile(
             r"""
-        (?P<lissp>
-             (?:^   [ ]* [#]>[ ] .*)
-             (?:\n  [ ]* [#]\.\. .*)*)?
-             \n?
-         """
+            (?P<lissp>
+                 (?:^   [ ]* [#]>[ ] .*)
+                 (?:\n  [ ]* [#]\.\. .*)*)?
+                 \n?
+            """
             + self._EXAMPLE_RE.pattern,
             re.MULTILINE | re.VERBOSE,
         )
