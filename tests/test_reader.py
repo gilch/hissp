@@ -12,7 +12,7 @@ import hypothesis.strategies as st
 from hypothesis import given
 
 from hissp import reader
-from util import dedented
+from .util import dedented
 
 STRING_ANY_ = [("string", ANY, ANY)]
 

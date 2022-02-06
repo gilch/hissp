@@ -7,7 +7,7 @@ import hypothesis.strategies as st
 from hypothesis import given
 
 from hissp import compiler
-from util import dedented
+from .util import dedented
 
 quoted = (
     st.none()
