@@ -2754,12 +2754,12 @@ Lissp Quick Start
 
 
    ;; Collection atoms are a convenience for simple cases only.
-   #> .#"['1 2','3',(4,5),r'6;7\8']"
-   >>> ['1 2','3',(4,5),r'6;7\8']
+   #> .#"['1 2','3',(4,5),R'6;7\8']"
+   >>> ['1 2','3',(4,5),R'6;7\8']
    ['1 2', '3', (4, 5), '6;7\\8']
 
    ;; After dropping quotes, these tokenize like other atoms, so you need escapes.
-   #> ['1\ 2',\"3\",\(4,5\),r'6\;7\\8']   ;Not so convenient now. Simple cases only!
+   #> ['1\ 2',\"3\",\(4,5\),R'6\;7\\8']   ;Not so convenient now. Simple cases only!
    >>> ['1 2', '3', (4, 5), '6;7\\8']
    ['1 2', '3', (4, 5), '6;7\\8']
 

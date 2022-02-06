@@ -34,7 +34,7 @@ class TestReader(TestCase):
 
     @given(st.text(max_size=5))
     def test_string(self, lissp):
-        lissp = lissp.replace("\\", "\\\\").replace('"', r"\"")
+        lissp = lissp.replace("\\", "\\\\").replace('"', R"\"")
         lissp = f'"{lissp}"'
         self.assertEqual([*reader.Lexer(lissp)], STRING_ANY_)
 
@@ -252,7 +252,7 @@ EXPECTED = {
     """
     // dedented: [
         "b",
-        r"('not bytes\nwith\nnewlines')",
+        R"('not bytes\nwith\nnewlines')",
     ],
 
     # invocation
@@ -270,14 +270,14 @@ EXPECTED = {
         ("lambda", ("a", "b", "c",), "(-b + (b**2 - 4*a*c)**0.5)/(2*a)",)
     ],
 
-    r"""'\~\!\@\#\$\%\^\&\*\(\)\_\+\{\}\|\:\"\<\>\?\`\-\=\[\]\\\;\'\,\.\/""": [
+    R"""'\~\!\@\#\$\%\^\&\*\(\)\_\+\{\}\|\:\"\<\>\?\`\-\=\[\]\\\;\'\,\.\/""": [
         ("quote",
          "QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzCARET_QzET_QzSTAR_QzLPAR_QzRPAR__"
          "QzPLUS_QzLCUB_QzRCUB_QzBAR_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_QzGRAVE_Qz_QzEQ_"
          "QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_QzFULLxSTOP_QzSOL_",)
     ],
 
-    r"""\1 \12 \[] \(\) \{} \[] \; \# \` \, \' \" \\ \ """: [
+    R"""\1 \12 \[] \(\) \{} \[] \; \# \` \, \' \" \\ \ """: [
         "QzDIGITxONE_",
         "QzDIGITxONE_2",
         "QzLSQB_QzRSQB_",
@@ -294,5 +294,5 @@ EXPECTED = {
         "QzSPACE_",
     ],
 
-    r"""\b\u\i\l\t\i\n\s..\f\l\o\a\t#\i\n\f""": [math.inf],
+    R"""\b\u\i\l\t\i\n\s..\f\l\o\a\t#\i\n\f""": [math.inf],
 }  # fmt: skip

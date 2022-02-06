@@ -377,7 +377,7 @@ class Lissp:
     @staticmethod
     def _string(v):
         if v[0] == "#":  # Let Python process escapes.
-            v = v.replace("\\\n", "").replace("\n", r"\n")
+            v = v.replace("\\\n", "").replace("\n", R"\n")
             val = ast.literal_eval(v[1:])
         else:  # raw
             val = v[1:-1]  # Only remove quotes.

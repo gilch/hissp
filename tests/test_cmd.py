@@ -203,7 +203,7 @@ def test_repl_str_continue():
         """,
         out="""\
         """
-        r"""#> ''
+        R"""#> ''
         #> 'foo bar'
         #> #..#..'\n\n'
         #> #..#..#..'\n\nx\n'
@@ -215,7 +215,7 @@ def test_repl_str_continue():
         #> """,
         err="""\
         """
-        r""">>> ('')
+        R""">>> ('')
         >>> ('foo bar')
         >>> ('\n\n')
         >>> ('\n\nx\n')

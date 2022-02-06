@@ -145,7 +145,7 @@ class Compiler:
 
     @_trace
     def function(self, form: Tuple) -> str:
-        r"""
+        R"""
         Compile the anonymous function special form.
 
         (lambda (<parameters>)
@@ -292,7 +292,7 @@ class Compiler:
 
     @_trace
     def call(self, form: Iterable) -> str:
-        r"""
+        R"""
         Compile call form.
 
         Any tuple that is not quoted, ``()``, or a `special` form or
@@ -413,7 +413,7 @@ class Compiler:
 
     @_trace
     def atom(self, form) -> str:
-        r"""
+        R"""
         Compile forms that evaluate to themselves.
 
         Emits a literal if possible, otherwise falls back to `pickle`:

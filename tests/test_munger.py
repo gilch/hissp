@@ -20,7 +20,7 @@ class TestMunger(TestCase):
 
     def test_munge_basic(self):
         self.assertEqual(
-            munger.munge(r"""~!@#$%^&*()_+{}|:"<>?`-=[]\;',./"""),
+            munger.munge(R"""~!@#$%^&*()_+{}|:"<>?`-=[]\;',./"""),
             "QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzCARET_QzET_QzSTAR_QzLPAR_"
             "QzRPAR__QzPLUS_QzLCUB_QzRCUB_QzBAR_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_"
             "QzGRAVE_Qz_QzEQ_QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_.QzSOL_",
