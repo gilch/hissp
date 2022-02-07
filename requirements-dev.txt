@@ -1,4 +1,6 @@
-# For unit tests.
+# This configuration file is part of Hissp's test suite,
+# Copyright 2019, 2021, 2022 Matthew Egan Odendahl
+# SPDX-License-Identifier: Apache-2.0
 hypothesis==5.43.3
 coverage==5.3
 pytest==6.1.2
