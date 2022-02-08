@@ -15,7 +15,7 @@ hissp.reader.transpile(hissp.__package__, "basic")
 
 setuptools.setup(
     name="hissp",
-    version="0.3.0a",
+    version="0.3.0",
     description="It's Python with a Lissp.",
     long_description=long_description,
     long_description_content_type="text/markdown",
