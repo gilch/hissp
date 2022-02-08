@@ -30,6 +30,8 @@ for "readerless mode" Hissp snippets
 which should be formatted Lisp-style (play with Parinfer until you get it),
 or anywhere the extra effort of manual formatting is worth it.
 In readerless mode, Hissp tuples shall always include the trailing `,`.
+Regular expression raw strings use a lower-case `r`,
+but other raw strings use an upper-case `R`.
 Try to follow the established style in any source files,
 and otherwise follow PEP 8 even when Black has no opinion.
 The .lissp source uses the Hissp style guide for formatting.
