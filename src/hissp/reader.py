@@ -29,9 +29,7 @@ from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union
 from hissp.compiler import Compiler, MAYBE, readerless
 from hissp.munger import force_qz_encode, munge
 
-# fmt: off
-ENTUPLE = ("lambda",(":",":*"," _")," _",)
-# fmt: on
+ENTUPLE = ("lambda",(":",":*"," _")," _",)  # fmt: skip
 """
 Used by the template macro to make tuples.
 
@@ -42,29 +40,29 @@ but you can override this by setting some other value here.
 
 TOKENS = re.compile(
     r"""(?x)
- (?P<comment>;.*)
-|(?P<whitespace>[\n ]+)
-|(?P<badspace>\s)  # Other whitespace not allowed.
-|(?P<open>\()
-|(?P<close>\))
-|(?P<macro>
-   ,@
-  |['`,!]
-   # Any atom that ends in (an unescaped) ``#``
-  |(?:[^\\ \n"();#]|\\.)+[#]
- )
-|(?P<string>
-  [#]?  # raw?
-  "  # Open quote.
-    (?:[^"\\]  # Any non-magic character.
-       |\\(?:.|\n)  # Backslash only if paired, including with newline.
-    )*  # Zero or more times.
-  "  # Close quote.
- )
-|(?P<continue>[#]?")  # String not closed.
-|(?P<atom>(?:[^\\ \n"();]|\\.)+)  # Let Python deal with it.
-|(?P<error>.)
-"""
+     (?P<comment>;.*)
+    |(?P<whitespace>[\n ]+)
+    |(?P<badspace>\s)  # Other whitespace not allowed.
+    |(?P<open>\()
+    |(?P<close>\))
+    |(?P<macro>
+       ,@
+      |['`,!]
+       # Any atom that ends in (an unescaped) ``#``
+      |(?:[^\\ \n"();#]|\\.)+[#]
+     )
+    |(?P<string>
+      [#]?  # raw?
+      "  # Open quote.
+        (?:[^"\\]  # Any non-magic character.
+           |\\(?:.|\n)  # Backslash only if paired, including with newline.
+        )*  # Zero or more times.
+      "  # Close quote.
+     )
+    |(?P<continue>[#]?")  # String not closed.
+    |(?P<atom>(?:[^\\ \n"();]|\\.)+)  # Let Python deal with it.
+    |(?P<error>.)
+    """
 )
 
 Token = NewType("Token", Tuple[str, str, int])
@@ -125,12 +123,13 @@ class Lexer(Iterator):
         return self.file, lineno, offset, self.code.split("\n")[lineno - 1]
 
 
-_Unquote = namedtuple('_Unquote', ['target', 'value'])
-Comment = namedtuple('Comment', ['content'])
+_Unquote = namedtuple("_Unquote", ["target", "value"])
+Comment = namedtuple("Comment", ["content"])
 
 
 class Extra(tuple):
     """Designates Extra read-time arguments for reader macros."""
+
     def __repr__(self):
         return f"Extra({list(self)!r})"
 
@@ -201,16 +200,18 @@ class Lissp:
 
     def _parse(self) -> Iterator:
         for k, v, self._p in self.tokens:
+            # fmt: off
             if k == "whitespace": continue
-            elif k == "comment": yield Comment(v[1:])
+            elif k == "comment":  yield Comment(v[1:])
             elif k == "badspace": raise self._badspace(v)
-            elif k == "open": yield from self._open()
-            elif k == "close": return self._close()
-            elif k == "macro": yield from self._macro(v)
-            elif k == "string": yield self._string(v)
+            elif k == "open":     yield from self._open()
+            elif k == "close":    return self._close()
+            elif k == "macro":    yield from self._macro(v)
+            elif k == "string":   yield self._string(v)
             elif k == "continue": raise self._continue()
-            elif k == "atom": yield self.atom(v)
-            else: raise self._error(k)
+            elif k == "atom":     yield self.atom(v)
+            else:                 raise self._error(k)
+            # fmt: on
         self._check_depth()
 
     def _badspace(self, v):
@@ -270,7 +271,7 @@ class Lissp:
         depth = len(self.depth)
         nondrop = self._filter_drop()
         try:
-            while isinstance(form:=next(nondrop), Extra):
+            while isinstance(form := next(nondrop), Extra):
                 extras.extend(form)
         except StopIteration:
             e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
@@ -278,20 +279,22 @@ class Lissp:
         return form, extras
 
     def parse_macro(self, tag: str, form, extras):
+        # fmt: off
         """Apply a reader macro to a form."""
         def case(s):
             if (b := tag == s) and extras:
                 raise SyntaxError(f"Extra for {s!r} reader macro.")
             return b
-        if case("'"): return "quote", form
+        if case("'"):  return "quote", form
         if tag == "!": return Extra([*extras, form])
-        if case("`"): return self.template(form)
-        if case(","): return _Unquote(":?", form)
+        if case("`"):  return self.template(form)
+        if case(","):  return _Unquote(":?", form)
         if case(",@"): return _Unquote(":*", form)
         if case("_#"): return DROP
         if case("$#"): return self.gensym(form)
         if case(".#"): return eval(readerless(form, self.ns), self.ns)
         return self._custom_macro(form, tag, extras)
+        # fmt: on
 
     def template(self, form):
         """Process form as template."""
@@ -299,11 +302,7 @@ class Lissp:
         if is_string(form):
             return "quote", form
         if case is tuple and form:
-            return (
-                ENTUPLE,
-                ":",
-                *chain(*self._template(form)),
-            )
+            return (ENTUPLE, ":", *chain(*self._template(form)),)  # fmt: skip
         if case is str and not form.startswith(":"):
             return "quote", self.qualify(form)
         if case is _Unquote and form.target == ":?":
@@ -378,7 +377,7 @@ class Lissp:
     @staticmethod
     def _string(v):
         if v[0] == "#":  # Let Python process escapes.
-            v = v.replace("\\\n", "").replace("\n", r"\n")
+            v = v.replace("\\\n", "").replace("\n", R"\n")
             val = ast.literal_eval(v[1:])
         else:  # raw
             val = v[1:-1]  # Only remove quotes.
@@ -434,14 +433,16 @@ def is_string(form):
 
 def _parse_extras(extras):
     it = iter(extras)
-    args = [*takewhile(lambda x: x != ':', it)]
+    args = [*takewhile(lambda x: x != ":", it)]
     kwargs = {}
     for k in it:
+        # fmt: off
         v = next(it)
-        if k == ':?': args.append(v)
-        elif k == ':*': args.extend(v)
-        elif k == ':**': kwargs.update(v)
-        else: kwargs[k] = v
+        if k == ":?":    args.append(v)
+        elif k == ":*":  args.extend(v)
+        elif k == ":**": kwargs.update(v)
+        else:            kwargs[k] = v
+        # fmt: on
     return args, kwargs
 
 
@@ -453,10 +454,10 @@ def is_qualifiable(symbol):
     and must be a valid identifier or attribute identifier.
     """
     return (
-            symbol not in {"quote", "__import__"}
-            and not _iskeyword(symbol)
-            and not re.match(r".*_QzNo\d+_$", symbol)
-            and all(map(str.isidentifier, symbol.split(".")))
+        symbol not in {"quote", "__import__"}
+        and not _iskeyword(symbol)
+        and not re.match(r".*_QzNo\d+_$", symbol)
+        and all(map(str.isidentifier, symbol.split(".")))
     )
 
 
@@ -489,7 +490,6 @@ def transpile_file(path: Union[Path, str], package: Optional[str] = None):
     """
     path = Path(path).resolve(strict=True)
     qualname = f"{package or ''}{'.' if package else ''}{PurePath(path.name).stem}"
-    python = Lissp(
-        qualname=qualname, evaluate=True, filename=str(path)
-    ).compile(re.sub(r'^#!.*\n', '', path.read_text('utf8')))
-    path.with_suffix('.py').write_text(python, 'utf8')
+    L = Lissp(qualname=qualname, evaluate=True, filename=str(path))
+    python = L.compile(re.sub(r"^#!.*\n", "", path.read_text("utf8")))
+    path.with_suffix(".py").write_text(python, "utf8")

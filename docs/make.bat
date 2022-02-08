@@ -1,3 +1,4 @@
+REM Sphinx-generated file. See https://www.sphinx-doc.org for copyright and license.
 @ECHO OFF
 
 pushd %~dp0

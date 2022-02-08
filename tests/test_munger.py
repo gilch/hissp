@@ -1,4 +1,4 @@
-# Copyright 2019, 2020, 2021 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 import re
 from unittest import TestCase
@@ -20,10 +20,10 @@ class TestMunger(TestCase):
 
     def test_munge_basic(self):
         self.assertEqual(
-            munger.munge(r"""~!@#$%^&*()_+{}|:"<>?`-=[]\;',./"""),
-            "QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzCARET_QzET_QzSTAR_QzLPAR_QzRPAR_"
-            "_QzPLUS_QzLCUB_QzRCUB_QzBAR_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_QzGRAVE_Qz_QzEQ_"
-            "QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_.QzSOL_"
+            munger.munge(R"""~!@#$%^&*()_+{}|:"<>?`-=[]\;',./"""),
+            "QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzCARET_QzET_QzSTAR_QzLPAR_"
+            "QzRPAR__QzPLUS_QzLCUB_QzRCUB_QzBAR_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_"
+            "QzGRAVE_Qz_QzEQ_QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_.QzSOL_",
         )
 
     @given(st.text(st.characters(whitelist_categories=["Sm"]), min_size=1))

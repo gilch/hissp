@@ -1,4 +1,4 @@
-# Copyright 2020, 2021 Matthew Egan Odendahl
+# Copyright 2020, 2021, 2022 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 """
 The Lissp Read-Evaluate-Print Loop. For interactive use.
@@ -19,7 +19,7 @@ ps1 = "#> "
 
 
 ps2 = "#.."
-"""String specifying the secondary prompt of the REPL."""
+"""String specifying the secondary (continuation) prompt of the REPL."""
 
 
 class LisspREPL(InteractiveConsole):
@@ -43,14 +43,14 @@ class LisspREPL(InteractiveConsole):
         except SoftSyntaxError:
             return True
         except CompileError as e:
-            print(f'{sys.ps1}# CompileError', file=sys.stderr)
+            print(f"{sys.ps1}# CompileError", file=sys.stderr)
             print(e, file=sys.stderr)
             return False
         except SyntaxError:
             self.showsyntaxerror()
             return False
         except BaseException:
-            print(f'{sys.ps1}# Compilation failed!', file=sys.stderr)
+            print(f"{sys.ps1}# Compilation failed!", file=sys.stderr)
             self.showtraceback()
             return False
         print(sys.ps1, source.replace("\n", f"\n{sys.ps2}"), sep="", file=sys.stderr)

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import subprocess as sp
+from textwrap import dedent
 
 
 def cmd(cmd, input=""):
@@ -22,8 +23,7 @@ def test_c_args():
 
 def test_ic_args():
     out, err = cmd(
-        'lissp -i -c "(print sys..argv)(define answer 42)" 1 2 3',
-        "answer\n"
+        'lissp -i -c "(print sys..argv)(define answer 42)" 1 2 3', "answer\n"
     )
     assert out == "['-c', '1', '2', '3']\n#> 42\n#> "
     assert err[BANNER_LEN:] == ">>> answer\n" + EXIT_MSG
@@ -31,20 +31,22 @@ def test_ic_args():
 
 def test_file_args():
     out, err = cmd("lissp tests/argv.lissp 1 2 3")
-    assert out == """\
+    expected = """\
 ['tests/argv.lissp', '1', '2', '3']
 __name__='__main__' __package__=None
 """
+    assert out == expected
     assert err == ""
 
 
 def test_i_file_args():
     out, err = cmd("lissp -i tests/argv.lissp 1 2 3", "answer\n")
-    assert out == """\
+    expected = """\
 ['tests/argv.lissp', '1', '2', '3']
 __name__='__main__' __package__=None
 #> 42
 #> """
+    assert out == expected
     assert err[BANNER_LEN:] == ">>> answer\n" + EXIT_MSG
 
 
@@ -64,10 +66,10 @@ def test_ic_error():
     assert "42" in out
 
 
-def repl(input, out: str = '#> '*2, err: str = "", exitmsg=EXIT_MSG):
-    actual_out, actual_err = cmd("lissp", input)
-    assert actual_out.split('\n') == out.split('\n')
-    assert actual_err[BANNER_LEN:].split('\n') == (err + exitmsg).split('\n')
+def repl(input, out: str = "#> " * 2, err: str = "", exitmsg=EXIT_MSG):
+    actual_out, actual_err = cmd("lissp", dedent(input))
+    assert actual_out.split("\n") == dedent(out).split("\n")
+    assert actual_err[BANNER_LEN:].split("\n") == (dedent(err) + exitmsg).split("\n")
 
 
 def test_repl_prompt():
@@ -88,29 +90,29 @@ def test_repl_exit():
 
 def test_repl_unqoute_error():
     err = """\
-  File "<console>", line 1
-    ,
-    ^
-SyntaxError: Unquote outside of template.
-"""
+      File "<console>", line 1
+        ,
+        ^
+    SyntaxError: Unquote outside of template.
+    """
     repl(",\n", err=err)
 
 
 def test_repl_splice_error():
     err = """\
-  File "<console>", line 1
-    ,@
-     ^
-SyntaxError: Unquote outside of template.
-"""
+      File "<console>", line 1
+        ,@
+         ^
+    SyntaxError: Unquote outside of template.
+    """
     repl(",@\n", err=err)
 
 
 def call_response(*session):
-    stream = {k: [] for k in '<>!'}
+    stream = {k: [] for k in "<>!"}
     for line in session:
         stream[line[0]].append(line[2:])
-    repl(*(''.join(stream[k]) for k in '<>!'))
+    repl(*("".join(stream[k]) for k in "<>!"))
 
 
 def test_repl_empty_template_error():
@@ -125,16 +127,16 @@ def test_repl_empty_template_error():
         "!      ^\n",
         "! SyntaxError: Reader macro '`' missing argument.\n",
         "> #> ",
-    )
+    )  # fmt: skip
 
 
 def test_repl_gensym_error():
     err = """\
-  File "<console>", line 1
-    $#x
-      ^
-SyntaxError: Gensym outside of template.
-"""
+      File "<console>", line 1
+        $#x
+          ^
+    SyntaxError: Gensym outside of template.
+    """
     repl("$#x\n", err=err)
 
 
@@ -152,127 +154,129 @@ def test_repl_empty_reader_macro_error():
         "!                     ^\n",
         "! SyntaxError: Reader macro 'builtins..float#' missing argument.\n",
         "> #> ",
-    )
+    )  # fmt: skip
 
 
 def test_repl_read_error():
     err = """\
-  File "<console>", line 1
-    \\
-    ^
-SyntaxError: Can't read this.
-"""
+      File "<console>", line 1
+        \\
+        ^
+    SyntaxError: Can't read this.
+    """
     repl("\\\n", err=err)
 
 
 def test_repl_unopened_error():
     err = """\
-  File "<console>", line 1
-    )
-    ^
-SyntaxError: Too many `)`s.
-"""
+      File "<console>", line 1
+        )
+        ^
+    SyntaxError: Too many `)`s.
+    """
     repl(")\n", err=err)
 
 
 def test_repl_str_continue():
     repl(
-        """\
-""
-"foo bar"
-"
+        input="""\
+        ""
+        "foo bar"
+        "
 
-"
-"
+        "
+        "
 
-x
-"
-b#""
-b#"foo bar"
-b#"
+        x
+        "
+        b#""
+        b#"foo bar"
+        b#"
 
 
-"
-b#"
+        "
+        b#"
 
-x"
-(.decode b#"\\xff
-foo" : errors 'ignore)
-""",
-        r"""#> ''
-#> 'foo bar'
-#> #..#..'\n\n'
-#> #..#..#..'\n\nx\n'
-#> b''
-#> b'foo bar'
-#> #..#..#..b'\n\n\n'
-#> #..#..b'\n\nx'
-#> #..'\nfoo'
-#> """,
-        r""">>> ('')
->>> ('foo bar')
->>> ('\n\n')
->>> ('\n\nx\n')
->>> b''
->>> b'foo bar'
->>> b'\n\n\n'
->>> b'\n\nx'
->>> b'\xff\nfoo'.decode(
-...   errors='ignore')
-""",
+        x"
+        (.decode b#"\\xff
+        foo" : errors 'ignore)
+        """,
+        out="""\
+        """
+        R"""#> ''
+        #> 'foo bar'
+        #> #..#..'\n\n'
+        #> #..#..#..'\n\nx\n'
+        #> b''
+        #> b'foo bar'
+        #> #..#..#..b'\n\n\n'
+        #> #..#..b'\n\nx'
+        #> #..'\nfoo'
+        #> """,
+        err="""\
+        """
+        R""">>> ('')
+        >>> ('foo bar')
+        >>> ('\n\n')
+        >>> ('\n\nx\n')
+        >>> b''
+        >>> b'foo bar'
+        >>> b'\n\n\n'
+        >>> b'\n\nx'
+        >>> b'\xff\nfoo'.decode(
+        ...   errors='ignore')
+        """,
     )
 
 
 def test_repl_paren_continue():
     call_response(
-        '> #> ','< ()\n',
-        '! >>> ()\n',
-        '> ()\n',
-        '> #> ', "< (\n",
-        '> #..', "< )\n",
-        '! >>> ()\n',
-        '> ()\n',
-        '> #> ', "< (\n",
-        '> #..', "< \n",
-        '> #..', "< )\n",
-        '! >>> ()\n',
-        '> ()\n',
-        '> #> ', "< (\n",
-        '> #..', "< \n",
-        '> #..', "< \n",
-        '> #..', "< )\n",
-        '! >>> ()\n',
-        '> ()\n',
-        '> #> ',"< '(1 2)\n",
-        '! >>> ((1),\n',
-        '! ...  (2),)\n',
-        '> (1, 2)\n',
-        '> #> ',"< '(1\n",
-        '> #..','< 2\n',
-        '> #..','< )\n',
-        '! >>> ((1),\n',
-        '! ...  (2),)\n',
-        '> (1, 2)\n',
-        '> #> ',"< '(1\n",
-        '> #..','< \n',
-        '> #..','< \n',
-        '> #..','< 2)\n',
-        '! >>> ((1),\n',
-        '! ...  (2),)\n',
-        '> (1, 2)\n',
-        '> #> ',
-    )
+        "> #> ", "< ()\n",
+        "! >>> ()\n",
+        "> ()\n",
+        "> #> ", "< (\n",
+        "> #..", "< )\n",
+        "! >>> ()\n",
+        "> ()\n",
+        "> #> ", "< (\n",
+        "> #..", "< \n",
+        "> #..", "< )\n",
+        "! >>> ()\n",
+        "> ()\n",
+        "> #> ", "< (\n",
+        "> #..", "< \n",
+        "> #..", "< \n",
+        "> #..", "< )\n",
+        "! >>> ()\n",
+        "> ()\n",
+        "> #> ", "< '(1 2)\n",
+        "! >>> ((1),\n",
+        "! ...  (2),)\n",
+        "> (1, 2)\n",
+        "> #> ", "< '(1\n",
+        "> #..", "< 2\n",
+        "> #..", "< )\n",
+        "! >>> ((1),\n",
+        "! ...  (2),)\n",
+        "> (1, 2)\n",
+        "> #> ", "< '(1\n",
+        "> #..", "< \n",
+        "> #..", "< \n",
+        "> #..", "< 2)\n",
+        "! >>> ((1),\n",
+        "! ...  (2),)\n",
+        "> (1, 2)\n",
+        "> #> ",
+    )  # fmt: skip
 
 
 def test_compile_error():
     call_response(
-        '> #> ','< (lambda :x)',
-        """! \
->>> # CompileError
-
-(>   >  > >>('lambda', ':x')<< <  <   <)
-# Compiler.function() CompileError:
-#  Incomplete pair.
-""",
-        '> #> ',
-    )
+        "> #> ", "< (lambda :x)",
+        "! >>> # CompileError\n",
+        "! \n",
+        "! (>   >  > >>('lambda', ':x')<< <  <   <)\n",
+        "! # Compiler.function() CompileError:\n",
+        "! #  Incomplete pair.\n",
+        "> #> ",
+    )  # fmt: skip

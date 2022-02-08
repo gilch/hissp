@@ -79,7 +79,8 @@ def _munge_part(part):
             assert part.isidentifier(), f"{part!r} is not identifier"
     return part
 
-QUOTEZ = 'Qz{}_'
+
+QUOTEZ = "Qz{}_"
 """Format string for creating Quotez."""
 
 FIND_QUOTEZ = re.compile(QUOTEZ.format("([0-9A-Z][0-9A-Zhx]*?)?"))
@@ -87,8 +88,7 @@ FIND_QUOTEZ = re.compile(QUOTEZ.format("([0-9A-Z][0-9A-Zhx]*?)?"))
 
 TO_NAME = {
     k: QUOTEZ.format(v)
-    for k, v in
-    {
+    for k, v in {
         # ASCII control characters don't munge to names.
         "!": "BANG",
         '"': "QUOT",

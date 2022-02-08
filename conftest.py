@@ -1,8 +1,9 @@
-# Copyright 2019, 2020 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2022 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 import re
 from collections.abc import Container
+from difflib import context_diff
 from doctest import ELLIPSIS
 from fnmatch import fnmatch
 from textwrap import indent
@@ -25,11 +26,11 @@ class ParseLissp(DocTestParser):
         super().__init__(*a, **kw)
         self._EXAMPLE_RE = re.compile(
             r"""
-        (?P<lissp>
-             (?:^   [ ]* [#]>[ ] .*)
-             (?:\n  [ ]* [#]\.\. .*)*)?
-             \n?
-         """
+            (?P<lissp>
+                 (?:^   [ ]* [#]>[ ] .*)
+                 (?:\n  [ ]* [#]\.\. .*)*)?
+                 \n?
+            """
             + self._EXAMPLE_RE.pattern,
             re.MULTILINE | re.VERBOSE,
         )
@@ -49,8 +50,7 @@ class ParseLissp(DocTestParser):
             parser.compiler.ns = example.namespace
             hissp = parser.reads(lissp)
             compiled = parser.compiler.compile(hissp) + "\n"
-            from difflib import context_diff
-            assert norm_gensym_eq(compiled, python), ''.join(
+            assert norm_gensym_eq(compiled, python), "".join(
                 context_diff(
                     indent(python, "  ").splitlines(True),
                     indent(compiled, "  ").splitlines(True),

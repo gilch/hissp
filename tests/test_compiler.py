@@ -1,4 +1,4 @@
-# Copyright 2019, 2020, 2021 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
@@ -6,7 +6,8 @@ from unittest import TestCase
 import hypothesis.strategies as st
 from hypothesis import given
 
-from hissp import compiler, munger
+from hissp import compiler
+from .util import dedented
 
 quoted = (
     st.none()
@@ -23,7 +24,7 @@ literals = st.recursive(
     | st.sets(quoted)
     | st.builds(tuple, st.lists(children))
     | st.dictionaries(quoted, children),
-    max_leaves=5
+    max_leaves=5,
 )
 
 
@@ -47,24 +48,32 @@ class TestCompileGeneral(TestCase):
 
     def test_maybe_macro_error(self):
         with self.assertRaises(compiler.CompileError):
-            compiler.readerless(('hissp.basic.._macro_.foobar',))
+            compiler.readerless(("hissp.basic.._macro_.foobar",))
 
     def test_post_compile_warn(self):
-        c = compiler.Compiler('oops')
+        c = compiler.Compiler("oops")
         with self.assertWarns(compiler.PostCompileWarning):
             python = c.compile([
                 ('operator..truediv',0,0,),
                 ('print',('quote','oops',),),
-            ])
-        self.assertIn("""\
-__import__('operator').truediv(
-  (0),
-  (0))
-
-# Traceback (most recent call last):""", python)
-        self.assertIn("""\
-# ZeroDivisionError: division by zero
-# 
-
-print(
-  'oops')""", python)
+            ])  # fmt: skip
+        self.assertIn(
+            """\
+            __import__('operator').truediv(
+              (0),
+              (0))
+            
+            # Traceback (most recent call last):"""
+            // dedented,
+            python,
+        )
+        self.assertIn(
+            """\
+            # ZeroDivisionError: division by zero
+            # 
+            
+            print(
+              'oops')"""
+            // dedented,
+            python,
+        )

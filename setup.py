@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2019, 2020, 2021 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 import setuptools
 
@@ -7,8 +7,10 @@ with open("README.md", encoding="utf8") as f:
     long_description = f.read()
 
 import sys
-sys.path.insert(0, 'src')
+
+sys.path.insert(0, "src")
 import hissp.reader
+
 hissp.reader.transpile(hissp.__package__, "basic")
 
 setuptools.setup(
@@ -44,7 +46,12 @@ setuptools.setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: Pre-processors",
     ],
-    keywords="lisp macro metaprogramming compiler interpreter DSL AST transpiler emacs clojure scheme",
+    keywords=(
+        "lisp macro metaprogramming compiler interpreter DSL AST transpiler emacs"
+        " clojure scheme language minimal REPL metaprogramming macros extensible"
+        " s-expressions code-generation no-dependencies quasiquote backquote"
+        " syntax-quote template Hissp Lissp"
+    ),
     packages=setuptools.find_packages("src"),
     package_data={
         "": ["*.lissp", "LICENSE.txt"]

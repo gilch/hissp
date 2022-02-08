@@ -1,4 +1,4 @@
-# Copyright 2019, 2020, 2021 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -145,7 +145,7 @@ class Compiler:
 
     @_trace
     def function(self, form: Tuple) -> str:
-        r"""
+        R"""
         Compile the anonymous function special form.
 
         (lambda (<parameters>)
@@ -292,7 +292,7 @@ class Compiler:
 
     @_trace
     def call(self, form: Iterable) -> str:
-        r"""
+        R"""
         Compile call form.
 
         Any tuple that is not quoted, ``()``, or a `special` form or
@@ -376,8 +376,8 @@ class Compiler:
 
     def _pair_arg(self, k, v):
         k = PAIR_WORDS.get(k, k + "=")
-        if '..' in k:
-            k = k.split('.')[-1]
+        if ".." in k:
+            k = k.split(".")[-1]
         return k + self.form(v).replace("\n", "\n" + " " * len(k))
 
     @_trace
@@ -413,7 +413,7 @@ class Compiler:
 
     @_trace
     def atom(self, form) -> str:
-        r"""
+        R"""
         Compile forms that evaluate to themselves.
 
         Emits a literal if possible, otherwise falls back to `pickle`:
