@@ -15,7 +15,7 @@ hissp.reader.transpile(hissp.__package__, "basic")
 
 setuptools.setup(
     name="hissp",
-    version="0.3.0",
+    version=hissp.__version__,
     description="It's Python with a Lissp.",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -61,4 +61,4 @@ setuptools.setup(
     entry_points={"console_scripts": ["lissp=hissp.__main__:main"]},
 )
 # Build dist and install:
-# $ python setup.py sdist && pip install dist/hissp-0.3.0.tar.gz
+# $ python setup.py sdist && pip install dist/hissp-*.tar.gz
