@@ -54,7 +54,7 @@ setuptools.setup(
     ),
     packages=setuptools.find_packages("src"),
     package_data={
-        "": ["*.lissp", "LICENSE.txt"]
+        "": ["*.lissp"]
     },  # If any package contains *.lissp files, include them.
     package_dir={"": "src"},
     python_requires=">=3.8",
