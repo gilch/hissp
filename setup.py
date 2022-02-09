@@ -22,11 +22,11 @@ setuptools.setup(
     author="Matthew Egan Odendahl",
     # These email addresses are spam bait. Don't expect any responses.
     # See the GitHub project instead: https://github.com/gilch/hissp
-    author_email="hissp02.gilch@xoxy.net",
+    author_email="hissp03.gilch@xoxy.net",
     license="Apache-2.0",
     url="https://github.com/gilch/hissp",
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Environment :: Console",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
