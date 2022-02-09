@@ -9,6 +9,7 @@ import re
 import sys
 
 import hissp.repl
+from hissp import __version__ as ver
 from hissp.reader import Lissp
 
 
@@ -56,7 +57,7 @@ def _no_interact(code, ns):
 
 def _arg_parser():
     root = argparse.ArgumentParser(
-        description="Starts the REPL if there are no arguments."
+        description=f"(Hissp {ver}) Starts a LisspREPL if there are no arguments."
     )
     _ = root.add_argument
     _(

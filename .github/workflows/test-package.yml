@@ -39,11 +39,12 @@ jobs:
         parlinter --list-different "**/*.lissp"
     - name: Create Hissp package
       run: |
-        pip install setuptools
-        python setup.py sdist
+        pip install setuptools wheel
+        cd setup
+        python setup.py bdist_wheel
     - name: Install Hissp package from dist/
       run: |
-        pip install dist/hissp-*.tar.gz
+        pip install setup/dist/hissp-*.whl
     - name: Install test dependencies
       run: |
         python -m pip install --upgrade pip

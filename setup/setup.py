@@ -3,30 +3,30 @@
 # SPDX-License-Identifier: Apache-2.0
 import setuptools
 
-with open("README.md", encoding="utf8") as f:
+with open("../README.md", encoding="utf8") as f:
     long_description = f.read()
 
 import sys
 
-sys.path.insert(0, "src")
+sys.path.insert(0, "../src")
 import hissp.reader
 
 hissp.reader.transpile(hissp.__package__, "basic")
 
 setuptools.setup(
     name="hissp",
-    version="0.3.0a",
+    version=hissp.__version__,
     description="It's Python with a Lissp.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Matthew Egan Odendahl",
     # These email addresses are spam bait. Don't expect any responses.
     # See the GitHub project instead: https://github.com/gilch/hissp
-    author_email="hissp02.gilch@xoxy.net",
+    author_email="hissp03.gilch@xoxy.net",
     license="Apache-2.0",
     url="https://github.com/gilch/hissp",
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Environment :: Console",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
@@ -52,13 +52,13 @@ setuptools.setup(
         " s-expressions code-generation no-dependencies quasiquote backquote"
         " syntax-quote template Hissp Lissp"
     ),
-    packages=setuptools.find_packages("src"),
+    packages=setuptools.find_packages("../src"),
     package_data={
-        "": ["*.lissp", "LICENSE.txt"]
+        "": ["*.lissp"]
     },  # If any package contains *.lissp files, include them.
-    package_dir={"": "src"},
+    package_dir={"": "../src"},
     python_requires=">=3.8",
     entry_points={"console_scripts": ["lissp=hissp.__main__:main"]},
 )
 # Build dist and install:
-# $ python setup.py sdist && pip install dist/hissp-0.3.0.tar.gz
+# $ python setup.py sdist && pip install dist/hissp-*.tar.gz
