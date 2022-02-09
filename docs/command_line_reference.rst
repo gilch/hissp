@@ -18,7 +18,7 @@ whose minimal options were modeled after Python's most commonly used:
 
    usage: lissp [-h] [-i] [-c cmd] [file] [args [args ...]]
 
-   Starts the REPL if there are no arguments.
+   (Hissp 0.3.0) Starts the REPL if there are no arguments.
 
    positional arguments:
      file        Run this file as main script. (- for stdin.)
