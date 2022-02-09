@@ -40,10 +40,11 @@ jobs:
     - name: Create Hissp package
       run: |
         pip install setuptools
+        cd setup
         python setup.py sdist
     - name: Install Hissp package from dist/
       run: |
-        pip install dist/hissp-*.tar.gz
+        pip install setup/dist/hissp-*.tar.gz
     - name: Install test dependencies
       run: |
         python -m pip install --upgrade pip

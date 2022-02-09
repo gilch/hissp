@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: Apache-2.0
 import setuptools
 
-with open("README.md", encoding="utf8") as f:
+with open("../README.md", encoding="utf8") as f:
     long_description = f.read()
 
 import sys
 
-sys.path.insert(0, "src")
+sys.path.insert(0, "../src")
 import hissp.reader
 
 hissp.reader.transpile(hissp.__package__, "basic")
@@ -52,11 +52,11 @@ setuptools.setup(
         " s-expressions code-generation no-dependencies quasiquote backquote"
         " syntax-quote template Hissp Lissp"
     ),
-    packages=setuptools.find_packages("src"),
+    packages=setuptools.find_packages("../src"),
     package_data={
         "": ["*.lissp"]
     },  # If any package contains *.lissp files, include them.
-    package_dir={"": "src"},
+    package_dir={"": "../src"},
     python_requires=">=3.8",
     entry_points={"console_scripts": ["lissp=hissp.__main__:main"]},
 )
