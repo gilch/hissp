@@ -1,14 +1,14 @@
 .. Copyright 2019, 2020, 2021 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
-..  Hidden doctest requires basic macros for REPL-consistent behavior.
-   #> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.basic.._macro_)))
+..  Hidden doctest adds bundled macros for REPL-consistent behavior.
+   #> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
    >>> __import__('operator').setitem(
    ...   globals(),
    ...   '_macro_',
    ...   __import__('types').SimpleNamespace(
    ...     **vars(
-   ...         __import__('hissp.basic',fromlist='?')._macro_)))
+   ...         __import__('hissp')._macro_)))
 
 ========
 Tutorial
@@ -1736,8 +1736,8 @@ from a ``_macro_`` namespace:
 
 .. code-block:: REPL
 
-   #> (hissp.basic.._macro_.define spam :eggs) ; qualified macro
-   >>> # hissp.basic.._macro_.define
+   #> (hissp.._macro_.define spam :eggs) ; qualified macro
+   >>> # hissp.._macro_.define
    ... __import__('builtins').globals().update(
    ...   spam=':eggs')
 
@@ -1751,7 +1751,7 @@ for matching macro names when compiling an unqualified invocation.
 
 While ``.lissp`` files don't have one until you add it,
 the REPL automatically includes a ``_macro_``
-namespace with all of the `basic macros <hissp.basic._macro_>`:
+namespace with all of the `bundled macros <hissp.macros._macro_>`:
 
 .. code-block:: REPL
 

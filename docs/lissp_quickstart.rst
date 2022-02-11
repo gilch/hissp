@@ -1,14 +1,14 @@
 .. Copyright 2020, 2021, 2022 Matthew Egan Odendahl
    SPDX-License-Identifier: Apache-2.0
 
-.. This hidden doctest adds basic macros for REPL-consistent behavior.
-   #> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.basic.._macro_)))
+.. This hidden doctest adds bundled macros for REPL-consistent behavior.
+   #> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
    >>> __import__('operator').setitem(
    ...   globals(),
    ...   '_macro_',
    ...   __import__('types').SimpleNamespace(
    ...     **vars(
-   ...         __import__('hissp.basic',fromlist='?')._macro_)))
+   ...         __import__('hissp')._macro_)))
 
 .. TODO: Interactive via web repl?
 
@@ -1045,11 +1045,11 @@ Lissp Quick Start
 
    ;; Hissp already comes with a define macro for global assignment.
    ;; Our assign macro just re-implemented this.
-   (help hissp.basic.._macro_.define)
+   (help hissp.._macro_.define)
 
    ;; An invocation qualified with _macro_ is a macro invocation.
-   #> (hissp.basic.._macro_.define SPAM "eggs") ;Note SPAM is not quoted.
-   >>> # hissp.basic.._macro_.define
+   #> (hissp.._macro_.define SPAM "eggs") ;Note SPAM is not quoted.
+   >>> # hissp.._macro_.define
    ... __import__('builtins').globals().update(
    ...   SPAM=('eggs'))
 
@@ -1060,14 +1060,14 @@ Lissp Quick Start
 
    ;; See the macro expansion by calling it like a method with all arguments quoted.
    ;; This way, the callable isn't qualified with _macro_, so it's a normal call.
-   #> (.define hissp.basic.._macro_ 'SPAM '"eggs") ;Method syntax is never macro invocation.
-   >>> __import__('hissp.basic',fromlist='?')._macro_.define(
+   #> (.define hissp.._macro_ 'SPAM '"eggs") ;Method syntax is never macro invocation.
+   >>> __import__('hissp')._macro_.define(
    ...   'SPAM',
    ...   "('eggs')")
    ('.update', ('builtins..globals',), ':', 'SPAM', "('eggs')")
 
 
-   ;; The REPL's default _macro_ namespace already has the basic macros.
+   ;; The REPL's default _macro_ namespace already has the bundled macros.
    (help _macro_.define)
 
 
@@ -1535,16 +1535,17 @@ Lissp Quick Start
    False
 
 
-   ;;;; The Basic Macros
+   ;;;; The Bundled Macros
 
    ;; To make the REPL more usable, it comes with some basic macros already
    ;; defined. Their design has been deliberately restricted so that their
    ;; compiled output does not require the Hissp package to be installed to
    ;; work. While these may suffice for small or embedded Hissp projects,
    ;; you will probably want a more capable macro suite (such as Hebigo's)
-   ;; for general use. You are not required to use the basic macros at all,
-   ;; so by default, they don't work in .lissp files unqualified. They're
-   ;; available qualified from hissp.basic.._macro_.
+   ;; for general use. You are not required to use the bundled macros at all,
+   ;; so by default, they don't work in .lissp files unqualified. For
+   ;; convenience, hissp._macro_ is a reference to hissp.macros._macro_,
+   ;; making all the bundled macros available qualified with hissp.._macro_.
 
    ;;; Side Effect
 
@@ -1553,7 +1554,7 @@ Lissp Quick Start
    #..         (print 2)))
    >>> print(
    ...   # prog1
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _value1_QzNo28_=(0):(
    ...     print(
    ...       (1)),
@@ -1586,7 +1587,7 @@ Lissp Quick Start
    #..         3)
    #..  (print 2))
    >>> # prog1
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _value1_QzNo35_=# progn
    ... (lambda :(
    ...   print(
@@ -1609,7 +1610,7 @@ Lissp Quick Start
    #..  __repr__ (lambda (self)
    #..             (.format "Point2D({!r}, {!r})" : :* self)))
    >>> # deftype
-   ... # hissp.basic.._macro_.define
+   ... # hissp.macros.._macro_.define
    ... __import__('builtins').globals().update(
    ...   Point2D=__import__('builtins').type(
    ...             'Point2D',
@@ -1641,7 +1642,7 @@ Lissp Quick Start
    #..  "Prints 1 2 3 with the given separator"
    #..  `(print 1 2 3 : sep ,sep))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda sep:(
    ...   ('Prints 1 2 3 with the given separator'),
    ...   (lambda * _: _)(
@@ -1715,7 +1716,7 @@ Lissp Quick Start
 
    #> (attach (types..SimpleNamespace) + : a 1  b "Hi")
    >>> # attach
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _target_QzNo16_=__import__('types').SimpleNamespace():(
    ...   __import__('builtins').setattr(
    ...     _target_QzNo16_,
@@ -1753,10 +1754,10 @@ Lissp Quick Start
    #..    (.title)
    #..    (->> (print "Hello")))          ;Thread-last
    >>> # Qz_QzGT_
-   ... # hissp.basic..QzMaybe_.Qz_QzGT_
-   ... # hissp.basic..QzMaybe_.Qz_QzGT_
+   ... # hissp.macros..QzMaybe_.Qz_QzGT_
+   ... # hissp.macros..QzMaybe_.Qz_QzGT_
    ... # Qz_QzGT_QzGT_
-   ... # hissp.basic..QzMaybe_.Qz_QzGT_QzGT_
+   ... # hissp.macros..QzMaybe_.Qz_QzGT_QzGT_
    ... print(
    ...   ('Hello'),
    ...   ('world!').title())
@@ -1765,15 +1766,15 @@ Lissp Quick Start
    (help _macro_.->)
    (help _macro_.->>)
 
-   ;;; The Basic Prelude
+   ;;; The Prelude
 
    ;; An inline convenience micro-prelude for Hissp.
    ;; Imports partial and reduce; star imports from operator and
    ;; itertools; defines the en- group utilities; and imports a copy of
-   ;; hissp.basic.._macro_ (if available). Usually the first form in a file,
+   ;; hissp.macros.._macro_ (if available). Usually the first form in a file,
    ;; because it overwrites _macro_, but completely optional.
    ;; Implied for $ lissp -c commands.
-   #> (prelude)                           ;/!\ Or (hissp.basic.._macro_.prelude)
+   #> (prelude)                           ;/!\ Or (hissp.._macro_.prelude)
    >>> # prelude
    ... __import__('builtins').exec(
    ...   ('from functools import partial,reduce\n'
@@ -1788,7 +1789,7 @@ Lissp Quick Start
    ...    ' try:return f(*a,**kw)\n'
    ...    ' except xs as e:return h(e)\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
-   ...    "try:exec('from hissp.basic._macro_ import *',vars(_macro_))\n"
+   ...    "try:exec('from hissp.macros._macro_ import *',vars(_macro_))\n"
    ...    'except ModuleNotFoundError:pass'),
    ...   __import__('builtins').globals())
 
@@ -1838,9 +1839,9 @@ Lissp Quick Start
    ;; Shortcutting logical and.
    #> (&& True True False)
    >>> # QzET_QzET_
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _G_QzNo33_=True:
-   ...   # hissp.basic.._macro_.ifQz_else
+   ...   # hissp.macros.._macro_.ifQz_else
    ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
    ...       thenQz_else,
@@ -1848,10 +1849,10 @@ Lissp Quick Start
    ...         test))())(
    ...     _G_QzNo33_,
    ...     (lambda :
-   ...       # hissp.basic..QzMaybe_.QzET_QzET_
-   ...       # hissp.basic.._macro_.let
+   ...       # hissp.macros..QzMaybe_.QzET_QzET_
+   ...       # hissp.macros.._macro_.let
    ...       (lambda _G_QzNo33_=True:
-   ...         # hissp.basic.._macro_.ifQz_else
+   ...         # hissp.macros.._macro_.ifQz_else
    ...         (lambda test,*thenQz_else:
    ...           __import__('operator').getitem(
    ...             thenQz_else,
@@ -1859,7 +1860,7 @@ Lissp Quick Start
    ...               test))())(
    ...           _G_QzNo33_,
    ...           (lambda :
-   ...             # hissp.basic..QzMaybe_.QzET_QzET_
+   ...             # hissp.macros..QzMaybe_.QzET_QzET_
    ...             False),
    ...           (lambda :_G_QzNo33_)))()),
    ...     (lambda :_G_QzNo33_)))()
@@ -1867,9 +1868,9 @@ Lissp Quick Start
 
    #> (&& False (print "oops"))
    >>> # QzET_QzET_
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _G_QzNo33_=False:
-   ...   # hissp.basic.._macro_.ifQz_else
+   ...   # hissp.macros.._macro_.ifQz_else
    ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
    ...       thenQz_else,
@@ -1877,7 +1878,7 @@ Lissp Quick Start
    ...         test))())(
    ...     _G_QzNo33_,
    ...     (lambda :
-   ...       # hissp.basic..QzMaybe_.QzET_QzET_
+   ...       # hissp.macros..QzMaybe_.QzET_QzET_
    ...       print(
    ...         ('oops'))),
    ...     (lambda :_G_QzNo33_)))()
@@ -1885,9 +1886,9 @@ Lissp Quick Start
 
    #> (&& True 42)
    >>> # QzET_QzET_
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _G_QzNo26_=True:
-   ...   # hissp.basic.._macro_.ifQz_else
+   ...   # hissp.macros.._macro_.ifQz_else
    ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
    ...       thenQz_else,
@@ -1895,7 +1896,7 @@ Lissp Quick Start
    ...         test))())(
    ...     _G_QzNo26_,
    ...     (lambda :
-   ...       # hissp.basic..QzMaybe_.QzET_QzET_
+   ...       # hissp.macros..QzMaybe_.QzET_QzET_
    ...       (42)),
    ...     (lambda :_G_QzNo26_)))()
    42
@@ -1904,9 +1905,9 @@ Lissp Quick Start
    ;; Shortcutting logical or.
    #> (|| True (print "oops"))
    >>> # QzBAR_QzBAR_
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _first_QzNo34_=True:
-   ...   # hissp.basic.._macro_.ifQz_else
+   ...   # hissp.macros.._macro_.ifQz_else
    ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
    ...       thenQz_else,
@@ -1915,16 +1916,16 @@ Lissp Quick Start
    ...     _first_QzNo34_,
    ...     (lambda :_first_QzNo34_),
    ...     (lambda :
-   ...       # hissp.basic..QzMaybe_.QzBAR_QzBAR_
+   ...       # hissp.macros..QzMaybe_.QzBAR_QzBAR_
    ...       print(
    ...         ('oops')))))()
    True
 
    #> (|| 42 False)
    >>> # QzBAR_QzBAR_
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _first_QzNo27_=(42):
-   ...   # hissp.basic.._macro_.ifQz_else
+   ...   # hissp.macros.._macro_.ifQz_else
    ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
    ...       thenQz_else,
@@ -1933,7 +1934,7 @@ Lissp Quick Start
    ...     _first_QzNo27_,
    ...     (lambda :_first_QzNo27_),
    ...     (lambda :
-   ...       # hissp.basic..QzMaybe_.QzBAR_QzBAR_
+   ...       # hissp.macros..QzMaybe_.QzBAR_QzBAR_
    ...       False)))()
    42
 
@@ -1975,7 +1976,7 @@ Lissp Quick Start
 
    ;;;; The En- Group
 
-   ;; These are small utility functions defined by the basic prelude.
+   ;; These are small utility functions defined by the prelude.
    ;; Most of them put their arguments into a collection, hence the en-.
    #> (entuple 1 2 3)
    >>> entuple(
@@ -2253,7 +2254,7 @@ Lissp Quick Start
    >>> from operator import *
 
 
-   ;;;; The Basic Reader Macros
+   ;;;; The Bundled Reader Macros
 
    #> b#"bytes"                           ;Bytes reader macro.
    >>> b'bytes'
@@ -2277,7 +2278,7 @@ Lissp Quick Start
    #> (help _macro_.b\#)                  ;Unqualified reader macros live in _macro_ too.
    >>> help(
    ...   _macro_.bQzHASH_)
-   Help on function <lambda> in module hissp.basic:
+   Help on function <lambda> in module hissp.macros:
    <BLANKLINE>
    <lambda> lambda raw
        ``b#`` bytes literal reader macro
@@ -2318,16 +2319,16 @@ Lissp Quick Start
    deque([1, 2, 3])
 
 
-   ;; Not technically a basic reader macro, but a basic macro for defining them.
+   ;; Not technically a reader macro, but a bundled macro for defining them.
    ;; Alias makes a new reader macro to abbreviate a qualifier.
    ;; This is an alternative to adding an import to _macro_ or globals.
-   #> (hissp.basic.._macro_.alias M: hissp.basic.._macro_)
-   >>> # hissp.basic.._macro_.alias
-   ... # hissp.basic.._macro_.defmacro
-   ... # hissp.basic.._macro_.let
+   #> (hissp.._macro_.alias M: hissp.._macro_)
+   >>> # hissp.._macro_.alias
+   ... # hissp.macros.._macro_.defmacro
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda _prime_QzNo34_,_reader_QzNo34_=None,*_args_QzNo34_:(
-   ...   "('Aliases hissp.basic.._macro_ as MQzCOLON_#')",
-   ...   # hissp.basic.._macro_.ifQz_else
+   ...   "('Aliases hissp.._macro_ as MQzCOLON_#')",
+   ...   # hissp.macros.._macro_.ifQz_else
    ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
    ...       thenQz_else,
@@ -2336,17 +2337,17 @@ Lissp Quick Start
    ...     _reader_QzNo34_,
    ...     (lambda :
    ...       __import__('builtins').getattr(
-   ...         __import__('hissp.basic',fromlist='?')._macro_,
+   ...         __import__('hissp')._macro_,
    ...         ('{}{}').format(
    ...           _reader_QzNo34_,
-   ...           # hissp.basic.._macro_.ifQz_else
+   ...           # hissp.macros.._macro_.ifQz_else
    ...           (lambda test,*thenQz_else:
    ...             __import__('operator').getitem(
    ...               thenQz_else,
    ...               __import__('operator').not_(
    ...                 test))())(
    ...             __import__('operator').contains(
-   ...               'hissp.basic.._macro_',
+   ...               'hissp.._macro_',
    ...               '_macro_'),
    ...             (lambda :'QzHASH_'),
    ...             (lambda :('')))))(
@@ -2354,7 +2355,7 @@ Lissp Quick Start
    ...         *_args_QzNo34_)),
    ...     (lambda :
    ...       ('{}.{}').format(
-   ...         'hissp.basic.._macro_',
+   ...         'hissp.._macro_',
    ...         _prime_QzNo34_))))[-1]):(
    ...   __import__('builtins').setattr(
    ...     _fn_QzNo7_,
@@ -2369,20 +2370,20 @@ Lissp Quick Start
    ...     'MQzCOLON_QzHASH_',
    ...     _fn_QzNo7_))[-1])()
 
-   #> 'M:#alias                           ;Now short for 'hissp.basic.._macro_.alias'.
-   >>> 'hissp.basic.._macro_.alias'
-   'hissp.basic.._macro_.alias'
+   #> 'M:#alias
+   >>> 'hissp.._macro_.alias'
+   'hissp.._macro_.alias'
 
    #> M:#b\#                              ;b# macro callable
-   >>> __import__('hissp.basic',fromlist='?')._macro_.bQzHASH_
+   >>> __import__('hissp')._macro_.bQzHASH_
    <function _macro_.bQzHASH_ at ...>
 
    #> (M:#b\# "b# macro at compile time")
-   >>> # hissp.basic.._macro_.bQzHASH_
+   >>> # hissp.._macro_.bQzHASH_
    ... b'b# macro at compile time'
    b'b# macro at compile time'
 
-   #> hissp.basic.._macro_.b\##"Fully qualified b# macro at read time."
+   #> hissp.._macro_.b\##"Fully qualified b# macro at read time."
    >>> b'Fully qualified b# macro at read time.'
    b'Fully qualified b# macro at read time.'
 

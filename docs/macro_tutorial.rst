@@ -216,14 +216,14 @@ Add the prelude to the top of the file:
 
 .. code-block:: Lissp
 
-   (hissp.basic.._macro_.prelude)
+   (hissp.._macro_.prelude)
 
 And push it to the REPL as well:
 
 .. code-block:: REPL
 
-   #> (hissp.basic.._macro_.prelude)
-   >>> # hissp.basic.._macro_.prelude
+   #> (hissp.._macro_.prelude)
+   >>> # hissp.._macro_.prelude
    ... __import__('builtins').exec(
    ...   ('from functools import partial,reduce\n'
    ...    'from itertools import *;from operator import *\n'
@@ -237,18 +237,18 @@ And push it to the REPL as well:
    ...    ' try:return f(*a,**kw)\n'
    ...    ' except xs as e:return h(e)\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
-   ...    "try:exec('from hissp.basic._macro_ import *',vars(_macro_))\n"
+   ...    "try:exec('from hissp.macros._macro_ import *',vars(_macro_))\n"
    ...    'except ModuleNotFoundError:pass'),
    ...   __import__('builtins').globals())
 
 .. caution::
 
-   The `prelude` macro overwrites your ``_macro_`` namespace with a copy of the basic one.
+   The `prelude` macro overwrites your ``_macro_`` namespace with a copy of the bundled one.
    Any macros you've defined in there are lost.
    In Lissp files, the prelude is meant to be used before any definitions,
    when it is used at all.
    Likewise, in the REPL, enter it first, or be prepared to re-enter your definitions.
-   The REPL already comes with the `basic` macros loaded,
+   The REPL already comes with the bundled macros loaded,
    but not the en- group or imports.
 
 I'll mostly be showing the REPL from here on.
@@ -480,7 +480,7 @@ Try this definition.
    #> (defmacro L (params : :* body)
    #..  `(lambda ,params ,@body))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda params,*body:
    ...   (lambda * _: _)(
    ...     'lambda',
@@ -562,7 +562,7 @@ that anaphoric macro we did in the previous tutorial.
    #..  `(lambda (,'X) ; Interpolate anaphors to prevent qualification!
    #..     ,expr))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda *expr:
    ...   (lambda * _: _)(
    ...     'lambda',
@@ -634,7 +634,7 @@ Ready?
    #..  `(lambda (,'X ,'Y)
    #..     ,expr))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda *expr:
    ...   (lambda * _: _)(
    ...     'lambda',
@@ -696,7 +696,7 @@ Don't panic.
    >>> # __main__.._macro_.progn
    ... (lambda :(
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -715,7 +715,7 @@ Don't panic.
    ...       'L0',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -734,7 +734,7 @@ Don't panic.
    ...       'L1',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -753,7 +753,7 @@ Don't panic.
    ...       'L2',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -772,7 +772,7 @@ Don't panic.
    ...       'L3',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -791,7 +791,7 @@ Don't panic.
    ...       'L4',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -810,7 +810,7 @@ Don't panic.
    ...       'L5',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -829,7 +829,7 @@ Don't panic.
    ...       'L6',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -848,7 +848,7 @@ Don't panic.
    ...       'L7',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -867,7 +867,7 @@ Don't panic.
    ...       'L8',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -886,7 +886,7 @@ Don't panic.
    ...       'L9',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -905,7 +905,7 @@ Don't panic.
    ...       'L10',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -924,7 +924,7 @@ Don't panic.
    ...       'L11',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -943,7 +943,7 @@ Don't panic.
    ...       'L12',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -962,7 +962,7 @@ Don't panic.
    ...       'L13',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -981,7 +981,7 @@ Don't panic.
    ...       'L14',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -1000,7 +1000,7 @@ Don't panic.
    ...       'L15',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -1019,7 +1019,7 @@ Don't panic.
    ...       'L16',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -1038,7 +1038,7 @@ Don't panic.
    ...       'L17',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -1057,7 +1057,7 @@ Don't panic.
    ...       'L18',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -1076,7 +1076,7 @@ Don't panic.
    ...       'L19',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -1095,7 +1095,7 @@ Don't panic.
    ...       'L20',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -1114,7 +1114,7 @@ Don't panic.
    ...       'L21',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -1133,7 +1133,7 @@ Don't panic.
    ...       'L22',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -1152,7 +1152,7 @@ Don't panic.
    ...       'L23',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -1171,7 +1171,7 @@ Don't panic.
    ...       'L24',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -1190,7 +1190,7 @@ Don't panic.
    ...       'L25',
    ...       _fn_QzNo7_))[-1])(),
    ...   # __main__.._macro_.defmacro
-   ...   # hissp.basic.._macro_.let
+   ...   # hissp.macros.._macro_.let
    ...   (lambda _fn_QzNo7_=(lambda *_expr_QzNo36_:
    ...     (lambda * _: _)(
    ...       'lambda',
@@ -1333,7 +1333,7 @@ We can create numbered X's the same way we created the numbered L's.
    #..                 (range 1 (add 1 number)))
    #..     ,expr))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda number,*expr:
    ...   (lambda * _: _)(
    ...     'lambda',
@@ -1393,7 +1393,7 @@ Let's make a slight tweak.
    #..                 (range 1 (add 1 (max-X expr))))
    #..     ,expr))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda *expr:
    ...   (lambda * _: _)(
    ...     'lambda',
@@ -1448,9 +1448,9 @@ Can we just iterate through the expression and check?
    ...               map(
    ...                 (lambda x:
    ...                   # QzBAR_QzBAR_
-   ...                   # hissp.basic.._macro_.let
+   ...                   # hissp.macros.._macro_.let
    ...                   (lambda _first_QzNo27_=# when
-   ...                   # hissp.basic.._macro_.ifQz_else
+   ...                   # hissp.macros.._macro_.ifQz_else
    ...                   (lambda test,*thenQz_else:
    ...                     __import__('operator').getitem(
    ...                       thenQz_else,
@@ -1461,14 +1461,14 @@ Can we just iterate through the expression and check?
    ...                       type(
    ...                         x)),
    ...                     (lambda :
-   ...                       # hissp.basic.._macro_.progn
+   ...                       # hissp.macros.._macro_.progn
    ...                       (lambda :
    ...                         # let
    ...                         (lambda match=__import__('re').fullmatch(
    ...                           ('X([1-9][0-9]*)'),
    ...                           x):
    ...                           # when
-   ...                           # hissp.basic.._macro_.ifQz_else
+   ...                           # hissp.macros.._macro_.ifQz_else
    ...                           (lambda test,*thenQz_else:
    ...                             __import__('operator').getitem(
    ...                               thenQz_else,
@@ -1476,14 +1476,14 @@ Can we just iterate through the expression and check?
    ...                                 test))())(
    ...                             match,
    ...                             (lambda :
-   ...                               # hissp.basic.._macro_.progn
+   ...                               # hissp.macros.._macro_.progn
    ...                               (lambda :
    ...                                 int(
    ...                                   match.group(
    ...                                     (1))))()),
    ...                             (lambda :())))())()),
    ...                     (lambda :())):
-   ...                     # hissp.basic.._macro_.ifQz_else
+   ...                     # hissp.macros.._macro_.ifQz_else
    ...                     (lambda test,*thenQz_else:
    ...                       __import__('operator').getitem(
    ...                         thenQz_else,
@@ -1492,7 +1492,7 @@ Can we just iterate through the expression and check?
    ...                       _first_QzNo27_,
    ...                       (lambda :_first_QzNo27_),
    ...                       (lambda :
-   ...                         # hissp.basic..QzMaybe_.QzBAR_QzBAR_
+   ...                         # hissp.macros..QzMaybe_.QzBAR_QzBAR_
    ...                         (0))))()),
    ...                 expr))))
 
@@ -1500,7 +1500,7 @@ Can we just iterate through the expression and check?
 Does that make sense?
 Read the definition carefully.
 You can experiment with macros you don't recognize in the REPL.
-All the basic macros,
+All the bundled macros,
 including the `|| <QzBAR_QzBAR_>`
 and `when` were covered in the `quick start <lissp_quickstart>`.
 We're using them to coalesce Python's awkward regex matches,
@@ -1560,7 +1560,7 @@ Lissp can do that with a class.
    #..              False)
    #..            self.accumulator))
    >>> # deftype
-   ... # hissp.basic.._macro_.define
+   ... # hissp.macros.._macro_.define
    ... __import__('builtins').globals().update(
    ...   Flattener=__import__('builtins').type(
    ...               'Flattener',
@@ -1597,7 +1597,7 @@ Lissp can do that with a class.
    ...                           self.accumulator)[-1]))))
 
 
-More basic macros here.
+More bundled macros here.
 Search Hissp's docs if you can't figure out what they do.
 
 ``Flatten`` is a good utility to have for macros that have to read code.
@@ -1635,9 +1635,9 @@ Now we can fix ``max-X``.
    ...               map(
    ...                 (lambda x:
    ...                   # QzBAR_QzBAR_
-   ...                   # hissp.basic.._macro_.let
+   ...                   # hissp.macros.._macro_.let
    ...                   (lambda _first_QzNo27_=# when
-   ...                   # hissp.basic.._macro_.ifQz_else
+   ...                   # hissp.macros.._macro_.ifQz_else
    ...                   (lambda test,*thenQz_else:
    ...                     __import__('operator').getitem(
    ...                       thenQz_else,
@@ -1648,14 +1648,14 @@ Now we can fix ``max-X``.
    ...                       type(
    ...                         x)),
    ...                     (lambda :
-   ...                       # hissp.basic.._macro_.progn
+   ...                       # hissp.macros.._macro_.progn
    ...                       (lambda :
    ...                         # let
    ...                         (lambda match=__import__('re').fullmatch(
    ...                           ('X([1-9][0-9]*)'),
    ...                           x):
    ...                           # when
-   ...                           # hissp.basic.._macro_.ifQz_else
+   ...                           # hissp.macros.._macro_.ifQz_else
    ...                           (lambda test,*thenQz_else:
    ...                             __import__('operator').getitem(
    ...                               thenQz_else,
@@ -1663,14 +1663,14 @@ Now we can fix ``max-X``.
    ...                                 test))())(
    ...                             match,
    ...                             (lambda :
-   ...                               # hissp.basic.._macro_.progn
+   ...                               # hissp.macros.._macro_.progn
    ...                               (lambda :
    ...                                 int(
    ...                                   match.group(
    ...                                     (1))))()),
    ...                             (lambda :())))())()),
    ...                     (lambda :())):
-   ...                     # hissp.basic.._macro_.ifQz_else
+   ...                     # hissp.macros.._macro_.ifQz_else
    ...                     (lambda test,*thenQz_else:
    ...                       __import__('operator').getitem(
    ...                         thenQz_else,
@@ -1679,7 +1679,7 @@ Now we can fix ``max-X``.
    ...                       _first_QzNo27_,
    ...                       (lambda :_first_QzNo27_),
    ...                       (lambda :
-   ...                         # hissp.basic..QzMaybe_.QzBAR_QzBAR_
+   ...                         # hissp.macros..QzMaybe_.QzBAR_QzBAR_
    ...                         (0))))()),
    ...                 flatten(
    ...                   expr)))))
@@ -1710,7 +1710,7 @@ Let's review. The code you need to make the version we have so far is
 
 .. code-block:: Lissp
 
-   (hissp.basic.._macro_.prelude)
+   (hissp.._macro_.prelude)
 
    (defmacro L (: :* expr)
      `(lambda ,(map (lambda (i)
@@ -1784,7 +1784,7 @@ you must define them in ``_macro_`` with a name ending in a ``#``.
    #> (defmacro X\# (expr)
    #..  `(L ,@expr))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda expr:
    ...   (lambda * _: _)(
    ...     '__main__.._macro_.L',
@@ -1880,7 +1880,7 @@ Catch-All Parameter
    #..                `(:* ,'Xi)))
    #..     ,expr))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda *expr:
    ...   (lambda * _: _)(
    ...     'lambda',
@@ -1897,7 +1897,7 @@ Catch-All Parameter
    ...                expr)))),
    ...       ':',
    ...       *# when
-   ...        # hissp.basic.._macro_.ifQz_else
+   ...        # hissp.macros.._macro_.ifQz_else
    ...        (lambda test,*thenQz_else:
    ...          __import__('operator').getitem(
    ...            thenQz_else,
@@ -1908,7 +1908,7 @@ Catch-All Parameter
    ...              expr),
    ...            'Xi'),
    ...          (lambda :
-   ...            # hissp.basic.._macro_.progn
+   ...            # hissp.macros.._macro_.progn
    ...            (lambda :
    ...              (lambda * _: _)(
    ...                ':*',
@@ -2017,7 +2017,7 @@ Here you go:
    #..           ,expr)
    #..        expr)))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda *expr:
    ...   (lambda * _: _)(
    ...     'lambda',
@@ -2031,10 +2031,10 @@ Here you go:
    ...            add(
    ...              (1),
    ...              # QzBAR_QzBAR_
-   ...              # hissp.basic.._macro_.let
+   ...              # hissp.macros.._macro_.let
    ...              (lambda _first_QzNo28_=maxQz_X(
    ...                expr):
-   ...                # hissp.basic.._macro_.ifQz_else
+   ...                # hissp.macros.._macro_.ifQz_else
    ...                (lambda test,*thenQz_else:
    ...                  __import__('operator').getitem(
    ...                    thenQz_else,
@@ -2043,14 +2043,14 @@ Here you go:
    ...                  _first_QzNo28_,
    ...                  (lambda :_first_QzNo28_),
    ...                  (lambda :
-   ...                    # hissp.basic..QzMaybe_.QzBAR_QzBAR_
+   ...                    # hissp.macros..QzMaybe_.QzBAR_QzBAR_
    ...                    contains(
    ...                      flatten(
    ...                        expr),
    ...                      'X'))))()))),
    ...       ':',
    ...       *# when
-   ...        # hissp.basic.._macro_.ifQz_else
+   ...        # hissp.macros.._macro_.ifQz_else
    ...        (lambda test,*thenQz_else:
    ...          __import__('operator').getitem(
    ...            thenQz_else,
@@ -2061,7 +2061,7 @@ Here you go:
    ...              expr),
    ...            'Xi'),
    ...          (lambda :
-   ...            # hissp.basic.._macro_.progn
+   ...            # hissp.macros.._macro_.progn
    ...            (lambda :
    ...              (lambda * _: _)(
    ...                ':*',
@@ -2335,7 +2335,7 @@ Lissp gives us a better option.
    #> (defmacro \16\# (x)
    #..  (int x 16))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda x:
    ...   int(
    ...     x,
@@ -2407,7 +2407,7 @@ New version.
    #> (defmacro \16\# (x)
    #..  (int (str x) 16))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda x:
    ...   int(
    ...     str(
@@ -2507,7 +2507,7 @@ because munging is (mostly) reversible.
    #..  (int (hissp.munger..demunge (str x))
    #..       16))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda x:(
    ...   ('hexadecimal'),
    ...   int(
@@ -2547,7 +2547,7 @@ Well, with reader macros, you can implement any base you want.
    #..  "seximal"
    #..  (int (str x) 6))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda x:(
    ...   ('seximal'),
    ...   int(
@@ -2594,7 +2594,7 @@ Or you can add floating-point. Python's notation can't do that.
    #..      (float.fromhex x)
    #..      (int x 16))))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda x:
    ...   # let
    ...   (lambda x=__import__('hissp.munger',fromlist='?').demunge(
@@ -2727,7 +2727,7 @@ We can improve this a lot with a custom defmacro.
    #> (defmacro \10\# (x)
    #..  `(decimal..Decimal ',(str x)))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda x:
    ...   (lambda * _: _)(
    ...     'decimal..Decimal',
@@ -2804,7 +2804,7 @@ but a string is not the only alternative available:
    #> (defmacro \10\# (x)
    #..  `(decimal..Decimal ',(getitem x (slice 1 None))))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda x:
    ...   (lambda * _: _)(
    ...     'decimal..Decimal',

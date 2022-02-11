@@ -2,18 +2,18 @@
    copyright 2019, 2021 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
-hissp.basic module
-==================
+hissp.macros module
+===================
 
-.. automodule:: hissp.basic
+.. automodule:: hissp.macros
    :members:
    :undoc-members:
    :show-inheritance:
 
-macros
-------
+_macro_
+-------
 
-.. automodule:: hissp.basic._macro_
+.. automodule:: hissp.macros._macro_
    :members:
    :private-members:
    :no-undoc-members:

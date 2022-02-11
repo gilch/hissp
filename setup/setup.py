@@ -9,9 +9,9 @@ with open("../README.md", encoding="utf8") as f:
 import sys
 
 sys.path.insert(0, "../src")
-import hissp.reader
+import hissp
 
-hissp.reader.transpile(hissp.__package__, "basic")
+hissp.transpile(hissp.__package__, "macros")
 
 setuptools.setup(
     name="hissp",
@@ -61,4 +61,4 @@ setuptools.setup(
     entry_points={"console_scripts": ["lissp=hissp.__main__:main"]},
 )
 # Build dist and install:
-# $ python setup.py sdist && pip install dist/hissp-*.tar.gz
+# python setup.py bdist_wheel && pip install --force-reinstall dist\hissp-*.whl
