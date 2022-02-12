@@ -306,3 +306,19 @@ def test_interact():
         f"! {EXIT_MSG}",
         "> #> ",
     )  # fmt: skip
+
+
+def test_interact_locals():
+    call_response(
+        "> #> ", "< (hissp..interact (dict : x 7))\n",
+        "! >>> __import__('hissp').interact(\n",
+        "! ...   dict(\n",
+        "! ...     x=(7)))\n",
+        f"! {BANNER}",
+        "> #> ", "< x\n",
+        "! >>> x\n",
+        "> 7\n",
+        "> #> ",  # EOF
+        f"! {EXIT_MSG}",
+        "> #> ",
+    )  # fmt: skip
