@@ -16,17 +16,13 @@ from hissp.compiler import readerless
 from hissp.munger import demunge
 from hissp.reader import transpile
 
-# The try allows the transpiler to be used on macros.lissp even when
-# macros.py doesn't exist yet.
-try:
+from contextlib import suppress
+
+# Hissp must be importable to compile macros.lissp in the first place.
+with suppress(ImportError):
     # noinspection PyUnresolvedReferences
     from hissp.macros import _macro_
-except ImportError:
-    from warnings import warn
-
-    warn("Failed to import macros. They may not have compiled.")
-
-__version__ = "0.4.dev"
+del suppress
 
 
 def interact(locals=None):
@@ -40,3 +36,6 @@ def interact(locals=None):
         frame = inspect.currentframe().f_back
         locals = {**frame.f_globals, **frame.f_locals}
     LisspREPL(locals=locals).interact()
+
+
+__version__ = "0.4.dev"
