@@ -12,7 +12,7 @@ def cmd(cmd, input=""):
 
 
 EXIT_MSG = "\nnow exiting LisspREPL...\n"
-BANNER_LEN = len(cmd("lissp")[1]) - len(EXIT_MSG)
+BANNER = cmd("lissp")[1][: -len(EXIT_MSG)]
 
 
 def test_c_args():
@@ -26,7 +26,7 @@ def test_ic_args():
         'lissp -i -c "(print sys..argv)(define answer 42)" 1 2 3', "answer\n"
     )
     assert out == "['-c', '1', '2', '3']\n#> 42\n#> "
-    assert err[BANNER_LEN:] == ">>> answer\n" + EXIT_MSG
+    assert err[len(BANNER) :] == ">>> answer\n" + EXIT_MSG
 
 
 def test_file_args():
@@ -47,7 +47,7 @@ __name__='__main__' __package__=None
 #> 42
 #> """
     assert out == expected
-    assert err[BANNER_LEN:] == ">>> answer\n" + EXIT_MSG
+    assert err[len(BANNER) :] == ">>> answer\n" + EXIT_MSG
 
 
 def test_repl_read_exception():
@@ -68,8 +68,12 @@ def test_ic_error():
 
 def repl(input, out: str = "#> " * 2, err: str = "", exitmsg=EXIT_MSG):
     actual_out, actual_err = cmd("lissp", dedent(input))
-    assert actual_out.split("\n") == dedent(out).split("\n")
-    assert actual_err[BANNER_LEN:].split("\n") == (dedent(err) + exitmsg).split("\n")
+    assert dict(
+        out=actual_out.split("\n"), err=actual_err[len(BANNER) :].split("\n")
+    ) == dict(
+        out=dedent(out).split("\n"),
+        err=(dedent(err) + exitmsg).split("\n"),
+    )
 
 
 def test_repl_prompt():
@@ -278,5 +282,27 @@ def test_compile_error():
         "! (>   >  > >>('lambda', ':x')<< <  <   <)\n",
         "! # Compiler.function() CompileError:\n",
         "! #  Incomplete pair.\n",
+        "> #> ",
+    )  # fmt: skip
+
+
+def test_interact():
+    call_response(
+        "> #> ", "< (.update (globals) : x 1  y 2)\n",
+        "! >>> globals().update(\n",
+        "! ...   x=(1),\n",
+        "! ...   y=(2))\n",
+        "> #> ", "< (let (x 42) (hissp..interact))\n",
+        "! >>> # let\n",
+        "! ... (lambda x=(42):__import__('hissp').interact())()\n",
+        f"! {BANNER}",
+        "> #> ", "< x\n",
+        "! >>> x\n",
+        "> 42\n",
+        "> #> ", "< y\n",
+        "! >>> y\n",
+        "> 2\n",
+        "> #> ",  # EOF
+        f"! {EXIT_MSG}",
         "> #> ",
     )  # fmt: skip
