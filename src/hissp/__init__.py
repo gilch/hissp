@@ -16,12 +16,15 @@ from hissp.compiler import readerless
 from hissp.munger import demunge
 from hissp.reader import transpile
 
+# The try allows the transpiler to be used on macros.lissp even when
+# macros.py doesn't exist yet.
 try:
+    # noinspection PyUnresolvedReferences
     from hissp.macros import _macro_
 except ImportError:
-    from sys import stderr as _e
+    from warnings import warn
 
-    print("Unable to import macros. Not compiled yet?", file=_e)
+    warn("Failed to import macros. They may not have compiled.")
 
 __version__ = "0.4.dev"
 
