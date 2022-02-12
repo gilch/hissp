@@ -113,7 +113,7 @@ which compiles Hissp (read from Lissp) to Python and passes that to the Python R
 Lissp can also be read from ``.lissp`` files,
 which compile to Python modules.
 
-Here's one definition from the basic macros:
+Here's one definition from the bundled macros:
 ```Lisp
 (defmacro attach (target : :* args)
   "Attaches the named variables as attributes of the target.
@@ -360,7 +360,7 @@ But it is definitely not meant to be idiomatic Python.
 That would require a much more complex compiler,
 because idiomatic Python is not simple.
 
-Hissp's basic macros are meant to be just enough to bootstrap native unit tests
+Hissp's bundled macros are meant to be just enough to bootstrap native unit tests
 and demonstrate the macro system.
 They may suffice for small embedded Hissp projects,
 but you will probably want a more comprehensive macro suite for general use.
@@ -412,7 +412,7 @@ Hissp helper functions to work.
 You do not need Hissp installed to run the final compiled Python output,
 only Python itself.
 
-Hissp includes some very basic Lisp macros to get you started.
+Hissp bundles some limited Lisp macros to get you started.
 Their expansions have no external requirements either.
 
 Libraries built on Hissp need not have this restriction.
@@ -444,7 +444,7 @@ by writing these tuples in Python.
 Batteries are not included because Python already has them.
 Hissp's standard library is Python's.
 There are only two special forms: ``quote`` and ``lambda``.
-Hissp does include a few basic macros and reader macros,
+Hissp does include a few bundled macros and reader macros,
 just enough to write native unit tests,
 but you are not obligated to use them when writing Hissp.
 

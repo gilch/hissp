@@ -519,7 +519,7 @@ Readerless style is similar:
 Alignment styles can be bent a little in the interest of readability,
 especially for macros, but even for calls,
 as long as the two absolute rules are respected.
-For example, the ``enstr`` function from the basic `prelude` builds a string from multiple arguments.
+For example, the ``enstr`` function from the bundled `prelude` builds a string from multiple arguments.
 Omitting spaces between atoms and having a variable number per line is acceptable,
 because the string's structure is more important for readability than the tuple's.
 
