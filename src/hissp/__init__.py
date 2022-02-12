@@ -30,8 +30,10 @@ def interact(locals=None):
     """Convenience function to start a LisspREPL.
     Uses the calling frame's locals if not provided."""
     from hissp.repl import LisspREPL
+
     if locals is None:
         import inspect
+
         frame = inspect.currentframe().f_back
         locals = {**frame.f_globals, **frame.f_locals}
     LisspREPL(locals=locals).interact()
