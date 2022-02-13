@@ -48,7 +48,7 @@ class TestCompileGeneral(TestCase):
 
     def test_maybe_macro_error(self):
         with self.assertRaises(compiler.CompileError):
-            compiler.readerless(("hissp.basic.._macro_.foobar",))
+            compiler.readerless(("hissp.macros.._macro_.foobar",))
 
     def test_post_compile_warn(self):
         c = compiler.Compiler("oops")

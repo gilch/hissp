@@ -9,7 +9,7 @@ from code import InteractiveConsole
 from contextlib import suppress
 from types import ModuleType, SimpleNamespace
 
-import hissp.basic
+import hissp.macros
 from hissp.compiler import CompileError
 from hissp.reader import Lissp, SoftSyntaxError
 
@@ -82,7 +82,7 @@ def main(__main__=None):
     if not __main__:
         __main__ = force_main()
     repl = LisspREPL(locals=__main__.__dict__)
-    repl.locals["_macro_"] = SimpleNamespace(**vars(hissp.basic._macro_))
+    repl.locals["_macro_"] = SimpleNamespace(**vars(hissp.macros._macro_))
     repl.interact()
 
 

@@ -31,7 +31,7 @@ def main():
 def _cmd(args, ns):
     sys.argv = ["-c"]
     sys.argv.extend([args.file, *args.args])
-    args.i("(hissp.basic.._macro_.prelude)\n" + args.c, ns)
+    args.i("(hissp.._macro_.prelude)\n" + args.c, ns)
 
 
 def _with_args(args, ns):

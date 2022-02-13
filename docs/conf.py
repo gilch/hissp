@@ -23,7 +23,7 @@ sys.path.append(os.path.abspath("."))
 # Compile lissp modules so autodoc can find them.
 from hissp.reader import transpile
 
-transpile("hissp", "basic")
+transpile("hissp", "macros")
 
 # -- Project information -----------------------------------------------------
 

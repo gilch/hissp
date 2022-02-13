@@ -1,14 +1,14 @@
 .. Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
-.. Hidden doctest requires basic macros for REPL-consistent behavior.
-   #> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.basic.._macro_)))
+.. Hidden doctest adds bundled macros for REPL-consistent behavior.
+   #> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
    >>> __import__('operator').setitem(
    ...   globals(),
    ...   '_macro_',
    ...   __import__('types').SimpleNamespace(
    ...     **vars(
-   ...         __import__('hissp.basic',fromlist='?')._macro_)))
+   ...         __import__('hissp')._macro_)))
 
 .. TODO: Sphinx update messed up my sidebars! Is there a better fix?
 .. raw:: html
@@ -243,11 +243,11 @@ Hissp is a modular system.
 Hissp's output is *guaranteed* to have no dependencies you don't introduce yourself.
 That means Hissp's standard library *is Python's*.
 All I can add to it without breaking that rule
-are some basic macros that have no dependencies in their expansions,
+are some restricted macros that have no dependencies in their expansions,
 which is arguably not the right way to write macros.
 So I really don't want that collection to get bloated.
-But I needed a minimal set to test and demonstrate Hissp.
-A larger application with better alternatives need not use the basic macros at all.
+But I needed a useable set to test and demonstrate Hissp.
+A larger application with better alternatives need not use the bundled macros at all.
 
 If you don't like Python's version,
 then add a dependency to something else.
@@ -353,7 +353,7 @@ And you can invoke bytes constructors at read time.
    >>> b'bytes'
    b'bytes'
 
-And, if you have the basic macros loaded,
+And, if you have the bundled macros loaded,
 you can use the `b# <bQzHASH_>` reader macro.
 
 .. code-block:: REPL
@@ -479,7 +479,7 @@ and pass all arguments quoted.
 
 .. code-block:: Lissp
 
-   ((getattr hissp.basic.._macro_ 'define) 'foo '"bar")
+   ((getattr hissp.._macro_ 'define) 'foo '"bar")
 
 One could, of course, write a function or macro to automate this.
 
@@ -490,7 +490,7 @@ also works on callable attributes in any kind of namespace.
 
 .. code-block:: Lissp
 
-   (.define hissp.basic.._macro_ : :* '(foo "bar"))
+   (.define hissp.._macro_ : :* '(foo "bar"))
 
 You'll find that you often don't bother macroexpanding
 because you can instead look at the compiled Python output,
@@ -580,7 +580,7 @@ acts like ``break`` in `any()<any>`. Obviously, you can use this to your
 advantage if you *want* a break, which seems to happen pretty often when
 writing imperative loops.
 
-If you like, there's a `hissp.basic.._macro_.any-for<anyQz_for>` that basically does this.
+If you like, there's a `hissp.._macro_.any-for<anyQz_for>` that basically does this.
 
 See also `itertools`, `iter`.
 
@@ -597,7 +597,7 @@ Isn't looping zero or one times like skipping a branch or not?
 Note that ``False`` and ``True`` are special cases of ``0`` and ``1`` in Python.
 ``range(False)`` would loop zero times, but ``range(True)`` loops one time.
 
-See also `hissp.basic._macro_.when`.
+See also `hissp.macros._macro_.when`.
 
 What about if/else ternary expressions?
 ---------------------------------------
@@ -611,7 +611,7 @@ What about if/else ternary expressions?
    )
 
 Look up a thunk and run it.
-There's a `hissp.basic.._macro_.if-else<ifQz_else>` that basically expands to this.
+There's a `hissp.._macro_.if-else<ifQz_else>` that basically expands to this.
 I know it's a special form in other Lisps (or ``cond`` is),
 but Hissp doesn't need it.
 Smalltalk pretty much does it this way.
@@ -634,15 +634,15 @@ parentheses.
    #> (defmacro if! (test then otherwise)
    #..  "Compiles to if/else ternary conditional expression."
    #..  (.format #"(({})\n if ({})\n else ({}))"
-   #..           : :* (map hissp.compiler..readerless
+   #..           : :* (map hissp..readerless
    #..                     `(,then ,test ,otherwise))))
    >>> # defmacro
-   ... # hissp.basic.._macro_.let
+   ... # hissp.macros.._macro_.let
    ... (lambda _fn_QzNo7_=(lambda test,then,otherwise:(
    ...   ('Compiles to if/else ternary conditional expression.'),
    ...   ('(({})\n if ({})\n else ({}))').format(
    ...     *map(
-   ...        __import__('hissp.compiler',fromlist='?').readerless,
+   ...        __import__('hissp').readerless,
    ...        (lambda * _: _)(
    ...          then,
    ...          test,
@@ -792,7 +792,7 @@ A Python star parameter will similarly pack any number of arguments into a tuple
    (1, 2, 'foo')
 
 Notice that this is how templates work in the first place.
-The basic `prelude` defines this function for you,
+The bundled `prelude` defines this function for you,
 along with some others.
 
 If you really can't have dependencies and nested templates are too confusing,
@@ -814,7 +814,7 @@ That's not a question.
 For any complaint of the form "Hissp doesn't have feature X", the answer
 is usually "Write a macro to implement X."
 
-Use the `hissp.basic.._macro_.define<define>` and `hissp.basic.._macro_.let<let>`
+Use the `hissp.._macro_.define<define>` and `hissp.._macro_.let<let>`
 macros for globals and locals, respectively. Look at their expansions
 and you'll see they don't use assignment statements either.
 
@@ -888,7 +888,7 @@ Python's already got you covered,
 no classes necessary.
 
 As always, you can write a function or macro to reduce boilerplate.
-There's actually a `hissp.basic.._macro_.deftype<deftype>` macro for making a
+There's actually a `hissp.._macro_.deftype<deftype>` macro for making a
 top-level type.
 
 I've got some weird metaclass magic from a library. ``type()`` isn't working!
@@ -1009,8 +1009,8 @@ Like this
 
 .. Lissp::
 
-   #> (hissp.basic.._macro_.prelude)
-   >>> # hissp.basic.._macro_.prelude
+   #> (hissp.._macro_.prelude)
+   >>> # hissp.._macro_.prelude
    ... __import__('builtins').exec(
    ...   ('from functools import partial,reduce\n'
    ...    'from itertools import *;from operator import *\n'
@@ -1024,7 +1024,7 @@ Like this
    ...    ' try:return f(*a,**kw)\n'
    ...    ' except xs as e:return h(e)\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
-   ...    "try:exec('from hissp.basic._macro_ import *',vars(_macro_))\n"
+   ...    "try:exec('from hissp.macros._macro_ import *',vars(_macro_))\n"
    ...    'except ModuleNotFoundError:pass'),
    ...   __import__('builtins').globals())
 
@@ -1039,7 +1039,7 @@ Like this
    #..               (self.handler exception)
    #..               True)))
    >>> # deftype
-   ... # hissp.basic.._macro_.define
+   ... # hissp.macros.._macro_.define
    ... __import__('builtins').globals().update(
    ...   Except=__import__('builtins').type(
    ...            'Except',
@@ -1048,7 +1048,7 @@ Like this
    ...            __import__('builtins').dict(
    ...              __init__=(lambda self,catch,handler:(
    ...                         # attach
-   ...                         # hissp.basic.._macro_.let
+   ...                         # hissp.macros.._macro_.let
    ...                         (lambda _target_QzNo15_=self:(
    ...                           __import__('builtins').setattr(
    ...                             _target_QzNo15_,
@@ -1063,7 +1063,7 @@ Like this
    ...              __enter__=(lambda self:()),
    ...              __exit__=(lambda self,exc_type,exception,traceback:
    ...                         # when
-   ...                         # hissp.basic.._macro_.ifQz_else
+   ...                         # hissp.macros.._macro_.ifQz_else
    ...                         (lambda test,*thenQz_else:
    ...                           __import__('operator').getitem(
    ...                             thenQz_else,
@@ -1073,7 +1073,7 @@ Like this
    ...                             exception,
    ...                             self.catch),
    ...                           (lambda :
-   ...                             # hissp.basic.._macro_.progn
+   ...                             # hissp.macros.._macro_.progn
    ...                             (lambda :(
    ...                               self.handler(
    ...                                 exception),
@@ -1093,8 +1093,8 @@ Like this
    >>> # define
    ... __import__('builtins').globals().update(
    ...   bad_idea=# Qz_QzGT_
-   ...            # hissp.basic..QzMaybe_.Qz_QzGT_
-   ...            # hissp.basic..QzMaybe_.Qz_QzGT_
+   ...            # hissp.macros..QzMaybe_.Qz_QzGT_
+   ...            # hissp.macros..QzMaybe_.Qz_QzGT_
    ...            Except(
    ...              (lambda * _: _)(
    ...                TypeError,
@@ -1167,7 +1167,7 @@ on module import. Something like,
 Once on import is honestly not bad. Even the standard library does it,
 like for `named tuples <collections.namedtuple>`.
 
-The basic `prelude` actually defines very minimal exception catcher called ``engarde``.
+The bundled `prelude` actually defines very minimal exception catcher called ``engarde``.
 
 But at this point,
 unless you really want a single-file script with no dependencies,
@@ -1344,7 +1344,7 @@ You can likewise assign the module to a global, like any other value:
    (define np numpy.)
    (define pd pandas.)
 
-See also `hissp.basic._macro_.alias`.
+See also `hissp.macros._macro_.alias`.
 
 But I want a relative import or a star import.
 ----------------------------------------------
@@ -1362,26 +1362,26 @@ How do I import a macro?
 
 The same way you import anything else: with a qualified identifier.
 In Lissp, you can use a reader macro to abbreviate qualifiers.
-`hissp.basic.._macro_.alias<hissp.basic._macro_.alias>` can define these for you.
+`hissp.._macro_.alias<hissp.macros._macro_.alias>` can define these for you.
 
 Any callable in the current module's ``_macro_`` namespace will work unqualified.
-Normally you create these with `hissp.basic.._macro_.defmacro<defmacro>`,
+Normally you create these with `hissp.._macro_.defmacro<defmacro>`,
 but the compiler doesn't care how they get there.
 
 Importing the ``_macro_`` namespace from another module will work,
-but then uses of `hissp.basic.._macro_.defmacro<defmacro>` will mutate
+but then uses of `hissp.._macro_.defmacro<defmacro>` will mutate
 another module's ``_macro_`` namespace, which is probably not what you want,
 so make a copy, or make a new one and insert individual macros into it.
 
-The basic macros have no dependencies on the Hissp package in their expansions,
+The bundled macros have no dependencies on the Hissp package in their expansions,
 which allows you to use their compiled output on another Python that doesn't have Hissp installed.
 However, if you import a ``_macro_`` at run time,
 you're creating a run-time dependency on whatever module you import it from.
 
-The `hissp.basic.._macro_.prelude<prelude>` macro will clone the basic macro namespace
+The `hissp.._macro_.prelude<prelude>` macro will clone the bundled macro namespace
 only if available. It avoids creating a run-time dependency this way.
 
-`hissp.basic.._macro_.prelude<prelude>` is a convenience for short scripts,
+`hissp.._macro_.prelude<prelude>` is a convenience for short scripts,
 especially those used as the main module.
 Larger projects should probably be more explicit in their imports,
 and may need a more complete macro library anyway.
@@ -1396,7 +1396,7 @@ tl;dr
 Make a function that accepts the syntax you want as parameters and
 returns its transformation as Hissp code (the template reader syntax
 makes this easy). Put it in the ``_macro_`` namespace. There's a nice
-`hissp.basic.._macro_.defmacro<defmacro>` to do this for you. It will even
+`hissp.._macro_.defmacro<defmacro>` to do this for you. It will even
 create the namespace if it doesn't exist yet.
 
 Some tips:
@@ -1424,7 +1424,7 @@ returns its transformation as Hissp code.
 You can use it directly as a qualified reader macro.
 Or add it to the ``_macro_`` namespace with a name ending in ``#`` to use it unqualified.
 
-Remember `hissp.basic.._macro_.defmacro<defmacro>` can do this for you.
+Remember `hissp.._macro_.defmacro<defmacro>` can do this for you.
 Don't forget to escape the ``#`` in the macro name.
 
 Why the weird prompts at the REPL?
@@ -1695,7 +1695,7 @@ although maybe some things could be nicer.
 Hissp is still unproven in any major project, so who knows?
 The only way it will get proven is if some early adopter like you tries it out and lets me know how it goes.
 
-While Hissp's basic macros may suffice for small or embedded Hissp projects,
+While Hissp's bundled macros may suffice for small or embedded Hissp projects,
 you'll probably want more than that for a larger application.
 Functional and data structure–manipulation libraries are especially useful.
 Hissp doesn't exactly have a standard library,
@@ -1726,7 +1726,7 @@ The core Hissp language itself seems pretty settled,
 but the implementation may change as the bugs are ironed out.
 It was stable enough to prototype Hebigo_.
 
-There's probably no need to ever change the basic language,
+There's probably no need to ever change the fundamental language,
 except perhaps to keep up with Python,
 since the macro system makes it so flexible.
 But if I discover that deeper changes are required to meet Hissp's goals as stated in the README,

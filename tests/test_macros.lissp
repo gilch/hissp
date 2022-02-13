@@ -2,7 +2,7 @@
 ;; Copyright 2019, 2020 Matthew Egan Odendahl
 ;; SPDX-License-Identifier: Apache-2.0
 
-(hissp.basic.._macro_.alias * hissp.basic.._macro_)
+(hissp.._macro_.alias * hissp.._macro_)
 
 (*#define enlist
   (lambda (: :* a) (list a)))
@@ -16,7 +16,7 @@
 
 (*#defmacro nil () None)
 
-(*#deftype TestBasic (unittest..TestCase)
+(*#deftype TestMacros (unittest..TestCase)
   test_same_gensym
   (lambda (self)
     (self.assertEqual : :* `($#test $#test)))
@@ -24,7 +24,7 @@
   test_qualified_symbol
   (lambda (self)
     (self.assertEqual (tqs)
-                      ['tests.test_basic..enlist']))
+                      ['tests.test_macros..enlist']))
 
   test_none_doc
   (lambda (self)
@@ -33,7 +33,7 @@
   test_qualified_symbol2
   (lambda (self)
     (self.assertEqual (tqs2)
-                      ['tests.test_basic..enlist']))
+                      ['tests.test_macros..enlist']))
 
   test_doc
   (lambda (self)

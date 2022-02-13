@@ -1,25 +1,25 @@
 ;; Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
 ;; SPDX-License-Identifier: Apache-2.0
-"Hissp's basic macros.
+"Hissp's bundled macros.
 
-The basic macros are just enough to test and demonstrate Hissp's macro
+The bundled macros are just enough to test and demonstrate Hissp's macro
 system; they are not intended to be a standard library for general use,
 but may suffice for small projects.
 
 As a convenience, they are automatically made available unqualified in
 the Lissp REPL, but this does not apply to modules. (A Hissp module with
-better alternatives need not use the basic macros at all.) In modules,
+better alternatives need not use the bundled macros at all.) In modules,
 either use the fully-qualified names, or start with the `prelude` macro.
 
 You can abbreviate qualifiers with the `alias` macro:
 
 .. code-block:: Lissp
 
-  (hissp.basic.._macro_.alias b/ hissp.basic.._macro_.)
-  ;; Now the same as (hissp.basic.._macro_.define foo 2).
+  (hissp.macros.._macro_.alias b/ hissp.macros.._macro_.)
+  ;; Now the same as (hissp.macros.._macro_.define foo 2).
   (b/#define foo 2)
 
-The basic macros are deliberately restricted in design.
+The bundled macros are deliberately restricted in design.
 
 They have NO DEPENDENCIES in their expansions; they use only the
 standard library with no extra helper functions. This means that all
@@ -40,7 +40,7 @@ with advanced rewriting macros that process the Hissp expansions of
 other macros.
 
 To help keep macro definitions and expansions manageable in complexity,
-these basic macros lack some of the extra features their equivalents
+these macros lack some of the extra features their equivalents
 have in Python or in other Lisps.
 "
 
@@ -344,7 +344,7 @@ zrqvgngr ba guvf.
 
 ;; see also from bootstrap: progn
 
-;; Note that any of the basic macros with a lambda "body" argument
+;; Note that any of the bundled macros with a lambda "body" argument
 ;; also sequence expressions for side effects.
 
 ;;; reader
@@ -436,19 +436,19 @@ zrqvgngr ba guvf.
   and ``engarde``, which calls a function for you, handling any targeted
   exception with the given handler.
 
-  Adds the basic macros, but only if available,
+  Adds the bundled macros, but only if available,
   so its expansion does not require Hissp to be installed.
   (This replaces ``_macro_`` if you already had one.)
 
   Mainly intended for single-file scripts that can't have dependencies,
   or similarly constrained environments (e.g. embedded, readerless).
-  There, the first form should be ``(hissp.basic.._macro_.prelude)``,
+  There, the first form should be ``(hissp.._macro_.prelude)``,
   which is also implied in ``$ lissp -c`` commands.
 
   Larger projects with access to functional and macro libraries need not
   use this prelude at all.
 
-  The REPL has the basic macros loaded by default, but not the prelude.
+  The REPL has the bundled macros loaded by default, but not the prelude.
   Invoke ``(prelude)`` to get the rest.
   "
   `(exec ',(.format #"\
@@ -475,8 +475,8 @@ except ModuleNotFoundError:pass"
 
   .. code-block:: Lissp
 
-     (hissp.basic.._macro_.alias M/ hissp.basic.._macro_)
-     ;; Now the same as (hissp.basic.._macro_.alias op sub.).
+     (hissp.macros.._macro_.alias M/ hissp.macros.._macro_)
+     ;; Now the same as (hissp.macros.._macro_.alias op sub.).
      (M/#alias op operator.)
      ;; Use an extra to name a reader macro.
      M/#!b\"byte string\"
