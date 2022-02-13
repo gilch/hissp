@@ -427,6 +427,11 @@ zrqvgngr ba guvf.
 ;;; collection
 
 (defmacro @ (: :* xs)
+  "``@`` 'list of'
+
+  ``:*`` unpacks the next argument.
+  Mnemonic: @rray list.
+  "
   (let (ixs (iter xs))
     `(en#list : ,@(itertools..chain.from_iterable
                     (map (lambda x (if-else (operator..eq x ":*")
@@ -435,6 +440,11 @@ zrqvgngr ba guvf.
                          ixs)))))
 
 (defmacro # (: :* xs)
+  "``#`` 'set of'
+
+  ``:*`` unpacks the next argument.
+  Mnemonic: Hash set.
+  "
   (let (ixs (iter xs))
     `(en#set : ,@(itertools..chain.from_iterable
                    (map (lambda x (if-else (operator..eq x ":*")
@@ -443,22 +453,34 @@ zrqvgngr ba guvf.
                         ixs)))))
 
 (defmacro % (: :* kvs)
-  (let (ivs (iter kvs))
+  "``%`` 'dict of'.
+
+  Key-value pairs are implied.
+  ``:*`` unpacks iterables, as if spliced.
+  ``:**`` unpacks mappings.
+  Control words are not magic in the value position.
+  Mnemonic: dict of pairs (%).
+  "
+  (when (operator..mod (len kvs) 2)
+    (exec "raise TypeError('extra key without value')"))
+  (let (ikvs (iter kvs))
     `(en#dict
-      : ,@(itertools..chain.from_iterable
-            (map (lambda k
-                   (cond (operator..eq k ":*")
-                         `(:* (let ($#v (iter ,(next ivs)))
-                                (map (lambda ($#k)
-                                       `(,$#k ,(next $#v)))
-                                     $#v)))
+      : ,@(itertools..chain
+            : :* (map (lambda kv
+                        (cond (operator..eq k ":*")
+                              `(:* (let ($#ikvs (iter ,v))
+                                     (map (lambda ($#k $#v)
+                                            `(,$#k ,$#v))
+                                          $#ikvs
+                                          $#ikvs)))
 
-                         (operator..eq k ":**")
-                         `(:* (.items ,(next ivs)))
+                              (operator..eq k ":**")
+                              `(:* (.items ,v))
 
-                         :else
-                         `(:? `(,,k ,,(next ivs)))))
-                 ivs)))))
+                              :else
+                              `(:? `(,,k ,,v))))
+                      ikvs
+                      ikvs)))))
 ;;; import
 
 (defmacro prelude (: ns `(globals))

@@ -1732,18 +1732,18 @@ Lissp Quick Start
    ...   __import__('builtins').dict(
    ...     _xs_QzNo34_))(
    ...   *# hissp.macros.._macro_.let
-   ...    (lambda _v_QzNo42_=__import__('builtins').iter(
+   ...    (lambda _ikvs_QzNo42_=__import__('builtins').iter(
    ...      ((1),
    ...       (2),
    ...       (3),
    ...       (4),)):
    ...      __import__('builtins').map(
-   ...        (lambda _k_QzNo42_:
+   ...        (lambda _k_QzNo42_,_v_QzNo42_:
    ...          (lambda * _: _)(
    ...            _k_QzNo42_,
-   ...            __import__('builtins').next(
-   ...              _v_QzNo42_))),
-   ...        _v_QzNo42_))(),
+   ...            _v_QzNo42_)),
+   ...        _ikvs_QzNo42_,
+   ...        _ikvs_QzNo42_))(),
    ...   *dict(
    ...      x=(2)).items())
    {1: 2, 3: 4, 'x': 2}
