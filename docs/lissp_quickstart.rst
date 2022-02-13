@@ -48,9 +48,11 @@ Lissp Quick Start
 
    ;;;; Installation
 
-   ;; These docs are for version 0.3.0
-   ;; Install the matching Hissp version with
-   ;; $ pip install hissp==0.3.0
+   ;; These docs are for the latest development version of Hissp.
+   ;; Most examples are tested automatically, but details may be dated.
+   ;; Report issues or try the current release version instead.
+   ;; Install the latest Hissp version with
+   ;; $ pip install git+https://github.com/gilch/hissp
    ;; Start the REPL with
    ;; $ lissp
    ;; You can quit with EOF or (exit).
