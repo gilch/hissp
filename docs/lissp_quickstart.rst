@@ -236,6 +236,46 @@ Lissp Quick Start
    ('print', 1, 2, 3)
 
 
+   ;; Data tuples and calls are enough to make simple collections.
+
+   #> '(1 2 3)                            ;tuple
+   >>> ((1),
+   ...  (2),
+   ...  (3),)
+   (1, 2, 3)
+
+   #> (list '(1 2 3))
+   >>> list(
+   ...   ((1),
+   ...    (2),
+   ...    (3),))
+   [1, 2, 3]
+
+   #> (set '(1 2 3))
+   >>> set(
+   ...   ((1),
+   ...    (2),
+   ...    (3),))
+   {1, 2, 3}
+
+   #> (dict '((1 2) (3 4)))               ;Uses nested tuples.
+   >>> dict(
+   ...   (((1),
+   ...     (2),),
+   ...    ((3),
+   ...     (4),),))
+   {1: 2, 3: 4}
+
+   #> (bytes '(98 121 116 101 115))
+   >>> bytes(
+   ...   ((98),
+   ...    (121),
+   ...    (116),
+   ...    (101),
+   ...    (115),))
+   b'bytes'
+
+
    ;;;; String Atoms
 
    #> :control-word                       ;Colon prefix. Similar to Lisp ":keywords".
@@ -304,7 +344,7 @@ Lissp Quick Start
    >>> None
 
 
-   ;;; String literals
+   ;;; String Literals
 
    #> "raw string"
    >>> ('raw string')
@@ -960,6 +1000,44 @@ Lissp Quick Start
    '_spam_QzNo10_'
 
 
+   ;; You can use templates to make collections with interpolated values.
+   ;; When your intent is to create data rather than code, unquote
+   ;; each element.
+
+   #> (list `(,@"abc"
+   #..        ,1
+   #..        ,(+ 1 1)
+   #..        ,(+ 1 2)))
+   >>> list(
+   ...   (lambda * _: _)(
+   ...     *('abc'),
+   ...     (1),
+   ...     QzPLUS_(
+   ...       (1),
+   ...       (1)),
+   ...     QzPLUS_(
+   ...       (1),
+   ...       (2))))
+   ['a', 'b', 'c', 1, 2, 3]
+
+
+   #> `(0 "a" 'b)                         ;Beware of strings and symbols.
+   >>> (lambda * _: _)(
+   ...   (0),
+   ...   "('a')",
+   ...   (lambda * _: _)(
+   ...     'quote',
+   ...     '__main__..b'))
+   (0, "('a')", ('quote', '__main__..b'))
+
+   #> `(,0 ,"a" ,'b)                      ;Just unquote everything in data templates.
+   >>> (lambda * _: _)(
+   ...   (0),
+   ...   ('a'),
+   ...   'b')
+   (0, 'a', 'b')
+
+
    ;;;; Compiler Macros
 
    ;; We can use functions to to create forms for evaluation.
@@ -1549,6 +1627,128 @@ Lissp Quick Start
    ;; convenience, hissp._macro_ is a reference to hissp.macros._macro_,
    ;; making all the bundled macros available qualified with hissp.._macro_.
 
+   ;;; Collections
+
+   #> (@ 1 2 3)                           ;list
+   >>> # QzAT_
+   ... (lambda *_xs_QzNo34_:
+   ...   __import__('builtins').list(
+   ...     _xs_QzNo34_))(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   [1, 2, 3]
+
+   #> (# 1 2 3)                           ;set
+   >>> # QzHASH_
+   ... (lambda *_xs_QzNo34_:
+   ...   __import__('builtins').set(
+   ...     _xs_QzNo34_))(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   {1, 2, 3}
+
+   #> (% 1 2  3 4  5 6)                   ;dict (alternates key, value)
+   >>> # QzPCENT_
+   ... (lambda *_xs_QzNo34_:
+   ...   __import__('builtins').dict(
+   ...     _xs_QzNo34_))(
+   ...   (lambda * _: _)(
+   ...     (1),
+   ...     (2)),
+   ...   (lambda * _: _)(
+   ...     (3),
+   ...     (4)),
+   ...   (lambda * _: _)(
+   ...     (5),
+   ...     (6)))
+   {1: 2, 3: 4, 5: 6}
+
+
+   ;; We can make tuples at the reader level already.
+   #> '(1 2 3)                            ;data tuple (recursively quoted)
+   >>> ((1),
+   ...  (2),
+   ...  (3),)
+   (1, 2, 3)
+
+   #> `(,1 ,2 ,3)                         ;data tuple (via template)
+   >>> (lambda * _: _)(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   (1, 2, 3)
+
+
+   ;; Collection macro mnemonics:
+   ;; Array list() (@rray)
+   ;; Hash set() (#set)
+   ;; and dict() of key-value pairs (%).
+
+   #> (@ (ord "*") :* "abc" 42 :* '(2 3)) ;List, with unpacking.
+   >>> # QzAT_
+   ... (lambda *_xs_QzNo34_:
+   ...   __import__('builtins').list(
+   ...     _xs_QzNo34_))(
+   ...   ord(
+   ...     ('*')),
+   ...   *('abc'),
+   ...   (42),
+   ...   *((2),
+   ...     (3),))
+   [42, 'a', 'b', 'c', 42, 2, 3]
+
+   #> `(,(ord "*") ,@"abc" ,42 ,@'(2 3))  ;Tuple, with unpacking (via splice).
+   >>> (lambda * _: _)(
+   ...   ord(
+   ...     ('*')),
+   ...   *('abc'),
+   ...   (42),
+   ...   *((2),
+   ...     (3),))
+   (42, 'a', 'b', 'c', 42, 2, 3)
+
+   #> (# 1 :* (@ 1 2 3) 4)                ;Set, with unpacking.
+   >>> # QzHASH_
+   ... (lambda *_xs_QzNo34_:
+   ...   __import__('builtins').set(
+   ...     _xs_QzNo34_))(
+   ...   (1),
+   ...   *# QzAT_
+   ...    (lambda *_xs_QzNo34_:
+   ...      __import__('builtins').list(
+   ...        _xs_QzNo34_))(
+   ...      (1),
+   ...      (2),
+   ...      (3)),
+   ...   (4))
+   {1, 2, 3, 4}
+
+
+   #> (% :* '(1 2 3 4) :** (dict : x 2))  ;Two kinds of unpacking in %.
+   >>> # QzPCENT_
+   ... (lambda *_xs_QzNo34_:
+   ...   __import__('builtins').dict(
+   ...     _xs_QzNo34_))(
+   ...   *# hissp.macros.._macro_.let
+   ...    (lambda _v_QzNo42_=__import__('builtins').iter(
+   ...      ((1),
+   ...       (2),
+   ...       (3),
+   ...       (4),)):
+   ...      __import__('builtins').map(
+   ...        (lambda _k_QzNo42_:
+   ...          (lambda * _: _)(
+   ...            _k_QzNo42_,
+   ...            __import__('builtins').next(
+   ...              _v_QzNo42_))),
+   ...        _v_QzNo42_))(),
+   ...   *dict(
+   ...      x=(2)).items())
+   {1: 2, 3: 4, 'x': 2}
+
+
    ;;; Side Effect
 
    #> (print (prog1 0                     ;Sequence for side effects, eval to first.
@@ -1771,8 +1971,8 @@ Lissp Quick Start
    ;;; The Prelude
 
    ;; An inline convenience micro-prelude for Hissp.
-   ;; Imports partial and reduce; star imports from operator and
-   ;; itertools; defines the en- group utilities; and imports a copy of
+   ;; Imports partial and reduce, star imports from operator and
+   ;; itertools, defines engarde, and imports a copy of
    ;; hissp.macros.._macro_ (if available). Usually the first form in a file,
    ;; because it overwrites _macro_, but completely optional.
    ;; Implied for $ lissp -c commands.
@@ -1781,12 +1981,6 @@ Lissp Quick Start
    ... __import__('builtins').exec(
    ...   ('from functools import partial,reduce\n'
    ...    'from itertools import *;from operator import *\n'
-   ...    'def entuple(*xs):return xs\n'
-   ...    'def enlist(*xs):return[*xs]\n'
-   ...    'def enset(*xs):return{*xs}\n'
-   ...    "def enfrost(*xs):return __import__('builtins').frozenset(xs)\n"
-   ...    'def endict(*kvs):return{k:i.__next__()for i in[kvs.__iter__()]for k in i}\n'
-   ...    "def enstr(*xs):return''.join(''.__class__(x)for x in xs)\n"
    ...    'def engarde(xs,h,f,/,*a,**kw):\n'
    ...    ' try:return f(*a,**kw)\n'
    ...    ' except xs as e:return h(e)\n'
@@ -1976,87 +2170,14 @@ Lissp Quick Start
    5040
 
 
-   ;;;; The En- Group
+   ;;;; Exception handling
 
-   ;; These are small utility functions defined by the prelude.
-   ;; Most of them put their arguments into a collection, hence the en-.
-   #> (entuple 1 2 3)
-   >>> entuple(
-   ...   (1),
-   ...   (2),
-   ...   (3))
-   (1, 2, 3)
-
-   #> (enlist 1 2 3)
-   >>> enlist(
-   ...   (1),
-   ...   (2),
-   ...   (3))
-   [1, 2, 3]
-
-   #> (enset 1 2 3)
-   >>> enset(
-   ...   (1),
-   ...   (2),
-   ...   (3))
-   {1, 2, 3}
-
-
-   ;; From [en]- [fro]zen [s]e[t], because "enfrozenset" is too long.
-   #> (enfrost 1 2 3)
-   >>> enfrost(
-   ...   (1),
-   ...   (2),
-   ...   (3))
-   frozenset({1, 2, 3})
-
-
-   ;; Unlike (dict) with kwargs, keys need not be identifiers.
-   #> (endict 1 2  3 4)                   ;Note the implied pairs.
-   >>> endict(
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   (4))
-   {1: 2, 3: 4}
-
-
-   ;; The need for endict is apparent, considering alternatives.
-   #> (dict (enlist (entuple 1 2) (entuple 3 4)))
-   >>> dict(
-   ...   enlist(
-   ...     entuple(
-   ...       (1),
-   ...       (2)),
-   ...     entuple(
-   ...       (3),
-   ...       (4))))
-   {1: 2, 3: 4}
-
-
-   ;; Converts to str and joins. Usually .format is good enough, but
-   ;; sometimes you need interpolations inline, like f-strings. Don't forget
-   ;; the format builtin can apply formatting specs.
-   #> (enstr "<p>"(format 40 ".2f")" + "(add 1 1)"</p>")
-   >>> enstr(
-   ...   ('<p>'),
-   ...   format(
-   ...     (40),
-   ...     ('.2f')),
-   ...   (' + '),
-   ...   add(
-   ...     (1),
-   ...     (1)),
-   ...   ('</p>'))
-   '<p>40.00 + 2</p>'
-
-
-   ;; OK, so this one's not a collection. Guards against the targeted exception classes.
-   #> (engarde (entuple FloatingPointError ZeroDivisionError)          ;two targets
+   ;; Defined by the prelude. Guards against the targeted exception classes.
+   #> (engarde `(,FloatingPointError ,ZeroDivisionError)               ;two targets
    #..         (lambda e (print "Oops!") e)                            ;handler (returns exception)
    #..         truediv 6 0)                                            ;calls it on your behalf
    >>> engarde(
-   ...   entuple(
+   ...   (lambda * _: _)(
    ...     FloatingPointError,
    ...     ZeroDivisionError),
    ...   (lambda e:(
@@ -2406,11 +2527,13 @@ Lissp Quick Start
    trailing optional parameters in in Python functions, they get passed
    in after the primary argument.
    "
-   #> (setattr _macro_ 'L\# enlist)
+   #> (setattr _macro_ 'L\# en#list)
    >>> setattr(
    ...   _macro_,
    ...   'LQzHASH_',
-   ...   enlist)
+   ...   (lambda *_xs_QzNo84_:
+   ...     list(
+   ...       _xs_QzNo84_)))
 
 
    #> L#primary
@@ -2432,7 +2555,7 @@ Lissp Quick Start
    >>> ['primary', 1, 2]
    ['primary', 1, 2]
 
-   #> .#(enlist "primary" 1 2)            ;Inject. Note the order.
+   #> .#(en#list "primary" 1 2)           ;Inject. Note the order.
    >>> ['primary', 1, 2]
    ['primary', 1, 2]
 
@@ -2546,180 +2669,3 @@ Lissp Quick Start
    ...    '        print(i+j, end=" ")\n'
    ...    "print('.')\n"))
    ax ay az bx by bz cx cy cz .
-
-
-   ;;;; Collections
-
-   ;;; Templates and Tuples
-
-   #> '(1 2 3)                            ;tuple
-   >>> ((1),
-   ...  (2),
-   ...  (3),)
-   (1, 2, 3)
-
-   #> `(,(pow 42 0) ,(+ 1 1) 3)           ;Interpolate with templates.
-   >>> (lambda * _: _)(
-   ...   pow(
-   ...     (42),
-   ...     (0)),
-   ...   QzPLUS_(
-   ...     (1),
-   ...     (1)),
-   ...   (3))
-   (1, 2, 3)
-
-   #> `("a" 'b c ,'d ,"e")                ;These can be tricky. Careful.
-   >>> (lambda * _: _)(
-   ...   "('a')",
-   ...   (lambda * _: _)(
-   ...     'quote',
-   ...     '__main__..b'),
-   ...   '__main__..c',
-   ...   'd',
-   ...   ('e'))
-   ("('a')", ('quote', '__main__..b'), '__main__..c', 'd', 'e')
-
-   #> '(1 "a")                            ;Recursive quoting.
-   >>> ((1),
-   ...  "('a')",)
-   (1, "('a')")
-
-   #> '(1 .#"a")                          ;Injected Hissp-level string.
-   >>> ((1),
-   ...  'a',)
-   (1, 'a')
-
-   #> `(1 ,"a")                           ;Interpolated string.
-   >>> (lambda * _: _)(
-   ...   (1),
-   ...   ('a'))
-   (1, 'a')
-
-
-   ;; Helper functions may be easier than templates for data.
-   #> (entuple 0 "a" 'b :c)
-   >>> entuple(
-   ...   (0),
-   ...   ('a'),
-   ...   'b',
-   ...   ':c')
-   (0, 'a', 'b', ':c')
-
-   #> (en#tuple 0 "a" 'b :c)
-   >>> (lambda *_xs_QzNo32_:
-   ...   tuple(
-   ...     _xs_QzNo32_))(
-   ...   (0),
-   ...   ('a'),
-   ...   'b',
-   ...   ':c')
-   (0, 'a', 'b', ':c')
-
-
-   ;;; Other Collection Types
-
-   #> (list `(1 ,(+ 1 1) 3))
-   >>> list(
-   ...   (lambda * _: _)(
-   ...     (1),
-   ...     QzPLUS_(
-   ...       (1),
-   ...       (1)),
-   ...     (3)))
-   [1, 2, 3]
-
-   #> (set '(1 2 3))
-   >>> set(
-   ...   ((1),
-   ...    (2),
-   ...    (3),))
-   {1, 2, 3}
-
-
-   #> (bytes '(98 121 116 101 115))
-   >>> bytes(
-   ...   ((98),
-   ...    (121),
-   ...    (116),
-   ...    (101),
-   ...    (115),))
-   b'bytes'
-
-   #> (bytes.fromhex "6279746573")
-   >>> bytes.fromhex(
-   ...   ('6279746573'))
-   b'bytes'
-
-   ;; Read-time equivalents.
-   #> builtins..bytes.fromhex#.#"6279746573"
-   >>> b'bytes'
-   b'bytes'
-
-   #> builtins..bytes#(98 121 116 101 115)
-   >>> b'bytes'
-   b'bytes'
-
-   #> .#"b'bytes'"                        ;bytes literal Python injection
-   >>> b'bytes'
-   b'bytes'
-
-
-   #> (dict : + 0  a 1  b 2)              ;Symbol keys are easy. The common case.
-   >>> dict(
-   ...   QzPLUS_=(0),
-   ...   a=(1),
-   ...   b=(2))
-   {'QzPLUS_': 0, 'a': 1, 'b': 2}
-
-   #> (.__getitem__ _ '+)
-   >>> _.__getitem__(
-   ...   'QzPLUS_')
-   0
-
-   #> (dict (zip '(1 2 3) "abc"))         ;Non-symbol keys are possible.
-   >>> dict(
-   ...   zip(
-   ...     ((1),
-   ...      (2),
-   ...      (3),),
-   ...     ('abc')))
-   {1: 'a', 2: 'b', 3: 'c'}
-
-   #> (dict '((a 1) (2 b)))               ;Mixed key types. Beware of quoting strings.
-   >>> dict(
-   ...   (('a',
-   ...     (1),),
-   ...    ((2),
-   ...     'b',),))
-   {'a': 1, 2: 'b'}
-
-   #> (dict `((,'+ 42)
-   #..        (,(+ 1 1) ,'b)))            ;Run-time interpolation with a template.
-   >>> dict(
-   ...   (lambda * _: _)(
-   ...     (lambda * _: _)(
-   ...       'QzPLUS_',
-   ...       (42)),
-   ...     (lambda * _: _)(
-   ...       QzPLUS_(
-   ...         (1),
-   ...         (1)),
-   ...       'b')))
-   {'QzPLUS_': 42, 2: 'b'}
-
-   #> (.__getitem__ _ '+)
-   >>> _.__getitem__(
-   ...   'QzPLUS_')
-   42
-
-
-   #> (endict 1 2  'a 'b)
-   >>> endict(
-   ...   (1),
-   ...   (2),
-   ...   'a',
-   ...   'b')
-   {1: 2, 'a': 'b'}
-
-
