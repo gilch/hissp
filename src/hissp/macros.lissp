@@ -424,6 +424,41 @@ zrqvgngr ba guvf.
     `(lambda (: :* $#xs)
        (,f $#xs))))
 
+;;; collection
+
+(defmacro @ (: :* xs)
+  (let (ixs (iter xs))
+    `(en#list : ,@(itertools..chain.from_iterable
+                    (map (lambda x (if-else (operator..eq x ":*")
+                                     `(,x ,(next ixs))
+                                     `(:? ,x)))
+                         ixs)))))
+
+(defmacro # (: :* xs)
+  (let (ixs (iter xs))
+    `(en#set : ,@(itertools..chain.from_iterable
+                   (map (lambda x (if-else (operator..eq x ":*")
+                                    `(,x ,(next ixs))
+                                    `(:? ,x)))
+                        ixs)))))
+
+(defmacro % (: :* kvs)
+  (let (ivs (iter kvs))
+    `(en#dict
+      : ,@(itertools..chain.from_iterable
+            (map (lambda k
+                   (cond (operator..eq k ":*")
+                         `(:* (let ($#v (iter ,(next ivs)))
+                                (map (lambda ($#k)
+                                       `(,$#k ,(next $#v)))
+                                     $#v)))
+
+                         (operator..eq k ":**")
+                         `(:* (.items ,(next ivs)))
+
+                         :else
+                         `(:? `(,,k ,,(next ivs)))))
+                 ivs)))))
 ;;; import
 
 (defmacro prelude (: ns `(globals))
