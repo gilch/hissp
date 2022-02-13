@@ -424,17 +424,75 @@ zrqvgngr ba guvf.
     `(lambda (: :* $#xs)
        (,f $#xs))))
 
+;;; collection
+
+(defmacro @ (: :* xs)
+  "``@`` 'list of'
+
+  ``:*`` unpacks the next argument.
+  Mnemonic: @rray list.
+  "
+  (let (ixs (iter xs))
+    `(en#list : ,@(itertools..chain.from_iterable
+                    (map (lambda x (if-else (operator..eq x ":*")
+                                     `(,x ,(next ixs))
+                                     `(:? ,x)))
+                         ixs)))))
+
+(defmacro # (: :* xs)
+  "``#`` 'set of'
+
+  ``:*`` unpacks the next argument.
+  Mnemonic: Hash set.
+  "
+  (let (ixs (iter xs))
+    `(en#set : ,@(itertools..chain.from_iterable
+                   (map (lambda x (if-else (operator..eq x ":*")
+                                    `(,x ,(next ixs))
+                                    `(:? ,x)))
+                        ixs)))))
+
+(defmacro % (: :* kvs)
+  "``%`` 'dict of'.
+
+  Key-value pairs are implied.
+  ``:*`` unpacks iterables, as if spliced.
+  ``:**`` unpacks mappings.
+  Control words are not magic in the value position.
+  Mnemonic: dict of pairs (%).
+  "
+  (when (operator..mod (len kvs) 2)
+    (exec "raise TypeError('extra key without value')"))
+  (let (ikvs (iter kvs))
+    `(en#dict
+      : ,@(itertools..chain
+            : :* (map (lambda kv
+                        (cond (operator..eq k ":*")
+                              `(:* (let ($#ikvs (iter ,v))
+                                     (map (lambda ($#k $#v)
+                                            `(,$#k ,$#v))
+                                          $#ikvs
+                                          $#ikvs)))
+
+                              (operator..eq k ":**")
+                              `(:* (.items ,v))
+
+                              :else
+                              `(:? `(,,k ,,v))))
+                      ikvs
+                      ikvs)))))
 ;;; import
 
 (defmacro prelude (: ns `(globals))
-  "The basic prelude.
+  "Hissp's bundled micro prelude.
+
+  Brings Hissp up to a minimal standard of usability without adding any
+  dependencies in the compiled output.
 
   Imports `functools.partial` and `functools.reduce`.
   Star imports from `itertools` and `operator`.
-  Defines the en- group: ``entuple``, ``enlist``, ``enset``, ``endict``,
-  and ``enstr``, which build collections from individual elements,
-  and ``engarde``, which calls a function for you, handling any targeted
-  exception with the given handler.
+  Defines ``engarde``, which calls a function for you, handling any
+  targeted exceptions with the given handler.
 
   Adds the bundled macros, but only if available,
   so its expansion does not require Hissp to be installed.
@@ -454,12 +512,6 @@ zrqvgngr ba guvf.
   `(exec ',(.format #"\
 from functools import partial,reduce
 from itertools import *;from operator import *
-def entuple(*xs):return xs
-def enlist(*xs):return[*xs]
-def enset(*xs):return{{*xs}}
-def enfrost(*xs):return __import__('builtins').frozenset(xs)
-def endict(*kvs):return{{k:i.__next__()for i in[kvs.__iter__()]for k in i}}
-def enstr(*xs):return''.join(''.__class__(x)for x in xs)
 def engarde(xs,h,f,/,*a,**kw):
  try:return f(*a,**kw)
  except xs as e:return h(e)
