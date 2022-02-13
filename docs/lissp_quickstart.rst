@@ -984,20 +984,20 @@ Lissp Quick Start
    ;; Qualification prevents accidental name collisions in
    ;; programmatically generated code. But qualification doesn't work on
    ;; local variables, which can't be imported. For these, we use a template
-   ;; counter suffix instead of a qualifier to ensure a variable can only
+   ;; counter prefix instead of a qualifier to ensure a variable can only
    ;; be used in the same template it was defined in. The gensym reader
    ;; macro ($#) generates a symbol with the current template's count.
    #> `($#eggs $#spam $#bacon $#spam)     ;Generated symbols for macro hygiene.
    >>> (lambda * _: _)(
-   ...   '_eggs_QzNo9_',
-   ...   '_spam_QzNo9_',
-   ...   '_bacon_QzNo9_',
-   ...   '_spam_QzNo9_')
-   ('_eggs_QzNo9_', '_spam_QzNo9_', '_bacon_QzNo9_', '_spam_QzNo9_')
+   ...   '_QzNo9_eggs',
+   ...   '_QzNo9_spam',
+   ...   '_QzNo9_bacon',
+   ...   '_QzNo9_spam')
+   ('_QzNo9_eggs', '_QzNo9_spam', '_QzNo9_bacon', '_QzNo9_spam')
 
    #> `$#spam                             ;Template count in name prevents collisions.
-   >>> '_spam_QzNo10_'
-   '_spam_QzNo10_'
+   >>> '_QzNo10_spam'
+   '_QzNo10_spam'
 
 
    ;; You can use templates to make collections with interpolated values.
@@ -1291,25 +1291,25 @@ Lissp Quick Start
    ...         'lambda',
    ...         (lambda * _: _)(
    ...           ':',
-   ...           '_x_QzNo22_',
+   ...           '_QzNo22_x',
    ...           x),
    ...         (lambda * _: _)(
    ...           '__main__..QzMaybe_.QzPLUS_',
-   ...           '_x_QzNo22_',
+   ...           '_QzNo22_x',
    ...           (lambda * _: _)(
    ...             '__main__..QzMaybe_.QzPLUS_',
-   ...             '_x_QzNo22_',
-   ...             '_x_QzNo22_'))))))
+   ...             '_QzNo22_x',
+   ...             '_QzNo22_x'))))))
 
    #> (once-triple (loud-number 14))
    >>> # onceQz_triple
-   ... (lambda _x_QzNo22_=loudQz_number(
+   ... (lambda _QzNo22_x=loudQz_number(
    ...   (14)):
    ...   __import__('builtins').globals()['QzPLUS_'](
-   ...     _x_QzNo22_,
+   ...     _QzNo22_x,
    ...     __import__('builtins').globals()['QzPLUS_'](
-   ...       _x_QzNo22_,
-   ...       _x_QzNo22_)))()
+   ...       _QzNo22_x,
+   ...       _QzNo22_x)))()
    14
    42
 
@@ -1631,9 +1631,9 @@ Lissp Quick Start
 
    #> (@ 1 2 3)                           ;list
    >>> # QzAT_
-   ... (lambda *_xs_QzNo34_:
+   ... (lambda *_QzNo34_xs:
    ...   __import__('builtins').list(
-   ...     _xs_QzNo34_))(
+   ...     _QzNo34_xs))(
    ...   (1),
    ...   (2),
    ...   (3))
@@ -1641,9 +1641,9 @@ Lissp Quick Start
 
    #> (# 1 2 3)                           ;set
    >>> # QzHASH_
-   ... (lambda *_xs_QzNo34_:
+   ... (lambda *_QzNo34_xs:
    ...   __import__('builtins').set(
-   ...     _xs_QzNo34_))(
+   ...     _QzNo34_xs))(
    ...   (1),
    ...   (2),
    ...   (3))
@@ -1651,9 +1651,9 @@ Lissp Quick Start
 
    #> (% 1 2  3 4  5 6)                   ;dict (alternates key, value)
    >>> # QzPCENT_
-   ... (lambda *_xs_QzNo34_:
+   ... (lambda *_QzNo34_xs:
    ...   __import__('builtins').dict(
-   ...     _xs_QzNo34_))(
+   ...     _QzNo34_xs))(
    ...   (lambda * _: _)(
    ...     (1),
    ...     (2)),
@@ -1688,9 +1688,9 @@ Lissp Quick Start
 
    #> (@ (ord "*") :* "abc" 42 :* '(2 3)) ;List, with unpacking.
    >>> # QzAT_
-   ... (lambda *_xs_QzNo34_:
+   ... (lambda *_QzNo34_xs:
    ...   __import__('builtins').list(
-   ...     _xs_QzNo34_))(
+   ...     _QzNo34_xs))(
    ...   ord(
    ...     ('*')),
    ...   *('abc'),
@@ -1711,14 +1711,14 @@ Lissp Quick Start
 
    #> (# 1 :* (@ 1 2 3) 4)                ;Set, with unpacking.
    >>> # QzHASH_
-   ... (lambda *_xs_QzNo34_:
+   ... (lambda *_QzNo34_xs:
    ...   __import__('builtins').set(
-   ...     _xs_QzNo34_))(
+   ...     _QzNo34_xs))(
    ...   (1),
    ...   *# QzAT_
-   ...    (lambda *_xs_QzNo34_:
+   ...    (lambda *_QzNo34_xs:
    ...      __import__('builtins').list(
-   ...        _xs_QzNo34_))(
+   ...        _QzNo34_xs))(
    ...      (1),
    ...      (2),
    ...      (3)),
@@ -1728,22 +1728,22 @@ Lissp Quick Start
 
    #> (% :* '(1 2 3 4) :** (dict : x 2))  ;Two kinds of unpacking in %.
    >>> # QzPCENT_
-   ... (lambda *_xs_QzNo34_:
+   ... (lambda *_QzNo34_xs:
    ...   __import__('builtins').dict(
-   ...     _xs_QzNo34_))(
+   ...     _QzNo34_xs))(
    ...   *# hissp.macros.._macro_.let
-   ...    (lambda _ikvs_QzNo42_=__import__('builtins').iter(
+   ...    (lambda _QzNo42_ikvs=__import__('builtins').iter(
    ...      ((1),
    ...       (2),
    ...       (3),
    ...       (4),)):
    ...      __import__('builtins').map(
-   ...        (lambda _k_QzNo42_,_v_QzNo42_:
+   ...        (lambda _QzNo42_k,_QzNo42_v:
    ...          (lambda * _: _)(
-   ...            _k_QzNo42_,
-   ...            _v_QzNo42_)),
-   ...        _ikvs_QzNo42_,
-   ...        _ikvs_QzNo42_))(),
+   ...            _QzNo42_k,
+   ...            _QzNo42_v)),
+   ...        _QzNo42_ikvs,
+   ...        _QzNo42_ikvs))(),
    ...   *dict(
    ...      x=(2)).items())
    {1: 2, 3: 4, 'x': 2}
@@ -1757,12 +1757,12 @@ Lissp Quick Start
    >>> print(
    ...   # prog1
    ...   # hissp.macros.._macro_.let
-   ...   (lambda _value1_QzNo28_=(0):(
+   ...   (lambda _QzNo28_value1=(0):(
    ...     print(
    ...       (1)),
    ...     print(
    ...       (2)),
-   ...     _value1_QzNo28_)[-1])())
+   ...     _QzNo28_value1)[-1])())
    1
    2
    0
@@ -1790,14 +1790,14 @@ Lissp Quick Start
    #..  (print 2))
    >>> # prog1
    ... # hissp.macros.._macro_.let
-   ... (lambda _value1_QzNo35_=# progn
+   ... (lambda _QzNo35_value1=# progn
    ... (lambda :(
    ...   print(
    ...     (1)),
    ...   (3))[-1])():(
    ...   print(
    ...     (2)),
-   ...   _value1_QzNo35_)[-1])()
+   ...   _QzNo35_value1)[-1])()
    1
    2
    3
@@ -1845,7 +1845,7 @@ Lissp Quick Start
    #..  `(print 1 2 3 : sep ,sep))
    >>> # defmacro
    ... # hissp.macros.._macro_.let
-   ... (lambda _fn_QzNo7_=(lambda sep:(
+   ... (lambda _QzNo7_fn=(lambda sep:(
    ...   ('Prints 1 2 3 with the given separator'),
    ...   (lambda * _: _)(
    ...     'builtins..print',
@@ -1856,11 +1856,11 @@ Lissp Quick Start
    ...     '__main__..sep',
    ...     sep))[-1]):(
    ...   __import__('builtins').setattr(
-   ...     _fn_QzNo7_,
+   ...     _QzNo7_fn,
    ...     '__doc__',
    ...     ('Prints 1 2 3 with the given separator')),
    ...   __import__('builtins').setattr(
-   ...     _fn_QzNo7_,
+   ...     _QzNo7_fn,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
@@ -1870,7 +1870,7 @@ Lissp Quick Start
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
    ...     'p123',
-   ...     _fn_QzNo7_))[-1])()
+   ...     _QzNo7_fn))[-1])()
 
 
    (help _macro_.p123)
@@ -1919,20 +1919,20 @@ Lissp Quick Start
    #> (attach (types..SimpleNamespace) + : a 1  b "Hi")
    >>> # attach
    ... # hissp.macros.._macro_.let
-   ... (lambda _target_QzNo16_=__import__('types').SimpleNamespace():(
+   ... (lambda _QzNo16_target=__import__('types').SimpleNamespace():(
    ...   __import__('builtins').setattr(
-   ...     _target_QzNo16_,
+   ...     _QzNo16_target,
    ...     'QzPLUS_',
    ...     QzPLUS_),
    ...   __import__('builtins').setattr(
-   ...     _target_QzNo16_,
+   ...     _QzNo16_target,
    ...     'a',
    ...     (1)),
    ...   __import__('builtins').setattr(
-   ...     _target_QzNo16_,
+   ...     _QzNo16_target,
    ...     'b',
    ...     ('Hi')),
-   ...   _target_QzNo16_)[-1])()
+   ...   _QzNo16_target)[-1])()
    namespace(QzPLUS_=<built-in function add>, a=1, b='Hi')
 
    #> (doto (list)
@@ -1940,13 +1940,13 @@ Lissp Quick Start
    #..  (.sort)
    #..  (.append "foo"))
    >>> # doto
-   ... (lambda _self_QzNo20_=list():(
-   ...   _self_QzNo20_.extend(
+   ... (lambda _QzNo20_self=list():(
+   ...   _QzNo20_self.extend(
    ...     ('bar')),
-   ...   _self_QzNo20_.sort(),
-   ...   _self_QzNo20_.append(
+   ...   _QzNo20_self.sort(),
+   ...   _QzNo20_self.append(
    ...     ('foo')),
-   ...   _self_QzNo20_)[-1])()
+   ...   _QzNo20_self)[-1])()
    ['a', 'b', 'r', 'foo']
 
 
@@ -2036,65 +2036,65 @@ Lissp Quick Start
    #> (&& True True False)
    >>> # QzET_QzET_
    ... # hissp.macros.._macro_.let
-   ... (lambda _G_QzNo33_=True:
+   ... (lambda _QzNo33_G=True:
    ...   # hissp.macros.._macro_.ifQz_else
    ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
    ...       thenQz_else,
    ...       __import__('operator').not_(
    ...         test))())(
-   ...     _G_QzNo33_,
+   ...     _QzNo33_G,
    ...     (lambda :
    ...       # hissp.macros..QzMaybe_.QzET_QzET_
    ...       # hissp.macros.._macro_.let
-   ...       (lambda _G_QzNo33_=True:
+   ...       (lambda _QzNo33_G=True:
    ...         # hissp.macros.._macro_.ifQz_else
    ...         (lambda test,*thenQz_else:
    ...           __import__('operator').getitem(
    ...             thenQz_else,
    ...             __import__('operator').not_(
    ...               test))())(
-   ...           _G_QzNo33_,
+   ...           _QzNo33_G,
    ...           (lambda :
    ...             # hissp.macros..QzMaybe_.QzET_QzET_
    ...             False),
-   ...           (lambda :_G_QzNo33_)))()),
-   ...     (lambda :_G_QzNo33_)))()
+   ...           (lambda :_QzNo33_G)))()),
+   ...     (lambda :_QzNo33_G)))()
    False
 
    #> (&& False (print "oops"))
    >>> # QzET_QzET_
    ... # hissp.macros.._macro_.let
-   ... (lambda _G_QzNo33_=False:
+   ... (lambda _QzNo33_G=False:
    ...   # hissp.macros.._macro_.ifQz_else
    ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
    ...       thenQz_else,
    ...       __import__('operator').not_(
    ...         test))())(
-   ...     _G_QzNo33_,
+   ...     _QzNo33_G,
    ...     (lambda :
    ...       # hissp.macros..QzMaybe_.QzET_QzET_
    ...       print(
    ...         ('oops'))),
-   ...     (lambda :_G_QzNo33_)))()
+   ...     (lambda :_QzNo33_G)))()
    False
 
    #> (&& True 42)
    >>> # QzET_QzET_
    ... # hissp.macros.._macro_.let
-   ... (lambda _G_QzNo26_=True:
+   ... (lambda _QzNo26_G=True:
    ...   # hissp.macros.._macro_.ifQz_else
    ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
    ...       thenQz_else,
    ...       __import__('operator').not_(
    ...         test))())(
-   ...     _G_QzNo26_,
+   ...     _QzNo26_G,
    ...     (lambda :
    ...       # hissp.macros..QzMaybe_.QzET_QzET_
    ...       (42)),
-   ...     (lambda :_G_QzNo26_)))()
+   ...     (lambda :_QzNo26_G)))()
    42
 
 
@@ -2102,15 +2102,15 @@ Lissp Quick Start
    #> (|| True (print "oops"))
    >>> # QzBAR_QzBAR_
    ... # hissp.macros.._macro_.let
-   ... (lambda _first_QzNo34_=True:
+   ... (lambda _QzNo34_first=True:
    ...   # hissp.macros.._macro_.ifQz_else
    ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
    ...       thenQz_else,
    ...       __import__('operator').not_(
    ...         test))())(
-   ...     _first_QzNo34_,
-   ...     (lambda :_first_QzNo34_),
+   ...     _QzNo34_first,
+   ...     (lambda :_QzNo34_first),
    ...     (lambda :
    ...       # hissp.macros..QzMaybe_.QzBAR_QzBAR_
    ...       print(
@@ -2120,15 +2120,15 @@ Lissp Quick Start
    #> (|| 42 False)
    >>> # QzBAR_QzBAR_
    ... # hissp.macros.._macro_.let
-   ... (lambda _first_QzNo27_=(42):
+   ... (lambda _QzNo27_first=(42):
    ...   # hissp.macros.._macro_.ifQz_else
    ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
    ...       thenQz_else,
    ...       __import__('operator').not_(
    ...         test))())(
-   ...     _first_QzNo27_,
-   ...     (lambda :_first_QzNo27_),
+   ...     _QzNo27_first,
+   ...     (lambda :_QzNo27_first),
    ...     (lambda :
    ...       # hissp.macros..QzMaybe_.QzBAR_QzBAR_
    ...       False)))()
@@ -2410,18 +2410,18 @@ Lissp Quick Start
 
    ;; The en- reader macro.
    #> (en#list 1 2 3)                     ;Like enlist.
-   >>> (lambda *_xs_QzNo31_:
+   >>> (lambda *_QzNo31_xs:
    ...   list(
-   ...     _xs_QzNo31_))(
+   ...     _QzNo31_xs))(
    ...   (1),
    ...   (2),
    ...   (3))
    [1, 2, 3]
 
    #> (en#.extend _ 4 5 6)                ;Methods too.
-   >>> (lambda _self_QzNo31_,*_xs_QzNo31_:
-   ...   _self_QzNo31_.extend(
-   ...     _xs_QzNo31_))(
+   >>> (lambda _QzNo31_self,*_QzNo31_xs:
+   ...   _QzNo31_self.extend(
+   ...     _QzNo31_xs))(
    ...   _,
    ...   (4),
    ...   (5),
@@ -2433,9 +2433,9 @@ Lissp Quick Start
 
 
    #> (en#collections..deque 1 2 3)       ;Generalizes to any function of 1 iterable.
-   >>> (lambda *_xs_QzNo31_:
+   >>> (lambda *_QzNo31_xs:
    ...   __import__('collections').deque(
-   ...     _xs_QzNo31_))(
+   ...     _QzNo31_xs))(
    ...   (1),
    ...   (2),
    ...   (3))
@@ -2449,7 +2449,7 @@ Lissp Quick Start
    >>> # hissp.._macro_.alias
    ... # hissp.macros.._macro_.defmacro
    ... # hissp.macros.._macro_.let
-   ... (lambda _fn_QzNo7_=(lambda _prime_QzNo34_,_reader_QzNo34_=None,*_args_QzNo34_:(
+   ... (lambda _QzNo7_fn=(lambda _QzNo34_prime,_QzNo34_reader=None,*_QzNo34_args:(
    ...   "('Aliases hissp.._macro_ as MQzCOLON_#')",
    ...   # hissp.macros.._macro_.ifQz_else
    ...   (lambda test,*thenQz_else:
@@ -2457,12 +2457,12 @@ Lissp Quick Start
    ...       thenQz_else,
    ...       __import__('operator').not_(
    ...         test))())(
-   ...     _reader_QzNo34_,
+   ...     _QzNo34_reader,
    ...     (lambda :
    ...       __import__('builtins').getattr(
    ...         __import__('hissp')._macro_,
    ...         ('{}{}').format(
-   ...           _reader_QzNo34_,
+   ...           _QzNo34_reader,
    ...           # hissp.macros.._macro_.ifQz_else
    ...           (lambda test,*thenQz_else:
    ...             __import__('operator').getitem(
@@ -2474,14 +2474,14 @@ Lissp Quick Start
    ...               '_macro_'),
    ...             (lambda :'QzHASH_'),
    ...             (lambda :('')))))(
-   ...         _prime_QzNo34_,
-   ...         *_args_QzNo34_)),
+   ...         _QzNo34_prime,
+   ...         *_QzNo34_args)),
    ...     (lambda :
    ...       ('{}.{}').format(
    ...         'hissp.._macro_',
-   ...         _prime_QzNo34_))))[-1]):(
+   ...         _QzNo34_prime))))[-1]):(
    ...   __import__('builtins').setattr(
-   ...     _fn_QzNo7_,
+   ...     _QzNo7_fn,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
@@ -2491,7 +2491,7 @@ Lissp Quick Start
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
    ...     'MQzCOLON_QzHASH_',
-   ...     _fn_QzNo7_))[-1])()
+   ...     _QzNo7_fn))[-1])()
 
    #> 'M:#alias
    >>> 'hissp.._macro_.alias'
@@ -2531,9 +2531,9 @@ Lissp Quick Start
    >>> setattr(
    ...   _macro_,
    ...   'LQzHASH_',
-   ...   (lambda *_xs_QzNo84_:
+   ...   (lambda *_QzNo84_xs:
    ...     list(
-   ...       _xs_QzNo84_)))
+   ...       _QzNo84_xs)))
 
 
    #> L#primary

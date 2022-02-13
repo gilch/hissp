@@ -634,7 +634,7 @@ parentheses.
    #..                     `(,then ,test ,otherwise))))
    >>> # defmacro
    ... # hissp.macros.._macro_.let
-   ... (lambda _fn_QzNo7_=(lambda test,then,otherwise:(
+   ... (lambda _QzNo7_fn=(lambda test,then,otherwise:(
    ...   ('Compiles to if/else ternary conditional expression.'),
    ...   ('(({})\n if ({})\n else ({}))').format(
    ...     *map(
@@ -644,11 +644,11 @@ parentheses.
    ...          test,
    ...          otherwise))))[-1]):(
    ...   __import__('builtins').setattr(
-   ...     _fn_QzNo7_,
+   ...     _QzNo7_fn,
    ...     '__doc__',
    ...     ('Compiles to if/else ternary conditional expression.')),
    ...   __import__('builtins').setattr(
-   ...     _fn_QzNo7_,
+   ...     _QzNo7_fn,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
@@ -658,7 +658,7 @@ parentheses.
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
    ...     'ifQzBANG_',
-   ...     _fn_QzNo7_))[-1])()
+   ...     _QzNo7_fn))[-1])()
 
 The result is (effectively) a new special form.
 
@@ -1039,16 +1039,16 @@ Like this
    ...              __init__=(lambda self,catch,handler:(
    ...                         # attach
    ...                         # hissp.macros.._macro_.let
-   ...                         (lambda _target_QzNo15_=self:(
+   ...                         (lambda _QzNo15_target=self:(
    ...                           __import__('builtins').setattr(
-   ...                             _target_QzNo15_,
+   ...                             _QzNo15_target,
    ...                             'catch',
    ...                             catch),
    ...                           __import__('builtins').setattr(
-   ...                             _target_QzNo15_,
+   ...                             _QzNo15_target,
    ...                             'handler',
    ...                             handler),
-   ...                           _target_QzNo15_)[-1])(),
+   ...                           _QzNo15_target)[-1])(),
    ...                         None)[-1]),
    ...              __enter__=(lambda self:()),
    ...              __exit__=(lambda self,exc_type,exception,traceback:

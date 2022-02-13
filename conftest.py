@@ -60,7 +60,7 @@ class ParseLissp(DocTestParser):
 
 
 def norm_gensym_eq(compiled, python):
-    """The special gensym suffix ``_QzNo..._`` will match regardless of number."""
+    """The special gensym prefix ``_QzNo..._`` will match regardless of number."""
     return re.fullmatch(
         re.sub(r"_QzNo\d+_", r"_QzNo\\d+_", re.escape(python)), compiled
     )
