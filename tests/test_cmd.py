@@ -17,16 +17,17 @@ BANNER = cmd("lissp")[1][: -len(EXIT_MSG)]
 
 def test_c_args():
     out, err = cmd('python -m hissp -c "(print sys..argv)" 1 2 3')
-    assert out == "['-c', '1', '2', '3']\n"
-    assert err == ""
+    assert [out, err] == ["['-c', '1', '2', '3']\n", ""]
 
 
 def test_ic_args():
     out, err = cmd(
         'lissp -i -c "(print sys..argv)(define answer 42)" 1 2 3', "answer\n"
     )
-    assert out == "['-c', '1', '2', '3']\n#> 42\n#> "
-    assert err[len(BANNER) :] == ">>> answer\n" + EXIT_MSG
+    assert [out, err[len(BANNER) :]] == [
+        "['-c', '1', '2', '3']\n#> 42\n#> ",
+        ">>> answer\n" + EXIT_MSG,
+    ]
 
 
 def test_file_args():
@@ -35,8 +36,7 @@ def test_file_args():
 ['tests/argv.lissp', '1', '2', '3']
 __name__='__main__' __package__=None
 """
-    assert out == expected
-    assert err == ""
+    assert [out, err] == [expected, ""]
 
 
 def test_i_file_args():
@@ -46,8 +46,10 @@ def test_i_file_args():
 __name__='__main__' __package__=None
 #> 42
 #> """
-    assert out == expected
-    assert err[len(BANNER) :] == ">>> answer\n" + EXIT_MSG
+    assert [out, err[len(BANNER) :]] == [
+        expected,
+        ">>> answer\n" + EXIT_MSG,
+    ]
 
 
 def test_repl_read_exception():

@@ -1,4 +1,4 @@
-# Copyright 2020 Matthew Egan Odendahl
+# Copyright 2020, 2022 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,9 +12,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""It's Python with a `Lissp`.
+
+See the GitHub project for complete documentation and tests.
+
+https://github.com/gilch/hissp
+
+``__init__.py`` imports several convenience utilities,
+including `readerless`, `demunge`, `transpile`, and `repl`,
+as well as the `hissp.macros._macro_` namespace,
+making all of the bundled macros available with the shorter ``hissp.._macro_`` qualifier.
+"""
 from hissp.compiler import readerless
 from hissp.munger import demunge
 from hissp.reader import transpile
+from hissp.repl import interact
 
 from contextlib import suppress
 
@@ -23,19 +35,6 @@ with suppress(ImportError):
     # noinspection PyUnresolvedReferences
     from hissp.macros import _macro_
 del suppress
-
-
-def interact(locals=None):
-    """Convenience function to start a LisspREPL.
-    Uses the calling frame's locals if not provided."""
-    from hissp.repl import LisspREPL
-
-    if locals is None:
-        import inspect
-
-        frame = inspect.currentframe().f_back
-        locals = {**frame.f_globals, **frame.f_locals}
-    LisspREPL(locals=locals).interact()
 
 
 __version__ = "0.4.dev"
