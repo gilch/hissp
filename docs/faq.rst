@@ -333,10 +333,6 @@ However, they do work in Python injections:
 
 .. code-block:: REPL
 
-   #> [b'bytes',b'in',b'collection',b'atoms']
-   >>> [b'bytes', b'in', b'collection', b'atoms']
-   [b'bytes', b'in', b'collection', b'atoms']
-
    #> .#"b'injected bytes literal'"
    >>> b'injected bytes literal'
    b'injected bytes literal'

@@ -1735,12 +1735,12 @@ Lissp Quick Start
    ...   _target_QzNo16_)[-1])()
    namespace(QzPLUS_=<built-in function add>, a=1, b='Hi')
 
-   #> (doto []
+   #> (doto (list)
    #..  (.extend "bar")
    #..  (.sort)
    #..  (.append "foo"))
    >>> # doto
-   ... (lambda _self_QzNo20_=[]:(
+   ... (lambda _self_QzNo20_=list():(
    ...   _self_QzNo20_.extend(
    ...     ('bar')),
    ...   _self_QzNo20_.sort(),
@@ -2722,159 +2722,4 @@ Lissp Quick Start
    ...   'b')
    {1: 2, 'a': 'b'}
 
-
-   ;;; Collection Atoms
-
-   #> .#"[]"                              ;List from a Python injection.
-   >>> []
-   []
-
-   #> .#[]                                ;You can drop the quotes sometimes.
-   >>> []
-   []
-
-   #> []                                  ; And the reader macro!
-   >>> []
-   []
-
-
-   #> [1,2,3]                             ;List/set/dict atoms are a kind of injection.
-   >>> [1, 2, 3]
-   [1, 2, 3]
-
-   #> {1,2,3}                             ; They read in as a single atom, so have
-   >>> {1, 2, 3}
-   {1, 2, 3}
-
-   #> {'a':1,2:b'b'}                      ; compile-time literals only--No interpolation!
-   >>> {'a': 1, 2: b'b'}
-   {'a': 1, 2: b'b'}
-
-   #> [1,{2},{3:[4,5]},'six']             ;Nesting is allowed.
-   >>> [1, {2}, {3: [4, 5]}, 'six']
-   [1, {2}, {3: [4, 5]}, 'six']
-
-
-   ;; Collection atoms are a convenience for simple cases only.
-   #> .#"['1 2','3',(4,5),R'6;7\8']"
-   >>> ['1 2','3',(4,5),R'6;7\8']
-   ['1 2', '3', (4, 5), '6;7\\8']
-
-   ;; After dropping quotes, these tokenize like other atoms, so you need escapes.
-   #> ['1\ 2',\"3\",\(4,5\),R'6\;7\\8']   ;Not so convenient now. Simple cases only!
-   >>> ['1 2', '3', (4, 5), '6;7\\8']
-   ['1 2', '3', (4, 5), '6;7\\8']
-
-
-   ;; Constructors or helpers also work. (And can interpolate run-time data.)
-   #> (list `(,"1 2" ,"3" (4 5) ,"6;7\8"))
-   >>> list(
-   ...   (lambda * _: _)(
-   ...     ('1 2'),
-   ...     ('3'),
-   ...     (lambda * _: _)(
-   ...       (4),
-   ...       (5)),
-   ...     ('6;7\\8')))
-   ['1 2', '3', (4, 5), '6;7\\8']
-
-   #> (enlist "1 2" "3" '(4 5) "6;7\8")
-   >>> enlist(
-   ...   ('1 2'),
-   ...   ('3'),
-   ...   ((4),
-   ...    (5),),
-   ...   ('6;7\\8'))
-   ['1 2', '3', (4, 5), '6;7\\8']
-
-
-   _#"Even though they evaluate the same, there's a subtle compile-time difference
-   between a collection atom and a string injection. This can matter because
-   macros get all their arguments unevaluated.
-   "
-
-   #> '[1,'''2\ 3''']                     ;[1, '2 3']
-   >>> [1, '2 3']
-   [1, '2 3']
-
-   #> '.#"[1,'''2 3''']"                  ;"[1,'''2 3''']"
-   >>> "[1,'''2 3''']"
-   "[1,'''2 3''']"
-
-
-   ;; But you can still get a real collection at compile time.
-   #> '.#(eval "[1,'''2 3''']")           ;[1, '2 3']
-   >>> [1, '2 3']
-   [1, '2 3']
-
-   #> '.#.#"[1,'''2 3''']"                ;[1, '2 3']
-   >>> [1, '2 3']
-   [1, '2 3']
-
-
-   #> (lambda ['a','b','c'])              ;I don't recommend this, but it works.
-   >>> (lambda a,b,c:())
-   <function <lambda> at 0x...>
-
-   #> (lambda .#"['a','b','c']")          ;Oops.
-   >>> (lambda [,',a,',,,',b,',,,',c,',]:())
-   Traceback (most recent call last):
-     ...
-       (lambda [,',a,',,,',b,',,,',c,',]:())
-               ^
-   SyntaxError: invalid syntax
-
-   #> (lambda .#.#"['a','b','c']")        ;Another inject fixes it.
-   >>> (lambda a,b,c:())
-   <function <lambda> at 0x...>
-
-
-   #> '(lambda ['a','b','c'])             ;Params is a list.
-   >>> ('lambda',
-   ...  ['a', 'b', 'c'],)
-   ('lambda', ['a', 'b', 'c'])
-
-   #> '(lambda .#"['a','b','c']")         ;Params is a string.
-   >>> ('lambda',
-   ...  "['a','b','c']",)
-   ('lambda', "['a','b','c']")
-
-   #> '(lambda .#.#"['a','b','c']")       ;Params is a list.
-   >>> ('lambda',
-   ...  ['a', 'b', 'c'],)
-   ('lambda', ['a', 'b', 'c'])
-
-
-   #> (lambda "abc")                      ;Oops.
-   >>> (lambda (,',a,b,c,',):())
-   Traceback (most recent call last):
-     ...
-       (lambda (,',a,b,c,',):())
-               ^
-   SyntaxError: invalid syntax
-
-   #> (lambda .#"abc")                    ;Inject fixes it.
-   >>> (lambda a,b,c:())
-   <function <lambda> at 0x...>
-
-
-   #> '(lambda "abc")                     ;See why? Extra characters.
-   >>> ('lambda',
-   ...  "('abc')",)
-   ('lambda', "('abc')")
-
-   #> '(lambda .#"abc")                   ;Evaluated object.
-   >>> ('lambda',
-   ...  'abc',)
-   ('lambda', 'abc')
-
-
-   #> (lambda abc)                        ;Compare to using a symbol.
-   >>> (lambda a,b,c:())
-   <function <lambda> at 0x...>
-
-   #> '(lambda abc)
-   >>> ('lambda',
-   ...  'abc',)
-   ('lambda', 'abc')
 

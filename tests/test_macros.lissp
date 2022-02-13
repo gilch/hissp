@@ -24,7 +24,7 @@
   test_qualified_symbol
   (lambda (self)
     (self.assertEqual (tqs)
-                      ['tests.test_macros..enlist']))
+                      (enlist "tests.test_macros..enlist")))
 
   test_none_doc
   (lambda (self)
@@ -33,7 +33,7 @@
   test_qualified_symbol2
   (lambda (self)
     (self.assertEqual (tqs2)
-                      ['tests.test_macros..enlist']))
+                      (enlist "tests.test_macros..enlist")))
 
   test_doc
   (lambda (self)
@@ -52,28 +52,28 @@
 
   test_doto
   (lambda (self)
-    (self.assertEqual (*#doto []
+    (self.assertEqual (*#doto (list)
                         (.append 3)
-                        (.extend [1,2])
+                        (.extend (enlist 1 2))
                         (.sort))
-                      [1,2,3]))
+                      (enlist 1 2 3)))
 
   test_if-else
   (lambda (self)
     (self.assertEqual (*#if-else False :yes :no) :no)
     (self.assertEqual (*#if-else True :yes :no) :yes)
-    (*#let (xs [])
+    (*#let (xs (list))
       (*#if-else False
                (.append xs :yes)
                (.append xs :no))
       (*#if-else True
                (.append xs :yes)
                (.append xs :no))
-      (self.assertEqual xs [':no',':yes'])))
+      (self.assertEqual xs (enlist ":no" ":yes"))))
 
   test_cond
   (lambda (self)
-    (*#let (xs [])
+    (*#let (xs (list))
       (.append xs (*#cond))
       (*#cond False (.append xs :oops))
       (*#cond :else (.append xs 1))
@@ -90,7 +90,7 @@
 
   test_any-for
   (lambda (self)
-    (*#let (xs [])
+    (*#let (xs (list))
       (*#any-for i (range 1 10)
         (.append xs i)
         (operator..not_ (operator..mod i 7)))
@@ -98,7 +98,7 @@
 
   test_&&
   (lambda (self)
-    (*#let (xs [])
+    (*#let (xs (list))
       (*#doto xs
         (.append (*#&&))
         (.append (*#&& 0))
@@ -113,12 +113,12 @@
                                 :oops)
                        (.append xs 5)))
         (.append (*#&& 1 2 (*#progn (.append xs 6) 7))))
-      (self.assertEqual [True,0,1,0,2,None,3,None,4,5,None,6,7]
+      (self.assertEqual (enlist True 0 1 0 2 None 3 None 4 5 None 6 7)
                         xs)))
 
   test_||
   (lambda (self)
-    (*#let (xs [])
+    (*#let (xs (list))
       (*#doto xs
         (.append (*#||))
         (.append (*#|| 0))
@@ -131,20 +131,20 @@
 
   test_progn
   (lambda (self)
-    (self.assertEqual (*#let (xs [])
+    (self.assertEqual (*#let (xs (list))
                         (*#progn
                           (.append xs 1)
                           (.extend xs "bc")
                           xs))
-                      [1,'b','c']))
+                      (enlist 1 "b" "c")))
 
   test_prog1
   (lambda (self)
-    (*#let (xs [])
+    (*#let (xs (list))
       (.append xs (*#prog1 3
                     (.append xs 1)
                     (.append xs 2)))
-      (self.assertEqual [1,2,3] xs)))
+      (self.assertEqual (enlist 1 2 3) xs)))
 
   test_attach
   (lambda (self)
@@ -158,25 +158,25 @@
 
   test_when
   (lambda (self)
-    (*#let (xs [])
+    (*#let (xs (list))
       (*#when 1
         (.append xs 1)
         (.append xs 2))
       (*#when 0
         (.append xs :oops)
         (.append xs :oops))
-      (self.assertEqual [1,2] xs)))
+      (self.assertEqual (enlist 1 2) xs)))
 
   test_unless
   (lambda (self)
-    (*#let (xs [])
+    (*#let (xs (list))
       (*#unless 0
         (.append xs 1)
         (.append xs 2))
       (*#unless 1
         (.append xs :oops)
         (.append xs :oops))
-      (self.assertEqual [1,2] xs)))
+      (self.assertEqual (enlist 1 2) xs)))
 
   test_->
   (lambda (self)
@@ -190,11 +190,11 @@
                              (filter (lambda (x) ; even?
                                        (operator..eq 0 (operator..mod x 2))))
                              (list))
-                      [0,4]))
+                      (enlist 0 4)))
 
   test_prelude
   (lambda (self)
-    (*#let (ns {})
+    (*#let (ns (dict))
       (*#prelude ns)
       (self.assertEqual (set operator..__all__)
                         (.intersection (set operator..__all__)

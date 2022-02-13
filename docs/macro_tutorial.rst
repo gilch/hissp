@@ -1551,7 +1551,7 @@ Lissp can do that with a class.
 
    #> (deftype Flattener ()
    #..  __init__ (lambda (self)
-   #..             (setattr self 'accumulator []))
+   #..             (setattr self 'accumulator (list)))
    #..  flatten (lambda (self form)
    #..            (any-for x form
    #..              (if-else (is_ (type x) tuple)
@@ -1570,7 +1570,7 @@ Lissp can do that with a class.
    ...                            setattr(
    ...                              self,
    ...                              'accumulator',
-   ...                              [])),
+   ...                              list())),
    ...                 flatten=(lambda self,form:(
    ...                           # anyQz_for
    ...                           __import__('builtins').any(

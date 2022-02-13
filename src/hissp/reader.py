@@ -395,7 +395,7 @@ class Lissp:
             return munge(v)
         try:
             val = ast.literal_eval(v)
-            if isinstance(val, bytes):  # bytes have their own literals.
+            if isinstance(val, (bytes, dict, list, set, tuple)):
                 return munge(v)
             return val
         except (ValueError, SyntaxError):
