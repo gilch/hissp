@@ -9,17 +9,16 @@ from code import InteractiveConsole
 from contextlib import suppress
 from types import ModuleType, SimpleNamespace
 
-import hissp.macros
 from hissp.compiler import CompileError
 from hissp.reader import Lissp, SoftSyntaxError
 
 
 ps1 = "#> "
-"""String specifying the primary prompt of the REPL."""
+"""String specifying the primary prompt of the `LisspREPL`."""
 
 
 ps2 = "#.."
-"""String specifying the secondary (continuation) prompt of the REPL."""
+"""String specifying the secondary (continuation) prompt of the `LisspREPL`."""
 
 
 class LisspREPL(InteractiveConsole):
@@ -69,6 +68,23 @@ class LisspREPL(InteractiveConsole):
         return super().interact(banner, exitmsg)
 
 
+def interact(locals=None):
+    """Convenience function to start a `LisspREPL`.
+
+    Uses the calling frame's globals and locals as ``locals`` if not
+    provided.
+
+    Unlike `hissp.repl.main`, no ``_macros_`` are added to the locals to
+    avoid clobbering an existing namespace.
+    """
+    if locals is None:
+        import inspect
+
+        frame = inspect.currentframe().f_back
+        locals = {**frame.f_globals, **frame.f_locals}
+    LisspREPL(locals=locals).interact()
+
+
 def force_main():
     """:meta private:"""
     __main__ = ModuleType("__main__")
@@ -78,10 +94,19 @@ def force_main():
 
 
 def main(__main__=None):
-    """REPL command-line entry point."""
+    """REPL command-line entry point.
+
+    If ``__main__`` is not provided, it creates a new one to take the
+    place of the current ``__main__`` module.
+
+    `hissp.macros._macro_` is imported into the module namespace,
+    making the bundled macros immediately available unqualified.
+    """
     if not __main__:
         __main__ = force_main()
     repl = LisspREPL(locals=__main__.__dict__)
+    import hissp.macros  # Here so repl can import before compilation.
+
     repl.locals["_macro_"] = SimpleNamespace(**vars(hissp.macros._macro_))
     repl.interact()
 

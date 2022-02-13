@@ -70,7 +70,7 @@ You can invoke the Hissp compiler directly from Python.
 The `readerless()` function takes a Hissp program as input,
 and returns its Python translation as a string.
 
->>> from hissp.compiler import readerless
+>>> from hissp import readerless
 >>> python_translation = readerless(hissp_program)
 >>> print(python_translation)
 (lambda name:

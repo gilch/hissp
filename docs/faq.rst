@@ -1265,9 +1265,9 @@ Or equivalently, in Python:
 
 .. code-block:: python
 
-   from hissp.reader import transpile
+   import hissp
 
-   transpile(__package__, "sausage", "bacon")
+   hissp.transpile(__package__, "sausage", "bacon")
 
 Consider putting the above in each package's ``__init__.py``
 to auto-compile each Hissp module in the package on package import during development.
@@ -1282,9 +1282,9 @@ For example,
 .. code-block:: python
 
    if __import__('os').getenv('AUTOCOMPILING_LISSP_PROJECT_FOO'):
-       from hissp.reader import transpile
+       import hissp
 
-       transpile(__package__, "sausage", "bacon")
+       hissp.transpile(__package__, "sausage", "bacon")
 
 
 Note that you usually *would* want to recompile the whole project
