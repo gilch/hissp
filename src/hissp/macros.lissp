@@ -456,9 +456,7 @@ zrqvgngr ba guvf.
   "``%`` 'dict of'.
 
   Key-value pairs are implied.
-  ``:*`` unpacks iterables, as if spliced.
   ``:**`` unpacks mappings.
-  Control words are not magic in the value position.
   Mnemonic: dict of pairs (%).
   "
   (when (operator..mod (len kvs) 2)
@@ -467,18 +465,9 @@ zrqvgngr ba guvf.
     `(en#dict
       : ,@(itertools..chain
             : :* (map (lambda kv
-                        (cond (operator..eq k ":*")
-                              `(:* (let ($#ikvs (iter ,v))
-                                     (map (lambda ($#k $#v)
-                                            `(,$#k ,$#v))
-                                          $#ikvs
-                                          $#ikvs)))
-
-                              (operator..eq k ":**")
-                              `(:* (.items ,v))
-
-                              :else
-                              `(:? `(,,k ,,v))))
+                        (if-else (operator..eq k ":**")
+                          `(:* (.items ,v))
+                          `(:? `(,,k ,,v))))
                       ikvs
                       ikvs)))))
 ;;; import
