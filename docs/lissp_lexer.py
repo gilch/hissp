@@ -31,9 +31,6 @@ class LisspLexer(RegexLexer):
             if isinstance(v, (complex, float)):
                 yield index, pt.Number.Float, value
                 return
-            if type(v) in {dict, list, set}:
-                yield index, pt.Literal, value
-                return
             if not isinstance(v, str):
                 v = value.replace("\\", "")
             elif re.fullmatch(r".+\.$", v):  # module

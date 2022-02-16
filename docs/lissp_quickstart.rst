@@ -1726,27 +1726,22 @@ Lissp Quick Start
    {1, 2, 3, 4}
 
 
-   #> (% :* '(1 2 3 4) :** (dict : x 2))  ;Two kinds of unpacking in %.
+   #> (% 1 2  :** (dict : x 3  y 4)  5 6) ;Dict, with mapping unpacking.
+   #> (% 1 2  :** (dict : x 3  y 4)  5 6)
    >>> # QzPCENT_
-   ... (lambda *_QzNo34_xs:
+   ... (lambda *_QzNo32_xs:
    ...   __import__('builtins').dict(
-   ...     _QzNo34_xs))(
-   ...   *# hissp.macros.._macro_.let
-   ...    (lambda _QzNo42_ikvs=__import__('builtins').iter(
-   ...      ((1),
-   ...       (2),
-   ...       (3),
-   ...       (4),)):
-   ...      __import__('builtins').map(
-   ...        (lambda _QzNo42_k,_QzNo42_v:
-   ...          (lambda * _: _)(
-   ...            _QzNo42_k,
-   ...            _QzNo42_v)),
-   ...        _QzNo42_ikvs,
-   ...        _QzNo42_ikvs))(),
+   ...     _QzNo32_xs))(
+   ...   (lambda * _: _)(
+   ...     (1),
+   ...     (2)),
    ...   *dict(
-   ...      x=(2)).items())
-   {1: 2, 3: 4, 'x': 2}
+   ...      x=(3),
+   ...      y=(4)).items(),
+   ...   (lambda * _: _)(
+   ...     (5),
+   ...     (6)))
+   {1: 2, 'x': 3, 'y': 4, 5: 6}
 
 
    ;;; Side Effect
