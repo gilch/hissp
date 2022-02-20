@@ -1727,7 +1727,6 @@ Lissp Quick Start
 
 
    #> (% 1 2  :** (dict : x 3  y 4)  5 6) ;Dict, with mapping unpacking.
-   #> (% 1 2  :** (dict : x 3  y 4)  5 6)
    >>> # QzPCENT_
    ... (lambda *_QzNo32_xs:
    ...   __import__('builtins').dict(

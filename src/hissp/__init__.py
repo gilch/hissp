@@ -19,7 +19,7 @@ See the GitHub project for complete documentation and tests.
 https://github.com/gilch/hissp
 
 ``__init__.py`` imports several convenience utilities,
-including `readerless`, `demunge`, `transpile`, and `repl`,
+including `readerless`, `demunge`, `transpile`, and `interact`,
 as well as the `hissp.macros._macro_` namespace,
 making all of the bundled macros available with the shorter ``hissp.._macro_`` qualifier.
 """
