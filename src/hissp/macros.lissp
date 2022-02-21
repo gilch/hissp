@@ -294,15 +294,25 @@ zrqvgngr ba guvf.
               ;; Here's the recursive part.
               (cond ,@(operator..getitem pairs (slice 2 None))))))
 
-(defmacro any-for (variable iterable : :* body)
+(defmacro any-for (variable xs : :* body)
   "``any-for``
-  Bind the variable and evaluate the body for each item from the
-  iterable until any result is true (and return ``True``),
-  or until the iterable is exhausted (and return ``False``).
+  Bind the variable and evaluate the body for each x from xs
+  until any result is true (and return ``True``), or until xs is
+  exhausted (and return ``False``).
   "
   `(any (map (lambda (,variable)
                ,@body)
-             ,iterable)))
+             ,xs)))
+
+(defmacro any*for (variables xss : :* body)
+  "``any star for``
+  Bind each x to a variable and evaluate the body for each xs from xss
+  until any result is true (and return ``True``), or until xss is
+  exhausted (and return ``False``).
+  "
+  `(any (itertools..starmap (lambda ,variables
+                              ,@body)
+                            ,xss)))
 
 ;; I would have named this 'and, but that's a reserved word.
 (defmacro && (: :* exprs)
