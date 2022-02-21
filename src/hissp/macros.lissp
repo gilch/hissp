@@ -329,8 +329,6 @@ zrqvgngr ba guvf.
                        (|| ,@rest)))
            first))
 
-;; TODO: implement case macro?
-
 ;; see also from bootstrap: if-else, when, unless
 
 ;;; side effect
@@ -539,3 +537,16 @@ except ModuleNotFoundError:pass"
                                      "")))
         $#prime : :* $#args)
        (.format "{}.{}" ',module $#prime))))
+
+(defmacro case (b : :* pairs)
+  (when pairs
+    (let (ks (operator..getitem pairs (slice None None 2))
+          vs (operator..getitem pairs (slice 1 None 2))
+          default (when (operator..mod (len pairs) 2)
+                    (operator..getitem pairs -1)))
+      `((.get (en#dict ,@(map (lambda (k v)
+                                ``(,,k ,(lambda :  ,v)))
+                              ks
+                              vs))
+              ,b
+              (lambda : ,default))))))
