@@ -548,15 +548,19 @@ except ModuleNotFoundError:pass"
         $#prime : :* $#args)
        (.format "{}.{}" ',module $#prime))))
 
-(defmacro case (b : :* pairs)
+(defmacro case (key default : :* pairs)
   (when pairs
-    (let (ks (operator..getitem pairs (slice None None 2))
-          vs (operator..getitem pairs (slice 1 None 2))
-          default (when (operator..mod (len pairs) 2)
-                    (operator..getitem pairs -1)))
-      `((.get (en#dict ,@(map (lambda (k v)
-                                ``(,,k ,(lambda :  ,v)))
-                              ks
-                              vs))
-              ,b
-              (lambda : ,default))))))
+    (let (kss (operator..getitem pairs (slice None None 2))
+          ts (operator..getitem pairs (slice 1 None 2)))
+      `((operator..getitem
+          (@ ,@(map (lambda t `(lambda : ,t))
+                    ts)
+             (lambda : ,default))
+          (.get (en#dict ,@(itertools..chain.from_iterable
+                             (itertools..starmap
+                               (lambda (i ks)
+                                 (map (lambda k `(@ ,k ,i))
+                                      ks))
+                               (enumerate kss))))
+                ,key
+                -1))))))
