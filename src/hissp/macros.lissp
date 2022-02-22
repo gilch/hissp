@@ -172,11 +172,11 @@ judicious use can improve performance and maintainability.
 ;;; abbreviations
 
 (defmacro X\# e
-  "Make e an anonymous function definition with paramter X."
+  "``X#`` Make e an anonymous function body with paramter X."
   `(lambda ,'X ,e))
 
 (defmacro XY\# e
-  "Make e an anonymous function definition with paramters X & Y."
+  "``XY#`` Make e an anonymous function body with paramters X & Y."
   `(lambda ,'XY ,e))
 
 (defmacro alias (alias module)
@@ -211,7 +211,7 @@ judicious use can improve performance and maintainability.
 (alias itr itertools.)
 
 (defmacro chain\# (itr)
-  "Abbreviation for `itertools.chain.from_iterable`"
+  "``chain#`` Abbreviation for `itertools.chain.from_iterable`"
   `(itr#chain.from_iterable ,itr))
 
 (define _TAO "
@@ -346,7 +346,7 @@ zrqvgngr ba guvf.
              ,xs)))
 
 (defmacro any*for (variables xss : :* body)
-  "``any star for``
+  "``any*for`` 'any star-for'
   Bind each x to a variable and evaluate the body for each xs from xss
   until any result is true (and return ``True``), or until xss is
   exhausted (and return ``False``).
