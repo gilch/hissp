@@ -167,6 +167,15 @@ judicious use can improve performance and maintainability.
 
 ;; see also from bootstrap: let
 
+(defmacro chain\# (itr)
+  `(itertools..chain.from_iterable ,itr))
+
+(defmacro X\# e
+  `(lambda ,'X ,e))
+
+(defmacro XY\# e
+  `(lambda ,'XY ,e))
+
 (define _TAO "
 Abguvatarff nobir nofgenpgvba
   ohg vzcyrzragngvba vf / gur orfg anzr.
@@ -209,15 +218,10 @@ zrqvgngr ba guvf.
   "
   (let (iargs (iter args)
         $target `$#target)
-    (let (args (itertools..takewhile (lambda (a)
-                                       (operator..ne a ':))
-                                     iargs))
+    (let (args (itertools..takewhile X#(operator..ne X ':) iargs))
       `(let (,$target ,target)
-         ,@(map (lambda (arg)
-                  `(setattr ,$target ',arg ,arg))
-                args)
-         ,@(map (lambda (kw)
-                  `(setattr ,$target ',kw ,(next iargs)))
+         ,@(map X#`(setattr ,$target ',X ,X) args)
+         ,@(map X#`(setattr ,$target ',X ,(next iargs))
                 iargs)
          ,$target))))
 
@@ -231,10 +235,9 @@ zrqvgngr ba guvf.
   "
   (let ($self `$#self)
     `((lambda (: ,$self ,self)
-        ,@(map (lambda (invocation)
-                 `(,(operator..getitem invocation 0)
+        ,@(map X#`(,(operator..getitem X 0)
                    ,$self
-                   ,@(operator..getitem invocation (slice 1 None))))
+                   ,@(operator..getitem X (slice 1 None)))
                invocations)
         ,$self))))
 
@@ -441,11 +444,10 @@ zrqvgngr ba guvf.
   Mnemonic: @rray list.
   "
   (let (ixs (iter xs))
-    `(en#list : ,@(itertools..chain.from_iterable
-                    (map (lambda x (if-else (operator..eq x ":*")
-                                     `(,x ,(next ixs))
-                                     `(:? ,x)))
-                         ixs)))))
+    `(en#list : ,@chain#(map X#(if-else (operator..eq X ":*")
+                                 `(,X ,(next ixs))
+                                 `(:? ,X))
+                             ixs))))
 
 (defmacro # (: :* xs)
   "``#`` 'set of'
@@ -454,11 +456,10 @@ zrqvgngr ba guvf.
   Mnemonic: Hash set.
   "
   (let (ixs (iter xs))
-    `(en#set : ,@(itertools..chain.from_iterable
-                   (map (lambda x (if-else (operator..eq x ":*")
-                                    `(,x ,(next ixs))
-                                    `(:? ,x)))
-                        ixs)))))
+    `(en#set : ,@chain#(map X#(if-else (operator..eq X ":*")
+                                `(,X ,(next ixs))
+                                `(:? ,X))
+                            ixs))))
 
 (defmacro % (: :* kvs)
   "``%`` 'dict of'.
@@ -471,13 +472,11 @@ zrqvgngr ba guvf.
     (exec "raise TypeError('extra key without value')"))
   (let (ikvs (iter kvs))
     `(en#dict
-      : ,@(itertools..chain
-            : :* (map (lambda kv
-                        (if-else (operator..eq k ":**")
-                          `(:* (.items ,v))
-                          `(:? `(,,k ,,v))))
-                      ikvs
-                      ikvs)))))
+      : ,@chain#(map XY#(if-else (operator..eq X ":**")
+                          `(:* (.items ,Y))
+                          `(:? `(,,X ,,Y)))
+                     ikvs
+                     ikvs))))
 
 ;;; import
 
@@ -548,19 +547,18 @@ except ModuleNotFoundError:pass"
         $#prime : :* $#args)
        (.format "{}.{}" ',module $#prime))))
 
+(alias op operator.)
+(alias itr itertools.)
+
 (defmacro case (key default : :* pairs)
   (when pairs
-    (let (kss (operator..getitem pairs (slice None None 2))
-          ts (operator..getitem pairs (slice 1 None 2)))
-      `((operator..getitem
-          (@ ,@(map (lambda t `(lambda : ,t))
-                    ts)
-             (lambda : ,default))
-          (.get (en#dict ,@(itertools..chain.from_iterable
-                             (itertools..starmap
-                               (lambda (i ks)
-                                 (map (lambda k `(@ ,k ,i))
-                                      ks))
-                               (enumerate kss))))
-                ,key
-                -1))))))
+    (let (kss (op#getitem pairs (slice None None 2))
+          ts (op#getitem pairs (slice 1 None 2)))
+      `((op#getitem (@ ,@(map X#`(lambda : ,X) ts)
+                       (lambda : ,default))
+                    (.get (en#dict ,@chain#(itr#starmap (lambda (i ks)
+                                                          (map X#`(@ ,X ,i)
+                                                               ks))
+                                                        (enumerate kss)))
+                          ,key
+                          -1))))))
