@@ -568,3 +568,7 @@ except ModuleNotFoundError:pass"
                                                         (enumerate kss)))
                           ,key
                           -1))))))
+
+(defmacro sn\# e
+  `(let (,'sn (types..SimpleNamespace))
+     ,e))
