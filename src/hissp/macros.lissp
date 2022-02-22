@@ -572,3 +572,8 @@ except ModuleNotFoundError:pass"
 (defmacro sn\# e
   `(let (,'sn (types..SimpleNamespace))
      ,e))
+
+(defmacro set@ (ns sym val)
+  `(let ($#val ,val)
+     (setattr ,ns ',sym $#val)
+     $#val))
