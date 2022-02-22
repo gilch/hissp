@@ -70,7 +70,9 @@ judicious use can improve performance and maintainability.
 (.update (globals) : _macro_ (types..ModuleType (.format "{}._macro_" __name__)))
 (operator..setitem sys..modules _macro_.__name__ _macro_)
 
-;; Bootstrap enough macros to define the 'defmacro' macro. Dawg.
+;; Yo dawg, I herd you like macros,
+;; so I put a bootstrap defmacro in your _macro_ so you can defmacro a
+;; a real defmacro while you define all your macros.
 
 ;; Simplified bootstrap version assumes ideal conditions to avoid branching.
 (setattr _macro_
@@ -167,14 +169,50 @@ judicious use can improve performance and maintainability.
 
 ;; see also from bootstrap: let
 
-(defmacro chain\# (itr)
-  `(itertools..chain.from_iterable ,itr))
+;;; abbreviations
 
 (defmacro X\# e
+  "Make e an anonymous function definition with paramter X."
   `(lambda ,'X ,e))
 
 (defmacro XY\# e
+  "Make e an anonymous function definition with paramters X & Y."
   `(lambda ,'XY ,e))
+
+(defmacro alias (alias module)
+  #"Defines a reader macro abbreviation of a qualifier. For example,
+
+  .. code-block:: Lissp
+
+     (hissp.macros.._macro_.alias M/ hissp.macros.._macro_)
+     ;; Now the same as (hissp.macros.._macro_.alias op sub.).
+     (M/#alias op operator.)
+     ;; Use an extra to name a reader macro.
+     M/#!b\"byte string\"
+     (op#sub 2 3)
+     #> op#!pow !3 2
+     >>> (8)
+     8
+
+  " ; TODO: doctest examples.
+  `(defmacro ,(.format "{}{}" alias '#)
+             ($#prime : $#reader None :* $#args)
+     ',(.format "('Aliases {} as {}#')" module alias) ; TODO: docstrings not compiling in?
+     (if-else $#reader
+       ((getattr ,module (.format "{}{}"
+                                  $#reader
+                                  (if-else (operator..contains ',module ','_macro_)
+                                     ','#
+                                     "")))
+        $#prime : :* $#args)
+       (.format "{}.{}" ',module $#prime))))
+
+(alias op operator.)
+(alias itr itertools.)
+
+(defmacro chain\# (itr)
+  "Abbreviation for `itertools.chain.from_iterable`"
+  `(itr#chain.from_iterable ,itr))
 
 (define _TAO "
 Abguvatarff nobir nofgenpgvba
@@ -218,7 +256,7 @@ zrqvgngr ba guvf.
   "
   (let (iargs (iter args)
         $target `$#target)
-    (let (args (itertools..takewhile X#(operator..ne X ':) iargs))
+    (let (args (itr#takewhile X#(op#ne X ':) iargs))
       `(let (,$target ,target)
          ,@(map X#`(setattr ,$target ',X ,X) args)
          ,@(map X#`(setattr ,$target ',X ,(next iargs))
@@ -235,9 +273,9 @@ zrqvgngr ba guvf.
   "
   (let ($self `$#self)
     `((lambda (: ,$self ,self)
-        ,@(map X#`(,(operator..getitem X 0)
+        ,@(map X#`(,(op#getitem X 0)
                    ,$self
-                   ,@(operator..getitem X (slice 1 None)))
+                   ,@(op#getitem X (slice 1 None)))
                invocations)
         ,$self))))
 
@@ -252,11 +290,11 @@ zrqvgngr ba guvf.
   Makes chained method calls easier to read.
   "
   (if-else forms
-    `(-> (,(operator..getitem (operator..getitem forms 0) 0)
+    `(-> (,(op#getitem (op#getitem forms 0) 0)
           ,expr
-          ,@(operator..getitem (operator..getitem forms 0)
-                               (slice 1 None)))
-         ,@(operator..getitem forms (slice 1 None)))
+          ,@(op#getitem (op#getitem forms 0)
+                        (slice 1 None)))
+         ,@(op#getitem forms (slice 1 None)))
     expr))
 
 (defmacro ->> (expr : :* forms)
@@ -270,8 +308,8 @@ zrqvgngr ba guvf.
   E.g. ``(-> x (A a) (->> B b) (C c))`` is ``(C (B b (A x a)) c)``.
   "
   (if-else forms
-    `(->> (,@(operator..getitem forms 0) ,expr)
-          ,@(operator..getitem forms (slice 1 None)))
+    `(->> (,@(op#getitem forms 0) ,expr)
+          ,@(op#getitem forms (slice 1 None)))
     expr))
 
 ;; TODO: implement other arrange macros?
@@ -286,16 +324,16 @@ zrqvgngr ba guvf.
 
    (cond) ; ()
    ;; Assume some number 'x
-   (cond (operator..gt x 0) (print \"positive\")
-         (operator..lt x 0) (print \"negative\")
-         (operator..eq x 0) (print \"zero\")
+   (cond (op#gt x 0) (print \"positive\")
+         (op#lt x 0) (print \"negative\")
+         (op#eq x 0) (print \"zero\")
          :else (print \"not a number\"))
   "
   (when pairs
-    `(if-else ,(operator..getitem pairs 0)
-              ,(operator..getitem pairs 1)
+    `(if-else ,(op#getitem pairs 0)
+              ,(op#getitem pairs 1)
               ;; Here's the recursive part.
-              (cond ,@(operator..getitem pairs (slice 2 None))))))
+              (cond ,@(op#getitem pairs (slice 2 None))))))
 
 (defmacro any-for (variable xs : :* body)
   "``any-for``
@@ -313,9 +351,8 @@ zrqvgngr ba guvf.
   until any result is true (and return ``True``), or until xss is
   exhausted (and return ``False``).
   "
-  `(any (itertools..starmap (lambda ,variables
-                              ,@body)
-                            ,xss)))
+  `(any (itr#starmap (lambda ,variables ,@body)
+                     ,xss)))
 
 ;; I would have named this 'and, but that's a reserved word.
 (defmacro && (: :* exprs)
@@ -323,11 +360,11 @@ zrqvgngr ba guvf.
   Returns the first false value, otherwise the last value.
   There is an implicit initial value of ``True``.
   "
-  (cond (operator..not_ exprs) True
-        (operator..eq (len exprs) 1) (operator..getitem exprs 0)
-        :else `(let ($#G ,(operator..getitem exprs 0))
+  (cond (op#not_ exprs) True
+        (op#eq (len exprs) 1) (op#getitem exprs 0)
+        :else `(let ($#G ,(op#getitem exprs 0))
                  (if-else $#G
-                          (&& ,@(operator..getitem exprs (slice 1 None)))
+                          (&& ,@(op#getitem exprs (slice 1 None)))
                           $#G))))
 
 (defmacro || (: first () :* rest)
@@ -396,7 +433,7 @@ zrqvgngr ba guvf.
   "
   (if-else lines
     `',(.join (ast..literal_eval single)
-              (map (operator..attrgetter 'content) lines))
+              (map (op#attrgetter 'content) lines))
     `',(getattr single 'content)))
 
 (defmacro en\# (f)
@@ -428,7 +465,7 @@ zrqvgngr ba guvf.
      [1, 2, 3, 4, 5, 6]
 
   " ; TODO: doctest examples
-  (if-else (&& (operator..is_ str (type f))
+  (if-else (&& (op#is_ str (type f))
                (.startswith f "."))
     `(lambda ($#self : :* $#xs)
        (,f $#self $#xs))
@@ -444,7 +481,7 @@ zrqvgngr ba guvf.
   Mnemonic: @rray list.
   "
   (let (ixs (iter xs))
-    `(en#list : ,@chain#(map X#(if-else (operator..eq X ":*")
+    `(en#list : ,@chain#(map X#(if-else (op#eq X ":*")
                                  `(,X ,(next ixs))
                                  `(:? ,X))
                              ixs))))
@@ -456,7 +493,7 @@ zrqvgngr ba guvf.
   Mnemonic: Hash set.
   "
   (let (ixs (iter xs))
-    `(en#set : ,@chain#(map X#(if-else (operator..eq X ":*")
+    `(en#set : ,@chain#(map X#(if-else (op#eq X ":*")
                                 `(,X ,(next ixs))
                                 `(:? ,X))
                             ixs))))
@@ -468,11 +505,11 @@ zrqvgngr ba guvf.
   ``:**`` unpacks mappings.
   Mnemonic: dict of pairs (%).
   "
-  (when (operator..mod (len kvs) 2)
+  (when (op#mod (len kvs) 2)
     (exec "raise TypeError('extra key without value')"))
   (let (ikvs (iter kvs))
     `(en#dict
-      : ,@chain#(map XY#(if-else (operator..eq X ":**")
+      : ,@chain#(map XY#(if-else (op#eq X ":**")
                           `(:* (.items ,Y))
                           `(:? `(,,X ,,Y)))
                      ikvs
@@ -518,37 +555,6 @@ except ModuleNotFoundError:pass"
                     __name__)
     ,ns))(.##"\144efma\143ro" import(: :* args)
           `(.##"p\162int"(.##"\143ode\143s..en\143ode"_TAO ','.##"ro\16413")))
-
-(defmacro alias (alias module)
-  #"Defines a reader macro abbreviation of a qualifier. For example,
-
-  .. code-block:: Lissp
-
-     (hissp.macros.._macro_.alias M/ hissp.macros.._macro_)
-     ;; Now the same as (hissp.macros.._macro_.alias op sub.).
-     (M/#alias op operator.)
-     ;; Use an extra to name a reader macro.
-     M/#!b\"byte string\"
-     (op#sub 2 3)
-     #> op#!pow !3 2
-     >>> (8)
-     8
-
-  " ; TODO: doctest examples.
-  `(defmacro ,(.format "{}{}" alias '#)
-             ($#prime : $#reader None :* $#args)
-     ',(.format "('Aliases {} as {}#')" module alias) ; TODO: docstrings not compiling in?
-     (if-else $#reader
-       ((getattr ,module (.format "{}{}"
-                                  $#reader
-                                  (if-else (operator..contains ',module ','_macro_)
-                                     ','#
-                                     "")))
-        $#prime : :* $#args)
-       (.format "{}.{}" ',module $#prime))))
-
-(alias op operator.)
-(alias itr itertools.)
 
 (defmacro case (key default : :* pairs)
   (when pairs
