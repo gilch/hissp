@@ -2009,6 +2009,25 @@ Lissp Quick Start
 
    ;; 1 2 3 4 5 6 7 True
 
+   #> (any*for (i c) (enumerate "abc" 1)  ;As any-for, but with starmap.
+   #..  (print (mul i c)))
+   >>> # anyQzSTAR_for
+   ... __import__('builtins').any(
+   ...   __import__('itertools').starmap(
+   ...     (lambda i,c:
+   ...       print(
+   ...         mul(
+   ...           i,
+   ...           c))),
+   ...     enumerate(
+   ...       ('abc'),
+   ...       (1))))
+   a
+   bb
+   ccc
+   False
+
+
    (if-else (eq (input "? ") 't)          ;ternary conditional
      (print "Yes")
      (print "No"))
@@ -2025,6 +2044,7 @@ Lissp Quick Start
      (unless (eq x 0)
        (print "In unless")
        (print "wasn't zero")))
+
 
    ;; Shortcutting logical and.
    #> (&& True True False)
