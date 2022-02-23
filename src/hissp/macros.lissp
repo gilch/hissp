@@ -569,11 +569,31 @@ except ModuleNotFoundError:pass"
                           ,key
                           -1))))))
 
+(defmacro let-from (syms itr : :* body)
+  `((lambda ,syms
+      ,@body)
+    : :* ,itr))
+
 (defmacro sn\# e
+  "``sn#`` Anaphoric. Let ``sn`` be a fresh `types.SimpleNamespace`
+  in the lexical scope of e.
+  "
   `(let (,'sn (types..SimpleNamespace))
      ,e))
 
-(defmacro set@ (ns sym val)
-  `(let ($#val ,val)
-     (setattr ,ns ',sym $#val)
-     $#val))
+(defmacro set! (name : :* args)
+  "``set!`` Assigns an attribute or item, returns the value."
+  (case (len args) (exec "raise TypeError('=! takes 2 or 3 arguments')")
+        (1) (let-from (ns _ attr) (.rpartition name ".")
+              `(let ($#val ,@args)
+                    (setattr ,ns ',attr $#val)
+                 $#val))
+        (2) `((lambda ($#key $#val)
+                (op#setitem ,name $#key $#val)
+                $#val)
+              ,@args)))
+
+(defmacro ~\# e
+  "``~#`` 'not-' Turns a predicate function into its negation."
+  `(lambda (: :* $#a :** $#kw)
+     (op#not_ (,e : :* $#a :** $#kw))))
