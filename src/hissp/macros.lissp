@@ -606,3 +606,10 @@ except ModuleNotFoundError:pass"
 (defmacro spy\# e
   "``spy#`` Print e => its value to stderr, return the value."
   `(hissp.._macro_._spy ,e))
+
+(defmacro time\# e
+  "``time#`` Measures execution time."
+  `(let ($#time time..time_ns)
+     (let-from ($#start $#val $#end) (@ ($#time) ,e ($#time))
+       (print "Elapsed:" (op#truediv (op#sub $#end $#start) 1e6) "ms")
+       $#val)))
