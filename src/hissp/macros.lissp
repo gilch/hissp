@@ -597,3 +597,12 @@ except ModuleNotFoundError:pass"
   "``~#`` 'not-' Turns a predicate function into its negation."
   `(lambda (: :* $#a :** $#kw)
      (op#not_ (,e : :* $#a :** $#kw))))
+
+(defmacro _spy e
+  `(let ($#e ,e)
+     (print ',e "=>" $#e : file sys..stderr)
+     $#e))
+
+(defmacro spy\# e
+  "``spy#`` Print e => its value to stderr, return the value."
+  `(hissp.._macro_._spy ,e))
