@@ -2813,6 +2813,27 @@ Lissp Quick Start
    b'Fully qualified b# macro at read time.'
 
 
+   ;; A couple of aliases are bundled:
+   #> op#add
+   >>> __import__('operator').add
+   <built-in function add>
+
+   #> itr#chain
+   >>> __import__('itertools').chain
+   <class 'itertools.chain'>
+
+
+   ;; A bundled abbreviation
+   #> (list chain#(.items (dict : a 1  b 2  c 3)))
+   >>> list(
+   ...   __import__('itertools').chain.from_iterable(
+   ...     dict(
+   ...       a=(1),
+   ...       b=(2),
+   ...       c=(3)).items()))
+   ['a', 1, 'b', 2, 'c', 3]
+
+
    ;; Comment string.
    #> <<#;Don't worry about the "quotes".
    >>> 'Don\'t worry about the "quotes".'
