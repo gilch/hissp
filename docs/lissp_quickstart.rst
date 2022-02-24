@@ -2834,6 +2834,32 @@ Lissp Quick Start
    ['a', 1, 'b', 2, 'c', 3]
 
 
+   ;; Like `timeit.timeit`, but as a macro.
+   #> time#(time..sleep .05)
+   >>> # hissp.macros.._macro_.let
+   ... (lambda _QzNo61_time=__import__('time').time_ns:
+   ...   # hissp.macros.._macro_.letQz_from
+   ...   (lambda _QzNo61_start,_QzNo61_val,_QzNo61_end:(
+   ...     __import__('builtins').print(
+   ...       ('Elapsed:'),
+   ...       __import__('operator').truediv(
+   ...         __import__('operator').sub(
+   ...           _QzNo61_end,
+   ...           _QzNo61_start),
+   ...         (1000000.0)),
+   ...       ('ms')),
+   ...     _QzNo61_val)[-1])(
+   ...     *# hissp.macros.._macro_.QzAT_
+   ...      (lambda *_QzNo37_xs:
+   ...        __import__('builtins').list(
+   ...          _QzNo37_xs))(
+   ...        _QzNo61_time(),
+   ...        __import__('time').sleep(
+   ...          (0.05)),
+   ...        _QzNo61_time())))()
+   Elapsed: ... ms
+
+
    ;; Comment string.
    #> <<#;Don't worry about the "quotes".
    >>> 'Don\'t worry about the "quotes".'
