@@ -172,11 +172,11 @@ judicious use can improve performance and maintainability.
 ;;; abbreviations
 
 (defmacro X\# e
-  "``X#`` Make e an anonymous function body with paramter X."
+  "``X#`` Anaphoric. Make e an anonymous function with paramter X."
   `(lambda ,'X ,e))
 
 (defmacro XY\# e
-  "``XY#`` Make e an anonymous function body with paramters X & Y."
+  "``XY#`` Anaphoric. Make e an anonymous function with paramters X, Y."
   `(lambda ,'XY ,e))
 
 (defmacro alias (alias module)
