@@ -1709,6 +1709,7 @@ Lissp Quick Start
    ...     (3),))
    (42, 'a', 'b', 'c', 42, 2, 3)
 
+
    #> (# 1 :* (@ 1 2 3) 4)                ;Set, with unpacking.
    >>> # QzHASH_
    ... (lambda *_QzNo34_xs:
