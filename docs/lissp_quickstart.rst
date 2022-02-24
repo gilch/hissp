@@ -2659,6 +2659,28 @@ Lissp Quick Start
 
    ;;;; The Bundled Reader Macros
 
+   #> (reduce XY#(add Y X) "abcd")        ;Binary anaphoric lambda.
+   >>> reduce(
+   ...   (lambda X,Y:
+   ...     add(
+   ...       Y,
+   ...       X)),
+   ...   ('abcd'))
+   'dcba'
+
+   #> (list (map X#(@ X) "abc"))          ;Unary anaphoric lambda.
+   >>> list(
+   ...   map(
+   ...     (lambda X:
+   ...       # QzAT_
+   ...       (lambda *_QzNo37_xs:
+   ...         __import__('builtins').list(
+   ...           _QzNo37_xs))(
+   ...         X)),
+   ...     ('abc')))
+   [['a'], ['b'], ['c']]
+
+
    #> b#"bytes"                           ;Bytes reader macro.
    >>> b'bytes'
    b'bytes'
