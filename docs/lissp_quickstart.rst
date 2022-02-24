@@ -1908,6 +1908,18 @@ Lissp Quick Start
    a b
 
 
+   #> (let-from (a b : :* cs) "abcdefg"   ;Locals from iterable.
+   #..  (print cs b a))
+   >>> # letQz_from
+   ... (lambda a,b,*cs:
+   ...   print(
+   ...     cs,
+   ...     b,
+   ...     a))(
+   ...   *('abcdefg'))
+   ('c', 'd', 'e', 'f', 'g') b a
+
+
    ;;; Configuration
 
    #> (attach (types..SimpleNamespace) + : a 1  b "Hi")
