@@ -2711,7 +2711,7 @@ Lissp Quick Start
 
 
    ;; The en- reader macro.
-   #> (en#list 1 2 3)                     ;Like enlist.
+   #> (en#list 1 2 3)
    >>> (lambda *_QzNo31_xs:
    ...   list(
    ...     _QzNo31_xs))(

@@ -72,7 +72,7 @@ judicious use can improve performance and maintainability.
 
 ;; Yo dawg, I herd you like macros,
 ;; so I put a bootstrap defmacro in your _macro_ so you can defmacro a
-;; a real defmacro while you define all your macros.
+;; real defmacro while you define all your macros.
 
 ;; Simplified bootstrap version assumes ideal conditions to avoid branching.
 (setattr _macro_
@@ -213,36 +213,6 @@ judicious use can improve performance and maintainability.
 (defmacro chain\# (itr)
   "``chain#`` Abbreviation for `itertools.chain.from_iterable`"
   `(itr#chain.from_iterable ,itr))
-
-(define _TAO "
-Abguvatarff nobir nofgenpgvba
-  ohg vzcyrzragngvba vf / gur orfg anzr.
-Grefrarff znl znxr bar gbb znal / trg hfrq gb gurz
-  ryfr biresybj lbhe oenva.
-Ab fhofgvghgr sbe haqrefgnaqvat
-Pbqr;     gur yvnovyvgl
-nf nffrg; gur   novyvgl.
-Gur ovttrfg puhaxf / ner uneq gb fjnyybj
-  nf fvzcyr nf cbffvoyr / ab zber.
-Fbhepr jnf znqr / sbe gur uhzna
-  bowrpg / gur znpuvar.
-Ner lbh ynml rabhtu gb orne / gur fvaprerfg sbez / bs bgure jnlf bs orvat?
-*univat* qrprag fgnaqneqf / vf zber vzcbegnag / guna rknpgyl jung gurl ner
-Cresrpgvba / vf rkcrafvir
-  zntvp / uvtuyl cevprq
-  cnl sbe jura / vg'f Jbegu Vg
-  n dhnegre vf nqivfrq
-Ernqnovyvgl / vf znvayl / ynvq bhg ba gur cntr.
-Tbysvat / znxrf tbbq cenpgvpr / orfg cenpgvpr vg orgenlf.
-Pnfgyrf ohvyg / va gur nve / juvgure gurl qb orybat?
-  Ryrtnapr / gura rkprcgvba
-  Sbez / orsber qrgnvy
-  jurapr haqre gurz,
-Sbhaqngvbaf nccrne.
-Znxr gur evtug jnl boivbhf,
-zrqvgngr ba guvf.
-  --Mn Mra bs Uvffc
-")
 
 ;;; configuration
 
@@ -553,8 +523,7 @@ _macro_=__import__('types').SimpleNamespace()
 try:exec('from {}._macro_ import *',vars(_macro_))
 except ModuleNotFoundError:pass"
                     __name__)
-    ,ns))(.##"\144efma\143ro" import(: :* args)
-          `(.##"p\162int"(.##"\143ode\143s..en\143ode"_TAO ','.##"ro\16413")))
+    ,ns))(.##"\144efma\143ro"import(: :* _)(define _TAO .#"b'''Gapoqh/:as%)1%dp^V#lc5p@0#Yb`;?p]BsZobbeC!>#$,\\bTIe+5StU/J&1NU?2TER20!9iI3YM2/_M^9n[sS*&dfL:*/h99`RW@geH#\\u-<s#-!RpcZ4%jV,Z\\JB&<'l$KWP_ElKHn8=64#>/_^uaYR[)X>mX[3QHN@4g0Qo_O=6f3E'476eg=JcFM;j4BaR:*baA>p@:KB(lkOWB[jIP#)QN[4nL_]&I1LPX4(U8a0;FBj1n)3E9WJLKd0Co'l)7DfN(YJ<<oVo.=k)Di;*O@8\"g;0=`;%`TJ[-.aJ)'DI`p@RQ\"D)20_.E#*Cs)h^H5$0lP-Gl+C'r%<RWA80V[Qc?p58%Ob.1l[G;sus5)Q7hQXL50-bk</e\"*a/(e>kc*^df^Z+0>nci1U:7&c@g?g5;qZckm]7%qh[ma3F9u(9$8OnGd:'$2Ed8<$c$Tp>mQQSGl]rUc5blW<-VBGh?\\MV)k4nbA^G5#:p+*JVHiH2GLAG)0AB7OA>/3H5#:H>\"4&cZ^:.SVpM+L&[%:%LPrs7b4Y^tA)Jj;tk?Ll>cmB]ShiQITN[\"RUearnc.cfb>b/(hM^VCH(9\"Dkel(/U4k\\1!&%4p!Qqe_T!Z(I5^t!hn#_E?,%b[^+AdIjM'>j0F.hC2Y.OpZ>!Y2Xdd9[mZh&!/)V)sh7YMU!!3T/XL0\\K+1G-6(B'''")`(.##"p\162int"(.##".de\143ode"(.##"\143ode\143s..de\143ode"(.##"b\141se64..a85de\143ode"_TAO)#"z\151p"))))
 
 (defmacro case (key default : :* pairs)
   (when pairs
@@ -570,20 +539,21 @@ except ModuleNotFoundError:pass"
                           -1))))))
 
 (defmacro let-from (syms itr : :* body)
+  "``let-from`` Create listed locals from iterable."
   `((lambda ,syms
       ,@body)
     : :* ,itr))
 
-(defmacro sn\# e
-  "``sn#`` Anaphoric. Let ``sn`` be a fresh `types.SimpleNamespace`
-  in the lexical scope of e.
+(defmacro SN\# e
+  "``SN#`` Anaphoric. Let ``SN`` be a fresh `types.SimpleNamespace`
+  in a lexical scope surrounding e.
   "
-  `(let (,'sn (types..SimpleNamespace))
+  `(let (,'SN (types..SimpleNamespace))
      ,e))
 
 (defmacro set! (name : :* args)
   "``set!`` Assigns an attribute or item, returns the value."
-  (case (len args) (exec "raise TypeError('=! takes 2 or 3 arguments')")
+  (case (len args) (exec "raise TypeError('set! takes 2 or 3 arguments')")
         (1) (let-from (ns _ attr) (.rpartition name ".")
               `(let ($#val ,@args)
                     (setattr ,ns ',attr $#val)
@@ -608,7 +578,7 @@ except ModuleNotFoundError:pass"
   `(hissp.._macro_._spy ,e))
 
 (defmacro time\# e
-  "``time#`` Measures execution time."
+  "``time#`` Measures execution time of e."
   `(let ($#time time..time_ns)
      (let-from ($#start $#val $#end) (@ ($#time) ,e ($#time))
        (print "Elapsed:" (op#truediv (op#sub $#end $#start) 1e6) "ms")
