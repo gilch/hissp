@@ -544,11 +544,11 @@ except ModuleNotFoundError:pass"
       ,@body)
     : :* ,itr))
 
-(defmacro SN\# e
-  "``SN#`` Anaphoric. Let ``SN`` be a fresh `types.SimpleNamespace`
+(defmacro the\# e
+  "``the#`` Anaphoric. Let ``the`` be a fresh `types.SimpleNamespace`
   in a lexical scope surrounding e.
   "
-  `(let (,'SN (types..SimpleNamespace))
+  `(let (,'the (types..SimpleNamespace))
      ,e))
 
 (defmacro set! (name : :* args)
