@@ -171,6 +171,10 @@ judicious use can improve performance and maintainability.
 
 ;;; abbreviations
 
+(defmacro &\# e
+  "``&#`` 'thunk' Make e an anonymous function with no parameters."
+  `(lambda : ,e))
+
 (defmacro X\# e
   "``X#`` Anaphoric. Make e an anonymous function with paramter X."
   `(lambda ,'X ,e))
