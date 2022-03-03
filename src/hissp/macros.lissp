@@ -587,3 +587,19 @@ except ModuleNotFoundError:pass"
      (let-from ($#start $#val $#end) (@ ($#time) ,e ($#time))
        (print "Elapsed:" (op#truediv (op#sub $#end $#start) 1e6) "ms")
        $#val)))
+
+(defmacro loop (vars init : :* body)
+  "Anaphoric. Loop/recur with trampoline.
+
+  Creates a stack to schedule future loops. Call the ``recur`` anaphor
+  with values push another loop to the schedule.
+
+  Returns the value of the final loop.
+  "
+  `(let ($#stack (@ () None ,init))
+     (let (,'recur (lambda (: :* $#args)
+                     (.append $#stack $#args)))
+       (any*for ,vars (iter $#stack.pop None)
+         (op#setitem $#stack 0 (progn ,@body))
+         None)
+       (.pop $#stack))))
