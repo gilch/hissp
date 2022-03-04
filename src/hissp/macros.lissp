@@ -605,3 +605,12 @@ except ModuleNotFoundError:pass"
          (op#setitem $#stack 0 (progn ,@body))
          None)
        (op#getitem $#stack 0))))
+
+(define _sentinel (object))
+(defmacro assert-that (b : msg _sentinel)
+  (if-else __debug__
+    `(unless ,b
+       (let (,'ex (AssertionError ,@(unless (op#is_ msg _sentinel)
+                                      (@ msg))))
+         (exec "raise ex")))
+    ""))
