@@ -218,6 +218,12 @@ judicious use can improve performance and maintainability.
   "``chain#`` Abbreviation for `itertools.chain.from_iterable`"
   `(itr#chain.from_iterable ,itr))
 
+(defmacro throw (exception)
+  `(.throw (let ($#gen (traceback..walk_tb None))
+             (.close $#gen)
+             $#gen)
+           ,exception))
+
 ;;; configuration
 
 (defmacro attach (target : :* args)
@@ -480,7 +486,7 @@ judicious use can improve performance and maintainability.
   Mnemonic: dict of pairs (%).
   "
   (when (op#mod (len kvs) 2)
-    (exec "raise TypeError('extra key without value')"))
+    (throw (TypeError "extra key without value")))
   (let (ikvs (iter kvs))
     `(en#dict
       : ,@chain#(map XY#(if-else (op#eq X ":**")
@@ -532,7 +538,7 @@ except ModuleNotFoundError:pass"
 (defmacro case (key default : :* pairs)
   (when pairs
     (when (op#mod (len pairs) 2)
-      (exec "raise TypeError('Incomplete pair')"))
+      (throw (TypeError "Incomplete pair")))
     (let (kss (op#getitem pairs (slice None None 2))
           ts (op#getitem pairs (slice 1 None 2)))
       `((op#getitem (@ ,@(map X#`&#,X ts) &#,default)
@@ -557,7 +563,7 @@ except ModuleNotFoundError:pass"
 
 (defmacro set! (name : :* args)
   "``set!`` Assigns an attribute or item, returns the value."
-  (case (len args) (exec "raise TypeError('set! takes 2 or 3 arguments')")
+  (case (len args) (throw (TypeError "set! takes 2 or 3 arguments"))
         (1) (let-from (ns _ attr) (.rpartition name ".")
               `(let ($#val ,@args)
                     (setattr ,ns ',attr $#val)
@@ -612,7 +618,6 @@ except ModuleNotFoundError:pass"
 (defmacro assert-that (b : msg _sentinel)
   (if-else __debug__
     `(unless ,b
-       (let (,'ex (AssertionError ,@(unless (op#is_ msg _sentinel)
-                                      (@ msg))))
-         (exec "raise ex")))
+       (throw (AssertionError ,@(unless (op#is_ msg _sentinel)
+                                  (@ msg)))))
     ""))
