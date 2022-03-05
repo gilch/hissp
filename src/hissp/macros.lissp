@@ -585,7 +585,9 @@ except ModuleNotFoundError:pass"
   "``time#`` Measure execution time of e, return its value."
   `(let ($#time time..time_ns)
      (let-from ($#start $#val $#end) (@ ($#time) ,e ($#time))
-       (print "Elapsed:" (op#truediv (op#sub $#end $#start) 1e6) "ms")
+       (print "Elapsed:" (op#truediv (op#sub $#end $#start)
+                                     (decimal..Decimal 1e6))
+                         "ms")
        $#val)))
 
 (defmacro loop-from (syms inits : :* body)
