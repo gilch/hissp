@@ -621,3 +621,12 @@ except ModuleNotFoundError:pass"
        (throw (AssertionError ,@(unless (op#is_ msg _sentinel)
                                   (@ msg)))))
     ""))
+
+(defmacro defgenerator (name parameters init yields
+                        : excepts `(throw ,'type ,'value ,'traceback)
+                        :* methods)
+  `(deftype ,name (collections.abc..Generator)
+     __init__ (lambda (,'self ,@parameters) ,init None)
+     send (lambda (,'self ,'value) ,@yields)
+     throw (lambda (,'self ,'type : ,'value None  ,'traceback None) ,@excepts)
+     ,@methods))
