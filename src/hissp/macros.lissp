@@ -158,14 +158,18 @@ judicious use can improve performance and maintainability.
             : ,name
             ,value))
 
+(defmacro deftype@ (decorators name bases : :* body)
+  `(define ,name
+     (-> (type ',name (,hissp.reader..ENTUPLE ,@bases)
+               (dict : ,@body)
+          ,@(reversed (list (zip decorators)))))))
+
 (defmacro deftype (name bases : :* body)
   "Defines a type (class) in the current module.
 
   Key-value pairs are implied in the body.
   "
-  `(define ,name
-       (type ',name (,hissp.reader..ENTUPLE ,@bases)
-             (dict : ,@body))))
+  (.deftype@ _macro_ () name bases : :* body))
 
 ;; see also from bootstrap: let
 
