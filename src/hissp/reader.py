@@ -327,24 +327,13 @@ class Lissp:
         """Qualify symbol based on current context."""
         if not is_qualifiable(symbol):
             return symbol
-        if invocation and "_macro_" in self.ns and self._macro_has(symbol):
+        if invocation and "_macro_" in self.ns and hasattr(self.ns["_macro_"], symbol):
             return f"{self.qualname}.._macro_.{symbol}"  # Known macro.
         if symbol in dir(builtins) and symbol.split(".", 1)[0] not in self.ns:
             return f"builtins..{symbol}"  # Known builtin, not shadowed (yet).
         if invocation and "." not in symbol:  # Could still be a recursive macro.
             return f"{self.qualname}{MAYBE}{symbol}"
         return f"{self.qualname}..{symbol}"
-
-    def _macro_has(self, symbol):
-        # The _macro_ interface is not required to implement
-        # __contains__ or __dir__ and exotic _macro_ objects might
-        # override __getattribute__. The only way to tell if _macro_ has
-        # a name is getattr().
-        try:
-            getattr(self.ns["_macro_"], symbol)
-        except AttributeError:
-            return False
-        return True
 
     def gensym(self, form: str):
         """Generate a symbol unique to the current template."""
