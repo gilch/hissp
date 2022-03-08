@@ -442,7 +442,7 @@ def is_qualifiable(symbol):
     return (
         symbol not in {"quote", "__import__"}
         and not _iskeyword(symbol)
-        and not re.match(r"^_QzNo\d+_", symbol)
+        and not re.match(r"_QzNo\d+_", symbol)
         and all(map(str.isidentifier, symbol.split(".")))
     )
 
