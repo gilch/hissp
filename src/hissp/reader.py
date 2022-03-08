@@ -258,13 +258,10 @@ class Lissp:
     def unquote_context(self):
         """Start a new unquote context for the current template."""
         try:
-            gensym_number = self.gensym_stack.pop()
+            self.gensym_stack[-1]
         except IndexError:
             raise SyntaxError("Unquote outside of template.", self.position()) from None
-        try:
-            yield
-        finally:
-            self.gensym_stack.append(gensym_number)
+        yield
 
     def _extras(self, p, v):
         extras = []
