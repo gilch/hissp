@@ -333,11 +333,19 @@ class Lissp:
         return f"{self.qualname}..{symbol}"
 
     def gensym(self, form: str):
-        """Generate a symbol unique to the current template."""
+        """Generate a symbol unique to the current template.
+        Re-munges any $'s as a gensym counter, or adds it as a prefix if
+        there aren't any.
+        """
         try:
-            return f"_QzNo{self.gensym_stack[-1]}_{munge(form)}"
+            prefix = f"_QzNo{self.gensym_stack[-1]}_"
         except IndexError:
             raise SyntaxError("Gensym outside of template.", self.position()) from None
+        marker = munge("$")
+        if marker not in form:
+            return f"{prefix}{(form)}"
+        # TODO: escape $'s somehow? $$? \$?
+        return form.replace(marker, prefix)
 
     def _custom_macro(self, form, tag, extras):
         assert tag.endswith("#")
