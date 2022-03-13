@@ -222,11 +222,14 @@ judicious use can improve performance and maintainability.
   "``chain#`` Abbreviation for `itertools.chain.from_iterable`"
   `(itr#chain.from_iterable ,itr))
 
-(defmacro throw (exception)
+(defmacro throw (: :* exception)
   `(.throw (let ($#gen (traceback..walk_tb None))
              (.close $#gen)
              $#gen)
-           ,exception))
+           ;; Despite PEP 3109, .throw still seems to accept multiple
+           ;; arguments. You should basically never use more than one,
+           ;; except when implementing your own throw methods.
+           ,@exception))
 
 ;;; configuration
 
