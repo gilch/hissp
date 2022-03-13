@@ -561,6 +561,12 @@ except ModuleNotFoundError:pass"
       ,@body)
     : :* ,itr))
 
+(defmacro throw-from (exception cause)
+  `(throw (let ($#G (lambda ($#x)
+                      (if-else (isinstance $#x BaseException)
+                        $#x ($#x))))
+            (attach ($#G ,exception) : ,'__cause__ ($#G ,cause)))))
+
 (defmacro the\# e
   "``the#`` Anaphoric. Let ``the`` be a fresh `types.SimpleNamespace`
   in a lexical scope surrounding e.
