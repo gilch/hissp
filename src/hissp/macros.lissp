@@ -216,11 +216,11 @@ judicious use can improve performance and maintainability.
        (.format "{}.{}" ',module $#prime))))
 
 (alias op operator.)
-(alias itr itertools.)
+(alias i itertools.)
 
 (defmacro chain\# (itr)
   "``chain#`` Abbreviation for `itertools.chain.from_iterable`"
-  `(itr#chain.from_iterable ,itr))
+  `(i#chain.from_iterable ,itr))
 
 (defmacro throw (: :* exception)
   `(.throw (let ($#gen (traceback..walk_tb None))
@@ -243,7 +243,7 @@ judicious use can improve performance and maintainability.
   "
   (let (iargs (iter args)
         $target `$#target)
-    (let (args (itr#takewhile X#(op#ne X ':) iargs))
+    (let (args (i#takewhile X#(op#ne X ':) iargs))
       `(let (,$target ,target)
          ,@(map X#`(setattr ,$target ',X ,X) args)
          ,@(map X#`(setattr ,$target ',X ,(next iargs))
@@ -338,8 +338,8 @@ judicious use can improve performance and maintainability.
   until any result is true (and return ``True``), or until xss is
   exhausted (and return ``False``).
   "
-  `(any (itr#starmap (lambda ,variables ,@body)
-                     ,xss)))
+  `(any (i#starmap (lambda ,variables ,@body)
+                   ,xss)))
 
 ;; I would have named this 'and, but that's a reserved word.
 (defmacro && (: :* exprs)
@@ -549,9 +549,9 @@ except ModuleNotFoundError:pass"
     (let (kss (op#getitem pairs (slice None None 2))
           ts (op#getitem pairs (slice 1 None 2)))
       `((op#getitem (@ ,@(map X#`&#,X ts) &#,default)
-                    (.get (en#dict ,@chain#(itr#starmap (lambda (i ks)
-                                                          (map X#`(@ ,X ,i) ks))
-                                                        (enumerate kss)))
+                    (.get (en#dict ,@chain#(i#starmap (lambda (i ks)
+                                                        (map X#`(@ ,X ,i) ks))
+                                                      (enumerate kss)))
                           ,key
                           -1))))))
 
