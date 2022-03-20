@@ -184,8 +184,16 @@ judicious use can improve performance and maintainability.
   `(lambda ,'X ,e))
 
 (defmacro XY\# e
-  "``XY#`` Anaphoric. Make e an anonymous function with paramters X, Y."
+  "``XY#`` Anaphoric. Make e an anonymous function with paramters X Y."
   `(lambda ,'XY ,e))
+
+(defmacro XYZ\# e
+  "``XYZ#`` Anaphoric. Make e an anonymous function with paramters X Y Z."
+  `(lambda ,'XYZ ,e))
+
+(defmacro XYZW\# e
+  "``XYZW#`` Anaphoric. Make e an anonymous function with paramters X Y Z W."
+  `(lambda ,'XYZW ,e))
 
 (defmacro alias (alias module)
   #"Defines a reader macro abbreviation of a qualifier. For example,
