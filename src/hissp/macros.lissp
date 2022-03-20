@@ -585,14 +585,18 @@ except ModuleNotFoundError:pass"
      ,e))
 
 (defmacro set@ (name val)
-  "``set@`` Assigns an attribute, returns the value."
+  "``set@`` Assigns an attribute, returns the value.
+  Mnemonic: set @tribute.
+  "
   (let-from (ns _ attr) (.rpartition name ".")
     `(let ($#val ,val)
        (setattr ,ns ',attr $#val)
        $#val)))
 
 (defmacro set! (coll key val)
-  "``set!`` Assigns an item, returns the value."
+  "``set!`` Assigns an item, returns the value.
+  Mnemonic: set !tem.
+  "
   `(let ($#val ,val)
      (op#setitem ,coll ,key $#val)
      $#val))
