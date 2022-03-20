@@ -576,17 +576,27 @@ except ModuleNotFoundError:pass"
   `(let (,'the (types..SimpleNamespace))
      ,e))
 
-(defmacro set! (name : :* args)
-  "``set!`` Assigns an attribute or item, returns the value."
-  (case (len args) (throw (TypeError "set! takes 2 or 3 arguments"))
-        (1) (let-from (ns _ attr) (.rpartition name ".")
-              `(let ($#val ,@args)
-                    (setattr ,ns ',attr $#val)
-                 $#val))
-        (2) `((lambda ($#key $#val)
-                (op#setitem ,name $#key $#val)
-                $#val)
-              ,@args)))
+(defmacro set@ (name val)
+  "``set@`` Assigns an attribute, returns the value."
+  (let-from (ns _ attr) (.rpartition name ".")
+    `(let ($#val ,val)
+       (setattr ,ns ',attr $#val)
+       $#val)))
+
+(defmacro set! (coll key val)
+  "``set!`` Assigns an item, returns the value."
+  `(let ($#val ,val)
+     (op#setitem ,coll ,key $#val)
+     $#val))
+
+(defmacro zap@ (op name : :* args)
+  `(set@ ,name (,op ,name ,@args)))
+
+(defmacro zap! (op coll key : :* args)
+  `(let ($#coll ,coll
+         $#key ,key)
+     (set! $#coll $#key (,op (op#getitem $#coll $#key)
+                             ,@args))))
 
 (defmacro ~\# e
   "``~#`` 'not-' Turns a predicate function into its negation."
