@@ -571,6 +571,14 @@ except ModuleNotFoundError:pass"
       ,@body)
     : :* ,itr))
 
+(defmacro let*from (pairs : :* body)
+  (if-else pairs
+    `(let-from ,(op#getitem pairs 0)
+               ,(op#getitem pairs 1)
+       (let*from ,(op#getitem pairs (slice 2 None))
+         ,@body))
+    `(progn ,@body)))
+
 (defmacro throw-from (exception cause)
   `(throw (let ($#G (lambda ($#x)
                       (if-else (isinstance $#x BaseException)
