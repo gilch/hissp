@@ -660,7 +660,7 @@ except ModuleNotFoundError:pass"
        (op#getitem $#stack 0))))
 
 (define _sentinel (object))
-(defmacro assert-that (b : msg _sentinel)
+(defmacro ensure (b : msg _sentinel)
   (if-else __debug__
     `(unless ,b
        (throw (AssertionError ,@(unless (op#is_ msg _sentinel)
