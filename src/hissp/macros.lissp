@@ -626,6 +626,18 @@ except ModuleNotFoundError:pass"
      (set! $#coll $#key (,op (op#getitem $#coll $#key)
                              ,@args))))
 
+(defmacro delay e
+  `(attach &#,e : ,'__qualname__ ,(repr (.format "<promise for {}>" e))))
+
+(defmacro force (promise)
+  `(let ($#promise ,promise)
+     (if-else (hasattr $#promise ','value)
+       (getattr $#promise ','value)
+       (set@ $#promise.value ($#promise)))))
+
+(defmacro delay-force e
+  `(delay (force ,e)))
+
 (defmacro ~\# e
   "``~#`` 'not-' Turns a predicate function into its negation."
   `(lambda (: :* $#a :** $#kw)
