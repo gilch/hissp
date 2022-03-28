@@ -626,17 +626,18 @@ except ModuleNotFoundError:pass"
      (set! $#coll $#key (,op (op#getitem $#coll $#key)
                              ,@args))))
 
-(defmacro delay e
-  `(attach &#,e : ,'__qualname__ ,(repr (.format "<promise for {}>" e))))
+(defmacro lazy\# e
+  "Delays evaluation of an iterable expression.
 
-(defmacro force (promise)
-  `(let ($#promise ,promise)
-     (if-else (hasattr $#promise ','value)
-       (getattr $#promise ','value)
-       (set@ $#promise.value ($#promise)))))
-
-(defmacro delay-force e
-  `(delay (force ,e)))
+  It's evaluated when an element is drawn from it.
+  E.g.
+      (define fib
+        (lambda (: a 1  b 1)
+          lazy#(i#chain (@ a)
+                        (fib b (op#add a b)))))
+      (list (i#islice (fib) 7)) ;-> [1, 1, 2, 3, 5, 8, 13]
+  "
+  `chain#(i#starmap &#,e '(())))
 
 (defmacro ~\# e
   "``~#`` 'not-' Turns a predicate function into its negation."
