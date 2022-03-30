@@ -546,6 +546,12 @@ def engarde(xs,h,f,/,*a,**kw):
  except xs as e:return h(e)
 def enter(c,f,/,*a):
  with c as C:return f(*a,C)
+class Yields:
+ __slots__=*'_p',;_c=lambda s:s._
+ def __init__(s,p):s._,s.p=p,s._f
+ def _f(s):s._,s.p=s._(),s._c;return s._
+ def __iter__(s):
+  while s:x,s=s.p();yield from x
 _macro_=__import__('types').SimpleNamespace()
 try:exec('from {}._macro_ import *',vars(_macro_))
 except ModuleNotFoundError:pass"
@@ -626,19 +632,6 @@ except ModuleNotFoundError:pass"
      (set! $#coll $#key (,op (op#getitem $#coll $#key)
                              ,@args))))
 
-(defmacro lazy\# e
-  "Delays evaluation of an iterable expression.
-
-  It's evaluated when an element is drawn from it.
-  E.g.
-      (define fib
-        (lambda (: a 1  b 1)
-          lazy#(i#chain (@ a)
-                        (fib b (op#add a b)))))
-      (list (i#islice (fib) 7)) ;-> [1, 1, 2, 3, 5, 8, 13]
-  "
-  `chain#(i#starmap &#,e '(())))
-
 (defmacro ~\# e
   "``~#`` 'not-' Turns a predicate function into its negation."
   `(lambda (: :* $#a :** $#kw)
@@ -687,12 +680,3 @@ except ModuleNotFoundError:pass"
        (throw (AssertionError ,@(unless (op#is_ msg _sentinel)
                                   (@ msg)))))
     ""))
-
-(defmacro defgenerator (name parameters init yields
-                        : excepts `(throw ,'type ,'value ,'traceback)
-                        :* methods)
-  `(deftype ,name (collections.abc..Generator)
-     __init__ (lambda (,'self ,@parameters) ,init None)
-     send (lambda (,'self ,'value) ,@yields)
-     throw (lambda (,'self ,'type : ,'value None  ,'traceback None) ,@excepts)
-     ,@methods))
