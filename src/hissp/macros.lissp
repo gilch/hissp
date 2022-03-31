@@ -549,10 +549,10 @@ def enter(c,f,/,*a):
 class Ensue(__import__('collections.abc').abc.Generator):
  send=lambda s,v:s.g.send(v);throw=lambda s,*x:s.g.throw(*x)
  def __init__(s,p):s.p,s.k,s.g=p,s,s.G()
- def Y(s,es,k,xs=(),h=0):s.e,s.k,s.x,s.h=es,k,xs,h
+ def Y(s,e,k,xs=(),h=0):s.e,s.k,s.x,s.h=e,k,xs,h
  def G(s,r=None):
   while s:=s.k:
-   try:s.p(s.Y, r);r=yield from s.e
+   try:s.p(s.Y, r);r=yield s.e
    except s.x as e:r=s.h(e)
 _macro_=__import__('types').SimpleNamespace()
 try:exec('from {}._macro_ import *',vars(_macro_))
