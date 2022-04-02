@@ -158,6 +158,10 @@ judicious use can improve performance and maintainability.
             : ,name
             ,value))
 
+(defmacro defonce (name value)
+  `(unless (operator..contains (globals) ',name)
+     (define ,name ,value)))
+
 (defmacro deftype@ (decorators name bases : :* body)
   `(define ,name
      (-> (type ',name (,hissp.reader..ENTUPLE ,@bases)
