@@ -127,8 +127,6 @@ judicious use can improve performance and maintainability.
 
 ;;; definition
 
-;; see also from bootstrap: let
-
 ;; Define the real defmacro using the bootstrap macros.
 (defmacro defmacro (name parameters : docstring () :* body)
   "Creates a new macro for the current module.
@@ -176,6 +174,10 @@ judicious use can improve performance and maintainability.
   Key-value pairs are implied in the body.
   "
   (.deftype@ _macro_ () name bases : :* body))
+
+;;; locals
+
+;; see also from bootstrap: let
 
 (defmacro let-from (syms itr : :* body)
   "``let-from`` Create listed locals from iterable."
