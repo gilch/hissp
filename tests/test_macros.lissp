@@ -21,6 +21,22 @@
   (lambda (self)
     (self.assertEqual : :* `($#test $#test)))
 
+  test_different_gensym
+  (lambda (self)
+    (self.assertNotEqual `$#test `$#test))
+
+  test_nested_gensym
+  (lambda (self)
+    (self.assertEqual : :* `('$#test `$#test)))
+
+  test_unquote_gensym
+  (lambda (self)
+    (self.assertEqual : :* `($#test ,'$#test)))
+
+  test_nested_unquote_gensym
+  (lambda (self)
+    (self.assertEqual : :* `($#test `,,'$#test)))
+
   test_qualified_symbol
   (lambda (self)
     (self.assertEqual (tqs)

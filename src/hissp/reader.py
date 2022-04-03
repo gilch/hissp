@@ -166,7 +166,8 @@ class Lissp:
 
     def reinit(self):
         """Reset position, nesting depth, and gensym stack."""
-        self.gensym_stack = []
+        self.counters = []
+        self.context = []
         self.depth = []
         self._p = 0
 
@@ -239,29 +240,33 @@ class Lissp:
     def _macro(self, v):
         p = self._p
         with {
-            "`": self.gensym_context,
+            "`": self.template_context,
             ",": self.unquote_context,
             ",@": self.unquote_context,
         }.get(v, nullcontext)():
             yield self.parse_macro(v, *self._extras(p, v))
 
     @contextmanager
-    def gensym_context(self):
+    def template_context(self):
         """Start a new gensym context for the current template."""
-        self.gensym_stack.append(gensym_counter())
+        self.counters.append(gensym_counter())
+        self.context.append("`")
         try:
             yield
         finally:
-            self.gensym_stack.pop()
+            self.counters.pop()
+            self.context.pop()
 
     @contextmanager
     def unquote_context(self):
         """Start a new unquote context for the current template."""
-        try:
-            self.gensym_stack[-1]
-        except IndexError:
+        self.context.append(",")
+        if self.context.count(",") > self.context.count("`"):
             raise SyntaxError("Unquote outside of template.", self.position()) from None
-        yield
+        try:
+            yield
+        finally:
+            self.context.pop()
 
     def _extras(self, p, v):
         extras = []
@@ -337,15 +342,20 @@ class Lissp:
         Re-munges any $'s as a gensym counter, or adds it as a prefix if
         there aren't any.
         """
-        try:
-            prefix = f"_QzNo{self.gensym_stack[-1]}_"
-        except IndexError:
-            raise SyntaxError("Gensym outside of template.", self.position()) from None
+        prefix = f"_QzNo{self._get_counter()}_"
         marker = munge("$")
         if marker not in form:
             return f"{prefix}{(form)}"
         # TODO: escape $'s somehow? $$? \$?
         return form.replace(marker, prefix)
+
+    def _get_counter(self):
+        index = self.context.count("`") - self.context.count(",")
+        if not self.context or index < 0:
+            raise SyntaxError("Gensym outside of template.", self.position()) from None
+        if self.context[-1] == "`":
+            return self.counters[-1]
+        return self.counters[index]
 
     def _custom_macro(self, form, tag, extras):
         assert tag.endswith("#")
