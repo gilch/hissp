@@ -193,6 +193,13 @@ judicious use can improve performance and maintainability.
          ,@body))
     `(progn ,@body)))
 
+(defmacro the\# e
+  "``the#`` Anaphoric. Let ``the`` be a fresh `types.SimpleNamespace`
+  in a lexical scope surrounding e.
+  "
+  `(let (,'the (types..SimpleNamespace))
+     ,e))
+
 ;;; abbreviations
 
 (defmacro &\# e
@@ -626,13 +633,6 @@ except ModuleNotFoundError:pass"
                                                       (enumerate kss)))
                           ,key
                           -1))))))
-
-(defmacro the\# e
-  "``the#`` Anaphoric. Let ``the`` be a fresh `types.SimpleNamespace`
-  in a lexical scope surrounding e.
-  "
-  `(let (,'the (types..SimpleNamespace))
-     ,e))
 
 (defmacro _spy e
   `(let ($#e ,e)
