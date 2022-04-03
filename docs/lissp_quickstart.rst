@@ -1881,6 +1881,8 @@ Lissp Quick Start
    'tomato'
 
 
+   ;;; Locals
+
    #> (let (x "a"                         ;Create locals.
    #..      y "b")                        ;Any number of pairs.
    #..  (print x y)
@@ -1920,6 +1922,86 @@ Lissp Quick Start
    ...     a))(
    ...   *('abcdefg'))
    ('c', 'd', 'e', 'f', 'g') b a
+
+
+   #> (% 1 2  3 4)
+   >>> # QzPCENT_
+   ... (lambda *_QzNo52_xs:
+   ...   __import__('builtins').dict(
+   ...     _QzNo52_xs))(
+   ...   (lambda * _: _)(
+   ...     (1),
+   ...     (2)),
+   ...   (lambda * _: _)(
+   ...     (3),
+   ...     (4)))
+   {1: 2, 3: 4}
+
+   #> (let*from ((ab cd) (.items _)    ;Nested let-froms.
+   #..           (a b) ab
+   #..           (c d) cd)
+   #..  (print a b c d))
+   >>> # letQzSTAR_from
+   ... # hissp.macros.._macro_.letQz_from
+   ... (lambda ab,cd:
+   ...   # hissp.macros..QzMaybe_.letQzSTAR_from
+   ...   # hissp.macros.._macro_.letQz_from
+   ...   (lambda a,b:
+   ...     # hissp.macros..QzMaybe_.letQzSTAR_from
+   ...     # hissp.macros.._macro_.letQz_from
+   ...     (lambda c,d:
+   ...       # hissp.macros..QzMaybe_.letQzSTAR_from
+   ...       # hissp.macros.._macro_.progn
+   ...       (lambda :
+   ...         print(
+   ...           a,
+   ...           b,
+   ...           c,
+   ...           d))())(
+   ...       *cd))(
+   ...     *ab))(
+   ...   *_.items())
+   1 2 3 4
+
+
+   #> (let*from ((ab cd) (.items _)    ;Try to avoid excessive stack frames.
+   #..           (a b c d) `(,@ab ,@cd))
+   #..  (print a b c d))
+   >>> # letQzSTAR_from
+   ... # hissp.macros.._macro_.letQz_from
+   ... (lambda ab,cd:
+   ...   # hissp.macros..QzMaybe_.letQzSTAR_from
+   ...   # hissp.macros.._macro_.letQz_from
+   ...   (lambda a,b,c,d:
+   ...     # hissp.macros..QzMaybe_.letQzSTAR_from
+   ...     # hissp.macros.._macro_.progn
+   ...     (lambda :
+   ...       print(
+   ...         a,
+   ...         b,
+   ...         c,
+   ...         d))())(
+   ...     *(lambda * _: _)(
+   ...        *ab,
+   ...        *cd)))(
+   ...   *_.items())
+   1 2 3 4
+
+
+   #> (let-from (a c b d)                 ;Didn't really need let*from this time.
+   #..          `(,@(.keys _) ,@(.values _)) ; Not always this easy though.
+   #..  (print a b c d))
+   >>> # letQz_from
+   ... (lambda a,c,b,d:
+   ...   print(
+   ...     a,
+   ...     b,
+   ...     c,
+   ...     d))(
+   ...   *(lambda * _: _)(
+   ...      *_.keys(),
+   ...      *_.values()))
+   1 2 3 4
 
 
    ;;; Configuration

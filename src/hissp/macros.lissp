@@ -397,9 +397,10 @@ judicious use can improve performance and maintainability.
                    ,xss)))
 
 (defmacro loop-from (syms inits : :* body)
-  "Anaphoric. Loop/recur with trampoline.
+  "``loop-from`` Anaphoric. Loop/recur with trampoline.
 
-  Set local values for the first loop with an iterable as `let-from`.
+  Set local values for the first loop with an iterable as
+  `let-from<letQz_from>`.
 
   Creates a stack to schedule future loops. Call the ``recur-from``
   anaphor with an iterable of values for the locals to push another loop
