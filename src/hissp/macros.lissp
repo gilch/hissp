@@ -127,6 +127,8 @@ judicious use can improve performance and maintainability.
 
 ;;; definition
 
+;; see also from bootstrap: let
+
 ;; Define the real defmacro using the bootstrap macros.
 (defmacro defmacro (name parameters : docstring () :* body)
   "Creates a new macro for the current module.
@@ -174,8 +176,6 @@ judicious use can improve performance and maintainability.
   Key-value pairs are implied in the body.
   "
   (.deftype@ _macro_ () name bases : :* body))
-
-;; see also from bootstrap: let
 
 (defmacro let-from (syms itr : :* body)
   "``let-from`` Create listed locals from iterable."
@@ -320,6 +320,8 @@ judicious use can improve performance and maintainability.
 
 ;;; control flow
 
+;; see also from bootstrap: if-else, when, unless
+
 (defmacro cond (: :* pairs)
   #"Multiple condition branching.
 
@@ -398,9 +400,9 @@ judicious use can improve performance and maintainability.
                         $#x ($#x))))
             (attach ($#G ,exception) : ,'__cause__ ($#G ,cause)))))
 
-;; see also from bootstrap: if-else, when, unless
-
 ;;; side effect
+
+;; see also from bootstrap: progn
 
 (defmacro prog1 (expr1 : :* body)
   "Evaluates each expression in sequence (for side effects),
@@ -408,8 +410,6 @@ judicious use can improve performance and maintainability.
   `(let ($#value1 ,expr1)
      ,@body
      $#value1))
-
-;; see also from bootstrap: progn
 
 ;; Note that any of the bundled macros with a lambda "body" argument
 ;; also sequence expressions for side effects.
