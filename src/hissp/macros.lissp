@@ -395,6 +395,24 @@ judicious use can improve performance and maintainability.
   `(any (i#starmap (lambda ,variables ,@body)
                    ,xss)))
 
+(defmacro loop-from (syms inits : :* body)
+  "Anaphoric. Loop/recur with trampoline.
+
+  Set local values for the first loop with an iterable as `let-from`.
+
+  Creates a stack to schedule future loops. Call the ``recur-from``
+  anaphor with an iterable of values for the locals to push another loop
+  to the schedule. Call with None to abort any remaining schedule.
+
+  Returns the value of the final loop.
+  "
+  `(let ($#stack (@ () None ,inits))
+     (let (,'recur-from $#stack.append)
+       (any*map ,syms (iter $#stack.pop None)
+         (op#setitem $#stack 0 (progn ,@body))
+         None)
+       (op#getitem $#stack 0))))
+
 ;; I would have named this 'and, but that's a reserved word.
 (defmacro && (: :* exprs)
   "``&&`` 'and'. Shortcutting logical AND.
@@ -651,24 +669,6 @@ except ModuleNotFoundError:pass"
                                      (decimal..Decimal 1e6))
                          "ms")
        $#val)))
-
-(defmacro loop-from (syms inits : :* body)
-  "Anaphoric. Loop/recur with trampoline.
-
-  Set local values for the first loop with an iterable as `let-from`.
-
-  Creates a stack to schedule future loops. Call the ``recur-from``
-  anaphor with an iterable of values for the locals to push another loop
-  to the schedule. Call with None to abort any remaining schedule.
-
-  Returns the value of the final loop.
-  "
-  `(let ($#stack (@ () None ,inits))
-     (let (,'recur-from $#stack.append)
-       (any*map ,syms (iter $#stack.pop None)
-         (op#setitem $#stack 0 (progn ,@body))
-         None)
-       (op#getitem $#stack 0))))
 
 (define _sentinel (object))
 (defmacro ensure (b : msg _sentinel)
