@@ -248,15 +248,6 @@ judicious use can improve performance and maintainability.
   "``chain#`` Abbreviation for `itertools.chain.from_iterable`"
   `(i#chain.from_iterable ,itr))
 
-(defmacro throw (: :* exception)
-  `(.throw (let ($#gen (traceback..walk_tb None))
-             (.close $#gen)
-             $#gen)
-           ;; Despite PEP 3109, .throw still seems to accept multiple
-           ;; arguments. You should basically never use more than one,
-           ;; except when implementing your own throw methods.
-           ,@exception))
-
 ;;; configuration
 
 (defmacro attach (target : :* args)
@@ -391,6 +382,21 @@ judicious use can improve performance and maintainability.
                        $#first
                        (|| ,@rest)))
            first))
+
+(defmacro throw (: :* exception)
+  `(.throw (let ($#gen (traceback..walk_tb None))
+             (.close $#gen)
+             $#gen)
+           ;; Despite PEP 3109, .throw still seems to accept multiple
+           ;; arguments. You should basically never use more than one,
+           ;; except when implementing your own throw methods.
+           ,@exception))
+
+(defmacro throw-from (exception cause)
+  `(throw (let ($#G (lambda ($#x)
+                      (if-else (isinstance $#x BaseException)
+                        $#x ($#x))))
+            (attach ($#G ,exception) : ,'__cause__ ($#G ,cause)))))
 
 ;; see also from bootstrap: if-else, when, unless
 
@@ -592,12 +598,6 @@ except ModuleNotFoundError:pass"
                                                       (enumerate kss)))
                           ,key
                           -1))))))
-
-(defmacro throw-from (exception cause)
-  `(throw (let ($#G (lambda ($#x)
-                      (if-else (isinstance $#x BaseException)
-                        $#x ($#x))))
-            (attach ($#G ,exception) : ,'__cause__ ($#G ,cause)))))
 
 (defmacro the\# e
   "``the#`` Anaphoric. Let ``the`` be a fresh `types.SimpleNamespace`
