@@ -1809,7 +1809,8 @@ Lissp Quick Start
    >>> # deftype
    ... # hissp.macros.._macro_.define
    ... __import__('builtins').globals().update(
-   ...   Point2D=__import__('builtins').type(
+   ...   Point2D=# hissp.macros..QzMaybe_.Qz_QzGT_
+   ...           __import__('builtins').type(
    ...             'Point2D',
    ...             (lambda * _: _)(
    ...               tuple),
@@ -1991,6 +1992,16 @@ Lissp Quick Start
    ...    'def engarde(xs,h,f,/,*a,**kw):\n'
    ...    ' try:return f(*a,**kw)\n'
    ...    ' except xs as e:return h(e)\n'
+   ...    'def enter(c,f,/,*a):\n'
+   ...    ' with c as C:return f(*a,C)\n'
+   ...    "class Ensue(__import__('collections.abc').abc.Generator):\n"
+   ...    ' send=lambda s,v:s.S(v);throw=lambda s,*x:s.T(*x);From=0;Except=()\n'
+   ...    ' def __init__(s,p):s.p,g=p,s._(s);s.S,s.T=g.send,g.throw\n'
+   ...    ' def _(s,k,v=None):\n'
+   ...    '  while isinstance(s:=k,__class__):\n'
+   ...    '   try:s.value=v;k,y=s.p(s),s.Yield;v=(yield from y)if s.From else(yield y)\n'
+   ...    '   except s.Except as e:v=e\n'
+   ...    '  return k\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
    ...    "try:exec('from hissp.macros._macro_ import *',vars(_macro_))\n"
    ...    'except ModuleNotFoundError:pass'),
@@ -2818,7 +2829,7 @@ Lissp Quick Start
    >>> __import__('operator').add
    <built-in function add>
 
-   #> itr#chain
+   #> i#chain
    >>> __import__('itertools').chain
    <class 'itertools.chain'>
 
@@ -2837,26 +2848,27 @@ Lissp Quick Start
    ;; Like `timeit.timeit`, but as a macro.
    #> time#(time..sleep .05)
    >>> # hissp.macros.._macro_.let
-   ... (lambda _QzNo61_time=__import__('time').time_ns:
+   ... (lambda _QzNo73_time=__import__('time').time_ns:
    ...   # hissp.macros.._macro_.letQz_from
-   ...   (lambda _QzNo61_start,_QzNo61_val,_QzNo61_end:(
+   ...   (lambda _QzNo73_start,_QzNo73_val,_QzNo73_end:(
    ...     __import__('builtins').print(
    ...       ('Elapsed:'),
    ...       __import__('operator').truediv(
    ...         __import__('operator').sub(
-   ...           _QzNo61_end,
-   ...           _QzNo61_start),
-   ...         (1000000.0)),
+   ...           _QzNo73_end,
+   ...           _QzNo73_start),
+   ...         __import__('decimal').Decimal(
+   ...           (1000000.0))),
    ...       ('ms')),
-   ...     _QzNo61_val)[-1])(
+   ...     _QzNo73_val)[-1])(
    ...     *# hissp.macros.._macro_.QzAT_
-   ...      (lambda *_QzNo37_xs:
+   ...      (lambda *_QzNo42_xs:
    ...        __import__('builtins').list(
-   ...          _QzNo37_xs))(
-   ...        _QzNo61_time(),
+   ...          _QzNo42_xs))(
+   ...        _QzNo73_time(),
    ...        __import__('time').sleep(
    ...          (0.05)),
-   ...        _QzNo61_time())))()
+   ...        _QzNo73_time())))()
    Elapsed: ... ms
 
 

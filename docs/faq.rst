@@ -1013,6 +1013,16 @@ Like this
    ...    'def engarde(xs,h,f,/,*a,**kw):\n'
    ...    ' try:return f(*a,**kw)\n'
    ...    ' except xs as e:return h(e)\n'
+   ...    'def enter(c,f,/,*a):\n'
+   ...    ' with c as C:return f(*a,C)\n'
+   ...    "class Ensue(__import__('collections.abc').abc.Generator):\n"
+   ...    ' send=lambda s,v:s.S(v);throw=lambda s,*x:s.T(*x);From=0;Except=()\n'
+   ...    ' def __init__(s,p):s.p,g=p,s._(s);s.S,s.T=g.send,g.throw\n'
+   ...    ' def _(s,k,v=None):\n'
+   ...    '  while isinstance(s:=k,__class__):\n'
+   ...    '   try:s.value=v;k,y=s.p(s),s.Yield;v=(yield from y)if s.From else(yield y)\n'
+   ...    '   except s.Except as e:v=e\n'
+   ...    '  return k\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
    ...    "try:exec('from hissp.macros._macro_ import *',vars(_macro_))\n"
    ...    'except ModuleNotFoundError:pass'),
@@ -1031,7 +1041,8 @@ Like this
    >>> # deftype
    ... # hissp.macros.._macro_.define
    ... __import__('builtins').globals().update(
-   ...   Except=__import__('builtins').type(
+   ...   Except=# hissp.macros..QzMaybe_.Qz_QzGT_
+   ...          __import__('builtins').type(
    ...            'Except',
    ...            (lambda * _: _)(
    ...              __import__('contextlib').ContextDecorator),
@@ -1039,16 +1050,16 @@ Like this
    ...              __init__=(lambda self,catch,handler:(
    ...                         # attach
    ...                         # hissp.macros.._macro_.let
-   ...                         (lambda _QzNo15_target=self:(
+   ...                         (lambda _QzNo24_target=self:(
    ...                           __import__('builtins').setattr(
-   ...                             _QzNo15_target,
+   ...                             _QzNo24_target,
    ...                             'catch',
    ...                             catch),
    ...                           __import__('builtins').setattr(
-   ...                             _QzNo15_target,
+   ...                             _QzNo24_target,
    ...                             'handler',
    ...                             handler),
-   ...                           _QzNo15_target)[-1])(),
+   ...                           _QzNo24_target)[-1])(),
    ...                         None)[-1]),
    ...              __enter__=(lambda self:()),
    ...              __exit__=(lambda self,exc_type,exception,traceback:
@@ -1069,7 +1080,6 @@ Like this
    ...                                 exception),
    ...                               True)[-1])()),
    ...                           (lambda :()))))))
-
 
    #> (define bad_idea
    #..  (-> (lambda (x)

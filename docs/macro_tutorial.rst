@@ -230,6 +230,16 @@ And push it to the REPL as well:
    ...    'def engarde(xs,h,f,/,*a,**kw):\n'
    ...    ' try:return f(*a,**kw)\n'
    ...    ' except xs as e:return h(e)\n'
+   ...    'def enter(c,f,/,*a):\n'
+   ...    ' with c as C:return f(*a,C)\n'
+   ...    "class Ensue(__import__('collections.abc').abc.Generator):\n"
+   ...    ' send=lambda s,v:s.S(v);throw=lambda s,*x:s.T(*x);From=0;Except=()\n'
+   ...    ' def __init__(s,p):s.p,g=p,s._(s);s.S,s.T=g.send,g.throw\n'
+   ...    ' def _(s,k,v=None):\n'
+   ...    '  while isinstance(s:=k,__class__):\n'
+   ...    '   try:s.value=v;k,y=s.p(s),s.Yield;v=(yield from y)if s.From else(yield y)\n'
+   ...    '   except s.Except as e:v=e\n'
+   ...    '  return k\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
    ...    "try:exec('from hissp.macros._macro_ import *',vars(_macro_))\n"
    ...    'except ModuleNotFoundError:pass'),
@@ -1556,7 +1566,8 @@ Lissp can do that with a class.
    >>> # deftype
    ... # hissp.macros.._macro_.define
    ... __import__('builtins').globals().update(
-   ...   Flattener=__import__('builtins').type(
+   ...   Flattener=# hissp.macros..QzMaybe_.Qz_QzGT_
+   ...             __import__('builtins').type(
    ...               'Flattener',
    ...               (lambda * _: _)(),
    ...               __import__('builtins').dict(

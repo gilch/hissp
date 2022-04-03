@@ -27,7 +27,7 @@
 
   test_nested_gensym
   (lambda (self)
-    (self.assertEqual : :* `('$#test `$#test)))
+    (self.assertNotEqual : :* `('$#test `$#test)))
 
   test_unquote_gensym
   (lambda (self)
