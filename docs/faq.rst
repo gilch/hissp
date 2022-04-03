@@ -576,7 +576,7 @@ acts like ``break`` in `any()<any>`. Obviously, you can use this to your
 advantage if you *want* a break, which seems to happen pretty often when
 writing imperative loops.
 
-If you like, there's a `hissp.._macro_.any-for<anyQz_for>` that basically does this.
+If you like, there's a `hissp.._macro_.any-map<anyQz_map>` that basically does this.
 
 See also `itertools`, `iter`.
 

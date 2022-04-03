@@ -104,10 +104,10 @@
         () (.append xs :oops))
       (self.assertEqual xs (enlist () 1 2 3 4))))
 
-  test_any-for
+  test_any-map
   (lambda (self)
     (*#let (xs (list))
-      (*#any-for i (range 1 10)
+      (*#any-map i (range 1 10)
         (.append xs i)
         (operator..not_ (operator..mod i 7)))
       (self.assertEqual xs (enlist 1 2 3 4 5 6 7))))

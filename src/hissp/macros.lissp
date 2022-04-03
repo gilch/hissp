@@ -334,8 +334,8 @@ judicious use can improve performance and maintainability.
               ;; Here's the recursive part.
               (cond ,@(op#getitem pairs (slice 2 None))))))
 
-(defmacro any-for (variable xs : :* body)
-  "``any-for``
+(defmacro any-map (variable xs : :* body)
+  "``any-map``
   Bind the variable and evaluate the body for each x from xs
   until any result is true (and return ``True``), or until xs is
   exhausted (and return ``False``).
@@ -344,8 +344,8 @@ judicious use can improve performance and maintainability.
                ,@body)
              ,xs)))
 
-(defmacro any*for (variables xss : :* body)
-  "``any*for`` 'any star-for'
+(defmacro any*map (variables xss : :* body)
+  "``any*map`` 'any star-for'
   Bind each x to a variable and evaluate the body for each xs from xss
   until any result is true (and return ``True``), or until xss is
   exhausted (and return ``False``).
@@ -661,7 +661,7 @@ except ModuleNotFoundError:pass"
   "
   `(let ($#stack (@ () None ,inits))
      (let (,'recur-from $#stack.append)
-       (any*for ,syms (iter $#stack.pop None)
+       (any*map ,syms (iter $#stack.pop None)
          (op#setitem $#stack 0 (progn ,@body))
          None)
        (op#getitem $#stack 0))))

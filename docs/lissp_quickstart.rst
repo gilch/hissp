@@ -2012,10 +2012,10 @@ Lissp Quick Start
 
    ;; Hissp has no control flow, but you can build them with macros.
 
-   #> (any-for i (range 1 11)             ;Imperative loop with break.
+   #> (any-map i (range 1 11)             ;Imperative loop with break.
    #..  (print i : end " ")
    #..  (not_ (mod i 7)))
-   >>> # anyQz_for
+   >>> # anyQz_map
    ... __import__('builtins').any(
    ...   __import__('builtins').map(
    ...     (lambda i:(
@@ -2033,9 +2033,9 @@ Lissp Quick Start
 
    ;; 1 2 3 4 5 6 7 True
 
-   #> (any*for (i c) (enumerate "abc" 1)  ;As any-for, but with starmap.
+   #> (any*map (i c) (enumerate "abc" 1)  ;As any-map, but with starmap.
    #..  (print (mul i c)))
-   >>> # anyQzSTAR_for
+   >>> # anyQzSTAR_map
    ... __import__('builtins').any(
    ...   __import__('itertools').starmap(
    ...     (lambda i,c:
@@ -2052,11 +2052,11 @@ Lissp Quick Start
    False
 
 
-   #> (any-for c "ab"
+   #> (any-map c "ab"
    #..  (if-else (eq c "b")               ;ternary conditional
    #..    (print "Yes")
    #..    (print "No")))
-   >>> # anyQz_for
+   >>> # anyQz_map
    ... __import__('builtins').any(
    ...   __import__('builtins').map(
    ...     (lambda c:
@@ -2081,12 +2081,12 @@ Lissp Quick Start
    False
 
 
-   #> (any-for x (@ -0.6 -0.0 42.0 math..nan)
+   #> (any-map x (@ -0.6 -0.0 42.0 math..nan)
    #..  (cond (lt x 0) (print "Negative") ;if-else cascade
    #..        (eq x 0) (print "Zero")
    #..        (gt x 0) (print "Positive")
    #..        :else (print "Not a number")))
-   >>> # anyQz_for
+   >>> # anyQz_map
    ... __import__('builtins').any(
    ...   __import__('builtins').map(
    ...     (lambda x:
@@ -2161,7 +2161,7 @@ Lissp Quick Start
    False
 
 
-   #> (any-for c "abc"
+   #> (any-map c "abc"
    #..  (print "in loop")
    #..  (unless (eq c "b")                ;else block
    #..    (print "in unless")
@@ -2169,7 +2169,7 @@ Lissp Quick Start
    #..  (when (eq c "a")                  ;if block
    #..    (print "in when")
    #..    (print c)))
-   >>> # anyQz_for
+   >>> # anyQz_map
    ... __import__('builtins').any(
    ...   __import__('builtins').map(
    ...     (lambda c:(
@@ -2224,11 +2224,11 @@ Lissp Quick Start
    False
 
 
-   #> (any-for x '(1 2 :spam 42)
+   #> (any-map x '(1 2 :spam 42)
    #..  (case x (print "default")         ;switch case
    #..    (0 2 4 6 8) (print "even")
    #..    (1 3 5 7 :spam) (print "odd")))
-   >>> # anyQz_for
+   >>> # anyQz_map
    ... __import__('builtins').any(
    ...   __import__('builtins').map(
    ...     (lambda x:

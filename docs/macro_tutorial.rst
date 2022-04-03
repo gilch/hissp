@@ -1557,7 +1557,7 @@ Lissp can do that with a class.
    #..  __init__ (lambda (self)
    #..             (setattr self 'accumulator (list)))
    #..  flatten (lambda (self form)
-   #..            (any-for x form
+   #..            (any-map x form
    #..              (if-else (is_ (type x) tuple)
    #..                (self.flatten x)
    #..                (.append self.accumulator x))
@@ -1577,7 +1577,7 @@ Lissp can do that with a class.
    ...                              'accumulator',
    ...                              list())),
    ...                 flatten=(lambda self,form:(
-   ...                           # anyQz_for
+   ...                           # anyQz_map
    ...                           __import__('builtins').any(
    ...                             __import__('builtins').map(
    ...                               (lambda x:(
@@ -1741,7 +1741,7 @@ Let's review. The code you need to make the version we have so far is
      __init__ (lambda (self)
                 (setattr self 'accumulator []))
      flatten (lambda (self form)
-               (any-for x form
+               (any-map x form
                  (if-else (is_ (type x) tuple)
                    (self.flatten x)
                    (.append self.accumulator x))
