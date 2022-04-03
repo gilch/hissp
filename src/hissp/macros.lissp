@@ -356,6 +356,7 @@ judicious use can improve performance and maintainability.
 ;;; control flow
 
 ;; see also from bootstrap: if-else, when, unless
+;; see also from advanced: case
 
 (defmacro cond (: :* pairs)
   #"Multiple condition branching.
