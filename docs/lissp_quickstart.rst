@@ -2144,10 +2144,10 @@ Lissp Quick Start
    ;;; The Prelude
 
    ;; An inline convenience micro-prelude for Hissp.
-   ;; Imports partial and reduce, star imports from operator and
-   ;; itertools, defines engarde, and imports a copy of
-   ;; hissp.macros.._macro_ (if available). Usually the first form in a file,
-   ;; because it overwrites _macro_, but completely optional.
+   ;; Imports partial and reduce; star imports from operator and itertools;
+   ;; defines engarde, enter, and Ensue; and imports a copy of
+   ;; hissp.macros.._macro_ (if available). Usually the first form in a
+   ;; file, because it overwrites _macro_, but completely optional.
    ;; Implied for $ lissp -c commands.
    #> (prelude)                           ;/!\ Or (hissp.._macro_.prelude)
    >>> # prelude
@@ -2175,21 +2175,81 @@ Lissp Quick Start
 
    ;;; Control Flow
 
-   ;; Hissp has no control flow, but you can build them with macros.
+   ;; Hissp has no innate control flow, but you can build them with macros.
 
-   #> (any-map i (range 1 11)             ;Imperative loop with break.
-   #..  (print i : end " ")
-   #..  (not_ (mod i 7)))
+   ;; Like recursion with tail elimination.
+   #> (loop-from x '(3)                   ;Unpacks as let-from.
+   #..  (when x
+   #..    (print x)
+   #..    (recur-from (@ (sub x 1)))))
+   >>> # loopQz_from
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo43_stack=# hissp.macros..QzMaybe_.QzAT_
+   ... (lambda *_QzNo52_xs:
+   ...   __import__('builtins').list(
+   ...     _QzNo52_xs))(
+   ...   (),
+   ...   None,
+   ...   ((3),)):
+   ...   # hissp.macros.._macro_.let
+   ...   (lambda recurQz_from=_QzNo43_stack.append:(
+   ...     # hissp.macros.._macro_.anyQzSTAR_map
+   ...     __import__('builtins').any(
+   ...       __import__('itertools').starmap(
+   ...         (lambda x:(
+   ...           __import__('operator').setitem(
+   ...             _QzNo43_stack,
+   ...             (0),
+   ...             # hissp.macros.._macro_.progn
+   ...             (lambda :
+   ...               # when
+   ...               # hissp.macros.._macro_.ifQz_else
+   ...               (lambda test,*thenQz_else:
+   ...                 __import__('operator').getitem(
+   ...                   thenQz_else,
+   ...                   __import__('operator').not_(
+   ...                     test))())(
+   ...                 x,
+   ...                 (lambda :
+   ...                   # hissp.macros.._macro_.progn
+   ...                   (lambda :(
+   ...                     print(
+   ...                       x),
+   ...                     recurQz_from(
+   ...                       # QzAT_
+   ...                       (lambda *_QzNo52_xs:
+   ...                         __import__('builtins').list(
+   ...                           _QzNo52_xs))(
+   ...                         sub(
+   ...                           x,
+   ...                           (1)))))[-1])()),
+   ...                 (lambda :())))()),
+   ...           None)[-1]),
+   ...         __import__('builtins').iter(
+   ...           _QzNo43_stack.pop,
+   ...           None))),
+   ...     __import__('operator').getitem(
+   ...       _QzNo43_stack,
+   ...       (0)))[-1])())()
+   3
+   2
+   1
+   ()
+
+
+   #> (any-map index (range 1 11)         ;Imperative loop with break.
+   #..  (print index : end " ")
+   #..  (not_ (mod index 7)))
    >>> # anyQz_map
    ... __import__('builtins').any(
    ...   __import__('builtins').map(
-   ...     (lambda i:(
+   ...     (lambda index:(
    ...       print(
-   ...         i,
+   ...         index,
    ...         end=(' ')),
    ...       not_(
    ...         mod(
-   ...           i,
+   ...           index,
    ...           (7))))[-1]),
    ...     range(
    ...       (1),
@@ -2328,10 +2388,10 @@ Lissp Quick Start
 
    #> (any-map c "abc"
    #..  (print "in loop")
-   #..  (unless (eq c "b")                ;else block
+   #..  (unless (eq c "b")                ;else-only block
    #..    (print "in unless")
    #..    (print c))
-   #..  (when (eq c "a")                  ;if block
+   #..  (when (eq c "a")                  ;if-only block
    #..    (print "in when")
    #..    (print c)))
    >>> # anyQz_map
