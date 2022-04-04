@@ -2651,6 +2651,89 @@ Lissp Quick Start
    42
 
 
+
+   #> (throw Exception)                   ;Raise exception objects or classes.
+   >>> # throw
+   ... # hissp.macros.._macro_.throwQzSTAR_
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo46_gen=__import__('traceback').walk_tb(
+   ...   None):(
+   ...   _QzNo46_gen.close(),
+   ...   _QzNo46_gen)[-1])().throw(
+   ...   Exception)
+   Traceback (most recent call last):
+     ...
+   Exception
+
+   #> (throw (TypeError "message"))
+   >>> # throw
+   ... # hissp.macros.._macro_.throwQzSTAR_
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo46_gen=__import__('traceback').walk_tb(
+   ...   None):(
+   ...   _QzNo46_gen.close(),
+   ...   _QzNo46_gen)[-1])().throw(
+   ...   TypeError(
+   ...     ('message')))
+   Traceback (most recent call last):
+     ...
+   TypeError: message
+
+
+   #> (throw-from Exception (Exception "message")) ;Explicit chaining.
+   >>> # throwQz_from
+   ... # hissp.macros.._macro_.throwQzSTAR_
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo46_gen=__import__('traceback').walk_tb(
+   ...   None):(
+   ...   _QzNo46_gen.close(),
+   ...   _QzNo46_gen)[-1])().throw(
+   ...   # hissp.macros.._macro_.let
+   ...   (lambda _QzNo47_G=(lambda _QzNo47_x:
+   ...     # hissp.macros.._macro_.ifQz_else
+   ...     (lambda test,*thenQz_else:
+   ...       __import__('operator').getitem(
+   ...         thenQz_else,
+   ...         __import__('operator').not_(
+   ...           test))())(
+   ...       # hissp.macros.._macro_.QzET_QzET_
+   ...       # hissp.macros.._macro_.let
+   ...       (lambda _QzNo44_G=__import__('builtins').isinstance(
+   ...         _QzNo47_x,
+   ...         __import__('builtins').type):
+   ...         # hissp.macros.._macro_.ifQz_else
+   ...         (lambda test,*thenQz_else:
+   ...           __import__('operator').getitem(
+   ...             thenQz_else,
+   ...             __import__('operator').not_(
+   ...               test))())(
+   ...           _QzNo44_G,
+   ...           (lambda :
+   ...             # hissp.macros..QzMaybe_.QzET_QzET_
+   ...             __import__('builtins').issubclass(
+   ...               _QzNo47_x,
+   ...               __import__('builtins').BaseException)),
+   ...           (lambda :_QzNo44_G)))(),
+   ...       (lambda :_QzNo47_x()),
+   ...       (lambda :_QzNo47_x))):
+   ...     # hissp.macros.._macro_.attach
+   ...     # hissp.macros.._macro_.let
+   ...     (lambda _QzNo31_target=_QzNo47_G(
+   ...       Exception):(
+   ...       __import__('builtins').setattr(
+   ...         _QzNo31_target,
+   ...         '__cause__',
+   ...         _QzNo47_G(
+   ...           Exception(
+   ...             ('message')))),
+   ...       _QzNo31_target)[-1])())())
+   Traceback (most recent call last):
+     ...
+   Exception
+
+
+   ;; There's also a throw* you normally shouldn't use. See API doc.
+
    ;;; Obligatory Factorial III
 
    ;; With the prelude, we can define a nicer-looking version.
@@ -2744,6 +2827,62 @@ Lissp Quick Start
    ...   ('6'),
    ...   (0))
    unsupported operand type(s) for /: 'str' and 'int'
+
+
+   #> (engarde Exception
+   #..         (lambda x x.__cause__)
+   #..         (lambda : (throw-from Exception (Exception "msg"))))
+   >>> engarde(
+   ...   Exception,
+   ...   (lambda x:x.__cause__),
+   ...   (lambda :
+   ...     # throwQz_from
+   ...     # hissp.macros.._macro_.throwQzSTAR_
+   ...     # hissp.macros.._macro_.let
+   ...     (lambda _QzNo46_gen=__import__('traceback').walk_tb(
+   ...       None):(
+   ...       _QzNo46_gen.close(),
+   ...       _QzNo46_gen)[-1])().throw(
+   ...       # hissp.macros.._macro_.let
+   ...       (lambda _QzNo47_G=(lambda _QzNo47_x:
+   ...         # hissp.macros.._macro_.ifQz_else
+   ...         (lambda test,*thenQz_else:
+   ...           __import__('operator').getitem(
+   ...             thenQz_else,
+   ...             __import__('operator').not_(
+   ...               test))())(
+   ...           # hissp.macros.._macro_.QzET_QzET_
+   ...           # hissp.macros.._macro_.let
+   ...           (lambda _QzNo44_G=__import__('builtins').isinstance(
+   ...             _QzNo47_x,
+   ...             __import__('builtins').type):
+   ...             # hissp.macros.._macro_.ifQz_else
+   ...             (lambda test,*thenQz_else:
+   ...               __import__('operator').getitem(
+   ...                 thenQz_else,
+   ...                 __import__('operator').not_(
+   ...                   test))())(
+   ...               _QzNo44_G,
+   ...               (lambda :
+   ...                 # hissp.macros..QzMaybe_.QzET_QzET_
+   ...                 __import__('builtins').issubclass(
+   ...                   _QzNo47_x,
+   ...                   __import__('builtins').BaseException)),
+   ...               (lambda :_QzNo44_G)))(),
+   ...           (lambda :_QzNo47_x()),
+   ...           (lambda :_QzNo47_x))):
+   ...         # hissp.macros.._macro_.attach
+   ...         # hissp.macros.._macro_.let
+   ...         (lambda _QzNo31_target=_QzNo47_G(
+   ...           Exception):(
+   ...           __import__('builtins').setattr(
+   ...             _QzNo31_target,
+   ...             '__cause__',
+   ...             _QzNo47_G(
+   ...               Exception(
+   ...                 ('msg')))),
+   ...           _QzNo31_target)[-1])())())))
+   Exception('msg')
 
 
    ;;;; Advanced Reader Macros
@@ -2924,7 +3063,7 @@ Lissp Quick Start
    #> b'bytes'                            ;NameError about 'bQzAPOS_bytesQzAPOS_'
    >>> bQzAPOS_bytesQzAPOS_
    Traceback (most recent call last):
-     File "<console>", line 1, in <module>
+     ...
    NameError: name 'bQzAPOS_bytesQzAPOS_' is not defined
 
 
