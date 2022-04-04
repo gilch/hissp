@@ -440,20 +440,29 @@ judicious use can improve performance and maintainability.
                        (|| ,@rest)))
            first))
 
-(defmacro throw (: :* exception)
+(defmacro throw* (: :* exception)
+  "``throw*`` Creates a closed generator and calls its throw method.
+
+  Despite PEP 3109, .throw still seems to accept multiple arguments.
+  You should basically never use more than one, except when implementing
+  your own throw method overrides. Otherwise, use `throw` instead.
+  "
   `(.throw (let ($#gen (traceback..walk_tb None))
              (.close $#gen)
              $#gen)
-           ;; Despite PEP 3109, .throw still seems to accept multiple
-           ;; arguments. You should basically never use more than one,
-           ;; except when implementing your own throw methods.
            ,@exception))
 
+(defmacro throw (exception)
+  "Raise an exception."
+  `(throw* ,exception))
+
 (defmacro throw-from (exception cause)
-  `(throw (let ($#G (lambda ($#x)
-                      (if-else (isinstance $#x BaseException)
-                        $#x ($#x))))
-            (attach ($#G ,exception) : ,'__cause__ ($#G ,cause)))))
+  "Raise an exception with a cause, which can be None."
+  `(throw* (let ($#G (lambda ($#x)
+                       (if-else (&& (isinstance $#x type)
+                                    (issubclass $#x BaseException))
+                         ($#x) $#x)))
+             (attach ($#G ,exception) : ,'__cause__ ($#G ,cause)))))
 
 ;;; side effect
 
