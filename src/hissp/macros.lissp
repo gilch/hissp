@@ -259,6 +259,20 @@ judicious use can improve performance and maintainability.
 
 ;;; configuration
 
+(defmacro set! (coll key val)
+  "``set!`` Assigns an item, returns the value.
+  Mnemonic: set !tem.
+  "
+  `(let ($#val ,val)
+     (op#setitem ,coll ,key $#val)
+     $#val))
+
+(defmacro zap! (op coll key : :* args)
+  `(let ($#coll ,coll
+         $#key ,key)
+     (set! $#coll $#key (,op (op#getitem $#coll $#key)
+                             ,@args))))
+
 (defmacro set@ (name val)
   "``set@`` Assigns an attribute, returns the value.
   Mnemonic: set @tribute.
@@ -268,22 +282,8 @@ judicious use can improve performance and maintainability.
        (setattr ,ns ',attr $#val)
        $#val)))
 
-(defmacro set! (coll key val)
-  "``set!`` Assigns an item, returns the value.
-  Mnemonic: set !tem.
-  "
-  `(let ($#val ,val)
-     (op#setitem ,coll ,key $#val)
-     $#val))
-
 (defmacro zap@ (op name : :* args)
   `(set@ ,name (,op ,name ,@args)))
-
-(defmacro zap! (op coll key : :* args)
-  `(let ($#coll ,coll
-         $#key ,key)
-     (set! $#coll $#key (,op (op#getitem $#coll $#key)
-                             ,@args))))
 
 (defmacro attach (target : :* args)
   "Attaches the named variables to the target as attributes.
