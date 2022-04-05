@@ -2755,6 +2755,7 @@ Lissp Quick Start
    42
 
 
+   ;;; Raising Exceptions
 
    #> (throw Exception)                   ;Raise exception objects or classes.
    >>> # throw
@@ -2837,6 +2838,40 @@ Lissp Quick Start
 
 
    ;; There's also a throw* you normally shouldn't use. See API doc.
+
+   ;; Assertions. Message is optional.
+   ;; Try turning off __debug__ in a new REPL: $ python -Om hissp
+   #> (ensure 0 "wat")
+   >>> # ensure
+   ... # hissp.macros.._macro_.unless
+   ... # hissp.macros.._macro_.ifQz_else
+   ... (lambda test,*thenQz_else:
+   ...   __import__('operator').getitem(
+   ...     thenQz_else,
+   ...     __import__('operator').not_(
+   ...       test))())(
+   ...   (0),
+   ...   (lambda :()),
+   ...   (lambda :
+   ...     # hissp.macros.._macro_.progn
+   ...     (lambda :
+   ...       # hissp.macros.._macro_.throw
+   ...       # hissp.macros.._macro_.throwQzSTAR_
+   ...       # hissp.macros.._macro_.let
+   ...       (lambda _QzNo46_gen=__import__('traceback').walk_tb(
+   ...         None):(
+   ...         _QzNo46_gen.close(),
+   ...         _QzNo46_gen)[-1])().throw(
+   ...         __import__('builtins').AssertionError(
+   ...           ('wat'))))()))
+   Traceback (most recent call last):
+     ...
+   AssertionError: wat
+
+
+   ;; Note that for pre-compiled code, it's the __debug__ state at
+   ;; compile time, not at run time, that determines if ensure
+   ;; assertions are turned on.
 
    ;;; Obligatory Factorial III
 
