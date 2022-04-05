@@ -1881,6 +1881,69 @@ Lissp Quick Start
    'tomato'
 
 
+   ;; Like define, but won't overwrite an existing global.
+   ;; Useful when sending the whole file to the REPL repeatedly or when
+   ;; using importlib.reload and you want to cache an expensive object
+   ;; instead of re-initializing it every time.
+   #> (defonce CACHE (types..SimpleNamespace : x 1))
+   >>> # defonce
+   ... # hissp.macros.._macro_.unless
+   ... # hissp.macros.._macro_.ifQz_else
+   ... (lambda test,*thenQz_else:
+   ...   __import__('operator').getitem(
+   ...     thenQz_else,
+   ...     __import__('operator').not_(
+   ...       test))())(
+   ...   __import__('operator').contains(
+   ...     __import__('builtins').globals(),
+   ...     'CACHE'),
+   ...   (lambda :()),
+   ...   (lambda :
+   ...     # hissp.macros.._macro_.progn
+   ...     (lambda :
+   ...       # hissp.macros.._macro_.define
+   ...       __import__('builtins').globals().update(
+   ...         CACHE=__import__('types').SimpleNamespace(
+   ...                 x=(1))))()))
+
+   #> (setattr CACHE 'x 42)
+   >>> setattr(
+   ...   CACHE,
+   ...   'x',
+   ...   (42))
+
+   #> (defonce CACHE (progn (print "not evaluated")
+   #..                      (types..SimpleNamespace : x 1)))
+   >>> # defonce
+   ... # hissp.macros.._macro_.unless
+   ... # hissp.macros.._macro_.ifQz_else
+   ... (lambda test,*thenQz_else:
+   ...   __import__('operator').getitem(
+   ...     thenQz_else,
+   ...     __import__('operator').not_(
+   ...       test))())(
+   ...   __import__('operator').contains(
+   ...     __import__('builtins').globals(),
+   ...     'CACHE'),
+   ...   (lambda :()),
+   ...   (lambda :
+   ...     # hissp.macros.._macro_.progn
+   ...     (lambda :
+   ...       # hissp.macros.._macro_.define
+   ...       __import__('builtins').globals().update(
+   ...         CACHE=# progn
+   ...               (lambda :(
+   ...                 print(
+   ...                   ('not evaluated')),
+   ...                 __import__('types').SimpleNamespace(
+   ...                   x=(1)))[-1])()))()))
+   ()
+
+   #> CACHE
+   >>> CACHE
+   namespace(x=42)
+
+
    ;;; Locals
 
    #> (let (x "a"                         ;Create locals.
