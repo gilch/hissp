@@ -3024,6 +3024,195 @@ Lissp Quick Start
    Exception('msg')
 
 
+   ;;;; Generators
+
+   ;; Defined by the prelude, Ensue gives you infinite lazy iterables,
+   ;; easy as recursion. Compare to loop-from.
+   #> (define fibonacci
+   #..  (lambda (: a 1  b 1)
+   #..    (Ensue (lambda (step)
+   #..             (set@ step.Yield a)
+   #..             (fibonacci b (add a b))))))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   fibonacci=(lambda a=(1),b=(1):
+   ...               Ensue(
+   ...                 (lambda step:(
+   ...                   # setQzAT_
+   ...                   # hissp.macros.._macro_.let
+   ...                   (lambda _QzNo29_val=a:(
+   ...                     __import__('builtins').setattr(
+   ...                       step,
+   ...                       'Yield',
+   ...                       _QzNo29_val),
+   ...                     _QzNo29_val)[-1])(),
+   ...                   fibonacci(
+   ...                     b,
+   ...                     add(
+   ...                       a,
+   ...                       b)))[-1]))))
+
+   #> (list (itertools..islice (fibonacci) 7))
+   >>> list(
+   ...   __import__('itertools').islice(
+   ...     fibonacci(),
+   ...     (7)))
+   [1, 1, 2, 3, 5, 8, 13]
+
+
+
+   #> (define nrange                      ;Terminate by not returning an Ensue.
+   #..  (lambda in
+   #..    (Ensue (lambda (step)
+   #..             (set@ step.Yield i)
+   #..             (unless (ge i n)
+   #..               (nrange (add i 1) n))))))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   nrange=(lambda i,n:
+   ...            Ensue(
+   ...              (lambda step:(
+   ...                # setQzAT_
+   ...                # hissp.macros.._macro_.let
+   ...                (lambda _QzNo29_val=i:(
+   ...                  __import__('builtins').setattr(
+   ...                    step,
+   ...                    'Yield',
+   ...                    _QzNo29_val),
+   ...                  _QzNo29_val)[-1])(),
+   ...                # unless
+   ...                # hissp.macros.._macro_.ifQz_else
+   ...                (lambda test,*thenQz_else:
+   ...                  __import__('operator').getitem(
+   ...                    thenQz_else,
+   ...                    __import__('operator').not_(
+   ...                      test))())(
+   ...                  ge(
+   ...                    i,
+   ...                    n),
+   ...                  (lambda :()),
+   ...                  (lambda :
+   ...                    # hissp.macros.._macro_.progn
+   ...                    (lambda :
+   ...                      nrange(
+   ...                        add(
+   ...                          i,
+   ...                          (1)),
+   ...                        n))())))[-1]))))
+
+   #> (list (nrange 1 6))
+   >>> list(
+   ...   nrange(
+   ...     (1),
+   ...     (6)))
+   [1, 2, 3, 4, 5, 6]
+
+
+   ;; Set From to yield from.
+   #> (Ensue (lambda (step)
+   #..         (attach step :
+   #..           Yield '(1 2 3 4 5)
+   #..           From True)
+   #..         None))
+   >>> Ensue(
+   ...   (lambda step:(
+   ...     # attach
+   ...     # hissp.macros.._macro_.let
+   ...     (lambda _QzNo31_target=step:(
+   ...       __import__('builtins').setattr(
+   ...         _QzNo31_target,
+   ...         'Yield',
+   ...         ((1),
+   ...          (2),
+   ...          (3),
+   ...          (4),
+   ...          (5),)),
+   ...       __import__('builtins').setattr(
+   ...         _QzNo31_target,
+   ...         'From',
+   ...         True),
+   ...       _QzNo31_target)[-1])(),
+   ...     None)[-1]))
+   <...Ensue object at ...>
+
+   #> (list _)
+   >>> list(
+   ...   _)
+   [1, 2, 3, 4, 5]
+
+
+   #> (define recycle
+   #..  (lambda (itr)
+   #..    (Ensue (lambda (step)
+   #..             (attach step :         ;Implicit recursion. See why?
+   #..               Yield itr
+   #..               From 1)))))          ; What was returned?
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   recycle=(lambda itr:
+   ...             Ensue(
+   ...               (lambda step:
+   ...                 # attach
+   ...                 # hissp.macros.._macro_.let
+   ...                 (lambda _QzNo31_target=step:(
+   ...                   __import__('builtins').setattr(
+   ...                     _QzNo31_target,
+   ...                     'Yield',
+   ...                     itr),
+   ...                   __import__('builtins').setattr(
+   ...                     _QzNo31_target,
+   ...                     'From',
+   ...                     (1)),
+   ...                   _QzNo31_target)[-1])()))))
+
+   #> (-> '(1 2 3) (recycle) (islice 7) (list))
+   >>> # Qz_QzGT_
+   ... # hissp.macros..QzMaybe_.Qz_QzGT_
+   ... # hissp.macros..QzMaybe_.Qz_QzGT_
+   ... # hissp.macros..QzMaybe_.Qz_QzGT_
+   ... list(
+   ...   islice(
+   ...     recycle(
+   ...       ((1),
+   ...        (2),
+   ...        (3),)),
+   ...     (7)))
+   [1, 2, 3, 1, 2, 3, 1]
+
+
+   #> (define echo
+   #..  (Ensue (lambda (step)
+   #..           (set@ step.Yield step.value)
+   #..           step)))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   echo=Ensue(
+   ...          (lambda step:(
+   ...            # setQzAT_
+   ...            # hissp.macros.._macro_.let
+   ...            (lambda _QzNo29_val=step.value:(
+   ...              __import__('builtins').setattr(
+   ...                step,
+   ...                'Yield',
+   ...                _QzNo29_val),
+   ...              _QzNo29_val)[-1])(),
+   ...            step)[-1])))
+
+   #> (.send echo None)                   ;Always send a None first. Same as Python.
+   >>> echo.send(
+   ...   None)
+
+   #> (.send echo "Yodle!")               ;Generators are two-way.
+   >>> echo.send(
+   ...   ('Yodle!'))
+   'Yodle!'
+
+   #> (.send echo 42)
+   >>> echo.send(
+   ...   (42))
+   42
+
+
    ;;;; Advanced Reader Macros
 
    ;;; The Discard Macro
