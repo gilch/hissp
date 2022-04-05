@@ -165,8 +165,8 @@ judicious use can improve performance and maintainability.
 (defmacro deftype@ (decorators name bases : :* body)
   `(define ,name
      (-> (type ',name (,hissp.reader..ENTUPLE ,@bases)
-               (dict : ,@body)
-          ,@(reversed (list (zip decorators)))))))
+               (dict : ,@body))
+         ,@(reversed (list (zip decorators))))))
 
 (defmacro deftype (name bases : :* body)
   "Defines a type (class) in the current module.
