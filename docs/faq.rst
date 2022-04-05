@@ -1200,18 +1200,13 @@ You can always re-write that part in Python (or C).
 Yield?
 ------
 
-We've got `itertools`. Compose iterators functional-style. You don't need
-``yield``.
+We've got `itertools`. Compose iterators functional-style.
+You probably don't need ``yield``.
 
-.. TODO: fill in reasoning more.
-   Lazy cons is preferable to mutable iterators.
-   Yield requires yield-from,
-   (The "What Color Is Your Function?" problem.)
-   which is inelegant compared to alternatives of similar or greater expressive power.
-   such as call/cc and ?/reset.
-.. TODO: implement yield macro? Will require pre-expansion like Hy's let.
-   fortunately, Hissp has only two special forms (by design) so this should be easier.
-   Think about code walking and alternatives.
+Immutable, lazy-cons streams are preferable to mutable iterators.
+Generator functions required the addition of yield-from for proper refactoring,
+which is inelegant compared to alternatives of similar or greater expressive power,
+such as continuations.
 
 But I need it for co-routines. Or async/await stuff. How do I accept a send?
 ----------------------------------------------------------------------------
@@ -1223,10 +1218,17 @@ Still, we want Python compatibility, don't we?
 
 Make a `collections.abc.Generator` subclass with a ``send()`` method.
 
-Or use Drython_'s ``Yield()``.
+The bundled `prelude` makes this easier by defining the ``Ensue`` generator class,
+which effectively implements trampolined continuations.
+Simple tail recursion is the typical usage (see examples in the quick start),
+but arbitrary flows delimited by wrapped callables are possible.
 
-Generator-based coroutines have been deprecated. Don't implement them
-with generators anymore. Note there are `collections.abc.Awaitable`
+Generator-based coroutines have been deprecated.
+`asyncio.coroutine` was removed in 3.11.
+Don't use it anymore.
+`types.coroutine`, however, is still there as of this writing.
+
+Note there are `collections.abc.Awaitable`
 and `collections.abc.Coroutine` abstract base classes too.
 
 How do I add a docstring to a module/class/function?
