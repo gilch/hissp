@@ -2227,6 +2227,8 @@ Lissp Quick Start
    namespace(foo=11)
 
 
+   ;; set/zap mnemonics: @tribute, !tem.
+
    ;;; Threading
 
    #> (-> "world!"                        ;Thread-first
