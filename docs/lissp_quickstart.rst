@@ -3822,6 +3822,28 @@ Lissp Quick Start
 
    ;; stderr: ('mul', 7, 3) => 21
 
+   ;; Anaphoric assignment target namespace.
+   ;; Very powerful, but more imperative in style.
+   ;; Use responsibly.
+   #> the#(print (set@ the.x (add 1 1))
+   #..           the.x)
+   >>> # hissp.macros.._macro_.let
+   ... (lambda the=__import__('types').SimpleNamespace():
+   ...   print(
+   ...     # setQzAT_
+   ...     # hissp.macros.._macro_.let
+   ...     (lambda _QzNo29_val=add(
+   ...       (1),
+   ...       (1)):(
+   ...       __import__('builtins').setattr(
+   ...         the,
+   ...         'x',
+   ...         _QzNo29_val),
+   ...       _QzNo29_val)[-1])(),
+   ...     the.x))()
+   2 2
+
+
    ;; Comment string.
    #> <<#;Don't worry about the "quotes".
    >>> 'Don\'t worry about the "quotes".'
