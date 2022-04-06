@@ -37,6 +37,10 @@
   (lambda (self)
     (self.assertEqual : :* `($#test `,,'$#test)))
 
+  test_inner_gensym
+  (lambda (self)
+    (self.assertRegex `$#self.$foo "self._QzNo\d+_foo$"))
+
   test_qualified_symbol
   (lambda (self)
     (self.assertEqual (tqs)
