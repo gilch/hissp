@@ -3215,6 +3215,181 @@ Lissp Quick Start
    42
 
 
+   ;;; Context Managers
+
+   #> (define ultimate-unyielding-action-ensues ;It's true.
+   #..  (lambda (action)
+   #..    (Ensue (lambda (step)           ;Thus Ensues
+   #..             (action step.value)    ; an action,
+   #..             (attach step : Yield ()  From 1) ; unyielding,
+   #..             None))))               ; ultimately.
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   ultimateQz_unyieldingQz_actionQz_ensues=(lambda action:
+   ...                                             Ensue(
+   ...                                               (lambda step:(
+   ...                                                 action(
+   ...                                                   step.value),
+   ...                                                 # attach
+   ...                                                 # hissp.macros.._macro_.let
+   ...                                                 (lambda _QzNo31_target=step:(
+   ...                                                   __import__('builtins').setattr(
+   ...                                                     _QzNo31_target,
+   ...                                                     'Yield',
+   ...                                                     ()),
+   ...                                                   __import__('builtins').setattr(
+   ...                                                     _QzNo31_target,
+   ...                                                     'From',
+   ...                                                     (1)),
+   ...                                                   _QzNo31_target)[-1])(),
+   ...                                                 None)[-1]))))
+
+
+   #> (define wrap
+   #..  (contextlib..contextmanager
+   #..   (lambda (msg)
+   #..     (print "enter" msg)
+   #..     (Ensue (lambda (step)
+   #..              (set@ step.Yield msg)
+   #..              (ultimate-unyielding-action-ensues
+   #..                (lambda _ (print "exit" msg))))))))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   wrap=__import__('contextlib').contextmanager(
+   ...          (lambda msg:(
+   ...            print(
+   ...              ('enter'),
+   ...              msg),
+   ...            Ensue(
+   ...              (lambda step:(
+   ...                # setQzAT_
+   ...                # hissp.macros.._macro_.let
+   ...                (lambda _QzNo29_val=msg:(
+   ...                  __import__('builtins').setattr(
+   ...                    step,
+   ...                    'Yield',
+   ...                    _QzNo29_val),
+   ...                  _QzNo29_val)[-1])(),
+   ...                ultimateQz_unyieldingQz_actionQz_ensues(
+   ...                  (lambda _:
+   ...                    print(
+   ...                      ('exit'),
+   ...                      msg))))[-1])))[-1])))
+
+
+   #> (enter (wrap 'A)
+   #..       (lambda a (print a)))
+   >>> enter(
+   ...   wrap(
+   ...     'A'),
+   ...   (lambda a:
+   ...     print(
+   ...       a)))
+   enter A
+   A
+   exit A
+
+
+   #> (enter (wrap 'A)
+   #.. enter (wrap 'B)
+   #.. enter (wrap 'C)                    ;You can stack them.
+   #.. (lambda abc (print a b c)))
+   >>> enter(
+   ...   wrap(
+   ...     'A'),
+   ...   enter,
+   ...   wrap(
+   ...     'B'),
+   ...   enter,
+   ...   wrap(
+   ...     'C'),
+   ...   (lambda a,b,c:
+   ...     print(
+   ...       a,
+   ...       b,
+   ...       c)))
+   enter A
+   enter B
+   enter C
+   A B C
+   exit C
+   exit B
+   exit A
+
+
+   #> (define suppress-zde
+   #..  (contextlib..contextmanager
+   #..   (lambda :
+   #..     (Ensue (lambda (step)
+   #..              (attach step :
+   #..                Yield None
+   #..                Except ZeroDivisionError)  ;Exception targets can be a tuple.
+   #..              (ultimate-unyielding-action-ensues
+   #..                (lambda (exception)
+   #..                  (print "Caught a" exception))))))))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   suppressQz_zde=__import__('contextlib').contextmanager(
+   ...                    (lambda :
+   ...                      Ensue(
+   ...                        (lambda step:(
+   ...                          # attach
+   ...                          # hissp.macros.._macro_.let
+   ...                          (lambda _QzNo31_target=step:(
+   ...                            __import__('builtins').setattr(
+   ...                              _QzNo31_target,
+   ...                              'Yield',
+   ...                              None),
+   ...                            __import__('builtins').setattr(
+   ...                              _QzNo31_target,
+   ...                              'Except',
+   ...                              ZeroDivisionError),
+   ...                            _QzNo31_target)[-1])(),
+   ...                          ultimateQz_unyieldingQz_actionQz_ensues(
+   ...                            (lambda exception:
+   ...                              print(
+   ...                                ('Caught a'),
+   ...                                exception))))[-1])))))
+
+   #> (enter (suppress-zde)
+   #..  (lambda _ (truediv 1 0)))
+   >>> enter(
+   ...   suppressQz_zde(),
+   ...   (lambda _:
+   ...     truediv(
+   ...       (1),
+   ...       (0))))
+   Caught a division by zero
+
+   #> (enter (suppress-zde)
+   #..  (lambda _ (truediv 4 2)))
+   >>> enter(
+   ...   suppressQz_zde(),
+   ...   (lambda _:
+   ...     truediv(
+   ...       (4),
+   ...       (2))))
+   Caught a None
+   2.0
+
+   #> (enter (suppress-zde)
+   #..  (lambda _ (throw Exception)))
+   >>> enter(
+   ...   suppressQz_zde(),
+   ...   (lambda _:
+   ...     # throw
+   ...     # hissp.macros.._macro_.throwQzSTAR_
+   ...     # hissp.macros.._macro_.let
+   ...     (lambda _QzNo46_gen=__import__('traceback').walk_tb(
+   ...       None):(
+   ...       _QzNo46_gen.close(),
+   ...       _QzNo46_gen)[-1])().throw(
+   ...       Exception)))
+   Traceback (most recent call last):
+     ...
+   Exception
+
+
    ;;;; Advanced Reader Macros
 
    ;;; The Discard Macro
