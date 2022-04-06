@@ -50,10 +50,12 @@ class ParseLissp(DocTestParser):
             parser.compiler.ns = example.namespace
             hissp = parser.reads(lissp)
             compiled = parser.compiler.compile(hissp) + "\n"
-            assert norm_gensym_eq(compiled, python), "".join(
+            assert norm_gensym_eq(compiled, python), "  \n" + "".join(
                 context_diff(
-                    indent(python, "  ").splitlines(True),
-                    indent(compiled, "  ").splitlines(True),
+                    norm_gensyms(python),
+                    norm_gensyms(compiled),
+                    fromfile="expected in doc",
+                    tofile="actually compiled to",
                 )
             )
         return super().evaluate(example)
@@ -64,6 +66,11 @@ def norm_gensym_eq(compiled, python):
     return re.fullmatch(
         re.sub(r"_QzNo\d+_", r"_QzNo\\d+_", re.escape(python)), compiled
     )
+
+
+def norm_gensyms(s):
+    s = re.sub(r"_QzNo\d+_", r"_QzNo000_", s)
+    return indent(s, " " * 2).splitlines(True)
 
 
 class Globs(Container):

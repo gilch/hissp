@@ -70,7 +70,9 @@ judicious use can improve performance and maintainability.
 (.update (globals) : _macro_ (types..ModuleType (.format "{}._macro_" __name__)))
 (operator..setitem sys..modules _macro_.__name__ _macro_)
 
-;; Bootstrap enough macros to define the 'defmacro' macro. Dawg.
+;; Yo dawg, I herd you like macros,
+;; so I put a bootstrap defmacro in your _macro_ so you can defmacro a
+;; real defmacro while you define all your macros.
 
 ;; Simplified bootstrap version assumes ideal conditions to avoid branching.
 (setattr _macro_
@@ -156,48 +158,132 @@ judicious use can improve performance and maintainability.
             : ,name
             ,value))
 
+(defmacro defonce (name value)
+  `(unless (operator..contains (globals) ',name)
+     (define ,name ,value)))
+
+(defmacro deftype@ (decorators name bases : :* body)
+  `(define ,name
+     (-> (type ',name (,hissp.reader..ENTUPLE ,@bases)
+               (dict : ,@body))
+         ,@(reversed (list (zip decorators))))))
+
 (defmacro deftype (name bases : :* body)
   "Defines a type (class) in the current module.
 
   Key-value pairs are implied in the body.
   "
-  `(define ,name
-       (type ',name (,hissp.reader..ENTUPLE ,@bases)
-             (dict : ,@body))))
+  (.deftype@ _macro_ () name bases : :* body))
+
+;;; locals
 
 ;; see also from bootstrap: let
 
-(define _TAO "
-Abguvatarff nobir nofgenpgvba
-  ohg vzcyrzragngvba vf / gur orfg anzr.
-Grefrarff znl znxr bar gbb znal / trg hfrq gb gurz
-  ryfr biresybj lbhe oenva.
-Ab fhofgvghgr sbe haqrefgnaqvat
-Pbqr;     gur yvnovyvgl
-nf nffrg; gur   novyvgl.
-Gur ovttrfg puhaxf / ner uneq gb fjnyybj
-  nf fvzcyr nf cbffvoyr / ab zber.
-Fbhepr jnf znqr / sbe gur uhzna
-  bowrpg / gur znpuvar.
-Ner lbh ynml rabhtu gb orne / gur fvaprerfg sbez / bs bgure jnlf bs orvat?
-*univat* qrprag fgnaqneqf / vf zber vzcbegnag / guna rknpgyl jung gurl ner
-Cresrpgvba / vf rkcrafvir
-  zntvp / uvtuyl cevprq
-  cnl sbe jura / vg'f Jbegu Vg
-  n dhnegre vf nqivfrq
-Ernqnovyvgl / vf znvayl / ynvq bhg ba gur cntr.
-Tbysvat / znxrf tbbq cenpgvpr / orfg cenpgvpr vg orgenlf.
-Pnfgyrf ohvyg / va gur nve / juvgure gurl qb orybat?
-  Ryrtnapr / gura rkprcgvba
-  Sbez / orsber qrgnvy
-  jurapr haqre gurz,
-Sbhaqngvbaf nccrne.
-Znxr gur evtug jnl boivbhf,
-zrqvgngr ba guvf.
-  --Mn Mra bs Uvffc
-")
+(defmacro let-from (syms itr : :* body)
+  "``let-from`` Create listed locals from iterable."
+  `((lambda ,syms
+      ,@body)
+    : :* ,itr))
+
+(defmacro let*from (pairs : :* body)
+  (if-else pairs
+    `(let-from ,(operator..getitem pairs 0)
+               ,(operator..getitem pairs 1)
+       (let*from ,(operator..getitem pairs (slice 2 None))
+         ,@body))
+    `(progn ,@body)))
+
+(defmacro the\# e
+  "``the#`` Anaphoric. Let ``the`` be a fresh `types.SimpleNamespace`
+  in a lexical scope surrounding e.
+  "
+  `(let (,'the (types..SimpleNamespace))
+     ,e))
+
+;;; abbreviations
+
+(defmacro &\# e
+  "``&#`` 'thunk' Make e an anonymous function with no parameters."
+  `(lambda : ,e))
+
+(defmacro X\# e
+  "``X#`` Anaphoric. Make e an anonymous function with paramter X."
+  `(lambda ,'X ,e))
+
+(defmacro XY\# e
+  "``XY#`` Anaphoric. Make e an anonymous function with paramters X Y."
+  `(lambda ,'XY ,e))
+
+(defmacro XYZ\# e
+  "``XYZ#`` Anaphoric. Make e an anonymous function with paramters X Y Z."
+  `(lambda ,'XYZ ,e))
+
+(defmacro XYZW\# e
+  "``XYZW#`` Anaphoric. Make e an anonymous function with paramters X Y Z W."
+  `(lambda ,'XYZW ,e))
+
+(defmacro alias (alias module)
+  #"Defines a reader macro abbreviation of a qualifier. For example,
+
+  .. code-block:: Lissp
+
+     (hissp.macros.._macro_.alias M/ hissp.macros.._macro_)
+     ;; Now the same as (hissp.macros.._macro_.alias op sub.).
+     (M/#alias op operator.)
+     ;; Use an extra to name a reader macro.
+     M/#!b\"byte string\"
+     (op#sub 2 3)
+     #> op#!pow !3 2
+     >>> (8)
+     8
+
+  " ; TODO: doctest examples.
+  `(defmacro ,(.format "{}{}" alias '#)
+             ($#prime : $#reader None :* $#args)
+     ',(.format "('Aliases {} as {}#')" module alias) ; TODO: docstrings not compiling in?
+     (if-else $#reader
+       ((getattr ,module (.format "{}{}"
+                                  $#reader
+                                  (if-else (operator..contains ',module ','_macro_)
+                                     ','#
+                                     "")))
+        $#prime : :* $#args)
+       (.format "{}.{}" ',module $#prime))))
+
+(alias op operator.)
+(alias i itertools.)
+
+(defmacro chain\# (itr)
+  "``chain#`` Abbreviation for `itertools.chain.from_iterable`"
+  `(i#chain.from_iterable ,itr))
 
 ;;; configuration
+
+(defmacro set! (coll key val)
+  "``set!`` Assigns an item, returns the value.
+  Mnemonic: set !tem.
+  "
+  `(let ($#val ,val)
+     (op#setitem ,coll ,key $#val)
+     $#val))
+
+(defmacro zap! (op coll key : :* args)
+  `(let ($#coll ,coll
+         $#key ,key)
+     (set! $#coll $#key (,op (op#getitem $#coll $#key)
+                             ,@args))))
+
+(defmacro set@ (name val)
+  "``set@`` Assigns an attribute, returns the value.
+  Mnemonic: set @tribute.
+  "
+  (let-from (ns _ attr) (.rpartition name ".")
+    `(let ($#val ,val)
+       (setattr ,ns ',attr $#val)
+       $#val)))
+
+(defmacro zap@ (op name : :* args)
+  `(set@ ,name (,op ,name ,@args)))
 
 (defmacro attach (target : :* args)
   "Attaches the named variables to the target as attributes.
@@ -209,15 +295,10 @@ zrqvgngr ba guvf.
   "
   (let (iargs (iter args)
         $target `$#target)
-    (let (args (itertools..takewhile (lambda (a)
-                                       (operator..ne a ':))
-                                     iargs))
+    (let (args (i#takewhile X#(op#ne X ':) iargs))
       `(let (,$target ,target)
-         ,@(map (lambda (arg)
-                  `(setattr ,$target ',arg ,arg))
-                args)
-         ,@(map (lambda (kw)
-                  `(setattr ,$target ',kw ,(next iargs)))
+         ,@(map X#`(setattr ,$target ',X ,X) args)
+         ,@(map X#`(setattr ,$target ',X ,(next iargs))
                 iargs)
          ,$target))))
 
@@ -231,10 +312,9 @@ zrqvgngr ba guvf.
   "
   (let ($self `$#self)
     `((lambda (: ,$self ,self)
-        ,@(map (lambda (invocation)
-                 `(,(operator..getitem invocation 0)
+        ,@(map X#`(,(op#getitem X 0)
                    ,$self
-                   ,@(operator..getitem invocation (slice 1 None))))
+                   ,@(op#getitem X (slice 1 None)))
                invocations)
         ,$self))))
 
@@ -249,11 +329,11 @@ zrqvgngr ba guvf.
   Makes chained method calls easier to read.
   "
   (if-else forms
-    `(-> (,(operator..getitem (operator..getitem forms 0) 0)
+    `(-> (,(op#getitem (op#getitem forms 0) 0)
           ,expr
-          ,@(operator..getitem (operator..getitem forms 0)
-                               (slice 1 None)))
-         ,@(operator..getitem forms (slice 1 None)))
+          ,@(op#getitem (op#getitem forms 0)
+                        (slice 1 None)))
+         ,@(op#getitem forms (slice 1 None)))
     expr))
 
 (defmacro ->> (expr : :* forms)
@@ -267,13 +347,16 @@ zrqvgngr ba guvf.
   E.g. ``(-> x (A a) (->> B b) (C c))`` is ``(C (B b (A x a)) c)``.
   "
   (if-else forms
-    `(->> (,@(operator..getitem forms 0) ,expr)
-          ,@(operator..getitem forms (slice 1 None)))
+    `(->> (,@(op#getitem forms 0) ,expr)
+          ,@(op#getitem forms (slice 1 None)))
     expr))
 
 ;; TODO: implement other arrange macros?
 
 ;;; control flow
+
+;; see also from bootstrap: if-else, when, unless
+;; see also from advanced: case
 
 (defmacro cond (: :* pairs)
   #"Multiple condition branching.
@@ -283,26 +366,54 @@ zrqvgngr ba guvf.
 
    (cond) ; ()
    ;; Assume some number 'x
-   (cond (operator..gt x 0) (print \"positive\")
-         (operator..lt x 0) (print \"negative\")
-         (operator..eq x 0) (print \"zero\")
+   (cond (op#gt x 0) (print \"positive\")
+         (op#lt x 0) (print \"negative\")
+         (op#eq x 0) (print \"zero\")
          :else (print \"not a number\"))
   "
   (when pairs
-    `(if-else ,(operator..getitem pairs 0)
-              ,(operator..getitem pairs 1)
+    `(if-else ,(op#getitem pairs 0)
+              ,(op#getitem pairs 1)
               ;; Here's the recursive part.
-              (cond ,@(operator..getitem pairs (slice 2 None))))))
+              (cond ,@(op#getitem pairs (slice 2 None))))))
 
-(defmacro any-for (variable iterable : :* body)
-  "``any-for``
-  Bind the variable and evaluate the body for each item from the
-  iterable until any result is true (and return ``True``),
-  or until the iterable is exhausted (and return ``False``).
+(defmacro any-map (variable xs : :* body)
+  "``any-map``
+  Bind the variable and evaluate the body for each x from xs
+  until any result is true (and return ``True``), or until xs is
+  exhausted (and return ``False``).
   "
   `(any (map (lambda (,variable)
                ,@body)
-             ,iterable)))
+             ,xs)))
+
+(defmacro any*map (variables xss : :* body)
+  "``any*map`` 'any star-for'
+  Bind each x to a variable and evaluate the body for each xs from xss
+  until any result is true (and return ``True``), or until xss is
+  exhausted (and return ``False``).
+  "
+  `(any (i#starmap (lambda ,variables ,@body)
+                   ,xss)))
+
+(defmacro loop-from (syms inits : :* body)
+  "``loop-from`` Anaphoric. Loop/recur with trampoline.
+
+  Set local values for the first loop with an iterable as
+  `let-from<letQz_from>`.
+
+  Creates a stack to schedule future loops. Call the ``recur-from``
+  anaphor with an iterable of values for the locals to push another loop
+  to the schedule. Call with None to abort any remaining schedule.
+
+  Returns the value of the final loop.
+  "
+  `(let ($#stack (@ () None ,inits))
+     (let (,'recur-from $#stack.append)
+       (any*map ,syms (iter $#stack.pop None)
+         (op#setitem $#stack 0 (progn ,@body))
+         None)
+       (op#getitem $#stack 0))))
 
 ;; I would have named this 'and, but that's a reserved word.
 (defmacro && (: :* exprs)
@@ -310,11 +421,11 @@ zrqvgngr ba guvf.
   Returns the first false value, otherwise the last value.
   There is an implicit initial value of ``True``.
   "
-  (cond (operator..not_ exprs) True
-        (operator..eq (len exprs) 1) (operator..getitem exprs 0)
-        :else `(let ($#G ,(operator..getitem exprs 0))
+  (cond (op#not_ exprs) True
+        (op#eq (len exprs) 1) (op#getitem exprs 0)
+        :else `(let ($#G ,(op#getitem exprs 0))
                  (if-else $#G
-                          (&& ,@(operator..getitem exprs (slice 1 None)))
+                          (&& ,@(op#getitem exprs (slice 1 None)))
                           $#G))))
 
 (defmacro || (: first () :* rest)
@@ -329,11 +440,33 @@ zrqvgngr ba guvf.
                        (|| ,@rest)))
            first))
 
-;; TODO: implement case macro?
+(defmacro throw* (: :* exception)
+  "``throw*`` Creates a closed generator and calls its throw method.
 
-;; see also from bootstrap: if-else, when, unless
+  Despite PEP 3109, .throw still seems to accept multiple arguments.
+  You should basically never use more than one, except when implementing
+  your own throw method overrides. Otherwise, use `throw` instead.
+  "
+  `(.throw (let ($#gen (traceback..walk_tb None))
+             (.close $#gen)
+             $#gen)
+           ,@exception))
+
+(defmacro throw (exception)
+  "Raise an exception."
+  `(throw* ,exception))
+
+(defmacro throw-from (exception cause)
+  "Raise an exception with a cause, which can be None."
+  `(throw* (let ($#G (lambda ($#x)
+                       (if-else (&& (isinstance $#x type)
+                                    (issubclass $#x BaseException))
+                         ($#x) $#x)))
+             (attach ($#G ,exception) : ,'__cause__ ($#G ,cause)))))
 
 ;;; side effect
+
+;; see also from bootstrap: progn
 
 (defmacro prog1 (expr1 : :* body)
   "Evaluates each expression in sequence (for side effects),
@@ -341,8 +474,6 @@ zrqvgngr ba guvf.
   `(let ($#value1 ,expr1)
      ,@body
      $#value1))
-
-;; see also from bootstrap: progn
 
 ;; Note that any of the bundled macros with a lambda "body" argument
 ;; also sequence expressions for side effects.
@@ -385,7 +516,7 @@ zrqvgngr ba guvf.
   "
   (if-else lines
     `',(.join (ast..literal_eval single)
-              (map (operator..attrgetter 'content) lines))
+              (map (op#attrgetter 'content) lines))
     `',(getattr single 'content)))
 
 (defmacro en\# (f)
@@ -417,7 +548,7 @@ zrqvgngr ba guvf.
      [1, 2, 3, 4, 5, 6]
 
   " ; TODO: doctest examples
-  (if-else (&& (operator..is_ str (type f))
+  (if-else (&& (op#is_ str (type f))
                (.startswith f "."))
     `(lambda ($#self : :* $#xs)
        (,f $#self $#xs))
@@ -433,11 +564,10 @@ zrqvgngr ba guvf.
   Mnemonic: @rray list.
   "
   (let (ixs (iter xs))
-    `(en#list : ,@(itertools..chain.from_iterable
-                    (map (lambda x (if-else (operator..eq x ":*")
-                                     `(,x ,(next ixs))
-                                     `(:? ,x)))
-                         ixs)))))
+    `(en#list : ,@chain#(map X#(if-else (op#eq X ":*")
+                                 `(,X ,(next ixs))
+                                 `(:? ,X))
+                             ixs))))
 
 (defmacro # (: :* xs)
   "``#`` 'set of'
@@ -446,11 +576,10 @@ zrqvgngr ba guvf.
   Mnemonic: Hash set.
   "
   (let (ixs (iter xs))
-    `(en#set : ,@(itertools..chain.from_iterable
-                   (map (lambda x (if-else (operator..eq x ":*")
-                                    `(,x ,(next ixs))
-                                    `(:? ,x)))
-                        ixs)))))
+    `(en#set : ,@chain#(map X#(if-else (op#eq X ":*")
+                                `(,X ,(next ixs))
+                                `(:? ,X))
+                            ixs))))
 
 (defmacro % (: :* kvs)
   "``%`` 'dict of'.
@@ -459,17 +588,15 @@ zrqvgngr ba guvf.
   ``:**`` unpacks mappings.
   Mnemonic: dict of pairs (%).
   "
-  (when (operator..mod (len kvs) 2)
-    (exec "raise TypeError('extra key without value')"))
+  (when (op#mod (len kvs) 2)
+    (throw (TypeError "extra key without value")))
   (let (ikvs (iter kvs))
     `(en#dict
-      : ,@(itertools..chain
-            : :* (map (lambda kv
-                        (if-else (operator..eq k ":**")
-                          `(:* (.items ,v))
-                          `(:? `(,,k ,,v))))
-                      ikvs
-                      ikvs)))))
+      : ,@chain#(map XY#(if-else (op#eq X ":**")
+                          `(:* (.items ,Y))
+                          `(:? `(,,X ,,Y)))
+                     ikvs
+                     ikvs))))
 
 ;;; import
 
@@ -505,37 +632,59 @@ from itertools import *;from operator import *
 def engarde(xs,h,f,/,*a,**kw):
  try:return f(*a,**kw)
  except xs as e:return h(e)
+def enter(c,f,/,*a):
+ with c as C:return f(*a,C)
+class Ensue(__import__('collections.abc').abc.Generator):
+ send=lambda s,v:s.S(v);throw=lambda s,*x:s.T(*x);From=0;Except=()
+ def __init__(s,p):s.p,g=p,s._(s);s.S,s.T=g.send,g.throw
+ def _(s,k,v=None):
+  while isinstance(s:=k,__class__):
+   try:s.value=v;k,y=s.p(s),s.Yield;v=(yield from y)if s.From else(yield y)
+   except s.Except as e:v=e
+  return k
 _macro_=__import__('types').SimpleNamespace()
 try:exec('from {}._macro_ import *',vars(_macro_))
 except ModuleNotFoundError:pass"
                     __name__)
-    ,ns))(.##"\144efma\143ro" import(: :* args)
-          `(.##"p\162int"(.##"\143ode\143s..en\143ode"_TAO ','.##"ro\16413")))
+    ,ns))(.##"\144efma\143ro"import(: :* _)(.##"\144efine" _TAO .#"b'''Gapoqh/:as%)1%dp^V#lc5p@0#Yb`;?p]BsZobbeC!>#$,\\bTIe+5StU/J&1NU?2TER20!9iI3YM2/_M^9n[sS*&dfL:*/h99`RW@geH#\\u-<s#-!RpcZ4%jV,Z\\JB&<'l$KWP_ElKHn8=64#>/_^uaYR[)X>mX[3QHN@4g0Qo_O=6f3E'476eg=JcFM;j4BaR:*baA>p@:KB(lkOWB[jIP#)QN[4nL_]&I1LPX4(U8a0;FBj1n)3E9WJLKd0Co'l)7DfN(YJ<<oVo.=k)Di;*O@8\"g;0=`;%`TJ[-.aJ)'DI`p@RQ\"D)20_.E#*Cs)h^H5$0lP-Gl+C'r%<RWA80V[Qc?p58%Ob.1l[G;sus5)Q7hQXL50-bk</e\"*a/(e>kc*^df^Z+0>nci1U:7&c@g?g5;qZckm]7%qh[ma3F9u(9$8OnGd:'$2Ed8<$c$Tp>mQQSGl]rUc5blW<-VBGh?\\MV)k4nbA^G5#:p+*JVHiH2GLAG)0AB7OA>/3H5#:H>\"4&cZ^:.SVpM+L&[%:%LPrs7b4Y^tA)Jj;tk?Ll>cmB]ShiQITN[\"RUearnc.cfb>b/(hM^VCH(9\"Dkel(/U4k\\1!&%4p!Qqe_T!Z(I5^t!hn#_E?,%b[^+AdIjM'>j0F.hC2Y.OpZ>!Y2Xdd9[mZh&!/)V)sh7YMU!!3T/XL0\\K+1G-6(B'''")`(.##"p\162int"(.##".de\143ode"(.##"\143ode\143s..de\143ode"(.##"b\141se64..a85de\143ode"_TAO)#"z\151p"))))
 
-(defmacro alias (alias module)
-  #"Defines a reader macro abbreviation of a qualifier. For example,
+;;; advanced
 
-  .. code-block:: Lissp
+(defmacro case (key default : :* pairs)
+  (when pairs
+    (when (op#mod (len pairs) 2)
+      (throw (TypeError "Incomplete pair")))
+    (let (kss (op#getitem pairs (slice None None 2))
+          ts (op#getitem pairs (slice 1 None 2)))
+      `((op#getitem (@ ,@(map X#`&#,X ts) &#,default)
+                    (.get (en#dict ,@chain#(i#starmap (lambda (i ks)
+                                                        (map X#`(@ ,X ,i) ks))
+                                                      (enumerate kss)))
+                          ,key
+                          -1))))))
 
-     (hissp.macros.._macro_.alias M/ hissp.macros.._macro_)
-     ;; Now the same as (hissp.macros.._macro_.alias op sub.).
-     (M/#alias op operator.)
-     ;; Use an extra to name a reader macro.
-     M/#!b\"byte string\"
-     (op#sub 2 3)
-     #> op#!pow !3 2
-     >>> (8)
-     8
+(defmacro _spy e
+  `(let ($#e ,e)
+     (print ',e "=>" $#e : file sys..stderr)
+     $#e))
 
-  " ; TODO: doctest examples.
-  `(defmacro ,(.format "{}{}" alias '#)
-             ($#prime : $#reader None :* $#args)
-     ',(.format "('Aliases {} as {}#')" module alias) ; TODO: docstrings not compiling in?
-     (if-else $#reader
-       ((getattr ,module (.format "{}{}"
-                                  $#reader
-                                  (if-else (operator..contains ',module ','_macro_)
-                                     ','#
-                                     "")))
-        $#prime : :* $#args)
-       (.format "{}.{}" ',module $#prime))))
+(defmacro spy\# e
+  "``spy#`` Print e => its value to stderr, return the value."
+  `(hissp.._macro_._spy ,e))
+
+(defmacro time\# e
+  "``time#`` Measure execution time of e, return its value."
+  `(let ($#time time..time_ns)
+     (let-from ($#start $#val $#end) (@ ($#time) ,e ($#time))
+       (print "Elapsed:" (op#truediv (op#sub $#end $#start)
+                                     (decimal..Decimal 1e6))
+                         "ms")
+       $#val)))
+
+(define _sentinel (object))
+(defmacro ensure (b : msg _sentinel)
+  (if-else __debug__
+    `(unless ,b
+       (throw (AssertionError ,@(unless (op#is_ msg _sentinel)
+                                  (@ msg)))))
+    ""))

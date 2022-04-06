@@ -1709,6 +1709,7 @@ Lissp Quick Start
    ...     (3),))
    (42, 'a', 'b', 'c', 42, 2, 3)
 
+
    #> (# 1 :* (@ 1 2 3) 4)                ;Set, with unpacking.
    >>> # QzHASH_
    ... (lambda *_QzNo34_xs:
@@ -1808,7 +1809,8 @@ Lissp Quick Start
    >>> # deftype
    ... # hissp.macros.._macro_.define
    ... __import__('builtins').globals().update(
-   ...   Point2D=__import__('builtins').type(
+   ...   Point2D=# hissp.macros..QzMaybe_.Qz_QzGT_
+   ...           __import__('builtins').type(
    ...             'Point2D',
    ...             (lambda * _: _)(
    ...               tuple),
@@ -1829,6 +1831,47 @@ Lissp Quick Start
    ...   (1),
    ...   (2))
    Point2D(1, 2)
+
+
+   #> (deftype@ ((lambda (cls)
+   #..             (setattr cls 's (operator..concat cls.s "Out"))
+   #..             cls)
+   #..           (lambda (cls)
+   #..             (setattr cls 's (operator..concat cls.s "Inside"))
+   #..             cls))
+   #..          Decorated ()
+   #..  s "@")
+   >>> # deftypeQzAT_
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   Decorated=# hissp.macros..QzMaybe_.Qz_QzGT_
+   ...             # hissp.macros..QzMaybe_.Qz_QzGT_
+   ...             # hissp.macros..QzMaybe_.Qz_QzGT_
+   ...             (lambda cls:(
+   ...               setattr(
+   ...                 cls,
+   ...                 's',
+   ...                 __import__('operator').concat(
+   ...                   cls.s,
+   ...                   ('Out'))),
+   ...               cls)[-1])(
+   ...               (lambda cls:(
+   ...                 setattr(
+   ...                   cls,
+   ...                   's',
+   ...                   __import__('operator').concat(
+   ...                     cls.s,
+   ...                     ('Inside'))),
+   ...                 cls)[-1])(
+   ...                 __import__('builtins').type(
+   ...                   'Decorated',
+   ...                   (lambda * _: _)(),
+   ...                   __import__('builtins').dict(
+   ...                     s=('@'))))))
+
+   #> Decorated.s
+   >>> Decorated.s
+   '@InsideOut'
 
 
    ;; Define a function in the _macro_ namespace.
@@ -1879,6 +1922,71 @@ Lissp Quick Start
    'tomato'
 
 
+   ;; Like define, but won't overwrite an existing global.
+   ;; Useful when sending the whole file to the REPL repeatedly or when
+   ;; using importlib.reload and you want to cache an expensive object
+   ;; instead of re-initializing it every time.
+   #> (defonce CACHE (types..SimpleNamespace : x 1))
+   >>> # defonce
+   ... # hissp.macros.._macro_.unless
+   ... # hissp.macros.._macro_.ifQz_else
+   ... (lambda test,*thenQz_else:
+   ...   __import__('operator').getitem(
+   ...     thenQz_else,
+   ...     __import__('operator').not_(
+   ...       test))())(
+   ...   __import__('operator').contains(
+   ...     __import__('builtins').globals(),
+   ...     'CACHE'),
+   ...   (lambda :()),
+   ...   (lambda :
+   ...     # hissp.macros.._macro_.progn
+   ...     (lambda :
+   ...       # hissp.macros.._macro_.define
+   ...       __import__('builtins').globals().update(
+   ...         CACHE=__import__('types').SimpleNamespace(
+   ...                 x=(1))))()))
+
+   #> (setattr CACHE 'x 42)
+   >>> setattr(
+   ...   CACHE,
+   ...   'x',
+   ...   (42))
+
+   #> (defonce CACHE (progn (print "not evaluated")
+   #..                      (types..SimpleNamespace : x 1)))
+   >>> # defonce
+   ... # hissp.macros.._macro_.unless
+   ... # hissp.macros.._macro_.ifQz_else
+   ... (lambda test,*thenQz_else:
+   ...   __import__('operator').getitem(
+   ...     thenQz_else,
+   ...     __import__('operator').not_(
+   ...       test))())(
+   ...   __import__('operator').contains(
+   ...     __import__('builtins').globals(),
+   ...     'CACHE'),
+   ...   (lambda :()),
+   ...   (lambda :
+   ...     # hissp.macros.._macro_.progn
+   ...     (lambda :
+   ...       # hissp.macros.._macro_.define
+   ...       __import__('builtins').globals().update(
+   ...         CACHE=# progn
+   ...               (lambda :(
+   ...                 print(
+   ...                   ('not evaluated')),
+   ...                 __import__('types').SimpleNamespace(
+   ...                   x=(1)))[-1])()))()))
+   ()
+
+   #> CACHE
+   >>> CACHE
+   namespace(x=42)
+
+
+   ;;; Locals
+
    #> (let (x "a"                         ;Create locals.
    #..      y "b")                        ;Any number of pairs.
    #..  (print x y)
@@ -1908,6 +2016,98 @@ Lissp Quick Start
    a b
 
 
+   #> (let-from (a b : :* cs) "abcdefg"   ;Locals from iterable.
+   #..  (print cs b a))
+   >>> # letQz_from
+   ... (lambda a,b,*cs:
+   ...   print(
+   ...     cs,
+   ...     b,
+   ...     a))(
+   ...   *('abcdefg'))
+   ('c', 'd', 'e', 'f', 'g') b a
+
+
+   #> (% 1 2  3 4)
+   >>> # QzPCENT_
+   ... (lambda *_QzNo52_xs:
+   ...   __import__('builtins').dict(
+   ...     _QzNo52_xs))(
+   ...   (lambda * _: _)(
+   ...     (1),
+   ...     (2)),
+   ...   (lambda * _: _)(
+   ...     (3),
+   ...     (4)))
+   {1: 2, 3: 4}
+
+   #> (let*from ((ab cd) (.items _)    ;Nested let-froms.
+   #..           (a b) ab
+   #..           (c d) cd)
+   #..  (print a b c d))
+   >>> # letQzSTAR_from
+   ... # hissp.macros.._macro_.letQz_from
+   ... (lambda ab,cd:
+   ...   # hissp.macros..QzMaybe_.letQzSTAR_from
+   ...   # hissp.macros.._macro_.letQz_from
+   ...   (lambda a,b:
+   ...     # hissp.macros..QzMaybe_.letQzSTAR_from
+   ...     # hissp.macros.._macro_.letQz_from
+   ...     (lambda c,d:
+   ...       # hissp.macros..QzMaybe_.letQzSTAR_from
+   ...       # hissp.macros.._macro_.progn
+   ...       (lambda :
+   ...         print(
+   ...           a,
+   ...           b,
+   ...           c,
+   ...           d))())(
+   ...       *cd))(
+   ...     *ab))(
+   ...   *_.items())
+   1 2 3 4
+
+
+   #> (let*from ((ab cd) (.items _)    ;Try to avoid excessive stack frames.
+   #..           (a b c d) `(,@ab ,@cd))
+   #..  (print a b c d))
+   >>> # letQzSTAR_from
+   ... # hissp.macros.._macro_.letQz_from
+   ... (lambda ab,cd:
+   ...   # hissp.macros..QzMaybe_.letQzSTAR_from
+   ...   # hissp.macros.._macro_.letQz_from
+   ...   (lambda a,b,c,d:
+   ...     # hissp.macros..QzMaybe_.letQzSTAR_from
+   ...     # hissp.macros.._macro_.progn
+   ...     (lambda :
+   ...       print(
+   ...         a,
+   ...         b,
+   ...         c,
+   ...         d))())(
+   ...     *(lambda * _: _)(
+   ...        *ab,
+   ...        *cd)))(
+   ...   *_.items())
+   1 2 3 4
+
+
+   #> (let-from (a c b d)                 ;Didn't really need let*from this time.
+   #..          `(,@(.keys _) ,@(.values _)) ; Not always this easy though.
+   #..  (print a b c d))
+   >>> # letQz_from
+   ... (lambda a,c,b,d:
+   ...   print(
+   ...     a,
+   ...     b,
+   ...     c,
+   ...     d))(
+   ...   *(lambda * _: _)(
+   ...      *_.keys(),
+   ...      *_.values()))
+   1 2 3 4
+
+
    ;;; Configuration
 
    #> (attach (types..SimpleNamespace) + : a 1  b "Hi")
@@ -1929,6 +2129,7 @@ Lissp Quick Start
    ...   _QzNo16_target)[-1])()
    namespace(QzPLUS_=<built-in function add>, a=1, b='Hi')
 
+
    #> (doto (list)
    #..  (.extend "bar")
    #..  (.sort)
@@ -1943,6 +2144,90 @@ Lissp Quick Start
    ...   _QzNo20_self)[-1])()
    ['a', 'b', 'r', 'foo']
 
+
+   #> (define spam (dict))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   spam=dict())
+
+   #> (set! spam 2 10)                    ;Like operator..setitem, but returns value given.
+   >>> # setQzBANG_
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo28_val=(10):(
+   ...   __import__('operator').setitem(
+   ...     spam,
+   ...     (2),
+   ...     _QzNo28_val),
+   ...   _QzNo28_val)[-1])()
+   10
+
+   #> spam
+   >>> spam
+   {2: 10}
+
+   #> (zap! operator..iadd spam 2 1)      ;Augmented item assignment, like +=.
+   >>> # zapQzBANG_
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo30_coll=spam,_QzNo30_key=(2):
+   ...   # hissp.macros.._macro_.setQzBANG_
+   ...   # hissp.macros.._macro_.let
+   ...   (lambda _QzNo28_val=__import__('operator').iadd(
+   ...     __import__('operator').getitem(
+   ...       _QzNo30_coll,
+   ...       _QzNo30_key),
+   ...     (1)):(
+   ...     __import__('operator').setitem(
+   ...       _QzNo30_coll,
+   ...       _QzNo30_key,
+   ...       _QzNo28_val),
+   ...     _QzNo28_val)[-1])())()
+   11
+
+   #> spam
+   >>> spam
+   {2: 11}
+
+
+   #> (define spam (types..SimpleNamespace))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   spam=__import__('types').SimpleNamespace())
+
+   #> (set@ spam.foo 10)                  ;Similarly for attributes.
+   >>> # setQzAT_
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo27_val=(10):(
+   ...   __import__('builtins').setattr(
+   ...     spam,
+   ...     'foo',
+   ...     _QzNo27_val),
+   ...   _QzNo27_val)[-1])()
+   10
+
+   #> spam
+   >>> spam
+   namespace(foo=10)
+
+   #> (zap@ operator..iadd spam.foo 1)
+   >>> # zapQzAT_
+   ... # hissp.macros.._macro_.setQzAT_
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo27_val=__import__('operator').iadd(
+   ...   spam.foo,
+   ...   (1)):(
+   ...   __import__('builtins').setattr(
+   ...     spam,
+   ...     'foo',
+   ...     _QzNo27_val),
+   ...   _QzNo27_val)[-1])()
+   11
+
+   #> spam
+   >>> spam
+   namespace(foo=11)
+
+
+   ;; set/zap mnemonics: @tribute, !tem.
 
    ;;; Threading
 
@@ -1965,10 +2250,10 @@ Lissp Quick Start
    ;;; The Prelude
 
    ;; An inline convenience micro-prelude for Hissp.
-   ;; Imports partial and reduce, star imports from operator and
-   ;; itertools, defines engarde, and imports a copy of
-   ;; hissp.macros.._macro_ (if available). Usually the first form in a file,
-   ;; because it overwrites _macro_, but completely optional.
+   ;; Imports partial and reduce; star imports from operator and itertools;
+   ;; defines engarde, enter, and Ensue; and imports a copy of
+   ;; hissp.macros.._macro_ (if available). Usually the first form in a
+   ;; file, because it overwrites _macro_, but completely optional.
    ;; Implied for $ lissp -c commands.
    #> (prelude)                           ;/!\ Or (hissp.._macro_.prelude)
    >>> # prelude
@@ -1978,6 +2263,16 @@ Lissp Quick Start
    ...    'def engarde(xs,h,f,/,*a,**kw):\n'
    ...    ' try:return f(*a,**kw)\n'
    ...    ' except xs as e:return h(e)\n'
+   ...    'def enter(c,f,/,*a):\n'
+   ...    ' with c as C:return f(*a,C)\n'
+   ...    "class Ensue(__import__('collections.abc').abc.Generator):\n"
+   ...    ' send=lambda s,v:s.S(v);throw=lambda s,*x:s.T(*x);From=0;Except=()\n'
+   ...    ' def __init__(s,p):s.p,g=p,s._(s);s.S,s.T=g.send,g.throw\n'
+   ...    ' def _(s,k,v=None):\n'
+   ...    '  while isinstance(s:=k,__class__):\n'
+   ...    '   try:s.value=v;k,y=s.p(s),s.Yield;v=(yield from y)if s.From else(yield y)\n'
+   ...    '   except s.Except as e:v=e\n'
+   ...    '  return k\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
    ...    "try:exec('from hissp.macros._macro_ import *',vars(_macro_))\n"
    ...    'except ModuleNotFoundError:pass'),
@@ -1986,21 +2281,81 @@ Lissp Quick Start
 
    ;;; Control Flow
 
-   ;; Hissp has no control flow, but you can build them with macros.
+   ;; Hissp has no innate control flow, but you can build them with macros.
 
-   #> (any-for i (range 1 11)             ;Imperative loop with break.
-   #..  (print i : end " ")
-   #..  (not_ (mod i 7)))
-   >>> # anyQz_for
+   ;; Like recursion with tail elimination.
+   #> (loop-from x '(3)                   ;Unpacks as let-from.
+   #..  (when x
+   #..    (print x)
+   #..    (recur-from (@ (sub x 1)))))
+   >>> # loopQz_from
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo43_stack=# hissp.macros..QzMaybe_.QzAT_
+   ... (lambda *_QzNo52_xs:
+   ...   __import__('builtins').list(
+   ...     _QzNo52_xs))(
+   ...   (),
+   ...   None,
+   ...   ((3),)):
+   ...   # hissp.macros.._macro_.let
+   ...   (lambda recurQz_from=_QzNo43_stack.append:(
+   ...     # hissp.macros.._macro_.anyQzSTAR_map
+   ...     __import__('builtins').any(
+   ...       __import__('itertools').starmap(
+   ...         (lambda x:(
+   ...           __import__('operator').setitem(
+   ...             _QzNo43_stack,
+   ...             (0),
+   ...             # hissp.macros.._macro_.progn
+   ...             (lambda :
+   ...               # when
+   ...               # hissp.macros.._macro_.ifQz_else
+   ...               (lambda test,*thenQz_else:
+   ...                 __import__('operator').getitem(
+   ...                   thenQz_else,
+   ...                   __import__('operator').not_(
+   ...                     test))())(
+   ...                 x,
+   ...                 (lambda :
+   ...                   # hissp.macros.._macro_.progn
+   ...                   (lambda :(
+   ...                     print(
+   ...                       x),
+   ...                     recurQz_from(
+   ...                       # QzAT_
+   ...                       (lambda *_QzNo52_xs:
+   ...                         __import__('builtins').list(
+   ...                           _QzNo52_xs))(
+   ...                         sub(
+   ...                           x,
+   ...                           (1)))))[-1])()),
+   ...                 (lambda :())))()),
+   ...           None)[-1]),
+   ...         __import__('builtins').iter(
+   ...           _QzNo43_stack.pop,
+   ...           None))),
+   ...     __import__('operator').getitem(
+   ...       _QzNo43_stack,
+   ...       (0)))[-1])())()
+   3
+   2
+   1
+   ()
+
+
+   #> (any-map index (range 1 11)         ;Imperative loop with break.
+   #..  (print index : end " ")
+   #..  (not_ (mod index 7)))
+   >>> # anyQz_map
    ... __import__('builtins').any(
    ...   __import__('builtins').map(
-   ...     (lambda i:(
+   ...     (lambda index:(
    ...       print(
-   ...         i,
+   ...         index,
    ...         end=(' ')),
    ...       not_(
    ...         mod(
-   ...           i,
+   ...           index,
    ...           (7))))[-1]),
    ...     range(
    ...       (1),
@@ -2009,22 +2364,295 @@ Lissp Quick Start
 
    ;; 1 2 3 4 5 6 7 True
 
-   (if-else (eq (input "? ") 't)          ;ternary conditional
-     (print "Yes")
-     (print "No"))
+   #> (any*map (i c) (enumerate "abc" 1)  ;As any-map, but with starmap.
+   #..  (print (mul i c)))
+   >>> # anyQzSTAR_map
+   ... __import__('builtins').any(
+   ...   __import__('itertools').starmap(
+   ...     (lambda i,c:
+   ...       print(
+   ...         mul(
+   ...           i,
+   ...           c))),
+   ...     enumerate(
+   ...       ('abc'),
+   ...       (1))))
+   a
+   bb
+   ccc
+   False
 
-   (let (x (float (input "? ")))
-     ;; Multi-way branch.
-     (cond (lt x 0) (print "Negative")
-           (eq x 0) (print "Zero")
-           (gt x 0) (print "Positive")
-           :else (print "Not a number"))
-     (when (eq x 0)                       ;Conditional with side-effects & no alternative.
-       (print "In when")
-       (print "was zero"))
-     (unless (eq x 0)
-       (print "In unless")
-       (print "wasn't zero")))
+
+   #> (any-map c "ab"
+   #..  (if-else (eq c "b")               ;ternary conditional
+   #..    (print "Yes")
+   #..    (print "No")))
+   >>> # anyQz_map
+   ... __import__('builtins').any(
+   ...   __import__('builtins').map(
+   ...     (lambda c:
+   ...       # ifQz_else
+   ...       (lambda test,*thenQz_else:
+   ...         __import__('operator').getitem(
+   ...           thenQz_else,
+   ...           __import__('operator').not_(
+   ...             test))())(
+   ...         eq(
+   ...           c,
+   ...           ('b')),
+   ...         (lambda :
+   ...           print(
+   ...             ('Yes'))),
+   ...         (lambda :
+   ...           print(
+   ...             ('No'))))),
+   ...     ('ab')))
+   No
+   Yes
+   False
+
+
+   #> (any-map x (@ -0.6 -0.0 42.0 math..nan)
+   #..  (cond (lt x 0) (print "Negative") ;if-else cascade
+   #..        (eq x 0) (print "Zero")
+   #..        (gt x 0) (print "Positive")
+   #..        :else (print "Not a number")))
+   >>> # anyQz_map
+   ... __import__('builtins').any(
+   ...   __import__('builtins').map(
+   ...     (lambda x:
+   ...       # cond
+   ...       # hissp.macros.._macro_.ifQz_else
+   ...       (lambda test,*thenQz_else:
+   ...         __import__('operator').getitem(
+   ...           thenQz_else,
+   ...           __import__('operator').not_(
+   ...             test))())(
+   ...         lt(
+   ...           x,
+   ...           (0)),
+   ...         (lambda :
+   ...           print(
+   ...             ('Negative'))),
+   ...         (lambda :
+   ...           # hissp.macros..QzMaybe_.cond
+   ...           # hissp.macros.._macro_.ifQz_else
+   ...           (lambda test,*thenQz_else:
+   ...             __import__('operator').getitem(
+   ...               thenQz_else,
+   ...               __import__('operator').not_(
+   ...                 test))())(
+   ...             eq(
+   ...               x,
+   ...               (0)),
+   ...             (lambda :
+   ...               print(
+   ...                 ('Zero'))),
+   ...             (lambda :
+   ...               # hissp.macros..QzMaybe_.cond
+   ...               # hissp.macros.._macro_.ifQz_else
+   ...               (lambda test,*thenQz_else:
+   ...                 __import__('operator').getitem(
+   ...                   thenQz_else,
+   ...                   __import__('operator').not_(
+   ...                     test))())(
+   ...                 gt(
+   ...                   x,
+   ...                   (0)),
+   ...                 (lambda :
+   ...                   print(
+   ...                     ('Positive'))),
+   ...                 (lambda :
+   ...                   # hissp.macros..QzMaybe_.cond
+   ...                   # hissp.macros.._macro_.ifQz_else
+   ...                   (lambda test,*thenQz_else:
+   ...                     __import__('operator').getitem(
+   ...                       thenQz_else,
+   ...                       __import__('operator').not_(
+   ...                         test))())(
+   ...                     ':else',
+   ...                     (lambda :
+   ...                       print(
+   ...                         ('Not a number'))),
+   ...                     (lambda :
+   ...                       # hissp.macros..QzMaybe_.cond
+   ...                       ()))))))))),
+   ...     # QzAT_
+   ...     (lambda *_QzNo37_xs:
+   ...       __import__('builtins').list(
+   ...         _QzNo37_xs))(
+   ...       (-0.6),
+   ...       (-0.0),
+   ...       (42.0),
+   ...       __import__('math').nan)))
+   Negative
+   Zero
+   Positive
+   Not a number
+   False
+
+
+   #> (any-map c "abc"
+   #..  (print "in loop")
+   #..  (unless (eq c "b")                ;else-only block
+   #..    (print "in unless")
+   #..    (print c))
+   #..  (when (eq c "a")                  ;if-only block
+   #..    (print "in when")
+   #..    (print c)))
+   >>> # anyQz_map
+   ... __import__('builtins').any(
+   ...   __import__('builtins').map(
+   ...     (lambda c:(
+   ...       print(
+   ...         ('in loop')),
+   ...       # unless
+   ...       # hissp.macros.._macro_.ifQz_else
+   ...       (lambda test,*thenQz_else:
+   ...         __import__('operator').getitem(
+   ...           thenQz_else,
+   ...           __import__('operator').not_(
+   ...             test))())(
+   ...         eq(
+   ...           c,
+   ...           ('b')),
+   ...         (lambda :()),
+   ...         (lambda :
+   ...           # hissp.macros.._macro_.progn
+   ...           (lambda :(
+   ...             print(
+   ...               ('in unless')),
+   ...             print(
+   ...               c))[-1])())),
+   ...       # when
+   ...       # hissp.macros.._macro_.ifQz_else
+   ...       (lambda test,*thenQz_else:
+   ...         __import__('operator').getitem(
+   ...           thenQz_else,
+   ...           __import__('operator').not_(
+   ...             test))())(
+   ...         eq(
+   ...           c,
+   ...           ('a')),
+   ...         (lambda :
+   ...           # hissp.macros.._macro_.progn
+   ...           (lambda :(
+   ...             print(
+   ...               ('in when')),
+   ...             print(
+   ...               c))[-1])()),
+   ...         (lambda :())))[-1]),
+   ...     ('abc')))
+   in loop
+   in unless
+   a
+   in when
+   a
+   in loop
+   in loop
+   in unless
+   c
+   False
+
+
+   #> (any-map x '(1 2 :spam 42)
+   #..  (case x (print "default")         ;switch case
+   #..    (0 2 4 6 8) (print "even")
+   #..    (1 3 5 7 :spam) (print "odd")))
+   >>> # anyQz_map
+   ... __import__('builtins').any(
+   ...   __import__('builtins').map(
+   ...     (lambda x:
+   ...       # case
+   ...       __import__('operator').getitem(
+   ...         # hissp.macros.._macro_.QzAT_
+   ...         (lambda *_QzNo37_xs:
+   ...           __import__('builtins').list(
+   ...             _QzNo37_xs))(
+   ...           (lambda :
+   ...             print(
+   ...               ('even'))),
+   ...           (lambda :
+   ...             print(
+   ...               ('odd'))),
+   ...           (lambda :
+   ...             print(
+   ...               ('default')))),
+   ...         (lambda *_QzNo37_xs:
+   ...           __import__('builtins').dict(
+   ...             _QzNo37_xs))(
+   ...           # hissp.macros.._macro_.QzAT_
+   ...           (lambda *_QzNo37_xs:
+   ...             __import__('builtins').list(
+   ...               _QzNo37_xs))(
+   ...             (0),
+   ...             (0)),
+   ...           # hissp.macros.._macro_.QzAT_
+   ...           (lambda *_QzNo37_xs:
+   ...             __import__('builtins').list(
+   ...               _QzNo37_xs))(
+   ...             (2),
+   ...             (0)),
+   ...           # hissp.macros.._macro_.QzAT_
+   ...           (lambda *_QzNo37_xs:
+   ...             __import__('builtins').list(
+   ...               _QzNo37_xs))(
+   ...             (4),
+   ...             (0)),
+   ...           # hissp.macros.._macro_.QzAT_
+   ...           (lambda *_QzNo37_xs:
+   ...             __import__('builtins').list(
+   ...               _QzNo37_xs))(
+   ...             (6),
+   ...             (0)),
+   ...           # hissp.macros.._macro_.QzAT_
+   ...           (lambda *_QzNo37_xs:
+   ...             __import__('builtins').list(
+   ...               _QzNo37_xs))(
+   ...             (8),
+   ...             (0)),
+   ...           # hissp.macros.._macro_.QzAT_
+   ...           (lambda *_QzNo37_xs:
+   ...             __import__('builtins').list(
+   ...               _QzNo37_xs))(
+   ...             (1),
+   ...             (1)),
+   ...           # hissp.macros.._macro_.QzAT_
+   ...           (lambda *_QzNo37_xs:
+   ...             __import__('builtins').list(
+   ...               _QzNo37_xs))(
+   ...             (3),
+   ...             (1)),
+   ...           # hissp.macros.._macro_.QzAT_
+   ...           (lambda *_QzNo37_xs:
+   ...             __import__('builtins').list(
+   ...               _QzNo37_xs))(
+   ...             (5),
+   ...             (1)),
+   ...           # hissp.macros.._macro_.QzAT_
+   ...           (lambda *_QzNo37_xs:
+   ...             __import__('builtins').list(
+   ...               _QzNo37_xs))(
+   ...             (7),
+   ...             (1)),
+   ...           # hissp.macros.._macro_.QzAT_
+   ...           (lambda *_QzNo37_xs:
+   ...             __import__('builtins').list(
+   ...               _QzNo37_xs))(
+   ...             ':spam',
+   ...             (1))).get(
+   ...           x,
+   ...           (-1)))()),
+   ...     ((1),
+   ...      (2),
+   ...      ':spam',
+   ...      (42),)))
+   odd
+   even
+   odd
+   default
+   False
+
 
    ;; Shortcutting logical and.
    #> (&& True True False)
@@ -2129,6 +2757,124 @@ Lissp Quick Start
    42
 
 
+   ;;; Raising Exceptions
+
+   #> (throw Exception)                   ;Raise exception objects or classes.
+   >>> # throw
+   ... # hissp.macros.._macro_.throwQzSTAR_
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo46_gen=__import__('traceback').walk_tb(
+   ...   None):(
+   ...   _QzNo46_gen.close(),
+   ...   _QzNo46_gen)[-1])().throw(
+   ...   Exception)
+   Traceback (most recent call last):
+     ...
+   Exception
+
+   #> (throw (TypeError "message"))
+   >>> # throw
+   ... # hissp.macros.._macro_.throwQzSTAR_
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo46_gen=__import__('traceback').walk_tb(
+   ...   None):(
+   ...   _QzNo46_gen.close(),
+   ...   _QzNo46_gen)[-1])().throw(
+   ...   TypeError(
+   ...     ('message')))
+   Traceback (most recent call last):
+     ...
+   TypeError: message
+
+
+   #> (throw-from Exception (Exception "message")) ;Explicit chaining.
+   >>> # throwQz_from
+   ... # hissp.macros.._macro_.throwQzSTAR_
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo46_gen=__import__('traceback').walk_tb(
+   ...   None):(
+   ...   _QzNo46_gen.close(),
+   ...   _QzNo46_gen)[-1])().throw(
+   ...   # hissp.macros.._macro_.let
+   ...   (lambda _QzNo47_G=(lambda _QzNo47_x:
+   ...     # hissp.macros.._macro_.ifQz_else
+   ...     (lambda test,*thenQz_else:
+   ...       __import__('operator').getitem(
+   ...         thenQz_else,
+   ...         __import__('operator').not_(
+   ...           test))())(
+   ...       # hissp.macros.._macro_.QzET_QzET_
+   ...       # hissp.macros.._macro_.let
+   ...       (lambda _QzNo44_G=__import__('builtins').isinstance(
+   ...         _QzNo47_x,
+   ...         __import__('builtins').type):
+   ...         # hissp.macros.._macro_.ifQz_else
+   ...         (lambda test,*thenQz_else:
+   ...           __import__('operator').getitem(
+   ...             thenQz_else,
+   ...             __import__('operator').not_(
+   ...               test))())(
+   ...           _QzNo44_G,
+   ...           (lambda :
+   ...             # hissp.macros..QzMaybe_.QzET_QzET_
+   ...             __import__('builtins').issubclass(
+   ...               _QzNo47_x,
+   ...               __import__('builtins').BaseException)),
+   ...           (lambda :_QzNo44_G)))(),
+   ...       (lambda :_QzNo47_x()),
+   ...       (lambda :_QzNo47_x))):
+   ...     # hissp.macros.._macro_.attach
+   ...     # hissp.macros.._macro_.let
+   ...     (lambda _QzNo31_target=_QzNo47_G(
+   ...       Exception):(
+   ...       __import__('builtins').setattr(
+   ...         _QzNo31_target,
+   ...         '__cause__',
+   ...         _QzNo47_G(
+   ...           Exception(
+   ...             ('message')))),
+   ...       _QzNo31_target)[-1])())())
+   Traceback (most recent call last):
+     ...
+   Exception
+
+
+   ;; There's also a throw* you normally shouldn't use. See API doc.
+
+   ;; Assertions. Message is optional.
+   ;; Try turning off __debug__ in a new REPL: $ python -Om hissp
+   #> (ensure 0 "wat")
+   >>> # ensure
+   ... # hissp.macros.._macro_.unless
+   ... # hissp.macros.._macro_.ifQz_else
+   ... (lambda test,*thenQz_else:
+   ...   __import__('operator').getitem(
+   ...     thenQz_else,
+   ...     __import__('operator').not_(
+   ...       test))())(
+   ...   (0),
+   ...   (lambda :()),
+   ...   (lambda :
+   ...     # hissp.macros.._macro_.progn
+   ...     (lambda :
+   ...       # hissp.macros.._macro_.throw
+   ...       # hissp.macros.._macro_.throwQzSTAR_
+   ...       # hissp.macros.._macro_.let
+   ...       (lambda _QzNo46_gen=__import__('traceback').walk_tb(
+   ...         None):(
+   ...         _QzNo46_gen.close(),
+   ...         _QzNo46_gen)[-1])().throw(
+   ...         __import__('builtins').AssertionError(
+   ...           ('wat'))))()))
+   Traceback (most recent call last):
+     ...
+   AssertionError: wat
+
+
+   ;; Note that for pre-compiled code, it's the __debug__ state at
+   ;; compile time, not at run time, that determines if ensure
+   ;; assertions are turned on.
+
    ;;; Obligatory Factorial III
 
    ;; With the prelude, we can define a nicer-looking version.
@@ -2222,6 +2968,426 @@ Lissp Quick Start
    ...   ('6'),
    ...   (0))
    unsupported operand type(s) for /: 'str' and 'int'
+
+
+   #> (engarde Exception
+   #..         (lambda x x.__cause__)
+   #..         (lambda : (throw-from Exception (Exception "msg"))))
+   >>> engarde(
+   ...   Exception,
+   ...   (lambda x:x.__cause__),
+   ...   (lambda :
+   ...     # throwQz_from
+   ...     # hissp.macros.._macro_.throwQzSTAR_
+   ...     # hissp.macros.._macro_.let
+   ...     (lambda _QzNo46_gen=__import__('traceback').walk_tb(
+   ...       None):(
+   ...       _QzNo46_gen.close(),
+   ...       _QzNo46_gen)[-1])().throw(
+   ...       # hissp.macros.._macro_.let
+   ...       (lambda _QzNo47_G=(lambda _QzNo47_x:
+   ...         # hissp.macros.._macro_.ifQz_else
+   ...         (lambda test,*thenQz_else:
+   ...           __import__('operator').getitem(
+   ...             thenQz_else,
+   ...             __import__('operator').not_(
+   ...               test))())(
+   ...           # hissp.macros.._macro_.QzET_QzET_
+   ...           # hissp.macros.._macro_.let
+   ...           (lambda _QzNo44_G=__import__('builtins').isinstance(
+   ...             _QzNo47_x,
+   ...             __import__('builtins').type):
+   ...             # hissp.macros.._macro_.ifQz_else
+   ...             (lambda test,*thenQz_else:
+   ...               __import__('operator').getitem(
+   ...                 thenQz_else,
+   ...                 __import__('operator').not_(
+   ...                   test))())(
+   ...               _QzNo44_G,
+   ...               (lambda :
+   ...                 # hissp.macros..QzMaybe_.QzET_QzET_
+   ...                 __import__('builtins').issubclass(
+   ...                   _QzNo47_x,
+   ...                   __import__('builtins').BaseException)),
+   ...               (lambda :_QzNo44_G)))(),
+   ...           (lambda :_QzNo47_x()),
+   ...           (lambda :_QzNo47_x))):
+   ...         # hissp.macros.._macro_.attach
+   ...         # hissp.macros.._macro_.let
+   ...         (lambda _QzNo31_target=_QzNo47_G(
+   ...           Exception):(
+   ...           __import__('builtins').setattr(
+   ...             _QzNo31_target,
+   ...             '__cause__',
+   ...             _QzNo47_G(
+   ...               Exception(
+   ...                 ('msg')))),
+   ...           _QzNo31_target)[-1])())())))
+   Exception('msg')
+
+
+   ;;;; Generators
+
+   ;; Defined by the prelude, Ensue gives you infinite lazy iterables,
+   ;; easy as recursion. Compare to loop-from.
+   #> (define fibonacci
+   #..  (lambda (: a 1  b 1)
+   #..    (Ensue (lambda (step)
+   #..             (set@ step.Yield a)
+   #..             (fibonacci b (add a b))))))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   fibonacci=(lambda a=(1),b=(1):
+   ...               Ensue(
+   ...                 (lambda step:(
+   ...                   # setQzAT_
+   ...                   # hissp.macros.._macro_.let
+   ...                   (lambda _QzNo29_val=a:(
+   ...                     __import__('builtins').setattr(
+   ...                       step,
+   ...                       'Yield',
+   ...                       _QzNo29_val),
+   ...                     _QzNo29_val)[-1])(),
+   ...                   fibonacci(
+   ...                     b,
+   ...                     add(
+   ...                       a,
+   ...                       b)))[-1]))))
+
+   #> (list (itertools..islice (fibonacci) 7))
+   >>> list(
+   ...   __import__('itertools').islice(
+   ...     fibonacci(),
+   ...     (7)))
+   [1, 1, 2, 3, 5, 8, 13]
+
+
+
+   #> (define nrange                      ;Terminate by not returning an Ensue.
+   #..  (lambda in
+   #..    (Ensue (lambda (step)
+   #..             (set@ step.Yield i)
+   #..             (unless (ge i n)
+   #..               (nrange (add i 1) n))))))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   nrange=(lambda i,n:
+   ...            Ensue(
+   ...              (lambda step:(
+   ...                # setQzAT_
+   ...                # hissp.macros.._macro_.let
+   ...                (lambda _QzNo29_val=i:(
+   ...                  __import__('builtins').setattr(
+   ...                    step,
+   ...                    'Yield',
+   ...                    _QzNo29_val),
+   ...                  _QzNo29_val)[-1])(),
+   ...                # unless
+   ...                # hissp.macros.._macro_.ifQz_else
+   ...                (lambda test,*thenQz_else:
+   ...                  __import__('operator').getitem(
+   ...                    thenQz_else,
+   ...                    __import__('operator').not_(
+   ...                      test))())(
+   ...                  ge(
+   ...                    i,
+   ...                    n),
+   ...                  (lambda :()),
+   ...                  (lambda :
+   ...                    # hissp.macros.._macro_.progn
+   ...                    (lambda :
+   ...                      nrange(
+   ...                        add(
+   ...                          i,
+   ...                          (1)),
+   ...                        n))())))[-1]))))
+
+   #> (list (nrange 1 6))
+   >>> list(
+   ...   nrange(
+   ...     (1),
+   ...     (6)))
+   [1, 2, 3, 4, 5, 6]
+
+
+   ;; Set From to yield from.
+   #> (Ensue (lambda (step)
+   #..         (attach step :
+   #..           Yield '(1 2 3 4 5)
+   #..           From True)
+   #..         None))
+   >>> Ensue(
+   ...   (lambda step:(
+   ...     # attach
+   ...     # hissp.macros.._macro_.let
+   ...     (lambda _QzNo31_target=step:(
+   ...       __import__('builtins').setattr(
+   ...         _QzNo31_target,
+   ...         'Yield',
+   ...         ((1),
+   ...          (2),
+   ...          (3),
+   ...          (4),
+   ...          (5),)),
+   ...       __import__('builtins').setattr(
+   ...         _QzNo31_target,
+   ...         'From',
+   ...         True),
+   ...       _QzNo31_target)[-1])(),
+   ...     None)[-1]))
+   <...Ensue object at ...>
+
+   #> (list _)
+   >>> list(
+   ...   _)
+   [1, 2, 3, 4, 5]
+
+
+   #> (define recycle
+   #..  (lambda (itr)
+   #..    (Ensue (lambda (step)
+   #..             (attach step :         ;Implicit recursion. See why?
+   #..               Yield itr
+   #..               From 1)))))          ; What was returned?
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   recycle=(lambda itr:
+   ...             Ensue(
+   ...               (lambda step:
+   ...                 # attach
+   ...                 # hissp.macros.._macro_.let
+   ...                 (lambda _QzNo31_target=step:(
+   ...                   __import__('builtins').setattr(
+   ...                     _QzNo31_target,
+   ...                     'Yield',
+   ...                     itr),
+   ...                   __import__('builtins').setattr(
+   ...                     _QzNo31_target,
+   ...                     'From',
+   ...                     (1)),
+   ...                   _QzNo31_target)[-1])()))))
+
+   #> (-> '(1 2 3) (recycle) (islice 7) (list))
+   >>> # Qz_QzGT_
+   ... # hissp.macros..QzMaybe_.Qz_QzGT_
+   ... # hissp.macros..QzMaybe_.Qz_QzGT_
+   ... # hissp.macros..QzMaybe_.Qz_QzGT_
+   ... list(
+   ...   islice(
+   ...     recycle(
+   ...       ((1),
+   ...        (2),
+   ...        (3),)),
+   ...     (7)))
+   [1, 2, 3, 1, 2, 3, 1]
+
+
+   #> (define echo
+   #..  (Ensue (lambda (step)
+   #..           (set@ step.Yield step.value)
+   #..           step)))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   echo=Ensue(
+   ...          (lambda step:(
+   ...            # setQzAT_
+   ...            # hissp.macros.._macro_.let
+   ...            (lambda _QzNo29_val=step.value:(
+   ...              __import__('builtins').setattr(
+   ...                step,
+   ...                'Yield',
+   ...                _QzNo29_val),
+   ...              _QzNo29_val)[-1])(),
+   ...            step)[-1])))
+
+   #> (.send echo None)                   ;Always send a None first. Same as Python.
+   >>> echo.send(
+   ...   None)
+
+   #> (.send echo "Yodle!")               ;Generators are two-way.
+   >>> echo.send(
+   ...   ('Yodle!'))
+   'Yodle!'
+
+   #> (.send echo 42)
+   >>> echo.send(
+   ...   (42))
+   42
+
+
+   ;;; Context Managers
+
+   #> (define ultimate-unyielding-action-ensues ;It's true.
+   #..  (lambda (action)
+   #..    (Ensue (lambda (step)           ;Thus Ensues
+   #..             (action step.value)    ; an action,
+   #..             (attach step : Yield ()  From 1) ; unyielding,
+   #..             None))))               ; ultimately.
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   ultimateQz_unyieldingQz_actionQz_ensues=(lambda action:
+   ...                                             Ensue(
+   ...                                               (lambda step:(
+   ...                                                 action(
+   ...                                                   step.value),
+   ...                                                 # attach
+   ...                                                 # hissp.macros.._macro_.let
+   ...                                                 (lambda _QzNo31_target=step:(
+   ...                                                   __import__('builtins').setattr(
+   ...                                                     _QzNo31_target,
+   ...                                                     'Yield',
+   ...                                                     ()),
+   ...                                                   __import__('builtins').setattr(
+   ...                                                     _QzNo31_target,
+   ...                                                     'From',
+   ...                                                     (1)),
+   ...                                                   _QzNo31_target)[-1])(),
+   ...                                                 None)[-1]))))
+
+
+   #> (define wrap
+   #..  (contextlib..contextmanager
+   #..   (lambda (msg)
+   #..     (print "enter" msg)
+   #..     (Ensue (lambda (step)
+   #..              (set@ step.Yield msg)
+   #..              (ultimate-unyielding-action-ensues
+   #..                (lambda _ (print "exit" msg))))))))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   wrap=__import__('contextlib').contextmanager(
+   ...          (lambda msg:(
+   ...            print(
+   ...              ('enter'),
+   ...              msg),
+   ...            Ensue(
+   ...              (lambda step:(
+   ...                # setQzAT_
+   ...                # hissp.macros.._macro_.let
+   ...                (lambda _QzNo29_val=msg:(
+   ...                  __import__('builtins').setattr(
+   ...                    step,
+   ...                    'Yield',
+   ...                    _QzNo29_val),
+   ...                  _QzNo29_val)[-1])(),
+   ...                ultimateQz_unyieldingQz_actionQz_ensues(
+   ...                  (lambda _:
+   ...                    print(
+   ...                      ('exit'),
+   ...                      msg))))[-1])))[-1])))
+
+
+   #> (enter (wrap 'A)
+   #..       (lambda a (print a)))
+   >>> enter(
+   ...   wrap(
+   ...     'A'),
+   ...   (lambda a:
+   ...     print(
+   ...       a)))
+   enter A
+   A
+   exit A
+
+
+   #> (enter (wrap 'A)
+   #.. enter (wrap 'B)
+   #.. enter (wrap 'C)                    ;You can stack them.
+   #.. (lambda abc (print a b c)))
+   >>> enter(
+   ...   wrap(
+   ...     'A'),
+   ...   enter,
+   ...   wrap(
+   ...     'B'),
+   ...   enter,
+   ...   wrap(
+   ...     'C'),
+   ...   (lambda a,b,c:
+   ...     print(
+   ...       a,
+   ...       b,
+   ...       c)))
+   enter A
+   enter B
+   enter C
+   A B C
+   exit C
+   exit B
+   exit A
+
+
+   #> (define suppress-zde
+   #..  (contextlib..contextmanager
+   #..   (lambda :
+   #..     (Ensue (lambda (step)
+   #..              (attach step :
+   #..                Yield None
+   #..                Except ZeroDivisionError)  ;Exception targets can be a tuple.
+   #..              (ultimate-unyielding-action-ensues
+   #..                (lambda (exception)
+   #..                  (print "Caught a" exception))))))))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   suppressQz_zde=__import__('contextlib').contextmanager(
+   ...                    (lambda :
+   ...                      Ensue(
+   ...                        (lambda step:(
+   ...                          # attach
+   ...                          # hissp.macros.._macro_.let
+   ...                          (lambda _QzNo31_target=step:(
+   ...                            __import__('builtins').setattr(
+   ...                              _QzNo31_target,
+   ...                              'Yield',
+   ...                              None),
+   ...                            __import__('builtins').setattr(
+   ...                              _QzNo31_target,
+   ...                              'Except',
+   ...                              ZeroDivisionError),
+   ...                            _QzNo31_target)[-1])(),
+   ...                          ultimateQz_unyieldingQz_actionQz_ensues(
+   ...                            (lambda exception:
+   ...                              print(
+   ...                                ('Caught a'),
+   ...                                exception))))[-1])))))
+
+   #> (enter (suppress-zde)
+   #..  (lambda _ (truediv 1 0)))
+   >>> enter(
+   ...   suppressQz_zde(),
+   ...   (lambda _:
+   ...     truediv(
+   ...       (1),
+   ...       (0))))
+   Caught a division by zero
+
+   #> (enter (suppress-zde)
+   #..  (lambda _ (truediv 4 2)))
+   >>> enter(
+   ...   suppressQz_zde(),
+   ...   (lambda _:
+   ...     truediv(
+   ...       (4),
+   ...       (2))))
+   Caught a None
+   2.0
+
+   #> (enter (suppress-zde)
+   #..  (lambda _ (throw Exception)))
+   >>> enter(
+   ...   suppressQz_zde(),
+   ...   (lambda _:
+   ...     # throw
+   ...     # hissp.macros.._macro_.throwQzSTAR_
+   ...     # hissp.macros.._macro_.let
+   ...     (lambda _QzNo46_gen=__import__('traceback').walk_tb(
+   ...       None):(
+   ...       _QzNo46_gen.close(),
+   ...       _QzNo46_gen)[-1])().throw(
+   ...       Exception)))
+   Traceback (most recent call last):
+     ...
+   Exception
 
 
    ;;;; Advanced Reader Macros
@@ -2373,6 +3539,89 @@ Lissp Quick Start
 
    ;;;; The Bundled Reader Macros
 
+   #> (reduce XY#(add Y X) "abcd")        ;Binary anaphoric lambda.
+   >>> reduce(
+   ...   (lambda X,Y:
+   ...     add(
+   ...       Y,
+   ...       X)),
+   ...   ('abcd'))
+   'dcba'
+
+   #> (list (map X#(@ X) "abc"))          ;Unary anaphoric lambda.
+   >>> list(
+   ...   map(
+   ...     (lambda X:
+   ...       # QzAT_
+   ...       (lambda *_QzNo37_xs:
+   ...         __import__('builtins').list(
+   ...           _QzNo37_xs))(
+   ...         X)),
+   ...     ('abc')))
+   [['a'], ['b'], ['c']]
+
+
+   #> (engarde Exception
+   #..         X#(print X.__cause__)      ;Unary again.
+   #..         &#(throw-from Exception (Exception "msg"))) ;Nullary/thunk.
+   >>> engarde(
+   ...   Exception,
+   ...   (lambda X:
+   ...     print(
+   ...       X.__cause__)),
+   ...   (lambda :
+   ...     # throwQz_from
+   ...     # hissp.macros.._macro_.throwQzSTAR_
+   ...     # hissp.macros.._macro_.let
+   ...     (lambda _QzNo46_gen=__import__('traceback').walk_tb(
+   ...       None):(
+   ...       _QzNo46_gen.close(),
+   ...       _QzNo46_gen)[-1])().throw(
+   ...       # hissp.macros.._macro_.let
+   ...       (lambda _QzNo48_G=(lambda _QzNo48_x:
+   ...         # hissp.macros.._macro_.ifQz_else
+   ...         (lambda test,*thenQz_else:
+   ...           __import__('operator').getitem(
+   ...             thenQz_else,
+   ...             __import__('operator').not_(
+   ...               test))())(
+   ...           # hissp.macros.._macro_.QzET_QzET_
+   ...           # hissp.macros.._macro_.let
+   ...           (lambda _QzNo44_G=__import__('builtins').isinstance(
+   ...             _QzNo48_x,
+   ...             __import__('builtins').type):
+   ...             # hissp.macros.._macro_.ifQz_else
+   ...             (lambda test,*thenQz_else:
+   ...               __import__('operator').getitem(
+   ...                 thenQz_else,
+   ...                 __import__('operator').not_(
+   ...                   test))())(
+   ...               _QzNo44_G,
+   ...               (lambda :
+   ...                 # hissp.macros..QzMaybe_.QzET_QzET_
+   ...                 __import__('builtins').issubclass(
+   ...                   _QzNo48_x,
+   ...                   __import__('builtins').BaseException)),
+   ...               (lambda :_QzNo44_G)))(),
+   ...           (lambda :_QzNo48_x()),
+   ...           (lambda :_QzNo48_x))):
+   ...         # hissp.macros.._macro_.attach
+   ...         # hissp.macros.._macro_.let
+   ...         (lambda _QzNo31_target=_QzNo48_G(
+   ...           Exception):(
+   ...           __import__('builtins').setattr(
+   ...             _QzNo31_target,
+   ...             '__cause__',
+   ...             _QzNo48_G(
+   ...               Exception(
+   ...                 ('msg')))),
+   ...           _QzNo31_target)[-1])())())))
+   msg
+
+
+   ;; Also XYZ# XYZW# See API doc.
+
+
    #> b#"bytes"                           ;Bytes reader macro.
    >>> b'bytes'
    b'bytes'
@@ -2380,7 +3629,7 @@ Lissp Quick Start
    #> b'bytes'                            ;NameError about 'bQzAPOS_bytesQzAPOS_'
    >>> bQzAPOS_bytesQzAPOS_
    Traceback (most recent call last):
-     File "<console>", line 1, in <module>
+     ...
    NameError: name 'bQzAPOS_bytesQzAPOS_' is not defined
 
 
@@ -2403,7 +3652,7 @@ Lissp Quick Start
 
 
    ;; The en- reader macro.
-   #> (en#list 1 2 3)                     ;Like enlist.
+   #> (en#list 1 2 3)
    >>> (lambda *_QzNo31_xs:
    ...   list(
    ...     _QzNo31_xs))(
@@ -2503,6 +3752,96 @@ Lissp Quick Start
    #> hissp.._macro_.b\##"Fully qualified b# macro at read time."
    >>> b'Fully qualified b# macro at read time.'
    b'Fully qualified b# macro at read time.'
+
+
+   ;; A couple of aliases are bundled:
+   #> op#add
+   >>> __import__('operator').add
+   <built-in function add>
+
+   #> i#chain
+   >>> __import__('itertools').chain
+   <class 'itertools.chain'>
+
+
+   ;; A bundled abbreviation
+   #> (list chain#(.items (dict : a 1  b 2  c 3)))
+   >>> list(
+   ...   __import__('itertools').chain.from_iterable(
+   ...     dict(
+   ...       a=(1),
+   ...       b=(2),
+   ...       c=(3)).items()))
+   ['a', 1, 'b', 2, 'c', 3]
+
+
+   ;; Like `timeit.timeit`, but as a macro.
+   #> time#(time..sleep .05)
+   >>> # hissp.macros.._macro_.let
+   ... (lambda _QzNo73_time=__import__('time').time_ns:
+   ...   # hissp.macros.._macro_.letQz_from
+   ...   (lambda _QzNo73_start,_QzNo73_val,_QzNo73_end:(
+   ...     __import__('builtins').print(
+   ...       ('Elapsed:'),
+   ...       __import__('operator').truediv(
+   ...         __import__('operator').sub(
+   ...           _QzNo73_end,
+   ...           _QzNo73_start),
+   ...         __import__('decimal').Decimal(
+   ...           (1000000.0))),
+   ...       ('ms')),
+   ...     _QzNo73_val)[-1])(
+   ...     *# hissp.macros.._macro_.QzAT_
+   ...      (lambda *_QzNo42_xs:
+   ...        __import__('builtins').list(
+   ...          _QzNo42_xs))(
+   ...        _QzNo73_time(),
+   ...        __import__('time').sleep(
+   ...          (0.05)),
+   ...        _QzNo73_time())))()
+   Elapsed: ... ms
+
+
+   #> (add 5 spy#(mul 7 3))                  ;Debug subexpressions.
+   >>> add(
+   ...   (5),
+   ...   # hissp.._macro_._spy
+   ...   # hissp.macros.._macro_.let
+   ...   (lambda _QzNo70_e=mul(
+   ...     (7),
+   ...     (3)):(
+   ...     __import__('builtins').print(
+   ...       ('mul',
+   ...        (7),
+   ...        (3),),
+   ...       ('=>'),
+   ...       _QzNo70_e,
+   ...       file=__import__('sys').stderr),
+   ...     _QzNo70_e)[-1])())
+   26
+
+   ;; stderr: ('mul', 7, 3) => 21
+
+   ;; Anaphoric assignment target namespace.
+   ;; Very powerful, but more imperative in style.
+   ;; Use responsibly.
+   #> the#(print (set@ the.x (add 1 1))
+   #..           the.x)
+   >>> # hissp.macros.._macro_.let
+   ... (lambda the=__import__('types').SimpleNamespace():
+   ...   print(
+   ...     # setQzAT_
+   ...     # hissp.macros.._macro_.let
+   ...     (lambda _QzNo29_val=add(
+   ...       (1),
+   ...       (1)):(
+   ...       __import__('builtins').setattr(
+   ...         the,
+   ...         'x',
+   ...         _QzNo29_val),
+   ...       _QzNo29_val)[-1])(),
+   ...     the.x))()
+   2 2
 
 
    ;; Comment string.

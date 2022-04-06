@@ -166,7 +166,8 @@ class Lissp:
 
     def reinit(self):
         """Reset position, nesting depth, and gensym stack."""
-        self.gensym_stack = []
+        self.counters = []
+        self.context = []
         self.depth = []
         self._p = 0
 
@@ -239,32 +240,33 @@ class Lissp:
     def _macro(self, v):
         p = self._p
         with {
-            "`": self.gensym_context,
+            "`": self.template_context,
             ",": self.unquote_context,
             ",@": self.unquote_context,
         }.get(v, nullcontext)():
             yield self.parse_macro(v, *self._extras(p, v))
 
     @contextmanager
-    def gensym_context(self):
+    def template_context(self):
         """Start a new gensym context for the current template."""
-        self.gensym_stack.append(gensym_counter())
+        self.counters.append(gensym_counter())
+        self.context.append("`")
         try:
             yield
         finally:
-            self.gensym_stack.pop()
+            self.counters.pop()
+            self.context.pop()
 
     @contextmanager
     def unquote_context(self):
         """Start a new unquote context for the current template."""
-        try:
-            gensym_number = self.gensym_stack.pop()
-        except IndexError:
+        self.context.append(",")
+        if self.context.count(",") > self.context.count("`"):
             raise SyntaxError("Unquote outside of template.", self.position()) from None
         try:
             yield
         finally:
-            self.gensym_stack.append(gensym_number)
+            self.context.pop()
 
     def _extras(self, p, v):
         extras = []
@@ -327,7 +329,7 @@ class Lissp:
         """Qualify symbol based on current context."""
         if not is_qualifiable(symbol):
             return symbol
-        if invocation and "_macro_" in self.ns and self._macro_has(symbol):
+        if invocation and "_macro_" in self.ns and hasattr(self.ns["_macro_"], symbol):
             return f"{self.qualname}.._macro_.{symbol}"  # Known macro.
         if symbol in dir(builtins) and symbol.split(".", 1)[0] not in self.ns:
             return f"builtins..{symbol}"  # Known builtin, not shadowed (yet).
@@ -335,23 +337,25 @@ class Lissp:
             return f"{self.qualname}{MAYBE}{symbol}"
         return f"{self.qualname}..{symbol}"
 
-    def _macro_has(self, symbol):
-        # The _macro_ interface is not required to implement
-        # __contains__ or __dir__ and exotic _macro_ objects might
-        # override __getattribute__. The only way to tell if _macro_ has
-        # a name is getattr().
-        try:
-            getattr(self.ns["_macro_"], symbol)
-        except AttributeError:
-            return False
-        return True
-
     def gensym(self, form: str):
-        """Generate a symbol unique to the current template."""
-        try:
-            return f"_QzNo{self.gensym_stack[-1]}_{munge(form)}"
-        except IndexError:
+        """Generate a symbol unique to the current template.
+        Re-munges any $'s as a gensym counter, or adds it as a prefix if
+        there aren't any.
+        """
+        prefix = f"_QzNo{self._get_counter()}_"
+        marker = munge("$")
+        if marker not in form:
+            return f"{prefix}{(form)}"
+        # TODO: escape $'s somehow? $$? \$?
+        return form.replace(marker, prefix)
+
+    def _get_counter(self):
+        index = self.context.count("`") - self.context.count(",")
+        if not self.context or index < 0:
             raise SyntaxError("Gensym outside of template.", self.position()) from None
+        if self.context[-1] == "`":
+            return self.counters[-1]
+        return self.counters[index]
 
     def _custom_macro(self, form, tag, extras):
         assert tag.endswith("#")
@@ -456,7 +460,7 @@ def is_qualifiable(symbol):
     return (
         symbol not in {"quote", "__import__"}
         and not _iskeyword(symbol)
-        and not re.match(r"^_QzNo\d+_", symbol)
+        and not re.match(r"_QzNo\d+_", symbol)
         and all(map(str.isidentifier, symbol.split(".")))
     )
 

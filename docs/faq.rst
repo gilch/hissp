@@ -576,7 +576,7 @@ acts like ``break`` in `any()<any>`. Obviously, you can use this to your
 advantage if you *want* a break, which seems to happen pretty often when
 writing imperative loops.
 
-If you like, there's a `hissp.._macro_.any-for<anyQz_for>` that basically does this.
+If you like, there's a `hissp.._macro_.any-map<anyQz_map>` that basically does this.
 
 See also `itertools`, `iter`.
 
@@ -1013,6 +1013,16 @@ Like this
    ...    'def engarde(xs,h,f,/,*a,**kw):\n'
    ...    ' try:return f(*a,**kw)\n'
    ...    ' except xs as e:return h(e)\n'
+   ...    'def enter(c,f,/,*a):\n'
+   ...    ' with c as C:return f(*a,C)\n'
+   ...    "class Ensue(__import__('collections.abc').abc.Generator):\n"
+   ...    ' send=lambda s,v:s.S(v);throw=lambda s,*x:s.T(*x);From=0;Except=()\n'
+   ...    ' def __init__(s,p):s.p,g=p,s._(s);s.S,s.T=g.send,g.throw\n'
+   ...    ' def _(s,k,v=None):\n'
+   ...    '  while isinstance(s:=k,__class__):\n'
+   ...    '   try:s.value=v;k,y=s.p(s),s.Yield;v=(yield from y)if s.From else(yield y)\n'
+   ...    '   except s.Except as e:v=e\n'
+   ...    '  return k\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
    ...    "try:exec('from hissp.macros._macro_ import *',vars(_macro_))\n"
    ...    'except ModuleNotFoundError:pass'),
@@ -1031,7 +1041,8 @@ Like this
    >>> # deftype
    ... # hissp.macros.._macro_.define
    ... __import__('builtins').globals().update(
-   ...   Except=__import__('builtins').type(
+   ...   Except=# hissp.macros..QzMaybe_.Qz_QzGT_
+   ...          __import__('builtins').type(
    ...            'Except',
    ...            (lambda * _: _)(
    ...              __import__('contextlib').ContextDecorator),
@@ -1039,16 +1050,16 @@ Like this
    ...              __init__=(lambda self,catch,handler:(
    ...                         # attach
    ...                         # hissp.macros.._macro_.let
-   ...                         (lambda _QzNo15_target=self:(
+   ...                         (lambda _QzNo24_target=self:(
    ...                           __import__('builtins').setattr(
-   ...                             _QzNo15_target,
+   ...                             _QzNo24_target,
    ...                             'catch',
    ...                             catch),
    ...                           __import__('builtins').setattr(
-   ...                             _QzNo15_target,
+   ...                             _QzNo24_target,
    ...                             'handler',
    ...                             handler),
-   ...                           _QzNo15_target)[-1])(),
+   ...                           _QzNo24_target)[-1])(),
    ...                         None)[-1]),
    ...              __enter__=(lambda self:()),
    ...              __exit__=(lambda self,exc_type,exception,traceback:
@@ -1069,7 +1080,6 @@ Like this
    ...                                 exception),
    ...                               True)[-1])()),
    ...                           (lambda :()))))))
-
 
    #> (define bad_idea
    #..  (-> (lambda (x)
@@ -1190,18 +1200,13 @@ You can always re-write that part in Python (or C).
 Yield?
 ------
 
-We've got `itertools`. Compose iterators functional-style. You don't need
-``yield``.
+We've got `itertools`. Compose iterators functional-style.
+You probably don't need ``yield``.
 
-.. TODO: fill in reasoning more.
-   Lazy cons is preferable to mutable iterators.
-   Yield requires yield-from,
-   (The "What Color Is Your Function?" problem.)
-   which is inelegant compared to alternatives of similar or greater expressive power.
-   such as call/cc and ?/reset.
-.. TODO: implement yield macro? Will require pre-expansion like Hy's let.
-   fortunately, Hissp has only two special forms (by design) so this should be easier.
-   Think about code walking and alternatives.
+Immutable, lazy-cons streams are preferable to mutable iterators.
+Generator functions required the addition of yield-from for proper refactoring,
+which is inelegant compared to alternatives of similar or greater expressive power,
+such as continuations.
 
 But I need it for co-routines. Or async/await stuff. How do I accept a send?
 ----------------------------------------------------------------------------
@@ -1213,10 +1218,17 @@ Still, we want Python compatibility, don't we?
 
 Make a `collections.abc.Generator` subclass with a ``send()`` method.
 
-Or use Drython_'s ``Yield()``.
+The bundled `prelude` makes this easier by defining the ``Ensue`` generator class,
+which effectively implements trampolined continuations.
+Simple tail recursion is the typical usage (see examples in the quick start),
+but arbitrary flows delimited by wrapped callables are possible.
 
-Generator-based coroutines have been deprecated. Don't implement them
-with generators anymore. Note there are `collections.abc.Awaitable`
+Generator-based coroutines have been deprecated.
+`asyncio.coroutine` was removed in 3.11.
+Don't use it anymore.
+`types.coroutine`, however, is still there as of this writing.
+
+Note there are `collections.abc.Awaitable`
 and `collections.abc.Coroutine` abstract base classes too.
 
 How do I add a docstring to a module/class/function?
