@@ -3561,6 +3561,67 @@ Lissp Quick Start
    [['a'], ['b'], ['c']]
 
 
+   #> (engarde Exception
+   #..         X#(print X.__cause__)      ;Unary again.
+   #..         &#(throw-from Exception (Exception "msg"))) ;Nullary/thunk.
+   >>> engarde(
+   ...   Exception,
+   ...   (lambda X:
+   ...     print(
+   ...       X.__cause__)),
+   ...   (lambda :
+   ...     # throwQz_from
+   ...     # hissp.macros.._macro_.throwQzSTAR_
+   ...     # hissp.macros.._macro_.let
+   ...     (lambda _QzNo46_gen=__import__('traceback').walk_tb(
+   ...       None):(
+   ...       _QzNo46_gen.close(),
+   ...       _QzNo46_gen)[-1])().throw(
+   ...       # hissp.macros.._macro_.let
+   ...       (lambda _QzNo48_G=(lambda _QzNo48_x:
+   ...         # hissp.macros.._macro_.ifQz_else
+   ...         (lambda test,*thenQz_else:
+   ...           __import__('operator').getitem(
+   ...             thenQz_else,
+   ...             __import__('operator').not_(
+   ...               test))())(
+   ...           # hissp.macros.._macro_.QzET_QzET_
+   ...           # hissp.macros.._macro_.let
+   ...           (lambda _QzNo44_G=__import__('builtins').isinstance(
+   ...             _QzNo48_x,
+   ...             __import__('builtins').type):
+   ...             # hissp.macros.._macro_.ifQz_else
+   ...             (lambda test,*thenQz_else:
+   ...               __import__('operator').getitem(
+   ...                 thenQz_else,
+   ...                 __import__('operator').not_(
+   ...                   test))())(
+   ...               _QzNo44_G,
+   ...               (lambda :
+   ...                 # hissp.macros..QzMaybe_.QzET_QzET_
+   ...                 __import__('builtins').issubclass(
+   ...                   _QzNo48_x,
+   ...                   __import__('builtins').BaseException)),
+   ...               (lambda :_QzNo44_G)))(),
+   ...           (lambda :_QzNo48_x()),
+   ...           (lambda :_QzNo48_x))):
+   ...         # hissp.macros.._macro_.attach
+   ...         # hissp.macros.._macro_.let
+   ...         (lambda _QzNo31_target=_QzNo48_G(
+   ...           Exception):(
+   ...           __import__('builtins').setattr(
+   ...             _QzNo31_target,
+   ...             '__cause__',
+   ...             _QzNo48_G(
+   ...               Exception(
+   ...                 ('msg')))),
+   ...           _QzNo31_target)[-1])())())))
+   msg
+
+
+   ;; Also XYZ# XYZW# See API doc.
+
+
    #> b#"bytes"                           ;Bytes reader macro.
    >>> b'bytes'
    b'bytes'
