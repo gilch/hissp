@@ -3802,6 +3802,26 @@ Lissp Quick Start
    Elapsed: ... ms
 
 
+   #> (add 5 spy#(mul 7 3))                  ;Debug subexpressions.
+   >>> add(
+   ...   (5),
+   ...   # hissp.._macro_._spy
+   ...   # hissp.macros.._macro_.let
+   ...   (lambda _QzNo70_e=mul(
+   ...     (7),
+   ...     (3)):(
+   ...     __import__('builtins').print(
+   ...       ('mul',
+   ...        (7),
+   ...        (3),),
+   ...       ('=>'),
+   ...       _QzNo70_e,
+   ...       file=__import__('sys').stderr),
+   ...     _QzNo70_e)[-1])())
+   26
+
+   ;; stderr: ('mul', 7, 3) => 21
+
    ;; Comment string.
    #> <<#;Don't worry about the "quotes".
    >>> 'Don\'t worry about the "quotes".'
