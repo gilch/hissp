@@ -185,7 +185,7 @@ class TestReader(TestCase):
         )  # fmt: skip
 
     def test_is_string_code(self):
-        self.assertFalse(reader.is_string("(1+1)"))
+        self.assertFalse(reader.is_string_literal("(1+1)"))
 
 
 EXPECTED = {

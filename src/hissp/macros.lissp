@@ -152,6 +152,40 @@ judicious use can improve performance and maintainability.
                   ',name
                   ,$fn)))))
 
+(defmacro <<\# (single : :* lines)
+  (if-else lines
+    `',(.join (ast..literal_eval single)
+              (map (operator..attrgetter 'content) lines))
+    `',(getattr single 'content)))
+
+(setattr
+ _macro_.<<\# '__doc__
+ <<#
+ !;``<<#`` comment-string reader macro.
+ !;
+ !;Converts a line comment to a raw string.
+ !;
+ !;.. code-block:: REPL
+ !;
+ !;   #> <<#;Don't worry about the "quotes".
+ !;   >>> 'Don\'t worry about the "quotes".'
+ !;   'Don\'t worry about the "quotes".'
+ !;
+ !;Or joins extra comments with a string object,
+ !;such as ``#"\n"``.
+ !;
+ !;.. code-block:: REPL
+ !;
+ !;   #> <<#
+ !;   #..!;C:\bin
+ !;   #..!;C:\Users\ME\Documents
+ !;   #..!;C:\Users\ME\Pictures
+ !;   #..";"
+ !;   >>> 'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
+ !;   'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
+ !;
+ #"\n")
+
 (defmacro define (name value)
   "Assigns a global the value in the current module."
   `(.update (globals)
@@ -223,24 +257,26 @@ judicious use can improve performance and maintainability.
   `(lambda ,'XYZW ,e))
 
 (defmacro alias (alias module)
-  #"Defines a reader macro abbreviation of a qualifier. For example,
-
-  .. code-block:: Lissp
-
-     (hissp.macros.._macro_.alias M/ hissp.macros.._macro_)
-     ;; Now the same as (hissp.macros.._macro_.alias op sub.).
-     (M/#alias op operator.)
-     ;; Use an extra to name a reader macro.
-     M/#!b\"byte string\"
-     (op#sub 2 3)
-     #> op#!pow !3 2
-     >>> (8)
-     8
-
-  " ; TODO: doctest examples.
+  <<#
+  !;Defines a reader macro abbreviation of a qualifier. For example,
+  !;
+  !;.. code-block:: Lissp
+  !;
+  !;   (hissp.macros.._macro_.alias M/ hissp.macros.._macro_)
+  !;   ;; Now the same as (hissp.macros.._macro_.alias op sub.).
+  !;   (M/#alias op operator.)
+  !;   ;; Use an extra to name a reader macro.
+  !;   M/#!b"byte string"
+  !;   (op#sub 2 3)
+  !;   #> op#!pow !3 2
+  !;   >>> (8)
+  !;   8
+  !;
+  !;
+  #"\n" ; TODO: doctest examples.
   `(defmacro ,(.format "{}{}" alias '#)
              ($#prime : $#reader None :* $#args)
-     ',(.format "('Aliases {} as {}#')" module alias) ; TODO: docstrings not compiling in?
+     ',(.format "Aliases ``{}`` as ``{}#``." module alias)
      (if-else $#reader
        ((getattr ,module (.format "{}{}"
                                   $#reader
@@ -489,65 +525,36 @@ judicious use can improve performance and maintainability.
       (->> (.format "b'{}'"))
       (ast..literal_eval)))
 
-(defmacro <<\# (single : :* lines)
-  #"``<<#`` comment-string reader macro.
-
-  Converts a line comment to a raw string.
-
-  .. code-block:: REPL
-
-     #> <<#;Don't worry about the \"quotes\".
-     >>> 'Don\'t worry about the \"quotes\".'
-     'Don\'t worry about the \"quotes\".'
-
-  Or joins extra comments with a string object,
-  such as ``#\"\\n\"``.
-
-  .. code-block:: REPL
-
-     #> <<#
-     #..!;C:\\bin
-     #..!;C:\\Users\\ME\\Documents
-     #..!;C:\\Users\\ME\\Pictures
-     #..\";\"
-     >>> 'C:\\\\bin;C:\\\\Users\\\\ME\\\\Documents;C:\\\\Users\\\\ME\\\\Pictures'
-     'C:\\\\bin;C:\\\\Users\\\\ME\\\\Documents;C:\\\\Users\\\\ME\\\\Pictures'
-
-  "
-  (if-else lines
-    `',(.join (ast..literal_eval single)
-              (map (op#attrgetter 'content) lines))
-    `',(getattr single 'content)))
-
 (defmacro en\# (f)
-  "``en#`` reader macro.
-  Wrap a function of one iterable as a function of its elements.
-
-  .. code-block:: REPL
-
-     #> (en#list 1 2 3)
-     >>> (lambda *_xs_QzNo31_:
-     ...   list(
-     ...     _xs_QzNo31_))(
-     ...   (1),
-     ...   (2),
-     ...   (3))
-     [1, 2, 3]
-
-     #> (en#.extend _ 4 5 6) ; Methods too.
-     >>> (lambda _self_QzNo31_,*_xs_QzNo31_:
-     ...   _self_QzNo31_.extend(
-     ...     _xs_QzNo31_))(
-     ...   _,
-     ...   (4),
-     ...   (5),
-     ...   (6))
-
-     #> _
-     >>> _
-     [1, 2, 3, 4, 5, 6]
-
-  " ; TODO: doctest examples
+  <<#
+  !;``en#`` reader macro.
+  !;Wrap a function of one iterable as a function of its elements.
+  !;
+  !;.. code-block:: REPL
+  !;
+  !;   #> (en#list 1 2 3)
+  !;   >>> (lambda *_xs_QzNo31_:
+  !;   ...   list(
+  !;   ...     _xs_QzNo31_))(
+  !;   ...   (1),
+  !;   ...   (2),
+  !;   ...   (3))
+  !;   [1, 2, 3]
+  !;
+  !;   #> (en#.extend _ 4 5 6) ; Methods too.
+  !;   >>> (lambda _self_QzNo31_,*_xs_QzNo31_:
+  !;   ...   _self_QzNo31_.extend(
+  !;   ...     _xs_QzNo31_))(
+  !;   ...   _,
+  !;   ...   (4),
+  !;   ...   (5),
+  !;   ...   (6))
+  !;
+  !;   #> _
+  !;   >>> _
+  !;   [1, 2, 3, 4, 5, 6]
+  !;
+  #"\n" ; TODO: doctest examples
   (if-else (&& (op#is_ str (type f))
                (.startswith f "."))
     `(lambda ($#self : :* $#xs)

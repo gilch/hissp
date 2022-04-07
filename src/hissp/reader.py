@@ -301,7 +301,7 @@ class Lissp:
     def template(self, form):
         """Process form as template."""
         case = type(form)
-        if is_string(form):
+        if is_string_literal(form):
             return "quote", form
         if case is tuple and form:
             return (ENTUPLE, ":", *chain(*self._template(form)),)  # fmt: skip
@@ -416,7 +416,7 @@ class Lissp:
             )
 
 
-def is_string(form):
+def is_string_literal(form):
     """
     Determines if form could have been read from a Lissp string literal.
 
@@ -430,6 +430,26 @@ def is_string(form):
             type(form) is str
             and form.startswith("(")
             and type(ast.literal_eval(form)) is str
+        )
+    except:
+        return False
+
+
+def is_string(form):
+    """A less strict variant of `is_string_literal`.
+
+    Also allows "readerless mode"-style strings: ('quote', 'foo',)
+    and any string literal in a Hissp-level str: '"foo"'.
+
+    Macros often produce strings in one of these forms, via ``'`` or
+    `repr` on a string object.
+    """
+    try:
+        return (type(form) is str and type(ast.literal_eval(form)) is str) or (
+            type(form) is tuple
+            and len(form) == 2
+            and form[0] == "quote"
+            and type(form[1]) is str
         )
     except:
         return False
