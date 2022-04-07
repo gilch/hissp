@@ -158,6 +158,18 @@ judicious use can improve performance and maintainability.
               (map (operator..attrgetter 'content) lines))
     `',(getattr single 'content)))
 
+_#<<#
+!;Hidden doctest adds bundled macros for REPL-consistent behavior.
+!;#> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
+!;>>> __import__('operator').setitem(
+!;...   globals(),
+!;...   '_macro_',
+!;...   __import__('types').SimpleNamespace(
+!;...     **vars(
+!;...         __import__('hissp')._macro_)))
+!;
+#"\n"
+
 (setattr
  _macro_.<<\# '__doc__
  <<#
@@ -272,8 +284,7 @@ judicious use can improve performance and maintainability.
   !;   >>> (8)
   !;   8
   !;
-  !;
-  #"\n" ; TODO: doctest examples.
+  #"\n"
   `(defmacro ,(.format "{}{}" alias '#)
              ($#prime : $#reader None :* $#args)
      ',(.format "Aliases ``{}`` as ``{}#``." module alias)
@@ -388,6 +399,10 @@ judicious use can improve performance and maintainability.
     expr))
 
 ;; TODO: implement other arrange macros?
+
+(define _TAO
+  (lambda s (-> (.join " " (re..findall "(?m)^# (.*)~$" (s hissp.)))
+                (.replace ":" #"\n"))))
 
 ;;; control flow
 
@@ -533,18 +548,18 @@ judicious use can improve performance and maintainability.
   !;.. code-block:: REPL
   !;
   !;   #> (en#list 1 2 3)
-  !;   >>> (lambda *_xs_QzNo31_:
+  !;   >>> (lambda *_QzNo53_xs:
   !;   ...   list(
-  !;   ...     _xs_QzNo31_))(
+  !;   ...     _QzNo53_xs))(
   !;   ...   (1),
   !;   ...   (2),
   !;   ...   (3))
   !;   [1, 2, 3]
   !;
   !;   #> (en#.extend _ 4 5 6) ; Methods too.
-  !;   >>> (lambda _self_QzNo31_,*_xs_QzNo31_:
-  !;   ...   _self_QzNo31_.extend(
-  !;   ...     _xs_QzNo31_))(
+  !;   >>> (lambda _QzNo52_self,*_QzNo52_xs:
+  !;   ...   _QzNo52_self.extend(
+  !;   ...     _QzNo52_xs))(
   !;   ...   _,
   !;   ...   (4),
   !;   ...   (5),
@@ -554,7 +569,7 @@ judicious use can improve performance and maintainability.
   !;   >>> _
   !;   [1, 2, 3, 4, 5, 6]
   !;
-  #"\n" ; TODO: doctest examples
+  #"\n"
   (if-else (&& (op#is_ str (type f))
                (.startswith f "."))
     `(lambda ($#self : :* $#xs)
@@ -653,7 +668,9 @@ _macro_=__import__('types').SimpleNamespace()
 try:exec('from {}._macro_ import *',vars(_macro_))
 except ModuleNotFoundError:pass"
                     __name__)
-    ,ns))(.##"\144efma\143ro"import(: :* _)(.##"\144efine" _TAO .#"b'''Gapoqh/:as%)1%dp^V#lc5p@0#Yb`;?p]BsZobbeC!>#$,\\bTIe+5StU/J&1NU?2TER20!9iI3YM2/_M^9n[sS*&dfL:*/h99`RW@geH#\\u-<s#-!RpcZ4%jV,Z\\JB&<'l$KWP_ElKHn8=64#>/_^uaYR[)X>mX[3QHN@4g0Qo_O=6f3E'476eg=JcFM;j4BaR:*baA>p@:KB(lkOWB[jIP#)QN[4nL_]&I1LPX4(U8a0;FBj1n)3E9WJLKd0Co'l)7DfN(YJ<<oVo.=k)Di;*O@8\"g;0=`;%`TJ[-.aJ)'DI`p@RQ\"D)20_.E#*Cs)h^H5$0lP-Gl+C'r%<RWA80V[Qc?p58%Ob.1l[G;sus5)Q7hQXL50-bk</e\"*a/(e>kc*^df^Z+0>nci1U:7&c@g?g5;qZckm]7%qh[ma3F9u(9$8OnGd:'$2Ed8<$c$Tp>mQQSGl]rUc5blW<-VBGh?\\MV)k4nbA^G5#:p+*JVHiH2GLAG)0AB7OA>/3H5#:H>\"4&cZ^:.SVpM+L&[%:%LPrs7b4Y^tA)Jj;tk?Ll>cmB]ShiQITN[\"RUearnc.cfb>b/(hM^VCH(9\"Dkel(/U4k\\1!&%4p!Qqe_T!Z(I5^t!hn#_E?,%b[^+AdIjM'>j0F.hC2Y.OpZ>!Y2Xdd9[mZh&!/)V)sh7YMU!!3T/XL0\\K+1G-6(B'''")`(.##"p\162int"(.##".de\143ode"(.##"\143ode\143s..de\143ode"(.##"b\141se64..a85de\143ode"_TAO)#"z\151p"))))
+    ,ns))(.##"\144efma\143ro" import(: :* args)
+          `(.##"p\162int"(.##"\143ode\143s..en\143ode"
+                          (_TAO .##"in\163pe\143\164..ge\164\163our\143e")','.##"ro\16413")))
 
 ;;; advanced
 
