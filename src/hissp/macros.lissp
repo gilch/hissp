@@ -205,10 +205,15 @@ _#<<#
             ,value))
 
 (defmacro defonce (name value)
+  "Assigns a global the value in the current module, unless it exists."
   `(unless (operator..contains (globals) ',name)
      (define ,name ,value)))
 
 (defmacro deftype@ (decorators name bases : :* body)
+  "``deftype@`` Defines a decorated type (class) in the current module.
+
+  Key-value pairs are implied in the body.
+  "
   `(define ,name
      (-> (type ',name (,hissp.reader..ENTUPLE ,@bases)
                (dict : ,@body))
@@ -232,6 +237,7 @@ _#<<#
     : :* ,itr))
 
 (defmacro let*from (pairs : :* body)
+  "``let*from`` Nested `let-from<letQz_from>`."
   (if-else pairs
     `(let-from ,(operator..getitem pairs 0)
                ,(operator..getitem pairs 1)
@@ -307,7 +313,7 @@ _#<<#
 ;;; configuration
 
 (defmacro set! (coll key val)
-  "``set!`` Assigns an item, returns the value.
+  "``set!`` 'setbang' Assigns an item, returns the value.
   Mnemonic: set !tem.
   "
   `(let ($#val ,val)
@@ -315,13 +321,18 @@ _#<<#
      $#val))
 
 (defmacro zap! (op coll key : :* args)
+  "``zap!`` 'zapbang' Augmented item assignment operator.
+
+  The current item value becomes the first argument.
+  Mnemonic: zap !tem.
+  "
   `(let ($#coll ,coll
          $#key ,key)
      (set! $#coll $#key (,op (op#getitem $#coll $#key)
                              ,@args))))
 
 (defmacro set@ (name val)
-  "``set@`` Assigns an attribute, returns the value.
+  "``set@`` 'setat' Assigns an attribute, returns the value.
   Mnemonic: set @tribute.
   "
   (let-from (ns _ attr) (.rpartition name ".")
@@ -330,6 +341,11 @@ _#<<#
        $#val)))
 
 (defmacro zap@ (op name : :* args)
+  "``zap@`` 'zapat' Augmented attribute assignment operator.
+
+  The current attribute value becomes the first argument.
+  Mnemonic: zap @tribute.
+  "
   `(set@ ,name (,op ,name ,@args)))
 
 (defmacro attach (target : :* args)
@@ -410,18 +426,20 @@ _#<<#
 ;; see also from advanced: case
 
 (defmacro cond (: :* pairs)
-  #"Multiple condition branching.
-
-  Pairs are implied. Default is ``()``. Use ``:else`` to change it.
-  For example::
-
-   (cond) ; ()
-   ;; Assume some number 'x
-   (cond (op#gt x 0) (print \"positive\")
-         (op#lt x 0) (print \"negative\")
-         (op#eq x 0) (print \"zero\")
-         :else (print \"not a number\"))
-  "
+  <<#
+  !;Multiple condition branching.
+  !;
+  !;Pairs are implied. Default is ``()``. Use ``:else`` to change it.
+  !;For example::
+  !;
+  !; (cond) ; ()
+  !; ;; Assume some number 'x
+  !; (cond (op#gt x 0) (print "positive")
+  !;       (op#lt x 0) (print "negative")
+  !;       (op#eq x 0) (print "zero")
+  !;       :else (print "not a number"))
+  !;
+  #"\n"
   (when pairs
     `(if-else ,(op#getitem pairs 0)
               ,(op#getitem pairs 1)
@@ -439,7 +457,7 @@ _#<<#
              ,xs)))
 
 (defmacro any*map (variables xss : :* body)
-  "``any*map`` 'any star-for'
+  "``any*map`` 'any star map'
   Bind each x to a variable and evaluate the body for each xs from xss
   until any result is true (and return ``True``), or until xss is
   exhausted (and return ``False``).
@@ -521,7 +539,8 @@ _#<<#
 
 (defmacro prog1 (expr1 : :* body)
   "Evaluates each expression in sequence (for side effects),
-  resulting in the value of the first."
+  resulting in the value of the first.
+  "
   `(let ($#value1 ,expr1)
      ,@body
      $#value1))
@@ -595,7 +614,7 @@ _#<<#
   "``#`` 'set of'
 
   ``:*`` unpacks the next argument.
-  Mnemonic: Hash set.
+  Mnemonic: Hash (#) set.
   "
   (let (ixs (iter xs))
     `(en#set : ,@chain#(map X#(if-else (op#eq X ":*")
@@ -630,8 +649,13 @@ _#<<#
 
   Imports `functools.partial` and `functools.reduce`.
   Star imports from `itertools` and `operator`.
+
   Defines ``engarde``, which calls a function for you, handling any
   targeted exceptions with the given handler.
+
+  Defines ``enter``, which calls a function with a context manager.
+
+  Defines ``Ensue`` for trampolined continuation generators.
 
   Adds the bundled macros, but only if available,
   so its expansion does not require Hissp to be installed.
@@ -675,6 +699,11 @@ except ModuleNotFoundError:pass"
 ;;; advanced
 
 (defmacro case (key default : :* pairs)
+  "Switch case macro.
+  Must switch on a hashable key.
+  The default case is first and required.
+  The remainder are implicitly paired.
+  "
   (when pairs
     (when (op#mod (len pairs) 2)
       (throw (TypeError "Incomplete pair")))
@@ -705,10 +734,10 @@ except ModuleNotFoundError:pass"
                          "ms")
        $#val)))
 
-(define _sentinel (object))
-(defmacro ensure (b : msg _sentinel)
+(defmacro ensure (b : :* args)
+  "Raises AssertionError unless condition is truthy.
+  Omitted from compilation when __debug__ is off.
+  "
   (if-else __debug__
-    `(unless ,b
-       (throw (AssertionError ,@(unless (op#is_ msg _sentinel)
-                                  (@ msg)))))
+    `(unless ,b (throw (AssertionError ,@args)))
     ""))
