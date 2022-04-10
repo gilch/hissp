@@ -35,6 +35,14 @@ class ParseLissp(DocTestParser):
             re.MULTILINE | re.VERBOSE,
         )
 
+    def __call__(self, document, *a, **kw):
+        assert type(document.text) is str
+        if document.path.endswith(".lissp"):
+            document.text = re.sub(
+                r"(?m)(^ *! *;)", lambda m: " " * len(m[1]), document.text
+            )
+        return super().__call__(document, *a, **kw)
+
     def lissp(self, source):
         lissp = LISSP.match(source)
         if not lissp:
@@ -82,5 +90,6 @@ class Globs(Container):
 
 
 pytest_collect_file = Sybil(
-    parsers=[ParseLissp(optionflags=ELLIPSIS)], filenames=Globs("*.md", "*.rst")
+    parsers=[ParseLissp(optionflags=ELLIPSIS)],
+    filenames=Globs("*.md", "*.rst", "*.lissp"),
 ).pytest()

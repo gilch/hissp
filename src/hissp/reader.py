@@ -16,7 +16,7 @@ import ast
 import builtins
 import re
 from collections import namedtuple
-from contextlib import contextmanager, nullcontext
+from contextlib import contextmanager, nullcontext, suppress
 from functools import reduce
 from importlib import import_module, resources
 from itertools import chain, takewhile
@@ -301,7 +301,7 @@ class Lissp:
     def template(self, form):
         """Process form as template."""
         case = type(form)
-        if is_string(form):
+        if is_lissp_string(form):
             return "quote", form
         if case is tuple and form:
             return (ENTUPLE, ":", *chain(*self._template(form)),)  # fmt: skip
@@ -416,7 +416,25 @@ class Lissp:
             )
 
 
-def is_string(form):
+def is_hissp_string(form) -> bool:
+    """Determines if form would directly represent a string in Hissp.
+
+    Allows "readerless mode"-style strings: ('quote', 'foo',)
+    and any string literal in a Hissp-level str: '"foo"'
+    (including the "('foo')" form produced by the Lissp reader).
+
+    Macros often produce strings in one of these forms, via ``'`` or
+    `repr` on a string object.
+    """
+    return (
+        type(form) is tuple
+        and len(form) == 2
+        and form[0] == "quote"
+        and type(form[1]) is str
+    ) or bool(is_string_literal(form))
+
+
+def is_lissp_string(form) -> bool:
     """
     Determines if form could have been read from a Lissp string literal.
 
@@ -425,14 +443,16 @@ def is_string(form):
     injections, read in as strings. Macros may need to distinguish these
     cases.
     """
-    try:
-        return (
-            type(form) is str
-            and form.startswith("(")
-            and type(ast.literal_eval(form)) is str
-        )
-    except:
-        return False
+    return type(form) is str and form.startswith("(") and bool(is_string_literal(form))
+
+
+def is_string_literal(form) -> Optional[bool]:
+    """Determines if `ast.literal_eval` on form produces a string.
+
+    False if it produces something else or None if it raises Exception.
+    """
+    with suppress(Exception):
+        return type(ast.literal_eval(form)) is str
 
 
 def _parse_extras(extras):

@@ -3692,20 +3692,20 @@ Lissp Quick Start
    >>> # hissp.._macro_.alias
    ... # hissp.macros.._macro_.defmacro
    ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo7_fn=(lambda _QzNo34_prime,_QzNo34_reader=None,*_QzNo34_args:(
-   ...   "('Aliases hissp.._macro_ as MQzCOLON_#')",
+   ... (lambda _QzNo7_fn=(lambda _QzNo27_prime,_QzNo27_reader=None,*_QzNo27_args:(
+   ...   'Aliases ``hissp.._macro_`` as ``MQzCOLON_#``.',
    ...   # hissp.macros.._macro_.ifQz_else
    ...   (lambda test,*thenQz_else:
    ...     __import__('operator').getitem(
    ...       thenQz_else,
    ...       __import__('operator').not_(
    ...         test))())(
-   ...     _QzNo34_reader,
+   ...     _QzNo27_reader,
    ...     (lambda :
    ...       __import__('builtins').getattr(
    ...         __import__('hissp')._macro_,
    ...         ('{}{}').format(
-   ...           _QzNo34_reader,
+   ...           _QzNo27_reader,
    ...           # hissp.macros.._macro_.ifQz_else
    ...           (lambda test,*thenQz_else:
    ...             __import__('operator').getitem(
@@ -3717,12 +3717,16 @@ Lissp Quick Start
    ...               '_macro_'),
    ...             (lambda :'QzHASH_'),
    ...             (lambda :('')))))(
-   ...         _QzNo34_prime,
-   ...         *_QzNo34_args)),
+   ...         _QzNo27_prime,
+   ...         *_QzNo27_args)),
    ...     (lambda :
    ...       ('{}.{}').format(
    ...         'hissp.._macro_',
-   ...         _QzNo34_prime))))[-1]):(
+   ...         _QzNo27_prime))))[-1]):(
+   ...   __import__('builtins').setattr(
+   ...     _QzNo7_fn,
+   ...     '__doc__',
+   ...     'Aliases ``hissp.._macro_`` as ``MQzCOLON_#``.'),
    ...   __import__('builtins').setattr(
    ...     _QzNo7_fn,
    ...     '__qualname__',
