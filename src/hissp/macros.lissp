@@ -140,7 +140,7 @@ judicious use can improve performance and maintainability.
     (let (fn `(lambda ,parameters ,docstring ,@body)
           ns (unless (operator..contains (.get hissp.compiler..NS) '_macro_)
                `((.update (globals) : _macro_ (types..ModuleType ','_macro_))))
-          dc (when (hissp.reader..is_string docstring)
+          dc (when (hissp.reader..is_hissp_string docstring)
                `((setattr ,$fn ','__doc__ ,docstring)))
           qn `(setattr ,$fn ','__qualname__ (.join "." '(,'_macro_ ,name))))
       `(let (,$fn ,fn)
