@@ -185,7 +185,7 @@ Lissp Quick Start
 
    ;;; Imports
 
-   #> math.                               ;Module literals import!
+   #> math.                               ;Module handles import!
    >>> __import__('math')
    <module 'math' ...>
 
@@ -193,7 +193,7 @@ Lissp Quick Start
    >>> __import__('math').tau
    6.283185307179586
 
-   #> collections.abc.                    ;Submodule literal. Has package name.
+   #> collections.abc.                    ;Submodule handle. Has package name.
    >>> __import__('collections.abc',fromlist='?')
    <module 'collections.abc' from '...abc.py'>
 
@@ -858,7 +858,7 @@ Lissp Quick Start
    42
 
 
-   ;; Strings in Hissp are also used for module literals and control
+   ;; Strings in Hissp are also used for module handles and control
    ;; words. The compiler does some extra processing before emitting these
    ;; as Python code. Quoting suppresses this processing too.
 

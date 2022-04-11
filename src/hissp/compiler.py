@@ -383,7 +383,7 @@ class Compiler:
     @_trace
     def str(self, code: str) -> str:
         """Compile code strings.
-        Expands qualified identifiers and module literals into imports.
+        Expands qualified identifiers and module handles into imports.
         Otherwise, injects as raw Python directly into the output.
         """
         if not all(s.isidentifier() for s in code.split(".") if s):

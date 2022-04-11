@@ -1331,7 +1331,7 @@ But be aware of the effects that has on qualification in templates.
 But I need the module object itself! The package ``__init__.py`` doesn't import it or it's not in a package.
 ------------------------------------------------------------------------------------------------------------
 
-A module literal will do it for you.
+A module handle will do it for you.
 
 .. code-block:: REPL
 
@@ -1495,7 +1495,7 @@ E.g. ``(type '42)`` is ``<class 'hy.models.HyInteger'>`` in Hy,
 but ``<class 'int'>`` in Lissp.
 
 Except for tuples, which represent invocations,
-and strings, which represent raw Python (and module literals/qualifiers),
+and strings, which represent raw Python (and module handles/qualifiers),
 Hissp's representation for Python objects are simply the objects.
 Hissp will at least *attempt* to compile in anything,
 even if it has no literal representation in Python code,
@@ -1556,7 +1556,7 @@ And, of course, the expression-only output,
 while a direct and sensible translation once you understand Hissp,
 is *completely unpythonic*.
 
-Another major difference is Hissp's module literals and qualified symbols,
+Another major difference is Hissp's module handles and qualified symbols,
 which allow macros to easily import their requirements from other modules.
 Macro dependencies are much harder to work with in Hy.
 Lissp's template quote automatically qualifies symbols like Clojure does.

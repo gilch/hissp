@@ -508,15 +508,15 @@ Symbols can have internal ``.``'s to access attributes.
 
 .. _qualified identifiers:
 
-Module Literals and Qualified Identifiers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Module Handles and Qualified Identifiers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can refer to variables defined in any module by using a
 *qualified identifier*:
 
 .. code-block:: REPL
 
-   #> operator. ; Module literals end in a dot and automatically import.
+   #> operator. ; Module handles end in a dot and automatically import.
    >>> __import__('operator')
    <module 'operator' from '...operator.py'>
 
@@ -528,7 +528,7 @@ You can refer to variables defined in any module by using a
 
 Notice the second dot required to access a module attribute.
 
-The translation of module literals to ``__import__`` calls happens at compile time,
+The translation of module handles to ``__import__`` calls happens at compile time,
 not read time, so this feature is still available in readerless mode.
 
 >>> readerless('re.')
