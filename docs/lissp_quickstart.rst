@@ -984,9 +984,9 @@ Lissp Quick Start
    ;; Qualification prevents accidental name collisions in
    ;; programmatically generated code. But qualification doesn't work on
    ;; local variables, which can't be imported. For these, we use a template
-   ;; counter prefix instead of a qualifier to ensure a variable can only
+   ;; count prefix instead of a qualifier to ensure a variable can only
    ;; be used in the same template it was defined in. The gensym reader
-   ;; macro ($#) generates a symbol with the current template's count.
+   ;; macro ($#) generates a symbol with the current template's number.
    #> `($#eggs $#spam $#bacon $#spam)     ;Generated symbols for macro hygiene.
    >>> (lambda * _: _)(
    ...   '_QzNo9_eggs',
@@ -995,9 +995,17 @@ Lissp Quick Start
    ...   '_QzNo9_spam')
    ('_QzNo9_eggs', '_QzNo9_spam', '_QzNo9_bacon', '_QzNo9_spam')
 
-   #> `$#spam                             ;Template count in name prevents collisions.
+   #> `$#spam                             ;Template number in name prevents collisions.
    >>> '_QzNo10_spam'
    '_QzNo10_spam'
+
+
+   ;; By default, the template number is a prefix, but you can put it
+   ;; anywhere in the symbol, by marking the positions with $.
+   ;; (This is typically used for attributes.)
+   #> `$#spam$.$eggs$
+   >>> '__main__..spam_QzNo8_._QzNo8_eggs_QzNo8_'
+   '__main__..spam_QzNo8_._QzNo8_eggs_QzNo8_'
 
 
    ;; You can use templates to make collections with interpolated values.
