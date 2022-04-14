@@ -2841,34 +2841,51 @@ Lissp Quick Start
 
    ;; There's also a throw* you normally shouldn't use. See API doc.
 
-   ;; Assertions. Message is optional.
+   ;; Assertions. They're always about something, which is
+   ;; threaded-first into the predicate expression, and is the result of
+   ;; the form. The message expressions are optional. In this context,
+   ;; the `it` refers to the something.
    ;; Try turning off __debug__ in a new REPL: $ python -Om hissp
-   #> (ensure 0 "wat")
+   #> (ensure 7 (-> (mod 2) (eq 0))
+   #..  it "That's odd.")
    >>> # ensure
-   ... # hissp.macros.._macro_.unless
-   ... # hissp.macros.._macro_.ifQz_else
-   ... (lambda test,*thenQz_else:
-   ...   __import__('operator').getitem(
-   ...     thenQz_else,
-   ...     __import__('operator').not_(
-   ...       test))())(
-   ...   (0),
-   ...   (lambda :()),
-   ...   (lambda :
-   ...     # hissp.macros.._macro_.progn
+   ... # hissp.macros.._macro_.let
+   ... (lambda it=(7):(
+   ...   # hissp.macros.._macro_.unless
+   ...   # hissp.macros.._macro_.ifQz_else
+   ...   (lambda test,*thenQz_else:
+   ...     __import__('operator').getitem(
+   ...       thenQz_else,
+   ...       __import__('operator').not_(
+   ...         test))())(
+   ...     # hissp.macros.._macro_.Qz_QzGT_
+   ...     # hissp.macros..QzMaybe_.Qz_QzGT_
+   ...     # Qz_QzGT_
+   ...     # hissp.macros..QzMaybe_.Qz_QzGT_
+   ...     # hissp.macros..QzMaybe_.Qz_QzGT_
+   ...     eq(
+   ...       mod(
+   ...         it,
+   ...         (2)),
+   ...       (0)),
+   ...     (lambda :()),
    ...     (lambda :
-   ...       # hissp.macros.._macro_.throw
-   ...       # hissp.macros.._macro_.throwQzSTAR_
-   ...       # hissp.macros.._macro_.let
-   ...       (lambda _QzNo46_gen=__import__('traceback').walk_tb(
-   ...         None):(
-   ...         _QzNo46_gen.close(),
-   ...         _QzNo46_gen)[-1])().throw(
-   ...         __import__('builtins').AssertionError(
-   ...           ('wat'))))()))
+   ...       # hissp.macros.._macro_.progn
+   ...       (lambda :
+   ...         # hissp.macros.._macro_.throw
+   ...         # hissp.macros.._macro_.throwQzSTAR_
+   ...         # hissp.macros.._macro_.let
+   ...         (lambda _QzNo50_gen=__import__('traceback').walk_tb(
+   ...           None):(
+   ...           _QzNo50_gen.close(),
+   ...           _QzNo50_gen)[-1])().throw(
+   ...           __import__('builtins').AssertionError(
+   ...             it,
+   ...             ("That's odd."))))())),
+   ...   it)[-1])()
    Traceback (most recent call last):
      ...
-   AssertionError: wat
+   AssertionError: (7, "That's odd.")
 
 
    ;; Note that for pre-compiled code, it's the __debug__ state at

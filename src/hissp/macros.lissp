@@ -734,10 +734,17 @@ except ModuleNotFoundError:pass"
                          "ms")
        $#val)))
 
-(defmacro ensure (b : :* args)
-  "Raises AssertionError unless condition is truthy.
-  Omitted from compilation when __debug__ is off.
+(defmacro ensure (e predicate : :* args)
+  "Anaphoric. Raises AssertionError unless (-> e predicate).
+
+  Additional arguments are evaluated in a context where ``it`` refers
+  to the result of e. These (if any) are passed to the AssertionError.
+
+  Compilation is simply the it when __debug__ is off.
   "
   (if-else __debug__
-    `(unless ,b (throw (AssertionError ,@args)))
-    ""))
+    `(let (,'it ,e)
+       (unless (-> ,'it ,predicate)
+         (throw (AssertionError ,@args)))
+       ,'it)
+    e))
