@@ -21,7 +21,7 @@ Lissp Quick Start
 
 .. Lissp::
 
-   ;;;; Lissp Quick Start
+   ;;;; 1 Lissp Quick Start
 
    "Lissp is a lightweight text language representing the Hissp
    intermediate language. The Lissp reader parses the Lissp language's
@@ -46,7 +46,7 @@ Lissp Quick Start
    '/!\'. Don't skip these! Re-enter them if you start a new session.
    "
 
-   ;;;; Installation
+   ;;;; 2 Installation
 
    ;; These docs are for the latest development version of Hissp.
    ;; Most examples are tested automatically, but details may be dated.
@@ -57,14 +57,14 @@ Lissp Quick Start
    ;; $ lissp
    ;; You can quit with EOF or (exit).
 
-   ;;;; Simple Atoms
+   ;;;; 3 Simple Atoms
 
    ;; To a first approximation, the Hissp intermediate language is made
    ;; of Python tuples representing syntax trees. The nodes are tuples
    ;; and we call the leaves "atoms". Simple atoms in Lissp are written
    ;; the same way as Python.
 
-   ;;; Singleton
+   ;;; 3.1 Singleton
 
    #> None
    >>> None
@@ -74,7 +74,7 @@ Lissp Quick Start
    Ellipsis
 
 
-   ;;; Boolean
+   ;;; 3.2 Boolean
 
    #> False                               ;False == 0
    >>> False
@@ -85,7 +85,7 @@ Lissp Quick Start
    True
 
 
-   ;;; Integer
+   ;;; 3.3 Integer
 
    #> 42
    >>> (42)
@@ -116,7 +116,7 @@ Lissp Quick Start
    3840
 
 
-   ;;; Floating-Point
+   ;;; 3.4 Floating-Point
 
    #> 3.
    >>> (3.0)
@@ -135,7 +135,7 @@ Lissp Quick Start
    -0.016
 
 
-   ;;; Complex
+   ;;; 3.5 Complex
 
    #> 5j                                  ;imaginary
    >>> (5j)
@@ -150,7 +150,7 @@ Lissp Quick Start
    (-1.234e-55-7.898e-75j)
 
 
-   ;;;; Simple Tuples
+   ;;;; 4 Simple Tuples
 
    ;; Tuples group any atoms with (). Data tuples start with '.
    #> '(None 2 3)
@@ -166,9 +166,9 @@ Lissp Quick Start
    (True, False)
 
 
-   ;;;; Symbolic Atoms
+   ;;;; 5 Symbolic Atoms
 
-   ;;; Identifiers
+   ;;; 5.1 Identifiers
 
    #> object                              ;Python identifiers work in Lissp.
    >>> object
@@ -183,7 +183,7 @@ Lissp Quick Start
    'type'
 
 
-   ;;; Imports
+   ;;; 5.2 Imports
 
    #> math.                               ;Module handles import!
    >>> __import__('math')
@@ -207,7 +207,7 @@ Lissp Quick Start
    'ABCMeta'
 
 
-   ;;;; Simple Forms and Calls
+   ;;;; 6 Simple Forms and Calls
 
    ;; "Forms" are any data structures that can be evaluated as a Hissp program.
    ;; Simple atoms are forms. They simply evaluate to an equivalent object.
@@ -276,7 +276,7 @@ Lissp Quick Start
    b'bytes'
 
 
-   ;;;; String Atoms
+   ;;;; 7 String Atoms
 
    #> :control-word                       ;Colon prefix. Similar to Lisp ":keywords".
    >>> ':control-word'
@@ -287,7 +287,7 @@ Lissp Quick Start
    'symbol'
 
 
-   ;;; Munging
+   ;;; 7.1 Munging
 
    #> '+                                  ;Read-time munging of invalid identifiers.
    >>> 'QzPLUS_'
@@ -314,7 +314,7 @@ Lissp Quick Start
    ':'
 
 
-   ;;; Escaping
+   ;;; 7.2 Escaping
 
    #> 'SPAM\ \"\(\)\;EGGS                 ;These would terminate a symbol if not escaped.
    >>> 'SPAMQzSPACE_QzQUOT_QzLPAR_QzRPAR_QzSEMI_EGGS'
@@ -344,7 +344,7 @@ Lissp Quick Start
    >>> None
 
 
-   ;;; String Literals
+   ;;; 7.3 String Literals
 
    #> "raw string"
    >>> ('raw string')
@@ -377,7 +377,7 @@ Lissp Quick Start
    'one\\"\nstring\\\\'
 
 
-   ;;;; Advanced Calls
+   ;;;; 8 Advanced Calls
 
    #> (dict :)                            ;Left paren before function! Notice the :.
    >>> dict()
@@ -491,7 +491,7 @@ Lissp Quick Start
    <BLANKLINE>
 
 
-   ;;; Operators
+   ;;; 8.1 Operators
 
    ;; Hissp is simpler than Python. No operators! Use calls instead.
 
@@ -512,7 +512,7 @@ Lissp Quick Start
    42
 
 
-   ;;;; Simple Lambdas
+   ;;;; 9 Simple Lambdas
 
    ;; Lambdas are one of Hissp's two "special forms".
    ;; They look like calls, but are special-cased in the Hissp compiler
@@ -545,7 +545,7 @@ Lissp Quick Start
    Hi, Bob!
 
 
-   ;;; Obligatory Factorial I
+   ;;; 9.1 Obligatory Factorial I
 
    ;; We now have just enough to make more interesting programs.
 
@@ -581,7 +581,7 @@ Lissp Quick Start
    120
 
 
-   ;;; Control Flow
+   ;;; 9.2 Control Flow
 
    ;; Hissp is simpler than Python. No control flow! Use higher-order functions instead.
 
@@ -643,7 +643,7 @@ Lissp Quick Start
    ...               else_thunk)))
 
 
-   ;;; Obligatory Factorial II
+   ;;; 9.3 Obligatory Factorial II
 
    ;; Now we have enough for a recursive version.
    #> (.update (globals)
@@ -674,7 +674,7 @@ Lissp Quick Start
    120
 
 
-   ;;;; Advanced Lambdas
+   ;;;; 10 Advanced Lambdas
 
    ;; Python parameter types are rather involved. Lambda does all of them.
    ;; Like calls, they are all paired. :? means no default.
@@ -772,7 +772,7 @@ Lissp Quick Start
    1
 
 
-   ;;;; Quote
+   ;;;; 11 Quote
 
    ;; Quote is the only other special form. Looks like a call, but isn't.
 
@@ -889,7 +889,7 @@ Lissp Quick Start
    ':?'
 
 
-   ;;;; Simple Reader Macros
+   ;;;; 12 Simple Reader Macros
 
    ;; Reader macros are metaprograms to abbreviate Hissp and don't
    ;; represent it directly. They apply to the next parsed Hissp object
@@ -897,7 +897,7 @@ Lissp Quick Start
    ;; they are compiled and evaluated. They end in # except for a few
    ;; builtins-- ' ! ` , ,@
 
-   ;;; Quote
+   ;;; 12.1 Quote
 
    ;; The ' reader macro is simply an abbreviation for the quote special form.
 
@@ -911,7 +911,7 @@ Lissp Quick Start
    ('print', "('Hi')")
 
 
-   ;;; Template Quote
+   ;;; 12.2 Template Quote
 
    ;; (Like quasiquote, backquote, or syntax-quote from other Lisps.)
    ;; This is a DSL for making Hissp trees programmatically.
@@ -1046,7 +1046,7 @@ Lissp Quick Start
    (0, 'a', 'b')
 
 
-   ;;;; Compiler Macros
+   ;;;; 13 Compiler Macros
 
    ;; We can use functions to to create forms for evaluation.
    ;; This is metaprogramming: code that writes code.
@@ -1564,7 +1564,7 @@ Lissp Quick Start
    1:2:3
 
 
-   ;;;; Compiling and Running Files
+   ;;;; 14 Compiling and Running Files
 
    ;; ``$ lissp`` can run a .lissp file as __main__.
    ;; You cannot import .lissp directly. Compile it to .py first.
@@ -1623,7 +1623,7 @@ Lissp Quick Start
    False
 
 
-   ;;;; The Bundled Macros
+   ;;;; 15 The Bundled Macros
 
    ;; To make the REPL more usable, it comes with some basic macros already
    ;; defined. Their design has been deliberately restricted so that their
@@ -1635,7 +1635,7 @@ Lissp Quick Start
    ;; convenience, hissp._macro_ is a reference to hissp.macros._macro_,
    ;; making all the bundled macros available qualified with hissp.._macro_.
 
-   ;;; Collections
+   ;;; 15.1 Collections
 
    #> (@ 1 2 3)                           ;list
    >>> # QzAT_
@@ -1752,7 +1752,7 @@ Lissp Quick Start
    {1: 2, 'x': 3, 'y': 4, 5: 6}
 
 
-   ;;; Side Effect
+   ;;; 15.2 Side Effect
 
    #> (print (prog1 0                     ;Sequence for side effects, eval to first.
    #..         (print 1)
@@ -1806,7 +1806,7 @@ Lissp Quick Start
    3
 
 
-   ;;; Definition
+   ;;; 15.3 Definition
 
    #> (deftype Point2D (tuple)
    #..  __doc__ "Simple ordered pair."
@@ -1993,7 +1993,7 @@ Lissp Quick Start
    namespace(x=42)
 
 
-   ;;; Locals
+   ;;; 15.4 Locals
 
    #> (let (x "a"                         ;Create locals.
    #..      y "b")                        ;Any number of pairs.
@@ -2116,7 +2116,7 @@ Lissp Quick Start
    1 2 3 4
 
 
-   ;;; Configuration
+   ;;; 15.5 Configuration
 
    #> (attach (types..SimpleNamespace) + : a 1  b "Hi")
    >>> # attach
@@ -2237,7 +2237,7 @@ Lissp Quick Start
 
    ;; set/zap mnemonics: @tribute, !tem.
 
-   ;;; Threading
+   ;;; 15.6 Threading
 
    #> (-> "world!"                        ;Thread-first
    #..    (.title)
@@ -2255,7 +2255,7 @@ Lissp Quick Start
    (help _macro_.->)
    (help _macro_.->>)
 
-   ;;; The Prelude
+   ;;; 15.7 The Prelude
 
    ;; An inline convenience micro-prelude for Hissp.
    ;; Imports partial and reduce; star imports from operator and itertools;
@@ -2287,7 +2287,7 @@ Lissp Quick Start
    ...   __import__('builtins').globals())
 
 
-   ;;; Control Flow
+   ;;; 15.8 Control Flow
 
    ;; Hissp has no innate control flow, but you can build them with macros.
 
@@ -2765,7 +2765,7 @@ Lissp Quick Start
    42
 
 
-   ;;; Raising Exceptions
+   ;;; 15.9 Raising Exceptions
 
    #> (throw Exception)                   ;Raise exception objects or classes.
    >>> # throw
@@ -2900,7 +2900,7 @@ Lissp Quick Start
    ;; compile time, not at run time, that determines if ensure
    ;; assertions are turned on.
 
-   ;;; Obligatory Factorial III
+   ;;; 15.10 Obligatory Factorial III
 
    ;; With the prelude, we can define a nicer-looking version.
    #> (define factorial-III
@@ -2935,7 +2935,7 @@ Lissp Quick Start
    5040
 
 
-   ;;;; Exception handling
+   ;;;; 16 Exception handling
 
    ;; Defined by the prelude. Guards against the targeted exception classes.
    #> (engarde `(,FloatingPointError ,ZeroDivisionError)               ;two targets
@@ -3051,7 +3051,7 @@ Lissp Quick Start
    Exception('msg')
 
 
-   ;;;; Generators
+   ;;;; 17 Generators
 
    ;; Defined by the prelude, Ensue gives you infinite lazy iterables,
    ;; easy as recursion. Compare to loop-from.
@@ -3240,7 +3240,7 @@ Lissp Quick Start
    42
 
 
-   ;;; Context Managers
+   ;;;; 18 Context Managers
 
    #> (define ultimate-unyielding-action-ensues ;It's true.
    #..  (lambda (action)
@@ -3415,9 +3415,9 @@ Lissp Quick Start
    Exception
 
 
-   ;;;; Advanced Reader Macros
+   ;;;; 19 Advanced Reader Macros
 
-   ;;; The Discard Macro
+   ;;; 19.1 The Discard Macro
 
    #> _#"The discard reader macro _# omits the next form.
    #..It's a way to comment out code structurally.
@@ -3434,7 +3434,7 @@ Lissp Quick Start
    1 2 3
 
 
-   ;;; Qualified Reader Macros
+   ;;; 19.2 Qualified Reader Macros
 
    ;; Invoke any qualified callable on the next parsed object at read time.
    #> builtins..hex#3840                  ;Qualified name ending in # is a reader macro.
@@ -3482,7 +3482,7 @@ Lissp Quick Start
    inf
 
 
-   ;;; Inject
+   ;;; 19.3 Inject
 
    _#"The 'inject' reader macro compiles and evaluates the next form at
    read time and injects the resulting object directly into the Hissp
@@ -3562,7 +3562,7 @@ Lissp Quick Start
    >>> from operator import *
 
 
-   ;;;; The Bundled Reader Macros
+   ;;;; 20 The Bundled Reader Macros
 
    #> (reduce XY#(add Y X) "abcd")        ;Binary anaphoric lambda.
    >>> reduce(
@@ -3879,7 +3879,7 @@ Lissp Quick Start
    'Don\'t worry about the "quotes".'
 
 
-   ;;; Aside: Extra (!), the Final Builtin Reader Macro
+   ;;; 20.1 Aside: Extra (!), the Final Builtin Reader Macro
 
    _#"Reader macros take one primary argument, but additional arguments
    can be passed in with the extra macro !. A reader macro consumes the
@@ -4006,7 +4006,7 @@ Lissp Quick Start
    Hello World!
 
 
-   ;;; Joined Comment String
+   ;;; 20.2 Joined Comment String
 
    #> <<#!;C:\bin
    #..   !;C:\Users\ME\Documents
