@@ -303,12 +303,16 @@ _#<<#
         $#prime : :* $#args)
        (.format "{}.{}" ',module $#prime))))
 
-(alias op operator.)
 (alias i itertools.)
+(alias op operator.)
 
 (defmacro chain\# (itr)
   "``chain#`` Abbreviation for `itertools.chain.from_iterable`"
   `(i#chain.from_iterable ,itr))
+
+(defmacro @\# (symbol)
+  "``@#`` 'attrgetter-' Makes an attr getter function from the symbol."
+  `(op#attrgetter ',symbol))
 
 ;;; configuration
 
