@@ -31,11 +31,6 @@ or start with the longer, but less comprehensive tutorial.
 
    API <hissp>
 
-.. toctree::
-   :maxdepth: 1
-
-   faq
-
 ****
 
 .. toctree::
