@@ -314,6 +314,10 @@ _#<<#
   "``@#`` 'attrgetter-' Makes an attr getter function from the symbol."
   `(op#attrgetter ',symbol))
 
+(defmacro get\# e
+  "``get#`` 'itemgetter-' Makes an item getter function from e."
+  `(op#itemgetter ,e))
+
 ;;; configuration
 
 (defmacro set! (coll key val)
