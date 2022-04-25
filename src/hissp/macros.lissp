@@ -383,9 +383,9 @@ _#<<#
   "
   (let ($self `$#self)
     `((lambda (: ,$self ,self)
-        ,@(map X#`(,(op#getitem X 0)
+        ,@(map X#`(,(get#0 X)
                    ,$self
-                   ,@(op#getitem X (slice 1 None)))
+                   ,@(get#(slice 1 None) X))
                invocations)
         ,$self))))
 
@@ -400,11 +400,10 @@ _#<<#
   Makes chained method calls easier to read.
   "
   (if-else forms
-    `(-> (,(op#getitem (op#getitem forms 0) 0)
+    `(-> (,(get#0 (get#0 forms))
           ,expr
-          ,@(op#getitem (op#getitem forms 0)
-                        (slice 1 None)))
-         ,@(op#getitem forms (slice 1 None)))
+          ,@(get#(slice 1 None) (get#0 forms)))
+         ,@(get#(slice 1 None) forms))
     expr))
 
 (defmacro ->> (expr : :* forms)
@@ -418,8 +417,8 @@ _#<<#
   E.g. ``(-> x (A a) (->> B b) (C c))`` is ``(C (B b (A x a)) c)``.
   "
   (if-else forms
-    `(->> (,@(op#getitem forms 0) ,expr)
-          ,@(op#getitem forms (slice 1 None)))
+    `(->> (,@(get#0 forms) ,expr)
+          ,@(get#(slice 1 None) forms))
     expr))
 
 ;; TODO: implement other arrange macros?
@@ -449,10 +448,10 @@ _#<<#
   !;
   #"\n"
   (when pairs
-    `(if-else ,(op#getitem pairs 0)
-              ,(op#getitem pairs 1)
+    `(if-else ,(get#0 pairs)
+              ,(get#1 pairs)
               ;; Here's the recursive part.
-              (cond ,@(op#getitem pairs (slice 2 None))))))
+              (cond ,@(get#(slice 2 None) pairs)))))
 
 (defmacro any-map (variable xs : :* body)
   "``any-map``
@@ -490,7 +489,7 @@ _#<<#
        (any*map ,syms (iter $#stack.pop None)
          (op#setitem $#stack 0 (progn ,@body))
          None)
-       (op#getitem $#stack 0))))
+       (get#0 $#stack))))
 
 ;; I would have named this 'and, but that's a reserved word.
 (defmacro && (: :* exprs)
@@ -499,10 +498,10 @@ _#<<#
   There is an implicit initial value of ``True``.
   "
   (cond (op#not_ exprs) True
-        (op#eq (len exprs) 1) (op#getitem exprs 0)
-        :else `(let ($#G ,(op#getitem exprs 0))
+        (op#eq (len exprs) 1) (get#0 exprs)
+        :else `(let ($#G ,(get#0 exprs))
                  (if-else $#G
-                          (&& ,@(op#getitem exprs (slice 1 None)))
+                          (&& ,@(get#(slice 1 None) exprs))
                           $#G))))
 
 (defmacro || (: first () :* rest)
@@ -715,8 +714,8 @@ except ModuleNotFoundError:pass"
   (when pairs
     (when (op#mod (len pairs) 2)
       (throw (TypeError "Incomplete pair")))
-    (let (kss (op#getitem pairs (slice None None 2))
-          ts (op#getitem pairs (slice 1 None 2)))
+    (let (kss (get#(slice None None 2) pairs)
+          ts (get#(slice 1 None 2) pairs))
       `((op#getitem (@ ,@(map X#`&#,X ts) &#,default)
                     (.get (en#dict ,@chain#(i#starmap (lambda (i ks)
                                                         (map X#`(@ ,X ,i) ks))

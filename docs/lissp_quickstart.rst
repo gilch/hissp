@@ -2342,9 +2342,9 @@ Lissp Quick Start
    ...         __import__('builtins').iter(
    ...           _QzNo43_stack.pop,
    ...           None))),
-   ...     __import__('operator').getitem(
-   ...       _QzNo43_stack,
-   ...       (0)))[-1])())()
+   ...     __import__('operator').itemgetter(
+   ...       (0))(
+   ...       _QzNo43_stack))[-1])())()
    3
    2
    1
