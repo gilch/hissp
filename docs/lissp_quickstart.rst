@@ -2598,81 +2598,19 @@ Lissp Quick Start
    ...       # case
    ...       __import__('operator').getitem(
    ...         # hissp.macros.._macro_.QzAT_
-   ...         (lambda *_QzNo37_xs:
+   ...         (lambda *_QzNo55_xs:
    ...           __import__('builtins').list(
-   ...             _QzNo37_xs))(
-   ...           (lambda :
-   ...             print(
-   ...               ('even'))),
+   ...             _QzNo55_xs))(
    ...           (lambda :
    ...             print(
    ...               ('odd'))),
    ...           (lambda :
    ...             print(
+   ...               ('even'))),
+   ...           (lambda :
+   ...             print(
    ...               ('default')))),
-   ...         (lambda *_QzNo37_xs:
-   ...           __import__('builtins').dict(
-   ...             _QzNo37_xs))(
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (0),
-   ...             (0)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (2),
-   ...             (0)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (4),
-   ...             (0)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (6),
-   ...             (0)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (8),
-   ...             (0)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (1),
-   ...             (1)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (3),
-   ...             (1)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (5),
-   ...             (1)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (7),
-   ...             (1)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             'spam',
-   ...             (1))).get(
+   ...         {1: 0, 3: 0, 5: 0, 7: 0, 'spam': 0, 0: 1, 2: 1, 4: 1, 6: 1, 8: 1}.get(
    ...           x,
    ...           (-1)))()),
    ...     ((1),

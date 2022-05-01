@@ -711,17 +711,16 @@ except ModuleNotFoundError:pass"
   The default case is first and required.
   The remainder are implicitly paired.
   "
-  (when pairs
-    (when (op#mod (len pairs) 2)
-      (throw (TypeError "Incomplete pair")))
-    (let (kss (get#(slice None None 2) pairs)
-          ts (get#(slice 1 None 2) pairs))
-      `((op#getitem (@ ,@(map X#`&#,X ts) &#,default)
-                    (.get (en#dict ,@chain#(i#starmap (lambda (i ks)
-                                                        (map X#`(@ ',X ,i) ks))
-                                                      (enumerate kss)))
-                          ,key
-                          -1))))))
+  (when (op#mod (len pairs) 2)
+    (throw (TypeError "Incomplete pair")))
+  (let (kss (get#(slice -2 None -2) pairs)
+        ts (get#(slice None None -2) pairs))
+    `((op#getitem (@ ,@(map X#`&#,X ts) &#,default)
+                  (.get ,(dict chain#(i#starmap (lambda (i ks)
+                                                  (map X#(@ X i) ks))
+                                                (enumerate kss)))
+                        ,key
+                        -1)))))
 
 (defmacro _spy e
   `(let ($#e ,e)
