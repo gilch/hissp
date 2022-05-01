@@ -83,7 +83,7 @@ judicious use can improve performance and maintainability.
                (setattr $#G ','__qualname__ (.join "." '(,'_macro_ ,name)))
                (setattr _macro_ ',name $#G)))))
 
-(defmacro if-else (test then otherwise)
+(defmacro if-else (test consequent alternate)
   "``if-else`` Basic ternary branching construct.
 
   Like Python's conditional expressions, the 'else' clause is required.
@@ -91,8 +91,8 @@ judicious use can improve performance and maintainability.
   `((lambda (,'test : :* ,'then-else)
       ((operator..getitem ,'then-else (operator..not_ ,'test))))
     ,test
-    (lambda : ,then)
-    (lambda : ,otherwise)))
+    (lambda : ,consequent)
+    (lambda : ,alternate)))
 
 (defmacro progn (: :* body)
   "Evaluates each body expression in sequence (for side effects),
@@ -718,7 +718,7 @@ except ModuleNotFoundError:pass"
           ts (get#(slice 1 None 2) pairs))
       `((op#getitem (@ ,@(map X#`&#,X ts) &#,default)
                     (.get (en#dict ,@chain#(i#starmap (lambda (i ks)
-                                                        (map X#`(@ ,X ,i) ks))
+                                                        (map X#`(@ ',X ,i) ks))
                                                       (enumerate kss)))
                           ,key
                           -1))))))

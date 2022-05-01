@@ -28,9 +28,9 @@ Lissp Quick Start
    symbolic expressions as Python objects. The Hissp compiler
    then translates these syntax trees to Python expressions.
 
-   This document is written like a .lissp file, demonstrating Lissp's (and
-   thereby Hissp's) features with minimal exposition. This element
-   enclosed in double quotes is a docstring for the module.
+   This document is written like a .lissp file, thoroughly demonstrating
+   Lissp's (and thereby Hissp's) features with minimal exposition. This
+   element enclosed in double quotes is a docstring for the module.
 
    To fully understand these examples, you must see their Python
    compilation and output. Some familiarity with Python is assumed.
@@ -49,13 +49,14 @@ Lissp Quick Start
    ;;;; 2 Installation
 
    ;; These docs are for the latest development version of Hissp.
-   ;; Most examples are tested automatically, but details may be dated.
-   ;; Report issues or try the current release version instead.
    ;; Install the latest Hissp version with
    ;; $ pip install git+https://github.com/gilch/hissp
    ;; Start the REPL with
    ;; $ lissp
    ;; You can quit with EOF or (exit).
+
+   ;; Most examples are tested automatically, but details may be dated.
+   ;; Report issues or try the current release version instead.
 
    ;;;; 3 Simple Atoms
 
@@ -189,7 +190,7 @@ Lissp Quick Start
    >>> __import__('math')
    <module 'math' ...>
 
-   #> math..tau                           ;Qualified identifier. Attribute of a module.
+   #> math..tau                           ;Fully-qualified identifier. (Module attribute.)
    >>> __import__('math').tau
    6.283185307179586
 
@@ -274,6 +275,20 @@ Lissp Quick Start
    ...    (101),
    ...    (115),))
    b'bytes'
+
+
+   #> (help sum)                          ;Python's online help function still works.
+   >>> help(
+   ...   sum)
+   Help on built-in function sum in module builtins:
+   <BLANKLINE>
+   sum(iterable, /, start=0)
+       Return the sum of a 'start' value (default: 0) plus an iterable of numbers
+   <BLANKLINE>
+       When the iterable is empty, return the start value.
+       This function is intended specifically for use with numeric values and may
+       reject non-numeric types.
+   <BLANKLINE>
 
 
    ;;;; 7 String Atoms
@@ -475,20 +490,6 @@ Lissp Quick Start
    >>> __import__('builtins').float(
    ...   'inf')
    inf
-
-
-   #> (help sum)                          ;Python's online help function still works.
-   >>> help(
-   ...   sum)
-   Help on built-in function sum in module builtins:
-   <BLANKLINE>
-   sum(iterable, /, start=0)
-       Return the sum of a 'start' value (default: 0) plus an iterable of numbers
-   <BLANKLINE>
-       When the iterable is empty, return the start value.
-       This function is intended specifically for use with numeric values and may
-       reject non-numeric types.
-   <BLANKLINE>
 
 
    ;;; 8.1 Operators
@@ -779,8 +780,9 @@ Lissp Quick Start
    ;; A "form" is any Hissp data that can be evaluated.
    ;; Not all data is a valid program in Hissp. E.g. ``(7 42)`` is a
    ;; tuple, containing the integers 7 in the function position, and 42
-   ;; after in the first argument position, but it would crash, because
-   ;; ints are not callable in Python.
+   ;; after in the first argument position. It would compile to a
+   ;; syntactically-valid Python program, but evaluation would crash,
+   ;; because ints are not callable in Python. Try it.
 
    ;; Quotation suppresses evaluation of Hissp data.
    ;; Treating the code itself as data is the key concept in metaprogramming.
@@ -835,7 +837,7 @@ Lissp Quick Start
    ;; The raw strings and hash strings in Lissp ("..."/#"..." syntax)
    ;; also read as strings at the Hissp level, but they contain a Python
    ;; string literal instead of a Python identifier.
-   #> (quote "a string")                  ;Unexpected? "..."/#"..." is reader syntax!
+   #> (quote "a string")                  ;"..."/#"..." is reader syntax!
    >>> "('a string')"
    "('a string')"
 
@@ -917,7 +919,7 @@ Lissp Quick Start
    ;; This is a DSL for making Hissp trees programmatically.
    ;; They're very useful for metaprogramming.
 
-   #> `print                              ;Automatic qualification!
+   #> `print                              ;Automatic full qualification!
    >>> 'builtins..print'
    'builtins..print'
 
@@ -981,8 +983,8 @@ Lissp Quick Start
    ('builtins..print', 'A', 'B', 'C')
 
 
-   ;; Qualification prevents accidental name collisions in
-   ;; programmatically generated code. But qualification doesn't work on
+   ;; Full qualification prevents accidental name collisions in
+   ;; programmatically generated code. But full qualification doesn't work on
    ;; local variables, which can't be imported. For these, we use a template
    ;; count prefix instead of a qualifier to ensure a variable can only
    ;; be used in the same template it was defined in. The gensym reader
@@ -1000,12 +1002,17 @@ Lissp Quick Start
    '_QzNo10_spam'
 
 
-   ;; By default, the template number is a prefix, but you can put it
-   ;; anywhere in the symbol, by marking the positions with $.
-   ;; (This is typically used for attributes.)
-   #> `$#spam$.$eggs$
+   ;; If you don't specify, by default, the template number is a prefix,
+   ;; but you can put them anywhere in the symbol; $ marks the positions.
+   #> `$#spam$.$eggs$                     ;Lacking a gensym prefix, it gets fully qualified.
    >>> '__main__..spam_QzNo8_._QzNo8_eggs_QzNo8_'
    '__main__..spam_QzNo8_._QzNo8_eggs_QzNo8_'
+
+
+   ;; This is typically used for partially-qualified variables.
+   #> `,'$#self.$foo                      ;Interpolation suppressed auto-qualification.
+   >>> 'self._QzNo9_foo'
+   'self._QzNo9_foo'
 
 
    ;; You can use templates to make collections with interpolated values.
@@ -1044,6 +1051,23 @@ Lissp Quick Start
    ...   ('a'),
    ...   'b')
    (0, 'a', 'b')
+
+
+   #> (dict `((,0 ,1)
+   #..        ,@(.items (dict : spam "eggs"  foo 2)) ;dict unpacking
+   #..        (,3 ,4)))
+   >>> dict(
+   ...   (lambda * _: _)(
+   ...     (lambda * _: _)(
+   ...       (0),
+   ...       (1)),
+   ...     *dict(
+   ...        spam=('eggs'),
+   ...        foo=(2)).items(),
+   ...     (lambda * _: _)(
+   ...       (3),
+   ...       (4))))
+   {0: 1, 'spam': 'eggs', 'foo': 2, 3: 4}
 
 
    ;;;; 13 Compiler Macros
@@ -1323,7 +1347,7 @@ Lissp Quick Start
 
 
    ;; Notice the special QzMaybe_ qualifier generated by this template.
-   ;; Templates creates these for symbols in the invocation position when
+   ;; Templates create these for symbols in the invocation position when
    ;; they can't tell if _macro_ would work. The compiler skips QzMaybe_
    ;; unless it can resolve the symbol with QzMaybe_ as _macro_.
    #> `(+ 1 2 3 4)
@@ -2259,10 +2283,10 @@ Lissp Quick Start
 
    ;; An inline convenience micro-prelude for Hissp.
    ;; Imports partial and reduce; star imports from operator and itertools;
-   ;; defines engarde, enter, and Ensue; and imports a copy of
-   ;; hissp.macros.._macro_ (if available). Usually the first form in a
-   ;; file, because it overwrites _macro_, but completely optional.
-   ;; Implied for $ lissp -c commands.
+   ;; defines Python interop utilities engarde, enter, and Ensue; and
+   ;; imports a copy of hissp.macros.._macro_ (if available). Usually the
+   ;; first form in a file, because it overwrites _macro_, but completely
+   ;; optional. Implied for $ lissp -c commands.
    #> (prelude)                           ;/!\ Or (hissp.._macro_.prelude)
    >>> # prelude
    ... __import__('builtins').exec(
@@ -2563,10 +2587,10 @@ Lissp Quick Start
    False
 
 
-   #> (any-map x '(1 2 :spam 42)
+   #> (any-map x '(1 2 spam 42)
    #..  (case x (print "default")         ;switch case
    #..    (0 2 4 6 8) (print "even")
-   #..    (1 3 5 7 :spam) (print "odd")))
+   #..    (1 3 5 7 spam) (print "odd")))
    >>> # anyQz_map
    ... __import__('builtins').any(
    ...   __import__('builtins').map(
@@ -2647,13 +2671,13 @@ Lissp Quick Start
    ...           (lambda *_QzNo37_xs:
    ...             __import__('builtins').list(
    ...               _QzNo37_xs))(
-   ...             ':spam',
+   ...             'spam',
    ...             (1))).get(
    ...           x,
    ...           (-1)))()),
    ...     ((1),
    ...      (2),
-   ...      ':spam',
+   ...      'spam',
    ...      (42),)))
    odd
    even
@@ -3171,9 +3195,9 @@ Lissp Quick Start
    #> (define recycle
    #..  (lambda (itr)
    #..    (Ensue (lambda (step)
-   #..             (attach step :         ;Implicit recursion. See why?
+   #..             (attach step :         ;Implicit continuation.
    #..               Yield itr
-   #..               From 1)))))          ; What was returned?
+   #..               From 1)))))          ;The step is an Ensue instance.
    >>> # define
    ... __import__('builtins').globals().update(
    ...   recycle=(lambda itr:
@@ -3302,6 +3326,7 @@ Lissp Quick Start
    ...                      msg))))[-1])))[-1])))
 
 
+   ;; Defined by the prelude. Like a with statement.
    #> (enter (wrap 'A)
    #..       (lambda a (print a)))
    >>> enter(
@@ -3434,10 +3459,10 @@ Lissp Quick Start
    1 2 3
 
 
-   ;;; 19.2 Qualified Reader Macros
+   ;;; 19.2 Fully-Qualified Reader Macros
 
-   ;; Invoke any qualified callable on the next parsed object at read time.
-   #> builtins..hex#3840                  ;Qualified name ending in # is a reader macro.
+   ;; Invoke any fully-qualified callable on the next parsed object at read time.
+   #> builtins..hex#3840                  ;Fully-Qualified name ending in # is a reader macro.
    >>> 0xf00
    3840
 
@@ -3486,7 +3511,7 @@ Lissp Quick Start
 
    _#"The 'inject' reader macro compiles and evaluates the next form at
    read time and injects the resulting object directly into the Hissp
-   tree, like a qualified reader macro does.
+   tree, like a fully-qualified reader macro does.
    "
 
    #> '(1 2 (operator..add 1 2))          ;Quoting happens at compile time.
@@ -3646,7 +3671,6 @@ Lissp Quick Start
 
    ;; Also XYZ# XYZW# See API doc.
 
-
    #> b#"bytes"                           ;Bytes reader macro.
    >>> b'bytes'
    b'bytes'
@@ -3804,7 +3828,7 @@ Lissp Quick Start
    ['a', 1, 'b', 2, 'c', 3]
 
 
-   ;; Like `timeit.timeit`, but as a macro.
+   ;; Measures execution time.
    #> time#(time..sleep .05)
    >>> # hissp.macros.._macro_.let
    ... (lambda _QzNo73_time=__import__('time').time_ns:
@@ -3873,7 +3897,7 @@ Lissp Quick Start
    2 2
 
 
-   ;; Comment string.
+   ;; Comment string. Parsed objects, remember?
    #> <<#;Don't worry about the "quotes".
    >>> 'Don\'t worry about the "quotes".'
    'Don\'t worry about the "quotes".'
@@ -3886,7 +3910,7 @@ Lissp Quick Start
    next parsed object, and if it's an Extra, consumes one again. Thus,
    extras must be written between the # and primary argument, but because
    they're often optional refinements, which are easier to define as
-   trailing optional parameters in in Python functions, they get passed
+   trailing optional parameters in Python functions, they get passed
    in after the primary argument.
    "
    #> (setattr _macro_ 'L\# en#list)
@@ -3954,18 +3978,18 @@ Lissp Quick Start
    ['primary', 0, 1, 2, 3]
 
 
-   #> (setattr _macro_ 'X\# hissp.reader..Extra)
+   #> (setattr _macro_ 'E\# hissp.reader..Extra)
    >>> setattr(
    ...   _macro_,
-   ...   'XQzHASH_',
+   ...   'EQzHASH_',
    ...   __import__('hissp.reader',fromlist='?').Extra)
 
 
-   #> L# !0 X#(1 2) !3 primary            ;Same effect.
+   #> L# !0 E#(1 2) !3 primary            ;Same effect.
    >>> ['primary', 0, 1, 2, 3]
    ['primary', 0, 1, 2, 3]
 
-   #> L#X#(0 : :* (1 2 3))primary         ;Same effect.
+   #> L#E#(0 : :* (1 2 3))primary         ;Same effect.
    >>> ['primary', 0, 1, 2, 3]
    ['primary', 0, 1, 2, 3]
 
@@ -3979,7 +4003,7 @@ Lissp Quick Start
    >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
    {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
 
-   #> builtins..dict#X#(: spam 1  foo 2  :** .#(dict : eggs 3  bar 4))()
+   #> builtins..dict#E#(: spam 1  foo 2  :** .#(dict : eggs 3  bar 4))()
    >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
    {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
 
