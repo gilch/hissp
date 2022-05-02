@@ -3672,6 +3672,32 @@ Lissp Quick Start
    deque([1, 2, 3])
 
 
+   ;; Anaphoric lambda of any number of args.
+   #> (define enjoin en#X#(.join "" (map str X)))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   enjoin=(lambda *_QzNo55_xs:
+   ...            (lambda X:
+   ...              ('').join(
+   ...                map(
+   ...                  str,
+   ...                  X)))(
+   ...              _QzNo55_xs)))
+
+   #> (enjoin "Sum: "(add 2 3)". Product: "(mul 2 3)".")
+   >>> enjoin(
+   ...   ('Sum: '),
+   ...   add(
+   ...     (2),
+   ...     (3)),
+   ...   ('. Product: '),
+   ...   mul(
+   ...     (2),
+   ...     (3)),
+   ...   ('.'))
+   'Sum: 5. Product: 6.'
+
+
    ;; Not technically a reader macro, but a bundled macro for defining them.
    ;; Alias makes a new reader macro to abbreviate a qualifier.
    ;; This is an alternative to adding an import to _macro_ or globals.
