@@ -3792,6 +3792,64 @@ Lissp Quick Start
    ['a', 1, 'b', 2, 'c', 3]
 
 
+   #> (@#upper "shout")                   ;Get an attribute without calling it.
+   >>> __import__('operator').attrgetter(
+   ...   'upper')(
+   ...   ('shout'))
+   <built-in method upper of str object at ...>
+
+   #> (_)
+   >>> _()
+   'SHOUT'
+
+
+   #> (define class-name @#__class__.__name__) ;Attributes chain.
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   classQz_name=__import__('operator').attrgetter(
+   ...                  '__class__.__name__'))
+
+   #> (class-name object)
+   >>> classQz_name(
+   ...   object)
+   'type'
+
+   #> (class-name "foo")
+   >>> classQz_name(
+   ...   ('foo'))
+   'str'
+
+
+   #> (define first get#0)                ;Similarly, for items.
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   first=__import__('operator').itemgetter(
+   ...           (0)))
+
+   #> (first "abc")
+   >>> first(
+   ...   ('abc'))
+   'a'
+
+
+   #> (get#(slice None None -1) "abc")    ;Slicing.
+   >>> __import__('operator').itemgetter(
+   ...   slice(
+   ...     None,
+   ...     None,
+   ...     (-1)))(
+   ...   ('abc'))
+   'cba'
+
+   #> (get#'+ (dict : foo 2  + 1))        ;These also work on dicts.
+   >>> __import__('operator').itemgetter(
+   ...   'QzPLUS_')(
+   ...   dict(
+   ...     foo=(2),
+   ...     QzPLUS_=(1)))
+   1
+
+
    ;; Measures execution time.
    #> time#(time..sleep .05)
    >>> # hissp.macros.._macro_.let
