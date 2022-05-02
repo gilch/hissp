@@ -363,12 +363,14 @@ Alignment Styles
 ================
 
 The remaining rules are more a matter of that *practical consistency*.
-Exactly what rules *implement* that consistency matters much less
+Exactly what rules *implement* that consistency matter much less
 than the consistency itself.
-This is not always black and white,
-but that doesn't mean all shades of gray are the same.
-There may be better and worse approaches,
-while other differences are merely taste.
+Know the reasons for the rules,
+so you know when to break them.
+Some differences of opinion are merely taste.
+It's not always black and white,
+but that doesn't mean all shades of gray are the same either.
+Use your best judgement.
 
 Lisp is one of the oldest programming languages in common use.
 It has splintered into many dialects (Lissp among them),
@@ -379,7 +381,7 @@ with some small modifications for its own unique features.
 Tuples
 ------
 
-Separate *top level* forms from each other by a single blank like,
+Separate *top level* forms from each other with a single blank like,
 unless they are very closely related.
 
 .. _top level:
@@ -420,18 +422,18 @@ Your code should look like these examples, recursively applied to subforms:
      _#/)                                 ;Trails NEVER get their own line.
                                           ; But you can hold it open with a discarded item.
 
-   (function arg1 arg2 arg3)
+   (function arg1 arg2 arg3)              ;Typical for calls that fit on one line.
 
-   ;; The function name is separate from the arguments.
+   ;; Also common. The function name is separate from the arguments in this style.
    (function arg1                         ;Break for one, break for all.
              arg2                         ;Args start on the same column.
              arg3)
 
-   ;; The previous alignment is preferred, but this is OK if the line would be too long.
+   ;; The previous alignment is preferred, but this is OK if a line would be too long.
    (function
-     arg1                                 ;Indented one space past the (, unlike data.
-     arg2
-     arg3)
+    arg1                                  ;Just like data.
+    arg2
+    arg3)
 
    ((lambda (a b c)
       (reticulate a)
@@ -440,12 +442,33 @@ Your code should look like these examples, recursively applied to subforms:
     arg2                                  ; Not even one space past the (lambda.
     arg3)
 
+   (function                              ;Acceptable, but unusual.
+    arg1 arg2 arg3)
+
    ((lambda (a b c)
       (print c b a))
     arg1 arg2 arg3)                       ;Break for all args or for none.
 
    ;; One extra space between pairs.
    (function arg1 arg2 : kw1 kwarg1  kw2 kwarg2  kw3 kwarg3)
+
+   ;; This might make the reason a bit more obvious:
+   (% 1 0 2 9 3 8 4 7 5 6)                ;Bad. Can't tell keys from values.
+
+   (% 1 0  2 9  3 8  4 7  5 6)            ;Preferred. Group implied pairs.
+
+   (% 1 0                                 ;OK, but could have fit on one line.
+      2 9
+      3 8
+      4 7
+      5 6)
+
+   (%                                     ;Also OK.
+    1 0
+    2 9
+    3 8
+    4 7
+    5 6)
 
    (function arg1 arg2
              : kw1 kwarg1  kw2 kwarg2)    ;Breaking groups, not args.
@@ -460,14 +483,14 @@ Your code should look like these examples, recursively applied to subforms:
 
    ;; The previous alignment is preferred, but this is OK if the line would be too long.
    (function
-     arg1
-     arg2
-     :
-     kw1
-     kwarg1
-                                          ;Break for everything, and extra space to separate pairs.
-     kw2
-     kwarg2)
+    arg1
+    arg2
+    :
+    kw1
+    kwarg1
+                                          ;Break for everything, and extra line to separate pairs.
+    kw2
+    kwarg2)
 
    (macro special1 special2 special3      ;Macros can have their own alignment rules.
      body1                                ; Simpler macros may look the same as functions.
@@ -519,24 +542,32 @@ Readerless style is similar:
 Alignment styles can be bent a little in the interest of readability,
 especially for macros, but even for calls,
 as long as the two absolute rules are respected.
-For example, the ``enstr`` function from the bundled `prelude` builds a string from multiple arguments.
-Omitting spaces between atoms and having a variable number per line is acceptable,
+
+For example, this ``enjoin`` function
+
+.. code-block:: Lissp
+
+   (define enjoin en#X#(.join "" (map str X)))
+
+builds a string from multiple arguments.
+
+Omitting spaces between atoms and having a variable number per line is acceptable here,
 because the string's structure is more important for readability than the tuple's.
 
 .. code-block:: Lissp
 
-   (enstr                                 ;Preferred.
+   (enjoin                                ;Preferred.
      "Weather in "location" for "date" will be "weather"
     with a "chance"% of rain.")
 
-   (enstr "Weather in "                   ;OK.
+   (enjoin "Weather in "                  ;OK.
           location
           " for "
           date
           " will be "
           weather
-          " with a
-    "
+          "
+    with a "
           chance
           "% of rain.")
 
@@ -545,10 +576,13 @@ not just the fact that it's a call.
 
 .. code-block:: Lissp
 
+   (enter (wrap 'A)                       ;Stacked context managers.
+    enter (wrap 'B)                       ; enter is from the prelude.
+    enter (wrap 'C)
+    (lambda abc (print a b c)))
+
    (engarde (entuple FloatingPointError ZeroDivisionError)
             truediv 6 0)                  ;(truediv 6 0) is a deferred call, so groups.
-
-   (endict 1 2  3 4  5 6)                 ;Extra space between key-value pairs.
 
    (.update (globals) :                   ;OK. Easier for linewise version control.
      + operator..add
@@ -587,9 +621,11 @@ use a dedent string, which can be safely indented:
    DON'T INTERRUPT
    THE FLOW.
 
+This required an inject ``.#``.
 Don't forget the quote ``'``.
 
-Long multiline strings should be declared at the `top level`_ and referenced by name.
+With the possible exception of docstrings,
+long multiline strings should be declared at the `top level`_ and referenced by name.
 
 .. code-block:: Lissp
 
@@ -617,8 +653,8 @@ Comments
 --------
 
 Headings are in ``Title Case``,
-and begin with four semicolons and a space ``;;;; X``.
-Subheadings begin with three semicolons and a space ``;;; X``.
+and begin with four semicolons and a space ``;;;; Foo Bar``.
+Subheadings begin with three semicolons and a space ``;;; Foo Bar``.
 
 Headings are for the `top level`_ only; they aren't nested in forms;
 they get their own line and start at the beginning of it.
@@ -916,6 +952,10 @@ but don't overdo it.
 Don't put a train of ``)``'s inside the line,
 because then we'd have to count brackets!
 
+(This rule can maybe be bent for one-off one-liners in the REPL
+or shell via ``lissp -c``,
+when legibility is of little concern.)
+
 If the train is trailing at the end of the line,
 then the tree structure is clear from the indents.
 
@@ -923,10 +963,10 @@ then the tree structure is clear from the indents.
 
    (print (/ (sum xs) (len xs)) "on average.") ;Bad. Internal ))'s.
 
-   (print (/ (sum xs) (len xs))           ;OK.
+   (print (/ (sum xs) (len xs))           ;OK. One internal ) though.
           "on average.")
 
-   (print (/ (sum xs)                     ;Preferred.
+   (print (/ (sum xs)                     ;Preferred. )'s end the line.
              (len xs))
           "on average.")
 
