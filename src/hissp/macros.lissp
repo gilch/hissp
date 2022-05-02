@@ -70,9 +70,9 @@ judicious use can improve performance and maintainability.
 (.update (globals) : _macro_ (types..ModuleType (.format "{}._macro_" __name__)))
 (operator..setitem sys..modules _macro_.__name__ _macro_)
 
-;; Yo dawg, I herd you like macros,
-;; so I put a bootstrap defmacro in your _macro_ so you can defmacro a
-;; real defmacro while you define all your macros.
+;; YO DAWG, I HERD YOU LIKE MACROS
+;; SO I PUT A BOOTSTRAP defmacro IN YOUR _macro_ SO YOU CAN defmacro A
+;; REAL defmacro WHILE YOU DEFINE ALL YOUR MACROS!
 
 ;; Simplified bootstrap version assumes ideal conditions to avoid branching.
 (setattr _macro_
