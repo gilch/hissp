@@ -72,7 +72,7 @@ which represent the syntax tree structure.
 
 >>> hissp_program = (
 ...     ('lambda',('name',),
-...      ('print',('quote','Hello',),'name',),)
+...       ('print',('quote','Hello',),'name',),)
 ... )
 
 You can invoke the Hissp compiler directly from Python.
@@ -136,7 +136,7 @@ Let's use it.
 
 >>> readerless(
 ...     ('lambda',('name'),
-...      ('print',q('Hello'),'name',),)
+...       ('print',q('Hello'),'name',),)
 ... )
 "(lambda n,a,m,e:\n  print(\n    'Hello',\n    name))"
 >>> print(_)  # Remember, _ is the last result that wasn't None.
@@ -176,7 +176,7 @@ with the comma this time.
 
 >>> readerless(
 ...     ('lambda',('name',),
-...      ('print',q('Hello'),'name',),)
+...       ('print',q('Hello'),'name',),)
 ... )
 "(lambda name:\n  print(\n    'Hello',\n    name))"
 >>> print(_)
@@ -529,7 +529,7 @@ You can refer to variables defined in any module by using a
    >>> __import__('operator')
    <module 'operator' from '...operator.py'>
 
-   #> (operator..add 40 2) ; Qualified identifiers include their module.
+   #> (operator..add 40 2) ; Fully-qualified identifiers include their module.
    >>> __import__('operator').add(
    ...   (40),
    ...   (2))
@@ -993,8 +993,8 @@ but the Hissp compiler will accept other object types.
 >>> eval(readerless((print,1,2,3,':','sep',':')))
 1:2:3
 
-Tuples represent invocations in Hissp,
-strings are Python code (and imports and control words).
+Tuples represent invocations in Hissp.
+Strings are Python code (and imports and control words).
 Other objects simply represent themselves.
 In fact,
 some of the reader syntax we have already seen creates non-string objects in the Hissp.
@@ -1129,8 +1129,8 @@ so we can see some intermediate values.
 '("{(3, 4): \'shut the door\'}")'
 >>> eval(readerless(_))  # The inject. Innermost reader macro first.
 "{(3, 4): 'shut the door'}"
->>> eval(readerless(_))  # Then the quote.
-{(3, 4): 'shut the door'}
+>>> eval(readerless(q(_)))  # Then the quote.
+"{(3, 4): 'shut the door'}"
 
 With one inject the result was a string object.
 
@@ -1734,14 +1734,13 @@ when the unqualified name was already in use.
 And the qualified identifiers in the expansion will automatically import any required modules.
 
 You can force an import from a particular location by using
-a qualified symbol yourself in the template in the first place.
-Qualified symbols in templates are not qualified again.
+a fully-qualified symbol yourself in the template in the first place.
+Fully-qualified symbols in templates are not qualified again.
 Usually, if you want an unqualified symbol in the template's result,
 it's a sign that you need to use a gensym instead.
 (Gensyms are never qualified.)
 If you don't think it needs to be a gensym,
-that's a sign that the macro could maybe be an ordinary function
-instead.
+that's a sign that the macro could maybe be an ordinary function.
 
 There are a couple of special cases worth pointing out here.
 
@@ -2078,7 +2077,8 @@ Remember our first munging example?
 Notice that the compiled Python is pure ASCII in this case.
 This example couldn't work if the munger didn't normalize symbols,
 because ``setattr()`` would store the Unicode ``𝐀`` in ``spam``'s ``__dict__``,
-but ``spam.𝐀`` would do the same thing as ``spam.A``, and there's no such attribute.
+but ``spam.𝐀`` would do the same thing as ``spam.A``,
+and there would be no such attribute.
 
 .. rubric:: Footnotes
 
