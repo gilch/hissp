@@ -46,6 +46,10 @@ programmatically.
 In Hissp, you write in this parsed form far more directly:
 *Hissp code is AST.*
 
+Some familiarity with Python is assumed for this tutorial.
+If you get confused or stuck,
+see the `discussions page. <https://github.com/gilch/hissp/discussions>`_
+
 Installation
 ============
 
@@ -54,6 +58,11 @@ Hissp requires Python 3.8+ and has no other dependencies.
 Install the Hissp version matching this document with::
 
    $ pip install git+https://github.com/gilch/hissp
+
+These docs are for the latest development version of Hissp.
+Most examples are tested automatically,
+but details may be dated.
+Report issues or try the current release version instead.
 
 Hello World
 ===========

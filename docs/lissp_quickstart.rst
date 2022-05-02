@@ -39,7 +39,7 @@ Lissp Quick Start
    Python and evaluate it. Try variations that occur to you.
 
    Familiarity with another Lisp dialect is not assumed, but helpful. If
-   you get confused or stuck, read the Hissp tutorial.
+   you get confused or stuck, read the easier Hissp tutorial.
 
    Some examples depend on state set by previous examples to work.
    Prerequisites for examples not in the same section are marked with
