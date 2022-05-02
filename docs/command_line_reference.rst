@@ -43,7 +43,7 @@ For example, using `hissp.reader.transpile_file`,
 
 .. code-block:: shell
 
-   $ alias lisspc="lissp -c '(hissp.reader..transpile_file : :* (getitem sys..argv (slice 1 None)))'"
+   $ alias lisspc="lissp -c '(hissp.reader..transpile_file : :* (get#(slice 1 None) sys..argv))'"
    $ lisspc spam.lissp
    $ cd foopackage
    $ lisspc eggs.lissp foopackage
