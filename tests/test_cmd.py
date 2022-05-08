@@ -61,8 +61,10 @@ def test_repl_read_exception():
 
 def test_ic_error():
     out, err = cmd('lissp -i -c "(define answer 42)(truediv 1 0)"', "answer\n")
-    assert "# Traceback (most" in err
-    assert "# ZeroDivisionError: division by zero\n" in err
+    assert "Hissp abort!" in err
+    assert "Traceback (most" in err
+    assert 'File "<Compiled Hissp:\n1' in err
+    assert "ZeroDivisionError: division by zero\n" in err
     assert ">>> answer\n" in err
     assert out.count("#> ") == 2
     assert "42" in out
