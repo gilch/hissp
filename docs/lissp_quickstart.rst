@@ -2298,12 +2298,12 @@ Lissp Quick Start
    ...    'def enter(c,f,/,*a):\n'
    ...    ' with c as C:return f(*a,C)\n'
    ...    "class Ensue(__import__('collections.abc').abc.Generator):\n"
-   ...    ' send=lambda s,v:s.S(v);throw=lambda s,*x:s.T(*x);From=0;Except=()\n'
-   ...    ' def __init__(s,p):s.p,g=p,s._(s);s.S,s.T=g.send,g.throw\n'
+   ...    ' send=lambda s,v:s.g.send(v);throw=lambda s,*x:s.g.throw(*x);F=0;X=();Y=[]\n'
+   ...    ' def __init__(s,p):s.p,s.g,s.n=p,s._(s),s.Y\n'
    ...    ' def _(s,k,v=None):\n'
-   ...    '  while isinstance(s:=k,__class__):\n'
-   ...    '   try:s.value=v;k,y=s.p(s),s.Yield;v=(yield from y)if s.From else(yield y)\n'
-   ...    '   except s.Except as e:v=e\n'
+   ...    "  while isinstance(s:=k,__class__) and not setattr(s,'sent',v):\n"
+   ...    '   try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)\n'
+   ...    '   except s.X as e:v=e\n'
    ...    '  return k\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
    ...    "try:exec('from hissp.macros._macro_ import *',vars(_macro_))\n"
@@ -3020,7 +3020,7 @@ Lissp Quick Start
    #> (define fibonacci
    #..  (lambda (: a 1  b 1)
    #..    (Ensue (lambda (step)
-   #..             (set@ step.Yield a)
+   #..             (set@ step.Y a)        ;Y for yield.
    #..             (fibonacci b (add a b))))))
    >>> # define
    ... __import__('builtins').globals().update(
@@ -3032,7 +3032,7 @@ Lissp Quick Start
    ...                   (lambda _QzNo29_val=a:(
    ...                     __import__('builtins').setattr(
    ...                       step,
-   ...                       'Yield',
+   ...                       'Y',
    ...                       _QzNo29_val),
    ...                     _QzNo29_val)[-1])(),
    ...                   fibonacci(
@@ -3050,58 +3050,58 @@ Lissp Quick Start
 
 
 
-   #> (define nrange                      ;Terminate by not returning an Ensue.
+   #> (define my-range                    ;Terminate by not returning an Ensue.
    #..  (lambda in
    #..    (Ensue (lambda (step)
-   #..             (set@ step.Yield i)
-   #..             (unless (ge i n)
-   #..               (nrange (add i 1) n))))))
+   #..             (when (lt i n)         ;Acts like a while loop.
+   #..               (set@ step.Y i)
+   #..               (my-range (add i 1) n)))))) ;Conditional recursion.
    >>> # define
    ... __import__('builtins').globals().update(
-   ...   nrange=(lambda i,n:
-   ...            Ensue(
-   ...              (lambda step:(
-   ...                # setQzAT_
-   ...                # hissp.macros.._macro_.let
-   ...                (lambda _QzNo29_val=i:(
-   ...                  __import__('builtins').setattr(
-   ...                    step,
-   ...                    'Yield',
-   ...                    _QzNo29_val),
-   ...                  _QzNo29_val)[-1])(),
-   ...                # unless
-   ...                # hissp.macros.._macro_.ifQz_else
-   ...                (lambda test,*thenQz_else:
-   ...                  __import__('operator').getitem(
-   ...                    thenQz_else,
-   ...                    __import__('operator').not_(
-   ...                      test))())(
-   ...                  ge(
-   ...                    i,
-   ...                    n),
-   ...                  (lambda :()),
-   ...                  (lambda :
-   ...                    # hissp.macros.._macro_.progn
-   ...                    (lambda :
-   ...                      nrange(
-   ...                        add(
-   ...                          i,
-   ...                          (1)),
-   ...                        n))())))[-1]))))
+   ...   myQz_range=(lambda i,n:
+   ...                Ensue(
+   ...                  (lambda step:
+   ...                    # when
+   ...                    # hissp.macros.._macro_.ifQz_else
+   ...                    (lambda test,*thenQz_else:
+   ...                      __import__('operator').getitem(
+   ...                        thenQz_else,
+   ...                        __import__('operator').not_(
+   ...                          test))())(
+   ...                      lt(
+   ...                        i,
+   ...                        n),
+   ...                      (lambda :
+   ...                        # hissp.macros.._macro_.progn
+   ...                        (lambda :(
+   ...                          # setQzAT_
+   ...                          # hissp.macros.._macro_.let
+   ...                          (lambda _QzNo33_val=i:(
+   ...                            __import__('builtins').setattr(
+   ...                              step,
+   ...                              'Y',
+   ...                              _QzNo33_val),
+   ...                            _QzNo33_val)[-1])(),
+   ...                          myQz_range(
+   ...                            add(
+   ...                              i,
+   ...                              (1)),
+   ...                            n))[-1])()),
+   ...                      (lambda :()))))))
 
-   #> (list (nrange 1 6))
+   #> (list (my-range 1 6))
    >>> list(
-   ...   nrange(
+   ...   myQz_range(
    ...     (1),
    ...     (6)))
-   [1, 2, 3, 4, 5, 6]
+   [1, 2, 3, 4, 5]
 
 
-   ;; Set From to yield from.
+   ;; Set F to yield From.
    #> (Ensue (lambda (step)
    #..         (attach step :
-   #..           Yield '(1 2 3 4 5)
-   #..           From True)
+   #..           Y '(1 2 3 4 5)
+   #..           F True)
    #..         None))
    >>> Ensue(
    ...   (lambda step:(
@@ -3110,7 +3110,7 @@ Lissp Quick Start
    ...     (lambda _QzNo31_target=step:(
    ...       __import__('builtins').setattr(
    ...         _QzNo31_target,
-   ...         'Yield',
+   ...         'Y',
    ...         ((1),
    ...          (2),
    ...          (3),
@@ -3118,7 +3118,7 @@ Lissp Quick Start
    ...          (5),)),
    ...       __import__('builtins').setattr(
    ...         _QzNo31_target,
-   ...         'From',
+   ...         'F',
    ...         True),
    ...       _QzNo31_target)[-1])(),
    ...     None)[-1]))
@@ -3134,8 +3134,8 @@ Lissp Quick Start
    #..  (lambda (itr)
    #..    (Ensue (lambda (step)
    #..             (attach step :         ;Implicit continuation.
-   #..               Yield itr
-   #..               From 1)))))          ;The step is an Ensue instance.
+   #..               Y itr
+   #..               F 1)))))             ;The step is an Ensue instance.
    >>> # define
    ... __import__('builtins').globals().update(
    ...   recycle=(lambda itr:
@@ -3146,11 +3146,11 @@ Lissp Quick Start
    ...                 (lambda _QzNo31_target=step:(
    ...                   __import__('builtins').setattr(
    ...                     _QzNo31_target,
-   ...                     'Yield',
+   ...                     'Y',
    ...                     itr),
    ...                   __import__('builtins').setattr(
    ...                     _QzNo31_target,
-   ...                     'From',
+   ...                     'F',
    ...                     (1)),
    ...                   _QzNo31_target)[-1])()))))
 
@@ -3171,7 +3171,7 @@ Lissp Quick Start
 
    #> (define echo
    #..  (Ensue (lambda (step)
-   #..           (set@ step.Yield step.value)
+   #..           (set@ step.Y step.sent)
    #..           step)))
    >>> # define
    ... __import__('builtins').globals().update(
@@ -3179,10 +3179,10 @@ Lissp Quick Start
    ...          (lambda step:(
    ...            # setQzAT_
    ...            # hissp.macros.._macro_.let
-   ...            (lambda _QzNo29_val=step.value:(
+   ...            (lambda _QzNo29_val=step.sent:(
    ...              __import__('builtins').setattr(
    ...                step,
-   ...                'Yield',
+   ...                'Y',
    ...                _QzNo29_val),
    ...              _QzNo29_val)[-1])(),
    ...            step)[-1])))
@@ -3204,42 +3204,14 @@ Lissp Quick Start
 
    ;;;; 18 Context Managers
 
-   #> (define ultimate-unyielding-action-ensues ;It's true.
-   #..  (lambda (action)
-   #..    (Ensue (lambda (step)           ;Thus Ensues
-   #..             (action step.value)    ; an action,
-   #..             (attach step : Yield ()  From 1) ; unyielding,
-   #..             None))))               ; ultimately.
-   >>> # define
-   ... __import__('builtins').globals().update(
-   ...   ultimateQz_unyieldingQz_actionQz_ensues=(lambda action:
-   ...                                             Ensue(
-   ...                                               (lambda step:(
-   ...                                                 action(
-   ...                                                   step.value),
-   ...                                                 # attach
-   ...                                                 # hissp.macros.._macro_.let
-   ...                                                 (lambda _QzNo31_target=step:(
-   ...                                                   __import__('builtins').setattr(
-   ...                                                     _QzNo31_target,
-   ...                                                     'Yield',
-   ...                                                     ()),
-   ...                                                   __import__('builtins').setattr(
-   ...                                                     _QzNo31_target,
-   ...                                                     'From',
-   ...                                                     (1)),
-   ...                                                   _QzNo31_target)[-1])(),
-   ...                                                 None)[-1]))))
-
-
    #> (define wrap
    #..  (contextlib..contextmanager
    #..   (lambda (msg)
    #..     (print "enter" msg)
    #..     (Ensue (lambda (step)
-   #..              (set@ step.Yield msg)
-   #..              (ultimate-unyielding-action-ensues
-   #..                (lambda _ (print "exit" msg))))))))
+   #..              (set@ step.Y msg)
+   #..              (Ensue (lambda (step)
+   #..                       (print "exit" msg))))))))
    >>> # define
    ... __import__('builtins').globals().update(
    ...   wrap=__import__('contextlib').contextmanager(
@@ -3251,14 +3223,14 @@ Lissp Quick Start
    ...              (lambda step:(
    ...                # setQzAT_
    ...                # hissp.macros.._macro_.let
-   ...                (lambda _QzNo29_val=msg:(
+   ...                (lambda _QzNo33_val=msg:(
    ...                  __import__('builtins').setattr(
    ...                    step,
-   ...                    'Yield',
-   ...                    _QzNo29_val),
-   ...                  _QzNo29_val)[-1])(),
-   ...                ultimateQz_unyieldingQz_actionQz_ensues(
-   ...                  (lambda _:
+   ...                    'Y',
+   ...                    _QzNo33_val),
+   ...                  _QzNo33_val)[-1])(),
+   ...                Ensue(
+   ...                  (lambda step:
    ...                    print(
    ...                      ('exit'),
    ...                      msg))))[-1])))[-1])))
@@ -3310,11 +3282,10 @@ Lissp Quick Start
    #..   (lambda :
    #..     (Ensue (lambda (step)
    #..              (attach step :
-   #..                Yield None
-   #..                Except ZeroDivisionError)  ;Exception targets can be a tuple.
-   #..              (ultimate-unyielding-action-ensues
-   #..                (lambda (exception)
-   #..                  (print "Caught a" exception))))))))
+   #..                Y None
+   #..                X ZeroDivisionError) ;X for eXcept (can be a tuple).
+   #..              (Ensue (lambda (step)
+   #..                       (print "Caught a" step.sent))))))))
    >>> # define
    ... __import__('builtins').globals().update(
    ...   suppressQz_zde=__import__('contextlib').contextmanager(
@@ -3323,21 +3294,21 @@ Lissp Quick Start
    ...                        (lambda step:(
    ...                          # attach
    ...                          # hissp.macros.._macro_.let
-   ...                          (lambda _QzNo31_target=step:(
+   ...                          (lambda _QzNo35_target=step:(
    ...                            __import__('builtins').setattr(
-   ...                              _QzNo31_target,
-   ...                              'Yield',
+   ...                              _QzNo35_target,
+   ...                              'Y',
    ...                              None),
    ...                            __import__('builtins').setattr(
-   ...                              _QzNo31_target,
-   ...                              'Except',
+   ...                              _QzNo35_target,
+   ...                              'X',
    ...                              ZeroDivisionError),
-   ...                            _QzNo31_target)[-1])(),
-   ...                          ultimateQz_unyieldingQz_actionQz_ensues(
-   ...                            (lambda exception:
+   ...                            _QzNo35_target)[-1])(),
+   ...                          Ensue(
+   ...                            (lambda step:
    ...                              print(
    ...                                ('Caught a'),
-   ...                                exception))))[-1])))))
+   ...                                step.sent))))[-1])))))
 
    #> (enter (suppress-zde)
    #..  (lambda _ (truediv 1 0)))
@@ -3350,7 +3321,7 @@ Lissp Quick Start
    Caught a division by zero
 
    #> (enter (suppress-zde)
-   #..  (lambda _ (truediv 4 2)))
+   #..  (lambda _ (truediv 4 2)))         ;No exception, so step.sent was .send() value.
    >>> enter(
    ...   suppressQz_zde(),
    ...   (lambda _:

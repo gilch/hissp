@@ -233,12 +233,12 @@ And push it to the REPL as well:
    ...    'def enter(c,f,/,*a):\n'
    ...    ' with c as C:return f(*a,C)\n'
    ...    "class Ensue(__import__('collections.abc').abc.Generator):\n"
-   ...    ' send=lambda s,v:s.S(v);throw=lambda s,*x:s.T(*x);From=0;Except=()\n'
-   ...    ' def __init__(s,p):s.p,g=p,s._(s);s.S,s.T=g.send,g.throw\n'
+   ...    ' send=lambda s,v:s.g.send(v);throw=lambda s,*x:s.g.throw(*x);F=0;X=();Y=[]\n'
+   ...    ' def __init__(s,p):s.p,s.g,s.n=p,s._(s),s.Y\n'
    ...    ' def _(s,k,v=None):\n'
-   ...    '  while isinstance(s:=k,__class__):\n'
-   ...    '   try:s.value=v;k,y=s.p(s),s.Yield;v=(yield from y)if s.From else(yield y)\n'
-   ...    '   except s.Except as e:v=e\n'
+   ...    "  while isinstance(s:=k,__class__) and not setattr(s,'sent',v):\n"
+   ...    '   try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)\n'
+   ...    '   except s.X as e:v=e\n'
    ...    '  return k\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
    ...    "try:exec('from hissp.macros._macro_ import *',vars(_macro_))\n"
