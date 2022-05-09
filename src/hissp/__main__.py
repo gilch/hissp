@@ -7,6 +7,7 @@ Hissp's command-line interface.
 import argparse
 import re
 import sys
+import traceback
 
 import hissp.repl
 from hissp import __version__ as ver
@@ -46,6 +47,8 @@ def _interact(code, ns):
     repl.lissp.compiler.evaluate = True
     try:
         repl.lissp.compile(code)
+    except:
+        traceback.print_exc()
     finally:
         repl.lissp.compiler.evaluate = False
         repl.interact()
