@@ -365,12 +365,12 @@ Alignment Styles
 The remaining rules are more a matter of that *practical consistency*.
 Exactly what rules *implement* that consistency matter much less
 than the consistency itself.
-Know the reasons for the rules,
+Know what the rules are for
 so you know when to break them.
-Some differences of opinion are merely taste.
-It's not always black and white,
-but that doesn't mean all shades of gray are the same either.
-Use your best judgement.
+Sometimes differences of opinion come down to taste.
+Use your best judgement;
+it's not always black and white.
+But not all shades of gray are the same either.
 
 Lisp is one of the oldest programming languages in common use.
 It has splintered into many dialects (Lissp among them),
@@ -495,7 +495,7 @@ Your code should look like these examples, recursively applied to subforms:
    (macro special1 special2 special3      ;Macros can have their own alignment rules.
      body1                                ; Simpler macros may look the same as functions.
      body2                                ; Special/body is common. Lambda is also like this.
-     body3)
+     body3)                               ; Body is indented 1 extra space.
 
    (macro special1 body1)
 
@@ -561,15 +561,15 @@ because the string's structure is more important for readability than the tuple'
     with a "chance"% of rain.")
 
    (enjoin "Weather in "                  ;OK.
-          location
-          " for "
-          date
-          " will be "
-          weather
-          "
-    with a "
-          chance
-          "% of rain.")
+           location
+           " for "
+           date
+           " will be "
+           weather
+           "
+     with a "                             ;OK, but would look better with \n.
+           chance
+           "% of rain.")
 
 Exactly where the implied groups are can depend on the function's semantics,
 not just the fact that it's a call.
@@ -581,7 +581,8 @@ not just the fact that it's a call.
     enter (wrap 'C)
     (lambda abc (print a b c)))
 
-   (engarde (entuple FloatingPointError ZeroDivisionError)
+   (engarde `(,FloatingPointError ,ZeroDivisionError) ; engarde from prelude
+            print
             truediv 6 0)                  ;(truediv 6 0) is a deferred call, so groups.
 
    (.update (globals) :                   ;OK. Easier for linewise version control.
@@ -952,9 +953,10 @@ but don't overdo it.
 Don't put a train of ``)``'s inside the line,
 because then we'd have to count brackets!
 
-(This rule can maybe be bent for one-off one-liners in the REPL
+(This rule can perhaps be broken for one-off one-liners in the REPL
 or shell via ``lissp -c``,
-when legibility is of little concern.)
+when legibility is of little concern
+and extra lines would be more awkward than bracket counting.)
 
 If the train is trailing at the end of the line,
 then the tree structure is clear from the indents.
@@ -1002,16 +1004,16 @@ even in an implied group.
              (gt (len xs) (len ys))
              (print ">"))))
 
-   (define compare                        ;OK, but the blank lines smell.
+   (define compare                        ;OK, but the empty lines smell.
      (lambda (xs ys)
        (cond (eq (len xs)
                  (len ys))
              (print "0")
-
+             ;;
              (lt (len xs)
                  (len ys))
              (print "<")
-
+             ;;
              (gt (len xs)
                  (len ys))
              (print ">"))))
