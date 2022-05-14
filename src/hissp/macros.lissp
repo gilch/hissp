@@ -15,8 +15,8 @@ You can abbreviate qualifiers with the `alias` macro:
 
 .. code-block:: Lissp
 
-  (hissp.macros.._macro_.alias b/ hissp.macros.._macro_.)
-  ;; Now the same as (hissp.macros.._macro_.define foo 2).
+  (hissp.._macro_.alias b/ hissp.._macro_.)
+  ;; Now the same as (hissp.._macro_.define foo 2).
   (b/#define foo 2)
 
 The bundled macros are deliberately restricted in design.
@@ -30,8 +30,8 @@ compiled code does not require Hissp to be installed to work.
 They also have no prerequisite initialization, beyond what is available
 in a standard Python module. For example, a ``_macro_`` namespace need
 not be available for ``defmacro``. It's smart enough to check for the
-presence of ``_macro_`` in its expansion context, and inline the
-initialization code when required.
+presence of ``_macro_`` (at compile time) in its expansion context, and
+inline the initialization code when required.
 
 With the exception of `prelude` (which uses `exec`), they also eschew
 any expansions to Python code, relying only on the built-in special
