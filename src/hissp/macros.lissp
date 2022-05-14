@@ -15,8 +15,8 @@ You can abbreviate qualifiers with the `alias` macro:
 
 .. code-block:: Lissp
 
-  (hissp.macros.._macro_.alias b/ hissp.macros.._macro_.)
-  ;; Now the same as (hissp.macros.._macro_.define foo 2).
+  (hissp.._macro_.alias b/ hissp.._macro_.)
+  ;; Now the same as (hissp.._macro_.define foo 2).
   (b/#define foo 2)
 
 The bundled macros are deliberately restricted in design.
@@ -30,8 +30,8 @@ compiled code does not require Hissp to be installed to work.
 They also have no prerequisite initialization, beyond what is available
 in a standard Python module. For example, a ``_macro_`` namespace need
 not be available for ``defmacro``. It's smart enough to check for the
-presence of ``_macro_`` in its expansion context, and inline the
-initialization code when required.
+presence of ``_macro_`` (at compile time) in its expansion context, and
+inline the initialization code when required.
 
 With the exception of `prelude` (which uses `exec`), they also eschew
 any expansions to Python code, relying only on the built-in special
@@ -70,9 +70,9 @@ judicious use can improve performance and maintainability.
 (.update (globals) : _macro_ (types..ModuleType (.format "{}._macro_" __name__)))
 (operator..setitem sys..modules _macro_.__name__ _macro_)
 
-;; Yo dawg, I herd you like macros,
-;; so I put a bootstrap defmacro in your _macro_ so you can defmacro a
-;; real defmacro while you define all your macros.
+;; YO DAWG, I HERD YOU LIKE MACROS
+;; SO I PUT A BOOTSTRAP defmacro IN YOUR _macro_ SO YOU CAN defmacro A
+;; REAL defmacro WHILE YOU DEFINE ALL YOUR MACROS!
 
 ;; Simplified bootstrap version assumes ideal conditions to avoid branching.
 (setattr _macro_
@@ -83,7 +83,7 @@ judicious use can improve performance and maintainability.
                (setattr $#G ','__qualname__ (.join "." '(,'_macro_ ,name)))
                (setattr _macro_ ',name $#G)))))
 
-(defmacro if-else (test then otherwise)
+(defmacro if-else (test consequent alternate)
   "``if-else`` Basic ternary branching construct.
 
   Like Python's conditional expressions, the 'else' clause is required.
@@ -91,8 +91,8 @@ judicious use can improve performance and maintainability.
   `((lambda (,'test : :* ,'then-else)
       ((operator..getitem ,'then-else (operator..not_ ,'test))))
     ,test
-    (lambda : ,then)
-    (lambda : ,otherwise)))
+    (lambda : ,consequent)
+    (lambda : ,alternate)))
 
 (defmacro progn (: :* body)
   "Evaluates each body expression in sequence (for side effects),
@@ -205,10 +205,15 @@ _#<<#
             ,value))
 
 (defmacro defonce (name value)
+  "Assigns a global the value in the current module, unless it exists."
   `(unless (operator..contains (globals) ',name)
      (define ,name ,value)))
 
 (defmacro deftype@ (decorators name bases : :* body)
+  "``deftype@`` Defines a decorated type (class) in the current module.
+
+  Key-value pairs are implied in the body.
+  "
   `(define ,name
      (-> (type ',name (,hissp.reader..ENTUPLE ,@bases)
                (dict : ,@body))
@@ -232,6 +237,7 @@ _#<<#
     : :* ,itr))
 
 (defmacro let*from (pairs : :* body)
+  "``let*from`` Nested `let-from<letQz_from>`."
   (if-else pairs
     `(let-from ,(operator..getitem pairs 0)
                ,(operator..getitem pairs 1)
@@ -297,17 +303,25 @@ _#<<#
         $#prime : :* $#args)
        (.format "{}.{}" ',module $#prime))))
 
-(alias op operator.)
 (alias i itertools.)
+(alias op operator.)
 
 (defmacro chain\# (itr)
   "``chain#`` Abbreviation for `itertools.chain.from_iterable`"
   `(i#chain.from_iterable ,itr))
 
+(defmacro @\# (symbol)
+  "``@#`` 'attrgetter-' Makes an attr getter function from the symbol."
+  `(op#attrgetter ',symbol))
+
+(defmacro get\# e
+  "``get#`` 'itemgetter-' Makes an item getter function from e."
+  `(op#itemgetter ,e))
+
 ;;; configuration
 
 (defmacro set! (coll key val)
-  "``set!`` Assigns an item, returns the value.
+  "``set!`` 'setbang' Assigns an item, returns the value.
   Mnemonic: set !tem.
   "
   `(let ($#val ,val)
@@ -315,13 +329,18 @@ _#<<#
      $#val))
 
 (defmacro zap! (op coll key : :* args)
+  "``zap!`` 'zapbang' Augmented item assignment operator.
+
+  The current item value becomes the first argument.
+  Mnemonic: zap !tem.
+  "
   `(let ($#coll ,coll
          $#key ,key)
      (set! $#coll $#key (,op (op#getitem $#coll $#key)
                              ,@args))))
 
 (defmacro set@ (name val)
-  "``set@`` Assigns an attribute, returns the value.
+  "``set@`` 'setat' Assigns an attribute, returns the value.
   Mnemonic: set @tribute.
   "
   (let-from (ns _ attr) (.rpartition name ".")
@@ -330,6 +349,11 @@ _#<<#
        $#val)))
 
 (defmacro zap@ (op name : :* args)
+  "``zap@`` 'zapat' Augmented attribute assignment operator.
+
+  The current attribute value becomes the first argument.
+  Mnemonic: zap @tribute.
+  "
   `(set@ ,name (,op ,name ,@args)))
 
 (defmacro attach (target : :* args)
@@ -359,9 +383,9 @@ _#<<#
   "
   (let ($self `$#self)
     `((lambda (: ,$self ,self)
-        ,@(map X#`(,(op#getitem X 0)
+        ,@(map X#`(,(get#0 X)
                    ,$self
-                   ,@(op#getitem X (slice 1 None)))
+                   ,@(get#(slice 1 None) X))
                invocations)
         ,$self))))
 
@@ -376,11 +400,10 @@ _#<<#
   Makes chained method calls easier to read.
   "
   (if-else forms
-    `(-> (,(op#getitem (op#getitem forms 0) 0)
+    `(-> (,(get#0 (get#0 forms))
           ,expr
-          ,@(op#getitem (op#getitem forms 0)
-                        (slice 1 None)))
-         ,@(op#getitem forms (slice 1 None)))
+          ,@(get#(slice 1 None) (get#0 forms)))
+         ,@(get#(slice 1 None) forms))
     expr))
 
 (defmacro ->> (expr : :* forms)
@@ -394,8 +417,8 @@ _#<<#
   E.g. ``(-> x (A a) (->> B b) (C c))`` is ``(C (B b (A x a)) c)``.
   "
   (if-else forms
-    `(->> (,@(op#getitem forms 0) ,expr)
-          ,@(op#getitem forms (slice 1 None)))
+    `(->> (,@(get#0 forms) ,expr)
+          ,@(get#(slice 1 None) forms))
     expr))
 
 ;; TODO: implement other arrange macros?
@@ -410,23 +433,25 @@ _#<<#
 ;; see also from advanced: case
 
 (defmacro cond (: :* pairs)
-  #"Multiple condition branching.
-
-  Pairs are implied. Default is ``()``. Use ``:else`` to change it.
-  For example::
-
-   (cond) ; ()
-   ;; Assume some number 'x
-   (cond (op#gt x 0) (print \"positive\")
-         (op#lt x 0) (print \"negative\")
-         (op#eq x 0) (print \"zero\")
-         :else (print \"not a number\"))
-  "
+  <<#
+  !;Multiple condition branching.
+  !;
+  !;Pairs are implied. Default is ``()``. Use ``:else`` to change it.
+  !;For example::
+  !;
+  !; (cond) ; ()
+  !; ;; Assume some number 'x
+  !; (cond (op#gt x 0) (print "positive")
+  !;       (op#lt x 0) (print "negative")
+  !;       (op#eq x 0) (print "zero")
+  !;       :else (print "not a number"))
+  !;
+  #"\n"
   (when pairs
-    `(if-else ,(op#getitem pairs 0)
-              ,(op#getitem pairs 1)
+    `(if-else ,(get#0 pairs)
+              ,(get#1 pairs)
               ;; Here's the recursive part.
-              (cond ,@(op#getitem pairs (slice 2 None))))))
+              (cond ,@(get#(slice 2 None) pairs)))))
 
 (defmacro any-map (variable xs : :* body)
   "``any-map``
@@ -439,7 +464,7 @@ _#<<#
              ,xs)))
 
 (defmacro any*map (variables xss : :* body)
-  "``any*map`` 'any star-for'
+  "``any*map`` 'any star map'
   Bind each x to a variable and evaluate the body for each xs from xss
   until any result is true (and return ``True``), or until xss is
   exhausted (and return ``False``).
@@ -464,7 +489,7 @@ _#<<#
        (any*map ,syms (iter $#stack.pop None)
          (op#setitem $#stack 0 (progn ,@body))
          None)
-       (op#getitem $#stack 0))))
+       (get#0 $#stack))))
 
 ;; I would have named this 'and, but that's a reserved word.
 (defmacro && (: :* exprs)
@@ -473,10 +498,10 @@ _#<<#
   There is an implicit initial value of ``True``.
   "
   (cond (op#not_ exprs) True
-        (op#eq (len exprs) 1) (op#getitem exprs 0)
-        :else `(let ($#G ,(op#getitem exprs 0))
+        (op#eq (len exprs) 1) (get#0 exprs)
+        :else `(let ($#G ,(get#0 exprs))
                  (if-else $#G
-                          (&& ,@(op#getitem exprs (slice 1 None)))
+                          (&& ,@(get#(slice 1 None) exprs))
                           $#G))))
 
 (defmacro || (: first () :* rest)
@@ -521,7 +546,8 @@ _#<<#
 
 (defmacro prog1 (expr1 : :* body)
   "Evaluates each expression in sequence (for side effects),
-  resulting in the value of the first."
+  resulting in the value of the first.
+  "
   `(let ($#value1 ,expr1)
      ,@body
      $#value1))
@@ -595,7 +621,7 @@ _#<<#
   "``#`` 'set of'
 
   ``:*`` unpacks the next argument.
-  Mnemonic: Hash set.
+  Mnemonic: Hash (#) set.
   "
   (let (ixs (iter xs))
     `(en#set : ,@chain#(map X#(if-else (op#eq X ":*")
@@ -630,8 +656,13 @@ _#<<#
 
   Imports `functools.partial` and `functools.reduce`.
   Star imports from `itertools` and `operator`.
+
   Defines ``engarde``, which calls a function for you, handling any
   targeted exceptions with the given handler.
+
+  Defines ``enter``, which calls a function with a context manager.
+
+  Defines ``Ensue`` for trampolined continuation generators.
 
   Adds the bundled macros, but only if available,
   so its expansion does not require Hissp to be installed.
@@ -657,12 +688,12 @@ def engarde(xs,h,f,/,*a,**kw):
 def enter(c,f,/,*a):
  with c as C:return f(*a,C)
 class Ensue(__import__('collections.abc').abc.Generator):
- send=lambda s,v:s.S(v);throw=lambda s,*x:s.T(*x);From=0;Except=()
- def __init__(s,p):s.p,g=p,s._(s);s.S,s.T=g.send,g.throw
+ send=lambda s,v:s.g.send(v);throw=lambda s,*x:s.g.throw(*x);F=0;X=();Y=[]
+ def __init__(s,p):s.p,s.g,s.n=p,s._(s),s.Y
  def _(s,k,v=None):
-  while isinstance(s:=k,__class__):
-   try:s.value=v;k,y=s.p(s),s.Yield;v=(yield from y)if s.From else(yield y)
-   except s.Except as e:v=e
+  while isinstance(s:=k,__class__) and not setattr(s,'sent',v):
+   try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)
+   except s.X as e:v=e
   return k
 _macro_=__import__('types').SimpleNamespace()
 try:exec('from {}._macro_ import *',vars(_macro_))
@@ -675,17 +706,21 @@ except ModuleNotFoundError:pass"
 ;;; advanced
 
 (defmacro case (key default : :* pairs)
-  (when pairs
-    (when (op#mod (len pairs) 2)
-      (throw (TypeError "Incomplete pair")))
-    (let (kss (op#getitem pairs (slice None None 2))
-          ts (op#getitem pairs (slice 1 None 2)))
-      `((op#getitem (@ ,@(map X#`&#,X ts) &#,default)
-                    (.get (en#dict ,@chain#(i#starmap (lambda (i ks)
-                                                        (map X#`(@ ,X ,i) ks))
-                                                      (enumerate kss)))
-                          ,key
-                          -1))))))
+  "Switch case macro.
+  Must switch on a hashable key.
+  The default case is first and required.
+  The remainder are implicitly paired.
+  "
+  (when (op#mod (len pairs) 2)
+    (throw (TypeError "Incomplete pair")))
+  (let (kss (get#(slice -2 None -2) pairs)
+        ts (get#(slice None None -2) pairs))
+    `((op#getitem (@ ,@(map X#`&#,X ts) &#,default)
+                  (.get ,(dict chain#(i#starmap (lambda (i ks)
+                                                  (map X#(@ X i) ks))
+                                                (enumerate kss)))
+                        ,key
+                        -1)))))
 
 (defmacro _spy e
   `(let ($#e ,e)
@@ -705,10 +740,17 @@ except ModuleNotFoundError:pass"
                          "ms")
        $#val)))
 
-(define _sentinel (object))
-(defmacro ensure (b : msg _sentinel)
+(defmacro ensure (e predicate : :* args)
+  "Anaphoric. Raises AssertionError unless (-> e predicate).
+
+  Additional arguments are evaluated in a context where ``it`` refers
+  to the result of e. These (if any) are passed to the AssertionError.
+
+  Compilation is simply the it when __debug__ is off.
+  "
   (if-else __debug__
-    `(unless ,b
-       (throw (AssertionError ,@(unless (op#is_ msg _sentinel)
-                                  (@ msg)))))
-    ""))
+    `(let (,'it ,e)
+       (unless (-> ,'it ,predicate)
+         (throw (AssertionError ,@args)))
+       ,'it)
+    e))

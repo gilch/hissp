@@ -233,12 +233,12 @@ And push it to the REPL as well:
    ...    'def enter(c,f,/,*a):\n'
    ...    ' with c as C:return f(*a,C)\n'
    ...    "class Ensue(__import__('collections.abc').abc.Generator):\n"
-   ...    ' send=lambda s,v:s.S(v);throw=lambda s,*x:s.T(*x);From=0;Except=()\n'
-   ...    ' def __init__(s,p):s.p,g=p,s._(s);s.S,s.T=g.send,g.throw\n'
+   ...    ' send=lambda s,v:s.g.send(v);throw=lambda s,*x:s.g.throw(*x);F=0;X=();Y=[]\n'
+   ...    ' def __init__(s,p):s.p,s.g,s.n=p,s._(s),s.Y\n'
    ...    ' def _(s,k,v=None):\n'
-   ...    '  while isinstance(s:=k,__class__):\n'
-   ...    '   try:s.value=v;k,y=s.p(s),s.Yield;v=(yield from y)if s.From else(yield y)\n'
-   ...    '   except s.Except as e:v=e\n'
+   ...    "  while isinstance(s:=k,__class__) and not setattr(s,'sent',v):\n"
+   ...    '   try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)\n'
+   ...    '   except s.X as e:v=e\n'
    ...    '  return k\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
    ...    "try:exec('from hissp.macros._macro_ import *',vars(_macro_))\n"
@@ -2842,6 +2842,373 @@ but a string is not the only alternative available:
 
 With a control word like this,
 you get full precision and don't need a trailing double quote.
+
+A Slice of Python
+-----------------
+
+Python has a powerful and compact notation for operating on *slices* of sequences.
+
+.. code-block:: Python
+
+   >>> "abcdefg"[-1::-2]
+   'geca'
+
+It has three arguments: *start*, *stop*, and *step*.
+Each one is optional, and defaults to ``None``.
+
+However, this notation is only valid in the context of a subscription operator ``[]``.
+It is possible to separate the operands using the `slice` builtin,
+but it comes at a cost.
+
+.. code-block:: Python
+
+   >>> a = "abcdefg"
+   >>> b = slice(-1, None, -2)
+   >>> a[b]
+   'geca'
+
+We can see that the slice notation is much more compact than this approach.
+
+Even without macros,
+Hissp can slice this way.
+
+.. code-block:: REPL
+
+   #> (operator..getitem "abcdefg" (slice -1 None -2))
+   >>> __import__('operator').getitem(
+   ...   ('abcdefg'),
+   ...   slice(
+   ...     (-1),
+   ...     None,
+   ...     (-2)))
+   'geca'
+
+This is so much longer that one would be tempted to inject the Python version.
+Unfortunately, the rest of the expression is often easier to write in Lissp.
+You can usually work around this by using
+`let` to give an easily-injectable name to a complex operand,
+but that adds as much overhead as `slice` would.
+
+We need a better abstraction.
+
+Typically, in a Python function call, optional arguments would be skipped,
+and the remainder passed by keyword.
+
+.. code-block:: Python
+
+   slice(-1, None, -2)
+   slice(-1, step=-2)  # This doesn't work, but a new def could do it!
+
+The `slice` builtin doesn't support this, and, as you can see,
+it wouldn't help much anyway,
+saving only one character (or perhaps a few more with shorter names).
+
+In the more compact slice notation,
+the omitted *stop* argument is implied by the colons,
+and the final argument is still passed positionally,
+without the overhead of an explicit name.
+
+.. code-block:: Python
+
+   foo[-1::-2]
+
+Doubling commas to imply omission like this would be a syntax error in Python.
+
+.. code-block:: Python
+
+   slice(-1,,-2)
+
+It's not an option for Lissp either, even with macros,
+because arguments are separated with whitespace.
+We could add delimiters, but they'd need spaces around them as well.
+
+Slice Notation as Object
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Slice notation really is hard to beat here, even in Python.
+It would be nice if we could take just that part of it,
+but it only works in the operator context.
+Python does have a way to convert it: the `__getitem__ <object.__getitem__>` method.
+
+(More bundled macros incoming.
+Search Hissp's docs if you can't figure out what they do.)
+
+.. code-block:: REPL
+
+   #> (define slicer ((type 'Slicer () (% '__getitem__ XY#Y))))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   slicer=type(
+   ...            'Slicer',
+   ...            (),
+   ...            # QzPCENT_
+   ...            (lambda *_QzNo55_xs:
+   ...              __import__('builtins').dict(
+   ...                _QzNo55_xs))(
+   ...              (lambda * _: _)(
+   ...                '__getitem__',
+   ...                (lambda X,Y:Y))))())
+
+   #> .#"slicer[-1::-2]"
+   >>> slicer[-1::-2]
+   slice(-1, None, -2)
+
+   #> (getitem "abcdefg" .#"slicer[-1::-2]")
+   >>> getitem(
+   ...   ('abcdefg'),
+   ...   slicer[-1::-2])
+   'geca'
+
+Getting better, but not actually shorter yet.
+
+.. code-block:: Text
+
+   slice(-1, None, -2)
+   slice(-1, step=-2)
+   .#"slicer[-1::-2]"
+
+With shorter names, we see there's a ways to go yet.
+
+.. code-block:: Text
+
+   S(-1,N,-2)  # S, N = slice, None
+   S(-1,c=-2)  # S = lambda a=None, b=None, c=None: slice(a, b, c)
+   .#"S[-1::-2]" ; (define S slicer)
+
+Time for Macros
+~~~~~~~~~~~~~~~
+
+We can remove the `getitem <operator.getitem>` overhead by using the bundled
+`get# <getQzHASH_>` macro to make an `itemgetter <operator.itemgetter>`.
+
+.. code-block:: REPL
+
+   #> (get#.#"slicer[-1::-2]" "abcdefg")
+   >>> __import__('operator').itemgetter(
+   ...   slicer[-1::-2])(
+   ...   ('abcdefg'))
+   'geca'
+
+Notice we have two reader macros in a row now:
+`get# <getQzHASH_>` and ``.#``.
+We could consolidate these with a single reader macro.
+Macros can expand to any Python object at the Hissp level, including code strings.
+The ``slicer`` part never changes,
+so we could include that in the expansion.
+And, as we learned earlier, we can often `demunge` a symbol instead of using a string,
+although you have to be careful.
+
+.. Lissp::
+
+   #> (defmacro S\# e
+   #..  `(op#itemgetter ,(.format "slicer{}" (hissp..demunge e))))
+   >>> # defmacro
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo7_fn=(lambda e:
+   ...   (lambda * _: _)(
+   ...     'operator..itemgetter',
+   ...     ('slicer{}').format(
+   ...       __import__('hissp').demunge(
+   ...         e)))):(
+   ...   __import__('builtins').setattr(
+   ...     _QzNo7_fn,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'SQzHASH_',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'SQzHASH_',
+   ...     _QzNo7_fn))[-1])()
+
+.. code-block:: REPL
+
+   #> (S#[-1::-2] "abcdefg")
+   >>> __import__('operator').itemgetter(
+   ...   slicer[-1::-2])(
+   ...   ('abcdefg'))
+   'geca'
+
+Compare.
+
+.. code-block:: Text
+
+   (operator..getitem "abcdefg" (slice -1 None -2)) ; No macros.
+   (S#[-1::-2] "abcdefg") ; Slice-getter literal.
+   "abcdefg"[-1::-2]  # Python slice notation.
+
+We have made a lot of progress. This is pretty good. Python is better.
+There's still room for improvement. Check this out.
+
+.. code-block:: REPL
+
+   #> '[ ; This is a symbol too!
+   >>> 'QzLSQB_'
+   'QzLSQB_'
+
+Lissp doesn't care, but Parinfer likes to keep ``[]`` and ``{}`` balanced.
+They're literal notation in Clojure, and sometimes used paired in other Lisps.
+Currently, best practice is to keep them balanced, even in symbols,
+But they're OK individually if you escape them.
+
+Also, the reader macro is a bit sloppy.
+Best practice is to surround string injections with ``()``.
+Sometimes it matters, and macros don't know their expansion context.
+
+.. code-block:: REPL
+
+   #> (.bit_length .#"7")
+   >>> 7.bit_length()
+   Traceback (most recent call last):
+     ...
+   SyntaxError: invalid syntax
+
+   #> (.bit_length .#"(7)")
+   >>> (7).bit_length()
+   3
+
+And ``slicer`` is only valid where that's a global and hasn't been shadowed by a local.
+This means the macro wouldn't work in another module,
+and might subtly break if someone uses the wrong word.
+Normally templates qualify symbols to avoid these problems,
+but since the ``slicer`` identifier was part of the string,
+that never had a chance to happen.
+
+You usually want to run Hissp objects through
+`readerless` before embedding them in a code string.
+This lets the compiler do the conversion to Python.
+When run in a macro, the compiler will use the appropriate namespace:
+its expansion context, not (necessarily) its definition context.
+
+.. code-block:: REPL
+
+   #> `slicer ; qualified
+   >>> '__main__..slicer'
+   '__main__..slicer'
+
+   #> (hissp..readerless `slicer) ; Qualified and compiled to code string.
+   >>> __import__('hissp').readerless(
+   ...   '__main__..slicer')
+   "__import__('builtins').globals()['slicer']"
+
+Notice that even though the symbol was a string already,
+compiling did some extra processing in this context.
+
+Putting that all together we get
+
+.. Lissp::
+
+   #> (defmacro \[\# e
+   #..  `(op#itemgetter ,(.format "({}[{})" (hissp..readerless `slicer)
+   #..                                      (hissp..demunge e))))
+   >>> # defmacro
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo7_fn=(lambda e:
+   ...   (lambda * _: _)(
+   ...     'operator..itemgetter',
+   ...     ('({}[{})').format(
+   ...       __import__('hissp').readerless(
+   ...         '__main__..slicer'),
+   ...       __import__('hissp').demunge(
+   ...         e)))):(
+   ...   __import__('builtins').setattr(
+   ...     _QzNo7_fn,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'QzLSQB_QzHASH_',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'QzLSQB_QzHASH_',
+   ...     _QzNo7_fn))[-1])()
+
+Notice that this requires the ``]`` in the symbol it's applied to.
+This keeps it balanced. It also pretty well ensures the argument is a symbol
+or at least a keyword.
+
+Now look at what we can do.
+
+.. code-block:: REPL
+
+   #> ([#-1::-2]"abcdefg")
+   >>> __import__('operator').itemgetter(
+   ...   (__import__('builtins').globals()['slicer'][-1::-2]))(
+   ...   ('abcdefg'))
+   'geca'
+
+   #> ([#3]"abcdefg") ; Not restricted to slices.
+   >>> __import__('operator').itemgetter(
+   ...   (__import__('builtins').globals()['slicer'][3]))(
+   ...   ('abcdefg'))
+   'd'
+
+   #> (-> (@ "abc") ([#0]) ([#::-1]))
+   >>> # Qz_QzGT_
+   ... # hissp.macros..QzMaybe_.Qz_QzGT_
+   ... # hissp.macros..QzMaybe_.Qz_QzGT_
+   ... __import__('operator').itemgetter(
+   ...   (__import__('builtins').globals()['slicer'][::-1]))(
+   ...   __import__('operator').itemgetter(
+   ...     (__import__('builtins').globals()['slicer'][0]))(
+   ...     # QzAT_
+   ...     (lambda *_QzNo55_xs:
+   ...       __import__('builtins').list(
+   ...         _QzNo55_xs))(
+   ...       ('abc'))))
+   'cba'
+
+Amazing. Not quite as concise as Python, but really close.
+To within a few characters.
+
+.. code-block:: Text
+
+   ([#-1::-2]"abcdefg")
+   "abcdefg"[-1::-2]
+
+But our version is more powerful.
+It's a function object even when detached from the lookup context.
+And as a macro we programmed ourselves, it's entirely customizable.
+It is possible to do a little better with ``!`` by eliminating the ``()`` and ``[]``.
+That gets us to within one character, but it's probably not worth it.
+This is good enough.
+
+Let's review. This section covered a number of advanced techniques.
+Brackets in symbols. A code string macro leveraging partial Python syntax.
+The need for parentheses in injections.
+Demunging.
+Calls to runtime helpers, even in other modules.
+Qualifying symbols with template quote.
+Compiling in macros using `readerless`.
+
+This macro produced a code injection.
+We already talked about why you should be reluctant to use those.
+This one is probably worth it.
+Python's slice notation is that good.
+The alternative was injecting both operands,
+or using a far more verbose notation.
+This macro lets us use a concise notation from Python while injecting a minimal amount.
+
+But what if we had nested a ``[#`` usage inside our ``X#`` function literal?
+This would usually not be a problem since the slice arguments are numeric literals.
+But what if one of the slice arguments was ``X``?
+That's still valid Python.
+Normally, that would work in an injection.
+But if that's the only ``X``, ``X#`` won't be able to find it.
+Injections are somewhat opaque. Sometimes this is OK.
+
+The ``[#`` macro works best on simple literal arguments,
+and works OK on local variables and their attributes:
+the kind of things you wouldn't bother putting spaces around in Python.
+These cases are very common.
+
+For more complex expressions, it's probably a bad idea.
+You lose out on munging, module handles, and any macros.
+For those cases, the extra overhead for using `slice` is hardly noticable.
+Use the right tool for the job.
 
 .. TODO: fractions
    (defmacro F\# (x)

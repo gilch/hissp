@@ -21,16 +21,16 @@ Lissp Quick Start
 
 .. Lissp::
 
-   ;;;; Lissp Quick Start
+   ;;;; 1 Lissp Quick Start
 
    "Lissp is a lightweight text language representing the Hissp
    intermediate language. The Lissp reader parses the Lissp language's
    symbolic expressions as Python objects. The Hissp compiler
    then translates these syntax trees to Python expressions.
 
-   This document is written like a .lissp file, demonstrating Lissp's (and
-   thereby Hissp's) features with minimal exposition. This element
-   enclosed in double quotes is a docstring for the module.
+   This document is written like a .lissp file, thoroughly demonstrating
+   Lissp's (and thereby Hissp's) features with minimal exposition. This
+   element enclosed in double quotes is a docstring for the module.
 
    To fully understand these examples, you must see their Python
    compilation and output. Some familiarity with Python is assumed.
@@ -39,32 +39,33 @@ Lissp Quick Start
    Python and evaluate it. Try variations that occur to you.
 
    Familiarity with another Lisp dialect is not assumed, but helpful. If
-   you get confused or stuck, read the Hissp tutorial.
+   you get confused or stuck, read the easier Hissp tutorial.
 
    Some examples depend on state set by previous examples to work.
    Prerequisites for examples not in the same section are marked with
    '/!\'. Don't skip these! Re-enter them if you start a new session.
    "
 
-   ;;;; Installation
+   ;;;; 2 Installation
 
    ;; These docs are for the latest development version of Hissp.
-   ;; Most examples are tested automatically, but details may be dated.
-   ;; Report issues or try the current release version instead.
    ;; Install the latest Hissp version with
    ;; $ pip install git+https://github.com/gilch/hissp
    ;; Start the REPL with
    ;; $ lissp
    ;; You can quit with EOF or (exit).
 
-   ;;;; Simple Atoms
+   ;; Most examples are tested automatically, but details may be dated.
+   ;; Report issues or try the current release version instead.
+
+   ;;;; 3 Simple Atoms
 
    ;; To a first approximation, the Hissp intermediate language is made
    ;; of Python tuples representing syntax trees. The nodes are tuples
    ;; and we call the leaves "atoms". Simple atoms in Lissp are written
    ;; the same way as Python.
 
-   ;;; Singleton
+   ;;; 3.1 Singleton
 
    #> None
    >>> None
@@ -74,7 +75,7 @@ Lissp Quick Start
    Ellipsis
 
 
-   ;;; Boolean
+   ;;; 3.2 Boolean
 
    #> False                               ;False == 0
    >>> False
@@ -85,7 +86,7 @@ Lissp Quick Start
    True
 
 
-   ;;; Integer
+   ;;; 3.3 Integer
 
    #> 42
    >>> (42)
@@ -116,7 +117,7 @@ Lissp Quick Start
    3840
 
 
-   ;;; Floating-Point
+   ;;; 3.4 Floating-Point
 
    #> 3.
    >>> (3.0)
@@ -135,7 +136,7 @@ Lissp Quick Start
    -0.016
 
 
-   ;;; Complex
+   ;;; 3.5 Complex
 
    #> 5j                                  ;imaginary
    >>> (5j)
@@ -150,7 +151,7 @@ Lissp Quick Start
    (-1.234e-55-7.898e-75j)
 
 
-   ;;;; Simple Tuples
+   ;;;; 4 Simple Tuples
 
    ;; Tuples group any atoms with (). Data tuples start with '.
    #> '(None 2 3)
@@ -166,9 +167,9 @@ Lissp Quick Start
    (True, False)
 
 
-   ;;;; Symbolic Atoms
+   ;;;; 5 Symbolic Atoms
 
-   ;;; Identifiers
+   ;;; 5.1 Identifiers
 
    #> object                              ;Python identifiers work in Lissp.
    >>> object
@@ -183,17 +184,17 @@ Lissp Quick Start
    'type'
 
 
-   ;;; Imports
+   ;;; 5.2 Imports
 
-   #> math.                               ;Module literals import!
+   #> math.                               ;Module handles import!
    >>> __import__('math')
    <module 'math' ...>
 
-   #> math..tau                           ;Qualified identifier. Attribute of a module.
+   #> math..tau                           ;Fully-qualified identifier. (Module attribute.)
    >>> __import__('math').tau
    6.283185307179586
 
-   #> collections.abc.                    ;Submodule literal. Has package name.
+   #> collections.abc.                    ;Submodule handle. Has package name.
    >>> __import__('collections.abc',fromlist='?')
    <module 'collections.abc' from '...abc.py'>
 
@@ -207,7 +208,7 @@ Lissp Quick Start
    'ABCMeta'
 
 
-   ;;;; Simple Forms and Calls
+   ;;;; 6 Simple Forms and Calls
 
    ;; "Forms" are any data structures that can be evaluated as a Hissp program.
    ;; Simple atoms are forms. They simply evaluate to an equivalent object.
@@ -276,7 +277,21 @@ Lissp Quick Start
    b'bytes'
 
 
-   ;;;; String Atoms
+   #> (help sum)                          ;Python's online help function still works.
+   >>> help(
+   ...   sum)
+   Help on built-in function sum in module builtins:
+   <BLANKLINE>
+   sum(iterable, /, start=0)
+       Return the sum of a 'start' value (default: 0) plus an iterable of numbers
+   <BLANKLINE>
+       When the iterable is empty, return the start value.
+       This function is intended specifically for use with numeric values and may
+       reject non-numeric types.
+   <BLANKLINE>
+
+
+   ;;;; 7 String Atoms
 
    #> :control-word                       ;Colon prefix. Similar to Lisp ":keywords".
    >>> ':control-word'
@@ -287,7 +302,7 @@ Lissp Quick Start
    'symbol'
 
 
-   ;;; Munging
+   ;;; 7.1 Munging
 
    #> '+                                  ;Read-time munging of invalid identifiers.
    >>> 'QzPLUS_'
@@ -314,7 +329,7 @@ Lissp Quick Start
    ':'
 
 
-   ;;; Escaping
+   ;;; 7.2 Escaping
 
    #> 'SPAM\ \"\(\)\;EGGS                 ;These would terminate a symbol if not escaped.
    >>> 'SPAMQzSPACE_QzQUOT_QzLPAR_QzRPAR_QzSEMI_EGGS'
@@ -344,7 +359,7 @@ Lissp Quick Start
    >>> None
 
 
-   ;;; String Literals
+   ;;; 7.3 String Literals
 
    #> "raw string"
    >>> ('raw string')
@@ -377,7 +392,7 @@ Lissp Quick Start
    'one\\"\nstring\\\\'
 
 
-   ;;;; Advanced Calls
+   ;;;; 8 Advanced Calls
 
    #> (dict :)                            ;Left paren before function! Notice the :.
    >>> dict()
@@ -477,21 +492,7 @@ Lissp Quick Start
    inf
 
 
-   #> (help sum)                          ;Python's online help function still works.
-   >>> help(
-   ...   sum)
-   Help on built-in function sum in module builtins:
-   <BLANKLINE>
-   sum(iterable, /, start=0)
-       Return the sum of a 'start' value (default: 0) plus an iterable of numbers
-   <BLANKLINE>
-       When the iterable is empty, return the start value.
-       This function is intended specifically for use with numeric values and may
-       reject non-numeric types.
-   <BLANKLINE>
-
-
-   ;;; Operators
+   ;;; 8.1 Operators
 
    ;; Hissp is simpler than Python. No operators! Use calls instead.
 
@@ -512,7 +513,7 @@ Lissp Quick Start
    42
 
 
-   ;;;; Simple Lambdas
+   ;;;; 9 Simple Lambdas
 
    ;; Lambdas are one of Hissp's two "special forms".
    ;; They look like calls, but are special-cased in the Hissp compiler
@@ -545,7 +546,7 @@ Lissp Quick Start
    Hi, Bob!
 
 
-   ;;; Obligatory Factorial I
+   ;;; 9.1 Obligatory Factorial I
 
    ;; We now have just enough to make more interesting programs.
 
@@ -581,7 +582,7 @@ Lissp Quick Start
    120
 
 
-   ;;; Control Flow
+   ;;; 9.2 Control Flow
 
    ;; Hissp is simpler than Python. No control flow! Use higher-order functions instead.
 
@@ -643,7 +644,7 @@ Lissp Quick Start
    ...               else_thunk)))
 
 
-   ;;; Obligatory Factorial II
+   ;;; 9.3 Obligatory Factorial II
 
    ;; Now we have enough for a recursive version.
    #> (.update (globals)
@@ -674,7 +675,7 @@ Lissp Quick Start
    120
 
 
-   ;;;; Advanced Lambdas
+   ;;;; 10 Advanced Lambdas
 
    ;; Python parameter types are rather involved. Lambda does all of them.
    ;; Like calls, they are all paired. :? means no default.
@@ -772,15 +773,16 @@ Lissp Quick Start
    1
 
 
-   ;;;; Quote
+   ;;;; 11 Quote
 
    ;; Quote is the only other special form. Looks like a call, but isn't.
 
    ;; A "form" is any Hissp data that can be evaluated.
    ;; Not all data is a valid program in Hissp. E.g. ``(7 42)`` is a
    ;; tuple, containing the integers 7 in the function position, and 42
-   ;; after in the first argument position, but it would crash, because
-   ;; ints are not callable in Python.
+   ;; after in the first argument position. It would compile to a
+   ;; syntactically-valid Python program, but evaluation would crash,
+   ;; because ints are not callable in Python. Try it.
 
    ;; Quotation suppresses evaluation of Hissp data.
    ;; Treating the code itself as data is the key concept in metaprogramming.
@@ -835,7 +837,7 @@ Lissp Quick Start
    ;; The raw strings and hash strings in Lissp ("..."/#"..." syntax)
    ;; also read as strings at the Hissp level, but they contain a Python
    ;; string literal instead of a Python identifier.
-   #> (quote "a string")                  ;Unexpected? "..."/#"..." is reader syntax!
+   #> (quote "a string")                  ;"..."/#"..." is reader syntax!
    >>> "('a string')"
    "('a string')"
 
@@ -858,7 +860,7 @@ Lissp Quick Start
    42
 
 
-   ;; Strings in Hissp are also used for module literals and control
+   ;; Strings in Hissp are also used for module handles and control
    ;; words. The compiler does some extra processing before emitting these
    ;; as Python code. Quoting suppresses this processing too.
 
@@ -889,7 +891,7 @@ Lissp Quick Start
    ':?'
 
 
-   ;;;; Simple Reader Macros
+   ;;;; 12 Simple Reader Macros
 
    ;; Reader macros are metaprograms to abbreviate Hissp and don't
    ;; represent it directly. They apply to the next parsed Hissp object
@@ -897,7 +899,7 @@ Lissp Quick Start
    ;; they are compiled and evaluated. They end in # except for a few
    ;; builtins-- ' ! ` , ,@
 
-   ;;; Quote
+   ;;; 12.1 Quote
 
    ;; The ' reader macro is simply an abbreviation for the quote special form.
 
@@ -911,13 +913,13 @@ Lissp Quick Start
    ('print', "('Hi')")
 
 
-   ;;; Template Quote
+   ;;; 12.2 Template Quote
 
    ;; (Like quasiquote, backquote, or syntax-quote from other Lisps.)
    ;; This is a DSL for making Hissp trees programmatically.
    ;; They're very useful for metaprogramming.
 
-   #> `print                              ;Automatic qualification!
+   #> `print                              ;Automatic full qualification!
    >>> 'builtins..print'
    'builtins..print'
 
@@ -981,12 +983,12 @@ Lissp Quick Start
    ('builtins..print', 'A', 'B', 'C')
 
 
-   ;; Qualification prevents accidental name collisions in
-   ;; programmatically generated code. But qualification doesn't work on
+   ;; Full qualification prevents accidental name collisions in
+   ;; programmatically generated code. But full qualification doesn't work on
    ;; local variables, which can't be imported. For these, we use a template
-   ;; counter prefix instead of a qualifier to ensure a variable can only
+   ;; count prefix instead of a qualifier to ensure a variable can only
    ;; be used in the same template it was defined in. The gensym reader
-   ;; macro ($#) generates a symbol with the current template's count.
+   ;; macro ($#) generates a symbol with the current template's number.
    #> `($#eggs $#spam $#bacon $#spam)     ;Generated symbols for macro hygiene.
    >>> (lambda * _: _)(
    ...   '_QzNo9_eggs',
@@ -995,9 +997,22 @@ Lissp Quick Start
    ...   '_QzNo9_spam')
    ('_QzNo9_eggs', '_QzNo9_spam', '_QzNo9_bacon', '_QzNo9_spam')
 
-   #> `$#spam                             ;Template count in name prevents collisions.
+   #> `$#spam                             ;Template number in name prevents collisions.
    >>> '_QzNo10_spam'
    '_QzNo10_spam'
+
+
+   ;; If you don't specify, by default, the template number is a prefix,
+   ;; but you can put them anywhere in the symbol; $ marks the positions.
+   #> `$#spam$.$eggs$                     ;Lacking a gensym prefix, it gets fully qualified.
+   >>> '__main__..spam_QzNo8_._QzNo8_eggs_QzNo8_'
+   '__main__..spam_QzNo8_._QzNo8_eggs_QzNo8_'
+
+
+   ;; This is typically used for partially-qualified variables.
+   #> `,'$#self.$foo                      ;Interpolation suppressed auto-qualification.
+   >>> 'self._QzNo9_foo'
+   'self._QzNo9_foo'
 
 
    ;; You can use templates to make collections with interpolated values.
@@ -1038,7 +1053,24 @@ Lissp Quick Start
    (0, 'a', 'b')
 
 
-   ;;;; Compiler Macros
+   #> (dict `((,0 ,1)
+   #..        ,@(.items (dict : spam "eggs"  foo 2)) ;dict unpacking
+   #..        (,3 ,4)))
+   >>> dict(
+   ...   (lambda * _: _)(
+   ...     (lambda * _: _)(
+   ...       (0),
+   ...       (1)),
+   ...     *dict(
+   ...        spam=('eggs'),
+   ...        foo=(2)).items(),
+   ...     (lambda * _: _)(
+   ...       (3),
+   ...       (4))))
+   {0: 1, 'spam': 'eggs', 'foo': 2, 3: 4}
+
+
+   ;;;; 13 Compiler Macros
 
    ;; We can use functions to to create forms for evaluation.
    ;; This is metaprogramming: code that writes code.
@@ -1315,7 +1347,7 @@ Lissp Quick Start
 
 
    ;; Notice the special QzMaybe_ qualifier generated by this template.
-   ;; Templates creates these for symbols in the invocation position when
+   ;; Templates create these for symbols in the invocation position when
    ;; they can't tell if _macro_ would work. The compiler skips QzMaybe_
    ;; unless it can resolve the symbol with QzMaybe_ as _macro_.
    #> `(+ 1 2 3 4)
@@ -1556,7 +1588,7 @@ Lissp Quick Start
    1:2:3
 
 
-   ;;;; Compiling and Running Files
+   ;;;; 14 Compiling and Running Files
 
    ;; ``$ lissp`` can run a .lissp file as __main__.
    ;; You cannot import .lissp directly. Compile it to .py first.
@@ -1615,7 +1647,7 @@ Lissp Quick Start
    False
 
 
-   ;;;; The Bundled Macros
+   ;;;; 15 The Bundled Macros
 
    ;; To make the REPL more usable, it comes with some basic macros already
    ;; defined. Their design has been deliberately restricted so that their
@@ -1627,7 +1659,7 @@ Lissp Quick Start
    ;; convenience, hissp._macro_ is a reference to hissp.macros._macro_,
    ;; making all the bundled macros available qualified with hissp.._macro_.
 
-   ;;; Collections
+   ;;; 15.1 Collections
 
    #> (@ 1 2 3)                           ;list
    >>> # QzAT_
@@ -1744,7 +1776,7 @@ Lissp Quick Start
    {1: 2, 'x': 3, 'y': 4, 5: 6}
 
 
-   ;;; Side Effect
+   ;;; 15.2 Side Effect
 
    #> (print (prog1 0                     ;Sequence for side effects, eval to first.
    #..         (print 1)
@@ -1798,7 +1830,7 @@ Lissp Quick Start
    3
 
 
-   ;;; Definition
+   ;;; 15.3 Definition
 
    #> (deftype Point2D (tuple)
    #..  __doc__ "Simple ordered pair."
@@ -1985,7 +2017,7 @@ Lissp Quick Start
    namespace(x=42)
 
 
-   ;;; Locals
+   ;;; 15.4 Locals
 
    #> (let (x "a"                         ;Create locals.
    #..      y "b")                        ;Any number of pairs.
@@ -2108,7 +2140,7 @@ Lissp Quick Start
    1 2 3 4
 
 
-   ;;; Configuration
+   ;;; 15.5 Configuration
 
    #> (attach (types..SimpleNamespace) + : a 1  b "Hi")
    >>> # attach
@@ -2229,7 +2261,7 @@ Lissp Quick Start
 
    ;; set/zap mnemonics: @tribute, !tem.
 
-   ;;; Threading
+   ;;; 15.6 Threading
 
    #> (-> "world!"                        ;Thread-first
    #..    (.title)
@@ -2247,14 +2279,14 @@ Lissp Quick Start
    (help _macro_.->)
    (help _macro_.->>)
 
-   ;;; The Prelude
+   ;;; 15.7 The Prelude
 
    ;; An inline convenience micro-prelude for Hissp.
    ;; Imports partial and reduce; star imports from operator and itertools;
-   ;; defines engarde, enter, and Ensue; and imports a copy of
-   ;; hissp.macros.._macro_ (if available). Usually the first form in a
-   ;; file, because it overwrites _macro_, but completely optional.
-   ;; Implied for $ lissp -c commands.
+   ;; defines Python interop utilities engarde, enter, and Ensue; and
+   ;; imports a copy of hissp.macros.._macro_ (if available). Usually the
+   ;; first form in a file, because it overwrites _macro_, but completely
+   ;; optional. Implied for $ lissp -c commands.
    #> (prelude)                           ;/!\ Or (hissp.._macro_.prelude)
    >>> # prelude
    ... __import__('builtins').exec(
@@ -2266,12 +2298,12 @@ Lissp Quick Start
    ...    'def enter(c,f,/,*a):\n'
    ...    ' with c as C:return f(*a,C)\n'
    ...    "class Ensue(__import__('collections.abc').abc.Generator):\n"
-   ...    ' send=lambda s,v:s.S(v);throw=lambda s,*x:s.T(*x);From=0;Except=()\n'
-   ...    ' def __init__(s,p):s.p,g=p,s._(s);s.S,s.T=g.send,g.throw\n'
+   ...    ' send=lambda s,v:s.g.send(v);throw=lambda s,*x:s.g.throw(*x);F=0;X=();Y=[]\n'
+   ...    ' def __init__(s,p):s.p,s.g,s.n=p,s._(s),s.Y\n'
    ...    ' def _(s,k,v=None):\n'
-   ...    '  while isinstance(s:=k,__class__):\n'
-   ...    '   try:s.value=v;k,y=s.p(s),s.Yield;v=(yield from y)if s.From else(yield y)\n'
-   ...    '   except s.Except as e:v=e\n'
+   ...    "  while isinstance(s:=k,__class__) and not setattr(s,'sent',v):\n"
+   ...    '   try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)\n'
+   ...    '   except s.X as e:v=e\n'
    ...    '  return k\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
    ...    "try:exec('from hissp.macros._macro_ import *',vars(_macro_))\n"
@@ -2279,7 +2311,7 @@ Lissp Quick Start
    ...   __import__('builtins').globals())
 
 
-   ;;; Control Flow
+   ;;; 15.8 Control Flow
 
    ;; Hissp has no innate control flow, but you can build them with macros.
 
@@ -2334,9 +2366,9 @@ Lissp Quick Start
    ...         __import__('builtins').iter(
    ...           _QzNo43_stack.pop,
    ...           None))),
-   ...     __import__('operator').getitem(
-   ...       _QzNo43_stack,
-   ...       (0)))[-1])())()
+   ...     __import__('operator').itemgetter(
+   ...       (0))(
+   ...       _QzNo43_stack))[-1])())()
    3
    2
    1
@@ -2555,10 +2587,10 @@ Lissp Quick Start
    False
 
 
-   #> (any-map x '(1 2 :spam 42)
+   #> (any-map x '(1 2 spam 42)
    #..  (case x (print "default")         ;switch case
    #..    (0 2 4 6 8) (print "even")
-   #..    (1 3 5 7 :spam) (print "odd")))
+   #..    (1 3 5 7 spam) (print "odd")))
    >>> # anyQz_map
    ... __import__('builtins').any(
    ...   __import__('builtins').map(
@@ -2566,86 +2598,24 @@ Lissp Quick Start
    ...       # case
    ...       __import__('operator').getitem(
    ...         # hissp.macros.._macro_.QzAT_
-   ...         (lambda *_QzNo37_xs:
+   ...         (lambda *_QzNo55_xs:
    ...           __import__('builtins').list(
-   ...             _QzNo37_xs))(
-   ...           (lambda :
-   ...             print(
-   ...               ('even'))),
+   ...             _QzNo55_xs))(
    ...           (lambda :
    ...             print(
    ...               ('odd'))),
    ...           (lambda :
    ...             print(
+   ...               ('even'))),
+   ...           (lambda :
+   ...             print(
    ...               ('default')))),
-   ...         (lambda *_QzNo37_xs:
-   ...           __import__('builtins').dict(
-   ...             _QzNo37_xs))(
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (0),
-   ...             (0)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (2),
-   ...             (0)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (4),
-   ...             (0)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (6),
-   ...             (0)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (8),
-   ...             (0)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (1),
-   ...             (1)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (3),
-   ...             (1)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (5),
-   ...             (1)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             (7),
-   ...             (1)),
-   ...           # hissp.macros.._macro_.QzAT_
-   ...           (lambda *_QzNo37_xs:
-   ...             __import__('builtins').list(
-   ...               _QzNo37_xs))(
-   ...             ':spam',
-   ...             (1))).get(
+   ...         {1: 0, 3: 0, 5: 0, 7: 0, 'spam': 0, 0: 1, 2: 1, 4: 1, 6: 1, 8: 1}.get(
    ...           x,
    ...           (-1)))()),
    ...     ((1),
    ...      (2),
-   ...      ':spam',
+   ...      'spam',
    ...      (42),)))
    odd
    even
@@ -2757,7 +2727,7 @@ Lissp Quick Start
    42
 
 
-   ;;; Raising Exceptions
+   ;;; 15.9 Raising Exceptions
 
    #> (throw Exception)                   ;Raise exception objects or classes.
    >>> # throw
@@ -2841,41 +2811,58 @@ Lissp Quick Start
 
    ;; There's also a throw* you normally shouldn't use. See API doc.
 
-   ;; Assertions. Message is optional.
+   ;; Assertions. They're always about something, which is
+   ;; threaded-first into the predicate expression, and is the result of
+   ;; the form. The message expressions are optional. In this context,
+   ;; the `it` refers to the something.
    ;; Try turning off __debug__ in a new REPL: $ python -Om hissp
-   #> (ensure 0 "wat")
+   #> (ensure 7 (-> (mod 2) (eq 0))
+   #..  it "That's odd.")
    >>> # ensure
-   ... # hissp.macros.._macro_.unless
-   ... # hissp.macros.._macro_.ifQz_else
-   ... (lambda test,*thenQz_else:
-   ...   __import__('operator').getitem(
-   ...     thenQz_else,
-   ...     __import__('operator').not_(
-   ...       test))())(
-   ...   (0),
-   ...   (lambda :()),
-   ...   (lambda :
-   ...     # hissp.macros.._macro_.progn
+   ... # hissp.macros.._macro_.let
+   ... (lambda it=(7):(
+   ...   # hissp.macros.._macro_.unless
+   ...   # hissp.macros.._macro_.ifQz_else
+   ...   (lambda test,*thenQz_else:
+   ...     __import__('operator').getitem(
+   ...       thenQz_else,
+   ...       __import__('operator').not_(
+   ...         test))())(
+   ...     # hissp.macros.._macro_.Qz_QzGT_
+   ...     # hissp.macros..QzMaybe_.Qz_QzGT_
+   ...     # Qz_QzGT_
+   ...     # hissp.macros..QzMaybe_.Qz_QzGT_
+   ...     # hissp.macros..QzMaybe_.Qz_QzGT_
+   ...     eq(
+   ...       mod(
+   ...         it,
+   ...         (2)),
+   ...       (0)),
+   ...     (lambda :()),
    ...     (lambda :
-   ...       # hissp.macros.._macro_.throw
-   ...       # hissp.macros.._macro_.throwQzSTAR_
-   ...       # hissp.macros.._macro_.let
-   ...       (lambda _QzNo46_gen=__import__('traceback').walk_tb(
-   ...         None):(
-   ...         _QzNo46_gen.close(),
-   ...         _QzNo46_gen)[-1])().throw(
-   ...         __import__('builtins').AssertionError(
-   ...           ('wat'))))()))
+   ...       # hissp.macros.._macro_.progn
+   ...       (lambda :
+   ...         # hissp.macros.._macro_.throw
+   ...         # hissp.macros.._macro_.throwQzSTAR_
+   ...         # hissp.macros.._macro_.let
+   ...         (lambda _QzNo50_gen=__import__('traceback').walk_tb(
+   ...           None):(
+   ...           _QzNo50_gen.close(),
+   ...           _QzNo50_gen)[-1])().throw(
+   ...           __import__('builtins').AssertionError(
+   ...             it,
+   ...             ("That's odd."))))())),
+   ...   it)[-1])()
    Traceback (most recent call last):
      ...
-   AssertionError: wat
+   AssertionError: (7, "That's odd.")
 
 
    ;; Note that for pre-compiled code, it's the __debug__ state at
    ;; compile time, not at run time, that determines if ensure
    ;; assertions are turned on.
 
-   ;;; Obligatory Factorial III
+   ;;; 15.10 Obligatory Factorial III
 
    ;; With the prelude, we can define a nicer-looking version.
    #> (define factorial-III
@@ -2910,7 +2897,7 @@ Lissp Quick Start
    5040
 
 
-   ;;;; Exception handling
+   ;;;; 16 Exception handling
 
    ;; Defined by the prelude. Guards against the targeted exception classes.
    #> (engarde `(,FloatingPointError ,ZeroDivisionError)               ;two targets
@@ -3026,14 +3013,14 @@ Lissp Quick Start
    Exception('msg')
 
 
-   ;;;; Generators
+   ;;;; 17 Generators
 
    ;; Defined by the prelude, Ensue gives you infinite lazy iterables,
    ;; easy as recursion. Compare to loop-from.
    #> (define fibonacci
    #..  (lambda (: a 1  b 1)
    #..    (Ensue (lambda (step)
-   #..             (set@ step.Yield a)
+   #..             (set@ step.Y a)        ;Y for yield.
    #..             (fibonacci b (add a b))))))
    >>> # define
    ... __import__('builtins').globals().update(
@@ -3045,7 +3032,7 @@ Lissp Quick Start
    ...                   (lambda _QzNo29_val=a:(
    ...                     __import__('builtins').setattr(
    ...                       step,
-   ...                       'Yield',
+   ...                       'Y',
    ...                       _QzNo29_val),
    ...                     _QzNo29_val)[-1])(),
    ...                   fibonacci(
@@ -3063,58 +3050,58 @@ Lissp Quick Start
 
 
 
-   #> (define nrange                      ;Terminate by not returning an Ensue.
+   #> (define my-range                    ;Terminate by not returning an Ensue.
    #..  (lambda in
    #..    (Ensue (lambda (step)
-   #..             (set@ step.Yield i)
-   #..             (unless (ge i n)
-   #..               (nrange (add i 1) n))))))
+   #..             (when (lt i n)         ;Acts like a while loop.
+   #..               (set@ step.Y i)
+   #..               (my-range (add i 1) n)))))) ;Conditional recursion.
    >>> # define
    ... __import__('builtins').globals().update(
-   ...   nrange=(lambda i,n:
-   ...            Ensue(
-   ...              (lambda step:(
-   ...                # setQzAT_
-   ...                # hissp.macros.._macro_.let
-   ...                (lambda _QzNo29_val=i:(
-   ...                  __import__('builtins').setattr(
-   ...                    step,
-   ...                    'Yield',
-   ...                    _QzNo29_val),
-   ...                  _QzNo29_val)[-1])(),
-   ...                # unless
-   ...                # hissp.macros.._macro_.ifQz_else
-   ...                (lambda test,*thenQz_else:
-   ...                  __import__('operator').getitem(
-   ...                    thenQz_else,
-   ...                    __import__('operator').not_(
-   ...                      test))())(
-   ...                  ge(
-   ...                    i,
-   ...                    n),
-   ...                  (lambda :()),
-   ...                  (lambda :
-   ...                    # hissp.macros.._macro_.progn
-   ...                    (lambda :
-   ...                      nrange(
-   ...                        add(
-   ...                          i,
-   ...                          (1)),
-   ...                        n))())))[-1]))))
+   ...   myQz_range=(lambda i,n:
+   ...                Ensue(
+   ...                  (lambda step:
+   ...                    # when
+   ...                    # hissp.macros.._macro_.ifQz_else
+   ...                    (lambda test,*thenQz_else:
+   ...                      __import__('operator').getitem(
+   ...                        thenQz_else,
+   ...                        __import__('operator').not_(
+   ...                          test))())(
+   ...                      lt(
+   ...                        i,
+   ...                        n),
+   ...                      (lambda :
+   ...                        # hissp.macros.._macro_.progn
+   ...                        (lambda :(
+   ...                          # setQzAT_
+   ...                          # hissp.macros.._macro_.let
+   ...                          (lambda _QzNo33_val=i:(
+   ...                            __import__('builtins').setattr(
+   ...                              step,
+   ...                              'Y',
+   ...                              _QzNo33_val),
+   ...                            _QzNo33_val)[-1])(),
+   ...                          myQz_range(
+   ...                            add(
+   ...                              i,
+   ...                              (1)),
+   ...                            n))[-1])()),
+   ...                      (lambda :()))))))
 
-   #> (list (nrange 1 6))
+   #> (list (my-range 1 6))
    >>> list(
-   ...   nrange(
+   ...   myQz_range(
    ...     (1),
    ...     (6)))
-   [1, 2, 3, 4, 5, 6]
+   [1, 2, 3, 4, 5]
 
 
-   ;; Set From to yield from.
+   ;; Set F to yield From.
    #> (Ensue (lambda (step)
    #..         (attach step :
-   #..           Yield '(1 2 3 4 5)
-   #..           From True)
+   #..           Y '(1 2 3 4 5)
+   #..           F True)
    #..         None))
    >>> Ensue(
    ...   (lambda step:(
@@ -3123,7 +3110,7 @@ Lissp Quick Start
    ...     (lambda _QzNo31_target=step:(
    ...       __import__('builtins').setattr(
    ...         _QzNo31_target,
-   ...         'Yield',
+   ...         'Y',
    ...         ((1),
    ...          (2),
    ...          (3),
@@ -3131,7 +3118,7 @@ Lissp Quick Start
    ...          (5),)),
    ...       __import__('builtins').setattr(
    ...         _QzNo31_target,
-   ...         'From',
+   ...         'F',
    ...         True),
    ...       _QzNo31_target)[-1])(),
    ...     None)[-1]))
@@ -3146,9 +3133,9 @@ Lissp Quick Start
    #> (define recycle
    #..  (lambda (itr)
    #..    (Ensue (lambda (step)
-   #..             (attach step :         ;Implicit recursion. See why?
-   #..               Yield itr
-   #..               From 1)))))          ; What was returned?
+   #..             (attach step :         ;Implicit continuation.
+   #..               Y itr
+   #..               F 1)))))             ;The step is an Ensue instance.
    >>> # define
    ... __import__('builtins').globals().update(
    ...   recycle=(lambda itr:
@@ -3159,11 +3146,11 @@ Lissp Quick Start
    ...                 (lambda _QzNo31_target=step:(
    ...                   __import__('builtins').setattr(
    ...                     _QzNo31_target,
-   ...                     'Yield',
+   ...                     'Y',
    ...                     itr),
    ...                   __import__('builtins').setattr(
    ...                     _QzNo31_target,
-   ...                     'From',
+   ...                     'F',
    ...                     (1)),
    ...                   _QzNo31_target)[-1])()))))
 
@@ -3184,7 +3171,7 @@ Lissp Quick Start
 
    #> (define echo
    #..  (Ensue (lambda (step)
-   #..           (set@ step.Yield step.value)
+   #..           (set@ step.Y step.sent)
    #..           step)))
    >>> # define
    ... __import__('builtins').globals().update(
@@ -3192,10 +3179,10 @@ Lissp Quick Start
    ...          (lambda step:(
    ...            # setQzAT_
    ...            # hissp.macros.._macro_.let
-   ...            (lambda _QzNo29_val=step.value:(
+   ...            (lambda _QzNo29_val=step.sent:(
    ...              __import__('builtins').setattr(
    ...                step,
-   ...                'Yield',
+   ...                'Y',
    ...                _QzNo29_val),
    ...              _QzNo29_val)[-1])(),
    ...            step)[-1])))
@@ -3215,44 +3202,16 @@ Lissp Quick Start
    42
 
 
-   ;;; Context Managers
-
-   #> (define ultimate-unyielding-action-ensues ;It's true.
-   #..  (lambda (action)
-   #..    (Ensue (lambda (step)           ;Thus Ensues
-   #..             (action step.value)    ; an action,
-   #..             (attach step : Yield ()  From 1) ; unyielding,
-   #..             None))))               ; ultimately.
-   >>> # define
-   ... __import__('builtins').globals().update(
-   ...   ultimateQz_unyieldingQz_actionQz_ensues=(lambda action:
-   ...                                             Ensue(
-   ...                                               (lambda step:(
-   ...                                                 action(
-   ...                                                   step.value),
-   ...                                                 # attach
-   ...                                                 # hissp.macros.._macro_.let
-   ...                                                 (lambda _QzNo31_target=step:(
-   ...                                                   __import__('builtins').setattr(
-   ...                                                     _QzNo31_target,
-   ...                                                     'Yield',
-   ...                                                     ()),
-   ...                                                   __import__('builtins').setattr(
-   ...                                                     _QzNo31_target,
-   ...                                                     'From',
-   ...                                                     (1)),
-   ...                                                   _QzNo31_target)[-1])(),
-   ...                                                 None)[-1]))))
-
+   ;;;; 18 Context Managers
 
    #> (define wrap
    #..  (contextlib..contextmanager
    #..   (lambda (msg)
    #..     (print "enter" msg)
    #..     (Ensue (lambda (step)
-   #..              (set@ step.Yield msg)
-   #..              (ultimate-unyielding-action-ensues
-   #..                (lambda _ (print "exit" msg))))))))
+   #..              (set@ step.Y msg)
+   #..              (Ensue (lambda (step)
+   #..                       (print "exit" msg))))))))
    >>> # define
    ... __import__('builtins').globals().update(
    ...   wrap=__import__('contextlib').contextmanager(
@@ -3264,19 +3223,20 @@ Lissp Quick Start
    ...              (lambda step:(
    ...                # setQzAT_
    ...                # hissp.macros.._macro_.let
-   ...                (lambda _QzNo29_val=msg:(
+   ...                (lambda _QzNo33_val=msg:(
    ...                  __import__('builtins').setattr(
    ...                    step,
-   ...                    'Yield',
-   ...                    _QzNo29_val),
-   ...                  _QzNo29_val)[-1])(),
-   ...                ultimateQz_unyieldingQz_actionQz_ensues(
-   ...                  (lambda _:
+   ...                    'Y',
+   ...                    _QzNo33_val),
+   ...                  _QzNo33_val)[-1])(),
+   ...                Ensue(
+   ...                  (lambda step:
    ...                    print(
    ...                      ('exit'),
    ...                      msg))))[-1])))[-1])))
 
 
+   ;; Defined by the prelude. Like a with statement.
    #> (enter (wrap 'A)
    #..       (lambda a (print a)))
    >>> enter(
@@ -3322,11 +3282,10 @@ Lissp Quick Start
    #..   (lambda :
    #..     (Ensue (lambda (step)
    #..              (attach step :
-   #..                Yield None
-   #..                Except ZeroDivisionError)  ;Exception targets can be a tuple.
-   #..              (ultimate-unyielding-action-ensues
-   #..                (lambda (exception)
-   #..                  (print "Caught a" exception))))))))
+   #..                Y None
+   #..                X ZeroDivisionError) ;X for eXcept (can be a tuple).
+   #..              (Ensue (lambda (step)
+   #..                       (print "Caught a" step.sent))))))))
    >>> # define
    ... __import__('builtins').globals().update(
    ...   suppressQz_zde=__import__('contextlib').contextmanager(
@@ -3335,21 +3294,21 @@ Lissp Quick Start
    ...                        (lambda step:(
    ...                          # attach
    ...                          # hissp.macros.._macro_.let
-   ...                          (lambda _QzNo31_target=step:(
+   ...                          (lambda _QzNo35_target=step:(
    ...                            __import__('builtins').setattr(
-   ...                              _QzNo31_target,
-   ...                              'Yield',
+   ...                              _QzNo35_target,
+   ...                              'Y',
    ...                              None),
    ...                            __import__('builtins').setattr(
-   ...                              _QzNo31_target,
-   ...                              'Except',
+   ...                              _QzNo35_target,
+   ...                              'X',
    ...                              ZeroDivisionError),
-   ...                            _QzNo31_target)[-1])(),
-   ...                          ultimateQz_unyieldingQz_actionQz_ensues(
-   ...                            (lambda exception:
+   ...                            _QzNo35_target)[-1])(),
+   ...                          Ensue(
+   ...                            (lambda step:
    ...                              print(
    ...                                ('Caught a'),
-   ...                                exception))))[-1])))))
+   ...                                step.sent))))[-1])))))
 
    #> (enter (suppress-zde)
    #..  (lambda _ (truediv 1 0)))
@@ -3362,7 +3321,7 @@ Lissp Quick Start
    Caught a division by zero
 
    #> (enter (suppress-zde)
-   #..  (lambda _ (truediv 4 2)))
+   #..  (lambda _ (truediv 4 2)))         ;No exception, so step.sent was .send() value.
    >>> enter(
    ...   suppressQz_zde(),
    ...   (lambda _:
@@ -3390,9 +3349,9 @@ Lissp Quick Start
    Exception
 
 
-   ;;;; Advanced Reader Macros
+   ;;;; 19 Advanced Reader Macros
 
-   ;;; The Discard Macro
+   ;;; 19.1 The Discard Macro
 
    #> _#"The discard reader macro _# omits the next form.
    #..It's a way to comment out code structurally.
@@ -3409,10 +3368,10 @@ Lissp Quick Start
    1 2 3
 
 
-   ;;; Qualified Reader Macros
+   ;;; 19.2 Fully-Qualified Reader Macros
 
-   ;; Invoke any qualified callable on the next parsed object at read time.
-   #> builtins..hex#3840                  ;Qualified name ending in # is a reader macro.
+   ;; Invoke any fully-qualified callable on the next parsed object at read time.
+   #> builtins..hex#3840                  ;Fully-Qualified name ending in # is a reader macro.
    >>> 0xf00
    3840
 
@@ -3457,11 +3416,11 @@ Lissp Quick Start
    inf
 
 
-   ;;; Inject
+   ;;; 19.3 Inject
 
    _#"The 'inject' reader macro compiles and evaluates the next form at
    read time and injects the resulting object directly into the Hissp
-   tree, like a qualified reader macro does.
+   tree, like a fully-qualified reader macro does.
    "
 
    #> '(1 2 (operator..add 1 2))          ;Quoting happens at compile time.
@@ -3537,7 +3496,7 @@ Lissp Quick Start
    >>> from operator import *
 
 
-   ;;;; The Bundled Reader Macros
+   ;;;; 20 The Bundled Reader Macros
 
    #> (reduce XY#(add Y X) "abcd")        ;Binary anaphoric lambda.
    >>> reduce(
@@ -3621,7 +3580,6 @@ Lissp Quick Start
 
    ;; Also XYZ# XYZW# See API doc.
 
-
    #> b#"bytes"                           ;Bytes reader macro.
    >>> b'bytes'
    b'bytes'
@@ -3683,6 +3641,32 @@ Lissp Quick Start
    ...   (2),
    ...   (3))
    deque([1, 2, 3])
+
+
+   ;; Anaphoric lambda of any number of args.
+   #> (define enjoin en#X#(.join "" (map str X)))
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   enjoin=(lambda *_QzNo55_xs:
+   ...            (lambda X:
+   ...              ('').join(
+   ...                map(
+   ...                  str,
+   ...                  X)))(
+   ...              _QzNo55_xs)))
+
+   #> (enjoin "Sum: "(add 2 3)". Product: "(mul 2 3)".")
+   >>> enjoin(
+   ...   ('Sum: '),
+   ...   add(
+   ...     (2),
+   ...     (3)),
+   ...   ('. Product: '),
+   ...   mul(
+   ...     (2),
+   ...     (3)),
+   ...   ('.'))
+   'Sum: 5. Product: 6.'
 
 
    ;; Not technically a reader macro, but a bundled macro for defining them.
@@ -3779,7 +3763,65 @@ Lissp Quick Start
    ['a', 1, 'b', 2, 'c', 3]
 
 
-   ;; Like `timeit.timeit`, but as a macro.
+   #> (@#upper "shout")                   ;Get an attribute without calling it.
+   >>> __import__('operator').attrgetter(
+   ...   'upper')(
+   ...   ('shout'))
+   <built-in method upper of str object at ...>
+
+   #> (_)
+   >>> _()
+   'SHOUT'
+
+
+   #> (define class-name @#__class__.__name__) ;Attributes chain.
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   classQz_name=__import__('operator').attrgetter(
+   ...                  '__class__.__name__'))
+
+   #> (class-name object)
+   >>> classQz_name(
+   ...   object)
+   'type'
+
+   #> (class-name "foo")
+   >>> classQz_name(
+   ...   ('foo'))
+   'str'
+
+
+   #> (define first get#0)                ;Similarly, for items.
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   first=__import__('operator').itemgetter(
+   ...           (0)))
+
+   #> (first "abc")
+   >>> first(
+   ...   ('abc'))
+   'a'
+
+
+   #> (get#(slice None None -1) "abc")    ;Slicing.
+   >>> __import__('operator').itemgetter(
+   ...   slice(
+   ...     None,
+   ...     None,
+   ...     (-1)))(
+   ...   ('abc'))
+   'cba'
+
+   #> (get#'+ (dict : foo 2  + 1))        ;These also work on dicts.
+   >>> __import__('operator').itemgetter(
+   ...   'QzPLUS_')(
+   ...   dict(
+   ...     foo=(2),
+   ...     QzPLUS_=(1)))
+   1
+
+
+   ;; Measures execution time.
    #> time#(time..sleep .05)
    >>> # hissp.macros.._macro_.let
    ... (lambda _QzNo73_time=__import__('time').time_ns:
@@ -3848,20 +3890,20 @@ Lissp Quick Start
    2 2
 
 
-   ;; Comment string.
+   ;; Comment string. Parsed objects, remember?
    #> <<#;Don't worry about the "quotes".
    >>> 'Don\'t worry about the "quotes".'
    'Don\'t worry about the "quotes".'
 
 
-   ;;; Aside: Extra (!), the Final Builtin Reader Macro
+   ;;; 20.1 Aside: Extra (!), the Final Builtin Reader Macro
 
    _#"Reader macros take one primary argument, but additional arguments
    can be passed in with the extra macro !. A reader macro consumes the
    next parsed object, and if it's an Extra, consumes one again. Thus,
    extras must be written between the # and primary argument, but because
    they're often optional refinements, which are easier to define as
-   trailing optional parameters in in Python functions, they get passed
+   trailing optional parameters in Python functions, they get passed
    in after the primary argument.
    "
    #> (setattr _macro_ 'L\# en#list)
@@ -3929,18 +3971,18 @@ Lissp Quick Start
    ['primary', 0, 1, 2, 3]
 
 
-   #> (setattr _macro_ 'X\# hissp.reader..Extra)
+   #> (setattr _macro_ 'E\# hissp.reader..Extra)
    >>> setattr(
    ...   _macro_,
-   ...   'XQzHASH_',
+   ...   'EQzHASH_',
    ...   __import__('hissp.reader',fromlist='?').Extra)
 
 
-   #> L# !0 X#(1 2) !3 primary            ;Same effect.
+   #> L# !0 E#(1 2) !3 primary            ;Same effect.
    >>> ['primary', 0, 1, 2, 3]
    ['primary', 0, 1, 2, 3]
 
-   #> L#X#(0 : :* (1 2 3))primary         ;Same effect.
+   #> L#E#(0 : :* (1 2 3))primary         ;Same effect.
    >>> ['primary', 0, 1, 2, 3]
    ['primary', 0, 1, 2, 3]
 
@@ -3954,7 +3996,7 @@ Lissp Quick Start
    >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
    {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
 
-   #> builtins..dict#X#(: spam 1  foo 2  :** .#(dict : eggs 3  bar 4))()
+   #> builtins..dict#E#(: spam 1  foo 2  :** .#(dict : eggs 3  bar 4))()
    >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
    {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
 
@@ -3981,7 +4023,7 @@ Lissp Quick Start
    Hello World!
 
 
-   ;;; Joined Comment String
+   ;;; 20.2 Joined Comment String
 
    #> <<#!;C:\bin
    #..   !;C:\Users\ME\Documents

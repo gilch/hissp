@@ -474,7 +474,7 @@ def is_qualifiable(symbol):
     """Determines if symbol can be qualified with a module.
 
     Can't be ``quote``, ``__import__``, any Python reserved word, an
-    auto-gensym, already qualified, method syntax, or a module literal;
+    auto-gensym, already qualified, method syntax, or a module handle;
     and must be a valid identifier or attribute identifier.
     """
     return (

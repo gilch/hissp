@@ -80,7 +80,7 @@ class Compiler:
         self.ns = self.new_ns(qualname) if ns is None else ns
         self.evaluate = evaluate
         self.error = False
-        self.abort = False
+        self.abort = None
 
     @staticmethod
     def new_ns(name, doc=None, package=None):
@@ -108,8 +108,8 @@ class Compiler:
                 raise CompileError("\n" + form) from e
             result.extend(self.eval(form))
             if self.abort:
-                print("\n\n".join(result), file=sys.stderr)
-                self.abort = False  # To allow REPL debugging.
+                print("Hissp abort!", self.abort, sep="\n", file=sys.stderr)
+                self.abort = None  # To allow REPL debugging.
                 sys.exit(1)
         return "\n\n".join(result)
 
@@ -383,7 +383,7 @@ class Compiler:
     @_trace
     def str(self, code: str) -> str:
         """Compile code strings.
-        Expands qualified identifiers and module literals into imports.
+        Expands qualified identifiers and module handles into imports.
         Otherwise, injects as raw Python directly into the output.
         """
         if not all(s.isidentifier() for s in code.split(".") if s):
@@ -487,17 +487,26 @@ class Compiler:
         """Execute compiled form, but only if evaluate mode is enabled."""
         try:
             if self.evaluate:
-                exec(compile(form, "<Hissp>", "exec"), self.ns)
+                exec(
+                    compile(form, f"<Compiled Hissp:\n{_linenos(form)}\n>", "exec"),
+                    self.ns,
+                )
         except Exception as e:
             exc = format_exc()
             if self.ns.get("__name__") == "__main__":
-                self.abort = True
+                self.abort = exc
             else:
                 warn(
                     f"\n {e} when evaluating form:\n{form}\n\n{exc}", PostCompileWarning
                 )
             return form, "# " + exc.replace("\n", "\n# ")
         return (form,)
+
+
+def _linenos(form):
+    lines = form.split("\n")
+    digits = len(str(len(lines)))
+    return "\n".join(f"{i:0{digits}} {line}" for i, line in enumerate(lines, 1))
 
 
 def _join_args(*args):
