@@ -1,5 +1,5 @@
 # This configuration file is part of the Hissp source code repository,
-# copyright 2019, 2021 Matthew Egan Odendahl
+# copyright 2019, 2021, 2022 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 name: Test package
 
@@ -45,7 +45,6 @@ jobs:
     - name: Create Hissp package
       run: |
         pip install setuptools wheel
-        cd setup
         python setup.py bdist_wheel
     - name: Install Hissp package from dist/
       run: |
