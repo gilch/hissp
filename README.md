@@ -54,7 +54,7 @@ python -m pip install -U hissp
 ```
 Or install the bleeding-edge version directly from GitHub with
 ```
-python -m pip install -U git+https://github.com/gilch/hissp
+python -m pip install -U git+https://github.com/gilch/hissp.git
 ```
 
 # Show Me Code!
