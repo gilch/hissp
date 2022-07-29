@@ -3128,7 +3128,7 @@ Putting that all together we get
 
 Notice that this requires the ``]`` in the symbol it's applied to.
 This keeps it balanced. It also pretty well ensures the argument is a symbol
-or at least a keyword.
+or at least a control word.
 
 Now look at what we can do.
 

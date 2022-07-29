@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 # Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
+import os
+import sys
+
 import setuptools
+
+os.chdir("setup")
 
 with open("../README.md", encoding="utf8") as f:
     long_description = f.read()
-
-import sys
 
 sys.path.insert(0, "../src")
 import hissp

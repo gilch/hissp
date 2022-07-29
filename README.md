@@ -54,7 +54,7 @@ python -m pip install -U hissp
 ```
 Or install the bleeding-edge version directly from GitHub with
 ```
-python -m pip install -U git+https://github.com/gilch/hissp
+python -m pip install -U git+https://github.com/gilch/hissp.git
 ```
 
 # Show Me Code!
@@ -113,31 +113,44 @@ which compiles Hissp (read from Lissp) to Python and passes that to the Python R
 Lissp can also be read from ``.lissp`` files,
 which compile to Python modules.
 
-Here's one definition from the bundled macros:
+Here's a small example Lissp web app for converting between Celsius and Fahrenheit,
+which demonstrates a number of language features.
+Run as the main script or enter it into the Lissp REPL.
+Requires [Bottle.](https://bottlepy.org/docs/dev/)
 ```Lisp
-(defmacro attach (target : :* args)
-  "Attaches the named variables as attributes of the target.
+(hissp.._macro_.prelude)
 
-  Positional arguments use the same name as the variable.
-  Names after the ``:`` are identifier-value pairs.
-  "
-  (let (iargs (iter args)
-        $target `$#target)
-    (let (args (itertools..takewhile (lambda (a)
-                                       (operator..ne a ':))
-                                     iargs))
-      `(let (,$target ,target)
-         ,@(map (lambda (arg)
-                  `(setattr ,$target ',arg ,arg))
-                args)
-         ,@(map (lambda (kw)
-                  `(setattr ,$target ',kw ,(next iargs)))
-                iargs)
-         ,$target))))
+(define enjoin en#X#(.join "" (map str X)))
+
+(define tag
+  (lambda (tag : :* contents)
+    (enjoin "<"tag">"(enjoin : :* contents)"</"(get#0 (.split tag))">")))
+
+(defmacro script (: :* forms)
+  `',(tag "script type='text/python'" #"\n"
+      (.join #"\n" (map hissp.compiler..readerless forms))))
+
+(define temperature
+  ((bottle..route "/")
+   &#(enjoin
+      (let (s (tag "script src='https://cdn.jsdelivr.net/npm/brython@3/brython{}.js'"))
+        (enjoin (.format s ".min") (.format s "_stdlib")))
+      (tag "body onload='brython()'"
+       (script
+         (define getE X#(.getElementById browser..document X))
+         (define getf@v X#(float (@#value (getE X))))
+         (define set@v XY#(setattr (getE Y) 'value X))
+         (attach browser..window
+           : Celsius &#(-> (getf@v 'Celsius) (X#.#"X*1.8+32") (set@v 'Fahrenheit))
+           Fahrenheit &#(-> (getf@v 'Fahrenheit) (X#.#"(X-32)/1.8") (set@v 'Celsius))))
+       (let (row (enjoin (tag "input id='{0}' onkeyup='{0}()'")
+                         (tag "label for='{0}'" "°{1}")))
+         (enjoin (.format row "Fahrenheit" "F")"<br>"(.format row "Celsius" "C")))))))
+
+(bottle..run : host "localhost"  port 8080  debug True)
 ```
-If you've never used a Lisp before, don't let this scare you.
-You should be able to read this much after completing the
-[tutorials](https://hissp.readthedocs.io/).
+You should be able to understand this much after completing the
+[quick start](https://hissp.readthedocs.io/).
 
 ## Hebigo
 

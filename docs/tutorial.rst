@@ -1,4 +1,4 @@
-.. Copyright 2019, 2020, 2021 Matthew Egan Odendahl
+.. Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 ..  Hidden doctest adds bundled macros for REPL-consistent behavior.
@@ -57,7 +57,7 @@ Hissp requires Python 3.8+ and has no other dependencies.
 
 Install the Hissp version matching this document with::
 
-   $ pip install git+https://github.com/gilch/hissp
+   $ pip install git+https://github.com/gilch/hissp.git
 
 These docs are for the latest development version of Hissp.
 Most examples are tested automatically,
