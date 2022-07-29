@@ -586,11 +586,11 @@ not just the fact that it's a call.
             truediv 6 0)                  ;(truediv 6 0) is a deferred call, so groups.
 
    (.update (globals) :                   ;OK. Easier for linewise version control.
-     + operator..add
-     - operator..sub
-     * operator..mul
-     / operator..truediv
-     _#/)
+    + operator..add
+    - operator..sub
+    * operator..mul
+    / operator..truediv
+    _#/)
 
    (.update (globals)                     ;Preferred. Standard style.
             : + operator..add
