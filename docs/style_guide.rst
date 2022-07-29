@@ -953,11 +953,6 @@ but don't overdo it.
 Don't put a train of ``)``'s inside the line,
 because then we'd have to count brackets!
 
-(This rule can perhaps be broken for one-off one-liners in the REPL
-or shell via ``lissp -c``,
-when legibility is of little concern
-and extra lines would be more awkward than bracket counting.)
-
 If the train is trailing at the end of the line,
 then the tree structure is clear from the indents.
 
