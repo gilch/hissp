@@ -150,7 +150,7 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
 (bottle..run : host "localhost"  port 8080  debug True)
 ```
 You should be able to understand this much after completing the
-[quick start](https://hissp.readthedocs.io/).
+[Lissp Whirlwind Tour](https://hissp.readthedocs.io/).
 
 ## Hebigo
 
@@ -267,7 +267,7 @@ In [1]: pprint..pp:quote:class: TestOr: TestCase
    ('hebi.basic.._macro_.or_', 'x', 'y', 'z'))))
 ```
 
-Want more examples? See the [Hissp documentation](https://hissp.readthedocs.io/) for the quickstart and tutorials.
+Want more examples? See the [Hissp documentation](https://hissp.readthedocs.io/).
 
 # Features and Design
 

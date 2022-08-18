@@ -1607,7 +1607,7 @@ like calls. ``:*`` and ``:**`` unpacking also work here.
    >>> (13)
    13
 
-See the `quick start <lissp_quickstart>` for more examples.
+See the `Lissp Whirlwind Tour <lissp_whirlwind_tour>` for more examples.
 
 Macros
 ======

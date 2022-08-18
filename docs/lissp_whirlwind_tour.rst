@@ -12,16 +12,16 @@
 
 .. TODO: Interactive via web repl?
 
-Lissp Quick Start
-=================
+Lissp Whirlwind Tour
+====================
 
 .. raw:: html
 
-   (<a href="_sources/lissp_quickstart.rst.txt">Outputs</a> hidden for brevity.)
+   (<a href="_sources/lissp_whirlwind_tour.rst.txt">Outputs</a> hidden for brevity.)
 
 .. Lissp::
 
-   ;;;; 1 Lissp Quick Start
+   ;;;; 1 Lissp Whirlwind Tour
 
    "Lissp is a lightweight text language representing the Hissp
    intermediate language. The Lissp reader parses the Lissp language's

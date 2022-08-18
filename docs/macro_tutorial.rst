@@ -96,7 +96,7 @@ a subset of Python in a new skin.
 This one is about using that knowledge to reprogram the skin itself.
 
 If you don't know the basics from the `previous tutorial <tutorial>`,
-go back and read that now, or at least read the `quick start <lissp_quickstart>`.
+go back and read that now, or at least read the `Lissp Whirlwind Tour <lissp_whirlwind_tour>`.
 
 In the previous tutorial we mostly used the REPL,
 but it can become tedious to type long forms into the REPL,
@@ -1506,7 +1506,7 @@ Read the definition carefully.
 You can experiment with macros you don't recognize in the REPL.
 All the bundled macros,
 including the `|| <QzBAR_QzBAR_>`
-and `when` were covered in the `quick start <lissp_quickstart>`.
+and `when` were covered in the `Lissp Whirlwind Tour <lissp_whirlwind_tour>`.
 We're using them to coalesce Python's awkward regex matches,
 which can return ``None``, into a ``0``,
 unless it's a string with a match.
