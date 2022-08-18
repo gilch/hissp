@@ -35,6 +35,6 @@ or start with the easier, but less-comprehensive tutorial.
 
 .. toctree::
 
-   GitHub Repository <https://github.com/gilch/hissp>
+   ⭐ on GitHub <https://github.com/gilch/hissp>
 
 * :ref:`genindex`
