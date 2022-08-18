@@ -50,7 +50,7 @@ Lissp Whirlwind Tour
 
    ;; These docs are for the latest development version of Hissp.
    ;; Install the latest Hissp version with
-   ;; $ pip install git+https://github.com/gilch/hissp.git
+   ;; $ pip install git+https://github.com/gilch/hissp
    ;; Start the REPL with
    ;; $ lissp
    ;; You can quit with EOF or (exit).

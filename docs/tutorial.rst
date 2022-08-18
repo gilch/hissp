@@ -57,7 +57,7 @@ Hissp requires Python 3.8+ and has no other dependencies.
 
 Install the Hissp version matching this document with::
 
-   $ pip install git+https://github.com/gilch/hissp.git
+   $ pip install git+https://github.com/gilch/hissp
 
 These docs are for the latest development version of Hissp.
 Most examples are tested automatically,
