@@ -48,7 +48,8 @@ In Hissp, you write in this parsed form far more directly:
 
 Some familiarity with Python is assumed for this tutorial.
 If you get confused or stuck,
-see the `discussions page. <https://github.com/gilch/hissp/discussions>`_
+see the `discussions page <https://github.com/gilch/hissp/discussions>`_
+or find the chat.
 
 Installation
 ============
@@ -57,7 +58,7 @@ Hissp requires Python 3.8+ and has no other dependencies.
 
 Install the Hissp version matching this document with::
 
-   $ pip install git+https://github.com/gilch/hissp.git
+   $ pip install git+https://github.com/gilch/hissp
 
 These docs are for the latest development version of Hissp.
 Most examples are tested automatically,
@@ -1607,7 +1608,7 @@ like calls. ``:*`` and ``:**`` unpacking also work here.
    >>> (13)
    13
 
-See the `quick start <lissp_quickstart>` for more examples.
+See the `Lissp Whirlwind Tour <lissp_whirlwind_tour>` for more examples.
 
 Macros
 ======

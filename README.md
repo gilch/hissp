@@ -27,9 +27,12 @@ Python—Syntactic macro metaprogramming with full access to the Python ecosyste
 **Table of Contents**
 
 - [Installation](#installation)
-- [Show Me Code!](#show-me-code)
-    - [Readerless Mode](#readerless-mode)
-    - [Lissp](#lissp)
+- [Examples!](#examples)
+    - [Quick Start: Readerless Mode](#quick-start-readerless-mode)
+        - [Special Cases](#special-cases)
+        - [Macros](#macros)
+    - [The Lissp Reader](#the-lissp-reader)
+        - [A Small Lissp Example](#a-small-lissp-example)
     - [Hebigo](#hebigo)
 - [Features and Design](#features-and-design)
     - [Radical Extensibility](#radical-extensibility)
@@ -50,17 +53,22 @@ Hissp requires Python 3.8+.
 
 Install the latest PyPI release with
 ```
-python -m pip install -U hissp
+python -m pip install --upgrade hissp
 ```
 Or install the bleeding-edge version directly from GitHub with
 ```
-python -m pip install -U git+https://github.com/gilch/hissp.git
+python -m pip install --upgrade git+https://github.com/gilch/hissp
+```
+Confirm install with
+```
+python -m hissp --help
 ```
 
-# Show Me Code!
+# Examples!
 
-## Readerless Mode
-Hissp is a *metaprogramming* language composed of Python data structured into trees of tuples,
+## Quick Start: Readerless Mode
+Hissp is a *metaprogramming* intermediate language composed of simple Python data structures,
+easily generated programmatically,
 ```python
 >>> hissp_code = (
 ... ('lambda',('name',),
@@ -70,7 +78,7 @@ Hissp is a *metaprogramming* language composed of Python data structured into tr
 ```
 which are compiled to Python code,
 ```python
->>> from hissp.compiler import readerless
+>>> from hissp import readerless
 >>> python_code = readerless(hissp_code)
 >>> print(python_code)
 (lambda name:
@@ -81,15 +89,126 @@ which are compiled to Python code,
 ```
 and evaluated by Python.
 ```python
->>> eval(python_code)('World')
+>>> greeter = eval(python_code)
+>>> greeter('World')
 Hello World
+>>> greeter('Bob')
+Hello Bob
+
+```
+To a first approximation,
+tuples represent calls
+and strings represent raw Python code in Hissp.
+(Take everything else literally.)
+
+### Special Forms
+Like Python, argument expressions are evaluated before being passed to the function,
+however, the quote and lambda forms are special cases in the compiler and break this rule.
+
+Strings also have a few special cases:
+* control words, which start with `:` (and may have various special interpretations in certain contexts);
+* method calls, which start with `.`, and must be the first element in a tuple representing a call;
+* and module handles, which end with `.` (and do imports).
+```python
+>>> adv_hissp_code = (
+... ('lambda',  # Anonymous function special form.
+...  # Parameters.
+...  (':',  # Control word: remaining parameters are paired with a target.
+...   'name',  # Target: Raw Python: Parameter identifier.
+...   # Default value for name.
+...   ('quote',  # Quote special form: string, not identifier. 
+...    'world'),),
+...  # Body.
+...  ('print',  # Function call form, using the identifier for the builtin.
+...   ('quote','Hello,'),),
+...  ('print',
+...   ':',  # Control word: Remaining arguments are paired with a target.
+...   ':*',  # Target: Control word for unpacking.
+...   ('.upper','name',),  # Method calls start with a dot.
+...   'sep',  # Target: Keyword argument.
+...   ':',  # Control words compile to strings, not raw Python.
+...   'file',  # Target: Keyword argument.
+...   # Module handles like `sys.` end in a dot.
+...   'sys..stdout',),)  # print already defaults to stdout though.
+... )
+...
+>>> print(readerless(adv_hissp_code))
+(lambda name='world':(
+  print(
+    'Hello,'),
+  print(
+    *name.upper(),
+    sep=':',
+    file=__import__('sys').stdout))[-1])
+>>> greetier = eval(readerless(adv_hissp_code))
+>>> greetier()
+Hello,
+W:O:R:L:D
+>>> greetier('alice')
+Hello,
+A:L:I:C:E
+
+```
+### Macros
+The ability to make lambdas and call out to arbitrary Python helper functions entails that Hissp can do anything Python can.
+For example, control flow via higher-order functions.
+```python
+>>> any(map(lambda s: print(s), "abc"))  # HOF loop.
+a
+b
+c
+False
+>>> def branch(condition, consequent, alternate):  # Conditional HOF.
+...    return (consequent if condition else alternate)()  # Pick one to call.
+...
+>>> branch(1, lambda: print('yes'), lambda: print('no'))  # Now just a function call.
+yes
+>>> branch(0, lambda: print('yes'), lambda: print('no'))
+no
+
+```
+This approach works fine in Hissp,
+but we can express that more succinctly via metaprogramming.
+Unlike functions,
+the special forms don't (always) evaluate their arguments first.
+Macros can rewrite forms in terms of these,
+extending that ability to custom tuple forms.
+```python
+>>> class _macro_:  # This name is special to Hissp.
+...     def thunk(*body):  # No self. _macro_ is just used as a namespace.
+...         # Python code for writing Hissp code. Macros are metaprograms.
+...         return ('lambda',(),*body,)  # Delayed evaluation.
+...     def if_else(condition, consequent, alternate):
+...         # Delegates both to a helper function and another macro.
+...         return ('branch',condition,('thunk',consequent,),('thunk',alternate,),)
+...
+>>> expansion = readerless(
+...     ('if_else','0==1',  # Macro form, not a runtime call.
+...       ('print',('quote','yes',),),  # Side effect not evaluated!
+...       ('print',('quote','no',),),),
+...     globals())  # Pass in globals for _macro_.
+>>> print(expansion)
+# if_else
+branch(
+  0==1,
+  # thunk
+  (lambda :
+    print(
+      'yes')),
+  # thunk
+  (lambda :
+    print(
+      'no')))
+>>> eval(expansion)
+no
 
 ```
 
-## Lissp
+## The Lissp Reader
 
 The Hissp data-structure language can be written directly in Python using the "readerless mode" demonstrated above,
-or it can be read in from a lightweight textual language called *Lissp* that represents the Hissp.
+or it can be read in from a lightweight textual language called *Lissp* that represents the Hissp
+a little more neatly.
 ```python
 >>> lissp_code = """
 ... (lambda (name)
@@ -97,7 +216,7 @@ or it can be read in from a lightweight textual language called *Lissp* that rep
 ... """
 
 ```
-As you can see, this results in exactly the same Hissp code as the previous example.
+As you can see, this results in exactly the same Hissp code as our earlier example.
 ```python
 >>> from hissp.reader import Lissp
 >>> next(Lissp().reads(lissp_code))
@@ -113,11 +232,12 @@ which compiles Hissp (read from Lissp) to Python and passes that to the Python R
 Lissp can also be read from ``.lissp`` files,
 which compile to Python modules.
 
-Here's a small example Lissp web app for converting between Celsius and Fahrenheit,
+### A Small Lissp Example
+This is a Lissp web app for converting between Celsius and Fahrenheit,
 which demonstrates a number of language features.
 Run as the main script or enter it into the Lissp REPL.
 Requires [Bottle.](https://bottlepy.org/docs/dev/)
-```Lisp
+```Racket
 (hissp.._macro_.prelude)
 
 (define enjoin en#X#(.join "" (map str X)))
@@ -131,11 +251,11 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
       (.join #"\n" (map hissp.compiler..readerless forms))))
 
 (define temperature
-  ((bottle..route "/")
+  ((bottle..route "/") ; https://bottlepy.org
    &#(enjoin
       (let (s (tag "script src='https://cdn.jsdelivr.net/npm/brython@3/brython{}.js'"))
         (enjoin (.format s ".min") (.format s "_stdlib")))
-      (tag "body onload='brython()'"
+      (tag "body onload='brython()'" ; Browser Python: https://brython.info
        (script
          (define getE X#(.getElementById browser..document X))
          (define getf@v X#(float (@#value (getE X))))
@@ -150,7 +270,7 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
 (bottle..run : host "localhost"  port 8080  debug True)
 ```
 You should be able to understand this much after completing the
-[quick start](https://hissp.readthedocs.io/).
+[Lissp Whirlwind Tour](https://hissp.readthedocs.io/).
 
 ## Hebigo
 
@@ -185,7 +305,7 @@ class: TestOr: TestCase
 The same Hissp macros work in readerless mode, Lissp, and Hebigo, and can be written in any of these.
 Given Hebigo's macros, the class above could be written in the equivalent way in Lissp:
 
-```Lisp
+```Racket
 (class_ (TestOr TestCase)
   (def_ (.test_null self)
     (self.assertEqual () (or_)))
@@ -267,7 +387,7 @@ In [1]: pprint..pp:quote:class: TestOr: TestCase
    ('hebi.basic.._macro_.or_', 'x', 'y', 'z'))))
 ```
 
-Want more examples? See the [Hissp documentation](https://hissp.readthedocs.io/) for the quickstart and tutorials.
+Want more examples? See the [Hissp documentation](https://hissp.readthedocs.io/).
 
 # Features and Design
 

@@ -11,7 +11,7 @@ It's Python with a *Lissp.*
 .. image:: hissp.svg
 
 Welcome to Hissp's documentation!
-Jump in and try the quick start first if you're feeling confident,
+Jump in and try the *Lissp Whirlwind Tour* first if you're feeling confident,
 or start with the easier, but less-comprehensive tutorial.
 
 .. TODO: add REPL via Brython or Pyodide?
@@ -20,7 +20,7 @@ or start with the easier, but less-comprehensive tutorial.
    :maxdepth: 2
    :caption: Contents:
 
-   lissp_quickstart
+   lissp_whirlwind_tour
    tutorial
    style_guide
    macro_tutorial
@@ -35,6 +35,6 @@ or start with the easier, but less-comprehensive tutorial.
 
 .. toctree::
 
-   GitHub Repository <https://github.com/gilch/hissp>
+   ⭐ on GitHub <https://github.com/gilch/hissp>
 
 * :ref:`genindex`

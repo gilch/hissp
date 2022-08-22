@@ -12,16 +12,16 @@
 
 .. TODO: Interactive via web repl?
 
-Lissp Quick Start
-=================
+Lissp Whirlwind Tour
+====================
 
 .. raw:: html
 
-   (<a href="_sources/lissp_quickstart.rst.txt">Outputs</a> hidden for brevity.)
+   (<a href="_sources/lissp_whirlwind_tour.rst.txt">Outputs</a> hidden for brevity.)
 
 .. Lissp::
 
-   ;;;; 1 Lissp Quick Start
+   ;;;; 1 Lissp Whirlwind Tour
 
    "Lissp is a lightweight text language representing the Hissp
    intermediate language. The Lissp reader parses the Lissp language's
@@ -39,18 +39,19 @@ Lissp Quick Start
    Python and evaluate it. Try variations that occur to you.
 
    Familiarity with another Lisp dialect is not assumed, but helpful. If
-   you get confused or stuck, read the easier Hissp tutorial.
+   you get confused or stuck, the Hissp tutorial is easier.
 
    Some examples depend on state set by previous examples to work.
    Prerequisites for examples not in the same section are marked with
-   '/!\'. Don't skip these! Re-enter them if you start a new session.
+   '/!\'. Don't skip these! If you resume with a new REPL session,
+   re-enter them, but only up to your current section.
    "
 
    ;;;; 2 Installation
 
    ;; These docs are for the latest development version of Hissp.
    ;; Install the latest Hissp version with
-   ;; $ pip install git+https://github.com/gilch/hissp.git
+   ;; $ pip install git+https://github.com/gilch/hissp
    ;; Start the REPL with
    ;; $ lissp
    ;; You can quit with EOF or (exit).
