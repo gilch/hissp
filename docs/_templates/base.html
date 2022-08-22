@@ -1,0 +1,11 @@
+{% extends '!base.html' %}
+
+{% block extrahead %}
+<script>
+    {{ super() }}
+     ((window.gitter = {}).chat = {}).options = {
+       room: 'hissp-lang/community'
+     };
+   </script>
+<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+{% endblock %}
