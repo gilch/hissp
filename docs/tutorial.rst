@@ -48,7 +48,8 @@ In Hissp, you write in this parsed form far more directly:
 
 Some familiarity with Python is assumed for this tutorial.
 If you get confused or stuck,
-see the `discussions page. <https://github.com/gilch/hissp/discussions>`_
+see the `discussions page <https://github.com/gilch/hissp/discussions>`_
+or find the chat.
 
 Installation
 ============
