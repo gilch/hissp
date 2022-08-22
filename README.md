@@ -107,7 +107,7 @@ however, the quote and lambda forms are the two special cases built into the com
 (More can be added via the macro mechanism.)
 
 Strings also have a few special cases:
-* control words, which start with `:` (and may have special interpretations);
+* control words, which start with `:` (and may have various special interpretations);
 * method calls, which start with `.`, and must be the first element in a tuple representing a call;
 * and module handles, which end with `.` (and do imports).
 ```python
@@ -124,13 +124,13 @@ Strings also have a few special cases:
 ...   ('quote','Hello,'),),
 ...  ('print',
 ...   ':',  # Control word: Remaining arguments are paired with a target.
-...   ':*',  # Target: Special string: Control word for unpacking.
+...   ':*',  # Target: Control word for unpacking.
 ...   ('.upper','name',),  # Method calls start with a dot.
 ...   'sep',  # Target: Keyword argument.
 ...   ':',  # Control words compile to strings, not raw.
 ...   'file', # Target: Keyword argument.
-...   # Special string: module handles like `sys.` end in a dot.
-...   'sys..stdout',),)
+...   # Module handles like `sys.` end in a dot.
+...   'sys..stdout',),)  # print already defaults to stdout though.
 ... )
 ...
 >>> print(readerless(adv_hissp_code))
