@@ -101,13 +101,12 @@ tuples represent calls
 and strings represent raw Python code in Hissp.
 (Take everything else literally.)
 
-### Special Cases
+### Special Forms
 Like Python, argument expressions are evaluated before being passed to the function,
-however, the quote and lambda forms are the two special cases built into the compiler that break this rule.
-(More can be added via the macro mechanism.)
+however, the quote and lambda forms are special cases in the compiler and break this rule.
 
 Strings also have a few special cases:
-* control words, which start with `:` (and may have various special interpretations);
+* control words, which start with `:` (and may have various special interpretations in certain contexts);
 * method calls, which start with `.`, and must be the first element in a tuple representing a call;
 * and module handles, which end with `.` (and do imports).
 ```python
@@ -127,8 +126,8 @@ Strings also have a few special cases:
 ...   ':*',  # Target: Control word for unpacking.
 ...   ('.upper','name',),  # Method calls start with a dot.
 ...   'sep',  # Target: Keyword argument.
-...   ':',  # Control words compile to strings, not raw.
-...   'file', # Target: Keyword argument.
+...   ':',  # Control words compile to strings, not raw Python.
+...   'file',  # Target: Keyword argument.
 ...   # Module handles like `sys.` end in a dot.
 ...   'sys..stdout',),)  # print already defaults to stdout though.
 ... )
@@ -306,7 +305,7 @@ class: TestOr: TestCase
 The same Hissp macros work in readerless mode, Lissp, and Hebigo, and can be written in any of these.
 Given Hebigo's macros, the class above could be written in the equivalent way in Lissp:
 
-```Lisp
+```Racket
 (class_ (TestOr TestCase)
   (def_ (.test_null self)
     (self.assertEqual () (or_)))
