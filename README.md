@@ -150,6 +150,60 @@ Hello,
 A:L:I:C:E
 
 ```
+### Macros
+The ability to make lambdas and call out to arbitrary Python helper functions entails that Hissp can do anything Python can.
+For example, control flow via higher-order functions.
+```python
+>>> any(map(lambda s: print(s), "abc"))  # HOF loop.
+a
+b
+c
+False
+>>> def branch(condition, consequent, alternate):  # Conditional HOF.
+...    return (consequent if condition else alternate)()  # Pick one to call.
+...
+>>> branch(1, lambda: print('yes'), lambda: print('no'))  # Now just a function call.
+yes
+>>> branch(0, lambda: print('yes'), lambda: print('no'))
+no
+
+```
+This approach works fine in Hissp,
+but we can express that more succinctly via metaprogramming.
+Unlike functions,
+the special forms don't (always) evaluate their arguments first.
+Macros can rewrite forms in terms of these,
+extending that ability to custom tuple forms.
+```python
+>>> class _macro_:  # This name is special to Hissp.
+...     def thunk(*body):  # No self. _macro_ is just used as a namespace.
+...         # Python code for writing Hissp code. Macros are metaprograms.
+...         return ('lambda',(),*body,)  # Delayed evaluation.
+...     def if_else(condition, consequent, alternate):
+...         # Delegates both to a helper function and another macro.
+...         return ('branch',condition,('thunk',consequent,),('thunk',alternate,),)
+...
+>>> expansion = readerless(
+...     ('if_else','0==1',  # Macro form, not a runtime call.
+...       ('print',('quote','yes',),),  # Side effect not evaluated!
+...       ('print',('quote','no',),),),
+...     globals())  # Pass in globals for _macro_.
+>>> print(expansion)
+# if_else
+branch(
+  0==1,
+  # thunk
+  (lambda :
+    print(
+      'yes')),
+  # thunk
+  (lambda :
+    print(
+      'no')))
+>>> eval(expansion)
+no
+
+```
 
 ## The Lissp Reader
 
