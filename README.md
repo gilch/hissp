@@ -252,11 +252,11 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
       (.join #"\n" (map hissp.compiler..readerless forms))))
 
 (define temperature
-  ((bottle..route "/")
+  ((bottle..route "/") ; https://bottlepy.org
    &#(enjoin
       (let (s (tag "script src='https://cdn.jsdelivr.net/npm/brython@3/brython{}.js'"))
         (enjoin (.format s ".min") (.format s "_stdlib")))
-      (tag "body onload='brython()'"
+      (tag "body onload='brython()'" ; Browser Python: https://brython.info
        (script
          (define getE X#(.getElementById browser..document X))
          (define getf@v X#(float (@#value (getE X))))
