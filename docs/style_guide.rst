@@ -558,7 +558,7 @@ because the string's structure is more important for readability than the tuple'
 
    (enjoin                                ;Preferred.
      "Weather in "location" for "date" will be "weather"
-    with a "chance"% of rain.")
+    with a "percent"% chance of rain.")
 
    (enjoin "Weather in "                  ;OK.
            location
@@ -568,8 +568,8 @@ because the string's structure is more important for readability than the tuple'
            weather
            "
      with a "                             ;OK, but would look better with \n.
-           chance
-           "% of rain.")
+           percent
+           "% chance of rain.")
 
 Exactly where the implied groups are can depend on the function's semantics,
 not just the fact that it's a call.
