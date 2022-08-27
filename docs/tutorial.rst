@@ -1989,7 +1989,7 @@ with the name of each top-level ``.lissp`` file,
 or ``.lissp`` file in the corresponding package,
 respectively::
 
-   from hissp.reader import transpile
+   from hissp import transpile
 
    transpile(__package__, "spam", "eggs", "etc")
 
@@ -1997,22 +1997,40 @@ Or equivalently in Lissp, used either at the REPL or if the main module is writt
 
 .. code-block:: Lissp
 
-   (hissp.reader..transpile __package__ 'spam 'eggs 'etc)
+   (hissp..transpile __package__ 'spam 'eggs 'etc)
 
-This will automatically compile each named Lissp module.
-This approach gives you fine-grained control over what gets compiled when.
-If desired, you can remove a name passed to the `transpile()`
-call to stop recompiling that file.
-Then you can compile the file manually at the REPL as needed using `transpile()`.
+This will automatically compile each named Lissp module,
+which gives you fine-grained control over what gets compiled when.
 
-Note that you usually *would* want to recompile the whole project
-rather than only the changed files on import like Python does for ``.pyc`` files,
-because macros run at compile time.
+.. sidebar:: The Lissp source for `hissp.macros`
+
+   is included in the distributed Hissp package for completeness,
+   but Hissp doesn't automatically recompile it on import.
+   If you do an
+   `editable install <https://setuptools.pypa.io/en/latest/userguide/development_mode.html>`_
+   don't forget to recompile it when making changes!
+
+Before distributing a Lissp project to users who won't be modifying it,
+compilation could be disabled or removed altogether,
+especially when not distributing the .lissp sources.
+
+.. Note::
+   You normally *do* want to recompile the whole project during development.
+   CPython only needs to recompile any changed ``.py`` files to ``.pyc``,
+   but because macros run at compile time,
+   this wouldn't work well for Lissp.
+
 Changing a macro in one file normally doesn't affect the code that uses
 it in other files until they are recompiled.
 That is why `transpile()` will recompile the named files unconditionally.
 Even if the corresponding source has not changed,
 the compiled output may be different due to an updated macro in another file.
+
+Fortunately, Lissp compilation is usually pretty fast,
+but if desired (perhaps due to a slow macro),
+you can remove a name passed to the `transpile()`
+call to stop recompiling that file.
+Then you can compile the file manually at the REPL as needed using `transpile()`.
 
 Unicode Normalization
 =====================
