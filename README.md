@@ -250,22 +250,21 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
   `',(tag "script type='text/python'" #"\n"
       (.join #"\n" (map hissp.compiler..readerless forms))))
 
-(define temperature
-  ((bottle..route "/") ; https://bottlepy.org
-   &#(enjoin
-      (let (s (tag "script src='https://cdn.jsdelivr.net/npm/brython@3/brython{}.js'"))
-        (enjoin (.format s ".min") (.format s "_stdlib")))
-      (tag "body onload='brython()'" ; Browser Python: https://brython.info
-       (script
-         (define getE X#(.getElementById browser..document X))
-         (define getf@v X#(float (@#value (getE X))))
-         (define set@v XY#(setattr (getE Y) 'value X))
-         (attach browser..window
-           : Celsius &#(-> (getf@v 'Celsius) (X#.#"X*1.8+32") (set@v 'Fahrenheit))
-           Fahrenheit &#(-> (getf@v 'Fahrenheit) (X#.#"(X-32)/1.8") (set@v 'Celsius))))
-       (let (row (enjoin (tag "input id='{0}' onkeyup='{0}()'")
-                         (tag "label for='{0}'" "°{1}")))
-         (enjoin (.format row "Fahrenheit" "F")"<br>"(.format row "Celsius" "C")))))))
+((bottle..route "/") ; https://bottlepy.org
+ &#(enjoin
+    (let (s (tag "script src='https://cdn.jsdelivr.net/npm/brython@3/brython{}.js'"))
+      (enjoin (.format s ".min") (.format s "_stdlib")))
+    (tag "body onload='brython()'" ; Browser Python: https://brython.info
+     (script
+       (define getE X#(.getElementById browser..document X))
+       (define getf@v X#(float (@#value (getE X))))
+       (define set@v XY#(setattr (getE Y) 'value X))
+       (attach browser..window
+         : Celsius &#(-> (getf@v 'Celsius) (X#.#"X*1.8+32") (set@v 'Fahrenheit))
+         Fahrenheit &#(-> (getf@v 'Fahrenheit) (X#.#"(X-32)/1.8") (set@v 'Celsius))))
+     (let (row (enjoin (tag "input id='{0}' onkeyup='{0}()'")
+                       (tag "label for='{0}'" "°{1}")))
+       (enjoin (.format row "Fahrenheit" "F")"<br>"(.format row "Celsius" "C"))))))
 
 (bottle..run : host "localhost"  port 8080  debug True)
 ```
