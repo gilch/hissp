@@ -1269,7 +1269,7 @@ But let's look at this Lissp snippet again, more carefully.
                     (range 27)))
 
 It's injecting some Hissp we generated with a template.
-That's the first two reader macros ``.#`` and :literal:`\``.
+Those are the first two reader macros ``.#`` (inject) and :literal:`\`` (template quote).
 The `progn` sequences multiple expressions for their side effects.
 It's like having multiple "statements" in a single expression.
 We splice in multiple expressions generated with a `map`.

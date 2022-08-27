@@ -625,7 +625,7 @@ use a dedent string, which can be safely indented:
 This required an inject ``.#``.
 Don't forget the quote ``'``.
 
-With the possible exception of docstrings,
+With the principal exception of docstrings,
 long multiline strings should be declared at the `top level`_ and referenced by name.
 
 .. code-block:: Lissp
