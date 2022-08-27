@@ -714,7 +714,7 @@ Python's parameter types are rather involved.
 Hissp's lambdas have a simplified format designed for metaprogramming.
 When the parameters tuple [#LambdaList]_
 starts with a colon,
-then all parameters are paired.
+then all parameters are pairs.
 Hissp can represent all of Python's parameter types this way.
 
 .. code-block:: REPL
@@ -773,7 +773,7 @@ of a pair with a ``:?``.
 Each element before the ``:`` is implicitly paired with
 the placeholder control word ``:?``.
 Notice the Python compilation is exactly the same as before,
-and that a ``:?`` was still required in the paired section to indicate that the
+and that a ``:?`` was still required in the pairs section to indicate that the
 ``i`` parameter has no default value.
 
 The ``:*`` and ``:**`` control words mark their parameters as
@@ -814,9 +814,9 @@ in which case an empty tuple is implied:
    <function <lambda> at ...>
 
 Positional-only parameters with defaults must appear after the ``:``,
-which forces the ``:/`` into the paired side.
-Everything on the paired side must be paired, no exceptions.
-(Even though ``:/`` can only be paired with ``:?``,
+which forces the ``:/`` into the pairs side.
+Everything on the pairs side must be paired, no exceptions.
+(Even though ``:/`` can only pair with ``:?``,
 adding another special case to not require the ``:?``
 would make metaprogramming more difficult.)
 
@@ -861,7 +861,7 @@ The remaining elements are for the arguments.
 
 Like lambda's parameters tuple,
 when you start the arguments with ``:``,
-the rest are paired.
+the rest are pairs.
 
 .. code-block:: REPL
 
@@ -887,7 +887,7 @@ this means that the ``:?`` is always the left of a pair.
 Like lambdas, the ``:`` is a convenience abbreviation for ``:?`` pairs,
 giving call forms three parts::
 
-   (<callable> <single> : <paired>)
+   (<callable> <singles> : <pairs>)
 
 For example:
 
@@ -905,7 +905,7 @@ For example:
 
 Notice the Python compilation is exactly the same as before.
 
-The single and the paired section may be empty:
+The singles or the pairs section may be empty:
 
 .. code-block:: REPL
 
@@ -924,7 +924,7 @@ The single and the paired section may be empty:
    ...   end=('X'))
    X
 
-The ``:`` is optional if the paired section is empty:
+The ``:`` is optional if the pairs section is empty:
 
 .. code-block:: REPL
 
@@ -939,7 +939,7 @@ The ``:`` is optional if the paired section is empty:
 
 Again, this is like lambda.
 
-The paired section has implicit pairs; there must be an even number.
+The pairs section has implicit pairs; there must be an even number of elements.
 
 Use the control words ``:*`` for iterable unpacking,
 ``:?`` to pass by position, and ``:**`` for keyword unpacking:
@@ -966,7 +966,7 @@ but (as in Python) a ``:*`` is not allowed to follow ``:**``.
 
 Method calls are similar to function calls::
 
-   (.<method name> <self> <single> : <paired>)
+   (.<method name> <self> <singles> : <pairs>)
 
 Like Clojure, a method on the first "argument" (``<self>``) is assumed if the
 function name starts with a dot:

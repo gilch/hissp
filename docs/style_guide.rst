@@ -243,7 +243,7 @@ you may have to turn it off.
 Note also that tuple commas are used as terminators,
 not separators,
 even on the same line.
-This is to prevent the common error of forgetting the required trailing comma for a single.
+This is to prevent the common error of forgetting the required trailing comma for a monuple.
 If your syntax highlighter can distinguish ``(x)`` from ``(x,)``, you may be OK without it.
 But this had better be the case for the whole team.
 

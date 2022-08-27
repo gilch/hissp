@@ -679,7 +679,7 @@ Lissp Whirlwind Tour
    ;;;; 10 Advanced Lambdas
 
    ;; Python parameter types are rather involved. Lambda does all of them.
-   ;; Like calls, they are all paired. :? means no default.
+   ;; Like calls, they are all pairs. :? means no default.
    #> (lambda (: a :?  b :?  :/ :?        ;positional only
    #..         c :?  d :?                 ;normal
    #..         e 1  f 2                   ;default
