@@ -729,7 +729,7 @@ except ModuleNotFoundError:pass"
      $#e))
 
 (defmacro spy\# e
-  "``spy#`` Print e => its value to stderr, return the value."
+  "``spy#`` Print e => its value to stderr. Return the value."
   `(hissp.._macro_._spy ,e))
 
 (defmacro time\# e
@@ -747,7 +747,7 @@ except ModuleNotFoundError:pass"
   Additional arguments are evaluated in a context where ``it`` refers
   to the result of e. These (if any) are passed to the AssertionError.
 
-  Compilation is simply the it when __debug__ is off.
+  Compilation is simply e when __debug__ is off.
   "
   (if-else __debug__
     `(let (,'it ,e)
