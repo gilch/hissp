@@ -45,7 +45,7 @@ For example, using `hissp.reader.transpile`, a package name, and module names,
 
 .. code-block:: shell
 
-   $ alias lisspt='lissp -c '\''(hissp..transpile : :* (X#.#"X[1:]" sys..argv))'\'
+   $ alias lisspt="lissp -c '(hissp..transpile : :* ([#1:] sys..argv))'"
    $ lisspt pkg foo # Transpiles pkg/foo.lissp to pkg/foo.py in a package context.
    $ lisspt pkg.sub foo # Transpiles pkg/sub/foo.lissp to .py in subpackage context.
    $ lisspt "" foo bar # foo.lissp, bar.lissp to foo.py, bar.py without a package.
@@ -54,7 +54,7 @@ or using `hissp.reader.transpile_file`, a file name, and a package name,
 
 .. code-block:: shell
 
-   $ alias lissptf='lissp -c '\''(hissp.reader..transpile_file : :* (X#.#"X[1:]" sys..argv))'\'
+   $ alias lissptf="lissp -c '(hissp.reader..transpile_file : :* ([#1:] sys..argv))'"
    $ lissptf spam.lissp # Transpile a single file without a package.
    $ cd pkg
    $ lissptf eggs.lissp pkg # must declare the package name

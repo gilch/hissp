@@ -33,11 +33,12 @@ not be available for ``defmacro``. It's smart enough to check for the
 presence of ``_macro_`` (at compile time) in its expansion context, and
 inline the initialization code when required.
 
-With the exception of `prelude` (which uses `exec`), they also eschew
-any expansions to Python code, relying only on the built-in special
-forms ``quote`` and ``lambda``, which makes their expansions compatible
-with advanced rewriting macros that process the Hissp expansions of
-other macros.
+With the exception of `prelude` (which uses `exec`), and
+`subscript <QzLSQB_QzHASH_>`, which is not used internally, they also
+eschew any expansions to Python code, relying only on the built-in
+special forms ``quote`` and ``lambda``, which makes their expansions
+compatible with advanced rewriting macros that process the Hissp
+expansions of other macros.
 
 To help keep macro definitions and expansions manageable in complexity,
 these macros lack some of the extra features their equivalents
@@ -754,3 +755,7 @@ except ModuleNotFoundError:pass"
          (throw (AssertionError ,@args)))
        ,'it)
     e))
+
+(defmacro \[\# e
+  "``subscript`` Injection. Python's subscription operator."
+  `(lambda ($#G) ,(.format "({}[{})" '$#G (hissp..demunge e))))

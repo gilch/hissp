@@ -248,14 +248,14 @@ class Lissp:
     def _macro(self, v):
         p = self._p
         with {
-            "`": self.template_context,
+            "`": self.gensym_context,
             ",": self.unquote_context,
             ",@": self.unquote_context,
         }.get(v, nullcontext)():
             yield self.parse_macro(v, *self._extras(p, v))
 
     @contextmanager
-    def template_context(self):
+    def gensym_context(self):
         """Start a new gensym context for the current template."""
         self.counters.append(gensym_counter())
         self.context.append("`")
