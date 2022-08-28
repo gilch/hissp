@@ -71,7 +71,7 @@ DROP = object()
 """
 The sentinel value returned by the discard macro ``_#``, which the
 reader skips over when parsing. Reader macros can have read-time side
-effects with no Hissp output by returning this.
+effects with no Hissp output by returning this. (Not recommended.)
 """
 
 
@@ -125,10 +125,18 @@ class Lexer(Iterator):
 
 _Unquote = namedtuple("_Unquote", ["target", "value"])
 Comment = namedtuple("Comment", ["content"])
+"""Parsed object for a comment.
+
+The reader normally discards these, but reader macros can use them.
+The content does not include the initial semicolon.
+"""
 
 
 class Extra(tuple):
-    """Designates Extra read-time arguments for reader macros."""
+    """Designates Extra read-time arguments for reader macros.
+
+    Normally made with the ``!`` macro, but can be constructed directly.
+    """
 
     def __repr__(self):
         return f"Extra({list(self)!r})"
@@ -473,9 +481,9 @@ def _parse_extras(extras):
 def is_qualifiable(symbol):
     """Determines if symbol can be qualified with a module.
 
-    Can't be ``quote``, ``__import__``, any Python reserved word, an
-    auto-gensym, already qualified, method syntax, or a module handle;
-    and must be a valid identifier or attribute identifier.
+    Can't be ``quote``, ``__import__``, any Python reserved word, a
+    prefix auto-gensym, already qualified, method syntax, or a module
+    handle; and must be a valid identifier or attribute identifier.
     """
     return (
         symbol not in {"quote", "__import__"}
@@ -510,7 +518,7 @@ def transpile_file(path: Union[Path, str], package: Optional[str] = None):
     Code in .lissp files is executed upon compilation. This is necessary
     because macro definitions can alter the compilation of subsequent
     top-level forms. A packaged Lissp file must know its package at
-    compile time to resolve imports correctly.
+    compile time to handle templates and macros correctly.
     """
     path = Path(path).resolve(strict=True)
     qualname = f"{package or ''}{'.' if package else ''}{PurePath(path.name).stem}"
