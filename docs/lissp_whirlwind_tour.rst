@@ -3852,17 +3852,20 @@ Lissp Whirlwind Tour
    ...   (5),
    ...   # hissp.._macro_._spy
    ...   # hissp.macros.._macro_.let
-   ...   (lambda _QzNo70_e=mul(
+   ...   (lambda _QzNo71_e=mul(
    ...     (7),
    ...     (3)):(
    ...     __import__('builtins').print(
-   ...       ('mul',
-   ...        (7),
-   ...        (3),),
+   ...       __import__('pprint').pformat(
+   ...         ('mul',
+   ...          (7),
+   ...          (3),),
+   ...         sort_dicts=(0)),
    ...       ('=>'),
-   ...       _QzNo70_e,
+   ...       __import__('builtins').repr(
+   ...         _QzNo71_e),
    ...       file=__import__('sys').stderr),
-   ...     _QzNo70_e)[-1])())
+   ...     _QzNo71_e)[-1])())
    26
 
    ;; stderr: ('mul', 7, 3) => 21

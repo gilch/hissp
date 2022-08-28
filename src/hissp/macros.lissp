@@ -725,7 +725,10 @@ except ModuleNotFoundError:pass"
 
 (defmacro _spy e
   `(let ($#e ,e)
-     (print ',e "=>" $#e : file sys..stderr)
+     (print (pprint..pformat ',e : sort_dicts 0)
+            "=>"
+            (repr $#e)
+            : file sys..stderr)
      $#e))
 
 (defmacro spy\# e
