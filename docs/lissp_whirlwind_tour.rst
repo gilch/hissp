@@ -3827,24 +3827,31 @@ Lissp Whirlwind Tour
    ...   # hissp.macros.._macro_.letQz_from
    ...   (lambda _QzNo73_start,_QzNo73_val,_QzNo73_end:(
    ...     __import__('builtins').print(
-   ...       ('Elapsed:'),
+   ...       ('time# ran'),
+   ...       __import__('pprint').pformat(
+   ...         ('time..sleep',
+   ...          (0.05),),
+   ...         sort_dicts=(0)),
+   ...       ('in'),
    ...       __import__('operator').truediv(
    ...         __import__('operator').sub(
    ...           _QzNo73_end,
    ...           _QzNo73_start),
    ...         __import__('decimal').Decimal(
    ...           (1000000.0))),
-   ...       ('ms')),
+   ...       ('ms'),
+   ...       file=__import__('sys').stderr),
    ...     _QzNo73_val)[-1])(
    ...     *# hissp.macros.._macro_.QzAT_
-   ...      (lambda *_QzNo42_xs:
+   ...      (lambda *_QzNo55_xs:
    ...        __import__('builtins').list(
-   ...          _QzNo42_xs))(
+   ...          _QzNo55_xs))(
    ...        _QzNo73_time(),
    ...        __import__('time').sleep(
    ...          (0.05)),
    ...        _QzNo73_time())))()
-   Elapsed: ... ms
+
+   ;; stderr: time# ran ('time..sleep', 0.05) in ... ms
 
 
    #> (add 5 spy#(mul 7 3))                  ;Debug subexpressions.
