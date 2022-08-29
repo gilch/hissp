@@ -33,11 +33,12 @@ not be available for ``defmacro``. It's smart enough to check for the
 presence of ``_macro_`` (at compile time) in its expansion context, and
 inline the initialization code when required.
 
-With the exception of `prelude` (which uses `exec`), they also eschew
-any expansions to Python code, relying only on the built-in special
-forms ``quote`` and ``lambda``, which makes their expansions compatible
-with advanced rewriting macros that process the Hissp expansions of
-other macros.
+With the exception of `prelude` (which uses `exec`), and
+`subscript <QzLSQB_QzHASH_>`, which is not used internally, they also
+eschew any expansions to Python code, relying only on the built-in
+special forms ``quote`` and ``lambda``, which makes their expansions
+compatible with advanced rewriting macros that process the Hissp
+expansions of other macros.
 
 To help keep macro definitions and expansions manageable in complexity,
 these macros lack some of the extra features their equivalents
@@ -724,20 +725,27 @@ except ModuleNotFoundError:pass"
 
 (defmacro _spy e
   `(let ($#e ,e)
-     (print ',e "=>" $#e : file sys..stderr)
+     (print (pprint..pformat ',e : sort_dicts 0)
+            "=>"
+            (repr $#e)
+            : file sys..stderr)
      $#e))
 
 (defmacro spy\# e
-  "``spy#`` Print e => its value to stderr, return the value."
+  "``spy#`` Print e => its value to stderr. Return the value."
   `(hissp.._macro_._spy ,e))
 
 (defmacro time\# e
-  "``time#`` Measure execution time of e, return its value."
+  "``time#`` Print ms elapsed running e to stderr. Return its value."
   `(let ($#time time..time_ns)
      (let-from ($#start $#val $#end) (@ ($#time) ,e ($#time))
-       (print "Elapsed:" (op#truediv (op#sub $#end $#start)
-                                     (decimal..Decimal 1e6))
-                         "ms")
+       (print "time# ran"
+              (pprint..pformat ',e : sort_dicts 0)
+              "in"
+              (op#truediv (op#sub $#end $#start)
+                          (decimal..Decimal 1e6))
+              "ms"
+              : file sys..stderr)
        $#val)))
 
 (defmacro ensure (e predicate : :* args)
@@ -746,7 +754,7 @@ except ModuleNotFoundError:pass"
   Additional arguments are evaluated in a context where ``it`` refers
   to the result of e. These (if any) are passed to the AssertionError.
 
-  Compilation is simply the it when __debug__ is off.
+  Compilation is simply e when __debug__ is off.
   "
   (if-else __debug__
     `(let (,'it ,e)
@@ -754,3 +762,7 @@ except ModuleNotFoundError:pass"
          (throw (AssertionError ,@args)))
        ,'it)
     e))
+
+(defmacro \[\# e
+  "``subscript`` Injection. Python's subscription operator."
+  `(lambda ($#G) ,(.format "({}[{})" '$#G (hissp..demunge e))))

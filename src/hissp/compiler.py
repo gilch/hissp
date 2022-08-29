@@ -151,7 +151,7 @@ class Compiler:
         (lambda (<parameters>)
           <body>)
 
-        The parameters tuple is divided into (<single> : <paired>)
+        The parameters tuple is divided into (<singles> : <pairs>)
 
         Parameter types are the same as Python's.
         For example,
@@ -201,7 +201,7 @@ class Compiler:
         >>> readerless(('lambda', (),),)
         '(lambda :())'
 
-        The ``:`` is required if there are any paired parameters, even
+        The ``:`` is required if there are any pair parameters, even
         if there are no single parameters:
 
         >>> readerless(('lambda', (':',':**','kwargs',),),)

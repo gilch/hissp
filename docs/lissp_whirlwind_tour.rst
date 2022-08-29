@@ -679,7 +679,7 @@ Lissp Whirlwind Tour
    ;;;; 10 Advanced Lambdas
 
    ;; Python parameter types are rather involved. Lambda does all of them.
-   ;; Like calls, they are all paired. :? means no default.
+   ;; Like calls, they are all pairs. :? means no default.
    #> (lambda (: a :?  b :?  :/ :?        ;positional only
    #..         c :?  d :?                 ;normal
    #..         e 1  f 2                   ;default
@@ -3358,6 +3358,9 @@ Lissp Whirlwind Tour
    #..It's a way to comment out code structurally.
    #..It can also make block comments like this one.
    #..This would show up when compiled if not for _#.
+   #..Of course, a string expression like this one wouldn't do anything
+   #..in Python, even if it were compiled in. But the need to escape double
+   #..quotes might make ;; comments easier.
    #.."
    >>>
 
@@ -3406,10 +3409,9 @@ Lissp Whirlwind Tour
    "Comment(content='comments are parsed objects too!')"
 
 
-   _#"Except for strings and tuples, objects in Hissp should evaluate to
-   themselves. But when the object lacks a Python literal notation,
-   the compiler is in a pickle!
-   "
+   ;; Except for strings and tuples, objects in Hissp should evaluate
+   ;; to themselves. But when the object lacks a Python literal notation,
+   ;; the compiler is in a pickle!
    #> builtins..float#inf
    >>> __import__('pickle').loads(  # inf
    ...     b'Finf\n.'
@@ -3419,10 +3421,9 @@ Lissp Whirlwind Tour
 
    ;;; 19.3 Inject
 
-   _#"The 'inject' reader macro compiles and evaluates the next form at
-   read time and injects the resulting object directly into the Hissp
-   tree, like a fully-qualified reader macro does.
-   "
+   ;; The 'inject' reader macro compiles and evaluates the next form at
+   ;; read time and injects the resulting object directly into the Hissp
+   ;; tree, like a fully-qualified reader macro does.
 
    #> '(1 2 (operator..add 1 2))          ;Quoting happens at compile time.
    >>> ((1),
@@ -3452,10 +3453,9 @@ Lissp Whirlwind Tour
    Fraction(1, 2)
 
 
-   _#"Recall that Hissp-level string objects can represent
-   arbitrary Python code. It's usually used for identifiers,
-   but can be anything, even complex formulas.
-   "
+   ;; Recall that Hissp-level string objects can represent
+   ;; arbitrary Python code. It's usually used for identifiers,
+   ;; but can be anything, even complex formulas.
    #> (lambda abc
    #..  ;; Hissp may not have operators, but Python does.
    #..  .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
@@ -3463,11 +3463,10 @@ Lissp Whirlwind Tour
    <function <lambda> at 0x...>
 
 
-   _#"Remember the raw string and hash string reader syntax makes Python-
-   level strings, via a Hissp-level string containing a Python string
-   literal. It is NOT for creating a Hissp-level string, which would
-   normally contain Python code. Use inject for that.
-   "
+   ;; Remember the raw string and hash string reader syntax makes Python-
+   ;; level strings, via a Hissp-level string containing a Python string
+   ;; literal. It is NOT for creating a Hissp-level string, which would
+   ;; normally contain Python code. Use inject for that.
    #> '"a string"                         ;Python code for a string. In a string.
    >>> "('a string')"
    "('a string')"
@@ -3478,9 +3477,8 @@ Lissp Whirlwind Tour
    'a string'
 
 
-   _#"Objects without literals don't pickle until the compiler has to emit
-   them as Python code. That may never happen if another macro gets there first.
-   "
+   ;; Objects without literals don't pickle until the compiler has to emit
+   ;; them as Python code. That may never happen if another macro gets it.
    #> 'builtins..repr#(re..compile#.#"[1-9][0-9]*" builtins..float#inf)
    >>> "(re.compile('[1-9][0-9]*'), inf)"
    "(re.compile('[1-9][0-9]*'), inf)"
@@ -3829,24 +3827,31 @@ Lissp Whirlwind Tour
    ...   # hissp.macros.._macro_.letQz_from
    ...   (lambda _QzNo73_start,_QzNo73_val,_QzNo73_end:(
    ...     __import__('builtins').print(
-   ...       ('Elapsed:'),
+   ...       ('time# ran'),
+   ...       __import__('pprint').pformat(
+   ...         ('time..sleep',
+   ...          (0.05),),
+   ...         sort_dicts=(0)),
+   ...       ('in'),
    ...       __import__('operator').truediv(
    ...         __import__('operator').sub(
    ...           _QzNo73_end,
    ...           _QzNo73_start),
    ...         __import__('decimal').Decimal(
    ...           (1000000.0))),
-   ...       ('ms')),
+   ...       ('ms'),
+   ...       file=__import__('sys').stderr),
    ...     _QzNo73_val)[-1])(
    ...     *# hissp.macros.._macro_.QzAT_
-   ...      (lambda *_QzNo42_xs:
+   ...      (lambda *_QzNo55_xs:
    ...        __import__('builtins').list(
-   ...          _QzNo42_xs))(
+   ...          _QzNo55_xs))(
    ...        _QzNo73_time(),
    ...        __import__('time').sleep(
    ...          (0.05)),
    ...        _QzNo73_time())))()
-   Elapsed: ... ms
+
+   ;; stderr: time# ran ('time..sleep', 0.05) in ... ms
 
 
    #> (add 5 spy#(mul 7 3))                  ;Debug subexpressions.
@@ -3854,17 +3859,20 @@ Lissp Whirlwind Tour
    ...   (5),
    ...   # hissp.._macro_._spy
    ...   # hissp.macros.._macro_.let
-   ...   (lambda _QzNo70_e=mul(
+   ...   (lambda _QzNo71_e=mul(
    ...     (7),
    ...     (3)):(
    ...     __import__('builtins').print(
-   ...       ('mul',
-   ...        (7),
-   ...        (3),),
+   ...       __import__('pprint').pformat(
+   ...         ('mul',
+   ...          (7),
+   ...          (3),),
+   ...         sort_dicts=(0)),
    ...       ('=>'),
-   ...       _QzNo70_e,
+   ...       __import__('builtins').repr(
+   ...         _QzNo71_e),
    ...       file=__import__('sys').stderr),
-   ...     _QzNo70_e)[-1])())
+   ...     _QzNo71_e)[-1])())
    26
 
    ;; stderr: ('mul', 7, 3) => 21
@@ -3899,14 +3907,13 @@ Lissp Whirlwind Tour
 
    ;;; 20.1 Aside: Extra (!), the Final Builtin Reader Macro
 
-   _#"Reader macros take one primary argument, but additional arguments
-   can be passed in with the extra macro !. A reader macro consumes the
-   next parsed object, and if it's an Extra, consumes one again. Thus,
-   extras must be written between the # and primary argument, but because
-   they're often optional refinements, which are easier to define as
-   trailing optional parameters in Python functions, they get passed
-   in after the primary argument.
-   "
+   ;; Reader macros take one primary argument, but additional arguments
+   ;; can be passed in with the extra macro !. A reader macro consumes the
+   ;; next parsed object, and if it's an Extra, consumes one again. Thus,
+   ;; extras must be written between the # and primary argument, but
+   ;; because they're often optional refinements, which are easier to
+   ;; define as trailing optional parameters in Python functions, they get
+   ;; passed in after the primary argument.
    #> (setattr _macro_ 'L\# en#list)
    >>> setattr(
    ...   _macro_,

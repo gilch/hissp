@@ -1,3 +1,7 @@
+<!--
+Copyright 2022 Matthew Egan Odendahl
+SPDX-License-Identifier: Apache-2.0
+-->
 {% extends '!base.html' %}
 
 {% block extrahead %}
@@ -11,6 +15,46 @@
 <style type="text/css">
 .gitter-chat-embed {
   z-index: 401
+}
+</style>
+<style type="text/css">
+/* Contrast Tweaks for Monokai Theme */
+.highlight .gh {
+  color: hsl(212deg, 30%, 96%);
+  font-weight: bold;
+}
+.highlight .gu {
+  color: hsl(212deg, 30%, 96%);
+  font-style: italic;
+}
+.highlight .c {
+  color: hsl(212deg, 9%, 58%)
+}
+.highlight .c1 {
+  color: hsl(212deg, 9%, 58%)
+}
+.highlight {
+  background: #0d1117
+}
+</style>
+<style type="text/css">
+/* Dark-Theme Contrast Tweaks for Monokai Theme */
+body[data-theme="dark"] .highlight .gh {
+color: hsl(212deg, 30%, 96%);
+font-weight: bold;
+}
+body[data-theme="dark"] .highlight .gu {
+color: hsl(212deg, 30%, 96%);
+font-style: italic;
+}
+body[data-theme="dark"] .highlight .c {
+  color: hsl(212deg, 9%, 58%)
+}
+body[data-theme="dark"] .highlight .c1 {
+color: hsl(212deg, 9%, 58%)
+}
+body[data-theme="dark"] .highlight {
+background: #0d1117
 }
 </style>
 {% endblock %}

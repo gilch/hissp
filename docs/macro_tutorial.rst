@@ -1269,7 +1269,7 @@ But let's look at this Lissp snippet again, more carefully.
                     (range 27)))
 
 It's injecting some Hissp we generated with a template.
-That's the first two reader macros ``.#`` and :literal:`\``.
+Those are the first two reader macros ``.#`` (inject) and :literal:`\`` (template quote).
 The `progn` sequences multiple expressions for their side effects.
 It's like having multiple "statements" in a single expression.
 We splice in multiple expressions generated with a `map`.
@@ -2847,18 +2847,20 @@ A Slice of Python
 -----------------
 
 Python has a powerful and compact notation for operating on *slices* of sequences.
+It has three arguments: *start*, *stop*, and *step*.
+Each one is optional, and defaults to ``None``.
 
 .. code-block:: Python
 
    >>> "abcdefg"[-1::-2]
    'geca'
 
-It has three arguments: *start*, *stop*, and *step*.
-Each one is optional, and defaults to ``None``.
 
 However, this notation is only valid in the context of a subscription operator ``[]``.
 It is possible to separate the operands using the `slice` builtin,
 but it comes at a cost.
+
+(We'll be reusing this simple "geca" test case as we iterate. Feel free to try others.)
 
 .. code-block:: Python
 
@@ -2867,7 +2869,7 @@ but it comes at a cost.
    >>> a[b]
    'geca'
 
-We can see that the slice notation is much more compact than this approach.
+There's the cost: this separated approach is much less concise compared to the slice notation.
 
 Even without macros,
 Hissp can slice this way.
@@ -2887,7 +2889,16 @@ This is so much longer that one would be tempted to inject the Python version.
 Unfortunately, the rest of the expression is often easier to write in Lissp.
 You can usually work around this by using
 `let` to give an easily-injectable name to a complex operand,
-but that adds as much overhead as `slice` would.
+but that adds as significant overhead.
+
+.. code-block:: REPL
+
+   #> (let (x "abcdefg") .#"x[-1::-2]")
+   >>> # let
+   ... (lambda x=('abcdefg'):x[-1::-2])()
+   'geca'
+
+.. TODO: (X#.#"X[-1::-2]" "abcdefg")
 
 We need a better abstraction.
 
@@ -3207,8 +3218,217 @@ These cases are very common.
 
 For more complex expressions, it's probably a bad idea.
 You lose out on munging, module handles, and any macros.
-For those cases, the extra overhead for using `slice` is hardly noticable.
+For those cases, the extra overhead for using `slice` is hardly noticeable.
 Use the right tool for the job.
+
+A Simpler Solution
+~~~~~~~~~~~~~~~~~~
+
+The `itemgetter <operator.itemgetter>` function is a function factory;
+it's a function to make functions, at run time.
+Using run time helpers like this is an important technique for writing macros,
+but sometimes more work can be done at compile time.
+
+.. TODO: (X#.#"X[-1::-2]" "abcdefg")
+
+If we write a lambda form ourselves,
+it's not necessary to separate the operands for the subscription operator,
+which means we don't need the ``Slicer`` helper class either.
+
+Compare.
+
+.. code-block:: REPL
+
+   #> ((op#itemgetter (slice -1 None -2)) "abcdefg")
+   >>> __import__('operator').itemgetter(
+   ...   slice(
+   ...     (-1),
+   ...     None,
+   ...     (-2)))(
+   ...   ('abcdefg'))
+   'geca'
+
+   #> ((lambda a .#"a[-1::-2]") "abcdefg")
+   >>> (lambda a:a[-1::-2])(
+   ...   ('abcdefg'))
+   'geca'
+
+We'd be giving up a little transparency.
+Notice the nice `repr` provided by the `operator.itemgetter`.
+
+.. code-block:: REPL
+
+   #> (op#itemgetter (slice -1 None -2))
+   >>> __import__('operator').itemgetter(
+   ...   slice(
+   ...     (-1),
+   ...     None,
+   ...     (-2)))
+   operator.itemgetter(slice(-1, None, -2))
+
+The lambda object, on the other hand, is opaque.
+
+.. code-block:: REPL
+
+   #> (lambda a .#"a[-1::-2]")
+   >>> (lambda a:a[-1::-2])
+   <function <lambda> at 0x...>
+
+But if we can eliminate the ``Slicer`` this is probably worth it.
+
+We can pretty easily expand to this form.
+Our previous macro was almost there.
+
+.. Lissp::
+
+   #> (defmacro \[\# e
+   #..  `(lambda ,'a ,(.format "({}[{})" 'a (hissp..demunge e))))
+   >>> # defmacro
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo7_fn=(lambda e:
+   ...   (lambda * _: _)(
+   ...     'lambda',
+   ...     'a',
+   ...     ('({}[{})').format(
+   ...       'a',
+   ...       __import__('hissp').demunge(
+   ...         e)))):(
+   ...   __import__('builtins').setattr(
+   ...     _QzNo7_fn,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'QzLSQB_QzHASH_',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'QzLSQB_QzHASH_',
+   ...     _QzNo7_fn))[-1])()
+
+It works.
+
+.. code-block:: REPL
+
+   #> (.\[\# _macro_ '-1::-2]) ; shows Hissp expansion for [#-1::-2]
+   >>> _macro_.QzLSQB_QzHASH_(
+   ...   'Qz_1QzCOLON_QzCOLON_Qz_2QzRSQB_')
+   ('lambda', 'a', '(a[-1::-2])')
+
+   #> ([#-1::-2] "abcdefg")
+   >>> (lambda a:(a[-1::-2]))(
+   ...   ('abcdefg'))
+   'geca'
+
+Maybe even better than expected.
+
+.. code-block:: REPL
+
+   #> ([#1][1] '(foo bar))
+   >>> (lambda a:(a[1][1]))(
+   ...   ('foo',
+   ...    'bar',))
+   'a'
+
+Everything in the atom after the ``#`` is Python code.
+The initial ``[`` does have to be closed,
+but after that,
+other Python expressions work too.
+
+The format string could even be simplified to ``"(a[{})"``,
+but there's a subtle flaw which is reason enough not to follow through with that.
+
+.. code-block:: REPL
+
+   #> (let (a -1)
+   #..  ([#a::-2] "abcdefg"))
+   >>> # let
+   ... (lambda a=(-1):
+   ...   (lambda a:(a[a::-2]))(
+   ...     ('abcdefg')))()
+   Traceback (most recent call last):
+     ...
+   TypeError: slice indices must be integers or None or have an __index__ method
+
+Yet it works fine with ``b``.
+
+.. code-block:: REPL
+
+   #> (let (b -1)
+   #..  ([#b::-2] "abcdefg"))
+   >>> # let
+   ... (lambda b=(-1):
+   ...   (lambda a:(a[b::-2]))(
+   ...     ('abcdefg')))()
+   'geca'
+
+See the problem?
+Look at the Python compilation.
+Our ``slicer`` version didn't have this flaw.
+
+Auto-qualification isn't compatible with local variables,
+but since we didn't want this accidental anaphor,
+we should suppress the qualification with a gensym instead of a symbol interpolation.
+
+.. Lissp::
+
+   #> (defmacro \[\# e
+   #..  `(lambda ($#G) ,(.format "({}[{})" '$#G (hissp..demunge e))))
+   >>> # defmacro
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo7_fn=(lambda e:
+   ...   (lambda * _: _)(
+   ...     'lambda',
+   ...     (lambda * _: _)(
+   ...       '_QzNo26_G'),
+   ...     ('({}[{})').format(
+   ...       '_QzNo26_G',
+   ...       __import__('hissp').demunge(
+   ...         e)))):(
+   ...   __import__('builtins').setattr(
+   ...     _QzNo7_fn,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'QzLSQB_QzHASH_',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'QzLSQB_QzHASH_',
+   ...     _QzNo7_fn))[-1])()
+
+Read this carefully.
+``$#`` only works inside of templates,
+but it's still allowed in an unquote context inside of a template;
+the template context hasn't completely turned off.
+`unquote_context` and `gensym_context` are both tracked by the reader.
+
+Since we want the symbol itself,
+not its value,
+we need to quote it with ``'``.
+Remember, reader macros apply inside-out,
+like functions,
+so the ``$#`` macro applies *before* the ``'`` does.
+
+It works.
+
+.. code-block:: REPL
+
+   #> ([#-1::-2] "abcdefg")
+   >>> (lambda _QzNo26_G:(_QzNo26_G[-1::-2]))(
+   ...   ('abcdefg'))
+   'geca'
+
+Notice the gensym in the expansion (your template number may be diferent than mine),
+which would prevent the kind of accidental name collision we saw in our `let` ``a`` example.
+
+And *this* is the `bundled version <QzLSQB_QzHASH_>`, sans docstring.
+It has no dependencies; no helpers.
+Now you understand how it works, know its limitations,
+its tricks,
+and how to implement it yourself.
+Superpower stolen.
 
 .. TODO: fractions
    (defmacro F\# (x)

@@ -1,4 +1,4 @@
-.. Copyright 2020, 2021 Matthew Egan Odendahl
+.. Copyright 2020, 2021, 2022 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 Command Line Reference
@@ -9,7 +9,7 @@ Command Line Reference
 Lissp Command
 -------------
 
-A normal install of the ``hissp`` package with ``pip`` and ``setuptools`` will
+A normal install of the ``hissp`` package will
 also install the ``lissp`` command-line tool for running Lissp code.
 This is a convenience executable for starting ``python -m hissp``,
 whose minimal options were modeled after Python's most commonly used:
@@ -33,17 +33,30 @@ The Lissp Compiler
 ------------------
 
 The recommended way to compile Lissp modules is with
-`transpile <hissp.reader.transpile>` calls in ``__init__.py`` files (or the main module).
+`transpile <hissp.reader.transpile>` calls in ``__init__.py`` files
+for packaged modules,
+or in the main module for any modules not in a package.
 
-This can be done manually in the REPL.
-However, an external build system may need to use shell commands.
+One-offs are easy to do manually in the REPL,
+but an external build system may need to use shell commands.
 It is possible to run transpile commands in the shell via ``python -c`` or ``lissp -c``.
 
-For example, using `hissp.reader.transpile_file`,
+For example, using `hissp.reader.transpile`, a package name, and module names,
 
 .. code-block:: shell
 
-   $ alias lisspc="lissp -c '(hissp.reader..transpile_file : :* (get#(slice 1 None) sys..argv))'"
-   $ lisspc spam.lissp
-   $ cd foopackage
-   $ lisspc eggs.lissp foopackage
+   $ alias lisspt="lissp -c '(hissp..transpile : :* ([#1:] sys..argv))'"
+   $ lisspt pkg foo # Transpiles pkg/foo.lissp to pkg/foo.py in a package context.
+   $ lisspt pkg.sub foo # Transpiles pkg/sub/foo.lissp to .py in subpackage context.
+   $ lisspt "" foo bar # foo.lissp, bar.lissp to foo.py, bar.py without a package.
+
+or using `hissp.reader.transpile_file`, a file name, and a package name,
+
+.. code-block:: shell
+
+   $ alias lissptf="lissp -c '(hissp.reader..transpile_file : :* ([#1:] sys..argv))'"
+   $ lissptf spam.lissp # Transpile a single file without a package.
+   $ cd pkg
+   $ lissptf eggs.lissp pkg # must declare the package name
+   $ cd sub
+   $ lissptf ham.lissp pkg.sub # separate subpackage name with dot

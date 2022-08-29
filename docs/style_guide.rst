@@ -243,7 +243,7 @@ you may have to turn it off.
 Note also that tuple commas are used as terminators,
 not separators,
 even on the same line.
-This is to prevent the common error of forgetting the required trailing comma for a single.
+This is to prevent the common error of forgetting the required trailing comma for a monuple.
 If your syntax highlighter can distinguish ``(x)`` from ``(x,)``, you may be OK without it.
 But this had better be the case for the whole team.
 
@@ -558,7 +558,7 @@ because the string's structure is more important for readability than the tuple'
 
    (enjoin                                ;Preferred.
      "Weather in "location" for "date" will be "weather"
-    with a "chance"% of rain.")
+    with a "percent"% chance of rain.")
 
    (enjoin "Weather in "                  ;OK.
            location
@@ -568,8 +568,8 @@ because the string's structure is more important for readability than the tuple'
            weather
            "
      with a "                             ;OK, but would look better with \n.
-           chance
-           "% of rain.")
+           percent
+           "% chance of rain.")
 
 Exactly where the implied groups are can depend on the function's semantics,
 not just the fact that it's a call.
@@ -625,7 +625,7 @@ use a dedent string, which can be safely indented:
 This required an inject ``.#``.
 Don't forget the quote ``'``.
 
-With the possible exception of docstrings,
+With the principal exception of docstrings,
 long multiline strings should be declared at the `top level`_ and referenced by name.
 
 .. code-block:: Lissp

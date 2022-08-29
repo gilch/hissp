@@ -714,7 +714,7 @@ Python's parameter types are rather involved.
 Hissp's lambdas have a simplified format designed for metaprogramming.
 When the parameters tuple [#LambdaList]_
 starts with a colon,
-then all parameters are paired.
+then all parameters are pairs.
 Hissp can represent all of Python's parameter types this way.
 
 .. code-block:: REPL
@@ -773,7 +773,7 @@ of a pair with a ``:?``.
 Each element before the ``:`` is implicitly paired with
 the placeholder control word ``:?``.
 Notice the Python compilation is exactly the same as before,
-and that a ``:?`` was still required in the paired section to indicate that the
+and that a ``:?`` was still required in the pairs section to indicate that the
 ``i`` parameter has no default value.
 
 The ``:*`` and ``:**`` control words mark their parameters as
@@ -814,9 +814,9 @@ in which case an empty tuple is implied:
    <function <lambda> at ...>
 
 Positional-only parameters with defaults must appear after the ``:``,
-which forces the ``:/`` into the paired side.
-Everything on the paired side must be paired, no exceptions.
-(Even though ``:/`` can only be paired with ``:?``,
+which forces the ``:/`` into the pairs side.
+Everything on the pairs side must be paired, no exceptions.
+(Even though ``:/`` can only pair with ``:?``,
 adding another special case to not require the ``:?``
 would make metaprogramming more difficult.)
 
@@ -861,7 +861,7 @@ The remaining elements are for the arguments.
 
 Like lambda's parameters tuple,
 when you start the arguments with ``:``,
-the rest are paired.
+the rest are pairs.
 
 .. code-block:: REPL
 
@@ -887,7 +887,7 @@ this means that the ``:?`` is always the left of a pair.
 Like lambdas, the ``:`` is a convenience abbreviation for ``:?`` pairs,
 giving call forms three parts::
 
-   (<callable> <single> : <paired>)
+   (<callable> <singles> : <pairs>)
 
 For example:
 
@@ -905,7 +905,7 @@ For example:
 
 Notice the Python compilation is exactly the same as before.
 
-The single and the paired section may be empty:
+The singles or the pairs section may be empty:
 
 .. code-block:: REPL
 
@@ -924,7 +924,7 @@ The single and the paired section may be empty:
    ...   end=('X'))
    X
 
-The ``:`` is optional if the paired section is empty:
+The ``:`` is optional if the pairs section is empty:
 
 .. code-block:: REPL
 
@@ -939,7 +939,7 @@ The ``:`` is optional if the paired section is empty:
 
 Again, this is like lambda.
 
-The paired section has implicit pairs; there must be an even number.
+The pairs section has implicit pairs; there must be an even number of elements.
 
 Use the control words ``:*`` for iterable unpacking,
 ``:?`` to pass by position, and ``:**`` for keyword unpacking:
@@ -966,7 +966,7 @@ but (as in Python) a ``:*`` is not allowed to follow ``:**``.
 
 Method calls are similar to function calls::
 
-   (.<method name> <self> <single> : <paired>)
+   (.<method name> <self> <singles> : <pairs>)
 
 Like Clojure, a method on the first "argument" (``<self>``) is assumed if the
 function name starts with a dot:
@@ -1989,7 +1989,7 @@ with the name of each top-level ``.lissp`` file,
 or ``.lissp`` file in the corresponding package,
 respectively::
 
-   from hissp.reader import transpile
+   from hissp import transpile
 
    transpile(__package__, "spam", "eggs", "etc")
 
@@ -1997,22 +1997,40 @@ Or equivalently in Lissp, used either at the REPL or if the main module is writt
 
 .. code-block:: Lissp
 
-   (hissp.reader..transpile __package__ 'spam 'eggs 'etc)
+   (hissp..transpile __package__ 'spam 'eggs 'etc)
 
-This will automatically compile each named Lissp module.
-This approach gives you fine-grained control over what gets compiled when.
-If desired, you can remove a name passed to the `transpile()`
-call to stop recompiling that file.
-Then you can compile the file manually at the REPL as needed using `transpile()`.
+This will automatically compile each named Lissp module,
+which gives you fine-grained control over what gets compiled when.
 
-Note that you usually *would* want to recompile the whole project
-rather than only the changed files on import like Python does for ``.pyc`` files,
-because macros run at compile time.
+.. sidebar:: The Lissp source for `hissp.macros`
+
+   is included in the distributed Hissp package for completeness,
+   but Hissp doesn't automatically recompile it on import.
+   If you do an
+   `editable install <https://setuptools.pypa.io/en/latest/userguide/development_mode.html>`_
+   don't forget to recompile it when making changes!
+
+Before distributing a Lissp project to users who won't be modifying it,
+compilation could be disabled or removed altogether,
+especially when not distributing the .lissp sources.
+
+.. Note::
+   You normally *do* want to recompile the whole project during development.
+   CPython only needs to recompile any changed ``.py`` files to ``.pyc``,
+   but because macros run at compile time,
+   this wouldn't work well for Lissp.
+
 Changing a macro in one file normally doesn't affect the code that uses
 it in other files until they are recompiled.
 That is why `transpile()` will recompile the named files unconditionally.
 Even if the corresponding source has not changed,
 the compiled output may be different due to an updated macro in another file.
+
+Fortunately, Lissp compilation is usually pretty fast,
+but if desired (perhaps due to a slow macro),
+you can remove a name passed to the `transpile()`
+call to stop recompiling that file.
+Then you can compile the file manually at the REPL as needed using `transpile()`.
 
 Unicode Normalization
 =====================
