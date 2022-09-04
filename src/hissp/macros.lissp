@@ -612,6 +612,8 @@ _#<<#
   ``:*`` unpacks the next argument.
   Mnemonic: @rray list.
   "
+  (when (&& xs (op#eq :* (get#-1 xs)))
+     (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
     `(en#list : ,@chain#(map X#(if-else (op#eq X ":*")
                                  `(,X ,(next ixs))
@@ -624,6 +626,8 @@ _#<<#
   ``:*`` unpacks the next argument.
   Mnemonic: Hash (#) set.
   "
+  (when (&& xs (op#eq :* (get#-1 xs)))
+     (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
     `(en#set : ,@chain#(map X#(if-else (op#eq X ":*")
                                 `(,X ,(next ixs))
