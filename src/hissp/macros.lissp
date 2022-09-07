@@ -262,7 +262,7 @@ _#<<#
     `(progn ,@body)))
 
 (defmacro the\# e
-  "``the#`` Anaphoric. Let ``the`` be a fresh `types.SimpleNamespace`
+  "``the#`` Anaphoric. `let` ``the`` be a fresh `types.SimpleNamespace`
   in a lexical scope surrounding e.
   "
   `(let (,'the (types..SimpleNamespace))
@@ -585,8 +585,8 @@ _#<<#
   "``throw*`` Creates a closed generator and calls its throw method.
 
   Despite PEP 3109, .throw still seems to accept multiple arguments.
-  You should basically never use more than one, except when implementing
-  your own throw method overrides. Otherwise, use `throw` instead.
+  Avoid using this form except when implementing throw method overrides.
+  Prefer `throw` instead.
   "
   `(.throw (let ($#gen (traceback..walk_tb None))
              (.close $#gen)
@@ -631,7 +631,7 @@ _#<<#
 ;;; reader
 
 (defmacro b\# (raw)
-  "``b#`` bytes literal reader macro"
+  "``b#`` `bytes` literal reader macro"
   (-> raw
       (ast..literal_eval)
       (.replace "'" "\'")
@@ -848,12 +848,12 @@ except ModuleNotFoundError:pass"
        $#val)))
 
 (defmacro ensure (e predicate : :* args)
-  "Anaphoric. Raises AssertionError unless (-> e predicate).
+  "Anaphoric. Raises `AssertionError` `unless` (-> e predicate).
 
   Additional arguments are evaluated in a context where ``it`` refers
-  to the result of e. These (if any) are passed to the AssertionError.
+  to the result of e. These (if any) are passed to the `AssertionError`.
 
-  Compilation is simply e when __debug__ is off.
+  Expansion is simply ``e`` when `__debug__` is off.
   "
   (if-else __debug__
     `(let (,'it ,e)

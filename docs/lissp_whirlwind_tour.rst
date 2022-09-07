@@ -3613,7 +3613,7 @@ Lissp Whirlwind Tour
    Help on function <lambda> in module hissp.macros:
    <BLANKLINE>
    <lambda> lambda raw
-       ``b#`` bytes literal reader macro
+       ``b#`` `bytes` literal reader macro
    <BLANKLINE>
 
 
