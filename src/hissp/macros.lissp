@@ -2,30 +2,17 @@
 ;; SPDX-License-Identifier: Apache-2.0
 "Hissp's bundled macros.
 
-The bundled macros are just enough to test and demonstrate Hissp's macro
-system; they are not intended to be a standard library for general use,
-but may suffice for small projects.
+To help keep macro definitions and expansions manageable in complexity,
+these macros lack some of the extra features their equivalents have in
+Python or in other Lisps. These are not intended to be a standard
+library for general use, but do bring Hissp up to a basic standard of
+utility without adding dependencies, which may suffice in some cases.
 
-As a convenience, they are automatically made available unqualified in
-the Lissp REPL, but this does not apply to modules. (A Hissp module with
-better alternatives need not use the bundled macros at all.) In modules,
-either use the fully-qualified names, or start with the `prelude` macro.
-
-You can abbreviate qualifiers with the `alias` macro:
-
-.. code-block:: Lissp
-
-  (hissp.._macro_.alias b/ hissp.._macro_.)
-  ;; Now the same as (hissp.._macro_.define foo 2).
-  (b/#define foo 2)
-
-The bundled macros are deliberately restricted in design.
-
-They have NO DEPENDENCIES in their expansions; they use only the
-standard library with no extra helper functions. This means that all
-helper code must be inlined, resulting in larger expansions than might
-otherwise be necessary. But because macros expand before run time, the
-compiled code does not require Hissp to be installed to work.
+Because of certain deliberate restrictions in design, there are no
+dependencies in their expansions either, meaning compiled Hissp code
+utilizing the bundled macros need not have Hissp installed to work, only
+the Python standard library. All helper code must therefore be inlined,
+resulting in larger expansions than might otherwise be necessary.
 
 They also have no prerequisite initialization, beyond what is available
 in a standard Python module. For example, a ``_macro_`` namespace need
@@ -33,16 +20,17 @@ not be available for ``defmacro``. It's smart enough to check for the
 presence of ``_macro_`` (at compile time) in its expansion context, and
 inline the initialization code when required.
 
-With the exception of `prelude` (which uses `exec`), and
-`subscript <QzLSQB_QzHASH_>`, which is not used internally, they also
-eschew any expansions to Python code, relying only on the built-in
-special forms ``quote`` and ``lambda``, which makes their expansions
-compatible with advanced rewriting macros that process the Hissp
-expansions of other macros.
+As a convenience, the bundled macros are automatically made available
+unqualified in the Lissp REPL, but this does not apply to modules. A
+Hissp module with better alternatives need not use the bundled macros at
+all.
 
-To help keep macro definitions and expansions manageable in complexity,
-these macros lack some of the extra features their equivalents
-have in Python or in other Lisps.
+With the exception of `prelude` (which uses `exec`), and `subscript
+<QzLSQB_QzHASH_>` (``[#``), which is not used internally, they also
+eschew any expansions to non-atomic Python code strings, relying only on
+the built-in special forms ``quote`` and ``lambda``, which makes their
+expansions compatible with advanced rewriting macros that process the
+Hissp expansions of other macros.
 "
 
 _#" This module is not necessarily a good example of how you should
