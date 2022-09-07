@@ -3159,8 +3159,6 @@ Now look at what we can do.
 
    #> (-> (@ "abc") ([#0]) ([#::-1]))
    >>> # Qz_QzGT_
-   ... # hissp.macros..QzMaybe_.Qz_QzGT_
-   ... # hissp.macros..QzMaybe_.Qz_QzGT_
    ... __import__('operator').itemgetter(
    ...   (__import__('builtins').globals()['slicer'][::-1]))(
    ...   __import__('operator').itemgetter(

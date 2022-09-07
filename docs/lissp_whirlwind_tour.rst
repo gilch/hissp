@@ -1880,8 +1880,6 @@ Lissp Whirlwind Tour
    ... # hissp.macros.._macro_.define
    ... __import__('builtins').globals().update(
    ...   Decorated=# hissp.macros..QzMaybe_.Qz_QzGT_
-   ...             # hissp.macros..QzMaybe_.Qz_QzGT_
-   ...             # hissp.macros..QzMaybe_.Qz_QzGT_
    ...             (lambda cls:(
    ...               setattr(
    ...                 cls,
@@ -2270,8 +2268,6 @@ Lissp Whirlwind Tour
    #..    (.title)
    #..    (->> (print "Hello")))          ;Thread-last
    >>> # Qz_QzGT_
-   ... # hissp.macros..QzMaybe_.Qz_QzGT_
-   ... # hissp.macros..QzMaybe_.Qz_QzGT_
    ... # Qz_QzGT_QzGT_
    ... print(
    ...   ('Hello'),
@@ -2833,10 +2829,7 @@ Lissp Whirlwind Tour
    ...       __import__('operator').not_(
    ...         test))())(
    ...     # hissp.macros.._macro_.Qz_QzGT_
-   ...     # hissp.macros..QzMaybe_.Qz_QzGT_
    ...     # Qz_QzGT_
-   ...     # hissp.macros..QzMaybe_.Qz_QzGT_
-   ...     # hissp.macros..QzMaybe_.Qz_QzGT_
    ...     eq(
    ...       mod(
    ...         it,
@@ -3160,9 +3153,6 @@ Lissp Whirlwind Tour
 
    #> (-> '(1 2 3) (recycle) (islice 7) (list))
    >>> # Qz_QzGT_
-   ... # hissp.macros..QzMaybe_.Qz_QzGT_
-   ... # hissp.macros..QzMaybe_.Qz_QzGT_
-   ... # hissp.macros..QzMaybe_.Qz_QzGT_
    ... list(
    ...   islice(
    ...     recycle(

@@ -451,12 +451,7 @@ _#<<#
 
   See also: `->><Qz_QzGT_QzGT_>`, `@#<QzAT_QzHASH_>`, `get#<getQzHASH_>`.
   "
-  (if-else forms
-    `(-> (,(get#0 (get#0 forms))
-          ,expr
-          ,@(get#(slice 1 None) (get#0 forms)))
-         ,@(get#(slice 1 None) forms))
-    expr))
+  (functools..reduce XY#.#"(Y[0],X,*Y[1:],)" forms expr))
 
 (defmacro ->> (expr : :* forms)
   "``->>`` 'Thread-last'.
