@@ -76,6 +76,8 @@ judicious use can improve performance and maintainability.
   "``if-else`` Basic ternary branching construct.
 
   Like Python's conditional expressions, the 'else' clause is required.
+
+  See also: `when`, `cond`.
   "
   `((lambda (,'test : :* ,'then-else)
       ((operator..getitem ,'then-else (operator..not_ ,'test))))
@@ -86,6 +88,8 @@ judicious use can improve performance and maintainability.
 (defmacro progn (: :* body)
   "Evaluates each body expression in sequence (for side effects),
   resulting in the value of the last (or ``()`` if empty).
+
+  See also: `prog1`, `doto`.
   "
   ;; TODO: consider flattening nested progns
   `((lambda :
@@ -96,6 +100,8 @@ judicious use can improve performance and maintainability.
   evaluates each expression in sequence for side effects,
   resulting in the value of the last.
   Otherwise, skips them and returns ``()``.
+
+  See also: `if-else<ifQz_else>`, `unless`.
   "
   `(if-else ,condition (progn ,@body) ()))
 
@@ -104,11 +110,18 @@ judicious use can improve performance and maintainability.
   evaluates each expression in sequence for side effects,
   resulting in the value of the last.
   Otherwise, skips them and returns ``()``.
+
+  See also: `when`.
   "
   `(if-else ,condition () (progn ,@body)))
 
 (defmacro let (pairs : :* body)
-  "Creates local variables. Pairs are implied. Locals are not in scope until the body."
+  "Creates local variables. Pairs are implied by position.
+
+  Locals are not in scope until the body.
+
+  See also: `let-from<letQz_from>`, `the#<theQzHASH_>`.
+  "
   `((lambda (: ,@pairs)
       ,@body)))
 
@@ -185,16 +198,23 @@ _#<<#
  !;   >>> 'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
  !;   'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
  !;
+ !;See also: `str.join`, `Extra`.
  #"\n")
 
 (defmacro define (name value)
-  "Assigns a global the value in the current module."
+  "Assigns a global the value in the current module.
+
+  See also: `globals`, `dict.update`, `defonce`.
+  "
   `(.update (globals)
             : ,name
             ,value))
 
 (defmacro defonce (name value)
-  "Assigns a global the value in the current module, unless it exists."
+  "Assigns a global the value in the current module, unless it exists.
+
+  See also: `define`.
+  "
   `(unless (operator..contains (globals) ',name)
      (define ,name ,value)))
 
@@ -202,6 +222,8 @@ _#<<#
   "``deftype@`` Defines a decorated type (class) in the current module.
 
   Key-value pairs are implied in the body.
+
+  See also: `type`, `deftype`.
   "
   `(define ,name
      (-> (type ',name (,hissp.reader..ENTUPLE ,@bases)
@@ -212,6 +234,8 @@ _#<<#
   "Defines a type (class) in the current module.
 
   Key-value pairs are implied in the body.
+
+  See also: `type`, `deftype@<deftypeQzAT_>`.
   "
   (.deftype@ _macro_ () name bases : :* body))
 
@@ -220,7 +244,10 @@ _#<<#
 ;; see also from bootstrap: let
 
 (defmacro let-from (syms itr : :* body)
-  "``let-from`` Create listed locals from iterable."
+  "``let-from`` Create listed locals from iterable.
+
+  See also: `let`, `let*from<letQzSTAR_from>`.
+  "
   `((lambda ,syms
       ,@body)
     : :* ,itr))
@@ -244,23 +271,38 @@ _#<<#
 ;;; abbreviations
 
 (defmacro &\# e
-  "``&#`` 'thunk' Make e an anonymous function with no parameters."
+  "``&#`` 'thunk' Make ``e`` an anonymous function with no parameters.
+
+  See also: `X#<XQzHASH_>`.
+  "
   `(lambda : ,e))
 
 (defmacro X\# e
-  "``X#`` Anaphoric. Make e an anonymous function with paramter X."
+  "``X#`` Anaphoric. Make ``e`` an anonymous function with paramter X.
+
+  See also: `en#<enQzHASH_>`, `&#<QzET_QzHASH_>`, `XY#<XYQzHASH_>`.
+  "
   `(lambda ,'X ,e))
 
 (defmacro XY\# e
-  "``XY#`` Anaphoric. Make e an anonymous function with paramters X Y."
+  "``XY#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y.
+
+  See also: `X#<XQzHASH_>`, `XYZ#<XYZQzHASH_>`.
+  "
   `(lambda ,'XY ,e))
 
 (defmacro XYZ\# e
-  "``XYZ#`` Anaphoric. Make e an anonymous function with paramters X Y Z."
+  "``XYZ#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z.
+
+  See also: `XY#<XYQzHASH_>`, `XYZW#<XYZWQzHASH_>`.
+  "
   `(lambda ,'XYZ ,e))
 
 (defmacro XYZW\# e
-  "``XYZW#`` Anaphoric. Make e an anonymous function with paramters X Y Z W."
+  "``XYZW#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z W.
+
+  See also: `XYZ#<XYZQzHASH_>`, `en#<enQzHASH_>`, `X#<XQzHASH_>`.
+  "
   `(lambda ,'XYZW ,e))
 
 (defmacro alias (alias module)
@@ -300,11 +342,18 @@ _#<<#
   `(i#chain.from_iterable ,itr))
 
 (defmacro @\# (symbol)
-  "``@#`` 'attrgetter-' Makes an attr getter function from the symbol."
+  "``@#`` 'attrgetter-' Makes an `operator.attrgetter` from ``symbol``.
+
+  See also: `get#<getQzHASH_>`, `getattr`, `set@<setQzAT_>`.
+  "
   `(op#attrgetter ',symbol))
 
 (defmacro get\# e
-  "``get#`` 'itemgetter-' Makes an item getter function from e."
+  "``get#`` 'itemgetter-' Makes an `operator.itemgetter` function from ``e``.
+
+  See also: `@#<QzAT_QzHASH_>`, `operator.getitem`, `[#<QzLSQB_QzHASH_>`,
+  `set!<setQzBANG_>`.
+  "
   `(op#itemgetter ,e))
 
 ;;; configuration
@@ -312,6 +361,8 @@ _#<<#
 (defmacro set! (coll key val)
   "``set!`` 'setbang' Assigns an item, returns the value.
   Mnemonic: set !tem.
+
+  See also: `operator.setitem`, `operator.delitem`, `zap!<zapQzBANG_>`.
   "
   `(let ($#val ,val)
      (op#setitem ,coll ,key $#val)
@@ -322,6 +373,8 @@ _#<<#
 
   The current item value becomes the first argument.
   Mnemonic: zap !tem.
+
+  See also: `set!<setQzBANG_>`, `zap@<zapQzAT_>`.
   "
   `(let ($#coll ,coll
          $#key ,key)
@@ -331,6 +384,8 @@ _#<<#
 (defmacro set@ (name val)
   "``set@`` 'setat' Assigns an attribute, returns the value.
   Mnemonic: set @tribute.
+
+  See also: `attach`, `delattr`, `zap@<zapQzAT_>`.
   "
   (let-from (ns _ attr) (.rpartition name ".")
     `(let ($#val ,val)
@@ -342,6 +397,8 @@ _#<<#
 
   The current attribute value becomes the first argument.
   Mnemonic: zap @tribute.
+
+  See also: `set@<setQzAT_>`, `zap!<zapQzBANG_>`.
   "
   `(set@ ,name (,op ,name ,@args)))
 
@@ -352,6 +409,8 @@ _#<<#
   and use that as the attribute name.
   Names after the ``:`` are identifier-value pairs.
   Returns the target.
+
+  See also: `setattr`, `set@<setQzAT_>`, `locals`.
   "
   (let (iargs (iter args)
         $target `$#target)
@@ -369,6 +428,8 @@ _#<<#
 
   Evaluates the given ``self``, then injects it as the first argument to
   a sequence of invocations. Returns ``self``.
+
+  See also: `attach`, `progn`.
   "
   (let ($self `$#self)
     `((lambda (: ,$self ,self)
@@ -387,6 +448,8 @@ _#<<#
   expressions as the first argument of the next form.
   E.g. ``(-> x (A b) (C d e))`` is ``(C (A x b) d e)``
   Makes chained method calls easier to read.
+
+  See also: `->><Qz_QzGT_QzGT_>`, `@#<QzAT_QzHASH_>`, `get#<getQzHASH_>`.
   "
   (if-else forms
     `(-> (,(get#0 (get#0 forms))
@@ -404,6 +467,8 @@ _#<<#
   Can replace partial application in some cases.
   Also works inside a ``->`` pipeline.
   E.g. ``(-> x (A a) (->> B b) (C c))`` is ``(C (B b (A x a)) c)``.
+
+  See also: `-><Qz_QzGT_>`.
   "
   (if-else forms
     `(->> (,@(get#0 forms) ,expr)
@@ -435,6 +500,7 @@ _#<<#
   !;       (op#eq x 0) (print "zero")
   !;       :else (print "not a number"))
   !;
+  !;See also: `if-else<ifQz_else>`, `case`.
   #"\n"
   (when pairs
     `(if-else ,(get#0 pairs)
@@ -447,6 +513,8 @@ _#<<#
   Bind the variable and evaluate the body for each x from xs
   until any result is true (and return ``True``), or until xs is
   exhausted (and return ``False``).
+
+  See also: `any*map<anyQzSTAR_map>`.
   "
   `(any (map (lambda (,variable)
                ,@body)
@@ -457,6 +525,8 @@ _#<<#
   Bind each x to a variable and evaluate the body for each xs from xss
   until any result is true (and return ``True``), or until xss is
   exhausted (and return ``False``).
+
+  See also: `any-map<anyQz_map>`, `loop-from<loopQz_from>`.
   "
   `(any (i#starmap (lambda ,variables ,@body)
                    ,xss)))
@@ -472,6 +542,8 @@ _#<<#
   to the schedule. Call with None to abort any remaining schedule.
 
   Returns the value of the final loop.
+
+  See also: `any*map<anyQzSTAR_map>`, ``Ensue`` from `prelude`.
   "
   `(let ($#stack (@ () None ,inits))
      (let (,'recur-from $#stack.append)
@@ -485,6 +557,8 @@ _#<<#
   "``&&`` 'and'. Shortcutting logical AND.
   Returns the first false value, otherwise the last value.
   There is an implicit initial value of ``True``.
+
+  See also: `||<QzBAR_QzBAR_>`, `operator.not_`.
   "
   (cond (op#not_ exprs) True
         (op#eq (len exprs) 1) (get#0 exprs)
@@ -497,6 +571,8 @@ _#<<#
   "``||`` 'or'. Shortcutting logical OR.
   Returns the first true value, otherwise the last value.
   There is an implicit initial value of ``()``.
+
+  See also: `&&<QzET_QzET_>`, `bool`.
   "
   (if-else rest
            `(let ($#first ,first)
@@ -518,11 +594,17 @@ _#<<#
            ,@exception))
 
 (defmacro throw (exception)
-  "Raise an exception."
+  "Raise an exception.
+
+  See also: `throw-from<throwQz_from>`, ``engarde`` from `prelude`.
+  "
   `(throw* ,exception))
 
 (defmacro throw-from (exception cause)
-  "Raise an exception with a cause, which can be None."
+  "Raise an exception with a cause, which can be None.
+
+  See also: `throw`, `throw*<throwQzSTAR_>`.
+  "
   `(throw* (let ($#G (lambda ($#x)
                        (if-else (&& (isinstance $#x type)
                                     (issubclass $#x BaseException))
@@ -536,6 +618,8 @@ _#<<#
 (defmacro prog1 (expr1 : :* body)
   "Evaluates each expression in sequence (for side effects),
   resulting in the value of the first.
+
+  See also: `progn`.
   "
   `(let ($#value1 ,expr1)
      ,@body
@@ -609,10 +693,12 @@ _#<<#
                              ixs))))
 
 (defmacro # (: :* xs)
-  "``#`` 'set of'
+  "``#`` 'set of' Mnemonic: Hash (#) set.
 
-  ``:*`` unpacks the next argument.
-  Mnemonic: Hash (#) set.
+  Creates the `set` from each expression's result.
+  A ``:*`` unpacks the next argument.
+
+  See also: `@<QzAT_>`, `%<QzPCENT_>`.
   "
   (when (&& xs (op#eq :* (get#-1 xs)))
      (throw (SyntaxError "trailing :*")))
@@ -623,11 +709,12 @@ _#<<#
                             ixs))))
 
 (defmacro % (: :* kvs)
-  "``%`` 'dict of'.
+  "``%`` 'dict of'. Mnemonic: `dict` of pairs (%).
 
-  Key-value pairs are implied.
-  ``:**`` unpacks mappings.
-  Mnemonic: dict of pairs (%).
+  Key-value pairs are implied by position.
+  A ``:**`` mapping-unpacks the next argument.
+
+  See also: `@<QzAT_>`, `#<QzHASH_>`.
   "
   (when (op#mod (len kvs) 2)
     (throw (TypeError "extra key without value")))
@@ -703,6 +790,8 @@ except ModuleNotFoundError:pass"
   Must switch on a hashable key.
   The default case is first and required.
   The remainder are implicitly paired.
+
+  See also: `cond`.
   "
   (when (op#mod (len pairs) 2)
     (throw (TypeError "Incomplete pair")))
