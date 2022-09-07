@@ -447,11 +447,14 @@ _#<<#
   Converts a pipeline to function calls by recursively threading
   expressions as the first argument of the next form.
   E.g. ``(-> x (A b) (C d e))`` is ``(C (A x b) d e)``
-  Makes chained method calls easier to read.
+  Non-tuple ``forms`` (typically function identifiers) will be wrapped
+  in a tuple. Makes chained method calls easier to read.
 
   See also: `->><Qz_QzGT_QzGT_>`, `@#<QzAT_QzHASH_>`, `get#<getQzHASH_>`.
   "
-  (functools..reduce XY#.#"(Y[0],X,*Y[1:],)" forms expr))
+  (functools..reduce XY#.#"(Y[0],X,*Y[1:],)"
+                     (map X#.#"X if type(X) is tuple else (X,)" forms)
+                     expr))
 
 (defmacro ->> (expr : :* forms)
   "``->>`` 'Thread-last'.
@@ -462,10 +465,13 @@ _#<<#
   Can replace partial application in some cases.
   Also works inside a ``->`` pipeline.
   E.g. ``(-> x (A a) (->> B b) (C c))`` is ``(C (B b (A x a)) c)``.
+  Non-tuple ``forms`` will be wrapped in a tuple.
 
   See also: `-><Qz_QzGT_>`.
   "
-  (functools..reduce XY#`(,@Y ,X) forms expr))
+  (functools..reduce XY#`(,@Y ,X)
+                     (map X#.#"X if type(X) is tuple else (X,)" forms)
+                     expr))
 
 ;; TODO: implement other arrange macros?
 
@@ -625,11 +631,11 @@ _#<<#
 (defmacro b\# (raw)
   "``b#`` `bytes` literal reader macro"
   (-> raw
-      (ast..literal_eval)
+      ast..literal_eval
       (.replace "'" "\'")
       (.replace #"\n" "\n")
       (->> (.format "b'{}'"))
-      (ast..literal_eval)))
+      ast..literal_eval))
 
 (defmacro en\# (f)
   <<#

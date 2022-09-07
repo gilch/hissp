@@ -2265,7 +2265,7 @@ Lissp Whirlwind Tour
    ;;; 15.6 Threading
 
    #> (-> "world!"                        ;Thread-first
-   #..    (.title)
+   #..    .title
    #..    (->> (print "Hello")))          ;Thread-last
    >>> # Qz_QzGT_
    ... # Qz_QzGT_QzGT_
@@ -3151,7 +3151,7 @@ Lissp Whirlwind Tour
    ...                     (1)),
    ...                   _QzNo31_target)[-1])()))))
 
-   #> (-> '(1 2 3) (recycle) (islice 7) (list))
+   #> (-> '(1 2 3) recycle (islice 7) list)
    >>> # Qz_QzGT_
    ... list(
    ...   islice(

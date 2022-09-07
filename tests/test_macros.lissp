@@ -200,7 +200,7 @@
 
   test_->
   (lambda (self)
-    (self.assertEqual (*#-> "-x-" (.replace "x" "y") (.strip "-") (.upper))
+    (self.assertEqual (*#-> "-x-" (.replace "x" "y") (.strip "-") .upper)
                       "Y"))
 
   test_->>
@@ -209,7 +209,7 @@
                              (map (lambda (x) (operator..mul x x)))
                              (filter (lambda (x) ; even?
                                        (operator..eq 0 (operator..mod x 2))))
-                             (list))
+                             list)
                       (enlist 0 4)))
 
   test_prelude
