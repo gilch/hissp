@@ -470,10 +470,7 @@ _#<<#
 
   See also: `-><Qz_QzGT_>`.
   "
-  (if-else forms
-    `(->> (,@(get#0 forms) ,expr)
-          ,@(get#(slice 1 None) forms))
-    expr))
+  (functools..reduce XY#`(,@Y ,X) forms expr))
 
 ;; TODO: implement other arrange macros?
 

@@ -2273,7 +2273,6 @@ Lissp Whirlwind Tour
    ... # hissp.macros..QzMaybe_.Qz_QzGT_
    ... # hissp.macros..QzMaybe_.Qz_QzGT_
    ... # Qz_QzGT_QzGT_
-   ... # hissp.macros..QzMaybe_.Qz_QzGT_QzGT_
    ... print(
    ...   ('Hello'),
    ...   ('world!').title())
