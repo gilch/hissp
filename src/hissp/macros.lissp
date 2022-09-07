@@ -26,7 +26,7 @@ Hissp module with better alternatives need not use the bundled macros at
 all.
 
 With the exception of `prelude` (which uses `exec`), and `subscript
-<QzLSQB_QzHASH_>` (``[#``), which is not used internally, they also
+<QzLSQB_QzHASH_>` (``[#``), which is not used in expansions, they also
 eschew any expansions to non-atomic Python code strings, relying only on
 the built-in special forms ``quote`` and ``lambda``, which makes their
 expansions compatible with advanced rewriting macros that process the
@@ -356,6 +356,25 @@ _#<<#
   "
   `(op#itemgetter ,e))
 
+(defmacro \[\# e
+  "``[#`` 'subscript' Injection. Python's subscription operator.
+
+  Creates a function from the Python expression ``e`` prepended with
+  the argument and a ``[``.
+
+  .. code-block:: Lissp
+
+     #> ([#1][::2] '(foo bar))
+     >>> (lambda _QzNo76_G:(_QzNo76_G[1][::2]))(
+     ...   ('foo',
+     ...    'bar',))
+     'br'
+
+  See also: `get#<getQzHASH_>`, `-><Qz_QzGT_>`, `slice`.
+  "
+  "``subscript`` Injection. Python's subscription operator."
+  `(lambda ($#G) ,(.format "({}[{})" '$#G (hissp..demunge e))))
+
 ;;; configuration
 
 (defmacro set! (coll key val)
@@ -435,7 +454,7 @@ _#<<#
     `((lambda (: ,$self ,self)
         ,@(map X#`(,(get#0 X)
                    ,$self
-                   ,@(get#(slice 1 None) X))
+                   ,@([#1:] X))
                invocations)
         ,$self))))
 
@@ -504,7 +523,7 @@ _#<<#
     `(if-else ,(get#0 pairs)
               ,(get#1 pairs)
               ;; Here's the recursive part.
-              (cond ,@(get#(slice 2 None) pairs)))))
+              (cond ,@([#2:] pairs)))))
 
 (defmacro any-map (variable xs : :* body)
   "``any-map``
@@ -562,7 +581,7 @@ _#<<#
         (op#eq (len exprs) 1) (get#0 exprs)
         :else `(let ($#G ,(get#0 exprs))
                  (if-else $#G
-                          (&& ,@(get#(slice 1 None) exprs))
+                          (&& ,@([#1:] exprs))
                           $#G))))
 
 (defmacro || (: first () :* rest)
@@ -811,8 +830,8 @@ except ModuleNotFoundError:pass"
   "
   (when (op#mod (len pairs) 2)
     (throw (TypeError "Incomplete pair")))
-  (let (kss (get#(slice -2 None -2) pairs)
-        ts (get#(slice None None -2) pairs))
+  (let (kss ([#-2::-2] pairs)
+        ts ([#::-2] pairs))
     `((op#getitem (@ ,@(map X#`&#,X ts) &#,default)
                   (.get ,(dict chain#(i#starmap (lambda (i ks)
                                                   (map X#(@ X i) ks))
@@ -859,22 +878,3 @@ except ModuleNotFoundError:pass"
          (throw (AssertionError ,@args)))
        ,'it)
     e))
-
-(defmacro \[\# e
-  "``[#`` 'subscript' Injection. Python's subscription operator.
-
-  Creates a function from the Python expression ``e`` prepended with
-  the argument and a ``[``.
-
-  .. code-block:: Lissp
-
-     #> ([#1][::2] '(foo bar))
-     >>> (lambda _QzNo76_G:(_QzNo76_G[1][::2]))(
-     ...   ('foo',
-     ...    'bar',))
-     'br'
-
-  See also: `get#<getQzHASH_>`, `-><Qz_QzGT_>`, `slice`.
-  "
-  "``subscript`` Injection. Python's subscription operator."
-  `(lambda ($#G) ,(.format "({}[{})" '$#G (hissp..demunge e))))
