@@ -679,11 +679,29 @@ _#<<#
 ;;; collection
 
 (defmacro @ (: :* xs)
-  "``@`` 'list of'
-
-  ``:*`` unpacks the next argument.
-  Mnemonic: @rray list.
-  "
+  <<#
+  !;``@`` 'list of' Mnemonic: @rray list.
+  !;
+  !;Creates the `list` from each expresssion's result.
+  !;A ``:*`` unpacks the next argument.
+  !;
+  !;.. code-block:: REPL
+  !;
+  !;   #> (@ :* "AB" (math..sqrt 9) :* "XY" 2 1)
+  !;   >>> # QzAT_
+  !;   ... (lambda *_QzNo55_xs:
+  !;   ...   __import__('builtins').list(
+  !;   ...     _QzNo55_xs))(
+  !;   ...   *('AB'),
+  !;   ...   __import__('math').sqrt(
+  !;   ...     (9)),
+  !;   ...   *('XY'),
+  !;   ...   (2),
+  !;   ...   (1))
+  !;   ['A', 'B', 3.0, 'X', 'Y', 2, 1]
+  !;
+  !;See also: `#<QzHASH_>`, `%<QzPCENT_>`.
+  #"\n"
   (when (&& xs (op#eq :* (get#-1 xs)))
      (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
@@ -845,5 +863,20 @@ except ModuleNotFoundError:pass"
     e))
 
 (defmacro \[\# e
+  "``[#`` 'subscript' Injection. Python's subscription operator.
+
+  Creates a function from the Python expression ``e`` prepended with
+  the argument and a ``[``.
+
+  .. code-block:: Lissp
+
+     #> ([#1][::2] '(foo bar))
+     >>> (lambda _QzNo76_G:(_QzNo76_G[1][::2]))(
+     ...   ('foo',
+     ...    'bar',))
+     'br'
+
+  See also: `get#<getQzHASH_>`, `-><Qz_QzGT_>`, `slice`.
+  "
   "``subscript`` Injection. Python's subscription operator."
   `(lambda ($#G) ,(.format "({}[{})" '$#G (hissp..demunge e))))
