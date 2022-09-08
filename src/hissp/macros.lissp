@@ -223,7 +223,7 @@ _#<<#
 
   Key-value pairs are implied in the body.
 
-  See also: `type`
+  See also: `type`, `@@#<QzAT_QzAT_QzHASH_>`.
   "
   `(define ,name
        (type ',name (,hissp.reader..ENTUPLE ,@bases)
