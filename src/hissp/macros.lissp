@@ -871,15 +871,12 @@ except ModuleNotFoundError:pass"
        ,'it)
     e))
 
-(defmacro decor\# (definition : :* decorators)
-  "``decor#`` Applies `Extra`s to the defined name and reassigns it.
+(defmacro @@\# (definition function)
+  "``@@#`` 'decorator' applies ``function`` to defined name & reassigns.
 
-  ``decorators`` apply inside-out. `definition` must assign a global
-  identified by its first argument.
+  ``definition`` form must assign a global identified by its first arg.
+  (E.g. `define` and `deftype` are compatible.) Expands to a `define`,
+  meaning decorators can stack.
   "
-  `(progn
-     ,definition
-     (define ,(get#1 definition)
-       ,(functools..reduce XY#`(,Y ,X)
-                           (reversed decorators)
-                           (get#1 definition)))))
+  (let (name (get#1 definition))
+    `(define ,name (progn ,definition (,function ,name)))))
