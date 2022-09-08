@@ -218,26 +218,16 @@ _#<<#
   `(unless (operator..contains (globals) ',name)
      (define ,name ,value)))
 
-(defmacro deftype@ (decorators name bases : :* body)
-  "``deftype@`` Defines a decorated type (class) in the current module.
-
-  Key-value pairs are implied in the body.
-
-  See also: `type`, `deftype`.
-  "
-  `(define ,name
-     (-> (type ',name (,hissp.reader..ENTUPLE ,@bases)
-               (dict : ,@body))
-         ,@(reversed (list (zip decorators))))))
-
 (defmacro deftype (name bases : :* body)
   "Defines a type (class) in the current module.
 
   Key-value pairs are implied in the body.
 
-  See also: `type`, `deftype@<deftypeQzAT_>`.
+  See also: `type`
   "
-  (.deftype@ _macro_ () name bases : :* body))
+  `(define ,name
+       (type ',name (,hissp.reader..ENTUPLE ,@bases)
+             (dict : ,@body))))
 
 ;;; locals
 
@@ -391,6 +381,7 @@ _#<<#
   "``zap!`` 'zapbang' Augmented item assignment operator.
 
   The current item value becomes the first argument.
+  Returns the value.
   Mnemonic: zap !tem.
 
   See also: `set!<setQzBANG_>`, `zap@<zapQzAT_>`.
@@ -415,6 +406,7 @@ _#<<#
   "``zap@`` 'zapat' Augmented attribute assignment operator.
 
   The current attribute value becomes the first argument.
+  Returns the value.
   Mnemonic: zap @tribute.
 
   See also: `set@<setQzAT_>`, `zap!<zapQzBANG_>`.
@@ -878,3 +870,16 @@ except ModuleNotFoundError:pass"
          (throw (AssertionError ,@args)))
        ,'it)
     e))
+
+(defmacro decor\# (definition : :* decorators)
+  "``decor#`` Applies `Extra`s to the defined name and reassigns it.
+
+  ``decorators`` apply inside-out. `definition` must assign a global
+  identified by its first argument.
+  "
+  `(progn
+     ,definition
+     (define ,(get#1 definition)
+       ,(functools..reduce XY#`(,Y ,X)
+                           (reversed decorators)
+                           (get#1 definition)))))

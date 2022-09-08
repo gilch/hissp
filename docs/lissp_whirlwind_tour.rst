@@ -1844,8 +1844,7 @@ Lissp Whirlwind Tour
    >>> # deftype
    ... # hissp.macros.._macro_.define
    ... __import__('builtins').globals().update(
-   ...   Point2D=# hissp.macros..QzMaybe_.Qz_QzGT_
-   ...           __import__('builtins').type(
+   ...   Point2D=__import__('builtins').type(
    ...             'Point2D',
    ...             (lambda * _: _)(
    ...               tuple),
@@ -1866,45 +1865,6 @@ Lissp Whirlwind Tour
    ...   (1),
    ...   (2))
    Point2D(1, 2)
-
-
-   #> (deftype@ ((lambda (cls)
-   #..             (setattr cls 's (operator..concat cls.s "Out"))
-   #..             cls)
-   #..           (lambda (cls)
-   #..             (setattr cls 's (operator..concat cls.s "Inside"))
-   #..             cls))
-   #..          Decorated ()
-   #..  s "@")
-   >>> # deftypeQzAT_
-   ... # hissp.macros.._macro_.define
-   ... __import__('builtins').globals().update(
-   ...   Decorated=# hissp.macros..QzMaybe_.Qz_QzGT_
-   ...             (lambda cls:(
-   ...               setattr(
-   ...                 cls,
-   ...                 's',
-   ...                 __import__('operator').concat(
-   ...                   cls.s,
-   ...                   ('Out'))),
-   ...               cls)[-1])(
-   ...               (lambda cls:(
-   ...                 setattr(
-   ...                   cls,
-   ...                   's',
-   ...                   __import__('operator').concat(
-   ...                     cls.s,
-   ...                     ('Inside'))),
-   ...                 cls)[-1])(
-   ...                 __import__('builtins').type(
-   ...                   'Decorated',
-   ...                   (lambda * _: _)(),
-   ...                   __import__('builtins').dict(
-   ...                     s=('@'))))))
-
-   #> Decorated.s
-   >>> Decorated.s
-   '@InsideOut'
 
 
    ;; Define a function in the _macro_ namespace.

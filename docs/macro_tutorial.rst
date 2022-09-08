@@ -1566,8 +1566,7 @@ Lissp can do that with a class.
    >>> # deftype
    ... # hissp.macros.._macro_.define
    ... __import__('builtins').globals().update(
-   ...   Flattener=# hissp.macros..QzMaybe_.Qz_QzGT_
-   ...             __import__('builtins').type(
+   ...   Flattener=__import__('builtins').type(
    ...               'Flattener',
    ...               (lambda * _: _)(),
    ...               __import__('builtins').dict(
