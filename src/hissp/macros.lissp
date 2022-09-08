@@ -877,6 +877,25 @@ except ModuleNotFoundError:pass"
   ``definition`` form must assign a global identified by its first arg.
   (E.g. `define` and `deftype` are compatible.) Expands to a `define`,
   meaning decorators can stack.
+
+  .. code-block:: REPL
+
+     #> @@#!str.upper
+     #..(define foo 'foo)
+     >>> # hissp.macros.._macro_.define
+     ... __import__('builtins').globals().update(
+     ...   foo=# hissp.macros.._macro_.progn
+     ...       (lambda :(
+     ...         # define
+     ...         __import__('builtins').globals().update(
+     ...           foo='foo'),
+     ...         str.upper(
+     ...           foo))[-1])())
+
+     #> foo
+     >>> foo
+     'FOO'
+
   "
   (let (name (get#1 definition))
     `(define ,name (progn ,definition (,function ,name)))))
