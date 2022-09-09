@@ -2,30 +2,17 @@
 ;; SPDX-License-Identifier: Apache-2.0
 "Hissp's bundled macros.
 
-The bundled macros are just enough to test and demonstrate Hissp's macro
-system; they are not intended to be a standard library for general use,
-but may suffice for small projects.
+To help keep macro definitions and expansions manageable in complexity,
+these macros lack some of the extra features their equivalents have in
+Python or in other Lisps. These are not intended to be a standard
+library for general use, but do bring Hissp up to a basic standard of
+utility without adding dependencies, which may suffice in some cases.
 
-As a convenience, they are automatically made available unqualified in
-the Lissp REPL, but this does not apply to modules. (A Hissp module with
-better alternatives need not use the bundled macros at all.) In modules,
-either use the fully-qualified names, or start with the `prelude` macro.
-
-You can abbreviate qualifiers with the `alias` macro:
-
-.. code-block:: Lissp
-
-  (hissp.._macro_.alias b/ hissp.._macro_.)
-  ;; Now the same as (hissp.._macro_.define foo 2).
-  (b/#define foo 2)
-
-The bundled macros are deliberately restricted in design.
-
-They have NO DEPENDENCIES in their expansions; they use only the
-standard library with no extra helper functions. This means that all
-helper code must be inlined, resulting in larger expansions than might
-otherwise be necessary. But because macros expand before run time, the
-compiled code does not require Hissp to be installed to work.
+Because of certain deliberate restrictions in design, there are no
+dependencies in their expansions either, meaning compiled Hissp code
+utilizing the bundled macros need not have Hissp installed to work, only
+the Python standard library. All helper code must therefore be inlined,
+resulting in larger expansions than might otherwise be necessary.
 
 They also have no prerequisite initialization, beyond what is available
 in a standard Python module. For example, a ``_macro_`` namespace need
@@ -33,16 +20,17 @@ not be available for ``defmacro``. It's smart enough to check for the
 presence of ``_macro_`` (at compile time) in its expansion context, and
 inline the initialization code when required.
 
-With the exception of `prelude` (which uses `exec`), and
-`subscript <QzLSQB_QzHASH_>`, which is not used internally, they also
-eschew any expansions to Python code, relying only on the built-in
-special forms ``quote`` and ``lambda``, which makes their expansions
-compatible with advanced rewriting macros that process the Hissp
-expansions of other macros.
+As a convenience, the bundled macros are automatically made available
+unqualified in the Lissp REPL, but this does not apply to modules. A
+Hissp module with better alternatives need not use the bundled macros at
+all.
 
-To help keep macro definitions and expansions manageable in complexity,
-these macros lack some of the extra features their equivalents
-have in Python or in other Lisps.
+With the exception of `prelude` (which uses `exec`), and `subscript
+<QzLSQB_QzHASH_>` (``[#``), which is not used in expansions, they also
+eschew any expansions to non-atomic Python code strings, relying only on
+the built-in special forms ``quote`` and ``lambda``, which makes their
+expansions compatible with advanced rewriting macros that process the
+Hissp expansions of other macros.
 "
 
 _#" This module is not necessarily a good example of how you should
@@ -88,6 +76,8 @@ judicious use can improve performance and maintainability.
   "``if-else`` Basic ternary branching construct.
 
   Like Python's conditional expressions, the 'else' clause is required.
+
+  See also: `when`, `cond`.
   "
   `((lambda (,'test : :* ,'then-else)
       ((operator..getitem ,'then-else (operator..not_ ,'test))))
@@ -98,6 +88,8 @@ judicious use can improve performance and maintainability.
 (defmacro progn (: :* body)
   "Evaluates each body expression in sequence (for side effects),
   resulting in the value of the last (or ``()`` if empty).
+
+  See also: `prog1`, `doto`.
   "
   ;; TODO: consider flattening nested progns
   `((lambda :
@@ -108,6 +100,8 @@ judicious use can improve performance and maintainability.
   evaluates each expression in sequence for side effects,
   resulting in the value of the last.
   Otherwise, skips them and returns ``()``.
+
+  See also: `if-else<ifQz_else>`, `unless`.
   "
   `(if-else ,condition (progn ,@body) ()))
 
@@ -116,11 +110,18 @@ judicious use can improve performance and maintainability.
   evaluates each expression in sequence for side effects,
   resulting in the value of the last.
   Otherwise, skips them and returns ``()``.
+
+  See also: `when`.
   "
   `(if-else ,condition () (progn ,@body)))
 
 (defmacro let (pairs : :* body)
-  "Creates local variables. Pairs are implied. Locals are not in scope until the body."
+  "Creates local variables. Pairs are implied by position.
+
+  Locals are not in scope until the body.
+
+  See also: `let-from<letQz_from>`, `the#<theQzHASH_>`.
+  "
   `((lambda (: ,@pairs)
       ,@body)))
 
@@ -197,42 +198,46 @@ _#<<#
  !;   >>> 'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
  !;   'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
  !;
+ !;See also: `str.join`, `Extra`.
  #"\n")
 
 (defmacro define (name value)
-  "Assigns a global the value in the current module."
+  "Assigns a global the value in the current module.
+
+  See also: `globals`, `dict.update`, `defonce`.
+  "
   `(.update (globals)
             : ,name
             ,value))
 
 (defmacro defonce (name value)
-  "Assigns a global the value in the current module, unless it exists."
+  "Assigns a global the value in the current module, unless it exists.
+
+  See also: `define`.
+  "
   `(unless (operator..contains (globals) ',name)
      (define ,name ,value)))
-
-(defmacro deftype@ (decorators name bases : :* body)
-  "``deftype@`` Defines a decorated type (class) in the current module.
-
-  Key-value pairs are implied in the body.
-  "
-  `(define ,name
-     (-> (type ',name (,hissp.reader..ENTUPLE ,@bases)
-               (dict : ,@body))
-         ,@(reversed (list (zip decorators))))))
 
 (defmacro deftype (name bases : :* body)
   "Defines a type (class) in the current module.
 
   Key-value pairs are implied in the body.
+
+  See also: `type`, `@@#<QzAT_QzAT_QzHASH_>`.
   "
-  (.deftype@ _macro_ () name bases : :* body))
+  `(define ,name
+       (type ',name (,hissp.reader..ENTUPLE ,@bases)
+             (dict : ,@body))))
 
 ;;; locals
 
 ;; see also from bootstrap: let
 
 (defmacro let-from (syms itr : :* body)
-  "``let-from`` Create listed locals from iterable."
+  "``let-from`` Create listed locals from iterable.
+
+  See also: `let`, `let*from<letQzSTAR_from>`.
+  "
   `((lambda ,syms
       ,@body)
     : :* ,itr))
@@ -247,7 +252,7 @@ _#<<#
     `(progn ,@body)))
 
 (defmacro the\# e
-  "``the#`` Anaphoric. Let ``the`` be a fresh `types.SimpleNamespace`
+  "``the#`` Anaphoric. `let` ``the`` be a fresh `types.SimpleNamespace`
   in a lexical scope surrounding e.
   "
   `(let (,'the (types..SimpleNamespace))
@@ -256,23 +261,38 @@ _#<<#
 ;;; abbreviations
 
 (defmacro &\# e
-  "``&#`` 'thunk' Make e an anonymous function with no parameters."
+  "``&#`` 'thunk' Make ``e`` an anonymous function with no parameters.
+
+  See also: `X#<XQzHASH_>`.
+  "
   `(lambda : ,e))
 
 (defmacro X\# e
-  "``X#`` Anaphoric. Make e an anonymous function with paramter X."
+  "``X#`` Anaphoric. Make ``e`` an anonymous function with paramter X.
+
+  See also: `en#<enQzHASH_>`, `&#<QzET_QzHASH_>`, `XY#<XYQzHASH_>`.
+  "
   `(lambda ,'X ,e))
 
 (defmacro XY\# e
-  "``XY#`` Anaphoric. Make e an anonymous function with paramters X Y."
+  "``XY#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y.
+
+  See also: `X#<XQzHASH_>`, `XYZ#<XYZQzHASH_>`.
+  "
   `(lambda ,'XY ,e))
 
 (defmacro XYZ\# e
-  "``XYZ#`` Anaphoric. Make e an anonymous function with paramters X Y Z."
+  "``XYZ#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z.
+
+  See also: `XY#<XYQzHASH_>`, `XYZW#<XYZWQzHASH_>`.
+  "
   `(lambda ,'XYZ ,e))
 
 (defmacro XYZW\# e
-  "``XYZW#`` Anaphoric. Make e an anonymous function with paramters X Y Z W."
+  "``XYZW#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z W.
+
+  See also: `XYZ#<XYZQzHASH_>`, `en#<enQzHASH_>`, `X#<XQzHASH_>`.
+  "
   `(lambda ,'XYZW ,e))
 
 (defmacro alias (alias module)
@@ -312,18 +332,46 @@ _#<<#
   `(i#chain.from_iterable ,itr))
 
 (defmacro @\# (symbol)
-  "``@#`` 'attrgetter-' Makes an attr getter function from the symbol."
+  "``@#`` 'attrgetter-' Makes an `operator.attrgetter` from ``symbol``.
+
+  See also: `get#<getQzHASH_>`, `getattr`, `set@<setQzAT_>`.
+  "
   `(op#attrgetter ',symbol))
 
 (defmacro get\# e
-  "``get#`` 'itemgetter-' Makes an item getter function from e."
+  "``get#`` 'itemgetter-' Makes an `operator.itemgetter` function from ``e``.
+
+  See also: `@#<QzAT_QzHASH_>`, `operator.getitem`, `[#<QzLSQB_QzHASH_>`,
+  `set!<setQzBANG_>`.
+  "
   `(op#itemgetter ,e))
+
+(defmacro \[\# e
+  "``[#`` 'subscript' Injection. Python's subscription operator.
+
+  Creates a function from the Python expression ``e`` prepended with
+  the argument and a ``[``.
+
+  .. code-block:: Lissp
+
+     #> ([#1][::2] '(foo bar))
+     >>> (lambda _QzNo76_G:(_QzNo76_G[1][::2]))(
+     ...   ('foo',
+     ...    'bar',))
+     'br'
+
+  See also: `get#<getQzHASH_>`, `-><Qz_QzGT_>`, `slice`.
+  "
+  "``subscript`` Injection. Python's subscription operator."
+  `(lambda ($#G) ,(.format "({}[{})" '$#G (hissp..demunge e))))
 
 ;;; configuration
 
 (defmacro set! (coll key val)
   "``set!`` 'setbang' Assigns an item, returns the value.
   Mnemonic: set !tem.
+
+  See also: `operator.setitem`, `operator.delitem`, `zap!<zapQzBANG_>`.
   "
   `(let ($#val ,val)
      (op#setitem ,coll ,key $#val)
@@ -333,7 +381,10 @@ _#<<#
   "``zap!`` 'zapbang' Augmented item assignment operator.
 
   The current item value becomes the first argument.
+  Returns the value.
   Mnemonic: zap !tem.
+
+  See also: `set!<setQzBANG_>`, `zap@<zapQzAT_>`.
   "
   `(let ($#coll ,coll
          $#key ,key)
@@ -343,6 +394,8 @@ _#<<#
 (defmacro set@ (name val)
   "``set@`` 'setat' Assigns an attribute, returns the value.
   Mnemonic: set @tribute.
+
+  See also: `attach`, `delattr`, `zap@<zapQzAT_>`.
   "
   (let-from (ns _ attr) (.rpartition name ".")
     `(let ($#val ,val)
@@ -353,7 +406,10 @@ _#<<#
   "``zap@`` 'zapat' Augmented attribute assignment operator.
 
   The current attribute value becomes the first argument.
+  Returns the value.
   Mnemonic: zap @tribute.
+
+  See also: `set@<setQzAT_>`, `zap!<zapQzBANG_>`.
   "
   `(set@ ,name (,op ,name ,@args)))
 
@@ -364,6 +420,8 @@ _#<<#
   and use that as the attribute name.
   Names after the ``:`` are identifier-value pairs.
   Returns the target.
+
+  See also: `setattr`, `set@<setQzAT_>`, `locals`.
   "
   (let (iargs (iter args)
         $target `$#target)
@@ -381,12 +439,14 @@ _#<<#
 
   Evaluates the given ``self``, then injects it as the first argument to
   a sequence of invocations. Returns ``self``.
+
+  See also: `attach`, `progn`.
   "
   (let ($self `$#self)
     `((lambda (: ,$self ,self)
         ,@(map X#`(,(get#0 X)
                    ,$self
-                   ,@(get#(slice 1 None) X))
+                   ,@([#1:] X))
                invocations)
         ,$self))))
 
@@ -398,14 +458,14 @@ _#<<#
   Converts a pipeline to function calls by recursively threading
   expressions as the first argument of the next form.
   E.g. ``(-> x (A b) (C d e))`` is ``(C (A x b) d e)``
-  Makes chained method calls easier to read.
+  Non-tuple ``forms`` (typically function identifiers) will be wrapped
+  in a tuple. Makes chained method calls easier to read.
+
+  See also: `->><Qz_QzGT_QzGT_>`, `@#<QzAT_QzHASH_>`, `get#<getQzHASH_>`.
   "
-  (if-else forms
-    `(-> (,(get#0 (get#0 forms))
-          ,expr
-          ,@(get#(slice 1 None) (get#0 forms)))
-         ,@(get#(slice 1 None) forms))
-    expr))
+  (functools..reduce XY#.#"(Y[0],X,*Y[1:],)"
+                     (map X#.#"X if type(X) is tuple else (X,)" forms)
+                     expr))
 
 (defmacro ->> (expr : :* forms)
   "``->>`` 'Thread-last'.
@@ -416,11 +476,13 @@ _#<<#
   Can replace partial application in some cases.
   Also works inside a ``->`` pipeline.
   E.g. ``(-> x (A a) (->> B b) (C c))`` is ``(C (B b (A x a)) c)``.
+  Non-tuple ``forms`` will be wrapped in a tuple.
+
+  See also: `-><Qz_QzGT_>`.
   "
-  (if-else forms
-    `(->> (,@(get#0 forms) ,expr)
-          ,@(get#(slice 1 None) forms))
-    expr))
+  (functools..reduce XY#`(,@Y ,X)
+                     (map X#.#"X if type(X) is tuple else (X,)" forms)
+                     expr))
 
 ;; TODO: implement other arrange macros?
 
@@ -447,18 +509,21 @@ _#<<#
   !;       (op#eq x 0) (print "zero")
   !;       :else (print "not a number"))
   !;
+  !;See also: `if-else<ifQz_else>`, `case`.
   #"\n"
   (when pairs
     `(if-else ,(get#0 pairs)
               ,(get#1 pairs)
               ;; Here's the recursive part.
-              (cond ,@(get#(slice 2 None) pairs)))))
+              (cond ,@([#2:] pairs)))))
 
 (defmacro any-map (variable xs : :* body)
   "``any-map``
   Bind the variable and evaluate the body for each x from xs
   until any result is true (and return ``True``), or until xs is
   exhausted (and return ``False``).
+
+  See also: `any*map<anyQzSTAR_map>`.
   "
   `(any (map (lambda (,variable)
                ,@body)
@@ -469,6 +534,8 @@ _#<<#
   Bind each x to a variable and evaluate the body for each xs from xss
   until any result is true (and return ``True``), or until xss is
   exhausted (and return ``False``).
+
+  See also: `any-map<anyQz_map>`, `loop-from<loopQz_from>`.
   "
   `(any (i#starmap (lambda ,variables ,@body)
                    ,xss)))
@@ -484,6 +551,8 @@ _#<<#
   to the schedule. Call with None to abort any remaining schedule.
 
   Returns the value of the final loop.
+
+  See also: `any*map<anyQzSTAR_map>`, `Ensue`_.
   "
   `(let ($#stack (@ () None ,inits))
      (let (,'recur-from $#stack.append)
@@ -497,18 +566,22 @@ _#<<#
   "``&&`` 'and'. Shortcutting logical AND.
   Returns the first false value, otherwise the last value.
   There is an implicit initial value of ``True``.
+
+  See also: `||<QzBAR_QzBAR_>`, `operator.not_`.
   "
   (cond (op#not_ exprs) True
         (op#eq (len exprs) 1) (get#0 exprs)
         :else `(let ($#G ,(get#0 exprs))
                  (if-else $#G
-                          (&& ,@(get#(slice 1 None) exprs))
+                          (&& ,@([#1:] exprs))
                           $#G))))
 
 (defmacro || (: first () :* rest)
   "``||`` 'or'. Shortcutting logical OR.
   Returns the first true value, otherwise the last value.
   There is an implicit initial value of ``()``.
+
+  See also: `&&<QzET_QzET_>`, `bool`.
   "
   (if-else rest
            `(let ($#first ,first)
@@ -521,8 +594,8 @@ _#<<#
   "``throw*`` Creates a closed generator and calls its throw method.
 
   Despite PEP 3109, .throw still seems to accept multiple arguments.
-  You should basically never use more than one, except when implementing
-  your own throw method overrides. Otherwise, use `throw` instead.
+  Avoid using this form except when implementing throw method overrides.
+  Prefer `throw` instead.
   "
   `(.throw (let ($#gen (traceback..walk_tb None))
              (.close $#gen)
@@ -530,11 +603,17 @@ _#<<#
            ,@exception))
 
 (defmacro throw (exception)
-  "Raise an exception."
+  "Raise an exception.
+
+  See also: `throw-from<throwQz_from>`, `engarde`_.
+  "
   `(throw* ,exception))
 
 (defmacro throw-from (exception cause)
-  "Raise an exception with a cause, which can be None."
+  "Raise an exception with a cause, which can be None.
+
+  See also: `throw`, `throw*<throwQzSTAR_>`.
+  "
   `(throw* (let ($#G (lambda ($#x)
                        (if-else (&& (isinstance $#x type)
                                     (issubclass $#x BaseException))
@@ -548,6 +627,8 @@ _#<<#
 (defmacro prog1 (expr1 : :* body)
   "Evaluates each expression in sequence (for side effects),
   resulting in the value of the first.
+
+  See also: `progn`.
   "
   `(let ($#value1 ,expr1)
      ,@body
@@ -559,13 +640,13 @@ _#<<#
 ;;; reader
 
 (defmacro b\# (raw)
-  "``b#`` bytes literal reader macro"
+  "``b#`` `bytes` literal reader macro"
   (-> raw
-      (ast..literal_eval)
+      ast..literal_eval
       (.replace "'" "\'")
       (.replace #"\n" "\n")
       (->> (.format "b'{}'"))
-      (ast..literal_eval)))
+      ast..literal_eval))
 
 (defmacro en\# (f)
   <<#
@@ -607,11 +688,31 @@ _#<<#
 ;;; collection
 
 (defmacro @ (: :* xs)
-  "``@`` 'list of'
-
-  ``:*`` unpacks the next argument.
-  Mnemonic: @rray list.
-  "
+  <<#
+  !;``@`` 'list of' Mnemonic: @rray list.
+  !;
+  !;Creates the `list` from each expresssion's result.
+  !;A ``:*`` unpacks the next argument.
+  !;
+  !;.. code-block:: REPL
+  !;
+  !;   #> (@ :* "AB" (math..sqrt 9) :* "XY" 2 1)
+  !;   >>> # QzAT_
+  !;   ... (lambda *_QzNo55_xs:
+  !;   ...   __import__('builtins').list(
+  !;   ...     _QzNo55_xs))(
+  !;   ...   *('AB'),
+  !;   ...   __import__('math').sqrt(
+  !;   ...     (9)),
+  !;   ...   *('XY'),
+  !;   ...   (2),
+  !;   ...   (1))
+  !;   ['A', 'B', 3.0, 'X', 'Y', 2, 1]
+  !;
+  !;See also: `#<QzHASH_>`, `%<QzPCENT_>`.
+  #"\n"
+  (when (&& xs (op#eq :* (get#-1 xs)))
+     (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
     `(en#list : ,@chain#(map X#(if-else (op#eq X ":*")
                                  `(,X ,(next ixs))
@@ -619,11 +720,15 @@ _#<<#
                              ixs))))
 
 (defmacro # (: :* xs)
-  "``#`` 'set of'
+  "``#`` 'set of' Mnemonic: Hash (#) set.
 
-  ``:*`` unpacks the next argument.
-  Mnemonic: Hash (#) set.
+  Creates the `set` from each expression's result.
+  A ``:*`` unpacks the next argument.
+
+  See also: `@<QzAT_>`, `%<QzPCENT_>`.
   "
+  (when (&& xs (op#eq :* (get#-1 xs)))
+     (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
     `(en#set : ,@chain#(map X#(if-else (op#eq X ":*")
                                 `(,X ,(next ixs))
@@ -631,11 +736,12 @@ _#<<#
                             ixs))))
 
 (defmacro % (: :* kvs)
-  "``%`` 'dict of'.
+  "``%`` 'dict of'. Mnemonic: `dict` of pairs (%).
 
-  Key-value pairs are implied.
-  ``:**`` unpacks mappings.
-  Mnemonic: dict of pairs (%).
+  Key-value pairs are implied by position.
+  A ``:**`` mapping-unpacks the next argument.
+
+  See also: `@<QzAT_>`, `#<QzHASH_>`.
   "
   (when (op#mod (len kvs) 2)
     (throw (TypeError "extra key without value")))
@@ -655,20 +761,6 @@ _#<<#
   Brings Hissp up to a minimal standard of usability without adding any
   dependencies in the compiled output.
 
-  Imports `functools.partial` and `functools.reduce`.
-  Star imports from `itertools` and `operator`.
-
-  Defines ``engarde``, which calls a function for you, handling any
-  targeted exceptions with the given handler.
-
-  Defines ``enter``, which calls a function with a context manager.
-
-  Defines ``Ensue`` for trampolined continuation generators.
-
-  Adds the bundled macros, but only if available,
-  so its expansion does not require Hissp to be installed.
-  (This replaces ``_macro_`` if you already had one.)
-
   Mainly intended for single-file scripts that can't have dependencies,
   or similarly constrained environments (e.g. embedded, readerless).
   There, the first form should be ``(hissp.._macro_.prelude)``,
@@ -676,6 +768,58 @@ _#<<#
 
   Larger projects with access to functional and macro libraries need not
   use this prelude at all.
+
+  The prelude has several effects:
+
+  * Imports `functools.partial` and `functools.reduce`.
+    Star imports from `itertools` and `operator`.
+
+  .. _engarde:
+
+  * Defines ``engarde``, which calls a function with exception handler::
+
+     def engarde(xs,h,f,/,*a,**kw):
+      try:return f(*a,**kw)
+      except xs as e:return h(e)
+
+    ``engarde`` with handlers can stack above in a single form.
+
+    See `lissp_whirlwind_tour` (§16) for usage examples.
+
+  .. _enter:
+
+  * Defines ``enter``, which calls a function with context manager::
+
+     def enter(c,f,/,*a):
+      with c as C:return f(*a,C)
+
+    ``enter`` with context managers can stack above in a single form.
+
+    See `lissp_whirlwind_tour` (§18) for usage examples.
+
+  .. _Ensue:
+
+  * Defines the ``Ensue`` class for trampolined continuation generators.
+
+    ``Ensue`` takes a step function and returns a generator. The step
+    function recieves the previous Ensue step and must return the next
+    one to continue. Returning a different type raises a `StopIteration`
+    with that object. Set the ``Y`` attribute on the current step to
+    [Y]ield a value this step. Set the ``F`` attribute to a true value
+    to yield values [F]rom the ``Y`` iterable instead. Set the ``X``
+    attribute to an e[X]ception class or tuple to catch any targeted
+    exceptions on the next step. Each step keeps a ``sent`` attribute,
+    which is the value sent to the generator this step, or the exception
+    caught this step instead.
+
+    See `lissp_whirlwind_tour` (§§17–18) for usage examples.
+
+    See also: `types.coroutine`, `collections.abc.Generator`.
+
+  * Adds the bundled macros, but only if available
+    (macros are typically only used at compile time),
+    so its compiled expansion does not require Hissp to be installed.
+    (This replaces ``_macro_`` if you already had one.)
 
   The REPL has the bundled macros loaded by default, but not the prelude.
   Invoke ``(prelude)`` to get the rest.
@@ -711,11 +855,13 @@ except ModuleNotFoundError:pass"
   Must switch on a hashable key.
   The default case is first and required.
   The remainder are implicitly paired.
+
+  See also: `cond`.
   "
   (when (op#mod (len pairs) 2)
     (throw (TypeError "Incomplete pair")))
-  (let (kss (get#(slice -2 None -2) pairs)
-        ts (get#(slice None None -2) pairs))
+  (let (kss ([#-2::-2] pairs)
+        ts ([#::-2] pairs))
     `((op#getitem (@ ,@(map X#`&#,X ts) &#,default)
                   (.get ,(dict chain#(i#starmap (lambda (i ks)
                                                   (map X#(@ X i) ks))
@@ -749,12 +895,12 @@ except ModuleNotFoundError:pass"
        $#val)))
 
 (defmacro ensure (e predicate : :* args)
-  "Anaphoric. Raises AssertionError unless (-> e predicate).
+  "Anaphoric. Raises `AssertionError` `unless` (-> e predicate).
 
   Additional arguments are evaluated in a context where ``it`` refers
-  to the result of e. These (if any) are passed to the AssertionError.
+  to the result of e. These (if any) are passed to the `AssertionError`.
 
-  Compilation is simply e when __debug__ is off.
+  Expansion is simply ``e`` when `__debug__` is off.
   "
   (if-else __debug__
     `(let (,'it ,e)
@@ -763,6 +909,31 @@ except ModuleNotFoundError:pass"
        ,'it)
     e))
 
-(defmacro \[\# e
-  "``subscript`` Injection. Python's subscription operator."
-  `(lambda ($#G) ,(.format "({}[{})" '$#G (hissp..demunge e))))
+(defmacro @@\# (definition function)
+  "``@@#`` 'decorator' applies ``function`` to defined name & reassigns.
+
+  ``definition`` form must assign a global identified by its first arg.
+  (E.g. `define` and `deftype` are compatible.) Expands to a `define`,
+  meaning decorators can stack.
+
+  .. code-block:: REPL
+
+     #> @@#!str.upper
+     #..(define foo 'foo)
+     >>> # hissp.macros.._macro_.define
+     ... __import__('builtins').globals().update(
+     ...   foo=# hissp.macros.._macro_.progn
+     ...       (lambda :(
+     ...         # define
+     ...         __import__('builtins').globals().update(
+     ...           foo='foo'),
+     ...         str.upper(
+     ...           foo))[-1])())
+
+     #> foo
+     >>> foo
+     'FOO'
+
+  "
+  (let (name (get#1 definition))
+    `(define ,name (progn ,definition (,function ,name)))))

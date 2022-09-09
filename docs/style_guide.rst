@@ -882,13 +882,31 @@ Avoid writing anything in the Quotez style yourself.
 (This can confuse the demunger and risks collision with compiler-generated names like gensyms.)
 
 Docstrings use reStructuredText markup, like Python.
+
+Anaphoric or code string–injection macros are potential gotchas if you don't know this,
+so docstrings for them should include the word "Anaphoric" or "Injection" up front.
+Anaphoric macro docstrings should also state what the anaphors are,
+named in doubled backticks.
+
 Any docstring for something with a munged name
 should start with the demunged name in doubled backticks
-(this includes anything with a hyphen),
-followed by the pronunciation in single quotes,
-if it's not obvious from the identifier::
+(this includes anything with a hyphen).
 
-  "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
+.. code-block:: Lissp
+
+   "``the#`` Anaphoric. Let ``the`` be a fresh `types.SimpleNamespace`
+   in a lexical scope surrounding ``e``.
+   "
+
+The demunged names should be followed by the pronunciation in single quotes,
+if it's not obvious from the identifier.
+
+.. code-block:: Lissp
+
+   "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
+
+This way, all three name versions (munged, demunged, and pronounced)
+will appear in generated docs.
 
 Method Syntax vs Attribute Calls
 --------------------------------

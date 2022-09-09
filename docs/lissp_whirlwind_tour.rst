@@ -40,11 +40,6 @@ Lissp Whirlwind Tour
 
    Familiarity with another Lisp dialect is not assumed, but helpful. If
    you get confused or stuck, the Hissp tutorial is easier.
-
-   Some examples depend on state set by previous examples to work.
-   Prerequisites for examples not in the same section are marked with
-   '/!\'. Don't skip these! If you resume with a new REPL session,
-   re-enter them, but only up to your current section.
    "
 
    ;;;; 2 Installation
@@ -503,9 +498,12 @@ Lissp Whirlwind Tour
    ...   (2))
    42
 
-   #> (.update (globals) : + operator..add) ;/!\ Assignment. Identifier munged.
+
+   ;; We'll be reusing this one in later sections.
+   #> (.update (globals) : + operator..add) ;Assignment. Identifier munged.
    >>> globals().update(
    ...   QzPLUS_=__import__('operator').add)
+
 
    #> (+ 40 2)                            ;No operators. This is still a function call!
    >>> QzPLUS_(
@@ -1020,6 +1018,7 @@ Lissp Whirlwind Tour
    ;; When your intent is to create data rather than code, unquote
    ;; each element.
 
+   ;; (Uses `+` from §8.1.)
    #> (list `(,@"abc"
    #..        ,1
    #..        ,(+ 1 1)
@@ -1183,6 +1182,9 @@ Lissp Whirlwind Tour
    ;; The REPL's default _macro_ namespace already has the bundled macros.
    (help _macro_.define)
 
+   ;;; 13.1 Macro Technique
+
+   ;; (Examples here use `+` from §8.1.)
 
    #> (setattr _macro_
    #..         'triple
@@ -1842,8 +1844,7 @@ Lissp Whirlwind Tour
    >>> # deftype
    ... # hissp.macros.._macro_.define
    ... __import__('builtins').globals().update(
-   ...   Point2D=# hissp.macros..QzMaybe_.Qz_QzGT_
-   ...           __import__('builtins').type(
+   ...   Point2D=__import__('builtins').type(
    ...             'Point2D',
    ...             (lambda * _: _)(
    ...               tuple),
@@ -1864,47 +1865,6 @@ Lissp Whirlwind Tour
    ...   (1),
    ...   (2))
    Point2D(1, 2)
-
-
-   #> (deftype@ ((lambda (cls)
-   #..             (setattr cls 's (operator..concat cls.s "Out"))
-   #..             cls)
-   #..           (lambda (cls)
-   #..             (setattr cls 's (operator..concat cls.s "Inside"))
-   #..             cls))
-   #..          Decorated ()
-   #..  s "@")
-   >>> # deftypeQzAT_
-   ... # hissp.macros.._macro_.define
-   ... __import__('builtins').globals().update(
-   ...   Decorated=# hissp.macros..QzMaybe_.Qz_QzGT_
-   ...             # hissp.macros..QzMaybe_.Qz_QzGT_
-   ...             # hissp.macros..QzMaybe_.Qz_QzGT_
-   ...             (lambda cls:(
-   ...               setattr(
-   ...                 cls,
-   ...                 's',
-   ...                 __import__('operator').concat(
-   ...                   cls.s,
-   ...                   ('Out'))),
-   ...               cls)[-1])(
-   ...               (lambda cls:(
-   ...                 setattr(
-   ...                   cls,
-   ...                   's',
-   ...                   __import__('operator').concat(
-   ...                     cls.s,
-   ...                     ('Inside'))),
-   ...                 cls)[-1])(
-   ...                 __import__('builtins').type(
-   ...                   'Decorated',
-   ...                   (lambda * _: _)(),
-   ...                   __import__('builtins').dict(
-   ...                     s=('@'))))))
-
-   #> Decorated.s
-   >>> Decorated.s
-   '@InsideOut'
 
 
    ;; Define a function in the _macro_ namespace.
@@ -2265,13 +2225,10 @@ Lissp Whirlwind Tour
    ;;; 15.6 Threading
 
    #> (-> "world!"                        ;Thread-first
-   #..    (.title)
+   #..    .title
    #..    (->> (print "Hello")))          ;Thread-last
    >>> # Qz_QzGT_
-   ... # hissp.macros..QzMaybe_.Qz_QzGT_
-   ... # hissp.macros..QzMaybe_.Qz_QzGT_
    ... # Qz_QzGT_QzGT_
-   ... # hissp.macros..QzMaybe_.Qz_QzGT_QzGT_
    ... print(
    ...   ('Hello'),
    ...   ('world!').title())
@@ -2288,8 +2245,10 @@ Lissp Whirlwind Tour
    ;; imports a copy of hissp.macros.._macro_ (if available). Usually the
    ;; first form in a file, because it overwrites _macro_, but completely
    ;; optional. Implied for $ lissp -c commands.
-   #> (prelude)                           ;/!\ Or (hissp.._macro_.prelude)
-   >>> # prelude
+
+   ;; N.B. Sections after this one may require the prelude to work!
+   #> (hissp.._macro_.prelude)            ;Or just (prelude) in the REPL.
+   >>> # hissp.._macro_.prelude
    ... __import__('builtins').exec(
    ...   ('from functools import partial,reduce\n'
    ...    'from itertools import *;from operator import *\n'
@@ -2830,10 +2789,7 @@ Lissp Whirlwind Tour
    ...       __import__('operator').not_(
    ...         test))())(
    ...     # hissp.macros.._macro_.Qz_QzGT_
-   ...     # hissp.macros..QzMaybe_.Qz_QzGT_
    ...     # Qz_QzGT_
-   ...     # hissp.macros..QzMaybe_.Qz_QzGT_
-   ...     # hissp.macros..QzMaybe_.Qz_QzGT_
    ...     eq(
    ...       mod(
    ...         it,
@@ -2865,7 +2821,7 @@ Lissp Whirlwind Tour
 
    ;;; 15.10 Obligatory Factorial III
 
-   ;; With the prelude, we can define a nicer-looking version.
+   ;; With the prelude (§15.7), we can define a nicer-looking version.
    #> (define factorial-III
    #..  (lambda i
    #..    (if-else (le i 1)
@@ -2900,7 +2856,7 @@ Lissp Whirlwind Tour
 
    ;;;; 16 Exception handling
 
-   ;; Defined by the prelude. Guards against the targeted exception classes.
+   ;; Defined by the prelude (§15.7). Guards against targeted exceptions.
    #> (engarde `(,FloatingPointError ,ZeroDivisionError)               ;two targets
    #..         (lambda e (print "Oops!") e)                            ;handler (returns exception)
    #..         truediv 6 0)                                            ;calls it on your behalf
@@ -3016,8 +2972,8 @@ Lissp Whirlwind Tour
 
    ;;;; 17 Generators
 
-   ;; Defined by the prelude, Ensue gives you infinite lazy iterables,
-   ;; easy as recursion. Compare to loop-from.
+   ;; Defined by the prelude (§15.7), Ensue gives you infinite lazy
+   ;; iterables, easy as recursion. Compare to loop-from (§15.8).
    #> (define fibonacci
    #..  (lambda (: a 1  b 1)
    #..    (Ensue (lambda (step)
@@ -3155,11 +3111,8 @@ Lissp Whirlwind Tour
    ...                     (1)),
    ...                   _QzNo31_target)[-1])()))))
 
-   #> (-> '(1 2 3) (recycle) (islice 7) (list))
+   #> (-> '(1 2 3) recycle (islice 7) list)
    >>> # Qz_QzGT_
-   ... # hissp.macros..QzMaybe_.Qz_QzGT_
-   ... # hissp.macros..QzMaybe_.Qz_QzGT_
-   ... # hissp.macros..QzMaybe_.Qz_QzGT_
    ... list(
    ...   islice(
    ...     recycle(
@@ -3497,6 +3450,11 @@ Lissp Whirlwind Tour
 
    ;;;; 20 The Bundled Reader Macros
 
+   ;; Like the other bundled macros, these are available in the REPL by
+   ;; default, but most other contexts, like .lissp files, require fully-
+   ;; qualified names. The prelude (§15.7) is the easiest way to add the
+   ;; bundled macros to a module.
+
    #> (reduce XY#(add Y X) "abcd")        ;Binary anaphoric lambda.
    >>> reduce(
    ...   (lambda X,Y:
@@ -3604,7 +3562,7 @@ Lissp Whirlwind Tour
    Help on function <lambda> in module hissp.macros:
    <BLANKLINE>
    <lambda> lambda raw
-       ``b#`` bytes literal reader macro
+       ``b#`` `bytes` literal reader macro
    <BLANKLINE>
 
 

@@ -62,6 +62,7 @@ python -m pip install --upgrade git+https://github.com/gilch/hissp
 Confirm install with
 ```
 python -m hissp --help
+lissp -c "__hello__."
 ```
 
 # Examples!
