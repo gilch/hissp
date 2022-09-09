@@ -552,7 +552,7 @@ _#<<#
 
   Returns the value of the final loop.
 
-  See also: `any*map<anyQzSTAR_map>`, ``Ensue`` from `prelude`.
+  See also: `any*map<anyQzSTAR_map>`, `Ensue`_.
   "
   `(let ($#stack (@ () None ,inits))
      (let (,'recur-from $#stack.append)
@@ -605,7 +605,7 @@ _#<<#
 (defmacro throw (exception)
   "Raise an exception.
 
-  See also: `throw-from<throwQz_from>`, ``engarde`` from `prelude`.
+  See also: `throw-from<throwQz_from>`, `engarde`_.
   "
   `(throw* ,exception))
 
@@ -761,20 +761,6 @@ _#<<#
   Brings Hissp up to a minimal standard of usability without adding any
   dependencies in the compiled output.
 
-  Imports `functools.partial` and `functools.reduce`.
-  Star imports from `itertools` and `operator`.
-
-  Defines ``engarde``, which calls a function for you, handling any
-  targeted exceptions with the given handler.
-
-  Defines ``enter``, which calls a function with a context manager.
-
-  Defines ``Ensue`` for trampolined continuation generators.
-
-  Adds the bundled macros, but only if available,
-  so its expansion does not require Hissp to be installed.
-  (This replaces ``_macro_`` if you already had one.)
-
   Mainly intended for single-file scripts that can't have dependencies,
   or similarly constrained environments (e.g. embedded, readerless).
   There, the first form should be ``(hissp.._macro_.prelude)``,
@@ -782,6 +768,58 @@ _#<<#
 
   Larger projects with access to functional and macro libraries need not
   use this prelude at all.
+
+  The prelude has several effects:
+
+  * Imports `functools.partial` and `functools.reduce`.
+    Star imports from `itertools` and `operator`.
+
+  .. _engarde:
+
+  * Defines ``engarde``, which calls a function with exception handler::
+
+     def engarde(xs,h,f,/,*a,**kw):
+      try:return f(*a,**kw)
+      except xs as e:return h(e)
+
+    ``engarde`` with handlers can stack above in a single form.
+
+    See `lissp_whirlwind_tour` (§16) for usage examples.
+
+  .. _enter:
+
+  * Defines ``enter``, which calls a function with context manager::
+
+     def enter(c,f,/,*a):
+      with c as C:return f(*a,C)
+
+    ``enter`` with context managers can stack above in a single form.
+
+    See `lissp_whirlwind_tour` (§18) for usage examples.
+
+  .. _Ensue:
+
+  * Defines the ``Ensue`` class for trampolined continuation generators.
+
+    ``Ensue`` takes a step function and returns a generator. The step
+    function recieves the previous Ensue step and must return the next
+    one to continue. Returning a different type raises a `StopIteration`
+    with that object. Set the ``Y`` attribute on the current step to
+    [Y]ield a value this step. Set the ``F`` attribute to a true value
+    to yield values [F]rom the ``Y`` iterable instead. Set the ``X``
+    attribute to an e[X]ception class or tuple to catch any targeted
+    exceptions on the next step. Each step keeps a ``sent`` attribute,
+    which is the value sent to the generator this step, or the exception
+    caught this step instead.
+
+    See `lissp_whirlwind_tour` (§§17–18) for usage examples.
+
+    See also: `types.coroutine`, `collections.abc.Generator`.
+
+  * Adds the bundled macros, but only if available
+    (macros are typically only used at compile time),
+    so its compiled expansion does not require Hissp to be installed.
+    (This replaces ``_macro_`` if you already had one.)
 
   The REPL has the bundled macros loaded by default, but not the prelude.
   Invoke ``(prelude)`` to get the rest.
