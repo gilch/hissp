@@ -223,7 +223,7 @@ _#<<#
 
   Key-value pairs are implied in the body.
 
-  See also: `type`, `@@#<QzAT_QzAT_QzHASH_>`.
+  See also: `type`, `@#!<QzAT_QzHASH_>`.
   "
   `(define ,name
        (type ',name (,hissp.reader..ENTUPLE ,@bases)
@@ -331,13 +331,6 @@ _#<<#
   "``chain#`` Abbreviation for `itertools.chain.from_iterable`"
   `(i#chain.from_iterable ,itr))
 
-(defmacro @\# (symbol)
-  "``@#`` 'attrgetter-' Makes an `operator.attrgetter` from ``symbol``.
-
-  See also: `get#<getQzHASH_>`, `getattr`, `set@<setQzAT_>`.
-  "
-  `(op#attrgetter ',symbol))
-
 (defmacro get\# e
   "``get#`` 'itemgetter-' Makes an `operator.itemgetter` function from ``e``.
 
@@ -345,6 +338,52 @@ _#<<#
   `set!<setQzBANG_>`.
   "
   `(op#itemgetter ,e))
+
+(defmacro @\# (primary : extra None)
+  "Overloaded, depending on the presence of ``extra``:
+
+  ``@#`` 'attrgetter-' Makes an `operator.attrgetter` from ``primary``,
+  which should be a symbol.
+
+  .. code-block:: REPL
+
+     #> (@#__class__.__name__.__class__.__name__ 0)
+     >>> __import__('operator').attrgetter(
+     ...   '__class__.__name__.__class__.__name__')(
+     ...   (0))
+     'str'
+
+  See also: `get#<getQzHASH_>`, `getattr`, `set@<setQzAT_>`.
+
+  ``@#!`` 'decorator' applies ``extra`` to defined name & reassigns.
+
+  ``primary`` form must assign a global identified by its first arg.
+  (E.g. `define` and `deftype` are compatible.) Expands to a `define`,
+  meaning decorators can stack.
+
+  .. code-block:: REPL
+
+     #> @#!str.upper
+     #..(define foo 'foo)
+     >>> # hissp.macros.._macro_.define
+     ... __import__('builtins').globals().update(
+     ...   foo=# hissp.macros.._macro_.progn
+     ...       (lambda :(
+     ...         # define
+     ...         __import__('builtins').globals().update(
+     ...           foo='foo'),
+     ...         str.upper(
+     ...           foo))[-1])())
+
+     #> foo
+     >>> foo
+     'FOO'
+
+  "
+  (if-else extra
+    (let (name (get#1 primary))
+      `(define ,name (progn ,primary (,extra ,name))))
+    `(op#attrgetter ',primary)))
 
 (defmacro \[\# e
   "``[#`` 'subscript' Injection. Python's subscription operator.
@@ -924,32 +963,3 @@ except ModuleNotFoundError:pass"
          (throw (AssertionError ,@args)))
        ,'it)
     e))
-
-(defmacro @@\# (definition function)
-  "``@@#`` 'decorator' applies ``function`` to defined name & reassigns.
-
-  ``definition`` form must assign a global identified by its first arg.
-  (E.g. `define` and `deftype` are compatible.) Expands to a `define`,
-  meaning decorators can stack.
-
-  .. code-block:: REPL
-
-     #> @@#!str.upper
-     #..(define foo 'foo)
-     >>> # hissp.macros.._macro_.define
-     ... __import__('builtins').globals().update(
-     ...   foo=# hissp.macros.._macro_.progn
-     ...       (lambda :(
-     ...         # define
-     ...         __import__('builtins').globals().update(
-     ...           foo='foo'),
-     ...         str.upper(
-     ...           foo))[-1])())
-
-     #> foo
-     >>> foo
-     'FOO'
-
-  "
-  (let (name (get#1 definition))
-    `(define ,name (progn ,definition (,function ,name)))))
