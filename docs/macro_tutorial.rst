@@ -1549,75 +1549,45 @@ even though the expression contained an ``X3``.
 
 We need to be able to check for symbols nested in tuples.
 This sounds like a job for recursion.
-Lissp can do that with a class.
 
 .. Lissp::
 
-   #> (deftype Flattener ()
-   #..  __init__ (lambda (self)
-   #..             (setattr self 'accumulator (list)))
-   #..  flatten (lambda (self form)
-   #..            (any-map x form
-   #..              (if-else (is_ (type x) tuple)
-   #..                (self.flatten x)
-   #..                (.append self.accumulator x))
-   #..              False)
-   #..            self.accumulator))
-   >>> # deftype
-   ... # hissp.macros.._macro_.define
+   #> (define flatten
+   #..  (lambda (form)
+   #..    chain#(map (lambda x
+   #..                 (if-else (is_ (type x) tuple)
+   #..                   (flatten x)
+   #..                   `(,x)))
+   #..               form)))
+   >>> # define
    ... __import__('builtins').globals().update(
-   ...   Flattener=__import__('builtins').type(
-   ...               'Flattener',
-   ...               (lambda * _: _)(),
-   ...               __import__('builtins').dict(
-   ...                 __init__=(lambda self:
-   ...                            setattr(
-   ...                              self,
-   ...                              'accumulator',
-   ...                              list())),
-   ...                 flatten=(lambda self,form:(
-   ...                           # anyQz_map
-   ...                           __import__('builtins').any(
-   ...                             __import__('builtins').map(
-   ...                               (lambda x:(
-   ...                                 # ifQz_else
-   ...                                 (lambda test,*thenQz_else:
-   ...                                   __import__('operator').getitem(
-   ...                                     thenQz_else,
-   ...                                     __import__('operator').not_(
-   ...                                       test))())(
-   ...                                   is_(
-   ...                                     type(
-   ...                                       x),
-   ...                                     tuple),
-   ...                                   (lambda :
-   ...                                     self.flatten(
-   ...                                       x)),
-   ...                                   (lambda :
-   ...                                     self.accumulator.append(
-   ...                                       x))),
-   ...                                 False)[-1]),
-   ...                               form)),
-   ...                           self.accumulator)[-1]))))
+   ...   flatten=(lambda form:
+   ...             __import__('itertools').chain.from_iterable(
+   ...               map(
+   ...                 (lambda x:
+   ...                   # ifQz_else
+   ...                   (lambda test,*thenQz_else:
+   ...                     __import__('operator').getitem(
+   ...                       thenQz_else,
+   ...                       __import__('operator').not_(
+   ...                         test))())(
+   ...                     is_(
+   ...                       type(
+   ...                         x),
+   ...                       tuple),
+   ...                     (lambda :
+   ...                       flatten(
+   ...                         x)),
+   ...                     (lambda :
+   ...                       (lambda * _: _)(
+   ...                         x)))),
+   ...                 form))))
 
 
 More bundled macros here.
 Search Hissp's docs if you can't figure out what they do.
 
 ``Flatten`` is a good utility to have for macros that have to read code.
-Let's give it a nicer interface.
-
-.. Lissp::
-
-   #> (define flatten
-   #..  (lambda (form)
-   #..    (.flatten (Flattener) form)))
-   >>> # define
-   ... __import__('builtins').globals().update(
-   ...   flatten=(lambda form:
-   ...             Flattener().flatten(
-   ...               form)))
-
 
 Now we can fix ``max-X``.
 
@@ -1734,18 +1704,11 @@ Let's review. The code you need to make the version we have so far is
 
    (define flatten
      (lambda (form)
-       (.flatten (Flattener) form)))
-
-   (deftype Flattener ()
-     __init__ (lambda (self)
-                (setattr self 'accumulator []))
-     flatten (lambda (self form)
-               (any-map x form
-                 (if-else (is_ (type x) tuple)
-                   (self.flatten x)
-                   (.append self.accumulator x))
-                 False)
-               self.accumulator))
+       chain#(map (lambda x
+                    (if-else (is_ (type x) tuple)
+                      (flatten x)
+                      `(,x)))
+                  form)))
 
 Given all of this in a file named ``macros.lissp``,
 you can start the REPL with these already loaded using the command
@@ -2680,7 +2643,10 @@ you can already use `decimal.Decimal` as a reader macro:
    #> (mul decimal..Decimal#.#".2" 3)
    >>> mul(
    ...   __import__('pickle').loads(  # Decimal('0.2')
-   ...       b'cdecimal\nDecimal\n(V0.2\ntR.'
+   ...       b'cdecimal\n'
+   ...       b'Decimal\n'
+   ...       b'(V0.2\n'
+   ...       b'tR.'
    ...   ),
    ...   (3))
    Decimal('0.6')
@@ -2714,7 +2680,10 @@ but this isn't always a good idea.
 
    #> decimal..Decimal#.2
    >>> __import__('pickle').loads(  # Decimal('0.200000000000000011102230246251565404236316680908203125')
-   ...     b'cdecimal\nDecimal\n(V0.200000000000000011102230246251565404236316680908203125\ntR.'
+   ...     b'cdecimal\n'
+   ...     b'Decimal\n'
+   ...     b'(V0.200000000000000011102230246251565404236316680908203125\n'
+   ...     b'tR.'
    ... )
    Decimal('0.200000000000000011102230246251565404236316680908203125')
 

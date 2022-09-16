@@ -422,7 +422,8 @@ class Compiler:
         '((-0-4.2j))'
         >>> print(readerless(float('nan')))
         __import__('pickle').loads(  # nan
-            b'Fnan\n.'
+            b'Fnan\n'
+            b'.'
         )
         >>> readerless([{'foo':2},(),1j,2.0,{3}])
         "[{'foo': 2}, (), 1j, 2.0, {3}]"
@@ -430,12 +431,17 @@ class Compiler:
         >>> spam.append(spam)  # ref cycle can't be a literal
         >>> print(readerless(spam))
         __import__('pickle').loads(  # [[...]]
-            b'(lp0\ng0\na.'
+            b'(lp0\n'
+            b'g0\n'
+            b'a.'
         )
         >>> spam = [[]] * 3  # duplicated refs
         >>> print(readerless(spam))
         __import__('pickle').loads(  # [[], [], []]
-            b'(l(lp0\nag0\nag0\na.'
+            b'(l(lp0\n'
+            b'ag0\n'
+            b'ag0\n'
+            b'a.'
         )
 
         """
@@ -479,9 +485,10 @@ class Compiler:
         """Compile to `pickle.loads`. The final fallback for `atom`."""
         # 0 is the "human-readable" backwards-compatible text protocol.
         dumps = pickletools.optimize(pickle.dumps(form, 0, fix_imports=False))
+        dumps = "\n    ".join(f"{b!r}" for b in dumps.splitlines(keepends=True))
         r = repr(form).replace("\n", "\n  # ")
         nl = "\n" if "\n" in r else ""
-        return f"__import__('pickle').loads({nl}  # {r}\n    {dumps!r}\n)"
+        return f"__import__('pickle').loads({nl}  # {r}\n    {dumps}\n)"
 
     def eval(self, form: str) -> Tuple[str, ...]:
         """Execute compiled form, but only if evaluate mode is enabled."""

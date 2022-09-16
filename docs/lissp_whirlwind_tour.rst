@@ -3367,7 +3367,8 @@ Lissp Whirlwind Tour
    ;; the compiler is in a pickle!
    #> builtins..float#inf
    >>> __import__('pickle').loads(  # inf
-   ...     b'Finf\n.'
+   ...     b'Finf\n'
+   ...     b'.'
    ... )
    inf
 
@@ -3401,7 +3402,10 @@ Lissp Whirlwind Tour
 
    #> .#(fractions..Fraction 1 2)         ;Read time eval. Compiles to equivalent object.
    >>> __import__('pickle').loads(  # Fraction(1, 2)
-   ...     b'cfractions\nFraction\n(V1/2\ntR.'
+   ...     b'cfractions\n'
+   ...     b'Fraction\n'
+   ...     b'(V1/2\n'
+   ...     b'tR.'
    ... )
    Fraction(1, 2)
 
@@ -3438,7 +3442,11 @@ Lissp Whirlwind Tour
 
    #> re..compile#.#"[1-9][0-9]*"
    >>> __import__('pickle').loads(  # re.compile('[1-9][0-9]*')
-   ...     b'cre\n_compile\n(V[1-9][0-9]*\nI32\ntR.'
+   ...     b'cre\n'
+   ...     b'_compile\n'
+   ...     b'(V[1-9][0-9]*\n'
+   ...     b'I32\n'
+   ...     b'tR.'
    ... )
    re.compile('[1-9][0-9]*')
 
@@ -3907,19 +3915,48 @@ Lissp Whirlwind Tour
 
    #> !1                                  ;! is for a single Extra.
    >>> __import__('pickle').loads(  # Extra([1])
-   ...     b'ccopyreg\n_reconstructor\n(chissp.reader\nExtra\ncbuiltins\ntuple\n(I1\nttR.'
+   ...     b'ccopyreg\n'
+   ...     b'_reconstructor\n'
+   ...     b'(chissp.reader\n'
+   ...     b'Extra\n'
+   ...     b'cbuiltins\n'
+   ...     b'tuple\n'
+   ...     b'(I1\n'
+   ...     b'ttR.'
    ... )
    Extra([1])
 
    #> hissp.reader..Extra#(: :? 0 :* (1 2 3)) ; but Extra can have multiple elements.
    >>> __import__('pickle').loads(  # Extra([':', ':?', 0, ':*', (1, 2, 3)])
-   ...     b'ccopyreg\n_reconstructor\n(chissp.reader\nExtra\ncbuiltins\ntuple\n(V:\nV:?\nI0\nV:*\n(I1\nI2\nI3\ntttR.'
+   ...     b'ccopyreg\n'
+   ...     b'_reconstructor\n'
+   ...     b'(chissp.reader\n'
+   ...     b'Extra\n'
+   ...     b'cbuiltins\n'
+   ...     b'tuple\n'
+   ...     b'(V:\n'
+   ...     b'V:?\n'
+   ...     b'I0\n'
+   ...     b'V:*\n'
+   ...     b'(I1\n'
+   ...     b'I2\n'
+   ...     b'I3\n'
+   ...     b'tttR.'
    ... )
    Extra([':', ':?', 0, ':*', (1, 2, 3)])
 
    #> !!!1 2 3                            ;Extras can have extras. They stack.
    >>> __import__('pickle').loads(  # Extra([1, 2, 3])
-   ...     b'ccopyreg\n_reconstructor\n(chissp.reader\nExtra\ncbuiltins\ntuple\n(I1\nI2\nI3\nttR.'
+   ...     b'ccopyreg\n'
+   ...     b'_reconstructor\n'
+   ...     b'(chissp.reader\n'
+   ...     b'Extra\n'
+   ...     b'cbuiltins\n'
+   ...     b'tuple\n'
+   ...     b'(I1\n'
+   ...     b'I2\n'
+   ...     b'I3\n'
+   ...     b'ttR.'
    ... )
    Extra([1, 2, 3])
 

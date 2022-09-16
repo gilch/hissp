@@ -223,7 +223,7 @@ _#<<#
 
   Key-value pairs are implied in the body.
 
-  See also: `type`, `@@#<QzAT_QzAT_QzHASH_>`.
+  See also: `type`, `@#!<QzAT_QzHASH_>`.
   "
   `(define ,name
        (type ',name (,hissp.reader..ENTUPLE ,@bases)
@@ -331,13 +331,6 @@ _#<<#
   "``chain#`` Abbreviation for `itertools.chain.from_iterable`"
   `(i#chain.from_iterable ,itr))
 
-(defmacro @\# (symbol)
-  "``@#`` 'attrgetter-' Makes an `operator.attrgetter` from ``symbol``.
-
-  See also: `get#<getQzHASH_>`, `getattr`, `set@<setQzAT_>`.
-  "
-  `(op#attrgetter ',symbol))
-
 (defmacro get\# e
   "``get#`` 'itemgetter-' Makes an `operator.itemgetter` function from ``e``.
 
@@ -345,6 +338,52 @@ _#<<#
   `set!<setQzBANG_>`.
   "
   `(op#itemgetter ,e))
+
+(defmacro @\# (primary : extra None)
+  "Overloaded, depending on the presence of ``extra``:
+
+  ``@#`` 'attrgetter-' Makes an `operator.attrgetter` from ``primary``,
+  which should be a symbol.
+
+  .. code-block:: REPL
+
+     #> (@#__class__.__name__.__class__.__name__ 0)
+     >>> __import__('operator').attrgetter(
+     ...   '__class__.__name__.__class__.__name__')(
+     ...   (0))
+     'str'
+
+  See also: `get#<getQzHASH_>`, `getattr`, `set@<setQzAT_>`.
+
+  ``@#!`` 'decorator' applies ``extra`` to defined name & reassigns.
+
+  ``primary`` form must assign a global identified by its first arg.
+  (E.g. `define` and `deftype` are compatible.) Expands to a `define`,
+  meaning decorators can stack.
+
+  .. code-block:: REPL
+
+     #> @#!str.upper
+     #..(define foo 'foo)
+     >>> # hissp.macros.._macro_.define
+     ... __import__('builtins').globals().update(
+     ...   foo=# hissp.macros.._macro_.progn
+     ...       (lambda :(
+     ...         # define
+     ...         __import__('builtins').globals().update(
+     ...           foo='foo'),
+     ...         str.upper(
+     ...           foo))[-1])())
+
+     #> foo
+     >>> foo
+     'FOO'
+
+  "
+  (if-else extra
+    (let (name (get#1 primary))
+      `(define ,name (progn ,primary (,extra ,name))))
+    `(op#attrgetter ',primary)))
 
 (defmacro \[\# e
   "``[#`` 'subscript' Injection. Python's subscription operator.
@@ -772,7 +811,10 @@ _#<<#
   The prelude has several effects:
 
   * Imports `functools.partial` and `functools.reduce`.
-    Star imports from `itertools` and `operator`.
+    Star imports from `itertools` and `operator`::
+
+     from functools import partial,reduce
+     from itertools import *;from operator import *
 
   .. _engarde:
 
@@ -799,7 +841,16 @@ _#<<#
 
   .. _Ensue:
 
-  * Defines the ``Ensue`` class for trampolined continuation generators.
+  * Defines the ``Ensue`` class; trampolined continuation generators::
+
+     class Ensue(__import__('collections.abc').abc.Generator):
+      send=lambda s,v:s.g.send(v);throw=lambda s,*x:s.g.throw(*x);F=0;X=();Y=[]
+      def __init__(s,p):s.p,s.g,s.n=p,s._(s),s.Y
+      def _(s,k,v=None):
+       while isinstance(s:=k,__class__) and not setattr(s,'sent',v):
+        try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)
+        except s.X as e:v=e
+       return k
 
     ``Ensue`` takes a step function and returns a generator. The step
     function recieves the previous Ensue step and must return the next
@@ -819,7 +870,11 @@ _#<<#
   * Adds the bundled macros, but only if available
     (macros are typically only used at compile time),
     so its compiled expansion does not require Hissp to be installed.
-    (This replaces ``_macro_`` if you already had one.)
+    (This replaces ``_macro_`` if you already had one.)::
+
+     _macro_=__import__('types').SimpleNamespace()
+     try:exec('from {}._macro_ import *',vars(_macro_))
+     except ModuleNotFoundError:pass
 
   The REPL has the bundled macros loaded by default, but not the prelude.
   Invoke ``(prelude)`` to get the rest.
@@ -908,32 +963,3 @@ except ModuleNotFoundError:pass"
          (throw (AssertionError ,@args)))
        ,'it)
     e))
-
-(defmacro @@\# (definition function)
-  "``@@#`` 'decorator' applies ``function`` to defined name & reassigns.
-
-  ``definition`` form must assign a global identified by its first arg.
-  (E.g. `define` and `deftype` are compatible.) Expands to a `define`,
-  meaning decorators can stack.
-
-  .. code-block:: REPL
-
-     #> @@#!str.upper
-     #..(define foo 'foo)
-     >>> # hissp.macros.._macro_.define
-     ... __import__('builtins').globals().update(
-     ...   foo=# hissp.macros.._macro_.progn
-     ...       (lambda :(
-     ...         # define
-     ...         __import__('builtins').globals().update(
-     ...           foo='foo'),
-     ...         str.upper(
-     ...           foo))[-1])())
-
-     #> foo
-     >>> foo
-     'FOO'
-
-  "
-  (let (name (get#1 definition))
-    `(define ,name (progn ,definition (,function ,name)))))
