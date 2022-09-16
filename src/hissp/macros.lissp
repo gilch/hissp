@@ -772,7 +772,10 @@ _#<<#
   The prelude has several effects:
 
   * Imports `functools.partial` and `functools.reduce`.
-    Star imports from `itertools` and `operator`.
+    Star imports from `itertools` and `operator`::
+
+     from functools import partial,reduce
+     from itertools import *;from operator import *
 
   .. _engarde:
 
@@ -799,7 +802,16 @@ _#<<#
 
   .. _Ensue:
 
-  * Defines the ``Ensue`` class for trampolined continuation generators.
+  * Defines the ``Ensue`` class; trampolined continuation generators::
+
+     class Ensue(__import__('collections.abc').abc.Generator):
+      send=lambda s,v:s.g.send(v);throw=lambda s,*x:s.g.throw(*x);F=0;X=();Y=[]
+      def __init__(s,p):s.p,s.g,s.n=p,s._(s),s.Y
+      def _(s,k,v=None):
+       while isinstance(s:=k,__class__) and not setattr(s,'sent',v):
+        try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)
+        except s.X as e:v=e
+       return k
 
     ``Ensue`` takes a step function and returns a generator. The step
     function recieves the previous Ensue step and must return the next
@@ -819,7 +831,11 @@ _#<<#
   * Adds the bundled macros, but only if available
     (macros are typically only used at compile time),
     so its compiled expansion does not require Hissp to be installed.
-    (This replaces ``_macro_`` if you already had one.)
+    (This replaces ``_macro_`` if you already had one.)::
+
+     _macro_=__import__('types').SimpleNamespace()
+     try:exec('from {}._macro_ import *',vars(_macro_))
+     except ModuleNotFoundError:pass
 
   The REPL has the bundled macros loaded by default, but not the prelude.
   Invoke ``(prelude)`` to get the rest.
