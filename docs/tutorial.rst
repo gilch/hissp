@@ -1156,7 +1156,10 @@ How about these?
 
    #> .#.#"[[]]*3" ; Injects a list object.
    >>> __import__('pickle').loads(  # [[], [], []]
-   ...     b'(l(lp0\nag0\nag0\na.'
+   ...     b'(l(lp0\n'
+   ...     b'ag0\n'
+   ...     b'ag0\n'
+   ...     b'a.'
    ... )
    [[], [], []]
 
@@ -1169,7 +1172,7 @@ Is this the reader's doing?
 >>> eval(_)
 [[], [], []]
 >>> readerless([[]]*3)
-"__import__('pickle').loads(  # [[], [], []]\n    b'(l(lp0\\nag0\\nag0\\na.'\n)"
+"__import__('pickle').loads(  # [[], [], []]\n    b'(l(lp0\\n'\n    b'ag0\\n'\n    b'ag0\\n'\n    b'a.'\n)"
 >>> eval(_)
 [[], [], []]
 
@@ -1198,7 +1201,10 @@ Well, what *should* it compile to?
 
    #> .#.#"[[]]*3"
    >>> __import__('pickle').loads(  # [[], [], []]
-   ...     b'(l(lp0\nag0\nag0\na.'
+   ...     b'(l(lp0\n'
+   ...     b'ag0\n'
+   ...     b'ag0\n'
+   ...     b'a.'
    ... )
    [[], [], []]
 
@@ -1227,7 +1233,7 @@ It might not be the one you started with.
 'print(\n  (10),\n  (10),\n  (10),\n  (10),\n  (10),\n  (10),\n  (10),\n  (10),\n  (10))'
 
 Notice that these have all compiled the same way: ``(10)``.
-There were many possible representations in code,
+There were many possible aliases in code,
 but by the time the compiler got to them,
 they were just references to an int object in memory,
 and there is no way for the compiler to know what code you started with.
@@ -1263,10 +1269,12 @@ How can the Hissp compiler generate Python code from this tuple?
 Let's see what it's doing.
 
 >>> readerless((print,1,2,3,':','sep',':'))
-"__import__('pickle').loads(  # <built-in function print>\n    b'cbuiltins\\nprint\\n.'\n)(\n  (1),\n  (2),\n  (3),\n  sep=':')"
+"__import__('pickle').loads(  # <built-in function print>\n    b'cbuiltins\\n'\n    b'print\\n'\n    b'.'\n)(\n  (1),\n  (2),\n  (3),\n  sep=':')"
 >>> print(_)
 __import__('pickle').loads(  # <built-in function print>
-    b'cbuiltins\nprint\n.'
+    b'cbuiltins\n'
+    b'print\n'
+    b'.'
 )(
   (1),
   (2),
@@ -1289,7 +1297,9 @@ but if we had injected it instead,
 
    #> (.#print 1 2 3 : sep :)
    >>> __import__('pickle').loads(  # <built-in function print>
-   ...     b'cbuiltins\nprint\n.'
+   ...     b'cbuiltins\n'
+   ...     b'print\n'
+   ...     b'.'
    ... )(
    ...   (1),
    ...   (2),
@@ -1305,7 +1315,10 @@ Many other object types work.
 
    #> .#(fractions..Fraction 1 2)
    >>> __import__('pickle').loads(  # Fraction(1, 2)
-   ...     b'cfractions\nFraction\n(V1/2\ntR.'
+   ...     b'cfractions\n'
+   ...     b'Fraction\n'
+   ...     b'(V1/2\n'
+   ...     b'tR.'
    ... )
    Fraction(1, 2)
 
@@ -1336,7 +1349,8 @@ and the reader embeds the resulting object into the output Hissp:
 
    #> builtins..float#inf
    >>> __import__('pickle').loads(  # inf
-   ...     b'Finf\n.'
+   ...     b'Finf\n'
+   ...     b'.'
    ... )
    inf
 
@@ -1348,14 +1362,15 @@ It's the same as using inject like this
 
    #> .#(float 'inf)
    >>> __import__('pickle').loads(  # inf
-   ...     b'Finf\n.'
+   ...     b'Finf\n'
+   ...     b'.'
    ... )
    inf
 
 Or readerless mode like this
 
 >>> readerless(float('inf'))
-"__import__('pickle').loads(  # inf\n    b'Finf\\n.'\n)"
+"__import__('pickle').loads(  # inf\n    b'Finf\\n'\n    b'.'\n)"
 
 A float is neither a `str` nor a `tuple`,
 so Hissp tries its best to compile this as data representing itself,
@@ -1595,7 +1610,12 @@ even though they're written first.
 
    #> builtins..range# !0 !-1 20
    >>> __import__('pickle').loads(  # range(20, 0, -1)
-   ...     b'cbuiltins\nrange\n(I20\nI0\nI-1\ntR.'
+   ...     b'cbuiltins\n'
+   ...     b'range\n'
+   ...     b'(I20\n'
+   ...     b'I0\n'
+   ...     b'I-1\n'
+   ...     b'tR.'
    ... )
    range(20, 0, -1)
 
