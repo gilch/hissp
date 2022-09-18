@@ -184,7 +184,7 @@ extending that ability to custom tuple forms.
 ...         return ('branch',condition,('thunk',consequent,),('thunk',alternate,),)
 ...
 >>> expansion = readerless(
-...     ('if_else','0==1',  # Macro form, not a runtime call.
+...     ('if_else','0==1',  # Macro form, not a run-time call.
 ...       ('print',('quote','yes',),),  # Side effect not evaluated!
 ...       ('print',('quote','no',),),),
 ...     globals())  # Pass in globals for _macro_.
