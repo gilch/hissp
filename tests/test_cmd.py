@@ -284,9 +284,10 @@ def test_compile_error():
         "> #> ", "< (lambda :x)",
         "! >>> # CompileError\n",
         "! \n",
-        "! (>   >  > >>('lambda', ':x')<< <  <   <)\n",
-        "! # Compiler.function() CompileError:\n",
+        "! (lambda (>   >  > >>':x'<< <  <   <)\n",
+        "! # Compiler.parameters() CompileError:\n",
         "! #  Incomplete pair.\n",
+        "! :())\n",
         "> #> ",
     )  # fmt: skip
 

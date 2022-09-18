@@ -48,7 +48,7 @@ class CompileError(SyntaxError):
 
 def _trace(method):
     @wraps(method)
-    def tracer(self, expr):
+    def tracer(self, expr) -> str:
         try:
             return method(self, expr)
         except Exception as e:
@@ -57,6 +57,7 @@ def _trace(method):
                 f"\nCompiler.{method.__name__}() {type(e).__name__}:\n {e}".replace(
                     "\n", "\n# "
                 )
+                + "\n"
             )
             return f"(>   >  > >>{pformat(expr)}<< <  <   <){message}"
 
@@ -210,27 +211,28 @@ class Compiler:
         """
         fn, parameters, *body = form
         assert fn == "lambda"
-        return f"(lambda {','.join(self.parameters(parameters))}:{self.body(body)})"
+        return f"(lambda {self.parameters(parameters)}:{self.body(body)})"
 
     @_trace
-    def parameters(self, parameters: Iterable) -> Iterable[str]:
+    def parameters(self, parameters: Iterable) -> str:
         """Process parameters to compile `function`."""
         parameters = iter(parameters)
-        yield from (
+        r = [
             {":/": "/", ":*": "*"}.get(a, a)
             for a in takewhile(lambda a: a != ":", parameters)
-        )
+        ]
         for k, v in _pairs(parameters):
             if k == ":*":
-                yield "*" if v == ":?" else f"*{v}"
+                r.append("*" if v == ":?" else f"*{v}")
             elif k == ":/":
-                yield "/"
+                r.append("/")
             elif k == ":**":
-                yield f"**{v}"
+                r.append(f"**{v}")
             elif v == ":?":
-                yield k
+                r.append(k)
             else:
-                yield f"{k}={self.form(v)}"
+                r.append(f"{k}={self.form(v)}")
+        return ",".join(r)
 
     @_trace
     def body(self, body: list) -> str:
