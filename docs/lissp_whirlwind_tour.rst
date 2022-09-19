@@ -2896,10 +2896,10 @@ Lissp Whirlwind Tour
 
    ;; You can nest them.
    #> (engarde Exception                                               ;The outer engarde
-   #..  print
-   #..  engarde ZeroDivisionError                                      ; calls the inner.
-   #..  (lambda e (print "It means what you want it to mean."))
-   #..  truediv "6" 0)                                                 ;Try variations.
+   #.. print
+   #.. engarde ZeroDivisionError                                       ; calls the inner.
+   #.. (lambda e (print "It means what you want it to mean."))
+   #.. truediv "6" 0)                                                  ;Try variations.
    >>> engarde(
    ...   Exception,
    ...   print,
