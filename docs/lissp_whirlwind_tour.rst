@@ -3543,7 +3543,35 @@ Lissp Whirlwind Tour
    msg
 
 
-   ;; Also XYZ# XYZW# See API doc.
+   ;; Combines an anaphoric lambda with an injected Python code string.
+   ;; The imports would have been harder if the whole expression were
+   ;; injected Python. Get the best of both worlds.
+   #> (XYZ#.#"X*Y == Z" : X math..pi  Y 2  Z math..tau) ;Or inject the 2.
+   >>> (lambda X,Y,Z:X*Y == Z)(
+   ...   X=__import__('math').pi,
+   ...   Y=(2),
+   ...   Z=__import__('math').tau)
+   True
+
+
+   ;; Slicing takes up to four operands.
+   #> (XYZW#.#"X[Y:Z:W]" "QuaoblcldefHg" -2 1 -2)
+   >>> (lambda X,Y,Z,W:X[Y:Z:W])(
+   ...   ('QuaoblcldefHg'),
+   ...   (-2),
+   ...   (1),
+   ...   (-2))
+   'Hello'
+
+
+   ;; Slicing is important enough for a shorthand.
+   ;; This variant works best on simple cases. The slice indexes are all
+   ;; injected Python here.
+   #> ([#-2:1:-2] "QuaoblcldefHg")
+   >>> (lambda _QzNo32_G:(_QzNo32_G[-2:1:-2]))(
+   ...   ('QuaoblcldefHg'))
+   'Hello'
+
 
    #> b#"bytes"                           ;Bytes reader macro.
    >>> b'bytes'
@@ -3768,7 +3796,7 @@ Lissp Whirlwind Tour
    'a'
 
 
-   #> (get#(slice None None -1) "abc")    ;Slicing.
+   #> (get#(slice None None -1) "abc")    ;Slicing without injection.
    >>> __import__('operator').itemgetter(
    ...   slice(
    ...     None,
