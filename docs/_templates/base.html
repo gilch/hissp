@@ -39,22 +39,22 @@ SPDX-License-Identifier: Apache-2.0
 </style>
 <style type="text/css">
 /* Dark-Theme Contrast Tweaks for Monokai Theme */
-body[data-theme="dark"] .highlight .gh {
-color: hsl(212deg, 30%, 96%);
-font-weight: bold;
+body:not([data-theme="light"]) .highlight .gh {
+  color: hsl(212deg, 30%, 96%);
+  font-weight: bold;
 }
-body[data-theme="dark"] .highlight .gu {
-color: hsl(212deg, 30%, 96%);
-font-style: italic;
+body:not([data-theme="light"]) .highlight .gu {
+  color: hsl(212deg, 30%, 96%);
+  font-style: italic;
 }
-body[data-theme="dark"] .highlight .c {
+body:not([data-theme="light"]) .highlight .c {
   color: hsl(212deg, 9%, 58%)
 }
-body[data-theme="dark"] .highlight .c1 {
-color: hsl(212deg, 9%, 58%)
+body:not([data-theme="light"]) .highlight .c1 {
+  color: hsl(212deg, 9%, 58%)
 }
-body[data-theme="dark"] .highlight {
-background: #0d1117
+body:not([data-theme="light"]) .highlight {
+  background: #0d1117
 }
 </style>
 {% endblock %}
