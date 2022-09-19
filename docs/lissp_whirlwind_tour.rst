@@ -2894,7 +2894,7 @@ Lissp Whirlwind Tour
    3.0
 
 
-   ;; You can nest them.
+   ;; You can stack them.
    #> (engarde Exception                                               ;The outer engarde
    #.. print
    #.. engarde ZeroDivisionError                                       ; calls the inner.
@@ -3054,7 +3054,7 @@ Lissp Whirlwind Tour
    [1, 2, 3, 4, 5]
 
 
-   ;; Set F to yield From.
+   ;; Set F to yield-From mode.
    #> (Ensue (lambda (step)
    #..         (attach step :
    #..           Y '(1 2 3 4 5)
