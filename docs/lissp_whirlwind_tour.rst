@@ -605,7 +605,7 @@ Lissp Whirlwind Tour
           (lambda () (print "Unrecognized input."))))
 
    ;; Don't worry, Hissp metaprogramming will make this much easier,
-   ;; but our limited tools so far are enough to implement a ternary.
+   ;; but our limited tools so far are enough for a ternary operator.
 
    #> (.update (globals) : bool->caller (dict))
    >>> globals().update(
@@ -3543,7 +3543,7 @@ Lissp Whirlwind Tour
    msg
 
 
-   ;; Combines an anaphoric lambda with an injected Python code string.
+   ;; Ternary anaphoric lambda, applied to an injected code string.
    ;; The imports would have been harder if the whole expression were
    ;; injected Python. Get the best of both worlds.
    #> (XYZ#.#"X*Y == Z" : X math..pi  Y 2  Z math..tau) ;Or inject the 2.
@@ -3554,7 +3554,7 @@ Lissp Whirlwind Tour
    True
 
 
-   ;; Slicing takes up to four operands.
+   ;; Quaternary anaphoric lambda. Slicing takes up to four operands.
    #> (XYZW#.#"X[Y:Z:W]" "QuaoblcldefHg" -2 1 -2)
    >>> (lambda X,Y,Z,W:X[Y:Z:W])(
    ...   ('QuaoblcldefHg'),
@@ -3602,7 +3602,8 @@ Lissp Whirlwind Tour
    <BLANKLINE>
 
 
-   ;; The en- reader macro.
+   ;; The en# reader macro converts a function applicable to one tuple
+   ;; to a function of its elements.
    #> (en#list 1 2 3)
    >>> (lambda *_QzNo31_xs:
    ...   list(
@@ -3626,7 +3627,7 @@ Lissp Whirlwind Tour
    [1, 2, 3, 4, 5, 6]
 
 
-   #> (en#collections..deque 1 2 3)       ;Generalizes to any function of 1 iterable.
+   #> (en#collections..deque 1 2 3)
    >>> (lambda *_QzNo31_xs:
    ...   __import__('collections').deque(
    ...     _QzNo31_xs))(
@@ -3636,7 +3637,7 @@ Lissp Whirlwind Tour
    deque([1, 2, 3])
 
 
-   ;; Anaphoric lambda of any number of args.
+   ;; Applying en# to X# results in a variadic anaphoric lambda.
    #> (define enjoin en#X#(.join "" (map str X)))
    >>> # define
    ... __import__('builtins').globals().update(
@@ -3661,6 +3662,9 @@ Lissp Whirlwind Tour
    ...   ('.'))
    'Sum: 5. Product: 6.'
 
+
+   ;; There are no bundled reader macros for a quinary, senary, etc. but
+   ;; the en#X# variadic or a normal lambda form can be used.
 
    ;; Not technically a reader macro, but a bundled macro for defining them.
    ;; Alias makes a new reader macro to abbreviate a qualifier.
@@ -3756,9 +3760,8 @@ Lissp Whirlwind Tour
    ['a', 1, 'b', 2, 'c', 3]
 
 
-   #> (@#upper "shout")                   ;Get an attribute without calling it.
-   >>> __import__('operator').attrgetter(
-   ...   'upper')(
+   #> (X#X.upper "shout")                 ;Get an attribute without calling it.
+   >>> (lambda X:X.upper)(
    ...   ('shout'))
    <built-in method upper of str object at ...>
 
@@ -3767,11 +3770,10 @@ Lissp Whirlwind Tour
    'SHOUT'
 
 
-   #> (define class-name @#__class__.__name__) ;Attributes chain.
+   #> (define class-name X#X.__class__.__name__) ;Attributes chain.
    >>> # define
    ... __import__('builtins').globals().update(
-   ...   classQz_name=__import__('operator').attrgetter(
-   ...                  '__class__.__name__'))
+   ...   classQz_name=(lambda X:X.__class__.__name__))
 
    #> (class-name object)
    >>> classQz_name(
@@ -3784,7 +3786,7 @@ Lissp Whirlwind Tour
    'str'
 
 
-   #> (define first get#0)                ;Similarly, for items.
+   #> (define first get#0)                ;Gets an item by key.
    >>> # define
    ... __import__('builtins').globals().update(
    ...   first=__import__('operator').itemgetter(

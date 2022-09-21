@@ -258,7 +258,7 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
     (tag "body onload='brython()'" ; Browser Python: https://brython.info
      (script
        (define getE X#(.getElementById browser..document X))
-       (define getf@v X#(float (@#value (getE X))))
+       (define getf@v X#(float (X#X.value (getE X))))
        (define set@v XY#(setattr (getE Y) 'value X))
        (attach browser..window
          : Celsius &#(-> (getf@v 'Celsius) (X#.#"X*1.8+32") (set@v 'Fahrenheit))

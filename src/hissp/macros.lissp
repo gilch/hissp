@@ -334,30 +334,15 @@ _#<<#
 (defmacro get\# e
   "``get#`` 'itemgetter-' Makes an `operator.itemgetter` function from ``e``.
 
-  See also: `@#<QzAT_QzHASH_>`, `operator.getitem`, `[#<QzLSQB_QzHASH_>`,
+  See also: `operator.getitem`, `[#<QzLSQB_QzHASH_>`,
   `set!<setQzBANG_>`.
   "
   `(op#itemgetter ,e))
 
-(defmacro @\# (primary : extra None)
-  "Overloaded, depending on the presence of ``extra``:
+(defmacro @\# (definition decoration)
+  "``@#!`` 'decorator' applies ``decoration`` to global and reassigns.
 
-  ``@#`` 'attrgetter-' Makes an `operator.attrgetter` from ``primary``,
-  which should be a symbol.
-
-  .. code-block:: REPL
-
-     #> (@#__class__.__name__.__class__.__name__ 0)
-     >>> __import__('operator').attrgetter(
-     ...   '__class__.__name__.__class__.__name__')(
-     ...   (0))
-     'str'
-
-  See also: `get#<getQzHASH_>`, `getattr`, `set@<setQzAT_>`.
-
-  ``@#!`` 'decorator' applies ``extra`` to defined name & reassigns.
-
-  ``primary`` form must assign a global identified by its first arg.
+  ``definition`` form must assign a global identified by its first arg.
   (E.g. `define` and `deftype` are compatible.) Expands to a `define`,
   meaning decorators can stack.
 
@@ -380,10 +365,8 @@ _#<<#
      'FOO'
 
   "
-  (if-else extra
-    (let (name (get#1 primary))
-      `(define ,name (progn ,primary (,extra ,name))))
-    `(op#attrgetter ',primary)))
+  (let (name (get#1 definition))
+    `(define ,name (progn ,definition (,decoration ,name)))))
 
 (defmacro \[\# e
   "``[#`` 'subscript' Injection. Python's subscription operator.
@@ -500,7 +483,7 @@ _#<<#
   Non-tuple ``forms`` (typically function identifiers) will be wrapped
   in a tuple. Makes chained method calls easier to read.
 
-  See also: `->><Qz_QzGT_QzGT_>`, `@#<QzAT_QzHASH_>`, `get#<getQzHASH_>`.
+  See also: `->><Qz_QzGT_QzGT_>`, `X#<XQzHASH_>`, `get#<getQzHASH_>`.
   "
   (functools..reduce XY#.#"(Y[0],X,*Y[1:],)"
                      (map X#.#"X if type(X) is tuple else (X,)" forms)
