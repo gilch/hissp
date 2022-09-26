@@ -370,6 +370,8 @@ class Lissp:
         tag = munge(self.escape(tag[:-1]))
         if ".." in tag:
             module, function = tag.split("..", 1)
+            if re.match(r"_macro_\.[^.]+$", function):
+                function += munge("#")
             m = reduce(getattr, function.split("."), import_module(module))
         else:
             try:

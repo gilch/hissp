@@ -3733,9 +3733,9 @@ Lissp Whirlwind Tour
    ... b'b# macro at compile time'
    b'b# macro at compile time'
 
-   #> hissp.._macro_.b\##"Fully qualified b# macro at read time."
-   >>> b'Fully qualified b# macro at read time.'
-   b'Fully qualified b# macro at read time.'
+   #> hissp.._macro_.b#"Fully-qualified b# macro at read time."
+   >>> b'Fully-qualified b# macro at read time.'
+   b'Fully-qualified b# macro at read time.'
 
 
    ;; A couple of aliases are bundled:
