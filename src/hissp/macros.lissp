@@ -318,7 +318,7 @@ _#<<#
      (if-else $#reader
        ((getattr ,module (.format "{}{}"
                                   $#reader
-                                  (if-else (operator..contains ',module ','_macro_)
+                                  (if-else (.endswith ',module ','._macro_)
                                      ','#
                                      "")))
         $#prime : :* $#args)
