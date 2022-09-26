@@ -369,19 +369,22 @@ class Lissp:
     def _custom_macro(self, form, tag, extras):
         assert tag.endswith("#")
         tag = munge(self.escape(tag[:-1]))
-        if ".." in tag:
-            module, function = tag.split("..", 1)
-            if re.match(rf"{C.MACROS}\.[^.]+$", function):
-                function += munge("#")
-            m = reduce(getattr, function.split("."), import_module(module))
-        else:
-            try:
-                m = getattr(self.ns[C.MACROS], tag + munge("#"))
-            except (AttributeError, KeyError):
-                raise SyntaxError(f"Unknown reader macro {tag!r}.", self.position())
+        m = (self._fully_qualified if ".." in tag else self._local)(tag)
         with self.compiler.macro_context():
             args, kwargs = _parse_extras(extras)
             return m(form, *args, **kwargs)
+
+    def _fully_qualified(self, tag):
+        module, function = tag.split("..", 1)
+        if re.match(rf"{C.MACROS}\.[^.]+$", function):
+            function += munge("#")
+        return reduce(getattr, function.split("."), import_module(module))
+
+    def _local(self, tag):
+        try:
+            return getattr(self.ns[C.MACROS], tag + munge("#"))
+        except (AttributeError, KeyError):
+            raise SyntaxError(f"Unknown reader macro {tag!r}.", self.position())
 
     @staticmethod
     def escape(atom):
