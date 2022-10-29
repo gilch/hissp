@@ -607,23 +607,27 @@ but it can impact legibility.
 For short strings in simple forms,
 don't worry too much, but consider using ``\n``.
 
-For deeply nested multiline strings,
-use a dedent string, which can be safely indented:
+For deeply nested multiline string literals,
+consider indenting the string contents in combination with `textwrap.dedent`.
+The run-time overhead is usually negligible,
+but in case it matters,
+this can be done at read time instead:
 
 .. code-block:: REPL
 
-   #> (print (.upper 'textwrap..dedent#.##"\
-   #..               These lines
-   #..               Don't interrupt
-   #..               the flow."))
+   #> (print (.upper '.#(textwrap..dedent #"\
+   #..                   These lines
+   #..                   Don't interrupt
+   #..                   the flow.")))
    >>> print(
    ...   "These lines\nDon't interrupt\nthe flow.".upper())
    THESE LINES
    DON'T INTERRUPT
    THE FLOW.
 
-This required an inject ``.#``.
-Don't forget the quote ``'``.
+Because the string was injected (``.#``),
+don't forget to quote it (``'``),
+or the compiler will inject the string contents as Python code.
 
 With the principal exception of docstrings,
 long multiline strings should be declared at the `top level`_ and referenced by name.

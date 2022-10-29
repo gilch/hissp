@@ -26,7 +26,8 @@ from pprint import pformat
 from threading import Lock
 from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union
 
-from hissp.compiler import Compiler, MAYBE, readerless
+import hissp.compiler as C
+from hissp.compiler import Compiler, readerless
 from hissp.munger import force_qz_encode, munge
 
 ENTUPLE = ("lambda",(":",":*"," _")," _",)  # fmt: skip
@@ -337,12 +338,12 @@ class Lissp:
         """Qualify symbol based on current context."""
         if not is_qualifiable(symbol):
             return symbol
-        if invocation and "_macro_" in self.ns and hasattr(self.ns["_macro_"], symbol):
-            return f"{self.qualname}.._macro_.{symbol}"  # Known macro.
+        if invocation and C.MACROS in self.ns and hasattr(self.ns[C.MACROS], symbol):
+            return f"{self.qualname}..{C.MACROS}.{symbol}"  # Known macro.
         if symbol in dir(builtins) and symbol.split(".", 1)[0] not in self.ns:
             return f"builtins..{symbol}"  # Known builtin, not shadowed (yet).
         if invocation and "." not in symbol:  # Could still be a recursive macro.
-            return f"{self.qualname}{MAYBE}{symbol}"
+            return f"{self.qualname}{C.MAYBE}{symbol}"
         return f"{self.qualname}..{symbol}"
 
     def gensym(self, form: str):
@@ -368,17 +369,22 @@ class Lissp:
     def _custom_macro(self, form, tag, extras):
         assert tag.endswith("#")
         tag = munge(self.escape(tag[:-1]))
-        if ".." in tag:
-            module, function = tag.split("..", 1)
-            m = reduce(getattr, function.split("."), import_module(module))
-        else:
-            try:
-                m = getattr(self.ns["_macro_"], tag + munge("#"))
-            except (AttributeError, KeyError):
-                raise SyntaxError(f"Unknown reader macro {tag!r}.", self.position())
+        m = (self._fully_qualified if ".." in tag else self._local)(tag)
         with self.compiler.macro_context():
             args, kwargs = _parse_extras(extras)
             return m(form, *args, **kwargs)
+
+    def _fully_qualified(self, tag):
+        module, function = tag.split("..", 1)
+        if re.match(rf"{C.MACROS}\.[^.]+$", function):
+            function += munge("#")
+        return reduce(getattr, function.split("."), import_module(module))
+
+    def _local(self, tag):
+        try:
+            return getattr(self.ns[C.MACROS], tag + munge("#"))
+        except (AttributeError, KeyError):
+            raise SyntaxError(f"Unknown reader macro {tag!r}.", self.position())
 
     @staticmethod
     def escape(atom):

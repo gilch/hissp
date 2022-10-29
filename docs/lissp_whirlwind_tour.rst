@@ -3693,9 +3693,8 @@ Lissp Whirlwind Tour
    ...               thenQz_else,
    ...               __import__('operator').not_(
    ...                 test))())(
-   ...             __import__('operator').contains(
-   ...               'hissp.._macro_',
-   ...               '_macro_'),
+   ...             'hissp.._macro_'.endswith(
+   ...               '._macro_'),
    ...             (lambda :'QzHASH_'),
    ...             (lambda :('')))))(
    ...         _QzNo27_prime,
@@ -3734,9 +3733,9 @@ Lissp Whirlwind Tour
    ... b'b# macro at compile time'
    b'b# macro at compile time'
 
-   #> hissp.._macro_.b\##"Fully qualified b# macro at read time."
-   >>> b'Fully qualified b# macro at read time.'
-   b'Fully qualified b# macro at read time.'
+   #> hissp.._macro_.b#"Fully-qualified b# macro at read time."
+   >>> b'Fully-qualified b# macro at read time.'
+   b'Fully-qualified b# macro at read time.'
 
 
    ;; A couple of aliases are bundled:
