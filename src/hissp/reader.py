@@ -291,7 +291,38 @@ class Lissp:
 
     def parse_macro(self, tag: str, form, extras):
         # fmt: off
-        """Apply a reader macro to a form."""
+        """Apply a reader macro to a form.
+
+        The built-in reader macros are handled here. They are
+
+        .. list-table::
+
+           * - ``'``
+             - `quote<special>`
+           * - ``!``
+             - `Extra`
+           * - :literal:`\`` (backtick)
+             - template quote (starts a `template`)
+           * - ``_#``
+             - `discard<DROP>`
+           * - ``.#``
+             - inject (evaluate at read time and use resulting object)
+
+        Plus the three built-in template helper macros, which are only
+        valid inside a template.
+
+        .. list-table::
+
+           * - ``,``
+             - unquote
+           * - ``,@``
+             - splice unquote
+           * - ``$#``
+             - `gensym`
+
+        The built-in macros are reserved by the reader and cannot be
+        reassigned.
+        """
         def case(s):
             if (b := tag == s) and extras:
                 raise SyntaxError(f"Extra for {s!r} reader macro.")
