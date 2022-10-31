@@ -137,7 +137,22 @@ class Compiler:
 
     @_trace
     def special(self, form: Tuple) -> str:
-        """Try to compile as special form, else `invocation`."""
+        """Try to compile as special form, else `invocation`.
+
+        The two special forms are ``quote`` and `lambda<function>`.
+
+        A quote form evaluates to its argument, treated as literal data,
+        not evaluated. Notice the difference in the `readerless`
+        compiled output.
+
+        >>> print(readerless(('print',42,)))  # function call
+        print(
+          (42))
+        >>> print(readerless(('quote',('print',42,),)))  # tuple
+        ('print',
+         (42),)
+
+        """
         if form[0] == "quote":
             return self.atom(*form[1:])
         if form[0] == "lambda":
