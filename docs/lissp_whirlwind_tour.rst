@@ -4053,30 +4053,3 @@ Lissp Whirlwind Tour
    ...   ('Hello'),
    ...   ('World!'))
    Hello World!
-
-
-   ;;; 20.2 Joined Comment String
-
-   #> <<#!;C:\bin
-   #..   !;C:\Users\ME\Documents
-   #..   !;C:\Users\ME\Pictures
-   #..";"
-   >>> 'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
-   'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
-
-
-   ;; Embed other languages without escapes.
-   #> (exec
-   #..  <<#
-   #..  !;for i in 'abc':
-   #..  !;    for j in 'xyz':
-   #..  !;        print(i+j, end=" ")
-   #..  !;print('.')
-   #..  !;
-   #..  #"\n")
-   >>> exec(
-   ...   ("for i in 'abc':\n"
-   ...    "    for j in 'xyz':\n"
-   ...    '        print(i+j, end=" ")\n'
-   ...    "print('.')\n"))
-   ax ay az bx by bz cx cy cz .
