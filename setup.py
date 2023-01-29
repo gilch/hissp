@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 import os
 import sys
@@ -23,9 +23,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Matthew Egan Odendahl",
-    # These email addresses are spam bait. Don't expect any responses.
-    # See the GitHub project instead: https://github.com/gilch/hissp
-    author_email="hissp03.gilch@xoxy.net",
+    author_email="gilch@users.noreply.github.com",
     license="Apache-2.0",
     url="https://github.com/gilch/hissp",
     classifiers=[
