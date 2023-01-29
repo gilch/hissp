@@ -111,3 +111,7 @@ venv.bak/
 
 # auto backups
 .#*
+
+# compiled Hissp
+/src/hissp/macros.py
+/tests/test_macros.py
