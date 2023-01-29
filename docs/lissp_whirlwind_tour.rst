@@ -1,4 +1,4 @@
-.. Copyright 2020, 2021, 2022 Matthew Egan Odendahl
+.. Copyright 2020, 2021, 2022, 2023 Matthew Egan Odendahl
    SPDX-License-Identifier: Apache-2.0
 
 .. This hidden doctest adds bundled macros for REPL-consistent behavior.
@@ -3487,7 +3487,7 @@ Lissp Whirlwind Tour
 
    #> (engarde Exception
    #..         X#(print X.__cause__)      ;Unary again.
-   #..         &#(throw-from Exception (Exception "msg"))) ;Nullary/thunk.
+   #..         O#(throw-from Exception (Exception "msg"))) ;Nullary/thunk.
    >>> engarde(
    ...   Exception,
    ...   (lambda X:

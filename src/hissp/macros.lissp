@@ -1,4 +1,4 @@
-;; Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
+;; Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
 ;; SPDX-License-Identifier: Apache-2.0
 "Hissp's bundled macros.
 
@@ -260,8 +260,8 @@ _#<<#
 
 ;;; abbreviations
 
-(defmacro &\# e
-  "``&#`` 'thunk' Make ``e`` an anonymous function with no parameters.
+(defmacro O\# e
+  "``O#`` 'thunk' Make ``e`` an anonymous function with no parameters.
 
   See also: `X#<XQzHASH_>`.
   "
@@ -270,7 +270,7 @@ _#<<#
 (defmacro X\# e
   "``X#`` Anaphoric. Make ``e`` an anonymous function with paramter X.
 
-  See also: `en#<enQzHASH_>`, `&#<QzET_QzHASH_>`, `XY#<XYQzHASH_>`.
+  See also: `en#<enQzHASH_>`, `O#<OQzHASH_>`, `XY#<XYQzHASH_>`.
   "
   `(lambda ,'X ,e))
 
@@ -911,7 +911,7 @@ except ModuleNotFoundError:pass"
     (throw (TypeError "Incomplete pair")))
   (let (kss ([#-2::-2] pairs)
         ts ([#::-2] pairs))
-    `((op#getitem (@ ,@(map X#`&#,X ts) &#,default)
+    `((op#getitem (@ ,@(map X#`O#,X ts) O#,default)
                   (.get ,(dict chain#(i#starmap (lambda (i ks)
                                                   (map X#(@ X i) ks))
                                                 (enumerate kss)))
