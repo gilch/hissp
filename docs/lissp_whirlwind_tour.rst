@@ -39,7 +39,7 @@ Lissp Whirlwind Tour
    Python and evaluate it. Try variations that occur to you.
 
    Familiarity with another Lisp dialect is not assumed, but helpful. If
-   you get confused or stuck, the Hissp tutorial is easier.
+   you get confused or stuck, the Hissp primer is easier.
    "
 
    ;;;; 2 Installation

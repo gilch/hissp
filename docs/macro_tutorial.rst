@@ -97,14 +97,14 @@ are a very direct representation of the same kind of syntax trees that
 you mentally generate when reading any other programming language.
 Take your time and comprehend each subexpression instead of taking it in all at once.
 
-The previous tutorial was mostly about learning how to program with
+The `primer` was mostly about learning how to program with
 a subset of Python in a new skin.
 This one is about using that knowledge to reprogram the skin itself.
 
-If you don't know the basics from the `previous tutorial <tutorial>`,
+If you don't know the basics from the Primer,
 go back and read that now, or at least read the `Lissp Whirlwind Tour <lissp_whirlwind_tour>`.
 
-In the previous tutorial we mostly used the REPL,
+In the Primer we mostly used the REPL,
 but it can become tedious to type long forms into the REPL,
 and it doesn't save your work.
 S-expressions are awkward to edit without editor support for them,
@@ -564,7 +564,7 @@ So the template would look something like this::
      (<expr>))
 
 Remember this is basically the same as
-that anaphoric macro we did in the previous tutorial.
+that anaphoric macro we did in the `primer`.
 
 .. Lissp::
 

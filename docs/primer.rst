@@ -1,4 +1,4 @@
-.. Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
+.. Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 ..  Hidden doctest adds bundled macros for REPL-consistent behavior.
@@ -10,9 +10,9 @@
    ...     **vars(
    ...         __import__('hissp')._macro_)))
 
-========
-Tutorial
-========
+============
+Hissp Primer
+============
 
 Metaprogramming
   Writing code that writes code.
@@ -46,7 +46,7 @@ programmatically.
 In Hissp, you write in this parsed form far more directly:
 *Hissp code is AST.*
 
-Some familiarity with Python is assumed for this tutorial.
+Some familiarity with Python is assumed for the primer.
 If you get confused or stuck,
 see the `discussions page <https://github.com/gilch/hissp/discussions>`_
 or find the chat.

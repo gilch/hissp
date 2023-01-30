@@ -1,4 +1,4 @@
-.. Copyright 2020, 2021, 2022 Matthew Egan Odendahl
+.. Copyright 2020, 2021, 2022, 2023 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 .. raw:: html
@@ -12,7 +12,7 @@ It's Python with a *Lissp.*
 
 Welcome to Hissp's documentation!
 Jump in and try the *Lissp Whirlwind Tour* first if you're feeling confident,
-or start with the easier, but less-comprehensive tutorial.
+or start with the easier, but less-comprehensive primer.
 
 .. TODO: add REPL via Brython or Pyodide?
 
@@ -21,7 +21,7 @@ or start with the easier, but less-comprehensive tutorial.
    :caption: Contents:
 
    lissp_whirlwind_tour
-   tutorial
+   primer
    style_guide
    macro_tutorial
    command_line_reference
