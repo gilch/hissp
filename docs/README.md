@@ -1,0 +1,2 @@
+- https://hissp.readthedocs.io/
+- https://gitter.im/hissp-lang/community
