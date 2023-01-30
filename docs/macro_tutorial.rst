@@ -1,5 +1,11 @@
-.. Copyright 2020, 2021, 2022 Matthew Egan Odendahl
+.. Copyright 2020, 2021, 2022, 2023 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
+
+.. All Source Code Examples in this file are licensed "Apache-2.0 OR CC-BY-SA-4.0"
+   and may be copied under the terms of either, Your choice.
+   (Source Code Examples are designated with the ".. code-block::" or ".. Lissp::"
+   reStructuredText markup.) The remainder of this file is licensed under
+   CC-BY-SA-4.0 only.
 
 Macro Tutorial
 ==============
