@@ -11,8 +11,18 @@ It's Python with a *Lissp.*
 .. image:: hissp.svg
 
 Welcome to Hissp's documentation!
-Jump in and try the *Lissp Whirlwind Tour* first if you're feeling confident,
-or start with the easier, but less-comprehensive primer.
+Jump in and try the `lissp_whirlwind_tour` first if you're feeling confident
+or already know Python or a Lisp dialect well.
+Otherwise, start with the easier, but less-comprehensive `primer`.
+
+.. raw:: html
+
+   <p>The Hissp community has a
+     <a href="https://gitter.im/hissp-lang/community"
+        class="js-gitter-toggle-chat-button">
+      Gitter chat!</a>
+     (Bottom-right button.)
+     Talk about your Hissp experience or ask for help if you get confused or suck while reading these docs☺</p>
 
 .. TODO: add REPL via Brython or Pyodide?
 
@@ -35,6 +45,6 @@ or start with the easier, but less-comprehensive primer.
 
 .. toctree::
 
-   ⭐ on GitHub <https://github.com/gilch/hissp>
+   ⭐ on GitHub! <https://github.com/gilch/hissp>
 
 * :ref:`genindex`
