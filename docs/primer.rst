@@ -1628,7 +1628,7 @@ like calls. ``:*`` and ``:**`` unpacking also work here.
    >>> (13)
    13
 
-See the `Lissp Whirlwind Tour <lissp_whirlwind_tour>` for more examples.
+See the `lissp_whirlwind_tour` for more examples.
 
 Macros
 ======
