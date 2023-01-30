@@ -29,8 +29,9 @@ Lissp Whirlwind Tour
    then translates these syntax trees to Python expressions.
 
    This document is written like a .lissp file, thoroughly demonstrating
-   Lissp's (and thereby Hissp's) features with minimal exposition. This
-   element enclosed in double quotes is a docstring for the module.
+   Lissp's (and thereby Hissp's) features from the bottom up with
+   minimal exposition. This element enclosed in double quotes is a
+   docstring for the module.
 
    To fully understand these examples, you must see their Python
    compilation and output. Some familiarity with Python is assumed.
