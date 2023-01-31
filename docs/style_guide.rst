@@ -657,21 +657,57 @@ Put the closing quote for any multiline docstring on its own line.
 Comments
 --------
 
-Headings are in ``Title Case``,
-and begin with four semicolons and a space ``;;;; Foo Bar``.
-Subheadings begin with three semicolons and a space ``;;; Foo Bar``.
+Headings begin with four semicolons and a space ``;;;; Foo Bar``,
+fit on one line,
+and are written in ``Title Case`` by default.
 
 Headings are for the `top level`_ only; they aren't nested in forms;
 they get their own line and start at the beginning of it.
 They have a blank line before (unless it's the first line) and after.
 They organize the code into sections.
 
+Avoid using more than four semicolons in a row,
+because this becomes too difficult to distinguish at a glance.
+If you need multiple levels,
+headings can be decorated or written in UPPER CASE to make them more emphatic,
+but avoid using overlines for this purpose.
+Overlines are commonly seen in reStructuredText headings,
+but it can obscure the heading text when folding code in some editors.
+Also avoid distinguishing levels with different underlining styles alone,
+because underlines are invisible when folding code.
+
+Whatever your scheme, *be consistent*.
+Here's a possible three-level scheme.
+
+.. code-block:: Lissp
+
+   ;;;; 1 MAJOR
+   ;;;  ===
+
+   ;;;; 1.1 Medium ;;;;
+
+   ;;;; 1.1.1 minor
+
+   ;;;; 2 FOLDED MAJOR...
+
+Section outline numbering is not required, but be consistent.
+Three characters are sufficient to suggest an underline;
+it isn't necessary to match underline length to the heading text.
+Note that the underline decoration itself is not a heading,
+and should not use four semicolons (but note the extra space).
+This rule makes headings easier to find and count with a text search,
+and makes it possible for tooling to display or manipulate them programmatically.
+
+Top-level commentary lines not attached to any form in particular
+begin with three semicolons and a space ``;;; Foo Bar``.
+
 Comments about the next form (or group) begin with two semicolons and a space ``;; x``,
 and are indented to align as if they were forms,
 and are not followed by a blank line.
 
 Comments about a line begin with one semicolon and a space ``; x``,
-starting one space after the code. They never get their own line.
+starting one space after the code. They never get their own line,
+but follow code.
 
 Margin comments begin with one semicolon ``;x``.
 The semicolon must be aligned with spaces to rest on column 40,
@@ -688,7 +724,8 @@ You will make them angry when they have to fix all your comments.
 Complete sentences should start with a capital letter and end with
 a punctuation mark (typically a full stop or question mark).
 Short comments need not be complete sentences.
-Use the discard macro ``_#`` on a string for long block comments.
+
+The discard macro ``_#`` applied to a string literal is acceptable for long block comments.
 
 Commented-out code does not belong in version control,
 but it can be helpful to turn things off during development.
@@ -705,18 +742,18 @@ You can use ``;;`` at the start of each line to comment out multiple forms at on
    quote has its own line. Use reStructuredText markup in docstrings.
    "
 
-   ;;;; Heading
+   ;;;; Major Heading
+   ;;;  ===
 
-   _#"Long Exposition about this section. Wrap at column 72.
+   ;;; Long Exposition about this section. Wrap at column 72.
 
-   Lorem ipsum dolor sit amet, consectetuer adipiscing elit.  Donec
-   hendrerit tempor tellus.  Donec pretium posuere tellus.  Proin quam
-   nisl, tincidunt et, mattis eget, convallis nec, purus.  Cum sociis
-   natoque penatibus et magnis dis parturient montes, nascetur ridiculus
-   mus.
-   "
+   ;;; Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+   ;;; Donec hendrerit tempor tellus. Donec pretium posuere tellus.
+   ;;; Proin quam nisl, tincidunt et, mattis eget, convallis nec, purus.
+   ;;; Cum sociis natoque penatibus et magnis dis parturient montes,
+   ;;; nascetur ridiculus mus.
 
-   ;;; Subheading
+   ;;;; Minor Heading
 
    ;; comment about macro
    (macro special1
@@ -932,7 +969,7 @@ For an argument, i.e. other method calls, prefer ``.foo bar``.
    (_macro_.define greeting "hi")         ;Compiler Macro
    (.define _macro_ 'greeting '"hi")      ;Run-time expansion.
 
-   ;;; Arguments
+   ;;;; Arguments
 
    (.upper "hi")                          ;Preferred.
    ("hi".upper)                           ;SyntaxError
@@ -940,12 +977,12 @@ For an argument, i.e. other method calls, prefer ``.foo bar``.
    (.upper greeting)                      ;Preferred.
    (greeting.upper)                       ;Bad.
 
-   ;;; Namespaces
+   ;;;; Namespaces
 
    (tkinter..Tk)                          ;Preferred.
    (.Tk tkinter.)                         ;Bad.
 
-   ;;; Kind of Both
+   ;;;; Kind of Both
 
    (self.foo spam eggs)                   ;Preferred.
    (.foo self spam eggs)                  ;OK.
