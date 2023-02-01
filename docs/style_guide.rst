@@ -667,14 +667,15 @@ They have a blank line before (unless it's the first line) and after.
 They organize the code into sections.
 
 Avoid using more than four semicolons in a row,
-because this becomes too difficult to distinguish at a glance.
-If you need multiple levels,
-headings can be decorated or written in UPPER CASE to make them more emphatic,
-but avoid using overlines for this purpose.
+because it becomes too difficult to distinguish at a glance.
+Typically one or two heading levels are sufficient.
+If you do need multiple levels,
+headings can be decorated or written in UPPER CASE to make them more emphatic.
+Avoid using overlines for this purpose.
 Overlines are commonly seen in reStructuredText headings,
 but it can obscure the heading text when folding code in some editors.
 Also avoid distinguishing levels with different underlining styles alone,
-because underlines are invisible when folding code.
+because underlines are indistinguishable when folding code.
 
 Whatever your scheme, *be consistent*.
 Here's a possible three-level scheme.
@@ -700,6 +701,7 @@ and makes it possible for tooling to display or manipulate them programmatically
 
 Top-level commentary lines not attached to any form in particular
 begin with three semicolons and a space ``;;; Foo Bar``.
+Top-level comments are separated from code with a blank line.
 
 Comments about the next form (or group) begin with two semicolons and a space ``;; x``,
 and are indented to align as if they were forms,

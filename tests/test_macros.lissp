@@ -1,6 +1,6 @@
 #! Transpiler should ignore the shebang line!
-;; Copyright 2019, 2020 Matthew Egan Odendahl
-;; SPDX-License-Identifier: Apache-2.0
+;;; Copyright 2019, 2020 Matthew Egan Odendahl
+;;; SPDX-License-Identifier: Apache-2.0
 
 (hissp.._macro_.alias * hissp.._macro_)
 

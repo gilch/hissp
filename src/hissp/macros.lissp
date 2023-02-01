@@ -1,5 +1,6 @@
-;; Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
-;; SPDX-License-Identifier: Apache-2.0
+;;; Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
+;;; SPDX-License-Identifier: Apache-2.0
+
 "Hissp's bundled macros.
 
 To help keep macro definitions and expansions manageable in complexity,
@@ -33,35 +34,37 @@ expansions compatible with advanced rewriting macros that process the
 Hissp expansions of other macros.
 "
 
-_#" This module is not necessarily a good example of how you should
-write Lissp or Lissp macros. Besides the design restrictions mentioned
-in the module docstring above, the macros defined here were not
-available at the start, so some had to be bootstrapped without the
-benefit of a complete macro suite.
+;;; This module is not necessarily a good example of how you should
+;;; write Lissp or Lissp macros. Besides the design restrictions
+;;; mentioned in the module docstring above, the macros defined here
+;;; were not available at the start, so some had to be bootstrapped
+;;; without the benefit of a complete macro suite.
 
-These macros don't create compiled dependencies on Hissp, but that
-doesn't mean you can't depend on your own code. Hissp's qualified
-symbols, and Lissp's template syntax that automatically creates them,
-are there to make helper functions easy to use in macroexpansions. Use
-them.
+;;; These macros don't create compiled dependencies on Hissp, but that
+;;; doesn't mean you can't depend on your own code. Hissp's qualified
+;;; symbols, and Lissp's template syntax that automatically creates
+;;; them, are there to make helper functions easy to use in
+;;; macroexpansions. Use them.
 
-However, the restriction on text-substitution is still recommended. Many
-useful advanced macros must process the expansion of other macros, but
-they require syntax trees to work on. Text hides that structure. If you
-want to go that route, you might as well use `ast` and ``exec()` and
-forget about Hissp. Nevertheless, text substitution is available, and
-judicious use can improve performance and maintainability.
-"
+;;; However, the restriction on text-substitution is still recommended.
+;;; Many useful advanced macros must process the expansion of other
+;;; macros, but they require syntax trees to work on. Text hides that
+;;; structure. If you want to go that route, you might as well use `ast`
+;;; and ``exec()` and forget about Hissp. Nevertheless, text
+;;; substitution is available, and judicious use can improve performance
+;;; and maintainability.
+
 
 ;;;; Bootstrap Macros
+;;;  ===
 
 ;; Bootstrap macro namespace using builtins.
 (.update (globals) : _macro_ (types..ModuleType (.format "{}._macro_" __name__)))
 (operator..setitem sys..modules _macro_.__name__ _macro_)
 
-;; YO DAWG, I HERD YOU LIKE MACROS
-;; SO I PUT A BOOTSTRAP defmacro IN YOUR _macro_ SO YOU CAN defmacro A
-;; REAL defmacro WHILE YOU DEFINE ALL YOUR MACROS!
+;;; YO DAWG, I HERD YOU LIKE MACROS
+;;; SO I PUT A BOOTSTRAP defmacro IN YOUR _macro_ SO YOU CAN defmacro A
+;;; REAL defmacro WHILE YOU DEFINE ALL YOUR MACROS!
 
 ;; Simplified bootstrap version assumes ideal conditions to avoid branching.
 (setattr _macro_
@@ -126,8 +129,9 @@ judicious use can improve performance and maintainability.
       ,@body)))
 
 ;;;; Post-bootstrap
+;;;  ===
 
-;;; definition
+;;;; Definition
 
 ;; Define the real defmacro using the bootstrap macros.
 (defmacro defmacro (name parameters : docstring () :* body)
@@ -229,9 +233,9 @@ _#<<#
        (type ',name (,hissp.reader..ENTUPLE ,@bases)
              (dict : ,@body))))
 
-;;; locals
+;;;; Locals
 
-;; see also from bootstrap: let
+;;; see also from Bootstrap: let
 
 (defmacro let-from (syms itr : :* body)
   "``let-from`` Create listed locals from iterable.
@@ -258,7 +262,7 @@ _#<<#
   `(let (,'the (types..SimpleNamespace))
      ,e))
 
-;;; abbreviations
+;;;; Abbreviations
 
 (defmacro O\# e
   "``O#`` 'thunk' Make ``e`` an anonymous function with no parameters.
@@ -398,7 +402,7 @@ _#<<#
   "``subscript`` Injection. Python's subscription operator."
   `(lambda ($#G) ,(.format "({}[{})" '$#G (hissp..demunge e))))
 
-;;; configuration
+;;;; Configuration
 
 (defmacro set! (coll key val)
   "``set!`` 'setbang' Assigns an item, returns the value.
@@ -483,7 +487,7 @@ _#<<#
                invocations)
         ,$self))))
 
-;;; threading
+;;;; Threading
 
 (defmacro -> (expr : :* forms)
   "``->`` 'Thread-first'.
@@ -517,16 +521,16 @@ _#<<#
                      (map X#.#"X if type(X) is tuple else (X,)" forms)
                      expr))
 
-;; TODO: implement other arrange macros?
+;;; TODO: implement other arrange macros?
 
 (define _TAO
   (lambda s (-> (.join " " (re..findall "(?m)^# (.*)~$" (s hissp.)))
                 (.replace ":" #"\n"))))
 
-;;; control flow
+;;;; Control Flow
 
-;; see also from bootstrap: if-else, when, unless
-;; see also from advanced: case
+;;; see also from Bootstrap: if-else, when, unless
+;;; see also from Advanced: case
 
 (defmacro cond (: :* pairs)
   <<#
@@ -653,9 +657,9 @@ _#<<#
                          ($#x) $#x)))
              (attach ($#G ,exception) : ,'__cause__ ($#G ,cause)))))
 
-;;; side effect
+;;;; Side Effect
 
-;; see also from bootstrap: progn
+;;; see also from Bootstrap: progn
 
 (defmacro prog1 (expr1 : :* body)
   "Evaluates each expression in sequence (for side effects),
@@ -667,10 +671,10 @@ _#<<#
      ,@body
      $#value1))
 
-;; Note that any of the bundled macros with a lambda "body" argument
-;; also sequence expressions for side effects.
+;;; Note that any of the bundled macros with a lambda "body" argument
+;;; also sequence expressions for side effects.
 
-;;; reader
+;;;; Reader
 
 (defmacro b\# (raw)
   "``b#`` `bytes` literal reader macro"
@@ -718,7 +722,7 @@ _#<<#
     `(lambda (: :* $#xs)
        (,f $#xs))))
 
-;;; collection
+;;;; Collection
 
 (defmacro @ (: :* xs)
   <<#
@@ -786,7 +790,7 @@ _#<<#
                      ikvs
                      ikvs))))
 
-;;; import
+;;;; Import
 
 (defmacro prelude (: ns `(globals))
   "Hissp's bundled micro prelude.
@@ -897,7 +901,7 @@ except ModuleNotFoundError:pass"
           `(.##"p\162int"(.##"\143ode\143s..en\143ode"
                           (_TAO .##"in\163pe\143\164..ge\164\163our\143e")','.##"ro\16413")))
 
-;;; advanced
+;;;; Advanced
 
 (defmacro case (key default : :* pairs)
   "Switch case macro.
