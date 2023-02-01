@@ -670,30 +670,40 @@ Avoid using more than four semicolons in a row,
 because it becomes too difficult to distinguish at a glance.
 Typically one or two heading levels are sufficient.
 If you do need multiple levels,
-headings can be decorated or written in UPPER CASE to make them more emphatic.
+headings can be decorated with underlines,
+trailing semicolons,
+or written in UPPER CASE to make them more emphatic.
 Avoid using overlines for this purpose.
 Overlines are commonly seen in reStructuredText headings,
 but it can obscure the heading text when folding code in some editors.
 Also avoid distinguishing levels with different underlining styles alone,
-because underlines are indistinguishable when folding code.
+because underlines are indistinguishable when folded.
 
-Whatever your scheme, *be consistent*.
-Here's a possible three-level scheme.
+Here's a possible six-level scheme,
+with alphanumeric section outline numbering (not required).
+Six is enough for HTML, and probably more than you need.
+Whatever scheme you pick, *be consistent*.
 
 .. code-block:: Lissp
 
-   ;;;; 1 MAJOR
+   ;;;; WHOLE FILE TITLE ;;;;
    ;;;  ===
 
-   ;;;; 1.1 Medium ;;;;
+   ;;;; I. Heading Two ;;;;
+   ;;;  ---
 
-   ;;;; 1.1.1 minor
+   ;;;; I.A. HEADING THREE ;;;;
 
-   ;;;; 2 FOLDED MAJOR...
+   ;;;; I.A.1. Heading Four ;;;;
 
-Section outline numbering is not required, but be consistent.
+   ;;;; I.A.1.a. HEADING FIVE
+
+   ;;;; I.A.1.a.i. Heading Six
+
+   ;;;; II. Folded H2 ;;;;...
+
 Three characters are sufficient to suggest an underline;
-it isn't necessary to match underline length to the heading text.
+it isn't necessary to match underline length to the heading text (though that is a possible style).
 Note that the underline decoration itself is not a heading,
 and should not use four semicolons (but note the extra space).
 This rule makes headings easier to find and count with a text search,
@@ -736,7 +746,7 @@ You can use ``;;`` at the start of each line to comment out multiple forms at on
 
 .. code-block:: Lissp
 
-   "Comments example.
+   "Comments Example
 
    Prefer to use docstrings like this one over comments when applicable.
    Docstrings are always indented with their containing form, including
@@ -744,16 +754,15 @@ You can use ``;;`` at the start of each line to comment out multiple forms at on
    quote has its own line. Use reStructuredText markup in docstrings.
    "
 
-   ;;;; Major Heading
+   ;;;; MAJOR HEADING
    ;;;  ===
 
    ;;; Long Exposition about this section. Wrap at column 72.
 
-   ;;; Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-   ;;; Donec hendrerit tempor tellus. Donec pretium posuere tellus.
-   ;;; Proin quam nisl, tincidunt et, mattis eget, convallis nec, purus.
-   ;;; Cum sociis natoque penatibus et magnis dis parturient montes,
-   ;;; nascetur ridiculus mus.
+   ;;; This example has a more typical two-level heading scheme,
+   ;;; with the major heading above made emphatic with a double underline
+   ;;; and upper case, and an undecorated minor heading below. (The whole-
+   ;;; file title is in the module docstring in this case, not a comment.)
 
    ;;;; Minor Heading
 

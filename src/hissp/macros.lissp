@@ -824,7 +824,7 @@ _#<<#
 
     ``engarde`` with handlers can stack above in a single form.
 
-    See `lissp_whirlwind_tour` (§16) for usage examples.
+    See `lissp_whirlwind_tour` (§15) for usage examples.
 
   .. _enter:
 
@@ -835,7 +835,7 @@ _#<<#
 
     ``enter`` with context managers can stack above in a single form.
 
-    See `lissp_whirlwind_tour` (§18) for usage examples.
+    See `lissp_whirlwind_tour` (§17) for usage examples.
 
   .. _Ensue:
 
@@ -861,7 +861,7 @@ _#<<#
     which is the value sent to the generator this step, or the exception
     caught this step instead.
 
-    See `lissp_whirlwind_tour` (§§17–18) for usage examples.
+    See `lissp_whirlwind_tour` (§§16–17) for usage examples.
 
     See also: `types.coroutine`, `collections.abc.Generator`.
 
