@@ -3823,36 +3823,6 @@ Lissp Whirlwind Tour
    'str'
 
 
-   #> (define first get#0)                ;Gets an item by key.
-   >>> # define
-   ... __import__('builtins').globals().update(
-   ...   first=__import__('operator').itemgetter(
-   ...           (0)))
-
-   #> (first "abc")
-   >>> first(
-   ...   ('abc'))
-   'a'
-
-
-   #> (get#(slice None None -1) "abc")    ;Slicing without injection.
-   >>> __import__('operator').itemgetter(
-   ...   slice(
-   ...     None,
-   ...     None,
-   ...     (-1)))(
-   ...   ('abc'))
-   'cba'
-
-   #> (get#'+ (dict : foo 2  + 1))        ;These also work on dicts.
-   >>> __import__('operator').itemgetter(
-   ...   'QzPLUS_')(
-   ...   dict(
-   ...     foo=(2),
-   ...     QzPLUS_=(1)))
-   1
-
-
    ;;; 19.1 Aside: Extra (!), the Final Builtin Reader Macro
 
    ;; Reader macros take one primary argument, but additional arguments
