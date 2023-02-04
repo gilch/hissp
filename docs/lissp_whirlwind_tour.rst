@@ -3932,12 +3932,6 @@ Lissp Whirlwind Tour
    2 2
 
 
-   ;; Comment string. Parsed objects, remember?
-   #> <<#;Don't worry about the "quotes".
-   >>> 'Don\'t worry about the "quotes".'
-   'Don\'t worry about the "quotes".'
-
-
    ;;; 19.1 Aside: Extra (!), the Final Builtin Reader Macro
 
    ;; Reader macros take one primary argument, but additional arguments
