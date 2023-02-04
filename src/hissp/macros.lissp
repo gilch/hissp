@@ -258,7 +258,37 @@ _#<<#
 (defmacro the\# e
   "``the#`` Anaphoric. `let` ``the`` be a fresh `types.SimpleNamespace`
   in a lexical scope surrounding e.
+
+  Creates a local namespace for imperative-style reassignments,
+  typically combined with  `set@<setQzAT_>` for an assignment.
+
+  .. code-block:: REPL
+
+     #> the#(print (set@ the.x (op#add 1 1))
+     #..           the.x)
+     >>> # hissp.macros.._macro_.let
+     ... (lambda the=__import__('types').SimpleNamespace():
+     ...   print(
+     ...     # setQzAT_
+     ...     # hissp.macros.._macro_.let
+     ...     (lambda _QzNo29_val=__import__('operator').add(
+     ...       (1),
+     ...       (1)):(
+     ...       __import__('builtins').setattr(
+     ...         the,
+     ...         'x',
+     ...         _QzNo29_val),
+     ...       _QzNo29_val)[-1])(),
+     ...     the.x))()
+     2 2
+
+  ``the#the`` is a shorthand for a new empty namespace.
+
+  Often combined with branching macros to reuse the results of an
+  expression, with uses similar to Python's 'walrus' operator ``:=``.
+
   "
+  ;; TODO: consider using extras for initial contents.
   `(let (,'the (types..SimpleNamespace))
      ,e))
 
