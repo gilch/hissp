@@ -3887,30 +3887,6 @@ Lissp Whirlwind Tour
    ;; stderr: time# ran ('time..sleep', 0.05) in ... ms
 
 
-   #> (add 5 spy#(mul 7 3))                  ;Debug subexpressions.
-   >>> add(
-   ...   (5),
-   ...   # hissp.._macro_._spy
-   ...   # hissp.macros.._macro_.let
-   ...   (lambda _QzNo71_e=mul(
-   ...     (7),
-   ...     (3)):(
-   ...     __import__('builtins').print(
-   ...       __import__('pprint').pformat(
-   ...         ('mul',
-   ...          (7),
-   ...          (3),),
-   ...         sort_dicts=(0)),
-   ...       ('=>'),
-   ...       __import__('builtins').repr(
-   ...         _QzNo71_e),
-   ...       file=__import__('sys').stderr),
-   ...     _QzNo71_e)[-1])())
-   26
-
-   ;; stderr: ('mul', 7, 3) => 21
-
-
    ;;; 19.1 Aside: Extra (!), the Final Builtin Reader Macro
 
    ;; Reader macros take one primary argument, but additional arguments

@@ -961,7 +961,34 @@ except ModuleNotFoundError:pass"
      $#e))
 
 (defmacro spy\# e
-  "``spy#`` Print e => its value to stderr. Return the value."
+  "``spy#`` Print e => its value to stderr. Return the value.
+
+  Typically used to debug a Lissp expression.
+
+  .. code-block:: REPL
+
+     #> (op#add 5 spy#(op#mul 7 3)) ; stderr: ('mul', 7, 3) => 21
+     >>> __import__('operator').add(
+     ...   (5),
+     ...   # hissp.._macro_._spy
+     ...   # hissp.macros.._macro_.let
+     ...   (lambda _QzNo71_e=__import__('operator').mul(
+     ...     (7),
+     ...     (3)):(
+     ...     __import__('builtins').print(
+     ...       __import__('pprint').pformat(
+     ...         ('operator..mul',
+     ...          (7),
+     ...          (3),),
+     ...         sort_dicts=(0)),
+     ...       ('=>'),
+     ...       __import__('builtins').repr(
+     ...         _QzNo71_e),
+     ...       file=__import__('sys').stderr),
+     ...     _QzNo71_e)[-1])())
+     26
+
+  "
   `(hissp.._macro_._spy ,e))
 
 (defmacro time\# e
