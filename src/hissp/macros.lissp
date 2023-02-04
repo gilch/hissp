@@ -992,7 +992,45 @@ except ModuleNotFoundError:pass"
   `(hissp.._macro_._spy ,e))
 
 (defmacro time\# e
-  "``time#`` Print ms elapsed running e to stderr. Return its value."
+  "``time#`` Print ms elapsed running e to stderr. Return its value.
+
+  Typically used when optimizing a Lissp expression.
+
+  .. code-block:: REPL
+
+     #> time#(time..sleep .05) ; (Exact printed time will vary.)
+     >>> # hissp.macros.._macro_.let
+     ... (lambda _QzNo73_time=__import__('time').time_ns:
+     ...   # hissp.macros.._macro_.letQz_from
+     ...   (lambda _QzNo73_start,_QzNo73_val,_QzNo73_end:(
+     ...     __import__('builtins').print(
+     ...       ('time# ran'),
+     ...       __import__('pprint').pformat(
+     ...         ('time..sleep',
+     ...          (0.05),),
+     ...         sort_dicts=(0)),
+     ...       ('in'),
+     ...       __import__('operator').truediv(
+     ...         __import__('operator').sub(
+     ...           _QzNo73_end,
+     ...           _QzNo73_start),
+     ...         __import__('decimal').Decimal(
+     ...           (1000000.0))),
+     ...       ('ms'),
+     ...       file=__import__('sys').stderr),
+     ...     _QzNo73_val)[-1])(
+     ...     *# hissp.macros.._macro_.QzAT_
+     ...      (lambda *_QzNo55_xs:
+     ...        __import__('builtins').list(
+     ...          _QzNo55_xs))(
+     ...        _QzNo73_time(),
+     ...        __import__('time').sleep(
+     ...          (0.05)),
+     ...        _QzNo73_time())))()
+
+     ;; stderr: time# ran ('time..sleep', 0.05) in 61.9695 ms
+
+  "
   `(let ($#time time..time_ns)
      (let-from ($#start $#val $#end) (@ ($#time) ,e ($#time))
        (print "time# ran"

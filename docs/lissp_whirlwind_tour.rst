@@ -3853,40 +3853,6 @@ Lissp Whirlwind Tour
    1
 
 
-   ;; Measures execution time.
-   #> time#(time..sleep .05)
-   >>> # hissp.macros.._macro_.let
-   ... (lambda _QzNo73_time=__import__('time').time_ns:
-   ...   # hissp.macros.._macro_.letQz_from
-   ...   (lambda _QzNo73_start,_QzNo73_val,_QzNo73_end:(
-   ...     __import__('builtins').print(
-   ...       ('time# ran'),
-   ...       __import__('pprint').pformat(
-   ...         ('time..sleep',
-   ...          (0.05),),
-   ...         sort_dicts=(0)),
-   ...       ('in'),
-   ...       __import__('operator').truediv(
-   ...         __import__('operator').sub(
-   ...           _QzNo73_end,
-   ...           _QzNo73_start),
-   ...         __import__('decimal').Decimal(
-   ...           (1000000.0))),
-   ...       ('ms'),
-   ...       file=__import__('sys').stderr),
-   ...     _QzNo73_val)[-1])(
-   ...     *# hissp.macros.._macro_.QzAT_
-   ...      (lambda *_QzNo55_xs:
-   ...        __import__('builtins').list(
-   ...          _QzNo55_xs))(
-   ...        _QzNo73_time(),
-   ...        __import__('time').sleep(
-   ...          (0.05)),
-   ...        _QzNo73_time())))()
-
-   ;; stderr: time# ran ('time..sleep', 0.05) in ... ms
-
-
    ;;; 19.1 Aside: Extra (!), the Final Builtin Reader Macro
 
    ;; Reader macros take one primary argument, but additional arguments
