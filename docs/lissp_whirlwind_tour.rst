@@ -3507,18 +3507,6 @@ Lissp Whirlwind Tour
    ...   ('abcd'))
    'dcba'
 
-   #> (list (map X#(@ X) "abc"))          ;Unary anaphoric lambda.
-   >>> list(
-   ...   map(
-   ...     (lambda X:
-   ...       # QzAT_
-   ...       (lambda *_QzNo37_xs:
-   ...         __import__('builtins').list(
-   ...           _QzNo37_xs))(
-   ...         X)),
-   ...     ('abc')))
-   [['a'], ['b'], ['c']]
-
 
    #> (engarde Exception
    #..         X#(print X.__cause__)      ;Unary again.
@@ -3796,31 +3784,6 @@ Lissp Whirlwind Tour
    ...       c=(3)).items()))
    ['a', 1, 'b', 2, 'c', 3]
 
-
-   #> (X#X.upper "shout")                 ;Get an attribute without calling it.
-   >>> (lambda X:X.upper)(
-   ...   ('shout'))
-   <built-in method upper of str object at ...>
-
-   #> (_)
-   >>> _()
-   'SHOUT'
-
-
-   #> (define class-name X#X.__class__.__name__) ;Attributes chain.
-   >>> # define
-   ... __import__('builtins').globals().update(
-   ...   classQz_name=(lambda X:X.__class__.__name__))
-
-   #> (class-name object)
-   >>> classQz_name(
-   ...   object)
-   'type'
-
-   #> (class-name "foo")
-   >>> classQz_name(
-   ...   ('foo'))
-   'str'
 
 
    ;;; 19.1 Aside: Extra (!), the Final Builtin Reader Macro

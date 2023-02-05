@@ -302,10 +302,77 @@ _#<<#
   `(lambda : ,e))
 
 (defmacro X\# e
-  "``X#`` Anaphoric. Make ``e`` an anonymous function with paramter X.
-
-  See also: `en#<enQzHASH_>`, `O#<OQzHASH_>`, `XY#<XYQzHASH_>`.
-  "
+  <<#
+  !;``X#`` Anaphoric. Make ``e`` an anonymous function with paramter X.
+  !;
+  !;Convert macro to function.
+  !;
+  !;.. code-block:: REPL
+  !;
+  !;   #> (list (map X#(@ X) "abc")) ; en#list would also work here.
+  !;   >>> list(
+  !;   ...   map(
+  !;   ...     (lambda X:
+  !;   ...       # QzAT_
+  !;   ...       (lambda *_QzNo37_xs:
+  !;   ...         __import__('builtins').list(
+  !;   ...           _QzNo37_xs))(
+  !;   ...         X)),
+  !;   ...     ('abc')))
+  !;   [['a'], ['b'], ['c']]
+  !;
+  !;Compact function definition using Python operators.
+  !;
+  !;.. code-block:: REPL
+  !;
+  !;   #> (define teen? X#.#"13<=X<20")
+  !;   >>> # define
+  !;   ... __import__('builtins').globals().update(
+  !;   ...   teenQzQUERY_=(lambda X:13<=X<20))
+  !;
+  !;   #> (teen? 12.5)
+  !;   >>> teenQzQUERY_(
+  !;   ...   (12.5))
+  !;   False
+  !;
+  !;   #> (teen? 19.5)
+  !;   >>> teenQzQUERY_(
+  !;   ...   (19.5))
+  !;   True
+  !;
+  !;Get an attribute without calling it.
+  !;
+  !;.. code-block:: REPL
+  !;
+  !;   #> (X#X.upper "shout")
+  !;   >>> (lambda X:X.upper)(
+  !;   ...   ('shout'))
+  !;   <built-in method upper of str object at ...>
+  !;
+  !;   #> (_)
+  !;   >>> _()
+  !;   'SHOUT'
+  !;
+  !;   #> (define class-name X#X.__class__.__name__) ; Attributes chain.
+  !;   >>> # define
+  !;   ... __import__('builtins').globals().update(
+  !;   ...   classQz_name=(lambda X:X.__class__.__name__))
+  !;
+  !;   #> (class-name object)
+  !;   >>> classQz_name(
+  !;   ...   object)
+  !;   'type'
+  !;
+  !;   #> (class-name "foo")
+  !;   >>> classQz_name(
+  !;   ...   ('foo'))
+  !;   'str'
+  !;
+  !;See also:
+  !;`en#<enQzHASH_>`, `O#<OQzHASH_>`, `XY#<XYQzHASH_>`, `getattr`,
+  !;`operator.attrgetter`.
+  !;
+  #"\n"
   `(lambda ,'X ,e))
 
 (defmacro XY\# e
