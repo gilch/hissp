@@ -671,7 +671,7 @@ because it becomes too difficult to distinguish at a glance.
 Typically one or two heading levels are sufficient.
 If you do need multiple levels,
 headings can be decorated with underlines,
-trailing semicolons,
+four trailing semicolons ``;;;; X ;;;;``,
 or written in UPPER CASE to make them more emphatic.
 Avoid using overlines for this purpose.
 Overlines are commonly seen in reStructuredText headings,
