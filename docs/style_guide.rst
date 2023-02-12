@@ -1,9 +1,8 @@
 .. Copyright 2020, 2021, 2022 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
-===========
 Style Guide
-===========
+###########
 
 Why have a style guide?
 
@@ -64,9 +63,7 @@ If your code is properly formatted,
 you will be able to delete all the trailing brackets
 and unambiguously reconstruct them from indentation alone.
 
-Given code like this,
-
-::
+Given code like this, ::
 
    (define fib
      (lambda (n)
@@ -75,9 +72,7 @@ Given code like this,
          (add (fib (sub n 1))
               (fib (sub n 2))))))
 
-this is what the experienced human sees.
-
-::
+this is what the experienced human sees. ::
 
    (define fib
      (lambda (n
@@ -90,9 +85,7 @@ Learn to see it that way.
 There is no missing information.
 
 While the following will compile fine,
-if you write it this way,
-
-::
+if you write it this way, ::
 
    (define fib(lambda(n)(if-else(
    le n 2)n(add(fib(
@@ -169,7 +162,7 @@ along with their tests to enforce this.
 Basic legibility is not negotiable. Use it.
 
 Don't Dangle Brackets
----------------------
+:::::::::::::::::::::
 
 Trailing brackets are something we try to ignore.
 Trailing brackets come in trains.
@@ -248,7 +241,7 @@ If your syntax highlighter can distinguish ``(x)`` from ``(x,)``, you may be OK 
 But this had better be the case for the whole team.
 
 Unambiguous Indentation
------------------------
+:::::::::::::::::::::::
 
 A new line's indentation level determines which tuple it starts in.
 Go past the parent's opening bracket, not the sibling's.
@@ -264,9 +257,7 @@ Go past the parent's opening bracket, not the sibling's.
    (a (b c
          x))                              ;(b is parent, c is sibling
 
-Even after deleting the trails, you can tell where the ``x`` belongs.
-
-::
+Even after deleting the trails, you can tell where the ``x`` belongs. ::
 
    (a (b c
    x
@@ -306,9 +297,7 @@ You might not pass the head *atom* in some alignment styles.
    (foo (bar x
           body))                          ;(bar is parent, x is special sibling
 
-We can still unambiguously reconstruct the trails from the indent.
-
-::
+We can still unambiguously reconstruct the trails from the indent. ::
 
    (foo (bar y
      body
@@ -379,7 +368,7 @@ Lissp's recommended style is based on these,
 with some small modifications for its own unique features.
 
 Tuples
-------
+::::::
 
 Separate *top level* forms from each other with a single blank like,
 unless they are very closely related.
@@ -599,7 +588,7 @@ not just the fact that it's a call.
             / operator..truediv)
 
 Strings
--------
+:::::::
 
 Multiline strings can mess with alignment styles.
 Strings are atoms, so this won't affect Parinfer,
@@ -655,7 +644,7 @@ Put the closing quote for any multiline docstring on its own line.
 (Pydoc automatically strips indents.)
 
 Comments
---------
+::::::::
 
 Headings begin with four semicolons and a space ``;;;; Foo Bar``,
 fit on one line,
@@ -784,7 +773,7 @@ But reStructuredText is the default in the Python ecosystem.
 You can automatically generate API documentation with these.
 
 Reader Macros
--------------
+:::::::::::::
 
 Reader macros should not be separated from each other
 or from their primary argument with whitespace.
@@ -961,7 +950,7 @@ This way, all three name versions (munged, demunged, and pronounced)
 will appear in generated docs.
 
 Method Syntax vs Attribute Calls
---------------------------------
+::::::::::::::::::::::::::::::::
 
 Often, code like ``(.foo bar spam eggs)``
 could also be written like ``(bar.foo spam eggs)``.
