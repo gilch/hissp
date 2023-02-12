@@ -55,8 +55,8 @@ Hissp expansions of other macros.
 ;;; and maintainability.
 
 
-;;;; Bootstrap Macros
-;;;  ===
+;;;; BOOTSTRAP MACROS ;;;;
+;;;  ---
 
 ;; Bootstrap macro namespace using builtins.
 (.update (globals) : _macro_ (types..ModuleType (.format "{}._macro_" __name__)))
@@ -128,8 +128,8 @@ Hissp expansions of other macros.
   `((lambda (: ,@pairs)
       ,@body)))
 
-;;;; Post-bootstrap
-;;;  ===
+;;;; Post-Bootstrap ;;;;
+;;;  ---
 
 ;;;; Definition
 
