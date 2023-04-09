@@ -1,5 +1,5 @@
 <!--
-Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
+Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
 SPDX-License-Identifier: Apache-2.0
 -->
 [![Gitter](https://badges.gitter.im/hissp-lang/community.svg)](https://gitter.im/hissp-lang/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -252,7 +252,7 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
       (.join #"\n" (map hissp.compiler..readerless forms))))
 
 ((bottle..route "/") ; https://bottlepy.org
- &#(enjoin
+ O#(enjoin
     (let (s (tag "script src='https://cdn.jsdelivr.net/npm/brython@3/brython{}.js'"))
       (enjoin (.format s ".min") (.format s "_stdlib")))
     (tag "body onload='brython()'" ; Browser Python: https://brython.info
@@ -261,8 +261,8 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
        (define getf@v X#(float (X#X.value (getE X))))
        (define set@v XY#(setattr (getE Y) 'value X))
        (attach browser..window
-         : Celsius &#(-> (getf@v 'Celsius) (X#.#"X*1.8+32") (set@v 'Fahrenheit))
-         Fahrenheit &#(-> (getf@v 'Fahrenheit) (X#.#"(X-32)/1.8") (set@v 'Celsius))))
+         : Celsius O#(-> (getf@v 'Celsius) (X#.#"X*1.8+32") (set@v 'Fahrenheit))
+         Fahrenheit O#(-> (getf@v 'Fahrenheit) (X#.#"(X-32)/1.8") (set@v 'Celsius))))
      (let (row (enjoin (tag "input id='{0}' onkeyup='{0}()'")
                        (tag "label for='{0}'" "°{1}")))
        (enjoin (.format row "Fahrenheit" "F")"<br>"(.format row "Celsius" "C"))))))

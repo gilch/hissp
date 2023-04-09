@@ -1,4 +1,4 @@
-.. Copyright 2020, 2021, 2022 Matthew Egan Odendahl
+.. Copyright 2020, 2021, 2022, 2023 Matthew Egan Odendahl
    SPDX-License-Identifier: Apache-2.0
 
 .. This hidden doctest adds bundled macros for REPL-consistent behavior.
@@ -21,7 +21,8 @@ Lissp Whirlwind Tour
 
 .. Lissp::
 
-   ;;;; 1 Lissp Whirlwind Tour
+   ;;;; LISSP WHIRLWIND TOUR ;;;;
+   ;;;  === 
 
    "Lissp is a lightweight text language representing the Hissp
    intermediate language. The Lissp reader parses the Lissp language's
@@ -29,8 +30,9 @@ Lissp Whirlwind Tour
    then translates these syntax trees to Python expressions.
 
    This document is written like a .lissp file, thoroughly demonstrating
-   Lissp's (and thereby Hissp's) features with minimal exposition. This
-   element enclosed in double quotes is a docstring for the module.
+   Lissp's (and thereby Hissp's) features from the bottom up with
+   minimal exposition. This element enclosed in double quotes is a
+   docstring for the module.
 
    To fully understand these examples, you must see their Python
    compilation and output. Some familiarity with Python is assumed.
@@ -39,29 +41,31 @@ Lissp Whirlwind Tour
    Python and evaluate it. Try variations that occur to you.
 
    Familiarity with another Lisp dialect is not assumed, but helpful. If
-   you get confused or stuck, the Hissp tutorial is easier.
+   you get confused or stuck, the Hissp primer is easier.
    "
 
-   ;;;; 2 Installation
+   ;;;; 1 Installation
+   ;;;  ---
 
-   ;; These docs are for the latest development version of Hissp.
-   ;; Install the latest Hissp version with
-   ;; $ pip install git+https://github.com/gilch/hissp
-   ;; Start the REPL with
-   ;; $ lissp
-   ;; You can quit with EOF or (exit).
+   ;;; These docs are for the latest development version of Hissp.
+   ;;; Install the latest Hissp version with
+   ;;; $ pip install git+https://github.com/gilch/hissp
+   ;;; Start the REPL with
+   ;;; $ lissp
+   ;;; You can quit with EOF or (exit).
 
-   ;; Most examples are tested automatically, but details may be dated.
-   ;; Report issues or try the current release version instead.
+   ;;; Most examples are tested automatically, but details may be dated.
+   ;;; Report issues or try the current release version instead.
 
-   ;;;; 3 Simple Atoms
+   ;;;; 2 Simple Atoms
+   ;;;  ---
 
-   ;; To a first approximation, the Hissp intermediate language is made
-   ;; of Python tuples representing syntax trees. The nodes are tuples
-   ;; and we call the leaves "atoms". Simple atoms in Lissp are written
-   ;; the same way as Python.
+   ;;; To a first approximation, the Hissp intermediate language is made
+   ;;; of Python tuples representing syntax trees. The nodes are tuples
+   ;;; and we call the leaves "atoms". Simple atoms in Lissp are written
+   ;;; the same way as Python.
 
-   ;;; 3.1 Singleton
+   ;;;; 2.1 Singleton
 
    #> None
    >>> None
@@ -71,7 +75,7 @@ Lissp Whirlwind Tour
    Ellipsis
 
 
-   ;;; 3.2 Boolean
+   ;;;; 2.2 Boolean
 
    #> False                               ;False == 0
    >>> False
@@ -82,7 +86,7 @@ Lissp Whirlwind Tour
    True
 
 
-   ;;; 3.3 Integer
+   ;;;; 2.3 Integer
 
    #> 42
    >>> (42)
@@ -113,7 +117,7 @@ Lissp Whirlwind Tour
    3840
 
 
-   ;;; 3.4 Floating-Point
+   ;;;; 2.4 Floating-Point
 
    #> 3.
    >>> (3.0)
@@ -132,7 +136,7 @@ Lissp Whirlwind Tour
    -0.016
 
 
-   ;;; 3.5 Complex
+   ;;;; 2.5 Complex
 
    #> 5j                                  ;imaginary
    >>> (5j)
@@ -147,7 +151,8 @@ Lissp Whirlwind Tour
    (-1.234e-55-7.898e-75j)
 
 
-   ;;;; 4 Simple Tuples
+   ;;;; 3 Simple Tuples
+   ;;;  ---
 
    ;; Tuples group any atoms with (). Data tuples start with '.
    #> '(None 2 3)
@@ -163,9 +168,10 @@ Lissp Whirlwind Tour
    (True, False)
 
 
-   ;;;; 5 Symbolic Atoms
+   ;;;; 4 Symbolic Atoms
+   ;;;  ---
 
-   ;;; 5.1 Identifiers
+   ;;;; 4.1 Identifiers
 
    #> object                              ;Python identifiers work in Lissp.
    >>> object
@@ -180,7 +186,7 @@ Lissp Whirlwind Tour
    'type'
 
 
-   ;;; 5.2 Imports
+   ;;;; 4.2 Imports
 
    #> math.                               ;Module handles import!
    >>> __import__('math')
@@ -204,19 +210,20 @@ Lissp Whirlwind Tour
    'ABCMeta'
 
 
-   ;;;; 6 Simple Forms and Calls
+   ;;;; 5 Simple Forms and Calls
+   ;;;  ---
 
-   ;; "Forms" are any data structures that can be evaluated as a Hissp program.
-   ;; Simple atoms are forms. They simply evaluate to an equivalent object.
+   ;;; "Forms" are any data structures that can be evaluated as a Hissp program.
+   ;;; Simple atoms are forms. They simply evaluate to an equivalent object.
 
    #> 0x2a
    >>> (42)
    42
 
 
-   ;; Tuples can also be forms, but their evaluation rules are more complex.
-   ;; The common case is a function call. For that, the first element must
-   ;; be a callable. The remainder are arguments.
+   ;;; Tuples can also be forms, but their evaluation rules are more complex.
+   ;;; The common case is a function call. For that, the first element must
+   ;;; be a callable. The remainder are arguments.
 
    #> (print 1 2 3)                       ;This one compiles to a function call.
    >>> print(
@@ -233,7 +240,7 @@ Lissp Whirlwind Tour
    ('print', 1, 2, 3)
 
 
-   ;; Data tuples and calls are enough to make simple collections.
+   ;;; Data tuples and calls are enough to make simple collections.
 
    #> '(1 2 3)                            ;tuple
    >>> ((1),
@@ -287,7 +294,8 @@ Lissp Whirlwind Tour
    <BLANKLINE>
 
 
-   ;;;; 7 String Atoms
+   ;;;; 6 String Atoms
+   ;;;  ---
 
    #> :control-word                       ;Colon prefix. Similar to Lisp ":keywords".
    >>> ':control-word'
@@ -298,7 +306,7 @@ Lissp Whirlwind Tour
    'symbol'
 
 
-   ;;; 7.1 Munging
+   ;;;; 6.1 Munging
 
    #> '+                                  ;Read-time munging of invalid identifiers.
    >>> 'QzPLUS_'
@@ -325,7 +333,7 @@ Lissp Whirlwind Tour
    ':'
 
 
-   ;;; 7.2 Escaping
+   ;;;; 6.2 Escaping
 
    #> 'SPAM\ \"\(\)\;EGGS                 ;These would terminate a symbol if not escaped.
    >>> 'SPAMQzSPACE_QzQUOT_QzLPAR_QzRPAR_QzSEMI_EGGS'
@@ -355,7 +363,7 @@ Lissp Whirlwind Tour
    >>> None
 
 
-   ;;; 7.3 String Literals
+   ;;;; 6.3 String Literals
 
    #> "raw string"
    >>> ('raw string')
@@ -388,7 +396,8 @@ Lissp Whirlwind Tour
    'one\\"\nstring\\\\'
 
 
-   ;;;; 8 Advanced Calls
+   ;;;; 7 Advanced Calls
+   ;;;  ---
 
    #> (dict :)                            ;Left paren before function! Notice the :.
    >>> dict()
@@ -488,9 +497,9 @@ Lissp Whirlwind Tour
    inf
 
 
-   ;;; 8.1 Operators
+   ;;;; 7.1 Operators
 
-   ;; Hissp is simpler than Python. No operators! Use calls instead.
+   ;;; Hissp is simpler than Python. No operators! Use calls instead.
 
    #> (operator..add 40 2)
    >>> __import__('operator').add(
@@ -512,12 +521,13 @@ Lissp Whirlwind Tour
    42
 
 
-   ;;;; 9 Simple Lambdas
+   ;;;; 8 Simple Lambdas
+   ;;;  ---
 
-   ;; Lambdas are one of Hissp's two "special forms".
-   ;; They look like calls, but are special-cased in the Hissp compiler
-   ;; to work differently. The first element must be 'lambda', the second
-   ;; is the parameters, and finally the body.
+   ;;; Lambdas are one of Hissp's two "special forms".
+   ;;; They look like calls, but are special-cased in the Hissp compiler
+   ;;; to work differently. The first element must be 'lambda', the second
+   ;;; is the parameters, and finally the body.
 
    #> (.update (globals)
    #..         : greet
@@ -545,9 +555,9 @@ Lissp Whirlwind Tour
    Hi, Bob!
 
 
-   ;;; 9.1 Obligatory Factorial I
+   ;;;; 8.1 Obligatory Factorial I
 
-   ;; We now have just enough to make more interesting programs.
+   ;;; We now have just enough to make more interesting programs.
 
    #> (.update (globals)
    #..         : factorial_I
@@ -581,9 +591,9 @@ Lissp Whirlwind Tour
    120
 
 
-   ;;; 9.2 Control Flow
+   ;;;; 8.2 Control Flow
 
-   ;; Hissp is simpler than Python. No control flow! Use higher-order functions instead.
+   ;;; Hissp is simpler than Python. No control flow! Use higher-order functions instead.
 
    #> (any (map (lambda (c) (print c))      ;Loops!
    #..          "abc"))
@@ -604,8 +614,8 @@ Lissp Whirlwind Tour
           (input "enter y/n> ")
           (lambda () (print "Unrecognized input."))))
 
-   ;; Don't worry, Hissp metaprogramming will make this much easier,
-   ;; but our limited tools so far are enough for a ternary operator.
+   ;;; Don't worry, Hissp metaprogramming will make this much easier,
+   ;;; but our limited tools so far are enough for a ternary operator.
 
    #> (.update (globals) : bool->caller (dict))
    >>> globals().update(
@@ -643,7 +653,7 @@ Lissp Whirlwind Tour
    ...               else_thunk)))
 
 
-   ;;; 9.3 Obligatory Factorial II
+   ;;;; 8.3 Obligatory Factorial II
 
    ;; Now we have enough for a recursive version.
    #> (.update (globals)
@@ -674,7 +684,8 @@ Lissp Whirlwind Tour
    120
 
 
-   ;;;; 10 Advanced Lambdas
+   ;;;; 9 Advanced Lambdas
+   ;;;  ---
 
    ;; Python parameter types are rather involved. Lambda does all of them.
    ;; Like calls, they are all pairs. :? means no default.
@@ -772,19 +783,20 @@ Lissp Whirlwind Tour
    1
 
 
-   ;;;; 11 Quote
+   ;;;; 10 Quote
+   ;;;  ---
 
-   ;; Quote is the only other special form. Looks like a call, but isn't.
+   ;;; Quote is the only other special form. Looks like a call, but isn't.
 
-   ;; A "form" is any Hissp data that can be evaluated.
-   ;; Not all data is a valid program in Hissp. E.g. ``(7 42)`` is a
-   ;; tuple, containing the integers 7 in the function position, and 42
-   ;; after in the first argument position. It would compile to a
-   ;; syntactically-valid Python program, but evaluation would crash,
-   ;; because ints are not callable in Python. Try it.
+   ;;; A "form" is any Hissp data that can be evaluated.
+   ;;; Not all data is a valid program in Hissp. E.g. ``(7 42)`` is a
+   ;;; tuple, containing the integers 7 in the function position, and 42
+   ;;; after in the first argument position. It would compile to a
+   ;;; syntactically-valid Python program, but evaluation would crash,
+   ;;; because ints are not callable in Python. Try it.
 
-   ;; Quotation suppresses evaluation of Hissp data.
-   ;; Treating the code itself as data is the key concept in metaprogramming.
+   ;;; Quotation suppresses evaluation of Hissp data.
+   ;;; Treating the code itself as data is the key concept in metaprogramming.
 
    #> (quote (7 42))
    >>> ((7),
@@ -792,9 +804,9 @@ Lissp Whirlwind Tour
    (7, 42)
 
 
-   ;; Other objects evaluate to themselves, but strings and tuples have
-   ;; special evaluation rules in Hissp. Tuples represent invocations of
-   ;; functions, macros, and special forms.
+   ;;; Other objects evaluate to themselves, but strings and tuples have
+   ;;; special evaluation rules in Hissp. Tuples represent invocations of
+   ;;; functions, macros, and special forms.
 
    #> (quote (print 1 2 3 : sep "-"))     ;Just a tuple.
    >>> ('print',
@@ -807,8 +819,9 @@ Lissp Whirlwind Tour
    ('print', 1, 2, 3, ':', 'sep', "('-')")
 
 
-   ;; Notice how the string gets an extra layer of quotes vs identifiers.
-   ;; This particular tuple happens to be a valid form.
+   ;;; Notice how the string gets an extra layer of quotes vs identifiers.
+   ;;; This particular tuple happens to be a valid form.
+
    ;; The readerless function runs the Hissp compiler without the Lissp reader.
    ;; (Remember, _ is the last result that wasn't None in the Python REPL.)
    #> (hissp.compiler..readerless _)      ;It compiles to Python
@@ -822,20 +835,22 @@ Lissp Whirlwind Tour
    1-2-3
 
 
-   ;; Programmatically modifying the data before compiling it is when
-   ;; things start to get interesting, but more on that later.
+   ;;; Programmatically modifying the data before compiling it is when
+   ;;; things start to get interesting, but more on that later.
 
-   ;; Hissp-level strings contain Python code to include in the compiled
-   ;; output. These usually contain identifiers, but can be anything.
-   ;; Thus, Lissp identifiers read as strings at the Hissp level.
+   ;;; Hissp-level strings contain Python code to include in the compiled
+   ;;; output. These usually contain identifiers, but can be anything.
+   ;;; Thus, Lissp identifiers read as strings at the Hissp level.
+
    #> (quote identifier)                  ;Just a string.
    >>> 'identifier'
    'identifier'
 
 
-   ;; The raw strings and hash strings in Lissp ("..."/#"..." syntax)
-   ;; also read as strings at the Hissp level, but they contain a Python
-   ;; string literal instead of a Python identifier.
+   ;;; The raw strings and hash strings in Lissp ("..."/#"..." syntax)
+   ;;; also read as strings at the Hissp level, but they contain a Python
+   ;;; string literal instead of a Python identifier.
+
    #> (quote "a string")                  ;"..."/#"..." is reader syntax!
    >>> "('a string')"
    "('a string')"
@@ -846,8 +861,9 @@ Lissp Whirlwind Tour
    'a string'
 
 
-   ;; Quoting does not suppress munging, however. That happens at read
-   ;; time. Quoting doesn't happen until compile time.
+   ;;; Quoting does not suppress munging, however. That happens at read
+   ;;; time. Quoting doesn't happen until compile time.
+
    #> (quote +)
    >>> 'QzPLUS_'
    'QzPLUS_'
@@ -859,9 +875,9 @@ Lissp Whirlwind Tour
    42
 
 
-   ;; Strings in Hissp are also used for module handles and control
-   ;; words. The compiler does some extra processing before emitting these
-   ;; as Python code. Quoting suppresses this processing too.
+   ;;; Strings in Hissp are also used for module handles and control
+   ;;; words. The compiler does some extra processing before emitting these
+   ;;; as Python code. Quoting suppresses this processing too.
 
    #> math.                               ;Compiler coverts this to an import.
    >>> __import__('math')
@@ -890,17 +906,18 @@ Lissp Whirlwind Tour
    ':?'
 
 
-   ;;;; 12 Simple Reader Macros
+   ;;;; 11 Simple Reader Macros
+   ;;;  ---
 
-   ;; Reader macros are metaprograms to abbreviate Hissp and don't
-   ;; represent it directly. They apply to the next parsed Hissp object
-   ;; at read time, before the Hissp compiler sees it, and thus before
-   ;; they are compiled and evaluated. They end in # except for a few
-   ;; builtins-- ' ! ` , ,@
+   ;;; Reader macros are metaprograms to abbreviate Hissp and don't
+   ;;; represent it directly. They apply to the next parsed Hissp object
+   ;;; at read time, before the Hissp compiler sees it, and thus before
+   ;;; they are compiled and evaluated. They end in # except for a few
+   ;;; builtins-- ' ! ` , ,@
 
-   ;;; 12.1 Quote
+   ;;;; 11.1 Quote
 
-   ;; The ' reader macro is simply an abbreviation for the quote special form.
+   ;;; The ' reader macro is simply an abbreviation for the quote special form.
 
    #> 'x                                  ;(quote x). Symbols are just quoted identifiers!
    >>> 'x'
@@ -912,11 +929,11 @@ Lissp Whirlwind Tour
    ('print', "('Hi')")
 
 
-   ;;; 12.2 Template Quote
+   ;;;; 11.2 Template Quote
 
-   ;; (Like quasiquote, backquote, or syntax-quote from other Lisps.)
-   ;; This is a DSL for making Hissp trees programmatically.
-   ;; They're very useful for metaprogramming.
+   ;;; (Like quasiquote, backquote, or syntax-quote from other Lisps.)
+   ;;; This is a DSL for making Hissp trees programmatically.
+   ;;; They're very useful for metaprogramming.
 
    #> `print                              ;Automatic full qualification!
    >>> 'builtins..print'
@@ -982,12 +999,13 @@ Lissp Whirlwind Tour
    ('builtins..print', 'A', 'B', 'C')
 
 
-   ;; Full qualification prevents accidental name collisions in
-   ;; programmatically generated code. But full qualification doesn't work on
-   ;; local variables, which can't be imported. For these, we use a template
-   ;; count prefix instead of a qualifier to ensure a variable can only
-   ;; be used in the same template it was defined in. The gensym reader
-   ;; macro ($#) generates a symbol with the current template's number.
+   ;;; Full qualification prevents accidental name collisions in
+   ;;; programmatically generated code. But full qualification doesn't work on
+   ;;; local variables, which can't be imported. For these, we use a template
+   ;;; count prefix instead of a qualifier to ensure a variable can only
+   ;;; be used in the same template it was defined in. The gensym reader
+   ;;; macro ($#) generates a symbol with the current template's number.
+
    #> `($#eggs $#spam $#bacon $#spam)     ;Generated symbols for macro hygiene.
    >>> (lambda * _: _)(
    ...   '_QzNo9_eggs',
@@ -1014,11 +1032,11 @@ Lissp Whirlwind Tour
    'self._QzNo9_foo'
 
 
-   ;; You can use templates to make collections with interpolated values.
-   ;; When your intent is to create data rather than code, unquote
-   ;; each element.
+   ;;; You can use templates to make collections with interpolated values.
+   ;;; When your intent is to create data rather than code, unquote
+   ;;; each element.
 
-   ;; (Uses `+` from §8.1.)
+   ;; (Uses `+` from §7.1.)
    #> (list `(,@"abc"
    #..        ,1
    #..        ,(+ 1 1)
@@ -1070,10 +1088,11 @@ Lissp Whirlwind Tour
    {0: 1, 'spam': 'eggs', 'foo': 2, 3: 4}
 
 
-   ;;;; 13 Compiler Macros
+   ;;;; 12 Compiler Macros
+   ;;;  ---
 
-   ;; We can use functions to to create forms for evaluation.
-   ;; This is metaprogramming: code that writes code.
+   ;;; We can use functions to to create forms for evaluation.
+   ;;; This is metaprogramming: code that writes code.
 
    #> (.update (globals)                  ;assign fills in a template to make a form.
    #..         : assign
@@ -1111,18 +1130,20 @@ Lissp Whirlwind Tour
    'eggs'
 
 
-   ;; We can accomplish this more easily with a macro invocation.
+   ;;; We can accomplish this more easily with a macro invocation.
 
-   ;; Unqualified invocations are macro invocations if the identifier is in
-   ;; the current module's _macro_ namespace. The REPL includes one, but
-   ;; .lissp files don't have one until you create it.
+   ;;; Unqualified invocations are macro invocations if the identifier is in
+   ;;; the current module's _macro_ namespace. The REPL includes one, but
+   ;;; .lissp files don't have one until you create it.
+
    (dir)
    (dir _macro_)
 
-   ;; Macros run at compile time, so they get all of their arguments
-   ;; unevaluated. The compiler inserts the resulting Hissp at that point
-   ;; in the program. Like special forms, macro invocations look like
-   ;; function calls, but aren't.
+   ;;; Macros run at compile time, so they get all of their arguments
+   ;;; unevaluated. The compiler inserts the resulting Hissp at that point
+   ;;; in the program. Like special forms, macro invocations look like
+   ;;; function calls, but aren't.
+
    #> (setattr _macro_ 'assign assign)    ;We can use our assign function as a macro!
    >>> setattr(
    ...   _macro_,
@@ -1141,19 +1162,19 @@ Lissp Whirlwind Tour
    'ham'
 
 
-   ;; We almost could have accomplished this one with a function, but we'd
-   ;; have to either quote the variable name or use a : to pass it in as a
-   ;; keyword. The macro invocation is a little shorter. Furthermore, the
-   ;; globals function gets the globals dict for the current module. Thus,
-   ;; an assign function would assign globals to the module it is defined
-   ;; in, not the one where it is used! You could get around this by
-   ;; walking up a stack frame with inspect, but that's brittle. The macro
-   ;; version just works because it writes the code in line for you, so
-   ;; the globals call appears in the right module.
+   ;;; We almost could have accomplished this one with a function, but we'd
+   ;;; have to either quote the variable name or use a : to pass it in as a
+   ;;; keyword. The macro invocation is a little shorter. Furthermore, the
+   ;;; globals function gets the globals dict for the current module. Thus,
+   ;;; an assign function would assign globals to the module it is defined
+   ;;; in, not the one where it is used! You could get around this by
+   ;;; walking up a stack frame with inspect, but that's brittle. The macro
+   ;;; version just works because it writes the code in line for you, so
+   ;;; the globals call appears in the right module.
 
-   ;; Macros are a feature of the Hissp compiler. Macroexpansion happens at
-   ;; compile time, after the reader, so macros also work in readerless
-   ;; mode, or with Hissp readers other than Lissp, like Hebigo.
+   ;;; Macros are a feature of the Hissp compiler. Macroexpansion happens at
+   ;;; compile time, after the reader, so macros also work in readerless
+   ;;; mode, or with Hissp readers other than Lissp, like Hebigo.
 
    ;; Hissp already comes with a define macro for global assignment.
    ;; Our assign macro just re-implemented this.
@@ -1182,9 +1203,9 @@ Lissp Whirlwind Tour
    ;; The REPL's default _macro_ namespace already has the bundled macros.
    (help _macro_.define)
 
-   ;;; 13.1 Macro Technique
+   ;;;; 12.1 Macro Technique
 
-   ;; (Examples here use `+` from §8.1.)
+   ;;; (Examples here use `+` from §7.1.)
 
    #> (setattr _macro_
    #..         'triple
@@ -1349,10 +1370,11 @@ Lissp Whirlwind Tour
    42
 
 
-   ;; Notice the special QzMaybe_ qualifier generated by this template.
-   ;; Templates create these for symbols in the invocation position when
-   ;; they can't tell if _macro_ would work. The compiler skips QzMaybe_
-   ;; unless it can resolve the symbol with QzMaybe_ as _macro_.
+   ;;; Notice the special QzMaybe_ qualifier generated by this template.
+   ;;; Templates create these for symbols in the invocation position when
+   ;;; they can't tell if _macro_ would work. The compiler skips QzMaybe_
+   ;;; unless it can resolve the symbol with QzMaybe_ as _macro_.
+
    #> `(+ 1 2 3 4)
    >>> (lambda * _: _)(
    ...   '__main__..QzMaybe_.QzPLUS_',
@@ -1479,12 +1501,13 @@ Lissp Whirlwind Tour
    24
 
 
-   ;; Sometimes you actually do want a name collision (or "capture"),
-   ;; when the macro user should expect an implicit new local binding
-   ;; (an "anaphor"). Don't qualify and don't gensym in that case.
-   ;; Unquoting suppresses the recursive template quoting of tuples,
-   ;; while the normal quote doesn't qualify symbols, so this combination
-   ;; suppresses auto-qualification.
+   ;;; Sometimes you actually do want a name collision (or "capture"),
+   ;;; when the macro user should expect an implicit new local binding
+   ;;; (an "anaphor"). Don't qualify and don't gensym in that case.
+   ;;; Unquoting suppresses the recursive template quoting of tuples,
+   ;;; while the normal quote doesn't qualify symbols, so this combination
+   ;;; suppresses auto-qualification.
+
    #> (setattr _macro_
    #..         'XY
    #..         (lambda (: :* body)
@@ -1591,10 +1614,11 @@ Lissp Whirlwind Tour
    1:2:3
 
 
-   ;;;; 14 Compiling and Running Files
+   ;;;; 13 Compiling and Running Files
+   ;;;  ---
 
-   ;; ``$ lissp`` can run a .lissp file as __main__.
-   ;; You cannot import .lissp directly. Compile it to .py first.
+   ;;; ``$ lissp`` can run a .lissp file as __main__.
+   ;;; You cannot import .lissp directly. Compile it to .py first.
 
    ;; Finds spam.lissp & eggs.lissp in the current package & compile to spam.py & eggs.py
    #> (.write_text (pathlib..Path "eggs.lissp")
@@ -1650,19 +1674,20 @@ Lissp Whirlwind Tour
    False
 
 
-   ;;;; 15 The Bundled Macros
+   ;;;; 14 The Bundled Macros
+   ;;;  ---
 
-   ;; To make the REPL more usable, it comes with some basic macros already
-   ;; defined. Their design has been deliberately restricted so that their
-   ;; compiled output does not require the Hissp package to be installed to
-   ;; work. While these may suffice for small or embedded Hissp projects,
-   ;; you will probably want a more capable macro suite (such as Hebigo's)
-   ;; for general use. You are not required to use the bundled macros at all,
-   ;; so by default, they don't work in .lissp files unqualified. For
-   ;; convenience, hissp._macro_ is a reference to hissp.macros._macro_,
-   ;; making all the bundled macros available qualified with hissp.._macro_.
+   ;;; To make the REPL more usable, it comes with some basic macros already
+   ;;; defined. Their design has been deliberately restricted so that their
+   ;;; compiled output does not require the Hissp package to be installed to
+   ;;; work. While these may suffice for small or embedded Hissp projects,
+   ;;; you will probably want a more capable macro suite (such as Hebigo's)
+   ;;; for general use. You are not required to use the bundled macros at all,
+   ;;; so by default, they don't work in .lissp files unqualified. For
+   ;;; convenience, hissp._macro_ is a reference to hissp.macros._macro_,
+   ;;; making all the bundled macros available qualified with hissp.._macro_.
 
-   ;;; 15.1 Collections
+   ;;;; 14.1 Collections
 
    #> (@ 1 2 3)                           ;list
    >>> # QzAT_
@@ -1716,10 +1741,10 @@ Lissp Whirlwind Tour
    (1, 2, 3)
 
 
-   ;; Collection macro mnemonics:
-   ;; Array list() (@rray)
-   ;; Hash set() (#set)
-   ;; and dict() of key-value pairs (%).
+   ;;; Collection macro mnemonics:
+   ;;; Array list() (@rray)
+   ;;; Hash set() (#set)
+   ;;; and dict() of key-value pairs (%).
 
    #> (@ (ord "*") :* "abc" 42 :* '(2 3)) ;List, with unpacking.
    >>> # QzAT_
@@ -1779,7 +1804,7 @@ Lissp Whirlwind Tour
    {1: 2, 'x': 3, 'y': 4, 5: 6}
 
 
-   ;;; 15.2 Side Effect
+   ;;;; 14.2 Side Effect
 
    #> (print (prog1 0                     ;Sequence for side effects, eval to first.
    #..         (print 1)
@@ -1833,7 +1858,7 @@ Lissp Whirlwind Tour
    3
 
 
-   ;;; 15.3 Definition
+   ;;;; 14.3 Definition
 
    #> (deftype Point2D (tuple)
    #..  __doc__ "Simple ordered pair."
@@ -1915,10 +1940,11 @@ Lissp Whirlwind Tour
    'tomato'
 
 
-   ;; Like define, but won't overwrite an existing global.
-   ;; Useful when sending the whole file to the REPL repeatedly or when
-   ;; using importlib.reload and you want to cache an expensive object
-   ;; instead of re-initializing it every time.
+   ;;; Like define, but won't overwrite an existing global.
+   ;;; Useful when sending the whole file to the REPL repeatedly or when
+   ;;; using importlib.reload and you want to cache an expensive object
+   ;;; instead of re-initializing it every time.
+
    #> (defonce CACHE (types..SimpleNamespace : x 1))
    >>> # defonce
    ... # hissp.macros.._macro_.unless
@@ -1978,7 +2004,7 @@ Lissp Whirlwind Tour
    namespace(x=42)
 
 
-   ;;; 15.4 Locals
+   ;;;; 14.4 Locals
 
    #> (let (x "a"                         ;Create locals.
    #..      y "b")                        ;Any number of pairs.
@@ -2101,7 +2127,7 @@ Lissp Whirlwind Tour
    1 2 3 4
 
 
-   ;;; 15.5 Configuration
+   ;;;; 14.5 Configuration
 
    #> (attach (types..SimpleNamespace) + : a 1  b "Hi")
    >>> # attach
@@ -2220,9 +2246,9 @@ Lissp Whirlwind Tour
    namespace(foo=11)
 
 
-   ;; set/zap mnemonics: @tribute, !tem.
+   ;;; set/zap mnemonics: @tribute, !tem.
 
-   ;;; 15.6 Threading
+   ;;;; 14.6 Threading
 
    #> (-> "world!"                        ;Thread-first
    #..    .title
@@ -2237,14 +2263,14 @@ Lissp Whirlwind Tour
    (help _macro_.->)
    (help _macro_.->>)
 
-   ;;; 15.7 The Prelude
+   ;;;; 14.7 The Prelude
 
-   ;; An inline convenience micro-prelude for Hissp.
-   ;; Imports partial and reduce; star imports from operator and itertools;
-   ;; defines Python interop utilities engarde, enter, and Ensue; and
-   ;; imports a copy of hissp.macros.._macro_ (if available). Usually the
-   ;; first form in a file, because it overwrites _macro_, but completely
-   ;; optional. Implied for $ lissp -c commands.
+   ;;; An inline convenience micro-prelude for Hissp.
+   ;;; Imports partial and reduce; star imports from operator and itertools;
+   ;;; defines Python interop utilities engarde, enter, and Ensue; and
+   ;;; imports a copy of hissp.macros.._macro_ (if available). Usually the
+   ;;; first form in a file, because it overwrites _macro_, but completely
+   ;;; optional. Implied for $ lissp -c commands.
 
    ;; N.B. Sections after this one may require the prelude to work!
    #> (hissp.._macro_.prelude)            ;Or just (prelude) in the REPL.
@@ -2271,9 +2297,9 @@ Lissp Whirlwind Tour
    ...   __import__('builtins').globals())
 
 
-   ;;; 15.8 Control Flow
+   ;;;; 14.8 Control Flow
 
-   ;; Hissp has no innate control flow, but you can build them with macros.
+   ;;; Hissp has no innate control flow, but you can build them with macros.
 
    ;; Like recursion with tail elimination.
    #> (loop-from x '(3)                   ;Unpacks as let-from.
@@ -2687,7 +2713,7 @@ Lissp Whirlwind Tour
    42
 
 
-   ;;; 15.9 Raising Exceptions
+   ;;;; 14.9 Raising Exceptions
 
    #> (throw Exception)                   ;Raise exception objects or classes.
    >>> # throw
@@ -2769,13 +2795,14 @@ Lissp Whirlwind Tour
    Exception
 
 
-   ;; There's also a throw* you normally shouldn't use. See API doc.
+   ;;; There's also a throw* you normally shouldn't use. See API doc.
 
-   ;; Assertions. They're always about something, which is
-   ;; threaded-first into the predicate expression, and is the result of
-   ;; the form. The message expressions are optional. In this context,
-   ;; the `it` refers to the something.
-   ;; Try turning off __debug__ in a new REPL: $ python -Om hissp
+   ;;; Assertions. They're always about something, which is
+   ;;; threaded-first into the predicate expression, and is the result of
+   ;;; the form. The message expressions are optional. In this context,
+   ;;; the `it` refers to the something.
+   ;;; Try turning off __debug__ in a new REPL: $ python -Om hissp
+
    #> (ensure 7 (-> (mod 2) (eq 0))
    #..  it "That's odd.")
    >>> # ensure
@@ -2815,13 +2842,13 @@ Lissp Whirlwind Tour
    AssertionError: (7, "That's odd.")
 
 
-   ;; Note that for pre-compiled code, it's the __debug__ state at
-   ;; compile time, not at run time, that determines if ensure
-   ;; assertions are turned on.
+   ;;; Note that for pre-compiled code, it's the __debug__ state at
+   ;;; compile time, not at run time, that determines if ensure
+   ;;; assertions are turned on.
 
-   ;;; 15.10 Obligatory Factorial III
+   ;;;; 14.10 Obligatory Factorial III
 
-   ;; With the prelude (§15.7), we can define a nicer-looking version.
+   ;; With the prelude (§14.7), we can define a nicer-looking version.
    #> (define factorial-III
    #..  (lambda i
    #..    (if-else (le i 1)
@@ -2854,9 +2881,10 @@ Lissp Whirlwind Tour
    5040
 
 
-   ;;;; 16 Exception handling
+   ;;;; 15 Exception handling
+   ;;;  ---
 
-   ;; Defined by the prelude (§15.7). Guards against targeted exceptions.
+   ;; Defined by the prelude (§14.7). Guards against targeted exceptions.
    #> (engarde `(,FloatingPointError ,ZeroDivisionError)               ;two targets
    #..         (lambda e (print "Oops!") e)                            ;handler (returns exception)
    #..         truediv 6 0)                                            ;calls it on your behalf
@@ -2970,10 +2998,11 @@ Lissp Whirlwind Tour
    Exception('msg')
 
 
-   ;;;; 17 Generators
+   ;;;; 16 Generators
+   ;;;  ---
 
-   ;; Defined by the prelude (§15.7), Ensue gives you infinite lazy
-   ;; iterables, easy as recursion. Compare to loop-from (§15.8).
+   ;; Defined by the prelude (§14.7), Ensue gives you infinite lazy
+   ;; iterables, easy as recursion. Compare to loop-from (§14.8).
    #> (define fibonacci
    #..  (lambda (: a 1  b 1)
    #..    (Ensue (lambda (step)
@@ -3156,7 +3185,8 @@ Lissp Whirlwind Tour
    42
 
 
-   ;;;; 18 Context Managers
+   ;;;; 17 Context Managers
+   ;;;  ---
 
    #> (define wrap
    #..  (contextlib..contextmanager
@@ -3303,9 +3333,10 @@ Lissp Whirlwind Tour
    Exception
 
 
-   ;;;; 19 Advanced Reader Macros
+   ;;;; 18 Advanced Reader Macros
+   ;;;  ---
 
-   ;;; 19.1 The Discard Macro
+   ;;;; 18.1 The Discard Macro
 
    #> _#"The discard reader macro _# omits the next form.
    #..It's a way to comment out code structurally.
@@ -3325,7 +3356,7 @@ Lissp Whirlwind Tour
    1 2 3
 
 
-   ;;; 19.2 Fully-Qualified Reader Macros
+   ;;;; 18.2 Fully-Qualified Reader Macros
 
    ;; Invoke any fully-qualified callable on the next parsed object at read time.
    #> builtins..hex#3840                  ;Fully-Qualified name ending in # is a reader macro.
@@ -3362,9 +3393,10 @@ Lissp Whirlwind Tour
    "Comment(content='comments are parsed objects too!')"
 
 
-   ;; Except for strings and tuples, objects in Hissp should evaluate
-   ;; to themselves. But when the object lacks a Python literal notation,
-   ;; the compiler is in a pickle!
+   ;;; Except for strings and tuples, objects in Hissp should evaluate
+   ;;; to themselves. But when the object lacks a Python literal notation,
+   ;;; the compiler is in a pickle!
+
    #> builtins..float#inf
    >>> __import__('pickle').loads(  # inf
    ...     b'Finf\n'
@@ -3373,11 +3405,11 @@ Lissp Whirlwind Tour
    inf
 
 
-   ;;; 19.3 Inject
+   ;;;; 18.3 Inject
 
-   ;; The 'inject' reader macro compiles and evaluates the next form at
-   ;; read time and injects the resulting object directly into the Hissp
-   ;; tree, like a fully-qualified reader macro does.
+   ;;; The 'inject' reader macro compiles and evaluates the next form at
+   ;;; read time and injects the resulting object directly into the Hissp
+   ;;; tree, like a fully-qualified reader macro does.
 
    #> '(1 2 (operator..add 1 2))          ;Quoting happens at compile time.
    >>> ((1),
@@ -3410,9 +3442,10 @@ Lissp Whirlwind Tour
    Fraction(1, 2)
 
 
-   ;; Recall that Hissp-level string objects can represent
-   ;; arbitrary Python code. It's usually used for identifiers,
-   ;; but can be anything, even complex formulas.
+   ;;; Recall that Hissp-level string objects can represent
+   ;;; arbitrary Python code. It's usually used for identifiers,
+   ;;; but can be anything, even complex formulas.
+
    #> (lambda abc
    #..  ;; Hissp may not have operators, but Python does.
    #..  .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
@@ -3420,10 +3453,11 @@ Lissp Whirlwind Tour
    <function <lambda> at 0x...>
 
 
-   ;; Remember the raw string and hash string reader syntax makes Python-
-   ;; level strings, via a Hissp-level string containing a Python string
-   ;; literal. It is NOT for creating a Hissp-level string, which would
-   ;; normally contain Python code. Use inject for that.
+   ;;; Remember the raw string and hash string reader syntax makes Python-
+   ;;; level strings, via a Hissp-level string containing a Python string
+   ;;; literal. It is NOT for creating a Hissp-level string, which would
+   ;;; normally contain Python code. Use inject for that.
+
    #> '"a string"                         ;Python code for a string. In a string.
    >>> "('a string')"
    "('a string')"
@@ -3456,12 +3490,13 @@ Lissp Whirlwind Tour
    >>> from operator import *
 
 
-   ;;;; 20 The Bundled Reader Macros
+   ;;;; 19 The Bundled Reader Macros
+   ;;;  ---
 
-   ;; Like the other bundled macros, these are available in the REPL by
-   ;; default, but most other contexts, like .lissp files, require fully-
-   ;; qualified names. The prelude (§15.7) is the easiest way to add the
-   ;; bundled macros to a module.
+   ;;; Like the other bundled macros, these are available in the REPL by
+   ;;; default, but most other contexts, like .lissp files, require fully-
+   ;;; qualified names. The prelude (§14.7) is the easiest way to add the
+   ;;; bundled macros to a module.
 
    #> (reduce XY#(add Y X) "abcd")        ;Binary anaphoric lambda.
    >>> reduce(
@@ -3472,22 +3507,10 @@ Lissp Whirlwind Tour
    ...   ('abcd'))
    'dcba'
 
-   #> (list (map X#(@ X) "abc"))          ;Unary anaphoric lambda.
-   >>> list(
-   ...   map(
-   ...     (lambda X:
-   ...       # QzAT_
-   ...       (lambda *_QzNo37_xs:
-   ...         __import__('builtins').list(
-   ...           _QzNo37_xs))(
-   ...         X)),
-   ...     ('abc')))
-   [['a'], ['b'], ['c']]
-
 
    #> (engarde Exception
    #..         X#(print X.__cause__)      ;Unary again.
-   #..         &#(throw-from Exception (Exception "msg"))) ;Nullary/thunk.
+   #..         O#(throw-from Exception (Exception "msg"))) ;Nullary/thunk.
    >>> engarde(
    ...   Exception,
    ...   (lambda X:
@@ -3543,9 +3566,10 @@ Lissp Whirlwind Tour
    msg
 
 
-   ;; Ternary anaphoric lambda, applied to an injected code string.
-   ;; The imports would have been harder if the whole expression were
-   ;; injected Python. Get the best of both worlds.
+   ;;; Ternary anaphoric lambda, applied to an injected code string.
+   ;;; The imports would have been harder if the whole expression were
+   ;;; injected Python. Get the best of both worlds.
+
    #> (XYZ#.#"X*Y == Z" : X math..pi  Y 2  Z math..tau) ;Or inject the 2.
    >>> (lambda X,Y,Z:X*Y == Z)(
    ...   X=__import__('math').pi,
@@ -3564,9 +3588,10 @@ Lissp Whirlwind Tour
    'Hello'
 
 
-   ;; Slicing is important enough for a shorthand.
-   ;; This variant works best on simple cases. The slice indexes are all
-   ;; injected Python here.
+   ;;; Slicing is important enough for a shorthand.
+   ;;; This variant works best on simple cases. The slice indexes are all
+   ;;; injected Python here.
+
    #> ([#-2:1:-2] "QuaoblcldefHg")
    >>> (lambda _QzNo32_G:(_QzNo32_G[-2:1:-2]))(
    ...   ('QuaoblcldefHg'))
@@ -3663,12 +3688,13 @@ Lissp Whirlwind Tour
    'Sum: 5. Product: 6.'
 
 
-   ;; There are no bundled reader macros for a quinary, senary, etc. but
-   ;; the en#X# variadic or a normal lambda form can be used.
+   ;;; There are no bundled reader macros for a quinary, senary, etc. but
+   ;;; the en#X# variadic or a normal lambda form can be used.
 
-   ;; Not technically a reader macro, but a bundled macro for defining them.
-   ;; Alias makes a new reader macro to abbreviate a qualifier.
-   ;; This is an alternative to adding an import to _macro_ or globals.
+   ;;; Not technically a reader macro, but a bundled macro for defining them.
+   ;;; Alias makes a new reader macro to abbreviate a qualifier.
+   ;;; This is an alternative to adding an import to _macro_ or globals.
+
    #> (hissp.._macro_.alias M: hissp.._macro_)
    >>> # hissp.._macro_.alias
    ... # hissp.macros.._macro_.defmacro
@@ -3759,148 +3785,8 @@ Lissp Whirlwind Tour
    ['a', 1, 'b', 2, 'c', 3]
 
 
-   #> (X#X.upper "shout")                 ;Get an attribute without calling it.
-   >>> (lambda X:X.upper)(
-   ...   ('shout'))
-   <built-in method upper of str object at ...>
 
-   #> (_)
-   >>> _()
-   'SHOUT'
-
-
-   #> (define class-name X#X.__class__.__name__) ;Attributes chain.
-   >>> # define
-   ... __import__('builtins').globals().update(
-   ...   classQz_name=(lambda X:X.__class__.__name__))
-
-   #> (class-name object)
-   >>> classQz_name(
-   ...   object)
-   'type'
-
-   #> (class-name "foo")
-   >>> classQz_name(
-   ...   ('foo'))
-   'str'
-
-
-   #> (define first get#0)                ;Gets an item by key.
-   >>> # define
-   ... __import__('builtins').globals().update(
-   ...   first=__import__('operator').itemgetter(
-   ...           (0)))
-
-   #> (first "abc")
-   >>> first(
-   ...   ('abc'))
-   'a'
-
-
-   #> (get#(slice None None -1) "abc")    ;Slicing without injection.
-   >>> __import__('operator').itemgetter(
-   ...   slice(
-   ...     None,
-   ...     None,
-   ...     (-1)))(
-   ...   ('abc'))
-   'cba'
-
-   #> (get#'+ (dict : foo 2  + 1))        ;These also work on dicts.
-   >>> __import__('operator').itemgetter(
-   ...   'QzPLUS_')(
-   ...   dict(
-   ...     foo=(2),
-   ...     QzPLUS_=(1)))
-   1
-
-
-   ;; Measures execution time.
-   #> time#(time..sleep .05)
-   >>> # hissp.macros.._macro_.let
-   ... (lambda _QzNo73_time=__import__('time').time_ns:
-   ...   # hissp.macros.._macro_.letQz_from
-   ...   (lambda _QzNo73_start,_QzNo73_val,_QzNo73_end:(
-   ...     __import__('builtins').print(
-   ...       ('time# ran'),
-   ...       __import__('pprint').pformat(
-   ...         ('time..sleep',
-   ...          (0.05),),
-   ...         sort_dicts=(0)),
-   ...       ('in'),
-   ...       __import__('operator').truediv(
-   ...         __import__('operator').sub(
-   ...           _QzNo73_end,
-   ...           _QzNo73_start),
-   ...         __import__('decimal').Decimal(
-   ...           (1000000.0))),
-   ...       ('ms'),
-   ...       file=__import__('sys').stderr),
-   ...     _QzNo73_val)[-1])(
-   ...     *# hissp.macros.._macro_.QzAT_
-   ...      (lambda *_QzNo55_xs:
-   ...        __import__('builtins').list(
-   ...          _QzNo55_xs))(
-   ...        _QzNo73_time(),
-   ...        __import__('time').sleep(
-   ...          (0.05)),
-   ...        _QzNo73_time())))()
-
-   ;; stderr: time# ran ('time..sleep', 0.05) in ... ms
-
-
-   #> (add 5 spy#(mul 7 3))                  ;Debug subexpressions.
-   >>> add(
-   ...   (5),
-   ...   # hissp.._macro_._spy
-   ...   # hissp.macros.._macro_.let
-   ...   (lambda _QzNo71_e=mul(
-   ...     (7),
-   ...     (3)):(
-   ...     __import__('builtins').print(
-   ...       __import__('pprint').pformat(
-   ...         ('mul',
-   ...          (7),
-   ...          (3),),
-   ...         sort_dicts=(0)),
-   ...       ('=>'),
-   ...       __import__('builtins').repr(
-   ...         _QzNo71_e),
-   ...       file=__import__('sys').stderr),
-   ...     _QzNo71_e)[-1])())
-   26
-
-   ;; stderr: ('mul', 7, 3) => 21
-
-   ;; Anaphoric assignment target namespace.
-   ;; Very powerful, but more imperative in style.
-   ;; Use responsibly.
-   #> the#(print (set@ the.x (add 1 1))
-   #..           the.x)
-   >>> # hissp.macros.._macro_.let
-   ... (lambda the=__import__('types').SimpleNamespace():
-   ...   print(
-   ...     # setQzAT_
-   ...     # hissp.macros.._macro_.let
-   ...     (lambda _QzNo29_val=add(
-   ...       (1),
-   ...       (1)):(
-   ...       __import__('builtins').setattr(
-   ...         the,
-   ...         'x',
-   ...         _QzNo29_val),
-   ...       _QzNo29_val)[-1])(),
-   ...     the.x))()
-   2 2
-
-
-   ;; Comment string. Parsed objects, remember?
-   #> <<#;Don't worry about the "quotes".
-   >>> 'Don\'t worry about the "quotes".'
-   'Don\'t worry about the "quotes".'
-
-
-   ;;; 20.1 Aside: Extra (!), the Final Builtin Reader Macro
+   ;;; 19.1 Aside: Extra (!), the Final Builtin Reader Macro
 
    ;; Reader macros take one primary argument, but additional arguments
    ;; can be passed in with the extra macro !. A reader macro consumes the
@@ -4053,87 +3939,3 @@ Lissp Whirlwind Tour
    ...   ('Hello'),
    ...   ('World!'))
    Hello World!
-
-
-   ;;; 20.2 Joined Comment String
-
-   #> <<#!;C:\bin
-   #..   !;C:\Users\ME\Documents
-   #..   !;C:\Users\ME\Pictures
-   #..";"
-   >>> 'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
-   'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
-
-
-   ;; Embed other languages without escapes.
-   #> (exec
-   #..  <<#
-   #..  !;for i in 'abc':
-   #..  !;    for j in 'xyz':
-   #..  !;        print(i+j, end=" ")
-   #..  !;print('.')
-   #..  !;
-   #..  #"\n")
-   >>> exec(
-   ...   ("for i in 'abc':\n"
-   ...    "    for j in 'xyz':\n"
-   ...    '        print(i+j, end=" ")\n'
-   ...    "print('.')\n"))
-   ax ay az bx by bz cx cy cz .
-
-
-   ;;; 20.3 Decorators
-
-   ;; Decorator syntax is for global definitions, like define and
-   ;; deftype, but would work on any global definition macro that has
-   ;; the (unqualified) defined name as its first argument.
-
-   ;; Unlike Python's def, define doesn't have to define a function.
-   #> @#!str.swapcase
-   #..@#!str.title
-   #..(define spam 'spam)
-   >>> # hissp.macros.._macro_.define
-   ... __import__('builtins').globals().update(
-   ...   spam=# hissp.macros.._macro_.progn
-   ...        (lambda :(
-   ...          # hissp.macros.._macro_.define
-   ...          __import__('builtins').globals().update(
-   ...            spam=# hissp.macros.._macro_.progn
-   ...                 (lambda :(
-   ...                   # define
-   ...                   __import__('builtins').globals().update(
-   ...                     spam='spam'),
-   ...                   str.title(
-   ...                     spam))[-1])()),
-   ...          str.swapcase(
-   ...            spam))[-1])())
-
-
-   #> spam
-   >>> spam
-   'sPAM'
-
-
-   ;; Locals are single-assignment in Hissp (unless you inject a :=,
-   ;; which is not recommended), so the decorator sugar for reassignment
-   ;; after a tranform wouldn't make sense. This doesn't stop you from
-   ;; e.g. using method decorators without the sugar in a deftype.
-   #> (deftype Spam ()
-   #..  spam (staticmethod
-   #..        (lambda : (print "spam spam spam"))))
-   >>> # deftype
-   ... # hissp.macros.._macro_.define
-   ... __import__('builtins').globals().update(
-   ...   Spam=__import__('builtins').type(
-   ...          'Spam',
-   ...          (lambda * _: _)(),
-   ...          __import__('builtins').dict(
-   ...            spam=staticmethod(
-   ...                   (lambda :
-   ...                     print(
-   ...                       ('spam spam spam')))))))
-
-
-   #> (.spam (Spam))
-   >>> Spam().spam()
-   spam spam spam

@@ -1,4 +1,4 @@
-.. Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
+.. Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 ..  Hidden doctest adds bundled macros for REPL-consistent behavior.
@@ -10,9 +10,8 @@
    ...     **vars(
    ...         __import__('hissp')._macro_)))
 
-========
-Tutorial
-========
+Hissp Primer
+############
 
 Metaprogramming
   Writing code that writes code.
@@ -46,7 +45,7 @@ programmatically.
 In Hissp, you write in this parsed form far more directly:
 *Hissp code is AST.*
 
-Some familiarity with Python is assumed for this tutorial.
+Some familiarity with Python is assumed for the primer.
 If you get confused or stuck,
 see the `discussions page <https://github.com/gilch/hissp/discussions>`_
 or find the chat.
@@ -249,7 +248,7 @@ The ``'`` is a built-in reader macro that acts just like the ``q()``
 function we defined earlier: it wraps the next expression in a ``quote`` form.
 
 The REPL
---------
+::::::::
 
 Hissp comes with its own interactive command-line interface,
 called the Lissp REPL.
@@ -282,7 +281,7 @@ which it will enter into the Python interpreter ``>>>`` for you.
 Then Python will evaluate it and print a result as normal.
 
 Data Elements of Lissp
-----------------------
+::::::::::::::::::::::
 
 Hissp has special behaviors for Python's `tuple` and `str` types.
 Everything else is just data,
@@ -296,7 +295,7 @@ Everything else is an *atom*,
 which is passed through to the Hissp level with minimal processing.
 
 Basic Atoms
-###########
++++++++++++
 
 Most literals work just like Python:
 
@@ -339,7 +338,7 @@ and do not appear in the output.
 
 
 Raw Strings
-###########
++++++++++++
 
 Hash strings and raw strings represent text data,
 but are lexically distinct from the other atoms,
@@ -439,7 +438,7 @@ Notice the raw string reader syntax
 which saved us a ``quote`` form.
 
 Hash Strings
-############
+++++++++++++
 
 You can enable the processing of Python's backslash escape sequences
 by prefixing the raw string syntax with a hash ``#``.
@@ -460,7 +459,7 @@ These are called *hash strings*.
    total
 
 Symbols
-#######
++++++++
 
 In our basic example:
 
@@ -502,7 +501,7 @@ in which case they become string literals in Python.
 Experiment with this process in the REPL.
 
 Attributes
-~~~~~~~~~~
+----------
 
 Symbols can have internal ``.``'s to access attributes.
 
@@ -519,7 +518,7 @@ Symbols can have internal ``.``'s to access attributes.
 .. _qualified identifiers:
 
 Module Handles and Qualified Identifiers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------
 
 You can refer to variables defined in any module by using a
 *qualified identifier*:
@@ -548,7 +547,7 @@ Qualification is important for macros that are defined in one module,
 but used in another.
 
 Munging
-~~~~~~~
+-------
 
 Symbols have another important difference from raw strings:
 
@@ -639,7 +638,7 @@ Notice that only the first digit had to be munged to make it a valid Python iden
    'QzDIGITxONE_o8'
 
 Control Words
-~~~~~~~~~~~~~
+-------------
 
 Atoms that begin with a colon are called *control words* [#key]_.
 These are mainly used to give internal structure to macro invocations—You
@@ -685,14 +684,14 @@ Macros operate at compile time (before evaluation),
 so they can also distinguish a raw control word from a quoted one.
 
 Compound Expressions
---------------------
+::::::::::::::::::::
 
 Atoms are just the basic building blocks.
 To do anything interesting with them,
 you have to combine them into syntax trees using tuples.
 
 Empty
-#####
++++++
 
 The empty tuple ``()`` might as well be an atom:
 
@@ -703,7 +702,7 @@ The empty tuple ``()`` might as well be an atom:
    ()
 
 Lambdas
-#######
++++++++
 
 The anonymous function special form::
 
@@ -851,7 +850,7 @@ even if there are no ``:?`` pairs:
    <function <lambda> at ...>
 
 Calls
-#####
++++++
 
 Any tuple that is not quoted, empty, or a special form or macro is
 a run-time call.
@@ -978,7 +977,7 @@ function name starts with a dot:
    -1j
 
 Reader Macros
--------------
+:::::::::::::
 
 Up until now, Lissp has been a pretty direct representation of Hissp.
 Metaprogramming changes that.
@@ -1026,7 +1025,7 @@ Here, we changed a lowercase string to title case before the compiler even saw i
 Are we giving up this kind of power by using Lissp instead?
 
 Inject
-######
+++++++
 
 Remember our first metaprogram ``q()``?
 You've already seen the ``'`` reader macro.
@@ -1336,7 +1335,7 @@ Unfortunately, there are some objects even pickle can't handle.
 Hissp had to give up with an error this time.
 
 Qualified Reader Macros
-#######################
++++++++++++++++++++++++
 
 Besides a few built-ins,
 reader macros in Lissp consist of a symbol ending with a ``#``,
@@ -1418,7 +1417,7 @@ for attributes ending in ``#`` (i.e. ``QzHASH_``)
 when it encounters an unqualified reader macro name.
 
 Discard
-#######
++++++++
 
 The discard ``_#`` macro omits the next expression,
 even if it's a tuple.
@@ -1433,7 +1432,7 @@ It's a way to comment out code structurally:
    1 3
 
 Templates
-#########
++++++++++
 
 Besides ``'``, which we've already seen,
 and ``!``, which we'll cover later,
@@ -1556,7 +1555,7 @@ Because you can make your own reader macros,
 you can make your own sugar.
 
 Gensyms
-#######
++++++++
 
 The built-in reader macro ``$#`` creates a *generated symbol*
 (gensym) based on the given symbol.
@@ -1582,7 +1581,7 @@ Gensyms are mainly used to prevent accidental name collisions in generated code,
 which is very important for reliable compiler macros.
 
 Extra
-#####
++++++
 
 The final built-in reader macro ``!``
 is used to pass extra arguments to other reader macros.
@@ -1628,7 +1627,7 @@ like calls. ``:*`` and ``:**`` unpacking also work here.
    >>> (13)
    13
 
-See the `Lissp Whirlwind Tour <lissp_whirlwind_tour>` for more examples.
+See the `lissp_whirlwind_tour` for more examples.
 
 Macros
 ======

@@ -1,5 +1,5 @@
-;; Copyright 2020 Matthew Egan Odendahl
-;; SPDX-License-Identifier: Apache-2.0
+;;; Copyright 2020 Matthew Egan Odendahl
+;;; SPDX-License-Identifier: Apache-2.0
 (hissp.._macro_.prelude)
 
 (print sys..argv)

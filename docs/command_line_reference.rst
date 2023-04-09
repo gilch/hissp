@@ -2,12 +2,12 @@
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 Command Line Reference
-======================
+######################
 
 .. _lissp command:
 
 Lissp Command
--------------
+=============
 
 A normal install of the ``hissp`` package will
 also install the ``lissp`` command-line tool for running Lissp code.
@@ -30,7 +30,7 @@ whose minimal options were modeled after Python's most commonly used:
      -c cmd      Run this string as main script (with prelude).
 
 The Lissp Compiler
-------------------
+==================
 
 The recommended way to compile Lissp modules is with
 `transpile <hissp.reader.transpile>` calls in ``__init__.py`` files

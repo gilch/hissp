@@ -1,5 +1,6 @@
-;; Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
-;; SPDX-License-Identifier: Apache-2.0
+;;; Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
+;;; SPDX-License-Identifier: Apache-2.0
+
 "Hissp's bundled macros.
 
 To help keep macro definitions and expansions manageable in complexity,
@@ -33,35 +34,37 @@ expansions compatible with advanced rewriting macros that process the
 Hissp expansions of other macros.
 "
 
-_#" This module is not necessarily a good example of how you should
-write Lissp or Lissp macros. Besides the design restrictions mentioned
-in the module docstring above, the macros defined here were not
-available at the start, so some had to be bootstrapped without the
-benefit of a complete macro suite.
+;;; This module is not necessarily a good example of how you should
+;;; write Lissp or Lissp macros. Besides the design restrictions
+;;; mentioned in the module docstring above, the macros defined here
+;;; were not available at the start, so some had to be bootstrapped
+;;; without the benefit of a complete macro suite.
 
-These macros don't create compiled dependencies on Hissp, but that
-doesn't mean you can't depend on your own code. Hissp's qualified
-symbols, and Lissp's template syntax that automatically creates them,
-are there to make helper functions easy to use in macroexpansions. Use
-them.
+;;; These macros don't create compiled dependencies on Hissp, but that
+;;; doesn't mean you can't depend on your own code. Hissp's qualified
+;;; symbols, and Lissp's template syntax that automatically creates
+;;; them, are there to make helper functions easy to use in
+;;; macroexpansions. Use them.
 
-However, the restriction on text-substitution is still recommended. Many
-useful advanced macros must process the expansion of other macros, but
-they require syntax trees to work on. Text hides that structure. If you
-want to go that route, you might as well use `ast` and ``exec()` and
-forget about Hissp. Nevertheless, text substitution is available, and
-judicious use can improve performance and maintainability.
-"
+;;; However, the restriction on text-substitution is still recommended.
+;;; Many useful advanced macros must process the expansion of other
+;;; macros, but they require syntax trees to work on. Text hides that
+;;; structure. If you want to go that route, you might as well use `ast`
+;;; and ``exec()` and forget about Hissp. Nevertheless, text
+;;; substitution is available, and judicious use can improve performance
+;;; and maintainability.
 
-;;;; Bootstrap Macros
+
+;;;; BOOTSTRAP MACROS ;;;;
+;;;  ---
 
 ;; Bootstrap macro namespace using builtins.
 (.update (globals) : _macro_ (types..ModuleType (.format "{}._macro_" __name__)))
 (operator..setitem sys..modules _macro_.__name__ _macro_)
 
-;; YO DAWG, I HERD YOU LIKE MACROS
-;; SO I PUT A BOOTSTRAP defmacro IN YOUR _macro_ SO YOU CAN defmacro A
-;; REAL defmacro WHILE YOU DEFINE ALL YOUR MACROS!
+;;; YO DAWG, I HERD YOU LIKE MACROS
+;;; SO I PUT A BOOTSTRAP defmacro IN YOUR _macro_ SO YOU CAN defmacro A
+;;; REAL defmacro WHILE YOU DEFINE ALL YOUR MACROS!
 
 ;; Simplified bootstrap version assumes ideal conditions to avoid branching.
 (setattr _macro_
@@ -125,9 +128,10 @@ judicious use can improve performance and maintainability.
   `((lambda (: ,@pairs)
       ,@body)))
 
-;;;; Post-bootstrap
+;;;; Post-Bootstrap ;;;;
+;;;  ---
 
-;;; definition
+;;;; Definition
 
 ;; Define the real defmacro using the bootstrap macros.
 (defmacro defmacro (name parameters : docstring () :* body)
@@ -229,9 +233,9 @@ _#<<#
        (type ',name (,hissp.reader..ENTUPLE ,@bases)
              (dict : ,@body))))
 
-;;; locals
+;;;; Locals
 
-;; see also from bootstrap: let
+;;; see also from Bootstrap: let
 
 (defmacro let-from (syms itr : :* body)
   "``let-from`` Create listed locals from iterable.
@@ -254,24 +258,121 @@ _#<<#
 (defmacro the\# e
   "``the#`` Anaphoric. `let` ``the`` be a fresh `types.SimpleNamespace`
   in a lexical scope surrounding e.
+
+  Creates a local namespace for imperative-style reassignments,
+  typically combined with  `set@<setQzAT_>` for an assignment.
+
+  .. code-block:: REPL
+
+     #> the#(print (set@ the.x (op#add 1 1))
+     #..           the.x)
+     >>> # hissp.macros.._macro_.let
+     ... (lambda the=__import__('types').SimpleNamespace():
+     ...   print(
+     ...     # setQzAT_
+     ...     # hissp.macros.._macro_.let
+     ...     (lambda _QzNo29_val=__import__('operator').add(
+     ...       (1),
+     ...       (1)):(
+     ...       __import__('builtins').setattr(
+     ...         the,
+     ...         'x',
+     ...         _QzNo29_val),
+     ...       _QzNo29_val)[-1])(),
+     ...     the.x))()
+     2 2
+
+  ``the#the`` is a shorthand for a new empty namespace.
+
+  Often combined with branching macros to reuse the results of an
+  expression, with uses similar to Python's 'walrus' operator ``:=``.
+
   "
+  ;; TODO: consider using extras for initial contents.
   `(let (,'the (types..SimpleNamespace))
      ,e))
 
-;;; abbreviations
+;;;; Abbreviations
 
-(defmacro &\# e
-  "``&#`` 'thunk' Make ``e`` an anonymous function with no parameters.
+(defmacro O\# e
+  "``O#`` 'thunk' Make ``e`` an anonymous function with no parameters.
 
   See also: `X#<XQzHASH_>`.
   "
   `(lambda : ,e))
 
 (defmacro X\# e
-  "``X#`` Anaphoric. Make ``e`` an anonymous function with paramter X.
-
-  See also: `en#<enQzHASH_>`, `&#<QzET_QzHASH_>`, `XY#<XYQzHASH_>`.
-  "
+  <<#
+  !;``X#`` Anaphoric. Make ``e`` an anonymous function with paramter X.
+  !;
+  !;Convert macro to function.
+  !;
+  !;.. code-block:: REPL
+  !;
+  !;   #> (list (map X#(@ X) "abc")) ; en#list would also work here.
+  !;   >>> list(
+  !;   ...   map(
+  !;   ...     (lambda X:
+  !;   ...       # QzAT_
+  !;   ...       (lambda *_QzNo37_xs:
+  !;   ...         __import__('builtins').list(
+  !;   ...           _QzNo37_xs))(
+  !;   ...         X)),
+  !;   ...     ('abc')))
+  !;   [['a'], ['b'], ['c']]
+  !;
+  !;Compact function definition using Python operators.
+  !;
+  !;.. code-block:: REPL
+  !;
+  !;   #> (define teen? X#.#"13<=X<20")
+  !;   >>> # define
+  !;   ... __import__('builtins').globals().update(
+  !;   ...   teenQzQUERY_=(lambda X:13<=X<20))
+  !;
+  !;   #> (teen? 12.5)
+  !;   >>> teenQzQUERY_(
+  !;   ...   (12.5))
+  !;   False
+  !;
+  !;   #> (teen? 19.5)
+  !;   >>> teenQzQUERY_(
+  !;   ...   (19.5))
+  !;   True
+  !;
+  !;Get an attribute without calling it.
+  !;
+  !;.. code-block:: REPL
+  !;
+  !;   #> (X#X.upper "shout")
+  !;   >>> (lambda X:X.upper)(
+  !;   ...   ('shout'))
+  !;   <built-in method upper of str object at ...>
+  !;
+  !;   #> (_)
+  !;   >>> _()
+  !;   'SHOUT'
+  !;
+  !;   #> (define class-name X#X.__class__.__name__) ; Attributes chain.
+  !;   >>> # define
+  !;   ... __import__('builtins').globals().update(
+  !;   ...   classQz_name=(lambda X:X.__class__.__name__))
+  !;
+  !;   #> (class-name object)
+  !;   >>> classQz_name(
+  !;   ...   object)
+  !;   'type'
+  !;
+  !;   #> (class-name "foo")
+  !;   >>> classQz_name(
+  !;   ...   ('foo'))
+  !;   'str'
+  !;
+  !;See also:
+  !;`en#<enQzHASH_>`, `O#<OQzHASH_>`, `XY#<XYQzHASH_>`, `getattr`,
+  !;`operator.attrgetter`.
+  !;
+  #"\n"
   `(lambda ,'X ,e))
 
 (defmacro XY\# e
@@ -332,11 +433,43 @@ _#<<#
   `(i#chain.from_iterable ,itr))
 
 (defmacro get\# e
-  "``get#`` 'itemgetter-' Makes an `operator.itemgetter` function from ``e``.
-
-  See also: `operator.getitem`, `[#<QzLSQB_QzHASH_>`,
-  `set!<setQzBANG_>`.
-  "
+  <<#
+  !;``get#`` 'itemgetter-' Makes an `operator.itemgetter` function from ``e``.
+  !;
+  !;.. code-block:: REPL
+  !;
+  !;   #> (define first get#0)                ;Gets an item by key.
+  !;   >>> # define
+  !;   ... __import__('builtins').globals().update(
+  !;   ...   first=__import__('operator').itemgetter(
+  !;   ...           (0)))
+  !;
+  !;   #> (first "abc")
+  !;   >>> first(
+  !;   ...   ('abc'))
+  !;   'a'
+  !;
+  !;   #> (get#(slice None None -1) "abc")    ;Slicing without injection.
+  !;   >>> __import__('operator').itemgetter(
+  !;   ...   slice(
+  !;   ...     None,
+  !;   ...     None,
+  !;   ...     (-1)))(
+  !;   ...   ('abc'))
+  !;   'cba'
+  !;
+  !;   #> (get#'+ (dict : foo 2  + 1))        ;These also work on dicts.
+  !;   >>> __import__('operator').itemgetter(
+  !;   ...   'QzPLUS_')(
+  !;   ...   dict(
+  !;   ...     foo=(2),
+  !;   ...     QzPLUS_=(1)))
+  !;   1
+  !;
+  !;See also: `operator.getitem`, `[#<QzLSQB_QzHASH_>`,
+  !;`set!<setQzBANG_>`.
+  !;
+  #"\n"
   `(op#itemgetter ,e))
 
 (defmacro @\# (definition decoration)
@@ -346,23 +479,34 @@ _#<<#
   (E.g. `define` and `deftype` are compatible.) Expands to a `define`,
   meaning decorators can stack.
 
+  Decorator syntax is for global definitions, like `define` and
+  `deftype`, but would work on any global definition macro that has
+  the (unqualified) defined name as its first argument.
+
   .. code-block:: REPL
 
-     #> @#!str.upper
-     #..(define foo 'foo)
+     #> @#!str.swapcase
+     #..@#!str.title
+     #..(define spam 'spam) ; Unlike Python def, not always a function.
      >>> # hissp.macros.._macro_.define
      ... __import__('builtins').globals().update(
-     ...   foo=# hissp.macros.._macro_.progn
-     ...       (lambda :(
-     ...         # define
-     ...         __import__('builtins').globals().update(
-     ...           foo='foo'),
-     ...         str.upper(
-     ...           foo))[-1])())
+     ...   spam=# hissp.macros.._macro_.progn
+     ...        (lambda :(
+     ...          # hissp.macros.._macro_.define
+     ...          __import__('builtins').globals().update(
+     ...            spam=# hissp.macros.._macro_.progn
+     ...                 (lambda :(
+     ...                   # define
+     ...                   __import__('builtins').globals().update(
+     ...                     spam='spam'),
+     ...                   str.title(
+     ...                     spam))[-1])()),
+     ...          str.swapcase(
+     ...            spam))[-1])())
 
-     #> foo
-     >>> foo
-     'FOO'
+     #> spam
+     >>> spam
+     'sPAM'
 
   "
   (let (name (get#1 definition))
@@ -387,7 +531,7 @@ _#<<#
   "``subscript`` Injection. Python's subscription operator."
   `(lambda ($#G) ,(.format "({}[{})" '$#G (hissp..demunge e))))
 
-;;; configuration
+;;;; Configuration
 
 (defmacro set! (coll key val)
   "``set!`` 'setbang' Assigns an item, returns the value.
@@ -472,7 +616,7 @@ _#<<#
                invocations)
         ,$self))))
 
-;;; threading
+;;;; Threading
 
 (defmacro -> (expr : :* forms)
   "``->`` 'Thread-first'.
@@ -506,16 +650,16 @@ _#<<#
                      (map X#.#"X if type(X) is tuple else (X,)" forms)
                      expr))
 
-;; TODO: implement other arrange macros?
+;;; TODO: implement other arrange macros?
 
 (define _TAO
   (lambda s (-> (.join " " (re..findall "(?m)^# (.*)~$" (s hissp.)))
                 (.replace ":" #"\n"))))
 
-;;; control flow
+;;;; Control Flow
 
-;; see also from bootstrap: if-else, when, unless
-;; see also from advanced: case
+;;; see also from Bootstrap: if-else, when, unless
+;;; see also from Advanced: case
 
 (defmacro cond (: :* pairs)
   <<#
@@ -642,9 +786,9 @@ _#<<#
                          ($#x) $#x)))
              (attach ($#G ,exception) : ,'__cause__ ($#G ,cause)))))
 
-;;; side effect
+;;;; Side Effect
 
-;; see also from bootstrap: progn
+;;; see also from Bootstrap: progn
 
 (defmacro prog1 (expr1 : :* body)
   "Evaluates each expression in sequence (for side effects),
@@ -656,10 +800,10 @@ _#<<#
      ,@body
      $#value1))
 
-;; Note that any of the bundled macros with a lambda "body" argument
-;; also sequence expressions for side effects.
+;;; Note that any of the bundled macros with a lambda "body" argument
+;;; also sequence expressions for side effects.
 
-;;; reader
+;;;; Reader
 
 (defmacro b\# (raw)
   "``b#`` `bytes` literal reader macro"
@@ -707,7 +851,7 @@ _#<<#
     `(lambda (: :* $#xs)
        (,f $#xs))))
 
-;;; collection
+;;;; Collection
 
 (defmacro @ (: :* xs)
   <<#
@@ -775,7 +919,7 @@ _#<<#
                      ikvs
                      ikvs))))
 
-;;; import
+;;;; Import
 
 (defmacro prelude (: ns `(globals))
   "Hissp's bundled micro prelude.
@@ -809,7 +953,7 @@ _#<<#
 
     ``engarde`` with handlers can stack above in a single form.
 
-    See `lissp_whirlwind_tour` (§16) for usage examples.
+    See `lissp_whirlwind_tour` (§15) for usage examples.
 
   .. _enter:
 
@@ -820,7 +964,7 @@ _#<<#
 
     ``enter`` with context managers can stack above in a single form.
 
-    See `lissp_whirlwind_tour` (§18) for usage examples.
+    See `lissp_whirlwind_tour` (§17) for usage examples.
 
   .. _Ensue:
 
@@ -846,7 +990,7 @@ _#<<#
     which is the value sent to the generator this step, or the exception
     caught this step instead.
 
-    See `lissp_whirlwind_tour` (§§17–18) for usage examples.
+    See `lissp_whirlwind_tour` (§§16–17) for usage examples.
 
     See also: `types.coroutine`, `collections.abc.Generator`.
 
@@ -886,7 +1030,7 @@ except ModuleNotFoundError:pass"
           `(.##"p\162int"(.##"\143ode\143s..en\143ode"
                           (_TAO .##"in\163pe\143\164..ge\164\163our\143e")','.##"ro\16413")))
 
-;;; advanced
+;;;; Advanced
 
 (defmacro case (key default : :* pairs)
   "Switch case macro.
@@ -900,7 +1044,7 @@ except ModuleNotFoundError:pass"
     (throw (TypeError "Incomplete pair")))
   (let (kss ([#-2::-2] pairs)
         ts ([#::-2] pairs))
-    `((op#getitem (@ ,@(map X#`&#,X ts) &#,default)
+    `((op#getitem (@ ,@(map X#`O#,X ts) O#,default)
                   (.get ,(dict chain#(i#starmap (lambda (i ks)
                                                   (map X#(@ X i) ks))
                                                 (enumerate kss)))
@@ -916,11 +1060,76 @@ except ModuleNotFoundError:pass"
      $#e))
 
 (defmacro spy\# e
-  "``spy#`` Print e => its value to stderr. Return the value."
+  "``spy#`` Print e => its value to stderr. Return the value.
+
+  Typically used to debug a Lissp expression.
+
+  .. code-block:: REPL
+
+     #> (op#add 5 spy#(op#mul 7 3)) ; stderr: ('mul', 7, 3) => 21
+     >>> __import__('operator').add(
+     ...   (5),
+     ...   # hissp.._macro_._spy
+     ...   # hissp.macros.._macro_.let
+     ...   (lambda _QzNo71_e=__import__('operator').mul(
+     ...     (7),
+     ...     (3)):(
+     ...     __import__('builtins').print(
+     ...       __import__('pprint').pformat(
+     ...         ('operator..mul',
+     ...          (7),
+     ...          (3),),
+     ...         sort_dicts=(0)),
+     ...       ('=>'),
+     ...       __import__('builtins').repr(
+     ...         _QzNo71_e),
+     ...       file=__import__('sys').stderr),
+     ...     _QzNo71_e)[-1])())
+     26
+
+  "
   `(hissp.._macro_._spy ,e))
 
 (defmacro time\# e
-  "``time#`` Print ms elapsed running e to stderr. Return its value."
+  "``time#`` Print ms elapsed running e to stderr. Return its value.
+
+  Typically used when optimizing a Lissp expression.
+
+  .. code-block:: REPL
+
+     #> time#(time..sleep .05) ; (Exact printed time will vary.)
+     >>> # hissp.macros.._macro_.let
+     ... (lambda _QzNo73_time=__import__('time').time_ns:
+     ...   # hissp.macros.._macro_.letQz_from
+     ...   (lambda _QzNo73_start,_QzNo73_val,_QzNo73_end:(
+     ...     __import__('builtins').print(
+     ...       ('time# ran'),
+     ...       __import__('pprint').pformat(
+     ...         ('time..sleep',
+     ...          (0.05),),
+     ...         sort_dicts=(0)),
+     ...       ('in'),
+     ...       __import__('operator').truediv(
+     ...         __import__('operator').sub(
+     ...           _QzNo73_end,
+     ...           _QzNo73_start),
+     ...         __import__('decimal').Decimal(
+     ...           (1000000.0))),
+     ...       ('ms'),
+     ...       file=__import__('sys').stderr),
+     ...     _QzNo73_val)[-1])(
+     ...     *# hissp.macros.._macro_.QzAT_
+     ...      (lambda *_QzNo55_xs:
+     ...        __import__('builtins').list(
+     ...          _QzNo55_xs))(
+     ...        _QzNo73_time(),
+     ...        __import__('time').sleep(
+     ...          (0.05)),
+     ...        _QzNo73_time())))()
+
+     ;; stderr: time# ran ('time..sleep', 0.05) in 61.9695 ms
+
+  "
   `(let ($#time time..time_ns)
      (let-from ($#start $#val $#end) (@ ($#time) ,e ($#time))
        (print "time# ran"

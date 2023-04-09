@@ -1,9 +1,8 @@
 .. Copyright 2020, 2021, 2022 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
-===========
 Style Guide
-===========
+###########
 
 Why have a style guide?
 
@@ -64,9 +63,7 @@ If your code is properly formatted,
 you will be able to delete all the trailing brackets
 and unambiguously reconstruct them from indentation alone.
 
-Given code like this,
-
-::
+Given code like this, ::
 
    (define fib
      (lambda (n)
@@ -75,9 +72,7 @@ Given code like this,
          (add (fib (sub n 1))
               (fib (sub n 2))))))
 
-this is what the experienced human sees.
-
-::
+this is what the experienced human sees. ::
 
    (define fib
      (lambda (n
@@ -90,9 +85,7 @@ Learn to see it that way.
 There is no missing information.
 
 While the following will compile fine,
-if you write it this way,
-
-::
+if you write it this way, ::
 
    (define fib(lambda(n)(if-else(
    le n 2)n(add(fib(
@@ -169,7 +162,7 @@ along with their tests to enforce this.
 Basic legibility is not negotiable. Use it.
 
 Don't Dangle Brackets
----------------------
+:::::::::::::::::::::
 
 Trailing brackets are something we try to ignore.
 Trailing brackets come in trains.
@@ -248,7 +241,7 @@ If your syntax highlighter can distinguish ``(x)`` from ``(x,)``, you may be OK 
 But this had better be the case for the whole team.
 
 Unambiguous Indentation
------------------------
+:::::::::::::::::::::::
 
 A new line's indentation level determines which tuple it starts in.
 Go past the parent's opening bracket, not the sibling's.
@@ -264,9 +257,7 @@ Go past the parent's opening bracket, not the sibling's.
    (a (b c
          x))                              ;(b is parent, c is sibling
 
-Even after deleting the trails, you can tell where the ``x`` belongs.
-
-::
+Even after deleting the trails, you can tell where the ``x`` belongs. ::
 
    (a (b c
    x
@@ -306,9 +297,7 @@ You might not pass the head *atom* in some alignment styles.
    (foo (bar x
           body))                          ;(bar is parent, x is special sibling
 
-We can still unambiguously reconstruct the trails from the indent.
-
-::
+We can still unambiguously reconstruct the trails from the indent. ::
 
    (foo (bar y
      body
@@ -379,7 +368,7 @@ Lissp's recommended style is based on these,
 with some small modifications for its own unique features.
 
 Tuples
-------
+::::::
 
 Separate *top level* forms from each other with a single blank like,
 unless they are very closely related.
@@ -421,6 +410,7 @@ Your code should look like these examples, recursively applied to subforms:
      data3
      _#/)                                 ;Trails NEVER get their own line.
                                           ; But you can hold it open with a discarded item.
+                                          ; The / is the usual choice in Lissp, reminiscent of XML.
 
    (function arg1 arg2 arg3)              ;Typical for calls that fit on one line.
 
@@ -599,7 +589,7 @@ not just the fact that it's a call.
             / operator..truediv)
 
 Strings
--------
+:::::::
 
 Multiline strings can mess with alignment styles.
 Strings are atoms, so this won't affect Parinfer,
@@ -654,50 +644,17 @@ including the closing quote.
 Put the closing quote for any multiline docstring on its own line.
 (Pydoc automatically strips indents.)
 
-Comments
---------
+Comment Styles
+::::::::::::::
 
-Headings are in ``Title Case``,
-and begin with four semicolons and a space ``;;;; Foo Bar``.
-Subheadings begin with three semicolons and a space ``;;; Foo Bar``.
+Avoid adding superfluous "what"-comments that are obvious from looking at the code.
+(Except perhaps when writing beginner documentation ;)
 
-Headings are for the `top level`_ only; they aren't nested in forms;
-they get their own line and start at the beginning of it.
-They have a blank line before (unless it's the first line) and after.
-They organize the code into sections.
-
-Comments about the next form (or group) begin with two semicolons and a space ``;; x``,
-and are indented to align as if they were forms,
-and are not followed by a blank line.
-
-Comments about a line begin with one semicolon and a space ``; x``,
-starting one space after the code. They never get their own line.
-
-Margin comments begin with one semicolon ``;x``.
-The semicolon must be aligned with spaces to rest on column 40,
-or one space after the code, whichever is greater.
-The semicolon is not followed by a space unless it continues a margin
-comment from the previous line.
-Margin comment continuations may have their own line.
-
-**Never** put a single-semicolon comment on its own line unless
-it's a continuation aligned to the margin!
-Experienced Lispers set their editors to automatically indent these to column 40.
-You will make them angry when they have to fix all your comments.
-
-Complete sentences should start with a capital letter and end with
-a punctuation mark (typically a full stop or question mark).
-Short comments need not be complete sentences.
-Use the discard macro ``_#`` on a string for long block comments.
-
-Commented-out code does not belong in version control,
-but it can be helpful to turn things off during development.
-You can use the discard macro to comment out code structurally.
-You can use ``;;`` at the start of each line to comment out multiple forms at once.
+Prefer "why"-comments that describe rationale or intent.
 
 .. code-block:: Lissp
 
-   "Comments example.
+   "Comments Example
 
    Prefer to use docstrings like this one over comments when applicable.
    Docstrings are always indented with their containing form, including
@@ -705,18 +662,17 @@ You can use ``;;`` at the start of each line to comment out multiple forms at on
    quote has its own line. Use reStructuredText markup in docstrings.
    "
 
-   ;;;; Heading
+   ;;;; Major Section Heading ;;;;
+   ;;;  ---
 
-   _#"Long Exposition about this section. Wrap at column 72.
+   ;;; Long Exposition about this section. Wrap at column 72.
 
-   Lorem ipsum dolor sit amet, consectetuer adipiscing elit.  Donec
-   hendrerit tempor tellus.  Donec pretium posuere tellus.  Proin quam
-   nisl, tincidunt et, mattis eget, convallis nec, purus.  Cum sociis
-   natoque penatibus et magnis dis parturient montes, nascetur ridiculus
-   mus.
-   "
+   ;;; This example has the more typical two-level heading scheme,
+   ;;; with the major heading above made emphatic with a double underline
+   ;;; and upper case, and an undecorated minor heading below. (The whole-
+   ;;; file title is in the module docstring in this case, not a comment.)
 
-   ;;; Subheading
+   ;;;; Minor Subsection Heading
 
    ;; comment about macro
    (macro special1
@@ -730,13 +686,247 @@ You can use ``;;`` at the start of each line to comment out multiple forms at on
      body3)                               ; continuation thereof,
                                           ; and more continuation on its own line.
 
+Complete sentences should start with a capital letter and end with
+a punctuation mark (typically a full stop or question mark).
+Separate sentences with a single space.
+Short comments need not be complete sentences.
+
+Inline Comments ; X
++++++++++++++++++++
+
+Comments about a line begin with one semicolon and a space ``; x``,
+starting **one** space after the code.
+They never get their own line,
+but follow code on the same line.
+
+This acceptable in Lissp, and closer to the Python style (which would start *two* spaces after the code).
+Lisp traditionally uses margin comments instead (as described below),
+but this inline style is also common in Clojure.
+
+Margin Comments ;X
+++++++++++++++++++
+
+Margin comments begin with one semicolon ``;x``.
+The semicolon must be aligned with spaces to rest on column 40,
+or one space after the code, whichever is greater.
+The semicolon is not followed by a space unless it continues a margin
+comment from the previous line.
+Unlike inline comments,
+margin comment continuation lines need not have code on their line.
+
+Be careful with comments around detached reader tags!.
+Comment tokens are normally discarded by the reader in Lissp,
+but they are a valid target for reader macros,
+in which case they may be treated as literal values.
+Avoid using inline or margin comments as commentary between a tag and its target,
+as this can cause errors when they are instead treated as arguments.
+(Usually, tags are attached to their target, so this doesn't come up,
+but e.g. the bundled decorator macro `@#!<QzAT_QzHASH_>` typically is not.)
+You may use a discarded string instead ``_#"NB foo"``.
+A good syntax highlighter specialized for Lissp may be able to indicate when a comment token is not discarded,
+but a traditional Lisp editor like Emacs ``lisp-mode`` would not.
+
+**Never** put a single-semicolon comment on its own line unless
+it's a continuation aligned to the margin!
+Traditional Lisp editors automatically indent these to column 40,
+and Lissp was designed to work with Emacs ``lisp-mode``.
+If you break this rule, others will have to fix all your comments,
+or reconfigure their editors to collaborate at all.
+That's not nice.
+
+This includes comment tokens meant as arguments for reader macros!
+They must follow code on the same line,
+typically the reader tag itself, or an `Extra` macro ``!``.
+In the rare case neither is valid,
+precede with a discarded item ``_#:;foo``.
+
+Avoid using either margin or inline comments in any situation that would result in a dangling bracket.
+It's not acceptable to follow the bracket either,
+if the comment isn't about the whole tuple.
+You may instead hold open the bracket with ``_#/)``,
+or convert the comment to a discarded string ``_#"NB foo")``,
+or (if appropriate) use a form/group ``;;`` comment, as described below.
+
+;; Form/Group Comments
+++++++++++++++++++++++
+
+Comments about the next form (or group) begin with two semicolons and a space ``;; x``,
+and are indented to align as if they were forms,
+and are not followed by a blank line.
+
+Commented-out code does not belong in version control,
+but disabling code without deleting it can be helpful during development.
+Use the discard macro ``_#`` to comment out code structurally,
+or use ``;;`` at the start of each line.
+
+Prefer class or function docstrings over ``;;`` comments where applicable.
+Function docstrings are not for implementation details internal to their containing function.
+Class docstrings are not for implementation details internal to their containing class,
+And likewise, function docstrings are not for details internal to their function.
+
+;;; Top-Level Comments
+++++++++++++++++++++++
+
+Top-level commentary lines not attached to any form in particular
+begin with three semicolons and a space ``;;; Foo Bar``.
+Top-level comments are separated from code with a blank line.
+They are not indented.
+
+Prefer module docstrings over top-level comments where applicable.
+Module docstrings are not for implementation details internal to their module.
+
 Docstrings can use some other markup format if the whole team can agree on one,
 and it's done for the entire project.
 But reStructuredText is the default in the Python ecosystem.
 You can automatically generate API documentation with these.
 
+;;;; Headings
++++++++++++++
+
+Headings begin with four semicolons and a space ``;;;; Foo Bar``,
+fit on one line,
+and are written in ``Title Case`` by default.
+
+Headings are for the `top level`_ only; they aren't nested in forms;
+they get their own line and start at the beginning of it.
+They have a blank line before (unless it's the first line) and after.
+They organize the code into sections.
+
+To make them more emphatic,
+headings can be decorated with
+
+- four trailing semicolons ``;;;; X ;;;;``,
+- underlines ``;;;  ---``,
+- or written in ``;;;; UPPER CASE``.
+
+Avoid using
+
+- semicolons as underlines.
+- more than four semicolons in a row for heading levels.
+  (too difficult to distinguish at a glance)
+- overlines for emphasis.
+  (An overline is commonly seen in reStructuredText headings.
+  but it can obscure the heading text when folding code in some editors.)
+- different underlining styles alone to distinguish levels.
+  (Underlines are indistinguishable when folded.)
+
+A Lissp file would typically be broken up into smaller modules before you need more than one or two heading levels.
+But for a project distributed as a single large file,
+you may want more than that,
+especially if you don't use classes to group functions.
+
+The recommended six-level scheme follows.
+(Six is enough for HTML; which labels them H1, H2, H3, H4, H5, and H6.)
+
+.. code-block:: Lissp
+
+   ;;;; WHOLE FILE TITLE ;;;;
+   ;;;  ===
+
+   ;;;; I. Heading Two ;;;;
+   ;;;  ---
+
+   ;;;; I.A. HEADING THREE ;;;;
+
+   ;;;; I.A.1. Heading Four ;;;;
+
+   ;;;; I.A.1.a. HEADING FIVE
+
+   ;;;; I.A.1.a.i. Heading Six
+
+   ;;;; II. Folded H2 ;;;;...
+
+Note that the underline decoration itself is not a heading,
+and should not use four semicolons (but note the extra space).
+This rule makes headings easier to find and count with a text search,
+and makes it possible for tooling to display or manipulate them programmatically.
+Three characters are sufficient to suggest an underline;
+there is no need to match the length of the heading text.
+
+The alphanumeric section outline numbering is not required,
+but if you number sections at all,
+it must be absolutely consistent with the heading level and position.
+Tooling can help you here, even if it's just grep-and-check.
+
+In a sufficiently small file,
+you may only need one level.
+You can use the simple undecorated H6 style.
+
+If you later find you need two,
+add the H2-style decorations to your major headings,
+and again use the simple undecorated H6 for the minor ones.
+
+In the unlikely case that you need more than this,
+start at the top and work your way down:
+there should be only one H1 in a file (the title);
+keep the H2's for your major sections;
+and proceed in numerical order H3, H4, etc., without skipping any heading levels.
+This will minimize the number of heading style changes you need to make if you later find that you need another level.
+(This means that if you do not use all six levels, you will not have any H6's at all.)
+
+_#_#_#The Discard Macro
++++++++++++++++++++++++
+
+The discard macro ``_#`` applied to a string literal is acceptable for long block comments.
+Several discard macros may be used in a row to comment out that many forms following them.
+
+A discarded tuple may be used to contain scratch code during development,
+but as with line comments,
+commented-out code does not belong in version control.
+
+A discarded string is acceptable as commentary,
+but use this style sparingly.
+Include an arrow or NB in the string to make it clear this is a comment and not just disabled code.
+
+.. code-block:: Lissp
+
+   (print 1 2 _#"<- even number" 3 _#"also even ->" 4
+          : sep : _#"NB Control words compile to strings!")
+
+An extra space is typically used to imply separation between groups on the same line.
+Where one level of grouping is not sufficient,
+typically newlines,
+then single blank lines indicate increasing levels of separation.
+Avoid more than two spaces in a row for implying separation between groups in a line,
+or more than one blank line in a row.
+In rare cases where those aren't enough levels or newlines and blank lines would spread things out too much,
+it is acceptable to additionally use discarded symbols like ``_#,``
+within a line to indicate greater separation than the extra spaces.
+(One may also use group comments ``;;`` between lines.
+These are greater separations than newlines, but smaller separations than blank lines.)
+
+"Docstrings"
+++++++++++++
+
+Prefer docstrings over comments where applicable.
+Docstrings are for describing the interface,
+not implementation of their object.
+
+"Private" helper functions/classes/modules (conventionally named with a leading underscore)
+need not have docstrings at all,
+but again prefer docstrings over comments when applicable,
+in which case they describe an interface internal to their object's container,
+but still do not their describe their object's implementation details.
+
+The first expression of a module is its docstring.
+Prefer this form over assigning the ``__doc__`` global directly.
+
+The ``lambda`` special form does not create docstrings.
+However, you can attach a ``__doc__`` attribute to the lambda object,
+e.g. using the `attach` macro.
+
+The bundled `deftype` macro does not special-case docstrings.
+Instead add a ``__doc__`` as its first key.
+
+Indent docstrings to match their opening `"`, even when attached afterwards.
+This does put the leading whitespace inside the string itself,
+but Python tooling expects this in docstrings,
+and can strip it out when rendering help.
+
+Follow Python style on docstring contents.
+
 Reader Macros
--------------
+:::::::::::::
 
 Reader macros should not be separated from each other
 or from their primary argument with whitespace.
@@ -913,7 +1103,7 @@ This way, all three name versions (munged, demunged, and pronounced)
 will appear in generated docs.
 
 Method Syntax vs Attribute Calls
---------------------------------
+::::::::::::::::::::::::::::::::
 
 Often, code like ``(.foo bar spam eggs)``
 could also be written like ``(bar.foo spam eggs)``.
@@ -932,7 +1122,7 @@ For an argument, i.e. other method calls, prefer ``.foo bar``.
    (_macro_.define greeting "hi")         ;Compiler Macro
    (.define _macro_ 'greeting '"hi")      ;Run-time expansion.
 
-   ;;; Arguments
+   ;;;; Arguments
 
    (.upper "hi")                          ;Preferred.
    ("hi".upper)                           ;SyntaxError
@@ -940,12 +1130,12 @@ For an argument, i.e. other method calls, prefer ``.foo bar``.
    (.upper greeting)                      ;Preferred.
    (greeting.upper)                       ;Bad.
 
-   ;;; Namespaces
+   ;;;; Namespaces
 
    (tkinter..Tk)                          ;Preferred.
    (.Tk tkinter.)                         ;Bad.
 
-   ;;; Kind of Both
+   ;;;; Kind of Both
 
    (self.foo spam eggs)                   ;Preferred.
    (.foo self spam eggs)                  ;OK.

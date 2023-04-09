@@ -1,8 +1,14 @@
-.. Copyright 2020, 2021, 2022 Matthew Egan Odendahl
+.. Copyright 2020, 2021, 2022, 2023 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
+.. All Source Code Examples in this file are licensed "Apache-2.0 OR CC-BY-SA-4.0"
+   and may be copied under the terms of either, Your choice.
+   (Source Code Examples are designated with the ".. code-block::" or ".. Lissp::"
+   reStructuredText markup.) The remainder of this file is licensed under
+   CC-BY-SA-4.0 only.
+
 Macro Tutorial
-==============
+##############
 
 .. TODO: be sure to demonstrate hissp.compiler..NS and hissp.compiler..readerless somewhere
 .. TODO: be sure to demonstrate a recursive macro somewhere
@@ -91,14 +97,14 @@ are a very direct representation of the same kind of syntax trees that
 you mentally generate when reading any other programming language.
 Take your time and comprehend each subexpression instead of taking it in all at once.
 
-The previous tutorial was mostly about learning how to program with
+The `primer` was mostly about learning how to program with
 a subset of Python in a new skin.
 This one is about using that knowledge to reprogram the skin itself.
 
-If you don't know the basics from the `previous tutorial <tutorial>`,
-go back and read that now, or at least read the `Lissp Whirlwind Tour <lissp_whirlwind_tour>`.
+If you don't know the basics from the Primer,
+go back and read that now, or at least read the `lissp_whirlwind_tour`.
 
-In the previous tutorial we mostly used the REPL,
+In the Primer we mostly used the REPL,
 but it can become tedious to type long forms into the REPL,
 and it doesn't save your work.
 S-expressions are awkward to edit without editor support for them,
@@ -120,7 +126,7 @@ give `Parinfer <https://shaunlebron.github.io/parinfer/>`_ a try.
 It's probably easiest to set up in `Atom <https://atom.io/packages/parinfer>`_.
 
 Shorter Lambdas
----------------
+===============
 
 The defect rate in computer programs seems to be a near-constant fraction
 of the number of kilobytes of source code.
@@ -204,7 +210,7 @@ Using it effectively feels like amazing out-of-the-box thinking.
 Let's begin.
 
 Warm-Up
-~~~~~~~
+:::::::
 
 Create a Lissp file (perhaps ``macros.lissp``),
 and open it in your Lisp editor of choice.
@@ -435,7 +441,7 @@ was so awkward in Python.
 But Lissp does more than substitutions.
 
 Simple Compiler Macros
-~~~~~~~~~~~~~~~~~~~~~~
+::::::::::::::::::::::
 
 Despite my recent boasting,
 our Lissp version is not actually shorter than Python's yet:
@@ -558,7 +564,7 @@ So the template would look something like this::
      (<expr>))
 
 Remember this is basically the same as
-that anaphoric macro we did in the previous tutorial.
+that anaphoric macro we did in the `primer`.
 
 .. Lissp::
 
@@ -624,11 +630,11 @@ Don't generalize before we have examples to work with.
 
 I'll wait.
 
-...
+\...
 
-...
+\...
 
-...
+\...
 
 Ready?
 
@@ -681,7 +687,7 @@ When you see a "design pattern" in Lissp,
 you don't keep repeating it.
 
 Nothing Is Above Abstraction
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+::::::::::::::::::::::::::::
 
 Are you ready for this?
 You've seen all these pieces before,
@@ -1305,7 +1311,7 @@ Take a breath.
 We're not done.
 
 Macros Can Read Code Too.
-~~~~~~~~~~~~~~~~~~~~~~~~~
+:::::::::::::::::::::::::
 
 We're still providing more information than is required.
 You have to change the name of your macro based on the number of arguments you expect.
@@ -1506,7 +1512,7 @@ Read the definition carefully.
 You can experiment with macros you don't recognize in the REPL.
 All the bundled macros,
 including the `|| <QzBAR_QzBAR_>`
-and `when` were covered in the `Lissp Whirlwind Tour <lissp_whirlwind_tour>`.
+and `when` were covered in the `lissp_whirlwind_tour`.
 We're using them to coalesce Python's awkward regex matches,
 which can return ``None``, into a ``0``,
 unless it's a string with a match.
@@ -1678,7 +1684,7 @@ Let's try again.
 Try doing that with the C preprocessor!
 
 Function Literals
-~~~~~~~~~~~~~~~~~
+:::::::::::::::::
 
 Let's review. The code you need to make the version we have so far is
 
@@ -1741,7 +1747,7 @@ but that's taken by the ``L``.
 We can fix that with a reader macro.
 
 Reader Syntax
-`````````````
++++++++++++++
 
 To use reader macros unqualified,
 you must define them in ``_macro_`` with a name ending in a ``#``.
@@ -1833,7 +1839,7 @@ Clojure's version still has a couple more features.
 Let's add them.
 
 Catch-All Parameter
-```````````````````
++++++++++++++++++++
 
 .. Lissp::
 
@@ -1955,7 +1961,7 @@ Adding this is left as an exercise.
 Can you figure out how to do it?
 
 Implied Number 1
-````````````````
+++++++++++++++++
 
 Clojure's version has one more feature:
 the name of the first parameter doesn't need the ``1``,
@@ -2118,7 +2124,7 @@ a ``%*`` might be more consistent if you've also got a kwargs parameter,
 which you could call ``%**``.
 
 Results
-```````
++++++++
 
 Are we shorter than Python now?
 
@@ -2138,7 +2144,7 @@ But Clojure's version has the same problems,
 and it gets used quite a lot.
 
 Why You Should Be Reluctant to Use Python Injections
-````````````````````````````````````````````````````
+++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Suppose we wanted to use Python infix notation for a complex formula.
 
@@ -2229,7 +2235,7 @@ you should be able to do everything else without them.
 .. TODO: optimize macro
 
 More Literals
--------------
+=============
 
 While other data types in code must be built up from the primitive notation,
 Python has built-in notation for certain common ones.
@@ -2265,7 +2271,7 @@ with an overhead of just a few characters for a tag to disambiguate from the bui
 You only have to learn a new notation when it's worth your while.
 
 Hexadecimal
-~~~~~~~~~~~
+:::::::::::
 
 You can use Python's `int` builtin to convert a string containing a hexadecimal
 number to the corresponding integer value.
@@ -2612,7 +2618,7 @@ Or you can add floating-point. Python's notation can't do that.
    3.0
 
 Decimal
-~~~~~~~
+:::::::
 
 Floating-point numbers are very useful,
 but they have some important limitations.
@@ -2812,7 +2818,7 @@ With a control word like this,
 you get full precision and don't need a trailing double quote.
 
 A Slice of Python
------------------
+=================
 
 Python has a powerful and compact notation for operating on *slices* of sequences.
 It has three arguments: *start*, *stop*, and *step*.
@@ -2902,7 +2908,7 @@ because arguments are separated with whitespace.
 We could add delimiters, but they'd need spaces around them as well.
 
 Slice Notation as Object
-~~~~~~~~~~~~~~~~~~~~~~~~
+::::::::::::::::::::::::
 
 Slice notation really is hard to beat here, even in Python.
 It would be nice if we could take just that part of it,
@@ -2955,7 +2961,7 @@ With shorter names, we see there's a ways to go yet.
    .#"S[-1::-2]" ; (define S slicer)
 
 Time for Macros
-~~~~~~~~~~~~~~~
+:::::::::::::::
 
 We can remove the `getitem <operator.getitem>` overhead by using the bundled
 `get# <getQzHASH_>` macro to make an `itemgetter <operator.itemgetter>`.
@@ -3188,7 +3194,7 @@ For those cases, the extra overhead for using `slice` is hardly noticeable.
 Use the right tool for the job.
 
 A Simpler Solution
-~~~~~~~~~~~~~~~~~~
+::::::::::::::::::
 
 The `itemgetter <operator.itemgetter>` function is a function factory;
 it's a function to make functions, at run time.

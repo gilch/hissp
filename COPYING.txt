@@ -1,9 +1,7 @@
-This repository is licensed Apache-2.0
-except for the docs/ directory which is mostly licensed CC-BY-SA-4.0 instead.
+This repository is licensed Apache-2.0 except for
+the docs/ directory which is mostly licensed CC-BY-SA-4.0 instead.
 Which license applies is noted inside each file near the top.
 
 See the setup/LICENSE.txt and docs/CC-BY-SA-4.0.txt files for the full text of each license.
 
-The Hissp and H logos are trademarks.
-These may be distributed with unmodified Hissp documentation only.
-Other uses require permission, except as permitted by the fair use doctrine.
+The docs/hissp.svg and docs/H.svg logos are trademarks.
