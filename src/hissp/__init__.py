@@ -41,7 +41,7 @@ https://github.com/gilch/hissp
 as well as the `hissp.macros._macro_` namespace, making all the bundled
 macros available with the shorter ``hissp.._macro_`` qualifier.
 """
-from hissp.compiler import readerless
+from hissp.compiler import Compiler, readerless
 from hissp.munger import demunge, munge
 from hissp.reader import transpile
 from hissp.repl import interact
