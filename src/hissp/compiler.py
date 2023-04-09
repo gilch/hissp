@@ -29,7 +29,7 @@ MACRO = f"..{MACROS}."
 MAYBE = "..QzMaybe_."
 RE_MACRO = re.compile(rf"({re.escape(MACRO)}|{re.escape(MAYBE)})")
 
-NS = ContextVar("NS", default=())
+NS = ContextVar("NS", default=None)
 """
 Sometimes macros need the current namespace when expanding,
 instead of its defining namespace.
@@ -555,5 +555,6 @@ def readerless(form, ns=None):
     (Creates a temporary namespace if neither is available.)
     Returns the Python in a string.
     """
-    ns = ns or NS.get() or {"__name__": "__main__"}
+    if ns is None and (ns := NS.get()) is None:
+        ns = {"__name__": "__main__"}
     return Compiler(evaluate=False, ns=ns).compile([form])
