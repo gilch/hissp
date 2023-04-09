@@ -402,7 +402,7 @@ class Lissp:
         tag = munge(self.escape(tag[:-1]))
         m = (self._fully_qualified if ".." in tag else self._local)(tag)
         with self.compiler.macro_context():
-            args, kwargs = _parse_extras(extras)
+            args, kwargs = parse_extras(extras)
             return m(form, *args, **kwargs)
 
     def _fully_qualified(self, tag):
@@ -500,7 +500,7 @@ def is_string_literal(form) -> Optional[bool]:
         return type(ast.literal_eval(form)) is str
 
 
-def _parse_extras(extras):
+def parse_extras(extras):
     it = iter(extras)
     args = [*takewhile(lambda x: x != ":", it)]
     kwargs = {}
