@@ -29,7 +29,7 @@ MACRO = f"..{MACROS}."
 MAYBE = "..QzMaybe_."
 RE_MACRO = re.compile(rf"({re.escape(MACRO)}|{re.escape(MAYBE)})")
 
-NS = ContextVar("NS", default=())
+NS = ContextVar("NS", default=None)
 """
 Sometimes macros need the current namespace when expanding,
 instead of its defining namespace.
@@ -101,13 +101,13 @@ class Compiler:
         Compile multiple forms, and execute them if evaluate mode enabled.
         """
         result: List[str] = []
-        for form in forms:
+        for i, form in enumerate(forms, 1):
             form = self.form(form)
             if self.error:
                 e = self.error
                 self.error = False
                 raise CompileError("\n" + form) from e
-            result.extend(self.eval(form))
+            result.extend(self.eval(form, i))
             if self.abort:
                 print("Hissp abort!", self.abort, sep="\n", file=sys.stderr)
                 self.abort = None  # To allow REPL debugging.
@@ -403,6 +403,8 @@ class Compiler:
         Expands qualified identifiers and module handles into imports.
         Otherwise, injects as raw Python directly into the output.
         """
+        if "..." in code:
+            return code
         if not all(s.isidentifier() for s in code.split(".") if s):
             return code
         if ".." in code:
@@ -507,14 +509,16 @@ class Compiler:
         nl = "\n" if "\n" in r else ""
         return f"__import__('pickle').loads({nl}  # {r}\n    {dumps}\n)"
 
-    def eval(self, form: str) -> Tuple[str, ...]:
+    def eval(self, form: str, form_number: int) -> Tuple[str, ...]:
         """Execute compiled form, but only if evaluate mode is enabled."""
         try:
             if self.evaluate:
-                exec(
-                    compile(form, f"<Compiled Hissp:\n{_linenos(form)}\n>", "exec"),
-                    self.ns,
+                filename = (
+                    f"<Compiled Hissp #{form_number} of {self.qualname}:\n"
+                    f"{_linenos(form)}\n"
+                    f">"
                 )
+                exec(compile(form, filename, "exec"), self.ns)
         except Exception as e:
             exc = format_exc()
             if self.ns.get("__name__") == "__main__":
@@ -555,5 +559,6 @@ def readerless(form, ns=None):
     (Creates a temporary namespace if neither is available.)
     Returns the Python in a string.
     """
-    ns = ns or NS.get() or {"__name__": "__main__"}
+    if ns is None and (ns := NS.get()) is None:
+        ns = {"__name__": "__main__"}
     return Compiler(evaluate=False, ns=ns).compile([form])

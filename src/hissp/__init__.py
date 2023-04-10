@@ -34,14 +34,15 @@ https://github.com/gilch/hissp
 
 * `hissp.compiler.readerless`,
 * `hissp.munger.demunge`,
+* `hissp.munger.munge`,
 * `hissp.reader.transpile`, and
 * `hissp.repl.interact`,
 
 as well as the `hissp.macros._macro_` namespace, making all the bundled
 macros available with the shorter ``hissp.._macro_`` qualifier.
 """
-from hissp.compiler import readerless
-from hissp.munger import demunge
+from hissp.compiler import Compiler, readerless
+from hissp.munger import demunge, munge
 from hissp.reader import transpile
 from hissp.repl import interact
 

@@ -63,7 +63,7 @@ def test_ic_error():
     out, err = cmd('lissp -i -c "(define answer 42)(truediv 1 0)"', "answer\n")
     assert "Hissp abort!" in err
     assert "Traceback (most" in err
-    assert 'File "<Compiled Hissp:\n1' in err
+    assert 'File "<Compiled Hissp #3 of __main__:\n1 truediv(' in err
     assert "ZeroDivisionError: division by zero\n" in err
     assert ">>> answer\n" in err
     assert out.count("#> ") == 2
