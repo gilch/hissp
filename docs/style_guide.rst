@@ -359,7 +359,7 @@ so you know when to break them.
 Sometimes differences of opinion come down to taste.
 Use your best judgement;
 it's not always black and white.
-But not all shades of gray are the same either.
+(But don't make the worse mistake of thinking there's only one shade of gray ;)
 
 Lisp is one of the oldest programming languages in common use.
 It has splintered into many dialects (Lissp among them),
@@ -662,8 +662,8 @@ Prefer "why"-comments that describe rationale or intent.
    quote has its own line. Use reStructuredText markup in docstrings.
    "
 
-   ;;;; Major Section Heading ;;;;
-   ;;;  ---
+   ;;;; ** Decorated Major Section Heading **
+   ;;;  ***
 
    ;;; Long Exposition about this section. Wrap at column 72.
 
@@ -672,7 +672,7 @@ Prefer "why"-comments that describe rationale or intent.
    ;;; and upper case, and an undecorated minor heading below. (The whole-
    ;;; file title is in the module docstring in this case, not a comment.)
 
-   ;;;; Minor Subsection Heading
+   ;;;; Undecorated Minor Subsection Heading
 
    ;; comment about macro
    (macro special1
@@ -728,6 +728,7 @@ but a traditional Lisp editor like Emacs ``lisp-mode`` would not.
 
 **Never** put a single-semicolon comment on its own line unless
 it's a continuation aligned to the margin!
+This one is about established tooling, not just taste.
 Traditional Lisp editors automatically indent these to column 40,
 and Lissp was designed to work with Emacs ``lisp-mode``.
 If you break this rule, others will have to fix all your comments,
@@ -772,6 +773,14 @@ begin with three semicolons and a space ``;;; Foo Bar``.
 Top-level comments are separated from code with a blank line.
 They are not indented.
 
+Standard usage for more than two semicolons varies with Lisp dialect,
+but they are consistently ony for the `top level`_ and have no indent.
+
+Some Lisp styles use triple and quadruple semicolons for headings and subheadings,
+but differ on which is which.
+To avoid confusion,
+do not use triple-semicolon comments as headings at all.
+
 Prefer module docstrings over top-level comments where applicable.
 Module docstrings are not for implementation details internal to their module.
 
@@ -792,89 +801,85 @@ they get their own line and start at the beginning of it.
 They have a blank line before (unless it's the first line) and after.
 They organize the code into sections.
 
-To make them more emphatic,
-headings can be decorated with
+Headings can be decorated with symbol characters to make them more emphatic.
 
-- four trailing semicolons ``;;;; X ;;;;``,
-- underlines ``;;;  ---``,
-- or written in ``;;;; UPPER CASE``.
+A Lissp file would typically be broken up into smaller modules before you need more than one or two heading levels.
+
+But for a project distributed as a single large file,
+you may want to develop a project style more levels than that,
+especially if you don't use classes to group functions.
 
 Avoid using
 
-- semicolons as underlines.
-- more than four semicolons in a row for heading levels.
-  (too difficult to distinguish at a glance)
+- semicolons as underlines or other header decoration.
+- more than four semicolons in a row.
+  (This is sometimes seen in Emacs Lisp to indicate heading levels,
+  but more than four semicolons in a row is too difficult to distinguish at a glance and must be counted.)
 - overlines for emphasis.
   (An overline is commonly seen in reStructuredText headings.
   but it can obscure the heading text when folding code in some editors.)
 - different underlining styles alone to distinguish levels.
   (Underlines are indistinguishable when folded.)
+- inconsistent decorations.
 
-A Lissp file would typically be broken up into smaller modules before you need more than one or two heading levels.
-But for a project distributed as a single large file,
-you may want more than that,
-especially if you don't use classes to group functions.
-
-The recommended six-level scheme follows.
-(Six is enough for HTML; which labels them H1, H2, H3, H4, H5, and H6.)
+Many levels are probably too rare to require a community (rather than project-level) standard,
+but here's an example scheme with six levels.
+(Six is enough for HTML, with H1-H6 tags.)
 
 .. code-block:: Lissp
 
-   ;;;; WHOLE FILE TITLE ;;;;
-   ;;;  ===
+   ;;;; ## WHOLE FILE TITLE ##
+   ;;;  ###
 
-   ;;;; I. Heading Two ;;;;
-   ;;;  ---
+   ;;;; ** I. Heading Two **
+   ;;;  ***
 
-   ;;;; I.A. HEADING THREE ;;;;
+   ;;;; ++ I.A. Heading Three ++
 
-   ;;;; I.A.1. Heading Four ;;;;
+   ;;;; -- I.A.1. Heading Four --
 
-   ;;;; I.A.1.a. HEADING FIVE
+   ;;;; .. I.A.1.a. Heading Five ..
 
    ;;;; I.A.1.a.i. Heading Six
 
-   ;;;; II. Folded H2 ;;;;...
+   ;;;; ** II. Folded H2 **...
+
+The mnemonic here is that symbol characters that have more points (and use more ink) are more emphatic:
+``#`` (8, H1); ``*`` (5 or 6, H2); ``+`` (4, H3); ``-`` (2, H4); ``.`` (1, H5); and H6 is undecorated.
 
 Note that the underline decoration itself is not a heading,
 and should not use four semicolons (but note the extra space).
 This rule makes headings easier to find and count with a text search,
 and makes it possible for tooling to display or manipulate them programmatically.
 Three characters are sufficient to suggest an underline;
-there is no need to match the length of the heading text.
+there is no need to match the length of the heading text
+(but that is also a possible style).
 
 The alphanumeric section outline numbering is not required,
 but if you number sections at all,
 it must be absolutely consistent with the heading level and position.
 Tooling can help you here, even if it's just grep-and-check.
+If you use outline numbering at all,
+the decorations are not required to distinguish levels and may be omitted instead.
 
-In a sufficiently small file,
-you may only need one level.
-You can use the simple undecorated H6 style.
-
-If you later find you need two,
-add the H2-style decorations to your major headings,
-and again use the simple undecorated H6 for the minor ones.
-
-In the unlikely case that you need more than this,
-start at the top and work your way down:
+Start at the top and work your way down:
 there should be only one H1 in a file (the title);
 keep the H2's for your major sections;
 and proceed in numerical order H3, H4, etc., without skipping any heading levels.
 This will minimize the number of heading style changes you need to make if you later find that you need another level.
-(This means that if you do not use all six levels, you will not have any H6's at all.)
+(This means that if you do not use all six levels, you will not have any undecorated H6's at all.)
 
 _#_#_#The Discard Macro
 +++++++++++++++++++++++
 
 The discard macro ``_#`` applied to a string literal is acceptable for long block comments.
-Several discard macros may be used in a row to comment out that many forms following them.
 
+Several discard macros may be used in a row to comment out that many forms following them.
 A discarded tuple may be used to contain scratch code during development,
 but as with line comments,
 commented-out code does not belong in version control.
 
-A discarded string is acceptable as commentary,
+A discarded string with code following it in line is acceptable as commentary,
 but use this style sparingly.
 Include an arrow or NB in the string to make it clear this is a comment and not just disabled code.
 
@@ -892,7 +897,7 @@ or more than one blank line in a row.
 In rare cases where those aren't enough levels or newlines and blank lines would spread things out too much,
 it is acceptable to additionally use discarded symbols like ``_#,``
 within a line to indicate greater separation than the extra spaces.
-(One may also use group comments ``;;`` between lines.
+(One may also use grouping comments ``;;`` between lines.
 These are greater separations than newlines, but smaller separations than blank lines.)
 
 "Docstrings"
@@ -900,7 +905,7 @@ These are greater separations than newlines, but smaller separations than blank 
 
 Prefer docstrings over comments where applicable.
 Docstrings are for describing the interface,
-not implementation of their object.
+not the implementation of their object.
 
 "Private" helper functions/classes/modules (conventionally named with a leading underscore)
 need not have docstrings at all,
@@ -908,20 +913,29 @@ but again prefer docstrings over comments when applicable,
 in which case they describe an interface internal to their object's container,
 but still do not their describe their object's implementation details.
 
-The first expression of a module is its docstring.
+The first expression of a module (if it compiles to a string literal) is its docstring.
 Prefer this form over assigning the ``__doc__`` global directly.
 
 The ``lambda`` special form does not create docstrings.
-However, you can attach a ``__doc__`` attribute to the lambda object,
+However, you can attach a ``.__doc__`` attribute to the lambda object after creating it,
 e.g. using the `attach` macro.
 
-The bundled `deftype` macro does not special-case docstrings.
+The bundled `deftype` macro does not have any special case for docstrings.
 Instead add a ``__doc__`` as its first key.
 
-Indent docstrings to match their opening `"`, even when attached afterwards.
+Indent docstrings to the same column as their opening ``"``
+(or to the ``#`` in an opening ``#"``),
+even when using something like the attach macro.
 This does put the leading whitespace inside the string itself,
 but Python tooling expects this in docstrings,
 and can strip it out when rendering help.
+
+If the docstring contains any newlines,
+the closing ``"`` gets its own line.
+
+It is acceptable to use reader macros that resolve to a string literal like `<<# <QzLT_QzLT_QzHASH_>`
+(which is useful for doctests),
+as long as the documentation text is also legible in the source code.
 
 Follow Python style on docstring contents.
 
@@ -936,7 +950,12 @@ or from their primary argument with whitespace.
    ' builtins..repr# .# (lambda :)        ;Bad.
    'builtins..repr#.#(lambda :)           ;Preferred.
 
-However, if a primary argument spans multiple lines,
+Separating the tag with a space is acceptable when the primary starts with a ``|`` character,
+because ``#|`` starts a block comment in other Lisp dialects.
+Any editor not specialized for Lissp may get confused.
+``#\|`` is an alternative.
+
+If a primary argument spans multiple lines,
 it's acceptable to separate with a newline,
 but be careful not to accidentally put a comment in between,
 unless you explicitly discard it.
@@ -984,7 +1003,7 @@ unless you explicitly discard it.
          (frobnicate a b c))
        arg)
 
-Extras may always be separated,
+Extras may always be separated from the tag,
 but only imply groups of extras with whitespace if they are semantically grouped.
 
 .. code-block:: Lissp
@@ -1064,10 +1083,10 @@ Python does not enforce this,
 but it's a very strong convention.
 
 For internal Lissp code,
-Python conventions are fine,
+Python naming conventions are still acceptable,
 but the munger opens up more characters.
-Something like ``*FOO-BAR*`` is a perfectly valid Lissp identifier,
-but it munges to ``QzSTAR_FOOQz_BARQzSTAR_``,
+Something like ``+FOO-BAR+`` is a perfectly valid Lissp identifier,
+but it munges to ``QzPLUS_FOOQz_BARQzPLUS_``,
 which is awkward to use from the Python side.
 
 Even in private areas,
