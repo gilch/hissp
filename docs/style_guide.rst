@@ -225,20 +225,28 @@ you may have to turn it off.
 
    # Right.
    # fmt: off
-   ('define','fib',
-     ('lambda',('n',),
-       ('ifQz_else',('operator..le','n',2,),
-         'n',
-         ('operator..add',('fib',('operator..sub','n',1,),),
-                          ('fib',('operator..sub','n',2,),),),),),)
+   ('define','fib'
+    ,('lambda',('n',)
+      ,('ifQz_else',('operator..le','n',2,)
+        ,'n'
+        ,('operator..add',('fib',('operator..sub','n',1,),)
+                         ,('fib',('operator..sub','n',2,),),),),),)
    # fmt: on
 
-Note also that tuple commas are used as terminators,
-not separators,
+A few notes about tuple commas in readerless.
+The last element always ends with one (commas are used as terminators,
+not separators),
 even on the same line.
 This is to prevent the common error of forgetting the required trailing comma for a monuple.
 If your syntax highlighter can distinguish ``(x)`` from ``(x,)``, you may be OK without it.
-But this had better be the case for the whole team.
+But this had better be the case for the whole team and project.
+Be consistent.
+
+Also note that tuple commas do not end the line, but rather start the next one.
+This marks the head element as special, because it starts with a ``(`` instead of a ``,``,
+and naturally starts one column earlier.
+Linewise edits and indentation are also more consistent this way.
+Commas are not followed by a space except to imply groups (when an extra space would be used in Lissp).
 
 Unambiguous Indentation
 :::::::::::::::::::::::
@@ -526,8 +534,12 @@ Readerless style is similar:
 
 .. code-block:: Python
 
-   ('function','arg1','arg2',
-               ':','kw1','kwarg1', 'kw2','kwarg2',)
+   ('function','arg1','arg2'
+              ,':','kw1','kwarg1', 'kw2','kwarg2',)
+
+Note the space between 'kwarg1' and 'kw2' used to imply groups,
+which is absent after the other commas in the tuple.
+Also recall that commas start the line rather than ending it.
 
 Alignment styles can be bent a little in the interest of readability,
 especially for macros, but even for calls,

@@ -71,8 +71,8 @@ A Hissp program is made of Python objects in tuples
 which represent the syntax tree structure.
 
 >>> hissp_program = (
-...     ('lambda',('name',),
-...       ('print',('quote','Hello',),'name',),)
+...     ('lambda',('name',)
+...      ,('print',('quote','Hello',),'name',),)
 ... )
 
 You can invoke the Hissp compiler directly from Python.
@@ -135,8 +135,8 @@ Code is writing code!
 Let's use it.
 
 >>> readerless(
-...     ('lambda',('name'),
-...       ('print',q('Hello'),'name',),)
+...     ('lambda',('name')
+...      ,('print',q('Hello'),'name',),)
 ... )
 "(lambda n,a,m,e:\n  print(\n    'Hello',\n    name))"
 >>> print(_)  # Remember, _ is the last result that wasn't None.
@@ -175,8 +175,8 @@ Let's try that again,
 with the comma this time.
 
 >>> readerless(
-...     ('lambda',('name',),
-...       ('print',q('Hello'),'name',),)
+...     ('lambda',('name',)
+...      ,('print',q('Hello'),'name',),)
 ... )
 "(lambda name:\n  print(\n    'Hello',\n    name))"
 >>> print(_)
@@ -386,8 +386,8 @@ Recall that the Hissp-level `str` type is used to represent Python identifiers i
 and must be quoted with the ``quote`` special form to represent text data instead.
 
 >>> readerless(
-...     ('print',  # str containing identifier
-...      ('quote','hi'),)  # string as data
+...     ('print'  # str containing identifier
+...      ,('quote','hi'),)  # string as data
 ... )
 "print(\n  'hi')"
 >>> eval(_)
@@ -399,8 +399,8 @@ So another way to represent text data in Hissp
 is a Hissp-level string that contains the Python code for a string literal.
 
 >>> readerless(
-...     ('print',  # str containing identifier
-...      '"hi"',)  # str containing a string literal
+...     ('print'  # str containing identifier
+...      ,'"hi"',)  # str containing a string literal
 ... )
 'print(\n  "hi")'
 >>> eval(_)
@@ -495,7 +495,7 @@ but symbols only exist as a *reader syntax* in Lissp,
 where they represent the subset of Hissp-level strings that can act as identifiers.
 
 Symbols in Lissp become strings in Hissp which become identifiers in Python,
-unless they're quoted, like ``('quote', 'Hello',)``,
+unless they're quoted, like ``('quote','Hello',)``,
 in which case they become string literals in Python.
 
 Experiment with this process in the REPL.
@@ -1526,10 +1526,10 @@ If we format that a little more nicely,
 then it's easier to read.
 
 >>> readerless(
-...     (('lambda',(':',':*',' _',),' _'),
-...      ':',':?',':a',
-...      ':*',"('bcd')",
-...      ':?',('operator..mul', 2, 3,),)
+...     (('lambda',(':',':*',' _',),' _')
+...      ,':',':?',':a'
+...      ,':*',"('bcd')"
+...      ,':?',('operator..mul', 2, 3,),)
 ... )
 "(lambda * _: _)(\n  ':a',\n  *('bcd'),\n  __import__('operator').mul(\n    (2),\n    (3)))"
 >>> print(_)

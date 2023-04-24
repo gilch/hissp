@@ -72,8 +72,8 @@ Hissp is a *metaprogramming* intermediate language composed of simple Python dat
 easily generated programmatically,
 ```python
 >>> hissp_code = (
-... ('lambda',('name',),
-...  ('print',('quote','Hello'),'name',),)
+... ('lambda',('name',)
+...  ,('print',('quote','Hello'),'name',),)
 ... )
 
 ```
@@ -112,25 +112,25 @@ Strings also have a few special cases:
 * and module handles, which end with `.` (and do imports).
 ```python
 >>> adv_hissp_code = (
-... ('lambda',  # Anonymous function special form.
+... ('lambda'  # Anonymous function special form.
 ...  # Parameters.
-...  (':',  # Control word: remaining parameters are paired with a target.
-...   'name',  # Target: Raw Python: Parameter identifier.
-...   # Default value for name.
-...   ('quote',  # Quote special form: string, not identifier. 
-...    'world'),),
+...  ,(':'  # Control word: remaining parameters are paired with a target.
+...    ,'name'  # Target: Raw Python: Parameter identifier.
+...    # Default value for name.
+...    ,('quote'  # Quote special form: string, not identifier. 
+...      ,'world'),)
 ...  # Body.
-...  ('print',  # Function call form, using the identifier for the builtin.
-...   ('quote','Hello,'),),
-...  ('print',
-...   ':',  # Control word: Remaining arguments are paired with a target.
-...   ':*',  # Target: Control word for unpacking.
-...   ('.upper','name',),  # Method calls start with a dot.
-...   'sep',  # Target: Keyword argument.
-...   ':',  # Control words compile to strings, not raw Python.
-...   'file',  # Target: Keyword argument.
-...   # Module handles like `sys.` end in a dot.
-...   'sys..stdout',),)  # print already defaults to stdout though.
+...  ,('print'  # Function call form, using the identifier for the builtin.
+...    ,('quote','Hello,'),)
+...  ,('print'
+...    ,':'  # Control word: Remaining arguments are paired with a target.
+...    ,':*'  # Target: Control word for unpacking.
+...    ,('.upper','name',)  # Method calls start with a dot.
+...    ,'sep'  # Target: Keyword argument.
+...    ,':'  # Control words compile to strings, not raw Python.
+...    ,'file'  # Target: Keyword argument.
+...    # Module handles like `sys.` end in a dot.
+...    ,'sys..stdout',),)  # print already defaults to stdout though.
 ... )
 ...
 >>> print(readerless(adv_hissp_code))
@@ -184,9 +184,9 @@ extending that ability to custom tuple forms.
 ...         return ('branch',condition,('thunk',consequent,),('thunk',alternate,),)
 ...
 >>> expansion = readerless(
-...     ('if_else','0==1',  # Macro form, not a run-time call.
-...       ('print',('quote','yes',),),  # Side effect not evaluated!
-...       ('print',('quote','no',),),),
+...     ('if_else','0==1'  # Macro form, not a run-time call.
+...      ,('print',('quote','yes',),)  # Side effect not evaluated!
+...      ,('print',('quote','no',),),),
 ...     globals())  # Pass in globals for _macro_.
 >>> print(expansion)
 # if_else
