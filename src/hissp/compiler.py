@@ -173,11 +173,11 @@ class Compiler:
         For example,
 
         >>> readerless(
-        ... ('lambda', ('a',':/','b',
-        ...             ':', 'e',1, 'f',2,
-        ...             ':*','args', 'h',4, 'i',':?', 'j',1,
-        ...             ':**','kwargs',),
-        ...   42,),
+        ... ('lambda', ('a',':/','b'
+        ...            ,':', 'e',1, 'f',2
+        ...            ,':*','args', 'h',4, 'i',':?', 'j',1
+        ...            ,':**','kwargs',)
+        ...  ,42,)
         ... )
         '(lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))'
 
@@ -187,9 +187,9 @@ class Compiler:
         effects.
 
         >>> print(readerless(
-        ... ('lambda', (':',':*','args',':**','kwargs',),
-        ...   ('print','args',),
-        ...   ('print','kwargs',),),
+        ... ('lambda', (':',':*','args',':**','kwargs',)
+        ...  ,('print','args',)
+        ...  ,('print','kwargs',),)
         ... ))
         (lambda *args,**kwargs:(
           print(
@@ -320,8 +320,8 @@ class Compiler:
         For example:
 
         >>> print(readerless(
-        ... ('print',1,2,3,
-        ...          ':','sep',('quote',":",), 'end',('quote',"\n\n",),)
+        ... ('print',1,2,3
+        ...         ,':','sep',('quote',":",), 'end',('quote',"\n\n",),)
         ... ))
         print(
           (1),

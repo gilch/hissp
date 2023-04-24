@@ -21,9 +21,6 @@ Lissp Whirlwind Tour
 
 .. Lissp::
 
-   ;;;; LISSP WHIRLWIND TOUR ;;;;
-   ;;;  === 
-
    "Lissp is a lightweight text language representing the Hissp
    intermediate language. The Lissp reader parses the Lissp language's
    symbolic expressions as Python objects. The Hissp compiler
@@ -41,11 +38,11 @@ Lissp Whirlwind Tour
    Python and evaluate it. Try variations that occur to you.
 
    Familiarity with another Lisp dialect is not assumed, but helpful. If
-   you get confused or stuck, the Hissp primer is easier.
+   you get confused or stuck, look for the Hissp community chat or try the
+   Hissp Primer.
    "
 
    ;;;; 1 Installation
-   ;;;  ---
 
    ;;; These docs are for the latest development version of Hissp.
    ;;; Install the latest Hissp version with
@@ -58,12 +55,11 @@ Lissp Whirlwind Tour
    ;;; Report issues or try the current release version instead.
 
    ;;;; 2 Simple Atoms
-   ;;;  ---
 
    ;;; To a first approximation, the Hissp intermediate language is made
    ;;; of Python tuples representing syntax trees. The nodes are tuples
-   ;;; and we call the leaves "atoms". Simple atoms in Lissp are written
-   ;;; the same way as Python.
+   ;;; and the leaves are called "atoms". Simple atoms in Lissp are
+   ;;; written the same way as Python.
 
    ;;;; 2.1 Singleton
 
@@ -152,7 +148,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 3 Simple Tuples
-   ;;;  ---
 
    ;; Tuples group any atoms with (). Data tuples start with '.
    #> '(None 2 3)
@@ -169,7 +164,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 4 Symbolic Atoms
-   ;;;  ---
 
    ;;;; 4.1 Identifiers
 
@@ -211,7 +205,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 5 Simple Forms and Calls
-   ;;;  ---
 
    ;;; "Forms" are any data structures that can be evaluated as a Hissp program.
    ;;; Simple atoms are forms. They simply evaluate to an equivalent object.
@@ -295,7 +288,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 6 String Atoms
-   ;;;  ---
 
    #> :control-word                       ;Colon prefix. Similar to Lisp ":keywords".
    >>> ':control-word'
@@ -397,7 +389,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 7 Advanced Calls
-   ;;;  ---
 
    #> (dict :)                            ;Left paren before function! Notice the :.
    >>> dict()
@@ -522,7 +513,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 8 Simple Lambdas
-   ;;;  ---
 
    ;;; Lambdas are one of Hissp's two "special forms".
    ;;; They look like calls, but are special-cased in the Hissp compiler
@@ -685,7 +675,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 9 Advanced Lambdas
-   ;;;  ---
 
    ;; Python parameter types are rather involved. Lambda does all of them.
    ;; Like calls, they are all pairs. :? means no default.
@@ -784,7 +773,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 10 Quote
-   ;;;  ---
 
    ;;; Quote is the only other special form. Looks like a call, but isn't.
 
@@ -907,7 +895,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 11 Simple Reader Macros
-   ;;;  ---
 
    ;;; Reader macros are metaprograms to abbreviate Hissp and don't
    ;;; represent it directly. They apply to the next parsed Hissp object
@@ -1089,7 +1076,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 12 Compiler Macros
-   ;;;  ---
 
    ;;; We can use functions to to create forms for evaluation.
    ;;; This is metaprogramming: code that writes code.
@@ -1615,7 +1601,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 13 Compiling and Running Files
-   ;;;  ---
 
    ;;; ``$ lissp`` can run a .lissp file as __main__.
    ;;; You cannot import .lissp directly. Compile it to .py first.
@@ -1675,7 +1660,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 14 The Bundled Macros
-   ;;;  ---
 
    ;;; To make the REPL more usable, it comes with some basic macros already
    ;;; defined. Their design has been deliberately restricted so that their
@@ -2881,8 +2865,7 @@ Lissp Whirlwind Tour
    5040
 
 
-   ;;;; 15 Exception handling
-   ;;;  ---
+   ;;;; 15 Exception Handling
 
    ;; Defined by the prelude (§14.7). Guards against targeted exceptions.
    #> (engarde `(,FloatingPointError ,ZeroDivisionError)               ;two targets
@@ -2999,7 +2982,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 16 Generators
-   ;;;  ---
 
    ;; Defined by the prelude (§14.7), Ensue gives you infinite lazy
    ;; iterables, easy as recursion. Compare to loop-from (§14.8).
@@ -3186,7 +3168,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 17 Context Managers
-   ;;;  ---
 
    #> (define wrap
    #..  (contextlib..contextmanager
@@ -3334,7 +3315,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 18 Advanced Reader Macros
-   ;;;  ---
 
    ;;;; 18.1 The Discard Macro
 
@@ -3491,7 +3471,6 @@ Lissp Whirlwind Tour
 
 
    ;;;; 19 The Bundled Reader Macros
-   ;;;  ---
 
    ;;; Like the other bundled macros, these are available in the REPL by
    ;;; default, but most other contexts, like .lissp files, require fully-

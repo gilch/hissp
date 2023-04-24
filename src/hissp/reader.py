@@ -464,7 +464,7 @@ class Lissp:
 def is_hissp_string(form) -> bool:
     """Determines if form would directly represent a string in Hissp.
 
-    Allows "readerless mode"-style strings: ('quote', 'foo',)
+    Allows "readerless mode"-style strings: ('quote','foo',)
     and any string literal in a Hissp-level str: '"foo"'
     (including the "('foo')" form produced by the Lissp reader).
 
