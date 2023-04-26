@@ -1658,6 +1658,15 @@ Lissp Whirlwind Tour
    ...      'eggs.py',)))
    False
 
+.. admonition:: Pardon our dust.
+
+   You've reached the end of the Tour.
+   Sections after this point may be incomplete or missing.
+   (This is the bleeding-edge master branch version of the docs.)
+   The remainder of the old Whirlwind Tour is in the process of being migrated to the API docs.
+   Parts that haven't been migrated yet are included below for completeness.
+
+.. Lissp::
 
    ;;;; 14 The Bundled Macros
 
