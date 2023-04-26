@@ -5,18 +5,6 @@ SPDX-License-Identifier: Apache-2.0
 {% extends '!base.html' %}
 
 {% block extrahead %}
-<script>
-    {{ super() }}
-     ((window.gitter = {}).chat = {}).options = {
-       room: 'hissp-lang/community'
-     };
-</script>
-<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
-<style type="text/css">
-.gitter-chat-embed {
-  z-index: 401
-}
-</style>
 <style type="text/css">
 /* Contrast Tweaks for Monokai Theme */
 .highlight .gh {
