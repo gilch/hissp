@@ -1710,6 +1710,162 @@ Lissp Whirlwind Tour
    ;;; Familiarize yourself with a macro suite, such as the bundled macros.
    ;;; It makes Hissp that much more usable.
 
+   ;;;; 15 Advanced Reader Macros
+
+   ;;;; 15.1 The Discard Macro
+
+   #> _#"The discard reader macro _# omits the next form.
+   #..It's a way to comment out code structurally.
+   #..It can also make block comments like this one.
+   #..This would show up when compiled if not for _#.
+   #..Of course, a string expression like this one wouldn't do anything
+   #..in Python, even if it were compiled in. But the need to escape double
+   #..quotes might make ;; comments easier.
+   #.."
+   >>>
+
+   #> (print 1 _#(I'm not here!) 2 3)
+   >>> print(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   1 2 3
+
+
+   ;;;; 15.2 Fully-Qualified Reader Macros
+
+   ;; Invoke any fully-qualified callable on the next parsed object at read time.
+   #> builtins..hex#3840                  ;Fully-Qualified name ending in # is a reader macro.
+   >>> 0xf00
+   3840
+
+   #> builtins..ord#Q                     ;Reader macros make literal notation extensible.
+   >>> (81)
+   81
+
+   #> math..exp#1                         ;e^1. Or to whatever number. At read time.
+   >>> (2.718281828459045)
+   2.718281828459045
+
+
+   ;; Reader macros compose like functions.
+   #> 'hissp.munger..demunge#Qz_QzGT_QzGT_   ;Note the starting '.
+   >>> '->>'
+   '->>'
+
+   #> ''x
+   >>> ('quote',
+   ...  'x',)
+   ('quote', 'x')
+
+   #> '\'x
+   >>> 'QzAPOS_x'
+   'QzAPOS_x'
+
+
+   ;; The reader normally discards them, but
+   #> 'builtins..repr#;comments are parsed objects too!
+   >>> "Comment(content='comments are parsed objects too!')"
+   "Comment(content='comments are parsed objects too!')"
+
+
+   ;;; Except for strings and tuples, objects in Hissp should evaluate
+   ;;; to themselves. But when the object lacks a Python literal notation,
+   ;;; the compiler is in a pickle!
+
+   #> builtins..float#inf
+   >>> __import__('pickle').loads(  # inf
+   ...     b'Finf\n'
+   ...     b'.'
+   ... )
+   inf
+
+
+   ;;;; 15.3 Inject
+
+   ;;; The 'inject' reader macro compiles and evaluates the next form at
+   ;;; read time and injects the resulting object directly into the Hissp
+   ;;; tree, like a fully-qualified reader macro does.
+
+   #> '(1 2 (operator..add 1 2))          ;Quoting happens at compile time.
+   >>> ((1),
+   ...  (2),
+   ...  ('operator..add',
+   ...   (1),
+   ...   (2),),)
+   (1, 2, ('operator..add', 1, 2))
+
+   #> '(1 2 .#(operator..add 1 2))        ;Inject happens at read time.
+   >>> ((1),
+   ...  (2),
+   ...  (3),)
+   (1, 2, 3)
+
+
+   #> (fractions..Fraction 1 2)           ;Run time eval. Compiles to equivalent code.
+   >>> __import__('fractions').Fraction(
+   ...   (1),
+   ...   (2))
+   Fraction(1, 2)
+
+   #> .#(fractions..Fraction 1 2)         ;Read time eval. Compiles to equivalent object.
+   >>> __import__('pickle').loads(  # Fraction(1, 2)
+   ...     b'cfractions\n'
+   ...     b'Fraction\n'
+   ...     b'(V1/2\n'
+   ...     b'tR.'
+   ... )
+   Fraction(1, 2)
+
+
+   ;;; Recall that Hissp-level string objects can represent
+   ;;; arbitrary Python code. It's usually used for identifiers,
+   ;;; but can be anything, even complex formulas.
+
+   #> (lambda abc
+   #..  ;; Hissp may not have operators, but Python does.
+   #..  .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
+   >>> (lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a))
+   <function <lambda> at 0x...>
+
+
+   ;;; Remember the raw string and hash string reader syntax makes Python-
+   ;;; level strings, via a Hissp-level string containing a Python string
+   ;;; literal. It is NOT for creating a Hissp-level string, which would
+   ;;; normally contain Python code. Use inject for that.
+
+   #> '"a string"                         ;Python code for a string. In a string.
+   >>> "('a string')"
+   "('a string')"
+
+   ;; Injection of an object to the Hissp level. In this case, a string object.
+   #> '.#"a string"                       ;Quoting renders a Hissp-level string as data.
+   >>> 'a string'
+   'a string'
+
+
+   ;; Objects without literals don't pickle until the compiler has to emit
+   ;; them as Python code. That may never happen if another macro gets it.
+   #> 'builtins..repr#(re..compile#.#"[1-9][0-9]*" builtins..float#inf)
+   >>> "(re.compile('[1-9][0-9]*'), inf)"
+   "(re.compile('[1-9][0-9]*'), inf)"
+
+   #> re..compile#.#"[1-9][0-9]*"
+   >>> __import__('pickle').loads(  # re.compile('[1-9][0-9]*')
+   ...     b'cre\n'
+   ...     b'_compile\n'
+   ...     b'(V[1-9][0-9]*\n'
+   ...     b'I32\n'
+   ...     b'tR.'
+   ... )
+   re.compile('[1-9][0-9]*')
+
+
+   ;; Statement injections work at the top level only.
+   #> .#"from operator import *"          ;All your operator are belong to us.
+   >>> from operator import *
+
+
 .. admonition:: Pardon our dust.
 
    You've reached the end of the Tour.
@@ -3373,162 +3529,6 @@ Lissp Whirlwind Tour
    Traceback (most recent call last):
      ...
    Exception
-
-
-   ;;;; 18 Advanced Reader Macros
-
-   ;;;; 18.1 The Discard Macro
-
-   #> _#"The discard reader macro _# omits the next form.
-   #..It's a way to comment out code structurally.
-   #..It can also make block comments like this one.
-   #..This would show up when compiled if not for _#.
-   #..Of course, a string expression like this one wouldn't do anything
-   #..in Python, even if it were compiled in. But the need to escape double
-   #..quotes might make ;; comments easier.
-   #.."
-   >>>
-
-   #> (print 1 _#(I'm not here!) 2 3)
-   >>> print(
-   ...   (1),
-   ...   (2),
-   ...   (3))
-   1 2 3
-
-
-   ;;;; 18.2 Fully-Qualified Reader Macros
-
-   ;; Invoke any fully-qualified callable on the next parsed object at read time.
-   #> builtins..hex#3840                  ;Fully-Qualified name ending in # is a reader macro.
-   >>> 0xf00
-   3840
-
-   #> builtins..ord#Q                     ;Reader macros make literal notation extensible.
-   >>> (81)
-   81
-
-   #> math..exp#1                         ;e^1. Or to whatever number. At read time.
-   >>> (2.718281828459045)
-   2.718281828459045
-
-
-   ;; Reader macros compose like functions.
-   #> 'hissp.munger..demunge#Qz_QzGT_QzGT_   ;Note the starting '.
-   >>> '->>'
-   '->>'
-
-   #> ''x
-   >>> ('quote',
-   ...  'x',)
-   ('quote', 'x')
-
-   #> '\'x
-   >>> 'QzAPOS_x'
-   'QzAPOS_x'
-
-
-   ;; The reader normally discards them, but
-   #> 'builtins..repr#;comments are parsed objects too!
-   >>> "Comment(content='comments are parsed objects too!')"
-   "Comment(content='comments are parsed objects too!')"
-
-
-   ;;; Except for strings and tuples, objects in Hissp should evaluate
-   ;;; to themselves. But when the object lacks a Python literal notation,
-   ;;; the compiler is in a pickle!
-
-   #> builtins..float#inf
-   >>> __import__('pickle').loads(  # inf
-   ...     b'Finf\n'
-   ...     b'.'
-   ... )
-   inf
-
-
-   ;;;; 18.3 Inject
-
-   ;;; The 'inject' reader macro compiles and evaluates the next form at
-   ;;; read time and injects the resulting object directly into the Hissp
-   ;;; tree, like a fully-qualified reader macro does.
-
-   #> '(1 2 (operator..add 1 2))          ;Quoting happens at compile time.
-   >>> ((1),
-   ...  (2),
-   ...  ('operator..add',
-   ...   (1),
-   ...   (2),),)
-   (1, 2, ('operator..add', 1, 2))
-
-   #> '(1 2 .#(operator..add 1 2))        ;Inject happens at read time.
-   >>> ((1),
-   ...  (2),
-   ...  (3),)
-   (1, 2, 3)
-
-
-   #> (fractions..Fraction 1 2)           ;Run time eval. Compiles to equivalent code.
-   >>> __import__('fractions').Fraction(
-   ...   (1),
-   ...   (2))
-   Fraction(1, 2)
-
-   #> .#(fractions..Fraction 1 2)         ;Read time eval. Compiles to equivalent object.
-   >>> __import__('pickle').loads(  # Fraction(1, 2)
-   ...     b'cfractions\n'
-   ...     b'Fraction\n'
-   ...     b'(V1/2\n'
-   ...     b'tR.'
-   ... )
-   Fraction(1, 2)
-
-
-   ;;; Recall that Hissp-level string objects can represent
-   ;;; arbitrary Python code. It's usually used for identifiers,
-   ;;; but can be anything, even complex formulas.
-
-   #> (lambda abc
-   #..  ;; Hissp may not have operators, but Python does.
-   #..  .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
-   >>> (lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a))
-   <function <lambda> at 0x...>
-
-
-   ;;; Remember the raw string and hash string reader syntax makes Python-
-   ;;; level strings, via a Hissp-level string containing a Python string
-   ;;; literal. It is NOT for creating a Hissp-level string, which would
-   ;;; normally contain Python code. Use inject for that.
-
-   #> '"a string"                         ;Python code for a string. In a string.
-   >>> "('a string')"
-   "('a string')"
-
-   ;; Injection of an object to the Hissp level. In this case, a string object.
-   #> '.#"a string"                       ;Quoting renders a Hissp-level string as data.
-   >>> 'a string'
-   'a string'
-
-
-   ;; Objects without literals don't pickle until the compiler has to emit
-   ;; them as Python code. That may never happen if another macro gets it.
-   #> 'builtins..repr#(re..compile#.#"[1-9][0-9]*" builtins..float#inf)
-   >>> "(re.compile('[1-9][0-9]*'), inf)"
-   "(re.compile('[1-9][0-9]*'), inf)"
-
-   #> re..compile#.#"[1-9][0-9]*"
-   >>> __import__('pickle').loads(  # re.compile('[1-9][0-9]*')
-   ...     b'cre\n'
-   ...     b'_compile\n'
-   ...     b'(V[1-9][0-9]*\n'
-   ...     b'I32\n'
-   ...     b'tR.'
-   ... )
-   re.compile('[1-9][0-9]*')
-
-
-   ;; Statement injections work at the top level only.
-   #> .#"from operator import *"          ;All your operator are belong to us.
-   >>> from operator import *
 
 
    ;;;; 19 The Bundled Reader Macros
