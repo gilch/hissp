@@ -1658,6 +1658,58 @@ Lissp Whirlwind Tour
    ...      'eggs.py',)))
    False
 
+
+   ;;;; 14 The Bundled Macros
+
+   ;;; To make it more usable, the REPL comes with the bundled macros
+   ;;; already defined at start up. They're in the _macro_ namespace.
+
+   (dir _macro_)
+
+   ;;; This is a copy of of the following module.
+
+   #> hissp.._macro_
+   >>> __import__('hissp')._macro_
+   <module 'hissp.macros._macro_'>
+
+   (dir hissp.._macro_)
+
+   ;;; Notice its containing module. Take a minute to read its docstring.
+
+   (help hissp.macros.)
+
+   ;;; The macros will still be available from there even if you clobber
+   ;;; your _macro_ copy. Recall that you can invoke macros using their
+   ;;; fully-qualified names.
+
+   ;;; The bundled macros have individual docstrings with usage examples.
+
+   (help _macro_.define)
+
+   ;;; Two particularly important ones to know are alias and the prelude.
+   ;;; Unlike the REPL, Lissp modules do not have a _macro_ namespace by
+   ;;; default. A typical Lissp module will start with a fully-qualified
+   ;;; invocation of something like one of these to create the _macro_
+   ;;; namespace for the module.
+
+   ;;; Aliases can give you access to macros defined elsewhere using
+   ;;; abbreviated qualifiers, as well as attributes of ordinary modules.
+
+   (help _macro_.alias)
+
+   ;;; The prelude copies _macro_ from hissp._macro_ like the REPL, defines
+   ;;; some Python interop helper functions, and imports Python's standard-library
+   ;;; functional utilities.
+
+   (help _macro_.prelude)
+
+   ;;; The dosctrings use reStructuredText markup. While readable as plain
+   ;;; text in the help console, they're also rendered as HTML using Sphinx
+   ;;; in Hissp's online API docs. Find them at https://hissp.rtfd.io
+
+   ;;; Familiarize yourself with a macro suite, such as the bundled macros.
+   ;;; It makes Hissp that much more usable.
+
 .. admonition:: Pardon our dust.
 
    You've reached the end of the Tour.
