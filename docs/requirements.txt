@@ -1,5 +1,5 @@
 # This configuration file is part of Hissp's documentation,
 # copyright 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
-sphinx==4.2.0
-furo==2021.9.22
+sphinx==6.2.1
+furo==2023.03.27
