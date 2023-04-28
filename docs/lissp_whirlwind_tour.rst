@@ -1661,6 +1661,430 @@ Lissp Whirlwind Tour
 
    ;;;; 14 The Bundled Macros
 
+   ;;; To make it more usable, the REPL comes with the bundled macros
+   ;;; already defined at start up. They're in the _macro_ namespace.
+
+   (dir _macro_)
+
+   ;;; This is a copy of of the following module.
+
+   #> hissp.._macro_
+   >>> __import__('hissp')._macro_
+   <module 'hissp.macros._macro_'>
+
+   (dir hissp.._macro_)
+
+   ;;; Notice its containing module. Take a minute to read its docstring.
+
+   (help hissp.macros.)
+
+   ;;; The macros will still be available from there even if you clobber
+   ;;; your _macro_ copy. Recall that you can invoke macros using their
+   ;;; fully-qualified names.
+
+   ;;; The bundled macros have individual docstrings with usage examples.
+
+   (help _macro_.define)
+
+   ;;; Two particularly important ones to know are alias and the prelude.
+   ;;; Unlike the REPL, Lissp modules do not have a _macro_ namespace by
+   ;;; default. A typical Lissp module will start with a fully-qualified
+   ;;; invocation of something like one of these to create the _macro_
+   ;;; namespace for the module.
+
+   ;;; Aliases can give you access to macros defined elsewhere using
+   ;;; abbreviated qualifiers, as well as attributes of ordinary modules.
+
+   (help _macro_.alias)
+
+   ;;; The prelude copies _macro_ from hissp._macro_ like the REPL, defines
+   ;;; some Python interop helper functions, and imports Python's standard-library
+   ;;; functional utilities.
+
+   (help _macro_.prelude)
+
+   ;;; The dosctrings use reStructuredText markup. While readable as plain
+   ;;; text in the help console, they're also rendered as HTML using Sphinx
+   ;;; in Hissp's online API docs. Find them at https://hissp.rtfd.io
+
+   ;;; Familiarize yourself with a macro suite, such as the bundled macros.
+   ;;; It makes Hissp that much more usable.
+
+   ;;;; 15 Advanced Reader Macros
+
+   ;;;; 15.1 The Discard Macro
+
+   #> _#"The discard reader macro _# omits the next form.
+   #..It's a way to comment out code structurally.
+   #..It can also make block comments like this one.
+   #..This would show up when compiled if not for _#.
+   #..Of course, a string expression like this one wouldn't do anything
+   #..in Python, even if it were compiled in. But the need to escape double
+   #..quotes might make ;; comments easier.
+   #.."
+   >>>
+
+   #> (print 1 _#(I'm not here!) 2 3)
+   >>> print(
+   ...   (1),
+   ...   (2),
+   ...   (3))
+   1 2 3
+
+
+   ;;;; 15.2 Fully-Qualified Reader Macros
+
+   ;; Invoke any fully-qualified callable on the next parsed object at read time.
+   #> builtins..hex#3840                  ;Fully-Qualified name ending in # is a reader macro.
+   >>> 0xf00
+   3840
+
+   #> builtins..ord#Q                     ;Reader macros make literal notation extensible.
+   >>> (81)
+   81
+
+   #> math..exp#1                         ;e^1. Or to whatever number. At read time.
+   >>> (2.718281828459045)
+   2.718281828459045
+
+
+   ;; Reader macros compose like functions.
+   #> 'hissp.munger..demunge#Qz_QzGT_QzGT_   ;Note the starting '.
+   >>> '->>'
+   '->>'
+
+   #> ''x
+   >>> ('quote',
+   ...  'x',)
+   ('quote', 'x')
+
+   #> '\'x
+   >>> 'QzAPOS_x'
+   'QzAPOS_x'
+
+
+   ;; The reader normally discards them, but
+   #> 'builtins..repr#;comments are parsed objects too!
+   >>> "Comment(content='comments are parsed objects too!')"
+   "Comment(content='comments are parsed objects too!')"
+
+
+   ;;; Except for strings and tuples, objects in Hissp should evaluate
+   ;;; to themselves. But when the object lacks a Python literal notation,
+   ;;; the compiler is in a pickle!
+
+   #> builtins..float#inf
+   >>> __import__('pickle').loads(  # inf
+   ...     b'Finf\n'
+   ...     b'.'
+   ... )
+   inf
+
+
+   ;;;; 15.3 Inject
+
+   ;;; The 'inject' reader macro compiles and evaluates the next form at
+   ;;; read time and injects the resulting object directly into the Hissp
+   ;;; tree, like a fully-qualified reader macro does.
+
+   #> '(1 2 (operator..add 1 2))          ;Quoting happens at compile time.
+   >>> ((1),
+   ...  (2),
+   ...  ('operator..add',
+   ...   (1),
+   ...   (2),),)
+   (1, 2, ('operator..add', 1, 2))
+
+   #> '(1 2 .#(operator..add 1 2))        ;Inject happens at read time.
+   >>> ((1),
+   ...  (2),
+   ...  (3),)
+   (1, 2, 3)
+
+
+   #> (fractions..Fraction 1 2)           ;Run time eval. Compiles to equivalent code.
+   >>> __import__('fractions').Fraction(
+   ...   (1),
+   ...   (2))
+   Fraction(1, 2)
+
+   #> .#(fractions..Fraction 1 2)         ;Read time eval. Compiles to equivalent object.
+   >>> __import__('pickle').loads(  # Fraction(1, 2)
+   ...     b'cfractions\n'
+   ...     b'Fraction\n'
+   ...     b'(V1/2\n'
+   ...     b'tR.'
+   ... )
+   Fraction(1, 2)
+
+
+   ;;; Recall that Hissp-level string objects can represent
+   ;;; arbitrary Python code. It's usually used for identifiers,
+   ;;; but can be anything, even complex formulas.
+
+   #> (lambda abc
+   #..  ;; Hissp may not have operators, but Python does.
+   #..  .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
+   >>> (lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a))
+   <function <lambda> at 0x...>
+
+
+   ;;; Remember the raw string and hash string reader syntax makes Python-
+   ;;; level strings, via a Hissp-level string containing a Python string
+   ;;; literal. It is NOT for creating a Hissp-level string, which would
+   ;;; normally contain Python code. Use inject for that.
+
+   #> '"a string"                         ;Python code for a string. In a string.
+   >>> "('a string')"
+   "('a string')"
+
+   ;; Injection of an object to the Hissp level. In this case, a string object.
+   #> '.#"a string"                       ;Quoting renders a Hissp-level string as data.
+   >>> 'a string'
+   'a string'
+
+
+   ;; Objects without literals don't pickle until the compiler has to emit
+   ;; them as Python code. That may never happen if another macro gets it.
+   #> 'builtins..repr#(re..compile#.#"[1-9][0-9]*" builtins..float#inf)
+   >>> "(re.compile('[1-9][0-9]*'), inf)"
+   "(re.compile('[1-9][0-9]*'), inf)"
+
+   #> re..compile#.#"[1-9][0-9]*"
+   >>> __import__('pickle').loads(  # re.compile('[1-9][0-9]*')
+   ...     b'cre\n'
+   ...     b'_compile\n'
+   ...     b'(V[1-9][0-9]*\n'
+   ...     b'I32\n'
+   ...     b'tR.'
+   ... )
+   re.compile('[1-9][0-9]*')
+
+
+   ;; Statement injections work at the top level only.
+   #> .#"from operator import *"          ;All your operator are belong to us.
+   >>> from operator import *
+
+
+   ;;;; 15.4 Extra (!), the Final Builtin Reader Macro
+
+   ;;; Reader macros take one primary argument, but additional arguments
+   ;;; can be passed in with the extra macro !. A reader macro consumes the
+   ;;; next parsed object, and if it's an Extra, consumes one again. Thus,
+   ;;; extras must be written between the # and primary argument, but
+   ;;; because they're often optional refinements, which are easier to
+   ;;; define as trailing optional parameters in Python functions, they get
+   ;;; passed in after the primary argument.
+
+   #> (setattr _macro_ 'L\# en#list) ; (help _macro_.en\#)
+   >>> setattr(
+   ...   _macro_,
+   ...   'LQzHASH_',
+   ...   (lambda *_QzNo84_xs:
+   ...     list(
+   ...       _QzNo84_xs)))
+
+
+   #> L#primary
+   >>> ['primary']
+   ['primary']
+
+   #> L#!1 primary
+   >>> ['primary', 1]
+   ['primary', 1]
+
+
+   ;; Alias can work on reader macros too!
+   #> (hissp.._macro_.alias M: hissp.._macro_) ; prelude alternative
+   >>> # hissp.._macro_.alias
+   ... # hissp.macros.._macro_.defmacro
+   ... # hissp.macros.._macro_.let
+   ... (lambda _QzNo7_fn=(lambda _QzNo27_prime,_QzNo27_reader=None,*_QzNo27_args:(
+   ...   'Aliases ``hissp.._macro_`` as ``MQzCOLON_#``.',
+   ...   # hissp.macros.._macro_.ifQz_else
+   ...   (lambda test,*thenQz_else:
+   ...     __import__('operator').getitem(
+   ...       thenQz_else,
+   ...       __import__('operator').not_(
+   ...         test))())(
+   ...     _QzNo27_reader,
+   ...     (lambda :
+   ...       __import__('builtins').getattr(
+   ...         __import__('hissp')._macro_,
+   ...         ('{}{}').format(
+   ...           _QzNo27_reader,
+   ...           # hissp.macros.._macro_.ifQz_else
+   ...           (lambda test,*thenQz_else:
+   ...             __import__('operator').getitem(
+   ...               thenQz_else,
+   ...               __import__('operator').not_(
+   ...                 test))())(
+   ...             'hissp.._macro_'.endswith(
+   ...               '._macro_'),
+   ...             (lambda :'QzHASH_'),
+   ...             (lambda :('')))))(
+   ...         _QzNo27_prime,
+   ...         *_QzNo27_args)),
+   ...     (lambda :
+   ...       ('{}.{}').format(
+   ...         'hissp.._macro_',
+   ...         _QzNo27_prime))))[-1]):(
+   ...   __import__('builtins').setattr(
+   ...     _QzNo7_fn,
+   ...     '__doc__',
+   ...     'Aliases ``hissp.._macro_`` as ``MQzCOLON_#``.'),
+   ...   __import__('builtins').setattr(
+   ...     _QzNo7_fn,
+   ...     '__qualname__',
+   ...     ('.').join(
+   ...       ('_macro_',
+   ...        'MQzCOLON_QzHASH_',))),
+   ...   __import__('builtins').setattr(
+   ...     __import__('operator').getitem(
+   ...       __import__('builtins').globals(),
+   ...       '_macro_'),
+   ...     'MQzCOLON_QzHASH_',
+   ...     _QzNo7_fn))[-1])()
+
+   #> M:#!b"Read-time b# via alias."      ;Extra arg for alias with (!)
+   >>> b'Read-time b# via alias.'
+   b'Read-time b# via alias.'
+
+
+   #> L# !1 !2 primary                    ;Note the order!
+   >>> ['primary', 1, 2]
+   ['primary', 1, 2]
+
+   #> .#(en#list "primary" 1 2)           ;Inject. Note the order.
+   >>> ['primary', 1, 2]
+   ['primary', 1, 2]
+
+
+   #> !1                                  ;! is for a single Extra.
+   >>> __import__('pickle').loads(  # Extra([1])
+   ...     b'ccopyreg\n'
+   ...     b'_reconstructor\n'
+   ...     b'(chissp.reader\n'
+   ...     b'Extra\n'
+   ...     b'cbuiltins\n'
+   ...     b'tuple\n'
+   ...     b'(I1\n'
+   ...     b'ttR.'
+   ... )
+   Extra([1])
+
+   #> hissp.reader..Extra#(: :? 0 :* (1 2 3)) ; but Extra can have multiple elements.
+   >>> __import__('pickle').loads(  # Extra([':', ':?', 0, ':*', (1, 2, 3)])
+   ...     b'ccopyreg\n'
+   ...     b'_reconstructor\n'
+   ...     b'(chissp.reader\n'
+   ...     b'Extra\n'
+   ...     b'cbuiltins\n'
+   ...     b'tuple\n'
+   ...     b'(V:\n'
+   ...     b'V:?\n'
+   ...     b'I0\n'
+   ...     b'V:*\n'
+   ...     b'(I1\n'
+   ...     b'I2\n'
+   ...     b'I3\n'
+   ...     b'tttR.'
+   ... )
+   Extra([':', ':?', 0, ':*', (1, 2, 3)])
+
+   #> !!!1 2 3                            ;Extras can have extras. They stack.
+   >>> __import__('pickle').loads(  # Extra([1, 2, 3])
+   ...     b'ccopyreg\n'
+   ...     b'_reconstructor\n'
+   ...     b'(chissp.reader\n'
+   ...     b'Extra\n'
+   ...     b'cbuiltins\n'
+   ...     b'tuple\n'
+   ...     b'(I1\n'
+   ...     b'I2\n'
+   ...     b'I3\n'
+   ...     b'ttR.'
+   ... )
+   Extra([1, 2, 3])
+
+
+   #> L#!: !:* !(0 1 2) !:? !3 primary    ;Unpacking works like calls.
+   >>> ['primary', 0, 1, 2, 3]
+   ['primary', 0, 1, 2, 3]
+
+   #> L#!0 !: !:* !(1 2 3)primary         ;Same effect.
+   >>> ['primary', 0, 1, 2, 3]
+   ['primary', 0, 1, 2, 3]
+
+   #> L#hissp.reader..Extra#(0 : :* (1 2 3))primary ;Same effect.
+   >>> ['primary', 0, 1, 2, 3]
+   ['primary', 0, 1, 2, 3]
+
+
+   #> (setattr _macro_ 'E\# hissp.reader..Extra)
+   >>> setattr(
+   ...   _macro_,
+   ...   'EQzHASH_',
+   ...   __import__('hissp.reader',fromlist='?').Extra)
+
+
+   #> L# !0 E#(1 2) !3 primary            ;Same effect.
+   >>> ['primary', 0, 1, 2, 3]
+   ['primary', 0, 1, 2, 3]
+
+   #> L#E#(0 : :* (1 2 3))primary         ;Same effect.
+   >>> ['primary', 0, 1, 2, 3]
+   ['primary', 0, 1, 2, 3]
+
+
+   ;; Kwargs also work like calls.
+   #> builtins..dict#()
+   >>> {}
+   {}
+
+   #> builtins..dict#!: !spam !1  !foo !2  !:** !.#(dict : eggs 3  bar 4)()
+   >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
+   {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
+
+   #> builtins..dict#E#(: spam 1  foo 2  :** .#(dict : eggs 3  bar 4))()
+   >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
+   {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
+
+   #> builtins..dict#!: !!spam 1 !!foo 2 !!:** .#(dict : eggs 3  bar 4)()
+   >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
+   {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
+
+
+   ;; Yeah, you can nest these if you have to.
+   #> L# !x
+   #..   !L# !1 L# !A
+   #..          inner
+   #..   !y
+   #..outer
+   >>> ['outer', 'x', [['inner', 'A'], 1], 'y']
+   ['outer', 'x', [['inner', 'A'], 1], 'y']
+
+
+   ;; The compiler will evaluate tuples no matter how the reader produces them.
+   #> builtins..tuple#L# !"Hello" !"World!" print
+   >>> print(
+   ...   ('Hello'),
+   ...   ('World!'))
+   Hello World!
+
+
+.. admonition:: Pardon our dust.
+
+   You've reached the end of the Tour.
+   Sections after this point may be incomplete or missing.
+   (This is the bleeding-edge master branch version of the docs.)
+   The remainder of the old Whirlwind Tour is in the process of being migrated to the API docs.
+   Parts that haven't been migrated yet are included below for completeness.
+
+.. Lissp::
+
+   ;;;; 14 The Bundled Macros
+
    ;;; To make the REPL more usable, it comes with some basic macros already
    ;;; defined. Their design has been deliberately restricted so that their
    ;;; compiled output does not require the Hissp package to be installed to
@@ -3314,162 +3738,6 @@ Lissp Whirlwind Tour
    Exception
 
 
-   ;;;; 18 Advanced Reader Macros
-
-   ;;;; 18.1 The Discard Macro
-
-   #> _#"The discard reader macro _# omits the next form.
-   #..It's a way to comment out code structurally.
-   #..It can also make block comments like this one.
-   #..This would show up when compiled if not for _#.
-   #..Of course, a string expression like this one wouldn't do anything
-   #..in Python, even if it were compiled in. But the need to escape double
-   #..quotes might make ;; comments easier.
-   #.."
-   >>>
-
-   #> (print 1 _#(I'm not here!) 2 3)
-   >>> print(
-   ...   (1),
-   ...   (2),
-   ...   (3))
-   1 2 3
-
-
-   ;;;; 18.2 Fully-Qualified Reader Macros
-
-   ;; Invoke any fully-qualified callable on the next parsed object at read time.
-   #> builtins..hex#3840                  ;Fully-Qualified name ending in # is a reader macro.
-   >>> 0xf00
-   3840
-
-   #> builtins..ord#Q                     ;Reader macros make literal notation extensible.
-   >>> (81)
-   81
-
-   #> math..exp#1                         ;e^1. Or to whatever number. At read time.
-   >>> (2.718281828459045)
-   2.718281828459045
-
-
-   ;; Reader macros compose like functions.
-   #> 'hissp.munger..demunge#Qz_QzGT_QzGT_   ;Note the starting '.
-   >>> '->>'
-   '->>'
-
-   #> ''x
-   >>> ('quote',
-   ...  'x',)
-   ('quote', 'x')
-
-   #> '\'x
-   >>> 'QzAPOS_x'
-   'QzAPOS_x'
-
-
-   ;; The reader normally discards them, but
-   #> 'builtins..repr#;comments are parsed objects too!
-   >>> "Comment(content='comments are parsed objects too!')"
-   "Comment(content='comments are parsed objects too!')"
-
-
-   ;;; Except for strings and tuples, objects in Hissp should evaluate
-   ;;; to themselves. But when the object lacks a Python literal notation,
-   ;;; the compiler is in a pickle!
-
-   #> builtins..float#inf
-   >>> __import__('pickle').loads(  # inf
-   ...     b'Finf\n'
-   ...     b'.'
-   ... )
-   inf
-
-
-   ;;;; 18.3 Inject
-
-   ;;; The 'inject' reader macro compiles and evaluates the next form at
-   ;;; read time and injects the resulting object directly into the Hissp
-   ;;; tree, like a fully-qualified reader macro does.
-
-   #> '(1 2 (operator..add 1 2))          ;Quoting happens at compile time.
-   >>> ((1),
-   ...  (2),
-   ...  ('operator..add',
-   ...   (1),
-   ...   (2),),)
-   (1, 2, ('operator..add', 1, 2))
-
-   #> '(1 2 .#(operator..add 1 2))        ;Inject happens at read time.
-   >>> ((1),
-   ...  (2),
-   ...  (3),)
-   (1, 2, 3)
-
-
-   #> (fractions..Fraction 1 2)           ;Run time eval. Compiles to equivalent code.
-   >>> __import__('fractions').Fraction(
-   ...   (1),
-   ...   (2))
-   Fraction(1, 2)
-
-   #> .#(fractions..Fraction 1 2)         ;Read time eval. Compiles to equivalent object.
-   >>> __import__('pickle').loads(  # Fraction(1, 2)
-   ...     b'cfractions\n'
-   ...     b'Fraction\n'
-   ...     b'(V1/2\n'
-   ...     b'tR.'
-   ... )
-   Fraction(1, 2)
-
-
-   ;;; Recall that Hissp-level string objects can represent
-   ;;; arbitrary Python code. It's usually used for identifiers,
-   ;;; but can be anything, even complex formulas.
-
-   #> (lambda abc
-   #..  ;; Hissp may not have operators, but Python does.
-   #..  .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
-   >>> (lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a))
-   <function <lambda> at 0x...>
-
-
-   ;;; Remember the raw string and hash string reader syntax makes Python-
-   ;;; level strings, via a Hissp-level string containing a Python string
-   ;;; literal. It is NOT for creating a Hissp-level string, which would
-   ;;; normally contain Python code. Use inject for that.
-
-   #> '"a string"                         ;Python code for a string. In a string.
-   >>> "('a string')"
-   "('a string')"
-
-   ;; Injection of an object to the Hissp level. In this case, a string object.
-   #> '.#"a string"                       ;Quoting renders a Hissp-level string as data.
-   >>> 'a string'
-   'a string'
-
-
-   ;; Objects without literals don't pickle until the compiler has to emit
-   ;; them as Python code. That may never happen if another macro gets it.
-   #> 'builtins..repr#(re..compile#.#"[1-9][0-9]*" builtins..float#inf)
-   >>> "(re.compile('[1-9][0-9]*'), inf)"
-   "(re.compile('[1-9][0-9]*'), inf)"
-
-   #> re..compile#.#"[1-9][0-9]*"
-   >>> __import__('pickle').loads(  # re.compile('[1-9][0-9]*')
-   ...     b'cre\n'
-   ...     b'_compile\n'
-   ...     b'(V[1-9][0-9]*\n'
-   ...     b'I32\n'
-   ...     b'tR.'
-   ... )
-   re.compile('[1-9][0-9]*')
-
-
-   ;; Statement injections work at the top level only.
-   #> .#"from operator import *"          ;All your operator are belong to us.
-   >>> from operator import *
-
-
    ;;;; 19 The Bundled Reader Macros
 
    ;;; Like the other bundled macros, these are available in the REPL by
@@ -3765,156 +4033,3 @@ Lissp Whirlwind Tour
 
 
 
-   ;;; 19.1 Aside: Extra (!), the Final Builtin Reader Macro
-
-   ;; Reader macros take one primary argument, but additional arguments
-   ;; can be passed in with the extra macro !. A reader macro consumes the
-   ;; next parsed object, and if it's an Extra, consumes one again. Thus,
-   ;; extras must be written between the # and primary argument, but
-   ;; because they're often optional refinements, which are easier to
-   ;; define as trailing optional parameters in Python functions, they get
-   ;; passed in after the primary argument.
-   #> (setattr _macro_ 'L\# en#list)
-   >>> setattr(
-   ...   _macro_,
-   ...   'LQzHASH_',
-   ...   (lambda *_QzNo84_xs:
-   ...     list(
-   ...       _QzNo84_xs)))
-
-
-   #> L#primary
-   >>> ['primary']
-   ['primary']
-
-   #> L#!1 primary
-   >>> ['primary', 1]
-   ['primary', 1]
-
-
-   ;; Alias can work on reader macros too!
-   #> M:#!b"Read-time b# via alias."      ;Extra arg for alias with (!)
-   >>> b'Read-time b# via alias.'
-   b'Read-time b# via alias.'
-
-
-   #> L# !1 !2 primary                    ;Note the order!
-   >>> ['primary', 1, 2]
-   ['primary', 1, 2]
-
-   #> .#(en#list "primary" 1 2)           ;Inject. Note the order.
-   >>> ['primary', 1, 2]
-   ['primary', 1, 2]
-
-
-   #> !1                                  ;! is for a single Extra.
-   >>> __import__('pickle').loads(  # Extra([1])
-   ...     b'ccopyreg\n'
-   ...     b'_reconstructor\n'
-   ...     b'(chissp.reader\n'
-   ...     b'Extra\n'
-   ...     b'cbuiltins\n'
-   ...     b'tuple\n'
-   ...     b'(I1\n'
-   ...     b'ttR.'
-   ... )
-   Extra([1])
-
-   #> hissp.reader..Extra#(: :? 0 :* (1 2 3)) ; but Extra can have multiple elements.
-   >>> __import__('pickle').loads(  # Extra([':', ':?', 0, ':*', (1, 2, 3)])
-   ...     b'ccopyreg\n'
-   ...     b'_reconstructor\n'
-   ...     b'(chissp.reader\n'
-   ...     b'Extra\n'
-   ...     b'cbuiltins\n'
-   ...     b'tuple\n'
-   ...     b'(V:\n'
-   ...     b'V:?\n'
-   ...     b'I0\n'
-   ...     b'V:*\n'
-   ...     b'(I1\n'
-   ...     b'I2\n'
-   ...     b'I3\n'
-   ...     b'tttR.'
-   ... )
-   Extra([':', ':?', 0, ':*', (1, 2, 3)])
-
-   #> !!!1 2 3                            ;Extras can have extras. They stack.
-   >>> __import__('pickle').loads(  # Extra([1, 2, 3])
-   ...     b'ccopyreg\n'
-   ...     b'_reconstructor\n'
-   ...     b'(chissp.reader\n'
-   ...     b'Extra\n'
-   ...     b'cbuiltins\n'
-   ...     b'tuple\n'
-   ...     b'(I1\n'
-   ...     b'I2\n'
-   ...     b'I3\n'
-   ...     b'ttR.'
-   ... )
-   Extra([1, 2, 3])
-
-
-   #> L#!: !:* !(0 1 2) !:? !3 primary    ;Unpacking works like calls.
-   >>> ['primary', 0, 1, 2, 3]
-   ['primary', 0, 1, 2, 3]
-
-   #> L#!0 !: !:* !(1 2 3)primary         ;Same effect.
-   >>> ['primary', 0, 1, 2, 3]
-   ['primary', 0, 1, 2, 3]
-
-   #> L#hissp.reader..Extra#(0 : :* (1 2 3))primary ;Same effect.
-   >>> ['primary', 0, 1, 2, 3]
-   ['primary', 0, 1, 2, 3]
-
-
-   #> (setattr _macro_ 'E\# hissp.reader..Extra)
-   >>> setattr(
-   ...   _macro_,
-   ...   'EQzHASH_',
-   ...   __import__('hissp.reader',fromlist='?').Extra)
-
-
-   #> L# !0 E#(1 2) !3 primary            ;Same effect.
-   >>> ['primary', 0, 1, 2, 3]
-   ['primary', 0, 1, 2, 3]
-
-   #> L#E#(0 : :* (1 2 3))primary         ;Same effect.
-   >>> ['primary', 0, 1, 2, 3]
-   ['primary', 0, 1, 2, 3]
-
-
-   ;; Kwargs also work like calls.
-   #> builtins..dict#()
-   >>> {}
-   {}
-
-   #> builtins..dict#!: !spam !1  !foo !2  !:** !.#(dict : eggs 3  bar 4)()
-   >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
-   {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
-
-   #> builtins..dict#E#(: spam 1  foo 2  :** .#(dict : eggs 3  bar 4))()
-   >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
-   {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
-
-   #> builtins..dict#!: !!spam 1 !!foo 2 !!:** .#(dict : eggs 3  bar 4)()
-   >>> {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
-   {'spam': 1, 'foo': 2, 'eggs': 3, 'bar': 4}
-
-
-   ;; Yeah, you can nest these if you have to.
-   #> L# !x
-   #..   !L# !1 L# !A
-   #..          inner
-   #..   !y
-   #..outer
-   >>> ['outer', 'x', [['inner', 'A'], 1], 'y']
-   ['outer', 'x', [['inner', 'A'], 1], 'y']
-
-
-   ;; The compiler will evaluate tuples no matter how the reader produces them.
-   #> builtins..tuple#L# !"Hello" !"World!" print
-   >>> print(
-   ...   ('Hello'),
-   ...   ('World!'))
-   Hello World!

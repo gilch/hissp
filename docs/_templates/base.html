@@ -5,18 +5,6 @@ SPDX-License-Identifier: Apache-2.0
 {% extends '!base.html' %}
 
 {% block extrahead %}
-<script>
-    {{ super() }}
-     ((window.gitter = {}).chat = {}).options = {
-       room: 'hissp-lang/community'
-     };
-</script>
-<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
-<style type="text/css">
-.gitter-chat-embed {
-  z-index: 401
-}
-</style>
 <style type="text/css">
 /* Contrast Tweaks for Monokai Theme */
 .highlight .gh {
@@ -24,7 +12,7 @@ SPDX-License-Identifier: Apache-2.0
   font-weight: bold;
 }
 .highlight .gu {
-  color: hsl(212deg, 30%, 96%);
+  color: hsl(212deg, 9%, 58%);
   font-style: italic;
 }
 .highlight .c {
@@ -44,7 +32,7 @@ body:not([data-theme="light"]) .highlight .gh {
   font-weight: bold;
 }
 body:not([data-theme="light"]) .highlight .gu {
-  color: hsl(212deg, 30%, 96%);
+  color: hsl(212deg, 9%, 58%);
   font-style: italic;
 }
 body:not([data-theme="light"]) .highlight .c {

@@ -945,7 +945,7 @@ and can strip it out when rendering help.
 If the docstring contains any newlines,
 the closing ``"`` gets its own line.
 
-It is acceptable to use reader macros that resolve to a string literal like `<<# <QzLT_QzLT_QzHASH_>`
+It is acceptable to use reader macros that resolve to a string literal like `<\<# <QzLT_QzLT_QzHASH_>`
 (which is useful for doctests),
 as long as the documentation text is also legible in the source code.
 
