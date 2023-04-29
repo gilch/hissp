@@ -2089,42 +2089,6 @@ Lissp Whirlwind Tour
 
    ;;;; 14.2 Side Effect
 
-   #> (print (prog1 0                     ;Sequence for side effects, eval to first.
-   #..         (print 1)
-   #..         (print 2)))
-   >>> print(
-   ...   # prog1
-   ...   # hissp.macros.._macro_.let
-   ...   (lambda _QzNo28_value1=(0):(
-   ...     print(
-   ...       (1)),
-   ...     print(
-   ...       (2)),
-   ...     _QzNo28_value1)[-1])())
-   1
-   2
-   0
-
-
-   #> (prog1                              ;Sequence for side effects, eval to first.
-   #..  (progn (print 1)                  ;Sequence for side effects, eval to last.
-   #..         3)
-   #..  (print 2))
-   >>> # prog1
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo35_value1=# progn
-   ... (lambda :(
-   ...   print(
-   ...     (1)),
-   ...   (3))[-1])():(
-   ...   print(
-   ...     (2)),
-   ...   _QzNo35_value1)[-1])()
-   1
-   2
-   3
-
-
    ;;;; 14.3 Definition
 
    #> (deftype Point2D (tuple)
