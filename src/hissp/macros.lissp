@@ -240,12 +240,47 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      (define ,name ,value)))
 
 (defmacro deftype (name bases : :* body)
-  "Defines a type (class) in the current module.
-
-  Key-value pairs are implied in the body.
-
-  See also: `type`, `@#!<QzAT_QzHASH_>`.
-  "
+  <<#
+  !;Defines a type (class) in the current module.
+  !;
+  !;Key-value pairs are implied by position in the body.
+  !;
+  !;.. code-block:: REPL
+  !;
+  !;   #> (deftype Point2D (tuple)
+  !;   #..  __doc__ "Simple ordered pair."
+  !;   #..  __new__ (lambda (cls x y)
+  !;   #..            (.__new__ tuple cls `(,x ,y)))
+  !;   #..  __repr__ (lambda (self)
+  !;   #..             (.format "Point2D({!r}, {!r})" : :* self)))
+  !;   >>> # deftype
+  !;   ... # hissp.macros.._macro_.define
+  !;   ... __import__('builtins').globals().update(
+  !;   ...   Point2D=__import__('builtins').type(
+  !;   ...             'Point2D',
+  !;   ...             (lambda * _: _)(
+  !;   ...               tuple),
+  !;   ...             __import__('builtins').dict(
+  !;   ...               __doc__=('Simple ordered pair.'),
+  !;   ...               __new__=(lambda cls,x,y:
+  !;   ...                         tuple.__new__(
+  !;   ...                           cls,
+  !;   ...                           (lambda * _: _)(
+  !;   ...                             x,
+  !;   ...                             y))),
+  !;   ...               __repr__=(lambda self:
+  !;   ...                          ('Point2D({!r}, {!r})').format(
+  !;   ...                            *self)))))
+  !;
+  !;   #> (Point2D 1 2)
+  !;   >>> Point2D(
+  !;   ...   (1),
+  !;   ...   (2))
+  !;   Point2D(1, 2)
+  !;
+  !;See also: `attach`, `type`, `@#!<QzAT_QzHASH_>`.
+  !;
+  #"\n"
   `(define ,name
        (type ',name (,hissp.reader..ENTUPLE ,@bases)
              (dict : ,@body))))

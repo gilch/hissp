@@ -2091,38 +2091,6 @@ Lissp Whirlwind Tour
 
    ;;;; 14.3 Definition
 
-   #> (deftype Point2D (tuple)
-   #..  __doc__ "Simple ordered pair."
-   #..  __new__ (lambda (cls x y)
-   #..            (.__new__ tuple cls `(,x ,y)))
-   #..  __repr__ (lambda (self)
-   #..             (.format "Point2D({!r}, {!r})" : :* self)))
-   >>> # deftype
-   ... # hissp.macros.._macro_.define
-   ... __import__('builtins').globals().update(
-   ...   Point2D=__import__('builtins').type(
-   ...             'Point2D',
-   ...             (lambda * _: _)(
-   ...               tuple),
-   ...             __import__('builtins').dict(
-   ...               __doc__=('Simple ordered pair.'),
-   ...               __new__=(lambda cls,x,y:
-   ...                         tuple.__new__(
-   ...                           cls,
-   ...                           (lambda * _: _)(
-   ...                             x,
-   ...                             y))),
-   ...               __repr__=(lambda self:
-   ...                          ('Point2D({!r}, {!r})').format(
-   ...                            *self)))))
-
-   #> (Point2D 1 2)
-   >>> Point2D(
-   ...   (1),
-   ...   (2))
-   Point2D(1, 2)
-
-
    ;; Define a function in the _macro_ namespace.
    ;; Creates the _macro_ namespace if absent.
    ;; Can also have a docstring.
