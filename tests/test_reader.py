@@ -214,10 +214,10 @@ EXPECTED = {
     """:control-word""": [":control-word"],
     "'symbol": [("quote", "symbol",)],
 
-    "'Also-a-symbol! '+ '->>": [
+    "'Also-a-symbol! '+ '-<>>": [
         ("quote", "AlsoQz_aQz_symbolQzBANG_",),
         ("quote", "QzPLUS_",),
-        ("quote", "Qz_QzGT_QzGT_",),
+        ("quote", "Qz_QzLT_QzGT_QzGT_",),
     ],
 
     '''"string" ""''': [

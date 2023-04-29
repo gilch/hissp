@@ -203,14 +203,15 @@
     (self.assertEqual (*#-> "-x-" (.replace "x" "y") (.strip "-") .upper)
                       "Y"))
 
-  test_->>
+  test_-<>>
   (lambda (self)
-    (self.assertEqual (*#->> (range 3)
+    (self.assertEqual (*#-<>> (range 3)
                              (map (lambda (x) (operator..mul x x)))
                              (filter (lambda (x) ; even?
                                        (operator..eq 0 (operator..mod x 2))))
+                             (enumerate :<> 100)
                              list)
-                      (enlist 0 4)))
+                      (enlist '(100 0) '(101 4))))
 
   test_prelude
   (lambda (self)

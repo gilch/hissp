@@ -679,26 +679,30 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Non-tuple ``forms`` (typically function identifiers) will be wrapped
   in a tuple. Makes chained method calls easier to read.
 
-  See also: `->><Qz_QzGT_QzGT_>`, `X#<XQzHASH_>`, `get#<getQzHASH_>`.
+  See also:
+  `-\<>><Qz_QzLT_QzGT_QzGT_>`, `X#<XQzHASH_>`, `get#<getQzHASH_>`.
   "
   (functools..reduce XY#.#"(Y[0],X,*Y[1:],)"
                      (map X#.#"X if type(X) is tuple else (X,)" forms)
                      expr))
 
-(defmacro ->> (expr : :* forms)
-  "``->>`` 'Thread-last'.
+(defmacro -<>> (expr : :* forms)
+  "``-<>>`` 'Thread'.
 
   Converts a pipeline to function calls by recursively threading
-  expressions as the last argument of the next form.
+  expressions into the next form at the first point indicated with :<>,
+  or at the last if no :<> is found. Non-tuple ``forms`` will be wrapped
+  in a tuple first.
+
   E.g. ``(->> x (A b) (C d e))`` is ``(C d e (A b x))``.
   Can replace partial application in some cases.
   Also works inside a ``->`` pipeline.
   E.g. ``(-> x (A a) (->> B b) (C c))`` is ``(C (B b (A x a)) c)``.
-  Non-tuple ``forms`` will be wrapped in a tuple.
 
   See also: `-><Qz_QzGT_>`.
   "
-  (functools..reduce XY#`(,@Y ,X)
+  (functools..reduce XY#(let (i (iter Y))
+                          `(,@(i#takewhile X#(op#ne X :<>) i) ,X ,@i))
                      (map X#.#"X if type(X) is tuple else (X,)" forms)
                      expr))
 
@@ -903,7 +907,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
       ast..literal_eval
       (.replace "'" "\'")
       (.replace #"\n" "\n")
-      (->> (.format "b'{}'"))
+      (-<>> (.format "b'{}'"))
       ast..literal_eval))
 
 (defmacro en\# (f)
