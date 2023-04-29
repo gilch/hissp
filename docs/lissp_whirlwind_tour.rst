@@ -2449,19 +2449,6 @@ Lissp Whirlwind Tour
 
    ;;;; 14.6 Threading
 
-   #> (-> "world!"                        ;Thread-first
-   #..    .title
-   #..    (->> (print "Hello")))          ;Thread-last
-   >>> # Qz_QzGT_
-   ... # Qz_QzGT_QzGT_
-   ... print(
-   ...   ('Hello'),
-   ...   ('world!').title())
-   Hello World!
-
-   (help _macro_.->)
-   (help _macro_.->>)
-
    ;;;; 14.7 The Prelude
 
    ;;; An inline convenience micro-prelude for Hissp.
