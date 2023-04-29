@@ -675,9 +675,34 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   Converts a pipeline to function calls by recursively threading
   expressions as the first argument of the next form.
-  E.g. ``(-> x (A b) (C d e))`` is ``(C (A x b) d e)``
-  Non-tuple ``forms`` (typically function identifiers) will be wrapped
-  in a tuple. Makes chained method calls easier to read.
+  Non-tuple forms (typically function identifiers) will be wrapped
+  in a tuple. Can make chained method calls easier to read.
+
+  .. code-block:: REPL
+
+    #> (.-> _macro_ : :* '(x (A b) (C d e)))
+    >>> _macro_.Qz_QzGT_(
+    ...   *('x',
+    ...     ('A',
+    ...      'b',),
+    ...     ('C',
+    ...      'd',
+    ...      'e',),))
+    ('C', ('A', 'x', 'b'), 'd', 'e')
+
+    #> (-> 'a set (en#list 'bc) (en#tuple 'de))
+    >>> # Qz_QzGT_
+    ... (lambda *_QzNo55_xs:
+    ...   tuple(
+    ...     _QzNo55_xs))(
+    ...   (lambda *_QzNo55_xs:
+    ...     list(
+    ...       _QzNo55_xs))(
+    ...     set(
+    ...       'a'),
+    ...     'bc'),
+    ...   'de')
+    ([{'a'}, 'bc'], 'de')
 
   See also:
   `-\<>><Qz_QzLT_QzGT_QzGT_>`, `X#<XQzHASH_>`, `get#<getQzHASH_>`.
@@ -690,14 +715,40 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   "``-<>>`` 'Thread'.
 
   Converts a pipeline to function calls by recursively threading
-  expressions into the next form at the first point indicated with :<>,
-  or at the last if no :<> is found. Non-tuple ``forms`` will be wrapped
-  in a tuple first.
-
-  E.g. ``(->> x (A b) (C d e))`` is ``(C d e (A b x))``.
+  expressions into the next form at the first point indicated with
+  ``:<>``, or at the last if no ``:<>`` is found. Non-tuple forms
+  (typically function identifiers) will be wrapped in a tuple first.
   Can replace partial application in some cases.
-  Also works inside a ``->`` pipeline.
-  E.g. ``(-> x (A a) (->> B b) (C c))`` is ``(C (B b (A x a)) c)``.
+
+  .. code-block:: REPL
+
+    #> (.-<>> _macro_ : :* '(x Y (:<> A b) (C d e)))
+    >>> _macro_.Qz_QzLT_QzGT_QzGT_(
+    ...   *('x',
+    ...     'Y',
+    ...     (':<>',
+    ...      'A',
+    ...      'b',),
+    ...     ('C',
+    ...      'd',
+    ...      'e',),))
+    ('C', 'd', 'e', (('Y', 'x'), 'A', 'b'))
+
+    #> (-<>> 'a set (en#list 'bc) (en#tuple 'de :<> 'fg :<>))
+    >>> # Qz_QzLT_QzGT_QzGT_
+    ... (lambda *_QzNo55_xs:
+    ...   tuple(
+    ...     _QzNo55_xs))(
+    ...   'de',
+    ...   (lambda *_QzNo55_xs:
+    ...     list(
+    ...       _QzNo55_xs))(
+    ...     'bc',
+    ...     set(
+    ...       'a')),
+    ...   'fg',
+    ...   ':<>')
+    ('de', ['bc', {'a'}], 'fg', ':<>')
 
   See also: `-><Qz_QzGT_>`.
   "
