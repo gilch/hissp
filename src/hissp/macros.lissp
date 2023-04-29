@@ -55,6 +55,18 @@ Hissp expansions of other macros.
 ;;; and maintainability.
 
 
+_#"
+Hidden doctest adds bundled macros for REPL-consistent behavior.
+#> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
+>>> __import__('operator').setitem(
+...   globals(),
+...   '_macro_',
+...   __import__('types').SimpleNamespace(
+...     **vars(
+...         __import__('hissp')._macro_)))
+
+"
+
 ;;;; BOOTSTRAP MACROS ;;;;
 ;;;  ---
 
@@ -163,18 +175,6 @@ Hissp expansions of other macros.
     `',(.join (ast..literal_eval single)
               (map (operator..attrgetter 'content) lines))
     `',(getattr single 'content)))
-
-_#<<#
-!;Hidden doctest adds bundled macros for REPL-consistent behavior.
-!;#> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
-!;>>> __import__('operator').setitem(
-!;...   globals(),
-!;...   '_macro_',
-!;...   __import__('types').SimpleNamespace(
-!;...     **vars(
-!;...         __import__('hissp')._macro_)))
-!;
-#"\n"
 
 (setattr
  _macro_.<<\# '__doc__
