@@ -104,6 +104,23 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   "Evaluates each body expression in sequence (for side effects),
   resulting in the value of the last (or ``()`` if empty).
 
+  .. code-block:: REPL
+
+     #> (print (progn (print 1)             ;Sequence for side effects, eval to last.
+     #..              (print 2)
+     #..              3))
+     >>> print(
+     ...   # progn
+     ...   (lambda :(
+     ...     print(
+     ...       (1)),
+     ...     print(
+     ...       (2)),
+     ...     (3))[-1])())
+     1
+     2
+     3
+
   See also: `prog1`, `doto`.
   "
   ;; TODO: consider flattening nested progns

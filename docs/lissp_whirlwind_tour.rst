@@ -2106,22 +2106,6 @@ Lissp Whirlwind Tour
    0
 
 
-   #> (print (progn (print 1)             ;Sequence for side effects, eval to last.
-   #..              (print 2)
-   #..              3))
-   >>> print(
-   ...   # progn
-   ...   (lambda :(
-   ...     print(
-   ...       (1)),
-   ...     print(
-   ...       (2)),
-   ...     (3))[-1])())
-   1
-   2
-   3
-
-
    #> (prog1                              ;Sequence for side effects, eval to first.
    #..  (progn (print 1)                  ;Sequence for side effects, eval to last.
    #..         3)
