@@ -55,6 +55,18 @@ Hissp expansions of other macros.
 ;;; and maintainability.
 
 
+_#"
+Hidden doctest adds bundled macros for REPL-consistent behavior.
+#> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
+>>> __import__('operator').setitem(
+...   globals(),
+...   '_macro_',
+...   __import__('types').SimpleNamespace(
+...     **vars(
+...         __import__('hissp')._macro_)))
+
+"
+
 ;;;; BOOTSTRAP MACROS ;;;;
 ;;;  ---
 
@@ -92,7 +104,24 @@ Hissp expansions of other macros.
   "Evaluates each body expression in sequence (for side effects),
   resulting in the value of the last (or ``()`` if empty).
 
-  See also: `prog1`, `doto`.
+  .. code-block:: REPL
+
+     #> (print (progn (print 1)             ;Sequence for side effects, eval to last.
+     #..              (print 2)
+     #..              3))
+     >>> print(
+     ...   # progn
+     ...   (lambda :(
+     ...     print(
+     ...       (1)),
+     ...     print(
+     ...       (2)),
+     ...     (3))[-1])())
+     1
+     2
+     3
+
+  See also: `prog1`.
   "
   ;; TODO: consider flattening nested progns
   `((lambda :
@@ -164,18 +193,6 @@ Hissp expansions of other macros.
               (map (operator..attrgetter 'content) lines))
     `',(getattr single 'content)))
 
-_#<<#
-!;Hidden doctest adds bundled macros for REPL-consistent behavior.
-!;#> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
-!;>>> __import__('operator').setitem(
-!;...   globals(),
-!;...   '_macro_',
-!;...   __import__('types').SimpleNamespace(
-!;...     **vars(
-!;...         __import__('hissp')._macro_)))
-!;
-#"\n"
-
 (setattr
  _macro_.<<\# '__doc__
  <<#
@@ -223,12 +240,47 @@ _#<<#
      (define ,name ,value)))
 
 (defmacro deftype (name bases : :* body)
-  "Defines a type (class) in the current module.
-
-  Key-value pairs are implied in the body.
-
-  See also: `type`, `@#!<QzAT_QzHASH_>`.
-  "
+  <<#
+  !;Defines a type (class) in the current module.
+  !;
+  !;Key-value pairs are implied by position in the body.
+  !;
+  !;.. code-block:: REPL
+  !;
+  !;   #> (deftype Point2D (tuple)
+  !;   #..  __doc__ "Simple ordered pair."
+  !;   #..  __new__ (lambda (cls x y)
+  !;   #..            (.__new__ tuple cls `(,x ,y)))
+  !;   #..  __repr__ (lambda (self)
+  !;   #..             (.format "Point2D({!r}, {!r})" : :* self)))
+  !;   >>> # deftype
+  !;   ... # hissp.macros.._macro_.define
+  !;   ... __import__('builtins').globals().update(
+  !;   ...   Point2D=__import__('builtins').type(
+  !;   ...             'Point2D',
+  !;   ...             (lambda * _: _)(
+  !;   ...               tuple),
+  !;   ...             __import__('builtins').dict(
+  !;   ...               __doc__=('Simple ordered pair.'),
+  !;   ...               __new__=(lambda cls,x,y:
+  !;   ...                         tuple.__new__(
+  !;   ...                           cls,
+  !;   ...                           (lambda * _: _)(
+  !;   ...                             x,
+  !;   ...                             y))),
+  !;   ...               __repr__=(lambda self:
+  !;   ...                          ('Point2D({!r}, {!r})').format(
+  !;   ...                            *self)))))
+  !;
+  !;   #> (Point2D 1 2)
+  !;   >>> Point2D(
+  !;   ...   (1),
+  !;   ...   (2))
+  !;   Point2D(1, 2)
+  !;
+  !;See also: `attach`, `type`, `@#!<QzAT_QzHASH_>`.
+  !;
+  #"\n"
   `(define ,name
        (type ',name (,hissp.reader..ENTUPLE ,@bases)
              (dict : ,@body))))
@@ -794,7 +846,47 @@ _#<<#
   "Evaluates each expression in sequence (for side effects),
   resulting in the value of the first.
 
-  See also: `progn`.
+  .. code-block:: REPL
+
+     #> (print (prog1 0                     ;Sequence for side effects, eval to first.
+     #..         (print 1)
+     #..         (print 2)))
+     >>> print(
+     ...   # prog1
+     ...   # hissp.macros.._macro_.let
+     ...   (lambda _QzNo28_value1=(0):(
+     ...     print(
+     ...       (1)),
+     ...     print(
+     ...       (2)),
+     ...     _QzNo28_value1)[-1])())
+     1
+     2
+     0
+
+  Combine with `progn` for a value in the middle of the sequence.
+
+  .. code-block:: REPL
+
+     #> (prog1                              ;Sequence for side effects, eval to first.
+     #..  (progn (print 1)                  ;Sequence for side effects, eval to last.
+     #..         3)
+     #..  (print 2))
+     >>> # prog1
+     ... # hissp.macros.._macro_.let
+     ... (lambda _QzNo35_value1=# progn
+     ... (lambda :(
+     ...   print(
+     ...     (1)),
+     ...   (3))[-1])():(
+     ...   print(
+     ...     (2)),
+     ...   _QzNo35_value1)[-1])()
+     1
+     2
+     3
+
+  See also: `doto`.
   "
   `(let ($#value1 ,expr1)
      ,@body
@@ -891,6 +983,24 @@ _#<<#
   Creates the `set` from each expression's result.
   A ``:*`` unpacks the next argument.
 
+  .. code-block:: REPL
+
+     #> (# 1 :* (@ 1 2 3) 4)                ;Set, with unpacking.
+     >>> # QzHASH_
+     ... (lambda *_QzNo34_xs:
+     ...   __import__('builtins').set(
+     ...     _QzNo34_xs))(
+     ...   (1),
+     ...   *# QzAT_
+     ...    (lambda *_QzNo34_xs:
+     ...      __import__('builtins').list(
+     ...        _QzNo34_xs))(
+     ...      (1),
+     ...      (2),
+     ...      (3)),
+     ...   (4))
+     {1, 2, 3, 4}
+
   See also: `@<QzAT_>`, `%<QzPCENT_>`.
   "
   (when (&& xs (op#eq :* (get#-1 xs)))
@@ -906,6 +1016,25 @@ _#<<#
 
   Key-value pairs are implied by position.
   A ``:**`` mapping-unpacks the next argument.
+
+  .. code-block:: REPL
+
+     #> (% 1 2  :** (dict : x 3  y 4)  5 6) ;Dict, with mapping unpacking.
+     >>> # QzPCENT_
+     ... (lambda *_QzNo32_xs:
+     ...   __import__('builtins').dict(
+     ...     _QzNo32_xs))(
+     ...   (lambda * _: _)(
+     ...     (1),
+     ...     (2)),
+     ...   *dict(
+     ...      x=(3),
+     ...      y=(4)).items(),
+     ...   (lambda * _: _)(
+     ...     (5),
+     ...     (6)))
+     {1: 2, 'x': 3, 'y': 4, 5: 6}
+
 
   See also: `@<QzAT_>`, `#<QzHASH_>`.
   "
