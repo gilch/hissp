@@ -2195,23 +2195,6 @@ Lissp Whirlwind Tour
    {1, 2, 3, 4}
 
 
-   #> (% 1 2  :** (dict : x 3  y 4)  5 6) ;Dict, with mapping unpacking.
-   >>> # QzPCENT_
-   ... (lambda *_QzNo32_xs:
-   ...   __import__('builtins').dict(
-   ...     _QzNo32_xs))(
-   ...   (lambda * _: _)(
-   ...     (1),
-   ...     (2)),
-   ...   *dict(
-   ...      x=(3),
-   ...      y=(4)).items(),
-   ...   (lambda * _: _)(
-   ...     (5),
-   ...     (6)))
-   {1: 2, 'x': 3, 'y': 4, 5: 6}
-
-
    ;;;; 14.2 Side Effect
 
    #> (print (prog1 0                     ;Sequence for side effects, eval to first.
