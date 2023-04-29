@@ -2178,23 +2178,6 @@ Lissp Whirlwind Tour
    (42, 'a', 'b', 'c', 42, 2, 3)
 
 
-   #> (# 1 :* (@ 1 2 3) 4)                ;Set, with unpacking.
-   >>> # QzHASH_
-   ... (lambda *_QzNo34_xs:
-   ...   __import__('builtins').set(
-   ...     _QzNo34_xs))(
-   ...   (1),
-   ...   *# QzAT_
-   ...    (lambda *_QzNo34_xs:
-   ...      __import__('builtins').list(
-   ...        _QzNo34_xs))(
-   ...      (1),
-   ...      (2),
-   ...      (3)),
-   ...   (4))
-   {1, 2, 3, 4}
-
-
    ;;;; 14.2 Side Effect
 
    #> (print (prog1 0                     ;Sequence for side effects, eval to first.

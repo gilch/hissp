@@ -891,6 +891,24 @@ _#<<#
   Creates the `set` from each expression's result.
   A ``:*`` unpacks the next argument.
 
+  .. code-block:: REPL
+
+     #> (# 1 :* (@ 1 2 3) 4)                ;Set, with unpacking.
+     >>> # QzHASH_
+     ... (lambda *_QzNo34_xs:
+     ...   __import__('builtins').set(
+     ...     _QzNo34_xs))(
+     ...   (1),
+     ...   *# QzAT_
+     ...    (lambda *_QzNo34_xs:
+     ...      __import__('builtins').list(
+     ...        _QzNo34_xs))(
+     ...      (1),
+     ...      (2),
+     ...      (3)),
+     ...   (4))
+     {1, 2, 3, 4}
+
   See also: `@<QzAT_>`, `%<QzPCENT_>`.
   "
   (when (&& xs (op#eq :* (get#-1 xs)))
