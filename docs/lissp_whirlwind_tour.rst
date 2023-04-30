@@ -312,13 +312,13 @@ Lissp Whirlwind Tour
    >>> 'A'
    'A'
 
-   #> '->>
-   >>> 'Qz_QzGT_QzGT_'
-   'Qz_QzGT_QzGT_'
+   #> '-<>>
+   >>> 'Qz_QzLT_QzGT_QzGT_'
+   'Qz_QzLT_QzGT_QzGT_'
 
-   #> :->>                                ;Don't represent identifiers, don't munge.
-   >>> ':->>'
-   ':->>'
+   #> :-<>>                                ;Don't represent identifiers, don't munge.
+   >>> ':-<>>'
+   ':-<>>'
 
    #> :                                   ;Still a control word.
    >>> ':'
@@ -1749,9 +1749,9 @@ Lissp Whirlwind Tour
 
 
    ;; Reader macros compose like functions.
-   #> 'hissp.munger..demunge#Qz_QzGT_QzGT_   ;Note the starting '.
-   >>> '->>'
-   '->>'
+   #> 'hissp.munger..demunge#Qz_QzLT_QzGT_QzGT_   ;Note the starting '.
+   >>> '-<>>'
+   '-<>>'
 
    #> ''x
    >>> ('quote',
@@ -2448,19 +2448,6 @@ Lissp Whirlwind Tour
    ;;; set/zap mnemonics: @tribute, !tem.
 
    ;;;; 14.6 Threading
-
-   #> (-> "world!"                        ;Thread-first
-   #..    .title
-   #..    (->> (print "Hello")))          ;Thread-last
-   >>> # Qz_QzGT_
-   ... # Qz_QzGT_QzGT_
-   ... print(
-   ...   ('Hello'),
-   ...   ('world!').title())
-   Hello World!
-
-   (help _macro_.->)
-   (help _macro_.->>)
 
    ;;;; 14.7 The Prelude
 
