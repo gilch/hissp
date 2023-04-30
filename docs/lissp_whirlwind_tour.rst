@@ -2091,44 +2091,6 @@ Lissp Whirlwind Tour
 
    ;;;; 14.3 Definition
 
-   ;; Define a function in the _macro_ namespace.
-   ;; Creates the _macro_ namespace if absent.
-   ;; Can also have a docstring.
-   #> (defmacro p123 (sep)
-   #..  "Prints 1 2 3 with the given separator"
-   #..  `(print 1 2 3 : sep ,sep))
-   >>> # defmacro
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo7_fn=(lambda sep:(
-   ...   ('Prints 1 2 3 with the given separator'),
-   ...   (lambda * _: _)(
-   ...     'builtins..print',
-   ...     (1),
-   ...     (2),
-   ...     (3),
-   ...     ':',
-   ...     '__main__..sep',
-   ...     sep))[-1]):(
-   ...   __import__('builtins').setattr(
-   ...     _QzNo7_fn,
-   ...     '__doc__',
-   ...     ('Prints 1 2 3 with the given separator')),
-   ...   __import__('builtins').setattr(
-   ...     _QzNo7_fn,
-   ...     '__qualname__',
-   ...     ('.').join(
-   ...       ('_macro_',
-   ...        'p123',))),
-   ...   __import__('builtins').setattr(
-   ...     __import__('operator').getitem(
-   ...       __import__('builtins').globals(),
-   ...       '_macro_'),
-   ...     'p123',
-   ...     _QzNo7_fn))[-1])()
-
-
-   (help _macro_.p123)
-
    #> (define SPAM "tomato")              ;We've seen this one already.
    >>> # define
    ... __import__('builtins').globals().update(

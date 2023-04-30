@@ -166,10 +166,58 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro defmacro (name parameters : docstring () :* body)
   "Creates a new macro for the current module.
 
-  If there's no ``_macro_``, creates one (using `types.ModuleType`).
-  If there's a docstring, stores it as the new lambda's ``__doc__``.
-  Adds the ``_macro_`` prefix to the lambda's ``__qualname__``.
-  Saves the lambda in ``_macro_`` using the given attribute name.
+  If there's no local ``_macro_`` namespace (at compile time), creates
+  one using `types.ModuleType` (at runtime). If there's a docstring,
+  stores it as the new lambda's ``__doc__``. Adds the ``_macro_`` prefix
+  to the lambda's ``__qualname__``. Saves the lambda in ``_macro_``
+  using the given attribute name.
+
+  .. code-block:: REPL
+
+    #> (defmacro p123 (sep)
+    #..  <<#;Prints 1 2 3 with the given separator
+    #..  `(print 1 2 3 : sep ,sep))
+    >>> # defmacro
+    ... # hissp.macros.._macro_.let
+    ... (lambda _QzNo7_fn=(lambda sep:(
+    ...   'Prints 1 2 3 with the given separator',
+    ...   (lambda * _: _)(
+    ...     'builtins..print',
+    ...     (1),
+    ...     (2),
+    ...     (3),
+    ...     ':',
+    ...     '__main__..sep',
+    ...     sep))[-1]):(
+    ...   __import__('builtins').setattr(
+    ...     _QzNo7_fn,
+    ...     '__doc__',
+    ...     'Prints 1 2 3 with the given separator'),
+    ...   __import__('builtins').setattr(
+    ...     _QzNo7_fn,
+    ...     '__qualname__',
+    ...     ('.').join(
+    ...       ('_macro_',
+    ...        'p123',))),
+    ...   __import__('builtins').setattr(
+    ...     __import__('operator').getitem(
+    ...       __import__('builtins').globals(),
+    ...       '_macro_'),
+    ...     'p123',
+    ...     _QzNo7_fn))[-1])()
+
+    #> (p123 ::)
+    >>> # p123
+    ... __import__('builtins').print(
+    ...   (1),
+    ...   (2),
+    ...   (3),
+    ...   sep='::')
+    1::2::3
+
+  See also:
+  `<\<# <QzLT_QzLT_QzHASH_>`, `attach`,
+  `lambda <hissp.compiler.Compiler.function>`.
   "
   (let ($fn `$#fn)
     (let (fn `(lambda ,parameters ,docstring ,@body)
