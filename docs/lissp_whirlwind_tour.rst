@@ -2091,16 +2091,6 @@ Lissp Whirlwind Tour
 
    ;;;; 14.3 Definition
 
-   #> (define SPAM "tomato")              ;We've seen this one already.
-   >>> # define
-   ... __import__('builtins').globals().update(
-   ...   SPAM=('tomato'))
-
-   #> SPAM
-   >>> SPAM
-   'tomato'
-
-
    ;;;; 14.4 Locals
 
    #> (let (x "a"                         ;Create locals.

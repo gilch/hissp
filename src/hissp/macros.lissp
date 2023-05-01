@@ -273,6 +273,17 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro define (name value)
   "Assigns a global the value in the current module.
 
+  .. code-block:: REPL
+
+     #> (define SPAM 'tomato)              ;We've seen this one already.
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   SPAM='tomato')
+
+     #> SPAM
+     >>> SPAM
+     'tomato'
+
   See also: `globals`, `dict.update`, `defonce`.
   "
   `(.update (globals)
