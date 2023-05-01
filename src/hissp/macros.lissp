@@ -152,6 +152,34 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   Locals are not in scope until the body.
 
+  .. code-block:: REPL
+
+     #> (let (x 'a                          ;Create locals.
+     #..      y 'b )                        ;Any number of pairs.
+     #..  (print x y)
+     #..  (let (x 'x
+     #..        y (op#concat x x))          ;Not in scope until body.
+     #..    (print x y))                    ;Outer variables shadowed.
+     #..  (print x y))                      ;Inner went out of scope.
+     >>> # let
+     ... (lambda x='a',y='b':(
+     ...   print(
+     ...     x,
+     ...     y),
+     ...   # let
+     ...   (lambda x='x',y=__import__('operator').concat(
+     ...     x,
+     ...     x):
+     ...     print(
+     ...       x,
+     ...       y))(),
+     ...   print(
+     ...     x,
+     ...     y))[-1])()
+     a b
+     x aa
+     a b
+
   See also: `let-from<letQz_from>`, `the#<theQzHASH_>`.
   "
   `((lambda (: ,@pairs)

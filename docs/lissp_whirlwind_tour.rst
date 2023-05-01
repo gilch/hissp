@@ -2093,35 +2093,6 @@ Lissp Whirlwind Tour
 
    ;;;; 14.4 Locals
 
-   #> (let (x "a"                         ;Create locals.
-   #..      y "b")                        ;Any number of pairs.
-   #..  (print x y)
-   #..  (let (x "x"
-   #..        y (+ x x))                  ;Not in scope until body.
-   #..    (print x y))                    ;Outer variables shadowed.
-   #..  (print x y))                      ;Inner went out of scope.
-   >>> # let
-   ... (lambda x=('a'),y=('b'):(
-   ...   print(
-   ...     x,
-   ...     y),
-   ...   # let
-   ...   (lambda x=('x'),y=# QzPLUS_
-   ...   __import__('operator').add(
-   ...     x,
-   ...     # __main__..QzMaybe_.QzPLUS_
-   ...     x):
-   ...     print(
-   ...       x,
-   ...       y))(),
-   ...   print(
-   ...     x,
-   ...     y))[-1])()
-   a b
-   x aa
-   a b
-
-
    #> (let-from (a b : :* cs) "abcdefg"   ;Locals from iterable.
    #..  (print cs b a))
    >>> # letQz_from
