@@ -152,6 +152,34 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   Locals are not in scope until the body.
 
+  .. code-block:: REPL
+
+     #> (let (x 'a                          ;Create locals.
+     #..      y 'b )                        ;Any number of pairs.
+     #..  (print x y)
+     #..  (let (x 'x
+     #..        y (op#concat x x))          ;Not in scope until body.
+     #..    (print x y))                    ;Outer variables shadowed.
+     #..  (print x y))                      ;Inner went out of scope.
+     >>> # let
+     ... (lambda x='a',y='b':(
+     ...   print(
+     ...     x,
+     ...     y),
+     ...   # let
+     ...   (lambda x='x',y=__import__('operator').concat(
+     ...     x,
+     ...     x):
+     ...     print(
+     ...       x,
+     ...       y))(),
+     ...   print(
+     ...     x,
+     ...     y))[-1])()
+     a b
+     x aa
+     a b
+
   See also: `let-from<letQz_from>`, `the#<theQzHASH_>`.
   "
   `((lambda (: ,@pairs)
@@ -166,10 +194,58 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro defmacro (name parameters : docstring () :* body)
   "Creates a new macro for the current module.
 
-  If there's no ``_macro_``, creates one (using `types.ModuleType`).
-  If there's a docstring, stores it as the new lambda's ``__doc__``.
-  Adds the ``_macro_`` prefix to the lambda's ``__qualname__``.
-  Saves the lambda in ``_macro_`` using the given attribute name.
+  If there's no local ``_macro_`` namespace (at compile time), creates
+  one using `types.ModuleType` (at runtime). If there's a docstring,
+  stores it as the new lambda's ``__doc__``. Adds the ``_macro_`` prefix
+  to the lambda's ``__qualname__``. Saves the lambda in ``_macro_``
+  using the given attribute name.
+
+  .. code-block:: REPL
+
+    #> (defmacro p123 (sep)
+    #..  <<#;Prints 1 2 3 with the given separator
+    #..  `(print 1 2 3 : sep ,sep))
+    >>> # defmacro
+    ... # hissp.macros.._macro_.let
+    ... (lambda _QzNo7_fn=(lambda sep:(
+    ...   'Prints 1 2 3 with the given separator',
+    ...   (lambda * _: _)(
+    ...     'builtins..print',
+    ...     (1),
+    ...     (2),
+    ...     (3),
+    ...     ':',
+    ...     '__main__..sep',
+    ...     sep))[-1]):(
+    ...   __import__('builtins').setattr(
+    ...     _QzNo7_fn,
+    ...     '__doc__',
+    ...     'Prints 1 2 3 with the given separator'),
+    ...   __import__('builtins').setattr(
+    ...     _QzNo7_fn,
+    ...     '__qualname__',
+    ...     ('.').join(
+    ...       ('_macro_',
+    ...        'p123',))),
+    ...   __import__('builtins').setattr(
+    ...     __import__('operator').getitem(
+    ...       __import__('builtins').globals(),
+    ...       '_macro_'),
+    ...     'p123',
+    ...     _QzNo7_fn))[-1])()
+
+    #> (p123 ::)
+    >>> # p123
+    ... __import__('builtins').print(
+    ...   (1),
+    ...   (2),
+    ...   (3),
+    ...   sep='::')
+    1::2::3
+
+  See also:
+  `<\<# <QzLT_QzLT_QzHASH_>`, `attach`,
+  `lambda <hissp.compiler.Compiler.function>`.
   "
   (let ($fn `$#fn)
     (let (fn `(lambda ,parameters ,docstring ,@body)
@@ -225,6 +301,17 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro define (name value)
   "Assigns a global the value in the current module.
 
+  .. code-block:: REPL
+
+     #> (define SPAM 'tomato)              ;We've seen this one already.
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   SPAM='tomato')
+
+     #> SPAM
+     >>> SPAM
+     'tomato'
+
   See also: `globals`, `dict.update`, `defonce`.
   "
   `(.update (globals)
@@ -234,7 +321,72 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro defonce (name value)
   "Assigns a global the value in the current module, unless it exists.
 
-  See also: `define`.
+  Like `define`, but won't overwrite an existing global.
+  Useful when sending the whole file to the REPL repeatedly or when
+  using `importlib.reload` and you want to cache an expensive object
+  instead of re-initializing it every time.
+
+  .. code-block:: REPL
+
+     #> (defonce CACHE (types..SimpleNamespace : x 1))
+     >>> # defonce
+     ... # hissp.macros.._macro_.unless
+     ... # hissp.macros.._macro_.ifQz_else
+     ... (lambda test,*thenQz_else:
+     ...   __import__('operator').getitem(
+     ...     thenQz_else,
+     ...     __import__('operator').not_(
+     ...       test))())(
+     ...   __import__('operator').contains(
+     ...     __import__('builtins').globals(),
+     ...     'CACHE'),
+     ...   (lambda :()),
+     ...   (lambda :
+     ...     # hissp.macros.._macro_.progn
+     ...     (lambda :
+     ...       # hissp.macros.._macro_.define
+     ...       __import__('builtins').globals().update(
+     ...         CACHE=__import__('types').SimpleNamespace(
+     ...                 x=(1))))()))
+
+     #> (setattr CACHE 'x 42)
+     >>> setattr(
+     ...   CACHE,
+     ...   'x',
+     ...   (42))
+
+     #> (defonce CACHE (progn (print 'not 'evaluated)
+     #..                      (types..SimpleNamespace : x 1)))
+     >>> # defonce
+     ... # hissp.macros.._macro_.unless
+     ... # hissp.macros.._macro_.ifQz_else
+     ... (lambda test,*thenQz_else:
+     ...   __import__('operator').getitem(
+     ...     thenQz_else,
+     ...     __import__('operator').not_(
+     ...       test))())(
+     ...   __import__('operator').contains(
+     ...     __import__('builtins').globals(),
+     ...     'CACHE'),
+     ...   (lambda :()),
+     ...   (lambda :
+     ...     # hissp.macros.._macro_.progn
+     ...     (lambda :
+     ...       # hissp.macros.._macro_.define
+     ...       __import__('builtins').globals().update(
+     ...         CACHE=# progn
+     ...               (lambda :(
+     ...                 print(
+     ...                   'not',
+     ...                   'evaluated'),
+     ...                 __import__('types').SimpleNamespace(
+     ...                   x=(1)))[-1])()))()))
+     ()
+
+     #> CACHE ; The second defonce had no effect.
+     >>> CACHE
+     namespace(x=42)
+
   "
   `(unless (operator..contains (globals) ',name)
      (define ,name ,value)))
@@ -292,6 +444,19 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro let-from (syms itr : :* body)
   "``let-from`` Create listed locals from iterable.
 
+  .. code-block:: REPL
+
+     #> (let-from (a b : :* cs) 'ABCDEFG
+     #..  (print cs b a))
+     >>> # letQz_from
+     ... (lambda a,b,*cs:
+     ...   print(
+     ...     cs,
+     ...     b,
+     ...     a))(
+     ...   *'ABCDEFG')
+     ('C', 'D', 'E', 'F', 'G') B A
+
   See also: `let`, `let*from<letQzSTAR_from>`.
   "
   `((lambda ,syms
@@ -299,7 +464,85 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
     : :* ,itr))
 
 (defmacro let*from (pairs : :* body)
-  "``let*from`` Nested `let-from<letQz_from>`."
+  "``let*from`` Nested `let-from<letQz_from>`.
+
+  Can unpack nested iterables by using multiple stages.
+
+  .. code-block:: REPL
+
+     #> (dict : A 'B  C 'D)
+     >>> dict(
+     ...   A='B',
+     ...   C='D')
+     {'A': 'B', 'C': 'D'}
+
+     #> (let*from ((ab cd) (.items _)    ;Nested let-froms.
+     #..           (a b) ab              ;Unpacks first item ('A', 'B')
+     #..           (c d) cd)             ;Unpacks second item ('C', 'D')
+     #..  (print a b c d))
+     >>> # letQzSTAR_from
+     ... # hissp.macros.._macro_.letQz_from
+     ... (lambda ab,cd:
+     ...   # hissp.macros..QzMaybe_.letQzSTAR_from
+     ...   # hissp.macros.._macro_.letQz_from
+     ...   (lambda a,b:
+     ...     # hissp.macros..QzMaybe_.letQzSTAR_from
+     ...     # hissp.macros.._macro_.letQz_from
+     ...     (lambda c,d:
+     ...       # hissp.macros..QzMaybe_.letQzSTAR_from
+     ...       # hissp.macros.._macro_.progn
+     ...       (lambda :
+     ...         print(
+     ...           a,
+     ...           b,
+     ...           c,
+     ...           d))())(
+     ...       *cd))(
+     ...     *ab))(
+     ...   *_.items())
+     A B C D
+
+
+     #> (let*from ((ab cd) (.items _)    ;Fewer stack frames.
+     #..           (a b c d) `(,@ab ,@cd)) ;Leveraging ,@ splicing.
+     #..  (print a b c d))
+     >>> # letQzSTAR_from
+     ... # hissp.macros.._macro_.letQz_from
+     ... (lambda ab,cd:
+     ...   # hissp.macros..QzMaybe_.letQzSTAR_from
+     ...   # hissp.macros.._macro_.letQz_from
+     ...   (lambda a,b,c,d:
+     ...     # hissp.macros..QzMaybe_.letQzSTAR_from
+     ...     # hissp.macros.._macro_.progn
+     ...     (lambda :
+     ...       print(
+     ...         a,
+     ...         b,
+     ...         c,
+     ...         d))())(
+     ...     *(lambda * _: _)(
+     ...        *ab,
+     ...        *cd)))(
+     ...   *_.items())
+     A B C D
+
+
+     #> (let-from (a c b d) ; Didn't really need let*from this time.
+     #..          `(,@(.keys _) ,@(.values _)) ; Not always this easy.
+     #..  (print a b c d))
+     >>> # letQz_from
+     ... (lambda a,c,b,d:
+     ...   print(
+     ...     a,
+     ...     b,
+     ...     c,
+     ...     d))(
+     ...   *(lambda * _: _)(
+     ...      *_.keys(),
+     ...      *_.values()))
+     A B C D
+
+  "
   (if-else pairs
     `(let-from ,(operator..getitem pairs 0)
                ,(operator..getitem pairs 1)
