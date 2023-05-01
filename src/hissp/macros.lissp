@@ -444,6 +444,19 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro let-from (syms itr : :* body)
   "``let-from`` Create listed locals from iterable.
 
+  .. code-block:: REPL
+
+     #> (let-from (a b : :* cs) 'ABCDEFG
+     #..  (print cs b a))
+     >>> # letQz_from
+     ... (lambda a,b,*cs:
+     ...   print(
+     ...     cs,
+     ...     b,
+     ...     a))(
+     ...   *'ABCDEFG')
+     ('C', 'D', 'E', 'F', 'G') B A
+
   See also: `let`, `let*from<letQzSTAR_from>`.
   "
   `((lambda ,syms
@@ -451,7 +464,85 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
     : :* ,itr))
 
 (defmacro let*from (pairs : :* body)
-  "``let*from`` Nested `let-from<letQz_from>`."
+  "``let*from`` Nested `let-from<letQz_from>`.
+
+  Can unpack nested iterables by using multiple stages.
+
+  .. code-block:: REPL
+
+     #> (dict : A 'B  C 'D)
+     >>> dict(
+     ...   A='B',
+     ...   C='D')
+     {'A': 'B', 'C': 'D'}
+
+     #> (let*from ((ab cd) (.items _)    ;Nested let-froms.
+     #..           (a b) ab              ;Unpacks first item ('A', 'B')
+     #..           (c d) cd)             ;Unpacks second item ('C', 'D')
+     #..  (print a b c d))
+     >>> # letQzSTAR_from
+     ... # hissp.macros.._macro_.letQz_from
+     ... (lambda ab,cd:
+     ...   # hissp.macros..QzMaybe_.letQzSTAR_from
+     ...   # hissp.macros.._macro_.letQz_from
+     ...   (lambda a,b:
+     ...     # hissp.macros..QzMaybe_.letQzSTAR_from
+     ...     # hissp.macros.._macro_.letQz_from
+     ...     (lambda c,d:
+     ...       # hissp.macros..QzMaybe_.letQzSTAR_from
+     ...       # hissp.macros.._macro_.progn
+     ...       (lambda :
+     ...         print(
+     ...           a,
+     ...           b,
+     ...           c,
+     ...           d))())(
+     ...       *cd))(
+     ...     *ab))(
+     ...   *_.items())
+     A B C D
+
+
+     #> (let*from ((ab cd) (.items _)    ;Fewer stack frames.
+     #..           (a b c d) `(,@ab ,@cd)) ;Leveraging ,@ splicing.
+     #..  (print a b c d))
+     >>> # letQzSTAR_from
+     ... # hissp.macros.._macro_.letQz_from
+     ... (lambda ab,cd:
+     ...   # hissp.macros..QzMaybe_.letQzSTAR_from
+     ...   # hissp.macros.._macro_.letQz_from
+     ...   (lambda a,b,c,d:
+     ...     # hissp.macros..QzMaybe_.letQzSTAR_from
+     ...     # hissp.macros.._macro_.progn
+     ...     (lambda :
+     ...       print(
+     ...         a,
+     ...         b,
+     ...         c,
+     ...         d))())(
+     ...     *(lambda * _: _)(
+     ...        *ab,
+     ...        *cd)))(
+     ...   *_.items())
+     A B C D
+
+
+     #> (let-from (a c b d) ; Didn't really need let*from this time.
+     #..          `(,@(.keys _) ,@(.values _)) ; Not always this easy.
+     #..  (print a b c d))
+     >>> # letQz_from
+     ... (lambda a,c,b,d:
+     ...   print(
+     ...     a,
+     ...     b,
+     ...     c,
+     ...     d))(
+     ...   *(lambda * _: _)(
+     ...      *_.keys(),
+     ...      *_.values()))
+     A B C D
+
+  "
   (if-else pairs
     `(let-from ,(operator..getitem pairs 0)
                ,(operator..getitem pairs 1)
