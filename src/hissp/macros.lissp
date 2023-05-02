@@ -983,6 +983,32 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Names after the ``:`` are identifier-value pairs.
   Returns the target.
 
+  .. code-block:: REPL
+
+     #> (define + op#add)
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   QzPLUS_=__import__('operator').add)
+
+     #> (attach (types..SimpleNamespace) + : a 1  b 'Hi)
+     >>> # attach
+     ... # hissp.macros.._macro_.let
+     ... (lambda _QzNo16_target=__import__('types').SimpleNamespace():(
+     ...   __import__('builtins').setattr(
+     ...     _QzNo16_target,
+     ...     'QzPLUS_',
+     ...     QzPLUS_),
+     ...   __import__('builtins').setattr(
+     ...     _QzNo16_target,
+     ...     'a',
+     ...     (1)),
+     ...   __import__('builtins').setattr(
+     ...     _QzNo16_target,
+     ...     'b',
+     ...     'Hi'),
+     ...   _QzNo16_target)[-1])()
+     namespace(QzPLUS_=<built-in function add>, a=1, b='Hi')
+
   See also: `setattr`, `set@<setQzAT_>`, `locals`.
   "
   (let (iargs (iter args)

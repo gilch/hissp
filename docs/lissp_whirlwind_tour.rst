@@ -2095,26 +2095,6 @@ Lissp Whirlwind Tour
 
    ;;;; 14.5 Configuration
 
-   #> (attach (types..SimpleNamespace) + : a 1  b "Hi")
-   >>> # attach
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo16_target=__import__('types').SimpleNamespace():(
-   ...   __import__('builtins').setattr(
-   ...     _QzNo16_target,
-   ...     'QzPLUS_',
-   ...     QzPLUS_),
-   ...   __import__('builtins').setattr(
-   ...     _QzNo16_target,
-   ...     'a',
-   ...     (1)),
-   ...   __import__('builtins').setattr(
-   ...     _QzNo16_target,
-   ...     'b',
-   ...     ('Hi')),
-   ...   _QzNo16_target)[-1])()
-   namespace(QzPLUS_=<built-in function add>, a=1, b='Hi')
-
-
    ;;;; 14.6 Threading
 
    ;;;; 14.7 The Prelude
