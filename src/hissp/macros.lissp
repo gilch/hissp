@@ -832,6 +832,28 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   "``set!`` 'setbang' Assigns an item, returns the value.
   Mnemonic: set !tem.
 
+  .. code-block:: REPL
+
+     #> (define spam (dict))
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   spam=dict())
+
+     #> (set! spam 2 10) ; Like operator.setitem, but returns value given.
+     >>> # setQzBANG_
+     ... # hissp.macros.._macro_.let
+     ... (lambda _QzNo28_val=(10):(
+     ...   __import__('operator').setitem(
+     ...     spam,
+     ...     (2),
+     ...     _QzNo28_val),
+     ...   _QzNo28_val)[-1])()
+     10
+
+     #> spam
+     >>> spam
+     {2: 10}
+
   See also: `operator.setitem`, `operator.delitem`, `zap!<zapQzBANG_>`.
   "
   `(let ($#val ,val)
@@ -845,6 +867,36 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Returns the value.
   Mnemonic: zap !tem.
 
+  .. code-block:: REPL
+
+     #> (define spam (dict : b 10))
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   spam=dict(
+     ...          b=(10)))
+
+     #> (zap! operator..iadd spam 'b 1) ; Augmented item assignment, like +=.
+     >>> # zapQzBANG_
+     ... # hissp.macros.._macro_.let
+     ... (lambda _QzNo30_coll=spam,_QzNo30_key='b':
+     ...   # hissp.macros.._macro_.setQzBANG_
+     ...   # hissp.macros.._macro_.let
+     ...   (lambda _QzNo28_val=__import__('operator').iadd(
+     ...     __import__('operator').getitem(
+     ...       _QzNo30_coll,
+     ...       _QzNo30_key),
+     ...     (1)):(
+     ...     __import__('operator').setitem(
+     ...       _QzNo30_coll,
+     ...       _QzNo30_key,
+     ...       _QzNo28_val),
+     ...     _QzNo28_val)[-1])())()
+     11
+
+     #> spam
+     >>> spam
+     {'b': 11}
+
   See also: `set!<setQzBANG_>`, `zap@<zapQzAT_>`.
   "
   `(let ($#coll ,coll
@@ -855,6 +907,28 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro set@ (name val)
   "``set@`` 'setat' Assigns an attribute, returns the value.
   Mnemonic: set @tribute.
+
+  .. code-block:: REPL
+
+     #> (define spam (types..SimpleNamespace))
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   spam=__import__('types').SimpleNamespace())
+
+     #> (set@ spam.foo 10)
+     >>> # setQzAT_
+     ... # hissp.macros.._macro_.let
+     ... (lambda _QzNo27_val=(10):(
+     ...   __import__('builtins').setattr(
+     ...     spam,
+     ...     'foo',
+     ...     _QzNo27_val),
+     ...   _QzNo27_val)[-1])()
+     10
+
+     #> spam
+     >>> spam
+     namespace(foo=10)
 
   See also: `attach`, `delattr`, `zap@<zapQzAT_>`.
   "
@@ -870,7 +944,34 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Returns the value.
   Mnemonic: zap @tribute.
 
-  See also: `set@<setQzAT_>`, `zap!<zapQzBANG_>`.
+  .. code-block:: REPL
+
+     #> (define spam (types..SimpleNamespace : foo 10))
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   spam=__import__('types').SimpleNamespace(
+     ...          foo=(10)))
+
+     #> (zap@ operator..iadd spam.foo 1)
+     >>> # zapQzAT_
+     ... # hissp.macros.._macro_.setQzAT_
+     ... # hissp.macros.._macro_.let
+     ... (lambda _QzNo27_val=__import__('operator').iadd(
+     ...   spam.foo,
+     ...   (1)):(
+     ...   __import__('builtins').setattr(
+     ...     spam,
+     ...     'foo',
+     ...     _QzNo27_val),
+     ...   _QzNo27_val)[-1])()
+     11
+
+     #> spam
+     >>> spam
+     namespace(foo=11)
+
+
+  See also: `set@<setQzAT_>`, `zap!<zapQzBANG_>`, `operator.iadd`.
   "
   `(set@ ,name (,op ,name ,@args)))
 
@@ -881,6 +982,32 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   and use that as the attribute name.
   Names after the ``:`` are identifier-value pairs.
   Returns the target.
+
+  .. code-block:: REPL
+
+     #> (define + op#add)
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   QzPLUS_=__import__('operator').add)
+
+     #> (attach (types..SimpleNamespace) + : a 1  b 'Hi)
+     >>> # attach
+     ... # hissp.macros.._macro_.let
+     ... (lambda _QzNo16_target=__import__('types').SimpleNamespace():(
+     ...   __import__('builtins').setattr(
+     ...     _QzNo16_target,
+     ...     'QzPLUS_',
+     ...     QzPLUS_),
+     ...   __import__('builtins').setattr(
+     ...     _QzNo16_target,
+     ...     'a',
+     ...     (1)),
+     ...   __import__('builtins').setattr(
+     ...     _QzNo16_target,
+     ...     'b',
+     ...     'Hi'),
+     ...   _QzNo16_target)[-1])()
+     namespace(QzPLUS_=<built-in function add>, a=1, b='Hi')
 
   See also: `setattr`, `set@<setQzAT_>`, `locals`.
   "
@@ -901,7 +1028,23 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Evaluates the given ``self``, then injects it as the first argument to
   a sequence of invocations. Returns ``self``.
 
-  See also: `attach`, `progn`.
+  .. code-block:: REPL
+
+     #> (doto (list)
+     #..  (.extend 'bar)
+     #..  (.sort)
+     #..  (.append 'foo))
+     >>> # doto
+     ... (lambda _QzNo20_self=list():(
+     ...   _QzNo20_self.extend(
+     ...     'bar'),
+     ...   _QzNo20_self.sort(),
+     ...   _QzNo20_self.append(
+     ...     'foo'),
+     ...   _QzNo20_self)[-1])()
+     ['a', 'b', 'r', 'foo']
+
+  See also: `attach`, `progn`, `-> <Qz_QzGT_>`.
   "
   (let ($self `$#self)
     `((lambda (: ,$self ,self)
