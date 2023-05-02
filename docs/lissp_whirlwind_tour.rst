@@ -2115,47 +2115,6 @@ Lissp Whirlwind Tour
    namespace(QzPLUS_=<built-in function add>, a=1, b='Hi')
 
 
-   #> (define spam (types..SimpleNamespace))
-   >>> # define
-   ... __import__('builtins').globals().update(
-   ...   spam=__import__('types').SimpleNamespace())
-
-   #> (set@ spam.foo 10)                  ;Similarly for attributes.
-   >>> # setQzAT_
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo27_val=(10):(
-   ...   __import__('builtins').setattr(
-   ...     spam,
-   ...     'foo',
-   ...     _QzNo27_val),
-   ...   _QzNo27_val)[-1])()
-   10
-
-   #> spam
-   >>> spam
-   namespace(foo=10)
-
-   #> (zap@ operator..iadd spam.foo 1)
-   >>> # zapQzAT_
-   ... # hissp.macros.._macro_.setQzAT_
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo27_val=__import__('operator').iadd(
-   ...   spam.foo,
-   ...   (1)):(
-   ...   __import__('builtins').setattr(
-   ...     spam,
-   ...     'foo',
-   ...     _QzNo27_val),
-   ...   _QzNo27_val)[-1])()
-   11
-
-   #> spam
-   >>> spam
-   namespace(foo=11)
-
-
-   ;;; set/zap mnemonics: @tribute, !tem.
-
    ;;;; 14.6 Threading
 
    ;;;; 14.7 The Prelude
