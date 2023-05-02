@@ -2115,49 +2115,6 @@ Lissp Whirlwind Tour
    namespace(QzPLUS_=<built-in function add>, a=1, b='Hi')
 
 
-   #> (define spam (dict))
-   >>> # define
-   ... __import__('builtins').globals().update(
-   ...   spam=dict())
-
-   #> (set! spam 2 10)                    ;Like operator..setitem, but returns value given.
-   >>> # setQzBANG_
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo28_val=(10):(
-   ...   __import__('operator').setitem(
-   ...     spam,
-   ...     (2),
-   ...     _QzNo28_val),
-   ...   _QzNo28_val)[-1])()
-   10
-
-   #> spam
-   >>> spam
-   {2: 10}
-
-   #> (zap! operator..iadd spam 2 1)      ;Augmented item assignment, like +=.
-   >>> # zapQzBANG_
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo30_coll=spam,_QzNo30_key=(2):
-   ...   # hissp.macros.._macro_.setQzBANG_
-   ...   # hissp.macros.._macro_.let
-   ...   (lambda _QzNo28_val=__import__('operator').iadd(
-   ...     __import__('operator').getitem(
-   ...       _QzNo30_coll,
-   ...       _QzNo30_key),
-   ...     (1)):(
-   ...     __import__('operator').setitem(
-   ...       _QzNo30_coll,
-   ...       _QzNo30_key,
-   ...       _QzNo28_val),
-   ...     _QzNo28_val)[-1])())()
-   11
-
-   #> spam
-   >>> spam
-   {2: 11}
-
-
    #> (define spam (types..SimpleNamespace))
    >>> # define
    ... __import__('builtins').globals().update(
