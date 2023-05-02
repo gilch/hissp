@@ -2115,21 +2115,6 @@ Lissp Whirlwind Tour
    namespace(QzPLUS_=<built-in function add>, a=1, b='Hi')
 
 
-   #> (doto (list)
-   #..  (.extend "bar")
-   #..  (.sort)
-   #..  (.append "foo"))
-   >>> # doto
-   ... (lambda _QzNo20_self=list():(
-   ...   _QzNo20_self.extend(
-   ...     ('bar')),
-   ...   _QzNo20_self.sort(),
-   ...   _QzNo20_self.append(
-   ...     ('foo')),
-   ...   _QzNo20_self)[-1])()
-   ['a', 'b', 'r', 'foo']
-
-
    #> (define spam (dict))
    >>> # define
    ... __import__('builtins').globals().update(

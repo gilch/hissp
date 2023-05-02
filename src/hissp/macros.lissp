@@ -901,7 +901,23 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Evaluates the given ``self``, then injects it as the first argument to
   a sequence of invocations. Returns ``self``.
 
-  See also: `attach`, `progn`.
+  .. code-block:: REPL
+
+     #> (doto (list)
+     #..  (.extend 'bar)
+     #..  (.sort)
+     #..  (.append 'foo))
+     >>> # doto
+     ... (lambda _QzNo20_self=list():(
+     ...   _QzNo20_self.extend(
+     ...     'bar'),
+     ...   _QzNo20_self.sort(),
+     ...   _QzNo20_self.append(
+     ...     'foo'),
+     ...   _QzNo20_self)[-1])()
+     ['a', 'b', 'r', 'foo']
+
+  See also: `attach`, `progn`, `-> <Qz_QzGT_>`.
   "
   (let ($self `$#self)
     `((lambda (: ,$self ,self)
