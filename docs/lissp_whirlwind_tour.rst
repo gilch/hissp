@@ -3251,16 +3251,6 @@ Lissp Whirlwind Tour
    True
 
 
-   ;; Quaternary anaphoric lambda. Slicing takes up to four operands.
-   #> (XYZW#.#"X[Y:Z:W]" "QuaoblcldefHg" -2 1 -2)
-   >>> (lambda X,Y,Z,W:X[Y:Z:W])(
-   ...   ('QuaoblcldefHg'),
-   ...   (-2),
-   ...   (1),
-   ...   (-2))
-   'Hello'
-
-
    ;;; Slicing is important enough for a shorthand.
    ;;; This variant works best on simple cases. The slice indexes are all
    ;;; injected Python here.

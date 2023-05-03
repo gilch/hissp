@@ -685,10 +685,22 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `(lambda ,'XYZ ,e))
 
 (defmacro XYZW\# e
-  "``XYZW#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z W.
-
-  See also: `XYZ#<XYZQzHASH_>`, `en#<enQzHASH_>`, `X#<XQzHASH_>`.
-  "
+  <<#
+  !;``XYZW#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z W.
+  !;
+  !;.. code-block:: REPL
+  !;
+  !;   #> (XYZW#.#"X[Y:Z:W]" "QuaoblcldefHg" -2 1 -2)
+  !;   >>> (lambda X,Y,Z,W:X[Y:Z:W])(
+  !;   ...   ('QuaoblcldefHg'),
+  !;   ...   (-2),
+  !;   ...   (1),
+  !;   ...   (-2))
+  !;   'Hello'
+  !;
+  !;See also: `XYZ#<XYZQzHASH_>`, `en#<enQzHASH_>`, `X#<XQzHASH_>`.
+  !;
+  #"\n"
   `(lambda ,'XYZW ,e))
 
 (defmacro alias (alias module)
