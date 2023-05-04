@@ -1194,6 +1194,27 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   until any result is true (and return ``True``), or until xs is
   exhausted (and return ``False``).
 
+  .. code-block:: REPL
+
+     #> (any-map index (range 1 11)         ;Imperative loop with break.
+     #..  (print index : end :)
+     #..  (op#not_ (op#mod index 7)))
+     >>> # anyQz_map
+     ... __import__('builtins').any(
+     ...   __import__('builtins').map(
+     ...     (lambda index:(
+     ...       print(
+     ...         index,
+     ...         end=':'),
+     ...       __import__('operator').not_(
+     ...         __import__('operator').mod(
+     ...           index,
+     ...           (7))))[-1]),
+     ...     range(
+     ...       (1),
+     ...       (11))))
+     1:2:3:4:5:6:7:True
+
   See also: `any*map<anyQzSTAR_map>`.
   "
   `(any (map (lambda (,variable)
@@ -1222,6 +1243,66 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   to the schedule. Call with None to abort any remaining schedule.
 
   Returns the value of the final loop.
+
+  .. code-block:: REPL
+
+     #> (loop-from x '(3)                   ;Unpacks as let-from.
+     #..  (when x
+     #..    (print x)
+     #..    (recur-from (@ (op#sub x 1)))))
+     >>> # loopQz_from
+     ... # hissp.macros.._macro_.let
+     ... (lambda _QzNo43_stack=# hissp.macros..QzMaybe_.QzAT_
+     ... (lambda *_QzNo52_xs:
+     ...   __import__('builtins').list(
+     ...     _QzNo52_xs))(
+     ...   (),
+     ...   None,
+     ...   ((3),)):
+     ...   # hissp.macros.._macro_.let
+     ...   (lambda recurQz_from=_QzNo43_stack.append:(
+     ...     # hissp.macros.._macro_.anyQzSTAR_map
+     ...     __import__('builtins').any(
+     ...       __import__('itertools').starmap(
+     ...         (lambda x:(
+     ...           __import__('operator').setitem(
+     ...             _QzNo43_stack,
+     ...             (0),
+     ...             # hissp.macros.._macro_.progn
+     ...             (lambda :
+     ...               # when
+     ...               # hissp.macros.._macro_.ifQz_else
+     ...               (lambda test,*thenQz_else:
+     ...                 __import__('operator').getitem(
+     ...                   thenQz_else,
+     ...                   __import__('operator').not_(
+     ...                     test))())(
+     ...                 x,
+     ...                 (lambda :
+     ...                   # hissp.macros.._macro_.progn
+     ...                   (lambda :(
+     ...                     print(
+     ...                       x),
+     ...                     recurQz_from(
+     ...                       # QzAT_
+     ...                       (lambda *_QzNo52_xs:
+     ...                         __import__('builtins').list(
+     ...                           _QzNo52_xs))(
+     ...                         __import__('operator').sub(
+     ...                           x,
+     ...                           (1)))))[-1])()),
+     ...                 (lambda :())))()),
+     ...           None)[-1]),
+     ...         __import__('builtins').iter(
+     ...           _QzNo43_stack.pop,
+     ...           None))),
+     ...     __import__('operator').itemgetter(
+     ...       (0))(
+     ...       _QzNo43_stack))[-1])())()
+     3
+     2
+     1
+     ()
 
   See also: `any*map<anyQzSTAR_map>`, `Ensue`_.
   "
