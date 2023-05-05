@@ -1197,21 +1197,94 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 ;;; see also from Advanced: case
 
 (defmacro cond (: :* pairs)
-  <<#
-  !;Multiple condition branching.
-  !;
-  !;Pairs are implied. Default is ``()``. Use ``:else`` to change it.
-  !;For example::
-  !;
-  !; (cond) ; ()
-  !; ;; Assume some number 'x
-  !; (cond (op#gt x 0) (print "positive")
-  !;       (op#lt x 0) (print "negative")
-  !;       (op#eq x 0) (print "zero")
-  !;       :else (print "not a number"))
-  !;
-  !;See also: `if-else<ifQz_else>`, `case`.
-  #"\n"
+  "Multiple condition branching.
+
+  Pairs are implied. Default is ``()``. Use ``:else`` to change it.
+  For example,
+
+  .. code-block:: REPL
+
+     #> (any-map x (@ -0.6 -0.0 42.0 math..nan)
+     #..  (cond (op#lt x 0) (print :Negative) ;if-else cascade
+     #..        (op#eq x 0) (print :Zero)
+     #..        (op#gt x 0) (print :Positive)
+     #..        :else (print :Not-a-Number)))
+     >>> # anyQz_map
+     ... __import__('builtins').any(
+     ...   __import__('builtins').map(
+     ...     (lambda x:
+     ...       # cond
+     ...       # hissp.macros.._macro_.ifQz_else
+     ...       (lambda test,*thenQz_else:
+     ...         __import__('operator').getitem(
+     ...           thenQz_else,
+     ...           __import__('operator').not_(
+     ...             test))())(
+     ...         __import__('operator').lt(
+     ...           x,
+     ...           (0)),
+     ...         (lambda :
+     ...           print(
+     ...             ':Negative')),
+     ...         (lambda :
+     ...           # hissp.macros..QzMaybe_.cond
+     ...           # hissp.macros.._macro_.ifQz_else
+     ...           (lambda test,*thenQz_else:
+     ...             __import__('operator').getitem(
+     ...               thenQz_else,
+     ...               __import__('operator').not_(
+     ...                 test))())(
+     ...             __import__('operator').eq(
+     ...               x,
+     ...               (0)),
+     ...             (lambda :
+     ...               print(
+     ...                 ':Zero')),
+     ...             (lambda :
+     ...               # hissp.macros..QzMaybe_.cond
+     ...               # hissp.macros.._macro_.ifQz_else
+     ...               (lambda test,*thenQz_else:
+     ...                 __import__('operator').getitem(
+     ...                   thenQz_else,
+     ...                   __import__('operator').not_(
+     ...                     test))())(
+     ...                 __import__('operator').gt(
+     ...                   x,
+     ...                   (0)),
+     ...                 (lambda :
+     ...                   print(
+     ...                     ':Positive')),
+     ...                 (lambda :
+     ...                   # hissp.macros..QzMaybe_.cond
+     ...                   # hissp.macros.._macro_.ifQz_else
+     ...                   (lambda test,*thenQz_else:
+     ...                     __import__('operator').getitem(
+     ...                       thenQz_else,
+     ...                       __import__('operator').not_(
+     ...                         test))())(
+     ...                     ':else',
+     ...                     (lambda :
+     ...                       print(
+     ...                         ':Not-a-Number')),
+     ...                     (lambda :
+     ...                       # hissp.macros..QzMaybe_.cond
+     ...                       ()))))))))),
+     ...     # QzAT_
+     ...     (lambda *_QzNo129_xs:
+     ...       __import__('builtins').list(
+     ...         _QzNo129_xs))(
+     ...       (-0.6),
+     ...       (-0.0),
+     ...       (42.0),
+     ...       __import__('math').nan)))
+     :Negative
+     :Zero
+     :Positive
+     :Not-a-Number
+     False
+
+  See also: `if-else<ifQz_else>`, `case`, `any-map<anyQz_map>`.
+  "
   (when pairs
     `(if-else ,(get#0 pairs)
               ,(get#1 pairs)
