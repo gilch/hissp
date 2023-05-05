@@ -2137,25 +2137,6 @@ Lissp Whirlwind Tour
 
    ;; 1 2 3 4 5 6 7 True
 
-   #> (any*map (i c) (enumerate "abc" 1)  ;As any-map, but with starmap.
-   #..  (print (mul i c)))
-   >>> # anyQzSTAR_map
-   ... __import__('builtins').any(
-   ...   __import__('itertools').starmap(
-   ...     (lambda i,c:
-   ...       print(
-   ...         mul(
-   ...           i,
-   ...           c))),
-   ...     enumerate(
-   ...       ('abc'),
-   ...       (1))))
-   a
-   bb
-   ccc
-   False
-
-
    #> (any-map c "ab"
    #..  (if-else (eq c "b")               ;ternary conditional
    #..    (print "Yes")

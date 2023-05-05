@@ -1227,6 +1227,27 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   until any result is true (and return ``True``), or until xss is
   exhausted (and return ``False``).
 
+  .. code-block:: REPL
+
+     #> (any*map (i c) (enumerate 'abc 1)  ;As any-map, but with starmap.
+     #..  (print (op#mul i c)))
+     >>> # anyQzSTAR_map
+     ... __import__('builtins').any(
+     ...   __import__('itertools').starmap(
+     ...     (lambda i,c:
+     ...       print(
+     ...         __import__('operator').mul(
+     ...           i,
+     ...           c))),
+     ...     enumerate(
+     ...       'abc',
+     ...       (1))))
+     a
+     bb
+     ccc
+     False
+
+
   See also: `any-map<anyQz_map>`, `loop-from<loopQz_from>`.
   "
   `(any (i#starmap (lambda ,variables ,@body)
