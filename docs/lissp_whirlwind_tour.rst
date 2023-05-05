@@ -2137,35 +2137,6 @@ Lissp Whirlwind Tour
 
    ;; 1 2 3 4 5 6 7 True
 
-   #> (any-map c "ab"
-   #..  (if-else (eq c "b")               ;ternary conditional
-   #..    (print "Yes")
-   #..    (print "No")))
-   >>> # anyQz_map
-   ... __import__('builtins').any(
-   ...   __import__('builtins').map(
-   ...     (lambda c:
-   ...       # ifQz_else
-   ...       (lambda test,*thenQz_else:
-   ...         __import__('operator').getitem(
-   ...           thenQz_else,
-   ...           __import__('operator').not_(
-   ...             test))())(
-   ...         eq(
-   ...           c,
-   ...           ('b')),
-   ...         (lambda :
-   ...           print(
-   ...             ('Yes'))),
-   ...         (lambda :
-   ...           print(
-   ...             ('No'))))),
-   ...     ('ab')))
-   No
-   Yes
-   False
-
-
    #> (any-map x (@ -0.6 -0.0 42.0 math..nan)
    #..  (cond (lt x 0) (print "Negative") ;if-else cascade
    #..        (eq x 0) (print "Zero")

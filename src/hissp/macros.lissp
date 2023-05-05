@@ -92,7 +92,37 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   Like Python's conditional expressions, the 'else' clause is required.
 
-  See also: `when`, `cond`.
+  .. code-block:: REPL
+
+     #> (any-map c 'ab
+     #..  (if-else (op#eq c 'b)            ;ternary conditional
+     #..    (print 'Yes)
+     #..    (print 'No)))
+     >>> # anyQz_map
+     ... __import__('builtins').any(
+     ...   __import__('builtins').map(
+     ...     (lambda c:
+     ...       # ifQz_else
+     ...       (lambda test,*thenQz_else:
+     ...         __import__('operator').getitem(
+     ...           thenQz_else,
+     ...           __import__('operator').not_(
+     ...             test))())(
+     ...         __import__('operator').eq(
+     ...           c,
+     ...           'b'),
+     ...         (lambda :
+     ...           print(
+     ...             'Yes')),
+     ...         (lambda :
+     ...           print(
+     ...             'No')))),
+     ...     'ab'))
+     No
+     Yes
+     False
+
+  See also: `when`, `cond`, `any-map <anyQz_map>`.
   "
   `((lambda (,'test : :* ,'then-else)
       ((operator..getitem ,'then-else (operator..not_ ,'test))))
