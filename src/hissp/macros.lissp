@@ -122,7 +122,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      Yes
      False
 
-  See also: `when`, `cond`, `any-map <anyQz_map>`.
+  See also: `when`, `cond`, `any-map <anyQz_map>`, `if_expr`.
   "
   `((lambda (,'test : :* ,'then-else)
       ((operator..getitem ,'then-else (operator..not_ ,'test))))
@@ -151,7 +151,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      2
      3
 
-  See also: `prog1`.
+  See also: `prog1`, `Expression statements <exprstmts>`.
   "
   ;; TODO: consider flattening nested progns
   `((lambda :
@@ -163,7 +163,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   resulting in the value of the last.
   Otherwise, skips them and returns ``()``.
 
-  See also: `if-else<ifQz_else>`, `unless`.
+  See also: `if-else<ifQz_else>`, `unless`, `if`.
   "
   `(if-else ,condition (progn ,@body) ()))
 
@@ -210,7 +210,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      x aa
      a b
 
-  See also: `let-from<letQz_from>`, `the#<theQzHASH_>`.
+  See also: `let-from<letQz_from>`, `the#<theQzHASH_>`, `locals`.
   "
   `((lambda (: ,@pairs)
       ,@body)))
@@ -325,7 +325,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
  !;   >>> 'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
  !;   'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
  !;
- !;See also: `str.join`, `Extra`.
+ !;See also: `str.join`, `Extra`, `triple-quoted string`.
  #"\n")
 
 (defmacro define (name value)
@@ -342,7 +342,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      >>> SPAM
      'tomato'
 
-  See also: `globals`, `dict.update`, `defonce`.
+  See also: `globals`, `dict.update`, `defonce`, `def`, `assignment`.
   "
   `(.update (globals)
             : ,name
@@ -460,7 +460,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   !;   ...   (2))
   !;   Point2D(1, 2)
   !;
-  !;See also: `attach`, `type`, `@#!<QzAT_QzHASH_>`.
+  !;See also: `attach`, `type`, `@#!<QzAT_QzHASH_>`, :keyword:`class`.
   !;
   #"\n"
   `(define ,name
@@ -487,7 +487,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   *'ABCDEFG')
      ('C', 'D', 'E', 'F', 'G') B A
 
-  See also: `let`, `let*from<letQzSTAR_from>`.
+  See also: `let`, `let*from<letQzSTAR_from>`, `assignment`.
   "
   `((lambda ,syms
       ,@body)
@@ -611,6 +611,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   Often combined with branching macros to reuse the results of an
   expression, with uses similar to Python's 'walrus' operator ``:=``.
+  See `python-grammar:assignment_expression`.
 
   "
   ;; TODO: consider using extras for initial contents.
@@ -695,7 +696,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   !;
   !;See also:
   !;`en#<enQzHASH_>`, `O#<OQzHASH_>`, `XY#<XYQzHASH_>`, `getattr`,
-  !;`operator.attrgetter`.
+  !;`operator.attrgetter`, `lambda`.
   !;
   #"\n"
   `(lambda ,'X ,e))
@@ -863,9 +864,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...    'bar',))
      'br'
 
-  See also: `get#<getQzHASH_>`, `-><Qz_QzGT_>`, `slice`.
+  See also:
+  `get#<getQzHASH_>`, `-><Qz_QzGT_>`, `slice`, `subscriptions`, `slicings`.
   "
-  "``subscript`` Injection. Python's subscription operator."
   `(lambda ($#G) ,(.format "({}[{})" '$#G (hissp..demunge e))))
 
 ;;;; Configuration
@@ -939,7 +940,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      >>> spam
      {'b': 11}
 
-  See also: `set!<setQzBANG_>`, `zap@<zapQzAT_>`.
+  See also: `set!<setQzBANG_>`, `zap@<zapQzAT_>`, `augassign`.
   "
   `(let ($#coll ,coll
          $#key ,key)
@@ -972,7 +973,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      >>> spam
      namespace(foo=10)
 
-  See also: `attach`, `delattr`, `zap@<zapQzAT_>`.
+  See also: `attach`, `delattr`, `zap@<zapQzAT_>`, `setattr`.
   "
   (let-from (ns _ attr) (.rpartition name ".")
     `(let ($#val ,val)
@@ -1013,7 +1014,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      namespace(foo=11)
 
 
-  See also: `set@<setQzAT_>`, `zap!<zapQzBANG_>`, `operator.iadd`.
+  See also:
+  `set@<setQzAT_>`, `zap!<zapQzBANG_>`, `operator.iadd`, `augassign`.
   "
   `(set@ ,name (,op ,name ,@args)))
 
@@ -1283,7 +1285,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      :Not-a-Number
      False
 
-  See also: `if-else<ifQz_else>`, `case`, `any-map<anyQz_map>`.
+  See also: `if-else<ifQz_else>`, `case`, `any-map<anyQz_map>`, `elif`.
   "
   (when pairs
     `(if-else ,(get#0 pairs)
@@ -1318,7 +1320,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...       (11))))
      1:2:3:4:5:6:7:True
 
-  See also: `any*map<anyQzSTAR_map>`.
+  See also: `any`, `map`, `any*map<anyQzSTAR_map>`, `for`, `break`.
   "
   `(any (map (lambda (,variable)
                ,@body)
@@ -1350,8 +1352,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ccc
      False
 
-
-  See also: `any-map<anyQz_map>`, `loop-from<loopQz_from>`.
+  See also:
+  `itertools.starmap`, `any-map<anyQz_map>`, `loop-from<loopQz_from>`.
   "
   `(any (i#starmap (lambda ,variables ,@body)
                    ,xss)))
@@ -1428,7 +1430,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      1
      ()
 
-  See also: `any*map<anyQzSTAR_map>`, `Ensue`_.
+  See also: `any*map<anyQzSTAR_map>`, `Ensue`_, `while`.
   "
   `(let ($#stack (@ () None ,inits))
      (let (,'recur-from $#stack.append)
@@ -1443,7 +1445,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Returns the first false value, otherwise the last value.
   There is an implicit initial value of ``True``.
 
-  See also: `||<QzBAR_QzBAR_>`, `operator.not_`.
+  See also: `||<QzBAR_QzBAR_>`, `operator.not_`, `and`.
   "
   (cond (op#not_ exprs) True
         (op#eq (len exprs) 1) (get#0 exprs)
@@ -1457,7 +1459,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Returns the first true value, otherwise the last value.
   There is an implicit initial value of ``()``.
 
-  See also: `&&<QzET_QzET_>`, `bool`.
+  See also: `&&<QzET_QzET_>`, `bool`, `or`.
   "
   (if-else rest
            `(let ($#first ,first)
@@ -1481,7 +1483,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro throw (exception)
   "Raise an exception.
 
-  See also: `throw-from<throwQz_from>`, `engarde`_.
+  See also: `throw-from<throwQz_from>`, `engarde`_, `raise`.
   "
   `(throw* ,exception))
 
@@ -1874,6 +1876,7 @@ except ModuleNotFoundError:pass"
      ...     _QzNo71_e)[-1])())
      26
 
+  See also: `print`, `doto`, `progn`.
   "
   `(hissp.._macro_._spy ,e))
 
@@ -1916,6 +1919,7 @@ except ModuleNotFoundError:pass"
 
      ;; stderr: time# ran ('time..sleep', 0.05) in 61.9695 ms
 
+  See also: `timeit`.
   "
   `(let ($#time time..time_ns)
      (let-from ($#start $#val $#end) (@ ($#time) ,e ($#time))
@@ -1935,6 +1939,8 @@ except ModuleNotFoundError:pass"
   to the result of e. These (if any) are passed to the `AssertionError`.
 
   Expansion is simply ``e`` when `__debug__` is off.
+
+  See also: `assert`.
   "
   (if-else __debug__
     `(let (,'it ,e)
