@@ -92,7 +92,37 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   Like Python's conditional expressions, the 'else' clause is required.
 
-  See also: `when`, `cond`.
+  .. code-block:: REPL
+
+     #> (any-map c 'ab
+     #..  (if-else (op#eq c 'b)            ;ternary conditional
+     #..    (print 'Yes)
+     #..    (print 'No)))
+     >>> # anyQz_map
+     ... __import__('builtins').any(
+     ...   __import__('builtins').map(
+     ...     (lambda c:
+     ...       # ifQz_else
+     ...       (lambda test,*thenQz_else:
+     ...         __import__('operator').getitem(
+     ...           thenQz_else,
+     ...           __import__('operator').not_(
+     ...             test))())(
+     ...         __import__('operator').eq(
+     ...           c,
+     ...           'b'),
+     ...         (lambda :
+     ...           print(
+     ...             'Yes')),
+     ...         (lambda :
+     ...           print(
+     ...             'No')))),
+     ...     'ab'))
+     No
+     Yes
+     False
+
+  See also: `when`, `cond`, `any-map <anyQz_map>`, `if_expr`.
   "
   `((lambda (,'test : :* ,'then-else)
       ((operator..getitem ,'then-else (operator..not_ ,'test))))
@@ -121,7 +151,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      2
      3
 
-  See also: `prog1`.
+  See also: `prog1`, `Expression statements <exprstmts>`.
   "
   ;; TODO: consider flattening nested progns
   `((lambda :
@@ -133,7 +163,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   resulting in the value of the last.
   Otherwise, skips them and returns ``()``.
 
-  See also: `if-else<ifQz_else>`, `unless`.
+  See also: `if-else<ifQz_else>`, `unless`, `if`.
   "
   `(if-else ,condition (progn ,@body) ()))
 
@@ -180,7 +210,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      x aa
      a b
 
-  See also: `let-from<letQz_from>`, `the#<theQzHASH_>`.
+  See also: `let-from<letQz_from>`, `the#<theQzHASH_>`, `locals`.
   "
   `((lambda (: ,@pairs)
       ,@body)))
@@ -295,7 +325,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
  !;   >>> 'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
  !;   'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
  !;
- !;See also: `str.join`, `Extra`.
+ !;See also: `str.join`, `Extra`, `triple-quoted string`.
  #"\n")
 
 (defmacro define (name value)
@@ -312,7 +342,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      >>> SPAM
      'tomato'
 
-  See also: `globals`, `dict.update`, `defonce`.
+  See also: `globals`, `dict.update`, `defonce`, `def`, `assignment`.
   "
   `(.update (globals)
             : ,name
@@ -430,7 +460,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   !;   ...   (2))
   !;   Point2D(1, 2)
   !;
-  !;See also: `attach`, `type`, `@#!<QzAT_QzHASH_>`.
+  !;See also: `attach`, `type`, `@#!<QzAT_QzHASH_>`, :keyword:`class`.
   !;
   #"\n"
   `(define ,name
@@ -457,7 +487,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   *'ABCDEFG')
      ('C', 'D', 'E', 'F', 'G') B A
 
-  See also: `let`, `let*from<letQzSTAR_from>`.
+  See also: `let`, `let*from<letQzSTAR_from>`, `assignment`.
   "
   `((lambda ,syms
       ,@body)
@@ -581,6 +611,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   Often combined with branching macros to reuse the results of an
   expression, with uses similar to Python's 'walrus' operator ``:=``.
+  See `python-grammar:assignment_expression`.
 
   "
   ;; TODO: consider using extras for initial contents.
@@ -665,7 +696,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   !;
   !;See also:
   !;`en#<enQzHASH_>`, `O#<OQzHASH_>`, `XY#<XYQzHASH_>`, `getattr`,
-  !;`operator.attrgetter`.
+  !;`operator.attrgetter`, `lambda`.
   !;
   #"\n"
   `(lambda ,'X ,e))
@@ -685,10 +716,22 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `(lambda ,'XYZ ,e))
 
 (defmacro XYZW\# e
-  "``XYZW#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z W.
-
-  See also: `XYZ#<XYZQzHASH_>`, `en#<enQzHASH_>`, `X#<XQzHASH_>`.
-  "
+  <<#
+  !;``XYZW#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z W.
+  !;
+  !;.. code-block:: REPL
+  !;
+  !;   #> (XYZW#.#"X[Y:Z:W]" "QuaoblcldefHg" -2 1 -2)
+  !;   >>> (lambda X,Y,Z,W:X[Y:Z:W])(
+  !;   ...   ('QuaoblcldefHg'),
+  !;   ...   (-2),
+  !;   ...   (1),
+  !;   ...   (-2))
+  !;   'Hello'
+  !;
+  !;See also: `XYZ#<XYZQzHASH_>`, `en#<enQzHASH_>`, `X#<XQzHASH_>`.
+  !;
+  #"\n"
   `(lambda ,'XYZW ,e))
 
 (defmacro alias (alias module)
@@ -821,9 +864,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...    'bar',))
      'br'
 
-  See also: `get#<getQzHASH_>`, `-><Qz_QzGT_>`, `slice`.
+  See also:
+  `get#<getQzHASH_>`, `-><Qz_QzGT_>`, `slice`, `subscriptions`, `slicings`.
   "
-  "``subscript`` Injection. Python's subscription operator."
   `(lambda ($#G) ,(.format "({}[{})" '$#G (hissp..demunge e))))
 
 ;;;; Configuration
@@ -897,7 +940,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      >>> spam
      {'b': 11}
 
-  See also: `set!<setQzBANG_>`, `zap@<zapQzAT_>`.
+  See also: `set!<setQzBANG_>`, `zap@<zapQzAT_>`, `augassign`.
   "
   `(let ($#coll ,coll
          $#key ,key)
@@ -930,7 +973,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      >>> spam
      namespace(foo=10)
 
-  See also: `attach`, `delattr`, `zap@<zapQzAT_>`.
+  See also: `attach`, `delattr`, `zap@<zapQzAT_>`, `setattr`.
   "
   (let-from (ns _ attr) (.rpartition name ".")
     `(let ($#val ,val)
@@ -971,7 +1014,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      namespace(foo=11)
 
 
-  See also: `set@<setQzAT_>`, `zap!<zapQzBANG_>`, `operator.iadd`.
+  See also:
+  `set@<setQzAT_>`, `zap!<zapQzBANG_>`, `operator.iadd`, `augassign`.
   "
   `(set@ ,name (,op ,name ,@args)))
 
@@ -1155,21 +1199,94 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 ;;; see also from Advanced: case
 
 (defmacro cond (: :* pairs)
-  <<#
-  !;Multiple condition branching.
-  !;
-  !;Pairs are implied. Default is ``()``. Use ``:else`` to change it.
-  !;For example::
-  !;
-  !; (cond) ; ()
-  !; ;; Assume some number 'x
-  !; (cond (op#gt x 0) (print "positive")
-  !;       (op#lt x 0) (print "negative")
-  !;       (op#eq x 0) (print "zero")
-  !;       :else (print "not a number"))
-  !;
-  !;See also: `if-else<ifQz_else>`, `case`.
-  #"\n"
+  "Multiple condition branching.
+
+  Pairs are implied. Default is ``()``. Use ``:else`` to change it.
+  For example,
+
+  .. code-block:: REPL
+
+     #> (any-map x (@ -0.6 -0.0 42.0 math..nan)
+     #..  (cond (op#lt x 0) (print :Negative) ;if-else cascade
+     #..        (op#eq x 0) (print :Zero)
+     #..        (op#gt x 0) (print :Positive)
+     #..        :else (print :Not-a-Number)))
+     >>> # anyQz_map
+     ... __import__('builtins').any(
+     ...   __import__('builtins').map(
+     ...     (lambda x:
+     ...       # cond
+     ...       # hissp.macros.._macro_.ifQz_else
+     ...       (lambda test,*thenQz_else:
+     ...         __import__('operator').getitem(
+     ...           thenQz_else,
+     ...           __import__('operator').not_(
+     ...             test))())(
+     ...         __import__('operator').lt(
+     ...           x,
+     ...           (0)),
+     ...         (lambda :
+     ...           print(
+     ...             ':Negative')),
+     ...         (lambda :
+     ...           # hissp.macros..QzMaybe_.cond
+     ...           # hissp.macros.._macro_.ifQz_else
+     ...           (lambda test,*thenQz_else:
+     ...             __import__('operator').getitem(
+     ...               thenQz_else,
+     ...               __import__('operator').not_(
+     ...                 test))())(
+     ...             __import__('operator').eq(
+     ...               x,
+     ...               (0)),
+     ...             (lambda :
+     ...               print(
+     ...                 ':Zero')),
+     ...             (lambda :
+     ...               # hissp.macros..QzMaybe_.cond
+     ...               # hissp.macros.._macro_.ifQz_else
+     ...               (lambda test,*thenQz_else:
+     ...                 __import__('operator').getitem(
+     ...                   thenQz_else,
+     ...                   __import__('operator').not_(
+     ...                     test))())(
+     ...                 __import__('operator').gt(
+     ...                   x,
+     ...                   (0)),
+     ...                 (lambda :
+     ...                   print(
+     ...                     ':Positive')),
+     ...                 (lambda :
+     ...                   # hissp.macros..QzMaybe_.cond
+     ...                   # hissp.macros.._macro_.ifQz_else
+     ...                   (lambda test,*thenQz_else:
+     ...                     __import__('operator').getitem(
+     ...                       thenQz_else,
+     ...                       __import__('operator').not_(
+     ...                         test))())(
+     ...                     ':else',
+     ...                     (lambda :
+     ...                       print(
+     ...                         ':Not-a-Number')),
+     ...                     (lambda :
+     ...                       # hissp.macros..QzMaybe_.cond
+     ...                       ()))))))))),
+     ...     # QzAT_
+     ...     (lambda *_QzNo129_xs:
+     ...       __import__('builtins').list(
+     ...         _QzNo129_xs))(
+     ...       (-0.6),
+     ...       (-0.0),
+     ...       (42.0),
+     ...       __import__('math').nan)))
+     :Negative
+     :Zero
+     :Positive
+     :Not-a-Number
+     False
+
+  See also: `if-else<ifQz_else>`, `case`, `any-map<anyQz_map>`, `elif`.
+  "
   (when pairs
     `(if-else ,(get#0 pairs)
               ,(get#1 pairs)
@@ -1182,7 +1299,28 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   until any result is true (and return ``True``), or until xs is
   exhausted (and return ``False``).
 
-  See also: `any*map<anyQzSTAR_map>`.
+  .. code-block:: REPL
+
+     #> (any-map index (range 1 11)         ;Imperative loop with break.
+     #..  (print index : end :)
+     #..  (op#not_ (op#mod index 7)))
+     >>> # anyQz_map
+     ... __import__('builtins').any(
+     ...   __import__('builtins').map(
+     ...     (lambda index:(
+     ...       print(
+     ...         index,
+     ...         end=':'),
+     ...       __import__('operator').not_(
+     ...         __import__('operator').mod(
+     ...           index,
+     ...           (7))))[-1]),
+     ...     range(
+     ...       (1),
+     ...       (11))))
+     1:2:3:4:5:6:7:True
+
+  See also: `any`, `map`, `any*map<anyQzSTAR_map>`, `for`, `break`.
   "
   `(any (map (lambda (,variable)
                ,@body)
@@ -1194,7 +1332,28 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   until any result is true (and return ``True``), or until xss is
   exhausted (and return ``False``).
 
-  See also: `any-map<anyQz_map>`, `loop-from<loopQz_from>`.
+  .. code-block:: REPL
+
+     #> (any*map (i c) (enumerate 'abc 1)  ;As any-map, but with starmap.
+     #..  (print (op#mul i c)))
+     >>> # anyQzSTAR_map
+     ... __import__('builtins').any(
+     ...   __import__('itertools').starmap(
+     ...     (lambda i,c:
+     ...       print(
+     ...         __import__('operator').mul(
+     ...           i,
+     ...           c))),
+     ...     enumerate(
+     ...       'abc',
+     ...       (1))))
+     a
+     bb
+     ccc
+     False
+
+  See also:
+  `itertools.starmap`, `any-map<anyQz_map>`, `loop-from<loopQz_from>`.
   "
   `(any (i#starmap (lambda ,variables ,@body)
                    ,xss)))
@@ -1211,7 +1370,67 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   Returns the value of the final loop.
 
-  See also: `any*map<anyQzSTAR_map>`, `Ensue`_.
+  .. code-block:: REPL
+
+     #> (loop-from x '(3)                   ;Unpacks as let-from.
+     #..  (when x
+     #..    (print x)
+     #..    (recur-from (@ (op#sub x 1)))))
+     >>> # loopQz_from
+     ... # hissp.macros.._macro_.let
+     ... (lambda _QzNo43_stack=# hissp.macros..QzMaybe_.QzAT_
+     ... (lambda *_QzNo52_xs:
+     ...   __import__('builtins').list(
+     ...     _QzNo52_xs))(
+     ...   (),
+     ...   None,
+     ...   ((3),)):
+     ...   # hissp.macros.._macro_.let
+     ...   (lambda recurQz_from=_QzNo43_stack.append:(
+     ...     # hissp.macros.._macro_.anyQzSTAR_map
+     ...     __import__('builtins').any(
+     ...       __import__('itertools').starmap(
+     ...         (lambda x:(
+     ...           __import__('operator').setitem(
+     ...             _QzNo43_stack,
+     ...             (0),
+     ...             # hissp.macros.._macro_.progn
+     ...             (lambda :
+     ...               # when
+     ...               # hissp.macros.._macro_.ifQz_else
+     ...               (lambda test,*thenQz_else:
+     ...                 __import__('operator').getitem(
+     ...                   thenQz_else,
+     ...                   __import__('operator').not_(
+     ...                     test))())(
+     ...                 x,
+     ...                 (lambda :
+     ...                   # hissp.macros.._macro_.progn
+     ...                   (lambda :(
+     ...                     print(
+     ...                       x),
+     ...                     recurQz_from(
+     ...                       # QzAT_
+     ...                       (lambda *_QzNo52_xs:
+     ...                         __import__('builtins').list(
+     ...                           _QzNo52_xs))(
+     ...                         __import__('operator').sub(
+     ...                           x,
+     ...                           (1)))))[-1])()),
+     ...                 (lambda :())))()),
+     ...           None)[-1]),
+     ...         __import__('builtins').iter(
+     ...           _QzNo43_stack.pop,
+     ...           None))),
+     ...     __import__('operator').itemgetter(
+     ...       (0))(
+     ...       _QzNo43_stack))[-1])())()
+     3
+     2
+     1
+     ()
+
+  See also: `any*map<anyQzSTAR_map>`, `Ensue`_, `while`.
   "
   `(let ($#stack (@ () None ,inits))
      (let (,'recur-from $#stack.append)
@@ -1226,7 +1445,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Returns the first false value, otherwise the last value.
   There is an implicit initial value of ``True``.
 
-  See also: `||<QzBAR_QzBAR_>`, `operator.not_`.
+  See also: `||<QzBAR_QzBAR_>`, `operator.not_`, `and`.
   "
   (cond (op#not_ exprs) True
         (op#eq (len exprs) 1) (get#0 exprs)
@@ -1240,7 +1459,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Returns the first true value, otherwise the last value.
   There is an implicit initial value of ``()``.
 
-  See also: `&&<QzET_QzET_>`, `bool`.
+  See also: `&&<QzET_QzET_>`, `bool`, `or`.
   "
   (if-else rest
            `(let ($#first ,first)
@@ -1264,7 +1483,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro throw (exception)
   "Raise an exception.
 
-  See also: `throw-from<throwQz_from>`, `engarde`_.
+  See also: `throw-from<throwQz_from>`, `engarde`_, `raise`.
   "
   `(throw* ,exception))
 
@@ -1657,6 +1876,7 @@ except ModuleNotFoundError:pass"
      ...     _QzNo71_e)[-1])())
      26
 
+  See also: `print`, `doto`, `progn`.
   "
   `(hissp.._macro_._spy ,e))
 
@@ -1699,6 +1919,7 @@ except ModuleNotFoundError:pass"
 
      ;; stderr: time# ran ('time..sleep', 0.05) in 61.9695 ms
 
+  See also: `timeit`.
   "
   `(let ($#time time..time_ns)
      (let-from ($#start $#val $#end) (@ ($#time) ,e ($#time))
@@ -1718,6 +1939,8 @@ except ModuleNotFoundError:pass"
   to the result of e. These (if any) are passed to the `AssertionError`.
 
   Expansion is simply ``e`` when `__debug__` is off.
+
+  See also: `assert`.
   "
   (if-else __debug__
     `(let (,'it ,e)
