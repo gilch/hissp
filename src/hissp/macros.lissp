@@ -460,7 +460,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   !;   ...   (2))
   !;   Point2D(1, 2)
   !;
-  !;See also: `attach`, `type`, `@#!<QzAT_QzHASH_>`, :keyword:`class`.
+  !;See also: `attach`, `type`, `@#!<QzAT_QzHASH_>`, :keyword:`class`,
+  !;`types.new_class`
   !;
   #"\n"
   `(define ,name
