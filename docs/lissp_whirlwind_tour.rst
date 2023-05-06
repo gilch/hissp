@@ -2200,43 +2200,6 @@ Lissp Whirlwind Tour
    False
 
 
-   #> (any-map x '(1 2 spam 42)
-   #..  (case x (print "default")         ;switch case
-   #..    (0 2 4 6 8) (print "even")
-   #..    (1 3 5 7 spam) (print "odd")))
-   >>> # anyQz_map
-   ... __import__('builtins').any(
-   ...   __import__('builtins').map(
-   ...     (lambda x:
-   ...       # case
-   ...       __import__('operator').getitem(
-   ...         # hissp.macros.._macro_.QzAT_
-   ...         (lambda *_QzNo55_xs:
-   ...           __import__('builtins').list(
-   ...             _QzNo55_xs))(
-   ...           (lambda :
-   ...             print(
-   ...               ('odd'))),
-   ...           (lambda :
-   ...             print(
-   ...               ('even'))),
-   ...           (lambda :
-   ...             print(
-   ...               ('default')))),
-   ...         {1: 0, 3: 0, 5: 0, 7: 0, 'spam': 0, 0: 1, 2: 1, 4: 1, 6: 1, 8: 1}.get(
-   ...           x,
-   ...           (-1)))()),
-   ...     ((1),
-   ...      (2),
-   ...      'spam',
-   ...      (42),)))
-   odd
-   even
-   odd
-   default
-   False
-
-
    ;; Shortcutting logical and.
    #> (&& True True False)
    >>> # QzET_QzET_

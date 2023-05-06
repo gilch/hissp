@@ -1823,13 +1823,59 @@ except ModuleNotFoundError:pass"
 ;;;; Advanced
 
 (defmacro case (key default : :* pairs)
-  "Switch case macro.
-  Must switch on a hashable key.
-  The default case is first and required.
-  The remainder are implicitly paired.
-
-  See also: `cond`.
-  "
+  <<#
+  !;Switch case macro.
+  !;
+  !;Precomputes a lookup table (dict), so must switch on a hashable key.
+  !;Target keys are not evaluated, so don't quote them; they must be known
+  !;at compile time.
+  !;
+  !;The default case is first and required.
+  !;The remainder are implicitly paired by position.
+  !;
+  !;.. code-block:: REPL
+  !;
+  !;   #> (any-map x '(1 2 spam .#"42" :eggs)
+  !;   #..  (case x (print "default")
+  !;   #..    (0 2 .#"42") (print "even")
+  !;   #..    (1 3 spam) (print "odd")))
+  !;   >>> # anyQz_map
+  !;   ... __import__('builtins').any(
+  !;   ...   __import__('builtins').map(
+  !;   ...     (lambda x:
+  !;   ...       # case
+  !;   ...       __import__('operator').getitem(
+  !;   ...         # hissp.macros.._macro_.QzAT_
+  !;   ...         (lambda *_QzNo129_xs:
+  !;   ...           __import__('builtins').list(
+  !;   ...             _QzNo129_xs))(
+  !;   ...           (lambda :
+  !;   ...             print(
+  !;   ...               ('odd'))),
+  !;   ...           (lambda :
+  !;   ...             print(
+  !;   ...               ('even'))),
+  !;   ...           (lambda :
+  !;   ...             print(
+  !;   ...               ('default')))),
+  !;   ...         {1: 0, 3: 0, 'spam': 0, 0: 1, 2: 1, '42': 1}.get(
+  !;   ...           x,
+  !;   ...           (-1)))()),
+  !;   ...     ((1),
+  !;   ...      (2),
+  !;   ...      'spam',
+  !;   ...      '42',
+  !;   ...      ':eggs',)))
+  !;   odd
+  !;   even
+  !;   odd
+  !;   even
+  !;   default
+  !;   False
+  !;
+  !;See also: `cond`.
+  !;
+  #"\n"
   (when (op#mod (len pairs) 2)
     (throw (TypeError "Incomplete pair")))
   (let (kss ([#-2::-2] pairs)
