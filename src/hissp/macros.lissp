@@ -1446,6 +1446,72 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Returns the first false value, otherwise the last value.
   There is an implicit initial value of ``True``.
 
+  .. code-block:: REPL
+
+     #> (&& True True False)
+     >>> # QzET_QzET_
+     ... # hissp.macros.._macro_.let
+     ... (lambda _QzNo33_G=True:
+     ...   # hissp.macros.._macro_.ifQz_else
+     ...   (lambda test,*thenQz_else:
+     ...     __import__('operator').getitem(
+     ...       thenQz_else,
+     ...       __import__('operator').not_(
+     ...         test))())(
+     ...     _QzNo33_G,
+     ...     (lambda :
+     ...       # hissp.macros..QzMaybe_.QzET_QzET_
+     ...       # hissp.macros.._macro_.let
+     ...       (lambda _QzNo33_G=True:
+     ...         # hissp.macros.._macro_.ifQz_else
+     ...         (lambda test,*thenQz_else:
+     ...           __import__('operator').getitem(
+     ...             thenQz_else,
+     ...             __import__('operator').not_(
+     ...               test))())(
+     ...           _QzNo33_G,
+     ...           (lambda :
+     ...             # hissp.macros..QzMaybe_.QzET_QzET_
+     ...             False),
+     ...           (lambda :_QzNo33_G)))()),
+     ...     (lambda :_QzNo33_G)))()
+     False
+
+     #> (&& False (print 'oops))
+     >>> # QzET_QzET_
+     ... # hissp.macros.._macro_.let
+     ... (lambda _QzNo33_G=False:
+     ...   # hissp.macros.._macro_.ifQz_else
+     ...   (lambda test,*thenQz_else:
+     ...     __import__('operator').getitem(
+     ...       thenQz_else,
+     ...       __import__('operator').not_(
+     ...         test))())(
+     ...     _QzNo33_G,
+     ...     (lambda :
+     ...       # hissp.macros..QzMaybe_.QzET_QzET_
+     ...       print(
+     ...         'oops')),
+     ...     (lambda :_QzNo33_G)))()
+     False
+
+     #> (&& True 42)
+     >>> # QzET_QzET_
+     ... # hissp.macros.._macro_.let
+     ... (lambda _QzNo26_G=True:
+     ...   # hissp.macros.._macro_.ifQz_else
+     ...   (lambda test,*thenQz_else:
+     ...     __import__('operator').getitem(
+     ...       thenQz_else,
+     ...       __import__('operator').not_(
+     ...         test))())(
+     ...     _QzNo26_G,
+     ...     (lambda :
+     ...       # hissp.macros..QzMaybe_.QzET_QzET_
+     ...       (42)),
+     ...     (lambda :_QzNo26_G)))()
+     42
+
   See also: `||<QzBAR_QzBAR_>`, `operator.not_`, `and`.
   "
   (cond (op#not_ exprs) True
