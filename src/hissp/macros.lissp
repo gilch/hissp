@@ -103,11 +103,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   __import__('builtins').map(
      ...     (lambda c:
      ...       # ifQz_else
-     ...       (lambda test,*thenQz_else:
-     ...         __import__('operator').getitem(
-     ...           thenQz_else,
-     ...           __import__('operator').not_(
-     ...             test))())(
+     ...       (lambda b,c,a:c()if b else a())(
      ...         __import__('operator').eq(
      ...           c,
      ...           'b'),
@@ -124,8 +120,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   See also: `when`, `cond`, `any-map <anyQz_map>`, `if_expr`.
   "
-  `((lambda (,'test : :* ,'then-else)
-      ((operator..getitem ,'then-else (operator..not_ ,'test))))
+  `((lambda ,'bca .#"c()if b else a()") ; boolean, consequent, alternate
     ,test
     (lambda : ,consequent)
     (lambda : ,alternate)))
@@ -362,11 +357,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      >>> # defonce
      ... # hissp.macros.._macro_.unless
      ... # hissp.macros.._macro_.ifQz_else
-     ... (lambda test,*thenQz_else:
-     ...   __import__('operator').getitem(
-     ...     thenQz_else,
-     ...     __import__('operator').not_(
-     ...       test))())(
+     ... (lambda b,c,a:c()if b else a())(
      ...   __import__('operator').contains(
      ...     __import__('builtins').globals(),
      ...     'CACHE'),
@@ -390,11 +381,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      >>> # defonce
      ... # hissp.macros.._macro_.unless
      ... # hissp.macros.._macro_.ifQz_else
-     ... (lambda test,*thenQz_else:
-     ...   __import__('operator').getitem(
-     ...     thenQz_else,
-     ...     __import__('operator').not_(
-     ...       test))())(
+     ... (lambda b,c,a:c()if b else a())(
      ...   __import__('operator').contains(
      ...     __import__('builtins').globals(),
      ...     'CACHE'),
@@ -1218,11 +1205,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...     (lambda x:
      ...       # cond
      ...       # hissp.macros.._macro_.ifQz_else
-     ...       (lambda test,*thenQz_else:
-     ...         __import__('operator').getitem(
-     ...           thenQz_else,
-     ...           __import__('operator').not_(
-     ...             test))())(
+     ...       (lambda b,c,a:c()if b else a())(
      ...         __import__('operator').lt(
      ...           x,
      ...           (0)),
@@ -1232,11 +1215,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...         (lambda :
      ...           # hissp.macros..QzMaybe_.cond
      ...           # hissp.macros.._macro_.ifQz_else
-     ...           (lambda test,*thenQz_else:
-     ...             __import__('operator').getitem(
-     ...               thenQz_else,
-     ...               __import__('operator').not_(
-     ...                 test))())(
+     ...           (lambda b,c,a:c()if b else a())(
      ...             __import__('operator').eq(
      ...               x,
      ...               (0)),
@@ -1246,11 +1225,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...             (lambda :
      ...               # hissp.macros..QzMaybe_.cond
      ...               # hissp.macros.._macro_.ifQz_else
-     ...               (lambda test,*thenQz_else:
-     ...                 __import__('operator').getitem(
-     ...                   thenQz_else,
-     ...                   __import__('operator').not_(
-     ...                     test))())(
+     ...               (lambda b,c,a:c()if b else a())(
      ...                 __import__('operator').gt(
      ...                   x,
      ...                   (0)),
@@ -1260,11 +1235,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...                 (lambda :
      ...                   # hissp.macros..QzMaybe_.cond
      ...                   # hissp.macros.._macro_.ifQz_else
-     ...                   (lambda test,*thenQz_else:
-     ...                     __import__('operator').getitem(
-     ...                       thenQz_else,
-     ...                       __import__('operator').not_(
-     ...                         test))())(
+     ...                   (lambda b,c,a:c()if b else a())(
      ...                     ':else',
      ...                     (lambda :
      ...                       print(
@@ -1399,11 +1370,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...             (lambda :
      ...               # when
      ...               # hissp.macros.._macro_.ifQz_else
-     ...               (lambda test,*thenQz_else:
-     ...                 __import__('operator').getitem(
-     ...                   thenQz_else,
-     ...                   __import__('operator').not_(
-     ...                     test))())(
+     ...               (lambda b,c,a:c()if b else a())(
      ...                 x,
      ...                 (lambda :
      ...                   # hissp.macros.._macro_.progn
@@ -1453,22 +1420,14 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ... # hissp.macros.._macro_.let
      ... (lambda _QzNo33_G=True:
      ...   # hissp.macros.._macro_.ifQz_else
-     ...   (lambda test,*thenQz_else:
-     ...     __import__('operator').getitem(
-     ...       thenQz_else,
-     ...       __import__('operator').not_(
-     ...         test))())(
+     ...   (lambda b,c,a:c()if b else a())(
      ...     _QzNo33_G,
      ...     (lambda :
      ...       # hissp.macros..QzMaybe_.QzET_QzET_
      ...       # hissp.macros.._macro_.let
      ...       (lambda _QzNo33_G=True:
      ...         # hissp.macros.._macro_.ifQz_else
-     ...         (lambda test,*thenQz_else:
-     ...           __import__('operator').getitem(
-     ...             thenQz_else,
-     ...             __import__('operator').not_(
-     ...               test))())(
+     ...         (lambda b,c,a:c()if b else a())(
      ...           _QzNo33_G,
      ...           (lambda :
      ...             # hissp.macros..QzMaybe_.QzET_QzET_
@@ -1482,11 +1441,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ... # hissp.macros.._macro_.let
      ... (lambda _QzNo33_G=False:
      ...   # hissp.macros.._macro_.ifQz_else
-     ...   (lambda test,*thenQz_else:
-     ...     __import__('operator').getitem(
-     ...       thenQz_else,
-     ...       __import__('operator').not_(
-     ...         test))())(
+     ...   (lambda b,c,a:c()if b else a())(
      ...     _QzNo33_G,
      ...     (lambda :
      ...       # hissp.macros..QzMaybe_.QzET_QzET_
@@ -1500,11 +1455,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ... # hissp.macros.._macro_.let
      ... (lambda _QzNo26_G=True:
      ...   # hissp.macros.._macro_.ifQz_else
-     ...   (lambda test,*thenQz_else:
-     ...     __import__('operator').getitem(
-     ...       thenQz_else,
-     ...       __import__('operator').not_(
-     ...         test))())(
+     ...   (lambda b,c,a:c()if b else a())(
      ...     _QzNo26_G,
      ...     (lambda :
      ...       # hissp.macros..QzMaybe_.QzET_QzET_
@@ -1533,11 +1484,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ... # hissp.macros.._macro_.let
      ... (lambda _QzNo34_first=True:
      ...   # hissp.macros.._macro_.ifQz_else
-     ...   (lambda test,*thenQz_else:
-     ...     __import__('operator').getitem(
-     ...       thenQz_else,
-     ...       __import__('operator').not_(
-     ...         test))())(
+     ...   (lambda b,c,a:c()if b else a())(
      ...     _QzNo34_first,
      ...     (lambda :_QzNo34_first),
      ...     (lambda :
@@ -1551,11 +1498,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ... # hissp.macros.._macro_.let
      ... (lambda _QzNo27_first=(42):
      ...   # hissp.macros.._macro_.ifQz_else
-     ...   (lambda test,*thenQz_else:
-     ...     __import__('operator').getitem(
-     ...       thenQz_else,
-     ...       __import__('operator').not_(
-     ...         test))())(
+     ...   (lambda b,c,a:c()if b else a())(
      ...     _QzNo27_first,
      ...     (lambda :_QzNo27_first),
      ...     (lambda :

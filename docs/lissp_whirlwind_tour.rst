@@ -1902,11 +1902,7 @@ Lissp Whirlwind Tour
    ... (lambda _QzNo7_fn=(lambda _QzNo27_prime,_QzNo27_reader=None,*_QzNo27_args:(
    ...   'Aliases ``hissp.._macro_`` as ``MQzCOLON_#``.',
    ...   # hissp.macros.._macro_.ifQz_else
-   ...   (lambda test,*thenQz_else:
-   ...     __import__('operator').getitem(
-   ...       thenQz_else,
-   ...       __import__('operator').not_(
-   ...         test))())(
+   ...   (lambda b,c,a:c()if b else a())(
    ...     _QzNo27_reader,
    ...     (lambda :
    ...       __import__('builtins').getattr(
@@ -1914,11 +1910,7 @@ Lissp Whirlwind Tour
    ...         ('{}{}').format(
    ...           _QzNo27_reader,
    ...           # hissp.macros.._macro_.ifQz_else
-   ...           (lambda test,*thenQz_else:
-   ...             __import__('operator').getitem(
-   ...               thenQz_else,
-   ...               __import__('operator').not_(
-   ...                 test))())(
+   ...           (lambda b,c,a:c()if b else a())(
    ...             'hissp.._macro_'.endswith(
    ...               '._macro_'),
    ...             (lambda :'QzHASH_'),
@@ -2153,11 +2145,7 @@ Lissp Whirlwind Tour
    ...         ('in loop')),
    ...       # unless
    ...       # hissp.macros.._macro_.ifQz_else
-   ...       (lambda test,*thenQz_else:
-   ...         __import__('operator').getitem(
-   ...           thenQz_else,
-   ...           __import__('operator').not_(
-   ...             test))())(
+   ...       (lambda b,c,a:c()if b else a())(
    ...         eq(
    ...           c,
    ...           ('b')),
@@ -2171,11 +2159,7 @@ Lissp Whirlwind Tour
    ...               c))[-1])())),
    ...       # when
    ...       # hissp.macros.._macro_.ifQz_else
-   ...       (lambda test,*thenQz_else:
-   ...         __import__('operator').getitem(
-   ...           thenQz_else,
-   ...           __import__('operator').not_(
-   ...             test))())(
+   ...       (lambda b,c,a:c()if b else a())(
    ...         eq(
    ...           c,
    ...           ('a')),
@@ -2241,22 +2225,14 @@ Lissp Whirlwind Tour
    ...   # hissp.macros.._macro_.let
    ...   (lambda _QzNo47_G=(lambda _QzNo47_x:
    ...     # hissp.macros.._macro_.ifQz_else
-   ...     (lambda test,*thenQz_else:
-   ...       __import__('operator').getitem(
-   ...         thenQz_else,
-   ...         __import__('operator').not_(
-   ...           test))())(
+   ...     (lambda b,c,a:c()if b else a())(
    ...       # hissp.macros.._macro_.QzET_QzET_
    ...       # hissp.macros.._macro_.let
    ...       (lambda _QzNo44_G=__import__('builtins').isinstance(
    ...         _QzNo47_x,
    ...         __import__('builtins').type):
    ...         # hissp.macros.._macro_.ifQz_else
-   ...         (lambda test,*thenQz_else:
-   ...           __import__('operator').getitem(
-   ...             thenQz_else,
-   ...             __import__('operator').not_(
-   ...               test))())(
+   ...         (lambda b,c,a:c()if b else a())(
    ...           _QzNo44_G,
    ...           (lambda :
    ...             # hissp.macros..QzMaybe_.QzET_QzET_
@@ -2297,11 +2273,7 @@ Lissp Whirlwind Tour
    ... (lambda it=(7):(
    ...   # hissp.macros.._macro_.unless
    ...   # hissp.macros.._macro_.ifQz_else
-   ...   (lambda test,*thenQz_else:
-   ...     __import__('operator').getitem(
-   ...       thenQz_else,
-   ...       __import__('operator').not_(
-   ...         test))())(
+   ...   (lambda b,c,a:c()if b else a())(
    ...     # hissp.macros.._macro_.Qz_QzGT_
    ...     # Qz_QzGT_
    ...     eq(
@@ -2345,11 +2317,7 @@ Lissp Whirlwind Tour
    ... __import__('builtins').globals().update(
    ...   factorialQz_III=(lambda i:
    ...                     # ifQz_else
-   ...                     (lambda test,*thenQz_else:
-   ...                       __import__('operator').getitem(
-   ...                         thenQz_else,
-   ...                         __import__('operator').not_(
-   ...                           test))())(
+   ...                     (lambda b,c,a:c()if b else a())(
    ...                       le(
    ...                         i,
    ...                         (1)),
@@ -2445,22 +2413,14 @@ Lissp Whirlwind Tour
    ...       # hissp.macros.._macro_.let
    ...       (lambda _QzNo47_G=(lambda _QzNo47_x:
    ...         # hissp.macros.._macro_.ifQz_else
-   ...         (lambda test,*thenQz_else:
-   ...           __import__('operator').getitem(
-   ...             thenQz_else,
-   ...             __import__('operator').not_(
-   ...               test))())(
+   ...         (lambda b,c,a:c()if b else a())(
    ...           # hissp.macros.._macro_.QzET_QzET_
    ...           # hissp.macros.._macro_.let
    ...           (lambda _QzNo44_G=__import__('builtins').isinstance(
    ...             _QzNo47_x,
    ...             __import__('builtins').type):
    ...             # hissp.macros.._macro_.ifQz_else
-   ...             (lambda test,*thenQz_else:
-   ...               __import__('operator').getitem(
-   ...                 thenQz_else,
-   ...                 __import__('operator').not_(
-   ...                   test))())(
+   ...             (lambda b,c,a:c()if b else a())(
    ...               _QzNo44_G,
    ...               (lambda :
    ...                 # hissp.macros..QzMaybe_.QzET_QzET_
@@ -2534,11 +2494,7 @@ Lissp Whirlwind Tour
    ...                  (lambda step:
    ...                    # when
    ...                    # hissp.macros.._macro_.ifQz_else
-   ...                    (lambda test,*thenQz_else:
-   ...                      __import__('operator').getitem(
-   ...                        thenQz_else,
-   ...                        __import__('operator').not_(
-   ...                          test))())(
+   ...                    (lambda b,c,a:c()if b else a())(
    ...                      lt(
    ...                        i,
    ...                        n),
@@ -2853,22 +2809,14 @@ Lissp Whirlwind Tour
    ...       # hissp.macros.._macro_.let
    ...       (lambda _QzNo48_G=(lambda _QzNo48_x:
    ...         # hissp.macros.._macro_.ifQz_else
-   ...         (lambda test,*thenQz_else:
-   ...           __import__('operator').getitem(
-   ...             thenQz_else,
-   ...             __import__('operator').not_(
-   ...               test))())(
+   ...         (lambda b,c,a:c()if b else a())(
    ...           # hissp.macros.._macro_.QzET_QzET_
    ...           # hissp.macros.._macro_.let
    ...           (lambda _QzNo44_G=__import__('builtins').isinstance(
    ...             _QzNo48_x,
    ...             __import__('builtins').type):
    ...             # hissp.macros.._macro_.ifQz_else
-   ...             (lambda test,*thenQz_else:
-   ...               __import__('operator').getitem(
-   ...                 thenQz_else,
-   ...                 __import__('operator').not_(
-   ...                   test))())(
+   ...             (lambda b,c,a:c()if b else a())(
    ...               _QzNo44_G,
    ...               (lambda :
    ...                 # hissp.macros..QzMaybe_.QzET_QzET_
@@ -3018,11 +2966,7 @@ Lissp Whirlwind Tour
    ... (lambda _QzNo7_fn=(lambda _QzNo27_prime,_QzNo27_reader=None,*_QzNo27_args:(
    ...   'Aliases ``hissp.._macro_`` as ``MQzCOLON_#``.',
    ...   # hissp.macros.._macro_.ifQz_else
-   ...   (lambda test,*thenQz_else:
-   ...     __import__('operator').getitem(
-   ...       thenQz_else,
-   ...       __import__('operator').not_(
-   ...         test))())(
+   ...   (lambda b,c,a:c()if b else a())(
    ...     _QzNo27_reader,
    ...     (lambda :
    ...       __import__('builtins').getattr(
@@ -3030,11 +2974,7 @@ Lissp Whirlwind Tour
    ...         ('{}{}').format(
    ...           _QzNo27_reader,
    ...           # hissp.macros.._macro_.ifQz_else
-   ...           (lambda test,*thenQz_else:
-   ...             __import__('operator').getitem(
-   ...               thenQz_else,
-   ...               __import__('operator').not_(
-   ...                 test))())(
+   ...           (lambda b,c,a:c()if b else a())(
    ...             'hissp.._macro_'.endswith(
    ...               '._macro_'),
    ...             (lambda :'QzHASH_'),

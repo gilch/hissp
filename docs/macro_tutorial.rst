@@ -1461,11 +1461,7 @@ Can we just iterate through the expression and check?
    ...                   # hissp.macros.._macro_.let
    ...                   (lambda _QzNo27_first=# when
    ...                   # hissp.macros.._macro_.ifQz_else
-   ...                   (lambda test,*thenQz_else:
-   ...                     __import__('operator').getitem(
-   ...                       thenQz_else,
-   ...                       __import__('operator').not_(
-   ...                         test))())(
+   ...                   (lambda b,c,a:c()if b else a())(
    ...                     is_(
    ...                       str,
    ...                       type(
@@ -1479,11 +1475,7 @@ Can we just iterate through the expression and check?
    ...                           x):
    ...                           # when
    ...                           # hissp.macros.._macro_.ifQz_else
-   ...                           (lambda test,*thenQz_else:
-   ...                             __import__('operator').getitem(
-   ...                               thenQz_else,
-   ...                               __import__('operator').not_(
-   ...                                 test))())(
+   ...                           (lambda b,c,a:c()if b else a())(
    ...                             match,
    ...                             (lambda :
    ...                               # hissp.macros.._macro_.progn
@@ -1494,11 +1486,7 @@ Can we just iterate through the expression and check?
    ...                             (lambda :())))())()),
    ...                     (lambda :())):
    ...                     # hissp.macros.._macro_.ifQz_else
-   ...                     (lambda test,*thenQz_else:
-   ...                       __import__('operator').getitem(
-   ...                         thenQz_else,
-   ...                         __import__('operator').not_(
-   ...                           test))())(
+   ...                     (lambda b,c,a:c()if b else a())(
    ...                       _QzNo27_first,
    ...                       (lambda :_QzNo27_first),
    ...                       (lambda :
@@ -1572,11 +1560,7 @@ This sounds like a job for recursion.
    ...               map(
    ...                 (lambda x:
    ...                   # ifQz_else
-   ...                   (lambda test,*thenQz_else:
-   ...                     __import__('operator').getitem(
-   ...                       thenQz_else,
-   ...                       __import__('operator').not_(
-   ...                         test))())(
+   ...                   (lambda b,c,a:c()if b else a())(
    ...                     is_(
    ...                       type(
    ...                         x),
@@ -1618,11 +1602,7 @@ Now we can fix ``max-X``.
    ...                   # hissp.macros.._macro_.let
    ...                   (lambda _QzNo27_first=# when
    ...                   # hissp.macros.._macro_.ifQz_else
-   ...                   (lambda test,*thenQz_else:
-   ...                     __import__('operator').getitem(
-   ...                       thenQz_else,
-   ...                       __import__('operator').not_(
-   ...                         test))())(
+   ...                   (lambda b,c,a:c()if b else a())(
    ...                     is_(
    ...                       str,
    ...                       type(
@@ -1636,11 +1616,7 @@ Now we can fix ``max-X``.
    ...                           x):
    ...                           # when
    ...                           # hissp.macros.._macro_.ifQz_else
-   ...                           (lambda test,*thenQz_else:
-   ...                             __import__('operator').getitem(
-   ...                               thenQz_else,
-   ...                               __import__('operator').not_(
-   ...                                 test))())(
+   ...                           (lambda b,c,a:c()if b else a())(
    ...                             match,
    ...                             (lambda :
    ...                               # hissp.macros.._macro_.progn
@@ -1651,11 +1627,7 @@ Now we can fix ``max-X``.
    ...                             (lambda :())))())()),
    ...                     (lambda :())):
    ...                     # hissp.macros.._macro_.ifQz_else
-   ...                     (lambda test,*thenQz_else:
-   ...                       __import__('operator').getitem(
-   ...                         thenQz_else,
-   ...                         __import__('operator').not_(
-   ...                           test))())(
+   ...                     (lambda b,c,a:c()if b else a())(
    ...                       _QzNo27_first,
    ...                       (lambda :_QzNo27_first),
    ...                       (lambda :
@@ -1871,11 +1843,7 @@ Catch-All Parameter
    ...       ':',
    ...       *# when
    ...        # hissp.macros.._macro_.ifQz_else
-   ...        (lambda test,*thenQz_else:
-   ...          __import__('operator').getitem(
-   ...            thenQz_else,
-   ...            __import__('operator').not_(
-   ...              test))())(
+   ...        (lambda b,c,a:c()if b else a())(
    ...          contains(
    ...            flatten(
    ...              expr),
@@ -2008,11 +1976,7 @@ Here you go:
    ...              (lambda _QzNo28_first=maxQz_X(
    ...                expr):
    ...                # hissp.macros.._macro_.ifQz_else
-   ...                (lambda test,*thenQz_else:
-   ...                  __import__('operator').getitem(
-   ...                    thenQz_else,
-   ...                    __import__('operator').not_(
-   ...                      test))())(
+   ...                (lambda b,c,a:c()if b else a())(
    ...                  _QzNo28_first,
    ...                  (lambda :_QzNo28_first),
    ...                  (lambda :
@@ -2024,11 +1988,7 @@ Here you go:
    ...       ':',
    ...       *# when
    ...        # hissp.macros.._macro_.ifQz_else
-   ...        (lambda test,*thenQz_else:
-   ...          __import__('operator').getitem(
-   ...            thenQz_else,
-   ...            __import__('operator').not_(
-   ...              test))())(
+   ...        (lambda b,c,a:c()if b else a())(
    ...          contains(
    ...            flatten(
    ...              expr),
@@ -2041,11 +2001,7 @@ Here you go:
    ...                'Xi'))()),
    ...          (lambda :()))),
    ...     # ifQz_else
-   ...     (lambda test,*thenQz_else:
-   ...       __import__('operator').getitem(
-   ...         thenQz_else,
-   ...         __import__('operator').not_(
-   ...           test))())(
+   ...     (lambda b,c,a:c()if b else a())(
    ...       contains(
    ...         flatten(
    ...           expr),
@@ -2574,11 +2530,7 @@ Or you can add floating-point. Python's notation can't do that.
    ...     str(
    ...       x)):
    ...     # ifQz_else
-   ...     (lambda test,*thenQz_else:
-   ...       __import__('operator').getitem(
-   ...         thenQz_else,
-   ...         __import__('operator').not_(
-   ...           test))())(
+   ...     (lambda b,c,a:c()if b else a())(
    ...       __import__('re').search(
    ...         ('[.Pp]'),
    ...         x),
