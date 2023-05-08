@@ -2200,43 +2200,6 @@ Lissp Whirlwind Tour
    False
 
 
-   ;; Shortcutting logical or.
-   #> (|| True (print "oops"))
-   >>> # QzBAR_QzBAR_
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo34_first=True:
-   ...   # hissp.macros.._macro_.ifQz_else
-   ...   (lambda test,*thenQz_else:
-   ...     __import__('operator').getitem(
-   ...       thenQz_else,
-   ...       __import__('operator').not_(
-   ...         test))())(
-   ...     _QzNo34_first,
-   ...     (lambda :_QzNo34_first),
-   ...     (lambda :
-   ...       # hissp.macros..QzMaybe_.QzBAR_QzBAR_
-   ...       print(
-   ...         ('oops')))))()
-   True
-
-   #> (|| 42 False)
-   >>> # QzBAR_QzBAR_
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo27_first=(42):
-   ...   # hissp.macros.._macro_.ifQz_else
-   ...   (lambda test,*thenQz_else:
-   ...     __import__('operator').getitem(
-   ...       thenQz_else,
-   ...       __import__('operator').not_(
-   ...         test))())(
-   ...     _QzNo27_first,
-   ...     (lambda :_QzNo27_first),
-   ...     (lambda :
-   ...       # hissp.macros..QzMaybe_.QzBAR_QzBAR_
-   ...       False)))()
-   42
-
-
    ;;;; 14.9 Raising Exceptions
 
    #> (throw Exception)                   ;Raise exception objects or classes.

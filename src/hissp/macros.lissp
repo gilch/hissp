@@ -1526,6 +1526,43 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Returns the first true value, otherwise the last value.
   There is an implicit initial value of ``()``.
 
+  .. code-block:: REPL
+
+     #> (|| True (print 'oops))
+     >>> # QzBAR_QzBAR_
+     ... # hissp.macros.._macro_.let
+     ... (lambda _QzNo34_first=True:
+     ...   # hissp.macros.._macro_.ifQz_else
+     ...   (lambda test,*thenQz_else:
+     ...     __import__('operator').getitem(
+     ...       thenQz_else,
+     ...       __import__('operator').not_(
+     ...         test))())(
+     ...     _QzNo34_first,
+     ...     (lambda :_QzNo34_first),
+     ...     (lambda :
+     ...       # hissp.macros..QzMaybe_.QzBAR_QzBAR_
+     ...       print(
+     ...         'oops'))))()
+     True
+
+     #> (|| 42 False)
+     >>> # QzBAR_QzBAR_
+     ... # hissp.macros.._macro_.let
+     ... (lambda _QzNo27_first=(42):
+     ...   # hissp.macros.._macro_.ifQz_else
+     ...   (lambda test,*thenQz_else:
+     ...     __import__('operator').getitem(
+     ...       thenQz_else,
+     ...       __import__('operator').not_(
+     ...         test))())(
+     ...     _QzNo27_first,
+     ...     (lambda :_QzNo27_first),
+     ...     (lambda :
+     ...       # hissp.macros..QzMaybe_.QzBAR_QzBAR_
+     ...       False)))()
+     42
+
   See also: `&&<QzET_QzET_>`, `bool`, `or`.
   "
   (if-else rest
