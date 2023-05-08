@@ -26,12 +26,14 @@ unqualified in the Lissp REPL, but this does not apply to modules. A
 Hissp module with better alternatives need not use the bundled macros at
 all.
 
-With the exception of `prelude` (which uses `exec`), and `subscript
-<QzLSQB_QzHASH_>` (``[#``), which is not used in expansions, they also
-eschew any expansions to non-atomic Python code strings, relying only on
-the built-in special forms ``quote`` and ``lambda``, which makes their
-expansions compatible with advanced rewriting macros that process the
-Hissp expansions of other macros.
+They also eschew any expansions of subexpressions to non-atomic Python
+code strings, relying only on the built-in special forms ``quote`` and
+``lambda``, which makes their expansions compatible with advanced
+rewriting macros that process the Hissp expansions of other macros.
+(`[# <QzLSQB_QzHASH_>` is something of an exception here, as one
+subexpression is written in Python to begin with.) Note that this need
+not apply to inlined helper functions that contain no user code.
+`if-else <ifQz_else>` is one such example.
 "
 
 ;;; This module is not necessarily a good example of how you should
