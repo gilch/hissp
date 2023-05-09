@@ -3090,9 +3090,7 @@ Now look at what we can do.
    ...   __import__('operator').itemgetter(
    ...     (__import__('builtins').globals()['slicer'][0]))(
    ...     # QzAT_
-   ...     (lambda *_QzNo55_xs:
-   ...       __import__('builtins').list(
-   ...         _QzNo55_xs))(
+   ...     (lambda *xs:[*xs])(
    ...       ('abc'))))
    'cba'
 

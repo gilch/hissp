@@ -630,9 +630,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   !;   ...   map(
   !;   ...     (lambda X:
   !;   ...       # QzAT_
-  !;   ...       (lambda *_QzNo37_xs:
-  !;   ...         __import__('builtins').list(
-  !;   ...           _QzNo37_xs))(
+  !;   ...       (lambda *xs:[*xs])(
   !;   ...         X)),
   !;   ...     ('abc')))
   !;   [['a'], ['b'], ['c']]
@@ -1246,9 +1244,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...                       # hissp.macros..QzMaybe_.cond
      ...                       ()))))))))),
      ...     # QzAT_
-     ...     (lambda *_QzNo129_xs:
-     ...       __import__('builtins').list(
-     ...         _QzNo129_xs))(
+     ...     (lambda *xs:[*xs])(
      ...       (-0.6),
      ...       (-0.0),
      ...       (42.0),
@@ -1353,9 +1349,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      >>> # loopQz_from
      ... # hissp.macros.._macro_.let
      ... (lambda _QzNo43_stack=# hissp.macros..QzMaybe_.QzAT_
-     ... (lambda *_QzNo52_xs:
-     ...   __import__('builtins').list(
-     ...     _QzNo52_xs))(
+     ... (lambda *xs:[*xs])(
      ...   (),
      ...   None,
      ...   ((3),)):
@@ -1381,9 +1375,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...                       x),
      ...                     recurQz_from(
      ...                       # QzAT_
-     ...                       (lambda *_QzNo52_xs:
-     ...                         __import__('builtins').list(
-     ...                           _QzNo52_xs))(
+     ...                       (lambda *xs:[*xs])(
      ...                         __import__('operator').sub(
      ...                           x,
      ...                           (1)))))[-1])()),
@@ -1665,9 +1657,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   !;
   !;   #> (@ :* "AB" (math..sqrt 9) :* "XY" 2 1)
   !;   >>> # QzAT_
-  !;   ... (lambda *_QzNo55_xs:
-  !;   ...   __import__('builtins').list(
-  !;   ...     _QzNo55_xs))(
+  !;   ... (lambda *xs:[*xs])(
   !;   ...   *('AB'),
   !;   ...   __import__('math').sqrt(
   !;   ...     (9)),
@@ -1681,10 +1671,11 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   (when (&& xs (op#eq :* (get#-1 xs)))
      (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
-    `(en#list : ,@chain#(map X#(if-else (op#eq X ":*")
-                                 `(,X ,(next ixs))
-                                 `(:? ,X))
-                             ixs))))
+    `((lambda (: :* ,'xs) .#"[*xs]")
+      : ,@chain#(map X#(if-else (op#eq X ":*")
+                         `(,X ,(next ixs))
+                         `(:? ,X))
+                     ixs))))
 
 (defmacro # (: :* xs)
   "``#`` 'set of' Mnemonic: Hash (#) set.
@@ -1701,9 +1692,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...     _QzNo34_xs))(
      ...   (1),
      ...   *# QzAT_
-     ...    (lambda *_QzNo34_xs:
-     ...      __import__('builtins').list(
-     ...        _QzNo34_xs))(
+     ...    (lambda *xs:[*xs])(
      ...      (1),
      ...      (2),
      ...      (3)),
@@ -1894,9 +1883,7 @@ except ModuleNotFoundError:pass"
   !;   ...       # case
   !;   ...       __import__('operator').getitem(
   !;   ...         # hissp.macros.._macro_.QzAT_
-  !;   ...         (lambda *_QzNo129_xs:
-  !;   ...           __import__('builtins').list(
-  !;   ...             _QzNo129_xs))(
+  !;   ...         (lambda *xs:[*xs])(
   !;   ...           (lambda :
   !;   ...             print(
   !;   ...               ('odd'))),
@@ -2004,9 +1991,7 @@ except ModuleNotFoundError:pass"
      ...       file=__import__('sys').stderr),
      ...     _QzNo73_val)[-1])(
      ...     *# hissp.macros.._macro_.QzAT_
-     ...      (lambda *_QzNo55_xs:
-     ...        __import__('builtins').list(
-     ...          _QzNo55_xs))(
+     ...      (lambda *xs:[*xs])(
      ...        _QzNo73_time(),
      ...        __import__('time').sleep(
      ...          (0.05)),
