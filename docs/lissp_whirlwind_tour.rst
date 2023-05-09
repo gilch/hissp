@@ -2189,11 +2189,10 @@ Lissp Whirlwind Tour
    #> (throw Exception)                   ;Raise exception objects or classes.
    >>> # throw
    ... # hissp.macros.._macro_.throwQzSTAR_
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo46_gen=__import__('traceback').walk_tb(
-   ...   None):(
-   ...   _QzNo46_gen.close(),
-   ...   _QzNo46_gen)[-1])().throw(
+   ... # hissp.macros.._macro_.doto
+   ... (lambda _QzNo114_self=(x for x in''):(
+   ...   _QzNo114_self.close(),
+   ...   _QzNo114_self)[-1])().throw(
    ...   Exception)
    Traceback (most recent call last):
      ...
@@ -2202,11 +2201,10 @@ Lissp Whirlwind Tour
    #> (throw (TypeError "message"))
    >>> # throw
    ... # hissp.macros.._macro_.throwQzSTAR_
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo46_gen=__import__('traceback').walk_tb(
-   ...   None):(
-   ...   _QzNo46_gen.close(),
-   ...   _QzNo46_gen)[-1])().throw(
+   ... # hissp.macros.._macro_.doto
+   ... (lambda _QzNo114_self=(x for x in''):(
+   ...   _QzNo114_self.close(),
+   ...   _QzNo114_self)[-1])().throw(
    ...   TypeError(
    ...     ('message')))
    Traceback (most recent call last):
@@ -2217,11 +2215,10 @@ Lissp Whirlwind Tour
    #> (throw-from Exception (Exception "message")) ;Explicit chaining.
    >>> # throwQz_from
    ... # hissp.macros.._macro_.throwQzSTAR_
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo46_gen=__import__('traceback').walk_tb(
-   ...   None):(
-   ...   _QzNo46_gen.close(),
-   ...   _QzNo46_gen)[-1])().throw(
+   ... # hissp.macros.._macro_.doto
+   ... (lambda _QzNo114_self=(x for x in''):(
+   ...   _QzNo114_self.close(),
+   ...   _QzNo114_self)[-1])().throw(
    ...   # hissp.macros.._macro_.let
    ...   (lambda _QzNo47_G=(lambda _QzNo47_x:
    ...     # hissp.macros.._macro_.ifQz_else
@@ -2287,11 +2284,10 @@ Lissp Whirlwind Tour
    ...       (lambda :
    ...         # hissp.macros.._macro_.throw
    ...         # hissp.macros.._macro_.throwQzSTAR_
-   ...         # hissp.macros.._macro_.let
-   ...         (lambda _QzNo50_gen=__import__('traceback').walk_tb(
-   ...           None):(
-   ...           _QzNo50_gen.close(),
-   ...           _QzNo50_gen)[-1])().throw(
+   ...         # hissp.macros.._macro_.doto
+   ...         (lambda _QzNo114_self=(x for x in''):(
+   ...           _QzNo114_self.close(),
+   ...           _QzNo114_self)[-1])().throw(
    ...           __import__('builtins').AssertionError(
    ...             it,
    ...             ("That's odd."))))())),
@@ -2405,11 +2401,10 @@ Lissp Whirlwind Tour
    ...   (lambda :
    ...     # throwQz_from
    ...     # hissp.macros.._macro_.throwQzSTAR_
-   ...     # hissp.macros.._macro_.let
-   ...     (lambda _QzNo46_gen=__import__('traceback').walk_tb(
-   ...       None):(
-   ...       _QzNo46_gen.close(),
-   ...       _QzNo46_gen)[-1])().throw(
+   ...     # hissp.macros.._macro_.doto
+   ...     (lambda _QzNo114_self=(x for x in''):(
+   ...       _QzNo114_self.close(),
+   ...       _QzNo114_self)[-1])().throw(
    ...       # hissp.macros.._macro_.let
    ...       (lambda _QzNo47_G=(lambda _QzNo47_x:
    ...         # hissp.macros.._macro_.ifQz_else
@@ -2762,11 +2757,10 @@ Lissp Whirlwind Tour
    ...   (lambda _:
    ...     # throw
    ...     # hissp.macros.._macro_.throwQzSTAR_
-   ...     # hissp.macros.._macro_.let
-   ...     (lambda _QzNo46_gen=__import__('traceback').walk_tb(
-   ...       None):(
-   ...       _QzNo46_gen.close(),
-   ...       _QzNo46_gen)[-1])().throw(
+   ...     # hissp.macros.._macro_.doto
+   ...     (lambda _QzNo114_self=(x for x in''):(
+   ...       _QzNo114_self.close(),
+   ...       _QzNo114_self)[-1])().throw(
    ...       Exception)))
    Traceback (most recent call last):
      ...
@@ -2801,11 +2795,10 @@ Lissp Whirlwind Tour
    ...   (lambda :
    ...     # throwQz_from
    ...     # hissp.macros.._macro_.throwQzSTAR_
-   ...     # hissp.macros.._macro_.let
-   ...     (lambda _QzNo46_gen=__import__('traceback').walk_tb(
-   ...       None):(
-   ...       _QzNo46_gen.close(),
-   ...       _QzNo46_gen)[-1])().throw(
+   ...     # hissp.macros.._macro_.doto
+   ...     (lambda _QzNo114_self=(x for x in''):(
+   ...       _QzNo114_self.close(),
+   ...       _QzNo114_self)[-1])().throw(
    ...       # hissp.macros.._macro_.let
    ...       (lambda _QzNo48_G=(lambda _QzNo48_x:
    ...         # hissp.macros.._macro_.ifQz_else
