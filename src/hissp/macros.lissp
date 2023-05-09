@@ -162,7 +162,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   See also: `if-else<ifQz_else>`, `unless`, `if`.
   "
-  `(if-else ,condition (progn ,@body) ()))
+  `((lambda ,'bc .#"c()if b else()") ; boolean, consequent
+    ,condition (lambda : ,@body)))
 
 (defmacro unless (condition : :* body)
   "Unless the condition is true,
@@ -172,7 +173,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   See also: `when`.
   "
-  `(if-else ,condition () (progn ,@body)))
+  `((lambda ,'ba .#"()if b else a()") ; boolean, alternate
+    ,condition (lambda : ,@body)))
 
 (defmacro let (pairs : :* body)
   "Creates local variables. Pairs are implied by position.
@@ -358,19 +360,15 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      #> (defonce CACHE (types..SimpleNamespace : x 1))
      >>> # defonce
      ... # hissp.macros.._macro_.unless
-     ... # hissp.macros.._macro_.ifQz_else
-     ... (lambda b,c,a:c()if b else a())(
+     ... (lambda b,a:()if b else a())(
      ...   __import__('operator').contains(
      ...     __import__('builtins').globals(),
      ...     'CACHE'),
-     ...   (lambda :()),
      ...   (lambda :
-     ...     # hissp.macros.._macro_.progn
-     ...     (lambda :
-     ...       # hissp.macros.._macro_.define
-     ...       __import__('builtins').globals().update(
-     ...         CACHE=__import__('types').SimpleNamespace(
-     ...                 x=(1))))()))
+     ...     # hissp.macros.._macro_.define
+     ...     __import__('builtins').globals().update(
+     ...       CACHE=__import__('types').SimpleNamespace(
+     ...               x=(1)))))
 
      #> (setattr CACHE 'x 42)
      >>> setattr(
@@ -382,24 +380,20 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      #..                      (types..SimpleNamespace : x 1)))
      >>> # defonce
      ... # hissp.macros.._macro_.unless
-     ... # hissp.macros.._macro_.ifQz_else
-     ... (lambda b,c,a:c()if b else a())(
+     ... (lambda b,a:()if b else a())(
      ...   __import__('operator').contains(
      ...     __import__('builtins').globals(),
      ...     'CACHE'),
-     ...   (lambda :()),
      ...   (lambda :
-     ...     # hissp.macros.._macro_.progn
-     ...     (lambda :
-     ...       # hissp.macros.._macro_.define
-     ...       __import__('builtins').globals().update(
-     ...         CACHE=# progn
-     ...               (lambda :(
-     ...                 print(
-     ...                   'not',
-     ...                   'evaluated'),
-     ...                 __import__('types').SimpleNamespace(
-     ...                   x=(1)))[-1])()))()))
+     ...     # hissp.macros.._macro_.define
+     ...     __import__('builtins').globals().update(
+     ...       CACHE=# progn
+     ...             (lambda :(
+     ...               print(
+     ...                 'not',
+     ...                 'evaluated'),
+     ...               __import__('types').SimpleNamespace(
+     ...                 x=(1)))[-1])())))
      ()
 
      #> CACHE ; The second defonce had no effect.
@@ -1348,45 +1342,41 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      #..    (recur-from (@ (op#sub x 1)))))
      >>> # loopQz_from
      ... # hissp.macros.._macro_.let
-     ... (lambda _QzNo43_stack=# hissp.macros..QzMaybe_.QzAT_
+     ... (lambda _QzNo121_stack=# hissp.macros..QzMaybe_.QzAT_
      ... (lambda *xs:[*xs])(
      ...   (),
      ...   None,
      ...   ((3),)):
      ...   # hissp.macros.._macro_.let
-     ...   (lambda recurQz_from=_QzNo43_stack.append:(
+     ...   (lambda recurQz_from=_QzNo121_stack.append:(
      ...     # hissp.macros.._macro_.anyQzSTAR_map
      ...     __import__('builtins').any(
      ...       __import__('itertools').starmap(
      ...         (lambda x:(
      ...           __import__('operator').setitem(
-     ...             _QzNo43_stack,
+     ...             _QzNo121_stack,
      ...             (0),
      ...             # hissp.macros.._macro_.progn
      ...             (lambda :
      ...               # when
-     ...               # hissp.macros.._macro_.ifQz_else
-     ...               (lambda b,c,a:c()if b else a())(
+     ...               (lambda b,c:c()if b else())(
      ...                 x,
-     ...                 (lambda :
-     ...                   # hissp.macros.._macro_.progn
-     ...                   (lambda :(
-     ...                     print(
-     ...                       x),
-     ...                     recurQz_from(
-     ...                       # QzAT_
-     ...                       (lambda *xs:[*xs])(
-     ...                         __import__('operator').sub(
-     ...                           x,
-     ...                           (1)))))[-1])()),
-     ...                 (lambda :())))()),
+     ...                 (lambda :(
+     ...                   print(
+     ...                     x),
+     ...                   recurQz_from(
+     ...                     # QzAT_
+     ...                     (lambda *xs:[*xs])(
+     ...                       __import__('operator').sub(
+     ...                         x,
+     ...                         (1)))))[-1])))()),
      ...           None)[-1]),
      ...         __import__('builtins').iter(
-     ...           _QzNo43_stack.pop,
+     ...           _QzNo121_stack.pop,
      ...           None))),
      ...     __import__('operator').itemgetter(
      ...       (0))(
-     ...       _QzNo43_stack))[-1])())()
+     ...       _QzNo121_stack))[-1])())()
      3
      2
      1

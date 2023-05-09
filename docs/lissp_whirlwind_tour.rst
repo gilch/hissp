@@ -2129,61 +2129,6 @@ Lissp Whirlwind Tour
 
    ;; 1 2 3 4 5 6 7 True
 
-   #> (any-map c "abc"
-   #..  (print "in loop")
-   #..  (unless (eq c "b")                ;else-only block
-   #..    (print "in unless")
-   #..    (print c))
-   #..  (when (eq c "a")                  ;if-only block
-   #..    (print "in when")
-   #..    (print c)))
-   >>> # anyQz_map
-   ... __import__('builtins').any(
-   ...   __import__('builtins').map(
-   ...     (lambda c:(
-   ...       print(
-   ...         ('in loop')),
-   ...       # unless
-   ...       # hissp.macros.._macro_.ifQz_else
-   ...       (lambda b,c,a:c()if b else a())(
-   ...         eq(
-   ...           c,
-   ...           ('b')),
-   ...         (lambda :()),
-   ...         (lambda :
-   ...           # hissp.macros.._macro_.progn
-   ...           (lambda :(
-   ...             print(
-   ...               ('in unless')),
-   ...             print(
-   ...               c))[-1])())),
-   ...       # when
-   ...       # hissp.macros.._macro_.ifQz_else
-   ...       (lambda b,c,a:c()if b else a())(
-   ...         eq(
-   ...           c,
-   ...           ('a')),
-   ...         (lambda :
-   ...           # hissp.macros.._macro_.progn
-   ...           (lambda :(
-   ...             print(
-   ...               ('in when')),
-   ...             print(
-   ...               c))[-1])()),
-   ...         (lambda :())))[-1]),
-   ...     ('abc')))
-   in loop
-   in unless
-   a
-   in when
-   a
-   in loop
-   in loop
-   in unless
-   c
-   False
-
-
    ;;;; 14.9 Raising Exceptions
 
    #> (throw Exception)                   ;Raise exception objects or classes.
@@ -2269,8 +2214,7 @@ Lissp Whirlwind Tour
    ... # hissp.macros.._macro_.let
    ... (lambda it=(7):(
    ...   # hissp.macros.._macro_.unless
-   ...   # hissp.macros.._macro_.ifQz_else
-   ...   (lambda b,c,a:c()if b else a())(
+   ...   (lambda b,a:()if b else a())(
    ...     # hissp.macros.._macro_.Qz_QzGT_
    ...     # Qz_QzGT_
    ...     eq(
@@ -2278,19 +2222,16 @@ Lissp Whirlwind Tour
    ...         it,
    ...         (2)),
    ...       (0)),
-   ...     (lambda :()),
    ...     (lambda :
-   ...       # hissp.macros.._macro_.progn
-   ...       (lambda :
-   ...         # hissp.macros.._macro_.throw
-   ...         # hissp.macros.._macro_.throwQzSTAR_
-   ...         # hissp.macros.._macro_.doto
-   ...         (lambda _QzNo114_self=(x for x in''):(
-   ...           _QzNo114_self.close(),
-   ...           _QzNo114_self)[-1])().throw(
-   ...           __import__('builtins').AssertionError(
-   ...             it,
-   ...             ("That's odd."))))())),
+   ...       # hissp.macros.._macro_.throw
+   ...       # hissp.macros.._macro_.throwQzSTAR_
+   ...       # hissp.macros.._macro_.doto
+   ...       (lambda _QzNo114_self=(x for x in''):(
+   ...         _QzNo114_self.close(),
+   ...         _QzNo114_self)[-1])().throw(
+   ...         __import__('builtins').AssertionError(
+   ...           it,
+   ...           ("That's odd."))))),
    ...   it)[-1])()
    Traceback (most recent call last):
      ...
@@ -2488,28 +2429,24 @@ Lissp Whirlwind Tour
    ...                Ensue(
    ...                  (lambda step:
    ...                    # when
-   ...                    # hissp.macros.._macro_.ifQz_else
-   ...                    (lambda b,c,a:c()if b else a())(
+   ...                    (lambda b,c:c()if b else())(
    ...                      lt(
    ...                        i,
    ...                        n),
-   ...                      (lambda :
-   ...                        # hissp.macros.._macro_.progn
-   ...                        (lambda :(
-   ...                          # setQzAT_
-   ...                          # hissp.macros.._macro_.let
-   ...                          (lambda _QzNo33_val=i:(
-   ...                            __import__('builtins').setattr(
-   ...                              step,
-   ...                              'Y',
-   ...                              _QzNo33_val),
-   ...                            _QzNo33_val)[-1])(),
-   ...                          myQz_range(
-   ...                            add(
-   ...                              i,
-   ...                              (1)),
-   ...                            n))[-1])()),
-   ...                      (lambda :()))))))
+   ...                      (lambda :(
+   ...                        # setQzAT_
+   ...                        # hissp.macros.._macro_.let
+   ...                        (lambda _QzNo108_val=i:(
+   ...                          __import__('builtins').setattr(
+   ...                            step,
+   ...                            'Y',
+   ...                            _QzNo108_val),
+   ...                          _QzNo108_val)[-1])(),
+   ...                        myQz_range(
+   ...                          add(
+   ...                            i,
+   ...                            (1)),
+   ...                          n))[-1]))))))
 
    #> (list (my-range 1 6))
    >>> list(
