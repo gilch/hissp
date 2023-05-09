@@ -1064,7 +1064,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
      #> (doto (list)
      #..  (.extend 'bar)
-     #..  (.sort)
+     #..  .sort
      #..  (.append 'foo))
      >>> # doto
      ... (lambda _QzNo20_self=list():(
@@ -1083,7 +1083,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
         ,@(map X#`(,(get#0 X)
                    ,$self
                    ,@([#1:] X))
-               invocations)
+               (map X#.#"X if type(X) is tuple else (X,)" invocations))
         ,$self))))
 
 ;;;; Threading
