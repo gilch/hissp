@@ -1687,9 +1687,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
      #> (# 1 :* (@ 1 2 3) 4)                ;Set, with unpacking.
      >>> # QzHASH_
-     ... (lambda *_QzNo34_xs:
-     ...   __import__('builtins').set(
-     ...     _QzNo34_xs))(
+     ... (lambda *xs:{*xs})(
      ...   (1),
      ...   *# QzAT_
      ...    (lambda *xs:[*xs])(
@@ -1704,10 +1702,11 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   (when (&& xs (op#eq :* (get#-1 xs)))
      (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
-    `(en#set : ,@chain#(map X#(if-else (op#eq X ":*")
+    `((lambda (: :* ,'xs) .#"{*xs}")
+      : ,@chain#(map X#(if-else (op#eq X ":*")
                                 `(,X ,(next ixs))
                                 `(:? ,X))
-                            ixs))))
+                     ixs))))
 
 (defmacro % (: :* kvs)
   "``%`` 'dict of'. Mnemonic: `dict` of pairs (%).
