@@ -1506,8 +1506,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Avoid using this form except when implementing throw method overrides.
   Prefer `throw` instead.
   "
-  `(.throw (doto .#"(x for x in'')" .close)
-           ,@exception))
+  `(.#"(lambda g=(c for c in''):g.close()or g.throw)()" ,@exception))
 
 (defmacro throw (exception)
   "Raise an exception.
