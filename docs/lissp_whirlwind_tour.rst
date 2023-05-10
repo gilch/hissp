@@ -1902,11 +1902,7 @@ Lissp Whirlwind Tour
    ... (lambda _QzNo7_fn=(lambda _QzNo27_prime,_QzNo27_reader=None,*_QzNo27_args:(
    ...   'Aliases ``hissp.._macro_`` as ``MQzCOLON_#``.',
    ...   # hissp.macros.._macro_.ifQz_else
-   ...   (lambda test,*thenQz_else:
-   ...     __import__('operator').getitem(
-   ...       thenQz_else,
-   ...       __import__('operator').not_(
-   ...         test))())(
+   ...   (lambda b,c,a:c()if b else a())(
    ...     _QzNo27_reader,
    ...     (lambda :
    ...       __import__('builtins').getattr(
@@ -1914,11 +1910,7 @@ Lissp Whirlwind Tour
    ...         ('{}{}').format(
    ...           _QzNo27_reader,
    ...           # hissp.macros.._macro_.ifQz_else
-   ...           (lambda test,*thenQz_else:
-   ...             __import__('operator').getitem(
-   ...               thenQz_else,
-   ...               __import__('operator').not_(
-   ...                 test))())(
+   ...           (lambda b,c,a:c()if b else a())(
    ...             'hissp.._macro_'.endswith(
    ...               '._macro_'),
    ...             (lambda :'QzHASH_'),
@@ -2137,79 +2129,12 @@ Lissp Whirlwind Tour
 
    ;; 1 2 3 4 5 6 7 True
 
-   #> (any-map c "abc"
-   #..  (print "in loop")
-   #..  (unless (eq c "b")                ;else-only block
-   #..    (print "in unless")
-   #..    (print c))
-   #..  (when (eq c "a")                  ;if-only block
-   #..    (print "in when")
-   #..    (print c)))
-   >>> # anyQz_map
-   ... __import__('builtins').any(
-   ...   __import__('builtins').map(
-   ...     (lambda c:(
-   ...       print(
-   ...         ('in loop')),
-   ...       # unless
-   ...       # hissp.macros.._macro_.ifQz_else
-   ...       (lambda test,*thenQz_else:
-   ...         __import__('operator').getitem(
-   ...           thenQz_else,
-   ...           __import__('operator').not_(
-   ...             test))())(
-   ...         eq(
-   ...           c,
-   ...           ('b')),
-   ...         (lambda :()),
-   ...         (lambda :
-   ...           # hissp.macros.._macro_.progn
-   ...           (lambda :(
-   ...             print(
-   ...               ('in unless')),
-   ...             print(
-   ...               c))[-1])())),
-   ...       # when
-   ...       # hissp.macros.._macro_.ifQz_else
-   ...       (lambda test,*thenQz_else:
-   ...         __import__('operator').getitem(
-   ...           thenQz_else,
-   ...           __import__('operator').not_(
-   ...             test))())(
-   ...         eq(
-   ...           c,
-   ...           ('a')),
-   ...         (lambda :
-   ...           # hissp.macros.._macro_.progn
-   ...           (lambda :(
-   ...             print(
-   ...               ('in when')),
-   ...             print(
-   ...               c))[-1])()),
-   ...         (lambda :())))[-1]),
-   ...     ('abc')))
-   in loop
-   in unless
-   a
-   in when
-   a
-   in loop
-   in loop
-   in unless
-   c
-   False
-
-
    ;;;; 14.9 Raising Exceptions
 
    #> (throw Exception)                   ;Raise exception objects or classes.
    >>> # throw
    ... # hissp.macros.._macro_.throwQzSTAR_
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo46_gen=__import__('traceback').walk_tb(
-   ...   None):(
-   ...   _QzNo46_gen.close(),
-   ...   _QzNo46_gen)[-1])().throw(
+   ... (lambda g=(c for c in''):g.close()or g.throw)()(
    ...   Exception)
    Traceback (most recent call last):
      ...
@@ -2218,11 +2143,7 @@ Lissp Whirlwind Tour
    #> (throw (TypeError "message"))
    >>> # throw
    ... # hissp.macros.._macro_.throwQzSTAR_
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo46_gen=__import__('traceback').walk_tb(
-   ...   None):(
-   ...   _QzNo46_gen.close(),
-   ...   _QzNo46_gen)[-1])().throw(
+   ... (lambda g=(c for c in''):g.close()or g.throw)()(
    ...   TypeError(
    ...     ('message')))
    Traceback (most recent call last):
@@ -2233,50 +2154,33 @@ Lissp Whirlwind Tour
    #> (throw-from Exception (Exception "message")) ;Explicit chaining.
    >>> # throwQz_from
    ... # hissp.macros.._macro_.throwQzSTAR_
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo46_gen=__import__('traceback').walk_tb(
-   ...   None):(
-   ...   _QzNo46_gen.close(),
-   ...   _QzNo46_gen)[-1])().throw(
+   ... (lambda g=(c for c in''):g.close()or g.throw)()(
    ...   # hissp.macros.._macro_.let
-   ...   (lambda _QzNo47_G=(lambda _QzNo47_x:
+   ...   (lambda _QzNo130_G=(lambda _QzNo130_x:
    ...     # hissp.macros.._macro_.ifQz_else
-   ...     (lambda test,*thenQz_else:
-   ...       __import__('operator').getitem(
-   ...         thenQz_else,
-   ...         __import__('operator').not_(
-   ...           test))())(
+   ...     (lambda b,c,a:c()if b else a())(
    ...       # hissp.macros.._macro_.QzET_QzET_
-   ...       # hissp.macros.._macro_.let
-   ...       (lambda _QzNo44_G=__import__('builtins').isinstance(
-   ...         _QzNo47_x,
-   ...         __import__('builtins').type):
-   ...         # hissp.macros.._macro_.ifQz_else
-   ...         (lambda test,*thenQz_else:
-   ...           __import__('operator').getitem(
-   ...             thenQz_else,
-   ...             __import__('operator').not_(
-   ...               test))())(
-   ...           _QzNo44_G,
-   ...           (lambda :
-   ...             # hissp.macros..QzMaybe_.QzET_QzET_
-   ...             __import__('builtins').issubclass(
-   ...               _QzNo47_x,
-   ...               __import__('builtins').BaseException)),
-   ...           (lambda :_QzNo44_G)))(),
-   ...       (lambda :_QzNo47_x()),
-   ...       (lambda :_QzNo47_x))):
+   ...       (lambda x0,x1:x0 and x1())(
+   ...         __import__('builtins').isinstance(
+   ...           _QzNo130_x,
+   ...           __import__('builtins').type),
+   ...         (lambda :
+   ...           __import__('builtins').issubclass(
+   ...             _QzNo130_x,
+   ...             __import__('builtins').BaseException))),
+   ...       (lambda :_QzNo130_x()),
+   ...       (lambda :_QzNo130_x))):
    ...     # hissp.macros.._macro_.attach
    ...     # hissp.macros.._macro_.let
-   ...     (lambda _QzNo31_target=_QzNo47_G(
+   ...     (lambda _QzNo112_target=_QzNo130_G(
    ...       Exception):(
    ...       __import__('builtins').setattr(
-   ...         _QzNo31_target,
+   ...         _QzNo112_target,
    ...         '__cause__',
-   ...         _QzNo47_G(
+   ...         _QzNo130_G(
    ...           Exception(
    ...             ('message')))),
-   ...       _QzNo31_target)[-1])())())
+   ...       _QzNo112_target)[-1])())())
    Traceback (most recent call last):
      ...
    Exception
@@ -2296,12 +2200,7 @@ Lissp Whirlwind Tour
    ... # hissp.macros.._macro_.let
    ... (lambda it=(7):(
    ...   # hissp.macros.._macro_.unless
-   ...   # hissp.macros.._macro_.ifQz_else
-   ...   (lambda test,*thenQz_else:
-   ...     __import__('operator').getitem(
-   ...       thenQz_else,
-   ...       __import__('operator').not_(
-   ...         test))())(
+   ...   (lambda b,a:()if b else a())(
    ...     # hissp.macros.._macro_.Qz_QzGT_
    ...     # Qz_QzGT_
    ...     eq(
@@ -2309,20 +2208,13 @@ Lissp Whirlwind Tour
    ...         it,
    ...         (2)),
    ...       (0)),
-   ...     (lambda :()),
    ...     (lambda :
-   ...       # hissp.macros.._macro_.progn
-   ...       (lambda :
-   ...         # hissp.macros.._macro_.throw
-   ...         # hissp.macros.._macro_.throwQzSTAR_
-   ...         # hissp.macros.._macro_.let
-   ...         (lambda _QzNo50_gen=__import__('traceback').walk_tb(
-   ...           None):(
-   ...           _QzNo50_gen.close(),
-   ...           _QzNo50_gen)[-1])().throw(
-   ...           __import__('builtins').AssertionError(
-   ...             it,
-   ...             ("That's odd."))))())),
+   ...       # hissp.macros.._macro_.throw
+   ...       # hissp.macros.._macro_.throwQzSTAR_
+   ...       (lambda g=(c for c in''):g.close()or g.throw)()(
+   ...         __import__('builtins').AssertionError(
+   ...           it,
+   ...           ("That's odd."))))),
    ...   it)[-1])()
    Traceback (most recent call last):
      ...
@@ -2345,11 +2237,7 @@ Lissp Whirlwind Tour
    ... __import__('builtins').globals().update(
    ...   factorialQz_III=(lambda i:
    ...                     # ifQz_else
-   ...                     (lambda test,*thenQz_else:
-   ...                       __import__('operator').getitem(
-   ...                         thenQz_else,
-   ...                         __import__('operator').not_(
-   ...                           test))())(
+   ...                     (lambda b,c,a:c()if b else a())(
    ...                       le(
    ...                         i,
    ...                         (1)),
@@ -2437,50 +2325,33 @@ Lissp Whirlwind Tour
    ...   (lambda :
    ...     # throwQz_from
    ...     # hissp.macros.._macro_.throwQzSTAR_
-   ...     # hissp.macros.._macro_.let
-   ...     (lambda _QzNo46_gen=__import__('traceback').walk_tb(
-   ...       None):(
-   ...       _QzNo46_gen.close(),
-   ...       _QzNo46_gen)[-1])().throw(
+   ...     (lambda g=(c for c in''):g.close()or g.throw)()(
    ...       # hissp.macros.._macro_.let
-   ...       (lambda _QzNo47_G=(lambda _QzNo47_x:
+   ...       (lambda _QzNo130_G=(lambda _QzNo130_x:
    ...         # hissp.macros.._macro_.ifQz_else
-   ...         (lambda test,*thenQz_else:
-   ...           __import__('operator').getitem(
-   ...             thenQz_else,
-   ...             __import__('operator').not_(
-   ...               test))())(
+   ...         (lambda b,c,a:c()if b else a())(
    ...           # hissp.macros.._macro_.QzET_QzET_
-   ...           # hissp.macros.._macro_.let
-   ...           (lambda _QzNo44_G=__import__('builtins').isinstance(
-   ...             _QzNo47_x,
-   ...             __import__('builtins').type):
-   ...             # hissp.macros.._macro_.ifQz_else
-   ...             (lambda test,*thenQz_else:
-   ...               __import__('operator').getitem(
-   ...                 thenQz_else,
-   ...                 __import__('operator').not_(
-   ...                   test))())(
-   ...               _QzNo44_G,
-   ...               (lambda :
-   ...                 # hissp.macros..QzMaybe_.QzET_QzET_
-   ...                 __import__('builtins').issubclass(
-   ...                   _QzNo47_x,
-   ...                   __import__('builtins').BaseException)),
-   ...               (lambda :_QzNo44_G)))(),
-   ...           (lambda :_QzNo47_x()),
-   ...           (lambda :_QzNo47_x))):
+   ...           (lambda x0,x1:x0 and x1())(
+   ...             __import__('builtins').isinstance(
+   ...               _QzNo130_x,
+   ...               __import__('builtins').type),
+   ...             (lambda :
+   ...               __import__('builtins').issubclass(
+   ...                 _QzNo130_x,
+   ...                 __import__('builtins').BaseException))),
+   ...           (lambda :_QzNo130_x()),
+   ...           (lambda :_QzNo130_x))):
    ...         # hissp.macros.._macro_.attach
    ...         # hissp.macros.._macro_.let
-   ...         (lambda _QzNo31_target=_QzNo47_G(
+   ...         (lambda _QzNo112_target=_QzNo130_G(
    ...           Exception):(
    ...           __import__('builtins').setattr(
-   ...             _QzNo31_target,
+   ...             _QzNo112_target,
    ...             '__cause__',
-   ...             _QzNo47_G(
+   ...             _QzNo130_G(
    ...               Exception(
    ...                 ('msg')))),
-   ...           _QzNo31_target)[-1])())())))
+   ...           _QzNo112_target)[-1])())())))
    Exception('msg')
 
 
@@ -2533,32 +2404,24 @@ Lissp Whirlwind Tour
    ...                Ensue(
    ...                  (lambda step:
    ...                    # when
-   ...                    # hissp.macros.._macro_.ifQz_else
-   ...                    (lambda test,*thenQz_else:
-   ...                      __import__('operator').getitem(
-   ...                        thenQz_else,
-   ...                        __import__('operator').not_(
-   ...                          test))())(
+   ...                    (lambda b,c:c()if b else())(
    ...                      lt(
    ...                        i,
    ...                        n),
-   ...                      (lambda :
-   ...                        # hissp.macros.._macro_.progn
-   ...                        (lambda :(
-   ...                          # setQzAT_
-   ...                          # hissp.macros.._macro_.let
-   ...                          (lambda _QzNo33_val=i:(
-   ...                            __import__('builtins').setattr(
-   ...                              step,
-   ...                              'Y',
-   ...                              _QzNo33_val),
-   ...                            _QzNo33_val)[-1])(),
-   ...                          myQz_range(
-   ...                            add(
-   ...                              i,
-   ...                              (1)),
-   ...                            n))[-1])()),
-   ...                      (lambda :()))))))
+   ...                      (lambda :(
+   ...                        # setQzAT_
+   ...                        # hissp.macros.._macro_.let
+   ...                        (lambda _QzNo108_val=i:(
+   ...                          __import__('builtins').setattr(
+   ...                            step,
+   ...                            'Y',
+   ...                            _QzNo108_val),
+   ...                          _QzNo108_val)[-1])(),
+   ...                        myQz_range(
+   ...                          add(
+   ...                            i,
+   ...                            (1)),
+   ...                          n))[-1]))))))
 
    #> (list (my-range 1 6))
    >>> list(
@@ -2806,11 +2669,7 @@ Lissp Whirlwind Tour
    ...   (lambda _:
    ...     # throw
    ...     # hissp.macros.._macro_.throwQzSTAR_
-   ...     # hissp.macros.._macro_.let
-   ...     (lambda _QzNo46_gen=__import__('traceback').walk_tb(
-   ...       None):(
-   ...       _QzNo46_gen.close(),
-   ...       _QzNo46_gen)[-1])().throw(
+   ...     (lambda g=(c for c in''):g.close()or g.throw)()(
    ...       Exception)))
    Traceback (most recent call last):
      ...
@@ -2845,50 +2704,33 @@ Lissp Whirlwind Tour
    ...   (lambda :
    ...     # throwQz_from
    ...     # hissp.macros.._macro_.throwQzSTAR_
-   ...     # hissp.macros.._macro_.let
-   ...     (lambda _QzNo46_gen=__import__('traceback').walk_tb(
-   ...       None):(
-   ...       _QzNo46_gen.close(),
-   ...       _QzNo46_gen)[-1])().throw(
+   ...     (lambda g=(c for c in''):g.close()or g.throw)()(
    ...       # hissp.macros.._macro_.let
-   ...       (lambda _QzNo48_G=(lambda _QzNo48_x:
+   ...       (lambda _QzNo130_G=(lambda _QzNo130_x:
    ...         # hissp.macros.._macro_.ifQz_else
-   ...         (lambda test,*thenQz_else:
-   ...           __import__('operator').getitem(
-   ...             thenQz_else,
-   ...             __import__('operator').not_(
-   ...               test))())(
+   ...         (lambda b,c,a:c()if b else a())(
    ...           # hissp.macros.._macro_.QzET_QzET_
-   ...           # hissp.macros.._macro_.let
-   ...           (lambda _QzNo44_G=__import__('builtins').isinstance(
-   ...             _QzNo48_x,
-   ...             __import__('builtins').type):
-   ...             # hissp.macros.._macro_.ifQz_else
-   ...             (lambda test,*thenQz_else:
-   ...               __import__('operator').getitem(
-   ...                 thenQz_else,
-   ...                 __import__('operator').not_(
-   ...                   test))())(
-   ...               _QzNo44_G,
-   ...               (lambda :
-   ...                 # hissp.macros..QzMaybe_.QzET_QzET_
-   ...                 __import__('builtins').issubclass(
-   ...                   _QzNo48_x,
-   ...                   __import__('builtins').BaseException)),
-   ...               (lambda :_QzNo44_G)))(),
-   ...           (lambda :_QzNo48_x()),
-   ...           (lambda :_QzNo48_x))):
+   ...           (lambda x0,x1:x0 and x1())(
+   ...             __import__('builtins').isinstance(
+   ...               _QzNo130_x,
+   ...               __import__('builtins').type),
+   ...             (lambda :
+   ...               __import__('builtins').issubclass(
+   ...                 _QzNo130_x,
+   ...                 __import__('builtins').BaseException))),
+   ...           (lambda :_QzNo130_x()),
+   ...           (lambda :_QzNo130_x))):
    ...         # hissp.macros.._macro_.attach
    ...         # hissp.macros.._macro_.let
-   ...         (lambda _QzNo31_target=_QzNo48_G(
+   ...         (lambda _QzNo112_target=_QzNo130_G(
    ...           Exception):(
    ...           __import__('builtins').setattr(
-   ...             _QzNo31_target,
+   ...             _QzNo112_target,
    ...             '__cause__',
-   ...             _QzNo48_G(
+   ...             _QzNo130_G(
    ...               Exception(
    ...                 ('msg')))),
-   ...           _QzNo31_target)[-1])())())))
+   ...           _QzNo112_target)[-1])())())))
    msg
 
 
@@ -3018,11 +2860,7 @@ Lissp Whirlwind Tour
    ... (lambda _QzNo7_fn=(lambda _QzNo27_prime,_QzNo27_reader=None,*_QzNo27_args:(
    ...   'Aliases ``hissp.._macro_`` as ``MQzCOLON_#``.',
    ...   # hissp.macros.._macro_.ifQz_else
-   ...   (lambda test,*thenQz_else:
-   ...     __import__('operator').getitem(
-   ...       thenQz_else,
-   ...       __import__('operator').not_(
-   ...         test))())(
+   ...   (lambda b,c,a:c()if b else a())(
    ...     _QzNo27_reader,
    ...     (lambda :
    ...       __import__('builtins').getattr(
@@ -3030,11 +2868,7 @@ Lissp Whirlwind Tour
    ...         ('{}{}').format(
    ...           _QzNo27_reader,
    ...           # hissp.macros.._macro_.ifQz_else
-   ...           (lambda test,*thenQz_else:
-   ...             __import__('operator').getitem(
-   ...               thenQz_else,
-   ...               __import__('operator').not_(
-   ...                 test))())(
+   ...           (lambda b,c,a:c()if b else a())(
    ...             'hissp.._macro_'.endswith(
    ...               '._macro_'),
    ...             (lambda :'QzHASH_'),
