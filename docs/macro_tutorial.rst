@@ -2838,12 +2838,9 @@ Search Hissp's docs if you can't figure out what they do.)
    ...            'Slicer',
    ...            (),
    ...            # QzPCENT_
-   ...            (lambda *_QzNo55_xs:
-   ...              __import__('builtins').dict(
-   ...                _QzNo55_xs))(
-   ...              (lambda * _: _)(
-   ...                '__getitem__',
-   ...                (lambda X,Y:Y))))())
+   ...            (lambda x0,x1:{x0:x1})(
+   ...              '__getitem__',
+   ...              (lambda X,Y:Y)))())
 
    #> .#"slicer[-1::-2]"
    >>> slicer[-1::-2]

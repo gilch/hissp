@@ -1689,32 +1689,34 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
      #> (% 1 2  :** (dict : x 3  y 4)  5 6) ;Dict, with mapping unpacking.
      >>> # QzPCENT_
-     ... (lambda *_QzNo32_xs:
-     ...   __import__('builtins').dict(
-     ...     _QzNo32_xs))(
-     ...   (lambda * _: _)(
-     ...     (1),
-     ...     (2)),
-     ...   *dict(
-     ...      x=(3),
-     ...      y=(4)).items(),
-     ...   (lambda * _: _)(
-     ...     (5),
-     ...     (6)))
+     ... (lambda x0,x1,x3,x4,x5:{x0:x1,**x3,x4:x5})(
+     ...   (1),
+     ...   (2),
+     ...   dict(
+     ...     x=(3),
+     ...     y=(4)),
+     ...   (5),
+     ...   (6))
      {1: 2, 'x': 3, 'y': 4, 5: 6}
 
+     #> (%)
+     >>> # QzPCENT_
+     ... {}
+     {}
 
   See also: `@<QzAT_>`, `#<QzHASH_>`.
   "
-  (when (op#mod (len kvs) 2)
-    (throw (TypeError "extra key without value")))
-  (let (ikvs (iter kvs))
-    `(en#dict
-      : ,@chain#(map XY#(if-else (op#eq X ":**")
-                          `(:* (.items ,Y))
-                          `(:? `(,,X ,,Y)))
-                     ikvs
-                     ikvs))))
+  (cond
+   (op#mod (len kvs) 2) (throw (TypeError "extra key without value"))
+   kvs `((lambda (,@(i#starmap XY#.#"f'x{X}'" (filter X#(op#ne :** (get#1 X))
+                                                      (enumerate kvs))))
+           ,(.format "{{{}}}"
+                     (.join "," (i#starmap XY#(if-else (op#eq Y :**)
+                                                .#"f'**x{X+1}'"
+                                                .#"f'x{X}:x{X+1}'")
+                                           (-> kvs enumerate (i#islice 0 None 2))))))
+         ,@(filter X#(op#ne X :**) kvs))
+   :else (dict)))
 
 ;;;; Import
 
