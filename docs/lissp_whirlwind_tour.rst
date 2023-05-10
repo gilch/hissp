@@ -2156,36 +2156,31 @@ Lissp Whirlwind Tour
    ... # hissp.macros.._macro_.throwQzSTAR_
    ... (lambda g=(c for c in''):g.close()or g.throw)()(
    ...   # hissp.macros.._macro_.let
-   ...   (lambda _QzNo47_G=(lambda _QzNo47_x:
+   ...   (lambda _QzNo130_G=(lambda _QzNo130_x:
    ...     # hissp.macros.._macro_.ifQz_else
    ...     (lambda b,c,a:c()if b else a())(
    ...       # hissp.macros.._macro_.QzET_QzET_
-   ...       # hissp.macros.._macro_.let
-   ...       (lambda _QzNo44_G=__import__('builtins').isinstance(
-   ...         _QzNo47_x,
-   ...         __import__('builtins').type):
-   ...         # hissp.macros.._macro_.ifQz_else
-   ...         (lambda b,c,a:c()if b else a())(
-   ...           _QzNo44_G,
-   ...           (lambda :
-   ...             # hissp.macros..QzMaybe_.QzET_QzET_
-   ...             __import__('builtins').issubclass(
-   ...               _QzNo47_x,
-   ...               __import__('builtins').BaseException)),
-   ...           (lambda :_QzNo44_G)))(),
-   ...       (lambda :_QzNo47_x()),
-   ...       (lambda :_QzNo47_x))):
+   ...       (lambda x0,x1:x0 and x1())(
+   ...         __import__('builtins').isinstance(
+   ...           _QzNo130_x,
+   ...           __import__('builtins').type),
+   ...         (lambda :
+   ...           __import__('builtins').issubclass(
+   ...             _QzNo130_x,
+   ...             __import__('builtins').BaseException))),
+   ...       (lambda :_QzNo130_x()),
+   ...       (lambda :_QzNo130_x))):
    ...     # hissp.macros.._macro_.attach
    ...     # hissp.macros.._macro_.let
-   ...     (lambda _QzNo31_target=_QzNo47_G(
+   ...     (lambda _QzNo112_target=_QzNo130_G(
    ...       Exception):(
    ...       __import__('builtins').setattr(
-   ...         _QzNo31_target,
+   ...         _QzNo112_target,
    ...         '__cause__',
-   ...         _QzNo47_G(
+   ...         _QzNo130_G(
    ...           Exception(
    ...             ('message')))),
-   ...       _QzNo31_target)[-1])())())
+   ...       _QzNo112_target)[-1])())())
    Traceback (most recent call last):
      ...
    Exception
@@ -2332,36 +2327,31 @@ Lissp Whirlwind Tour
    ...     # hissp.macros.._macro_.throwQzSTAR_
    ...     (lambda g=(c for c in''):g.close()or g.throw)()(
    ...       # hissp.macros.._macro_.let
-   ...       (lambda _QzNo47_G=(lambda _QzNo47_x:
+   ...       (lambda _QzNo130_G=(lambda _QzNo130_x:
    ...         # hissp.macros.._macro_.ifQz_else
    ...         (lambda b,c,a:c()if b else a())(
    ...           # hissp.macros.._macro_.QzET_QzET_
-   ...           # hissp.macros.._macro_.let
-   ...           (lambda _QzNo44_G=__import__('builtins').isinstance(
-   ...             _QzNo47_x,
-   ...             __import__('builtins').type):
-   ...             # hissp.macros.._macro_.ifQz_else
-   ...             (lambda b,c,a:c()if b else a())(
-   ...               _QzNo44_G,
-   ...               (lambda :
-   ...                 # hissp.macros..QzMaybe_.QzET_QzET_
-   ...                 __import__('builtins').issubclass(
-   ...                   _QzNo47_x,
-   ...                   __import__('builtins').BaseException)),
-   ...               (lambda :_QzNo44_G)))(),
-   ...           (lambda :_QzNo47_x()),
-   ...           (lambda :_QzNo47_x))):
+   ...           (lambda x0,x1:x0 and x1())(
+   ...             __import__('builtins').isinstance(
+   ...               _QzNo130_x,
+   ...               __import__('builtins').type),
+   ...             (lambda :
+   ...               __import__('builtins').issubclass(
+   ...                 _QzNo130_x,
+   ...                 __import__('builtins').BaseException))),
+   ...           (lambda :_QzNo130_x()),
+   ...           (lambda :_QzNo130_x))):
    ...         # hissp.macros.._macro_.attach
    ...         # hissp.macros.._macro_.let
-   ...         (lambda _QzNo31_target=_QzNo47_G(
+   ...         (lambda _QzNo112_target=_QzNo130_G(
    ...           Exception):(
    ...           __import__('builtins').setattr(
-   ...             _QzNo31_target,
+   ...             _QzNo112_target,
    ...             '__cause__',
-   ...             _QzNo47_G(
+   ...             _QzNo130_G(
    ...               Exception(
    ...                 ('msg')))),
-   ...           _QzNo31_target)[-1])())())))
+   ...           _QzNo112_target)[-1])())())))
    Exception('msg')
 
 
@@ -2716,36 +2706,31 @@ Lissp Whirlwind Tour
    ...     # hissp.macros.._macro_.throwQzSTAR_
    ...     (lambda g=(c for c in''):g.close()or g.throw)()(
    ...       # hissp.macros.._macro_.let
-   ...       (lambda _QzNo48_G=(lambda _QzNo48_x:
+   ...       (lambda _QzNo130_G=(lambda _QzNo130_x:
    ...         # hissp.macros.._macro_.ifQz_else
    ...         (lambda b,c,a:c()if b else a())(
    ...           # hissp.macros.._macro_.QzET_QzET_
-   ...           # hissp.macros.._macro_.let
-   ...           (lambda _QzNo44_G=__import__('builtins').isinstance(
-   ...             _QzNo48_x,
-   ...             __import__('builtins').type):
-   ...             # hissp.macros.._macro_.ifQz_else
-   ...             (lambda b,c,a:c()if b else a())(
-   ...               _QzNo44_G,
-   ...               (lambda :
-   ...                 # hissp.macros..QzMaybe_.QzET_QzET_
-   ...                 __import__('builtins').issubclass(
-   ...                   _QzNo48_x,
-   ...                   __import__('builtins').BaseException)),
-   ...               (lambda :_QzNo44_G)))(),
-   ...           (lambda :_QzNo48_x()),
-   ...           (lambda :_QzNo48_x))):
+   ...           (lambda x0,x1:x0 and x1())(
+   ...             __import__('builtins').isinstance(
+   ...               _QzNo130_x,
+   ...               __import__('builtins').type),
+   ...             (lambda :
+   ...               __import__('builtins').issubclass(
+   ...                 _QzNo130_x,
+   ...                 __import__('builtins').BaseException))),
+   ...           (lambda :_QzNo130_x()),
+   ...           (lambda :_QzNo130_x))):
    ...         # hissp.macros.._macro_.attach
    ...         # hissp.macros.._macro_.let
-   ...         (lambda _QzNo31_target=_QzNo48_G(
+   ...         (lambda _QzNo112_target=_QzNo130_G(
    ...           Exception):(
    ...           __import__('builtins').setattr(
-   ...             _QzNo31_target,
+   ...             _QzNo112_target,
    ...             '__cause__',
-   ...             _QzNo48_G(
+   ...             _QzNo130_G(
    ...               Exception(
    ...                 ('msg')))),
-   ...           _QzNo31_target)[-1])())())))
+   ...           _QzNo112_target)[-1])())())))
    msg
 
 

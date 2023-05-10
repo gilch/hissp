@@ -1399,62 +1399,49 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   .. code-block:: REPL
 
-     #> (&& True True False)
+     #> (&& True True False) ; and finds the False
      >>> # QzET_QzET_
-     ... # hissp.macros.._macro_.let
-     ... (lambda _QzNo33_G=True:
-     ...   # hissp.macros.._macro_.ifQz_else
-     ...   (lambda b,c,a:c()if b else a())(
-     ...     _QzNo33_G,
-     ...     (lambda :
-     ...       # hissp.macros..QzMaybe_.QzET_QzET_
-     ...       # hissp.macros.._macro_.let
-     ...       (lambda _QzNo33_G=True:
-     ...         # hissp.macros.._macro_.ifQz_else
-     ...         (lambda b,c,a:c()if b else a())(
-     ...           _QzNo33_G,
-     ...           (lambda :
-     ...             # hissp.macros..QzMaybe_.QzET_QzET_
-     ...             False),
-     ...           (lambda :_QzNo33_G)))()),
-     ...     (lambda :_QzNo33_G)))()
+     ... (lambda x0,x1,x2:x0 and x1()and x2())(
+     ...   True,
+     ...   (lambda :True),
+     ...   (lambda :False))
      False
 
-     #> (&& False (print 'oops))
+     #> (&& False (print 'oops)) ; Shortcutting.
      >>> # QzET_QzET_
-     ... # hissp.macros.._macro_.let
-     ... (lambda _QzNo33_G=False:
-     ...   # hissp.macros.._macro_.ifQz_else
-     ...   (lambda b,c,a:c()if b else a())(
-     ...     _QzNo33_G,
-     ...     (lambda :
-     ...       # hissp.macros..QzMaybe_.QzET_QzET_
-     ...       print(
-     ...         'oops')),
-     ...     (lambda :_QzNo33_G)))()
+     ... (lambda x0,x1:x0 and x1())(
+     ...   False,
+     ...   (lambda :
+     ...     print(
+     ...       'oops')))
      False
 
      #> (&& True 42)
      >>> # QzET_QzET_
-     ... # hissp.macros.._macro_.let
-     ... (lambda _QzNo26_G=True:
-     ...   # hissp.macros.._macro_.ifQz_else
-     ...   (lambda b,c,a:c()if b else a())(
-     ...     _QzNo26_G,
-     ...     (lambda :
-     ...       # hissp.macros..QzMaybe_.QzET_QzET_
-     ...       (42)),
-     ...     (lambda :_QzNo26_G)))()
+     ... (lambda x0,x1:x0 and x1())(
+     ...   True,
+     ...   (lambda :(42)))
+     42
+
+     #> (&&)
+     >>> # QzET_QzET_
+     ... True
+     True
+
+     #> (&& 42)
+     >>> # QzET_QzET_
+     ... (42)
      42
 
   See also: `||<QzBAR_QzBAR_>`, `operator.not_`, `and`.
   "
-  (cond (op#not_ exprs) True
+  (cond (not exprs) True
         (op#eq (len exprs) 1) (get#0 exprs)
-        :else `(let ($#G ,(get#0 exprs))
-                 (if-else $#G
-                          (&& ,@([#1:] exprs))
-                          $#G))))
+        :else
+        `((lambda (,@(map X#.#"f'x{X}'" (range (len exprs))))
+            ,(.join "and " `(,"x0 " ,@(map X#.#"f'x{X}()'" (range 1 (len exprs))))))
+          ,([#0] exprs)
+          ,@(map X#`O#,X ([#1:] exprs)))))
 
 (defmacro || (: first () :* rest)
   "``||`` 'or'. Shortcutting logical OR.
