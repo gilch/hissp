@@ -1267,7 +1267,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
      #> (any-map index (range 1 11)         ;Imperative loop with break.
      #..  (print index : end :)
-     #..  (op#not_ (op#mod index 7)))
+     #..  (not (op#mod index 7)))
      >>> # anyQz_map
      ... __import__('builtins').any(
      ...   __import__('builtins').map(
@@ -1275,7 +1275,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...       print(
      ...         index,
      ...         end=':'),
-     ...       __import__('operator').not_(
+     ...       not(
      ...         __import__('operator').mod(
      ...           index,
      ...           (7))))[-1]),
@@ -1433,7 +1433,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ... (42)
      42
 
-  See also: `||<QzBAR_QzBAR_>`, `operator.not_`, `and`.
+  See also: `||<QzBAR_QzBAR_>`, `not`, `and`.
   "
   (cond (not exprs) True
         (op#eq (len exprs) 1) (get#0 exprs)
