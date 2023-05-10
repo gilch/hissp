@@ -1443,48 +1443,56 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
           ,([#0] exprs)
           ,@(map X#`O#,X ([#1:] exprs)))))
 
-(defmacro || (: first () :* rest)
+(defmacro || (: :* exprs)
   "``||`` 'or'. Shortcutting logical OR.
   Returns the first true value, otherwise the last value.
   There is an implicit initial value of ``()``.
 
   .. code-block:: REPL
 
-     #> (|| True (print 'oops))
+     #> (|| True (print 'oops)) ; Shortcutting.
      >>> # QzBAR_QzBAR_
-     ... # hissp.macros.._macro_.let
-     ... (lambda _QzNo34_first=True:
-     ...   # hissp.macros.._macro_.ifQz_else
-     ...   (lambda b,c,a:c()if b else a())(
-     ...     _QzNo34_first,
-     ...     (lambda :_QzNo34_first),
-     ...     (lambda :
-     ...       # hissp.macros..QzMaybe_.QzBAR_QzBAR_
-     ...       print(
-     ...         'oops'))))()
+     ... (lambda x0,x1:x0 or x1())(
+     ...   True,
+     ...   (lambda :
+     ...     print(
+     ...       'oops')))
      True
 
      #> (|| 42 False)
      >>> # QzBAR_QzBAR_
-     ... # hissp.macros.._macro_.let
-     ... (lambda _QzNo27_first=(42):
-     ...   # hissp.macros.._macro_.ifQz_else
-     ...   (lambda b,c,a:c()if b else a())(
-     ...     _QzNo27_first,
-     ...     (lambda :_QzNo27_first),
-     ...     (lambda :
-     ...       # hissp.macros..QzMaybe_.QzBAR_QzBAR_
-     ...       False)))()
+     ... (lambda x0,x1:x0 or x1())(
+     ...   (42),
+     ...   (lambda :False))
      42
+
+     #> (|| () False 0 1)  ; or seeks the truth
+     >>> # QzBAR_QzBAR_
+     ... (lambda x0,x1,x2,x3:x0 or x1()or x2()or x3())(
+     ...   (),
+     ...   (lambda :False),
+     ...   (lambda :(0)),
+     ...   (lambda :(1)))
+     1
+
+     #> (|| False)
+     >>> # QzBAR_QzBAR_
+     ... False
+     False
+
+     #> (||)
+     >>> # QzBAR_QzBAR_
+     ... ()
+     ()
 
   See also: `&&<QzET_QzET_>`, `bool`, `or`.
   "
-  (if-else rest
-           `(let ($#first ,first)
-              (if-else $#first
-                       $#first
-                       (|| ,@rest)))
-           first))
+  (cond (op#eq (len exprs) 1) (get#0 exprs)
+        exprs
+        `((lambda (,@(map X#.#"f'x{X}'" (range (len exprs))))
+            ,(.join "or " `(,"x0 " ,@(map X#.#"f'x{X}()'" (range 1 (len exprs))))))
+          ,([#0] exprs)
+          ,@(map X#`O#,X ([#1:] exprs)))))
 
 (defmacro throw* (: :* exception)
   "``throw*`` Creates a closed generator and calls its throw method.

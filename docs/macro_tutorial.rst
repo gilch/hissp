@@ -1458,32 +1458,26 @@ Can we just iterate through the expression and check?
    ...               map(
    ...                 (lambda x:
    ...                   # QzBAR_QzBAR_
-   ...                   # hissp.macros.._macro_.let
-   ...                   (lambda _QzNo123_first=# when
-   ...                   (lambda b,c:c()if b else())(
-   ...                     is_(
-   ...                       str,
-   ...                       type(
-   ...                         x)),
-   ...                     (lambda :
-   ...                       # let
-   ...                       (lambda match=__import__('re').fullmatch(
-   ...                         ('X([1-9][0-9]*)'),
-   ...                         x):
-   ...                         # when
-   ...                         (lambda b,c:c()if b else())(
-   ...                           match,
-   ...                           (lambda :
-   ...                             int(
-   ...                               match.group(
-   ...                                 (1))))))())):
-   ...                     # hissp.macros.._macro_.ifQz_else
-   ...                     (lambda b,c,a:c()if b else a())(
-   ...                       _QzNo123_first,
-   ...                       (lambda :_QzNo123_first),
+   ...                   (lambda x0,x1:x0 or x1())(
+   ...                     # when
+   ...                     (lambda b,c:c()if b else())(
+   ...                       is_(
+   ...                         str,
+   ...                         type(
+   ...                           x)),
    ...                       (lambda :
-   ...                         # hissp.macros..QzMaybe_.QzBAR_QzBAR_
-   ...                         (0))))()),
+   ...                         # let
+   ...                         (lambda match=__import__('re').fullmatch(
+   ...                           ('X([1-9][0-9]*)'),
+   ...                           x):
+   ...                           # when
+   ...                           (lambda b,c:c()if b else())(
+   ...                             match,
+   ...                             (lambda :
+   ...                               int(
+   ...                                 match.group(
+   ...                                   (1))))))())),
+   ...                     (lambda :(0)))),
    ...                 expr))))
 
 
@@ -1591,32 +1585,26 @@ Now we can fix ``max-X``.
    ...               map(
    ...                 (lambda x:
    ...                   # QzBAR_QzBAR_
-   ...                   # hissp.macros.._macro_.let
-   ...                   (lambda _QzNo123_first=# when
-   ...                   (lambda b,c:c()if b else())(
-   ...                     is_(
-   ...                       str,
-   ...                       type(
-   ...                         x)),
-   ...                     (lambda :
-   ...                       # let
-   ...                       (lambda match=__import__('re').fullmatch(
-   ...                         ('X([1-9][0-9]*)'),
-   ...                         x):
-   ...                         # when
-   ...                         (lambda b,c:c()if b else())(
-   ...                           match,
-   ...                           (lambda :
-   ...                             int(
-   ...                               match.group(
-   ...                                 (1))))))())):
-   ...                     # hissp.macros.._macro_.ifQz_else
-   ...                     (lambda b,c,a:c()if b else a())(
-   ...                       _QzNo123_first,
-   ...                       (lambda :_QzNo123_first),
+   ...                   (lambda x0,x1:x0 or x1())(
+   ...                     # when
+   ...                     (lambda b,c:c()if b else())(
+   ...                       is_(
+   ...                         str,
+   ...                         type(
+   ...                           x)),
    ...                       (lambda :
-   ...                         # hissp.macros..QzMaybe_.QzBAR_QzBAR_
-   ...                         (0))))()),
+   ...                         # let
+   ...                         (lambda match=__import__('re').fullmatch(
+   ...                           ('X([1-9][0-9]*)'),
+   ...                           x):
+   ...                           # when
+   ...                           (lambda b,c:c()if b else())(
+   ...                             match,
+   ...                             (lambda :
+   ...                               int(
+   ...                                 match.group(
+   ...                                   (1))))))())),
+   ...                     (lambda :(0)))),
    ...                 flatten(
    ...                   expr)))))
 
@@ -1939,7 +1927,7 @@ Here you go:
    #..        expr)))
    >>> # defmacro
    ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo81_fn=(lambda *expr:
+   ... (lambda _QzNo85_fn=(lambda *expr:
    ...   (lambda * _: _)(
    ...     'lambda',
    ...     (lambda * _: _)(
@@ -1952,19 +1940,14 @@ Here you go:
    ...            add(
    ...              (1),
    ...              # QzBAR_QzBAR_
-   ...              # hissp.macros.._macro_.let
-   ...              (lambda _QzNo123_first=maxQz_X(
-   ...                expr):
-   ...                # hissp.macros.._macro_.ifQz_else
-   ...                (lambda b,c,a:c()if b else a())(
-   ...                  _QzNo123_first,
-   ...                  (lambda :_QzNo123_first),
-   ...                  (lambda :
-   ...                    # hissp.macros..QzMaybe_.QzBAR_QzBAR_
-   ...                    contains(
-   ...                      flatten(
-   ...                        expr),
-   ...                      'X'))))()))),
+   ...              (lambda x0,x1:x0 or x1())(
+   ...                maxQz_X(
+   ...                  expr),
+   ...                (lambda :
+   ...                  contains(
+   ...                    flatten(
+   ...                      expr),
+   ...                    'X')))))),
    ...       ':',
    ...       *# when
    ...        (lambda b,c:c()if b else())(
@@ -1991,7 +1974,7 @@ Here you go:
    ...           expr)),
    ...       (lambda :expr)))):(
    ...   __import__('builtins').setattr(
-   ...     _QzNo81_fn,
+   ...     _QzNo85_fn,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
@@ -2001,7 +1984,7 @@ Here you go:
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
    ...     'L',
-   ...     _QzNo81_fn))[-1])()
+   ...     _QzNo85_fn))[-1])()
 
 .. code-block:: REPL
 
