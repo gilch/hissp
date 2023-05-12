@@ -314,7 +314,7 @@ Lissp Whirlwind Tour
    >>> 'Qz_QzLT_QzGT_QzGT_'
    'Qz_QzLT_QzGT_QzGT_'
 
-   #> :-<>>                                ;Don't represent identifiers, don't munge.
+   #> :-<>>                               ;Don't represent identifiers, don't munge.
    >>> ':-<>>'
    ':-<>>'
 
