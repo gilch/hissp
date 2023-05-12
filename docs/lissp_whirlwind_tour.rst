@@ -2125,7 +2125,7 @@ Lissp Whirlwind Tour
    #> (throw Exception)                   ;Raise exception objects or classes.
    >>> # throw
    ... # hissp.macros.._macro_.throwQzSTAR_
-   ... (lambda g=(c for c in''):g.close()or g.throw)()(
+   ... (lambda g:g.close()or g.throw)(c for c in'')(
    ...   Exception)
    Traceback (most recent call last):
      ...
@@ -2134,7 +2134,7 @@ Lissp Whirlwind Tour
    #> (throw (TypeError "message"))
    >>> # throw
    ... # hissp.macros.._macro_.throwQzSTAR_
-   ... (lambda g=(c for c in''):g.close()or g.throw)()(
+   ... (lambda g:g.close()or g.throw)(c for c in'')(
    ...   TypeError(
    ...     ('message')))
    Traceback (most recent call last):
@@ -2145,7 +2145,7 @@ Lissp Whirlwind Tour
    #> (throw-from Exception (Exception "message")) ;Explicit chaining.
    >>> # throwQz_from
    ... # hissp.macros.._macro_.throwQzSTAR_
-   ... (lambda g=(c for c in''):g.close()or g.throw)()(
+   ... (lambda g:g.close()or g.throw)(c for c in'')(
    ...   # hissp.macros.._macro_.let
    ...   (lambda _QzNo130_G=(lambda _QzNo130_x:
    ...     # hissp.macros.._macro_.ifQz_else
@@ -2202,7 +2202,7 @@ Lissp Whirlwind Tour
    ...     (lambda :
    ...       # hissp.macros.._macro_.throw
    ...       # hissp.macros.._macro_.throwQzSTAR_
-   ...       (lambda g=(c for c in''):g.close()or g.throw)()(
+   ...       (lambda g:g.close()or g.throw)(c for c in'')(
    ...         __import__('builtins').AssertionError(
    ...           it,
    ...           ("That's odd."))))),
@@ -2316,7 +2316,7 @@ Lissp Whirlwind Tour
    ...   (lambda :
    ...     # throwQz_from
    ...     # hissp.macros.._macro_.throwQzSTAR_
-   ...     (lambda g=(c for c in''):g.close()or g.throw)()(
+   ...     (lambda g:g.close()or g.throw)(c for c in'')(
    ...       # hissp.macros.._macro_.let
    ...       (lambda _QzNo130_G=(lambda _QzNo130_x:
    ...         # hissp.macros.._macro_.ifQz_else
@@ -2660,7 +2660,7 @@ Lissp Whirlwind Tour
    ...   (lambda _:
    ...     # throw
    ...     # hissp.macros.._macro_.throwQzSTAR_
-   ...     (lambda g=(c for c in''):g.close()or g.throw)()(
+   ...     (lambda g:g.close()or g.throw)(c for c in'')(
    ...       Exception)))
    Traceback (most recent call last):
      ...
@@ -2695,7 +2695,7 @@ Lissp Whirlwind Tour
    ...   (lambda :
    ...     # throwQz_from
    ...     # hissp.macros.._macro_.throwQzSTAR_
-   ...     (lambda g=(c for c in''):g.close()or g.throw)()(
+   ...     (lambda g:g.close()or g.throw)(c for c in'')(
    ...       # hissp.macros.._macro_.let
    ...       (lambda _QzNo130_G=(lambda _QzNo130_x:
    ...         # hissp.macros.._macro_.ifQz_else
