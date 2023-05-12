@@ -2122,41 +2122,6 @@ Lissp Whirlwind Tour
 
    ;;;; 14.9 Raising Exceptions
 
-   #> (throw-from Exception (Exception "message")) ;Explicit chaining.
-   >>> # throwQz_from
-   ... # hissp.macros.._macro_.throwQzSTAR_
-   ... (lambda g:g.close()or g.throw)(c for c in'')(
-   ...   # hissp.macros.._macro_.let
-   ...   (lambda _QzNo130_G=(lambda _QzNo130_x:
-   ...     # hissp.macros.._macro_.ifQz_else
-   ...     (lambda b,c,a:c()if b else a())(
-   ...       # hissp.macros.._macro_.QzET_QzET_
-   ...       (lambda x0,x1:x0 and x1())(
-   ...         __import__('builtins').isinstance(
-   ...           _QzNo130_x,
-   ...           __import__('builtins').type),
-   ...         (lambda :
-   ...           __import__('builtins').issubclass(
-   ...             _QzNo130_x,
-   ...             __import__('builtins').BaseException))),
-   ...       (lambda :_QzNo130_x()),
-   ...       (lambda :_QzNo130_x))):
-   ...     # hissp.macros.._macro_.attach
-   ...     # hissp.macros.._macro_.let
-   ...     (lambda _QzNo112_target=_QzNo130_G(
-   ...       Exception):(
-   ...       __import__('builtins').setattr(
-   ...         _QzNo112_target,
-   ...         '__cause__',
-   ...         _QzNo130_G(
-   ...           Exception(
-   ...             ('message')))),
-   ...       _QzNo112_target)[-1])())())
-   Traceback (most recent call last):
-     ...
-   Exception
-
-
    ;;; There's also a throw* you normally shouldn't use. See API doc.
 
    ;;; Assertions. They're always about something, which is
