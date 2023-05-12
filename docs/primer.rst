@@ -2,13 +2,11 @@
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 ..  Hidden doctest adds bundled macros for REPL-consistent behavior.
-   #> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
-   >>> __import__('operator').setitem(
-   ...   globals(),
-   ...   '_macro_',
-   ...   __import__('types').SimpleNamespace(
-   ...     **vars(
-   ...         __import__('hissp')._macro_)))
+    #> (.update (globals) : _macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
+    >>> globals().update(
+    ...   _macro_=__import__('types').SimpleNamespace(
+    ...             **vars(
+    ...                 __import__('hissp')._macro_)))
 
 Hissp Primer
 ############

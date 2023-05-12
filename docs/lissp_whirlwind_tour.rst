@@ -2,13 +2,11 @@
    SPDX-License-Identifier: Apache-2.0
 
 .. This hidden doctest adds bundled macros for REPL-consistent behavior.
-   #> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
-   >>> __import__('operator').setitem(
-   ...   globals(),
-   ...   '_macro_',
-   ...   __import__('types').SimpleNamespace(
-   ...     **vars(
-   ...         __import__('hissp')._macro_)))
+   #> (.update (globals) : _macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
+   >>> globals().update(
+   ...   _macro_=__import__('types').SimpleNamespace(
+   ...             **vars(
+   ...                 __import__('hissp')._macro_)))
 
 .. TODO: Interactive via web repl?
 
@@ -316,7 +314,7 @@ Lissp Whirlwind Tour
    >>> 'Qz_QzLT_QzGT_QzGT_'
    'Qz_QzLT_QzGT_QzGT_'
 
-   #> :-<>>                                ;Don't represent identifiers, don't munge.
+   #> :-<>>                               ;Don't represent identifiers, don't munge.
    >>> ':-<>>'
    ':-<>>'
 
@@ -585,13 +583,10 @@ Lissp Whirlwind Tour
 
    ;;; Hissp is simpler than Python. No control flow! Use higher-order functions instead.
 
-   #> (any (map (lambda (c) (print c))      ;Loops!
-   #..          "abc"))
+   #> (any (map print "abc"))               ;Loops!
    >>> any(
    ...   map(
-   ...     (lambda c:
-   ...       print(
-   ...         c)),
+   ...     print,
    ...     ('abc')))
    a
    b
@@ -2125,66 +2120,7 @@ Lissp Whirlwind Tour
 
    ;;;; 14.8 Control Flow
 
-   ;;; Hissp has no innate control flow, but you can build them with macros.
-
-   ;; 1 2 3 4 5 6 7 True
-
    ;;;; 14.9 Raising Exceptions
-
-   #> (throw Exception)                   ;Raise exception objects or classes.
-   >>> # throw
-   ... # hissp.macros.._macro_.throwQzSTAR_
-   ... (lambda g=(c for c in''):g.close()or g.throw)()(
-   ...   Exception)
-   Traceback (most recent call last):
-     ...
-   Exception
-
-   #> (throw (TypeError "message"))
-   >>> # throw
-   ... # hissp.macros.._macro_.throwQzSTAR_
-   ... (lambda g=(c for c in''):g.close()or g.throw)()(
-   ...   TypeError(
-   ...     ('message')))
-   Traceback (most recent call last):
-     ...
-   TypeError: message
-
-
-   #> (throw-from Exception (Exception "message")) ;Explicit chaining.
-   >>> # throwQz_from
-   ... # hissp.macros.._macro_.throwQzSTAR_
-   ... (lambda g=(c for c in''):g.close()or g.throw)()(
-   ...   # hissp.macros.._macro_.let
-   ...   (lambda _QzNo130_G=(lambda _QzNo130_x:
-   ...     # hissp.macros.._macro_.ifQz_else
-   ...     (lambda b,c,a:c()if b else a())(
-   ...       # hissp.macros.._macro_.QzET_QzET_
-   ...       (lambda x0,x1:x0 and x1())(
-   ...         __import__('builtins').isinstance(
-   ...           _QzNo130_x,
-   ...           __import__('builtins').type),
-   ...         (lambda :
-   ...           __import__('builtins').issubclass(
-   ...             _QzNo130_x,
-   ...             __import__('builtins').BaseException))),
-   ...       (lambda :_QzNo130_x()),
-   ...       (lambda :_QzNo130_x))):
-   ...     # hissp.macros.._macro_.attach
-   ...     # hissp.macros.._macro_.let
-   ...     (lambda _QzNo112_target=_QzNo130_G(
-   ...       Exception):(
-   ...       __import__('builtins').setattr(
-   ...         _QzNo112_target,
-   ...         '__cause__',
-   ...         _QzNo130_G(
-   ...           Exception(
-   ...             ('message')))),
-   ...       _QzNo112_target)[-1])())())
-   Traceback (most recent call last):
-     ...
-   Exception
-
 
    ;;; There's also a throw* you normally shouldn't use. See API doc.
 
@@ -2211,7 +2147,7 @@ Lissp Whirlwind Tour
    ...     (lambda :
    ...       # hissp.macros.._macro_.throw
    ...       # hissp.macros.._macro_.throwQzSTAR_
-   ...       (lambda g=(c for c in''):g.close()or g.throw)()(
+   ...       (lambda g:g.close()or g.throw)(c for c in'')(
    ...         __import__('builtins').AssertionError(
    ...           it,
    ...           ("That's odd."))))),
@@ -2325,7 +2261,7 @@ Lissp Whirlwind Tour
    ...   (lambda :
    ...     # throwQz_from
    ...     # hissp.macros.._macro_.throwQzSTAR_
-   ...     (lambda g=(c for c in''):g.close()or g.throw)()(
+   ...     (lambda g:g.close()or g.throw)(c for c in'')(
    ...       # hissp.macros.._macro_.let
    ...       (lambda _QzNo130_G=(lambda _QzNo130_x:
    ...         # hissp.macros.._macro_.ifQz_else
@@ -2669,7 +2605,7 @@ Lissp Whirlwind Tour
    ...   (lambda _:
    ...     # throw
    ...     # hissp.macros.._macro_.throwQzSTAR_
-   ...     (lambda g=(c for c in''):g.close()or g.throw)()(
+   ...     (lambda g:g.close()or g.throw)(c for c in'')(
    ...       Exception)))
    Traceback (most recent call last):
      ...
@@ -2704,7 +2640,7 @@ Lissp Whirlwind Tour
    ...   (lambda :
    ...     # throwQz_from
    ...     # hissp.macros.._macro_.throwQzSTAR_
-   ...     (lambda g=(c for c in''):g.close()or g.throw)()(
+   ...     (lambda g:g.close()or g.throw)(c for c in'')(
    ...       # hissp.macros.._macro_.let
    ...       (lambda _QzNo130_G=(lambda _QzNo130_x:
    ...         # hissp.macros.._macro_.ifQz_else

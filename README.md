@@ -7,13 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 [![codecov](https://codecov.io/gh/gilch/hissp/branch/master/graph/badge.svg)](https://codecov.io/gh/gilch/hissp)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 <!-- Hidden doctest adds bundled macros for REPL-consistent behavior.
-#> (operator..setitem (globals) '_macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
->>> __import__('operator').setitem(
-...   globals(),
-...   '_macro_',
-...   __import__('types').SimpleNamespace(
-...     **vars(
-...         __import__('hissp')._macro_)))
+#> (.update (globals) : _macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
+>>> globals().update(
+...   _macro_=__import__('types').SimpleNamespace(
+...             **vars(
+...                 __import__('hissp')._macro_)))
 
 -->
 ![Hissp](https://raw.githubusercontent.com/gilch/hissp/master/docs/hissp.svg)
