@@ -583,13 +583,10 @@ Lissp Whirlwind Tour
 
    ;;; Hissp is simpler than Python. No control flow! Use higher-order functions instead.
 
-   #> (any (map (lambda (c) (print c))      ;Loops!
-   #..          "abc"))
+   #> (any (map print "abc"))               ;Loops!
    >>> any(
    ...   map(
-   ...     (lambda c:
-   ...       print(
-   ...         c)),
+   ...     print,
    ...     ('abc')))
    a
    b
