@@ -1011,29 +1011,24 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   .. code-block:: REPL
 
-     #> (define + op#add)
-     >>> # define
-     ... __import__('builtins').globals().update(
-     ...   QzPLUS_=__import__('operator').add)
-
-     #> (attach (types..SimpleNamespace) + : a 1  b 'Hi)
+     #> (attach (types..SimpleNamespace) _macro_.attach : a 1  b 'Hi)
      >>> # attach
      ... # hissp.macros.._macro_.let
-     ... (lambda _QzNo16_target=__import__('types').SimpleNamespace():(
+     ... (lambda _QzNo36_target=__import__('types').SimpleNamespace():(
      ...   __import__('builtins').setattr(
-     ...     _QzNo16_target,
-     ...     'QzPLUS_',
-     ...     QzPLUS_),
+     ...     _QzNo36_target,
+     ...     'attach',
+     ...     _macro_.attach),
      ...   __import__('builtins').setattr(
-     ...     _QzNo16_target,
+     ...     _QzNo36_target,
      ...     'a',
      ...     (1)),
      ...   __import__('builtins').setattr(
-     ...     _QzNo16_target,
+     ...     _QzNo36_target,
      ...     'b',
      ...     'Hi'),
-     ...   _QzNo16_target)[-1])()
-     namespace(QzPLUS_=<built-in function add>, a=1, b='Hi')
+     ...   _QzNo36_target)[-1])()
+     namespace(a=1, attach=<function _macro_.attach at 0x...>, b='Hi')
 
   See also: `setattr`, `set@<setQzAT_>`, `locals`.
   "
@@ -1041,7 +1036,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
         $target `$#target)
     (let (args (i#takewhile X#(op#ne X ':) iargs))
       `(let (,$target ,target)
-         ,@(map X#`(setattr ,$target ',X ,X) args)
+         ,@(map X#`(setattr ,$target ',.#"X.split('.')[-1]" ,X) args)
          ,@(map X#`(setattr ,$target ',X ,(next iargs))
                 iargs)
          ,$target))))
