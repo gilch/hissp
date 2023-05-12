@@ -2120,10 +2120,6 @@ Lissp Whirlwind Tour
 
    ;;;; 14.8 Control Flow
 
-   ;;; Hissp has no innate control flow, but you can build them with macros.
-
-   ;; 1 2 3 4 5 6 7 True
-
    ;;;; 14.9 Raising Exceptions
 
    #> (throw Exception)                   ;Raise exception objects or classes.
