@@ -36,6 +36,7 @@ Otherwise, start with the easier, but less-comprehensive `primer`.
 
 .. toctree::
 
+   Hissp Community Chat 💬 <https://gitter.im/hissp-lang/community>
    ⭐ on GitHub! <https://github.com/gilch/hissp>
 
 * :ref:`genindex`
