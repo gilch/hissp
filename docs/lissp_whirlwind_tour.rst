@@ -2122,26 +2122,6 @@ Lissp Whirlwind Tour
 
    ;;;; 14.9 Raising Exceptions
 
-   #> (throw Exception)                   ;Raise exception objects or classes.
-   >>> # throw
-   ... # hissp.macros.._macro_.throwQzSTAR_
-   ... (lambda g:g.close()or g.throw)(c for c in'')(
-   ...   Exception)
-   Traceback (most recent call last):
-     ...
-   Exception
-
-   #> (throw (TypeError "message"))
-   >>> # throw
-   ... # hissp.macros.._macro_.throwQzSTAR_
-   ... (lambda g:g.close()or g.throw)(c for c in'')(
-   ...   TypeError(
-   ...     ('message')))
-   Traceback (most recent call last):
-     ...
-   TypeError: message
-
-
    #> (throw-from Exception (Exception "message")) ;Explicit chaining.
    >>> # throwQz_from
    ... # hissp.macros.._macro_.throwQzSTAR_

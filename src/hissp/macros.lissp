@@ -1488,6 +1488,27 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro throw (exception)
   "Raise an exception.
 
+  .. code-block:: REPL
+
+     #> (throw Exception)                   ;Raise exception objects or classes.
+     >>> # throw
+     ... # hissp.macros.._macro_.throwQzSTAR_
+     ... (lambda g:g.close()or g.throw)(c for c in'')(
+     ...   Exception)
+     Traceback (most recent call last):
+       ...
+     Exception
+
+     #> (throw (TypeError 'message))
+     >>> # throw
+     ... # hissp.macros.._macro_.throwQzSTAR_
+     ... (lambda g:g.close()or g.throw)(c for c in'')(
+     ...   TypeError(
+     ...     'message'))
+     Traceback (most recent call last):
+       ...
+     TypeError: message
+
   See also: `throw-from<throwQz_from>`, `engarde`_, `raise`.
   "
   `(throw* ,exception))
