@@ -29,9 +29,10 @@ class LisspREPL(InteractiveConsole):
     Call interact() to start.
     """
 
+    # locals shadows the builtin, but that's the name in the superclass.
     def __init__(self, locals=None, filename="<console>"):
         super().__init__(locals, filename)
-        self.lissp = Lissp(ns=locals)
+        self.lissp = Lissp(locals.get("__name__", "__main__"), locals)
         self.locals = self.lissp.ns
 
     def runsource(self, source, filename="<input>", symbol="single"):
