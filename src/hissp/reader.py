@@ -291,7 +291,7 @@ class Lissp:
 
     def parse_macro(self, tag: str, form, extras):
         # fmt: off
-        """Apply a reader macro to a form.
+        R"""Apply a reader macro to a form.
 
         The built-in reader macros are handled here. They are
 
