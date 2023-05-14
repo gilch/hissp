@@ -22,7 +22,7 @@ class TestMunger(TestCase):
         self.assertEqual(
             munger.munge(R"""~!@#$%^&*()_+{}|:"<>?`-=[]\;',./"""),
             "QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzHAT_QzET_QzSTAR_QzLPAR_"
-            "QzRPAR__QzPLUS_QzLCUB_QzRCUB_QzBAR_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_"
+            "QzRPAR__QzPLUS_QzLCUB_QzRCUB_QzVERT_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_"
             "QzGRAVE_Qz_QzEQ_QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_.QzSOL_",
         )
 

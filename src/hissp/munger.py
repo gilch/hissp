@@ -121,7 +121,7 @@ TO_NAME = {
         "`": "GRAVE",
         # Small letters are also always valid.
         "{": "LCUB",
-        "|": "BAR",
+        "|": "VERT",
         "}": "RCUB",
         # TILDE is fine.
     }.items()

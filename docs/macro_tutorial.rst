@@ -1457,7 +1457,7 @@ Can we just iterate through the expression and check?
    ...             max(
    ...               map(
    ...                 (lambda x:
-   ...                   # QzBAR_QzBAR_
+   ...                   # QzVERT_QzVERT_
    ...                   (lambda x0,x1:x0 or x1())(
    ...                     # when
    ...                     (lambda b,c:c()if b else())(
@@ -1485,7 +1485,7 @@ Does that make sense?
 Read the definition carefully.
 You can experiment with macros you don't recognize in the REPL.
 All the bundled macros,
-including the `|| <QzBAR_QzBAR_>`
+including the `|| <QzVERT_QzVERT_>`
 and `when` were covered in the `lissp_whirlwind_tour`.
 We're using them to coalesce Python's awkward regex matches,
 which can return ``None``, into a ``0``,
@@ -1584,7 +1584,7 @@ Now we can fix ``max-X``.
    ...             max(
    ...               map(
    ...                 (lambda x:
-   ...                   # QzBAR_QzBAR_
+   ...                   # QzVERT_QzVERT_
    ...                   (lambda x0,x1:x0 or x1())(
    ...                     # when
    ...                     (lambda b,c:c()if b else())(
@@ -1939,7 +1939,7 @@ Here you go:
    ...            (1),
    ...            add(
    ...              (1),
-   ...              # QzBAR_QzBAR_
+   ...              # QzVERT_QzVERT_
    ...              (lambda x0,x1:x0 or x1())(
    ...                maxQz_X(
    ...                  expr),
