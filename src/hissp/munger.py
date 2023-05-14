@@ -106,6 +106,7 @@ TO_NAME = {
         # Full stop reserved for imports and attributes.
         "/": "SOL",
         # Digits only munge if first character.
+        # COLON is fine.
         ";": "SEMI",
         "<": "LT",  # Less Than or LefT.
         "=": "EQ",
