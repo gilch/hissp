@@ -684,6 +684,17 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro XY\# e
   "``XY#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y.
 
+  .. code-block:: REPL
+
+     #> (functools..reduce XY#(op#concat Y X) 'abcd)
+     >>> __import__('functools').reduce(
+     ...   (lambda X,Y:
+     ...     __import__('operator').concat(
+     ...       Y,
+     ...       X)),
+     ...   'abcd')
+     'dcba'
+
   See also: `X#<XQzHASH_>`, `XYZ#<XYZQzHASH_>`.
   "
   `(lambda ,'XY ,e))

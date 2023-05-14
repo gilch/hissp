@@ -2619,16 +2619,6 @@ Lissp Whirlwind Tour
    ;;; qualified names. The prelude (§14.7) is the easiest way to add the
    ;;; bundled macros to a module.
 
-   #> (reduce XY#(add Y X) "abcd")        ;Binary anaphoric lambda.
-   >>> reduce(
-   ...   (lambda X,Y:
-   ...     add(
-   ...       Y,
-   ...       X)),
-   ...   ('abcd'))
-   'dcba'
-
-
    #> (engarde Exception
    #..         X#(print X.__cause__)      ;Unary again.
    #..         O#(throw-from Exception (Exception "msg"))) ;Nullary/thunk.
