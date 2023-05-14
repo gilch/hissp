@@ -106,6 +106,7 @@ TO_NAME = {
         # Full stop reserved for imports and attributes.
         "/": "SOL",
         # Digits only munge if first character.
+        # COLON is fine.
         ";": "SEMI",
         "<": "LT",  # Less Than or LefT.
         "=": "EQ",
@@ -116,12 +117,12 @@ TO_NAME = {
         "[": "LSQB",
         "\\": "BSOL",
         "]": "RSQB",
-        "^": "CARET",
+        "^": "HAT",
         # Underscore is valid in Python identifiers.
         "`": "GRAVE",
         # Small letters are also always valid.
         "{": "LCUB",
-        "|": "BAR",
+        "|": "VERT",
         "}": "RCUB",
         # TILDE is fine.
     }.items()

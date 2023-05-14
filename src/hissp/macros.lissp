@@ -1415,7 +1415,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ... (42)
      42
 
-  See also: `||<QzBAR_QzBAR_>`, `not`, `and`.
+  See also: `||<QzVERT_QzVERT_>`, `not`, `and`.
   "
   (cond (not exprs) True
         (op#eq (len exprs) 1) (get#0 exprs)
@@ -1433,7 +1433,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   .. code-block:: REPL
 
      #> (|| True (print 'oops)) ; Shortcutting.
-     >>> # QzBAR_QzBAR_
+     >>> # QzVERT_QzVERT_
      ... (lambda x0,x1:x0 or x1())(
      ...   True,
      ...   (lambda :
@@ -1442,14 +1442,14 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      True
 
      #> (|| 42 False)
-     >>> # QzBAR_QzBAR_
+     >>> # QzVERT_QzVERT_
      ... (lambda x0,x1:x0 or x1())(
      ...   (42),
      ...   (lambda :False))
      42
 
      #> (|| () False 0 1)  ; or seeks the truth
-     >>> # QzBAR_QzBAR_
+     >>> # QzVERT_QzVERT_
      ... (lambda x0,x1,x2,x3:x0 or x1()or x2()or x3())(
      ...   (),
      ...   (lambda :False),
@@ -1458,12 +1458,12 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      1
 
      #> (|| False)
-     >>> # QzBAR_QzBAR_
+     >>> # QzVERT_QzVERT_
      ... False
      False
 
      #> (||)
-     >>> # QzBAR_QzBAR_
+     >>> # QzVERT_QzVERT_
      ... ()
      ()
 
