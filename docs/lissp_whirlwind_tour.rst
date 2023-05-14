@@ -2664,14 +2664,6 @@ Lissp Whirlwind Tour
    ;;; The imports would have been harder if the whole expression were
    ;;; injected Python. Get the best of both worlds.
 
-   #> (XYZ#.#"X*Y == Z" : X math..pi  Y 2  Z math..tau) ;Or inject the 2.
-   >>> (lambda X,Y,Z:X*Y == Z)(
-   ...   X=__import__('math').pi,
-   ...   Y=(2),
-   ...   Z=__import__('math').tau)
-   True
-
-
    ;;; Slicing is important enough for a shorthand.
    ;;; This variant works best on simple cases. The slice indexes are all
    ;;; injected Python here.
