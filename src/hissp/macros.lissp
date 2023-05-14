@@ -1662,7 +1662,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro en\# (f)
   <<#
   !;``en#`` reader macro.
-  !;Wrap a function of one iterable as a function of its elements.
+  !;Wrap a function applicable to a tuple as a function of its elements.
   !;
   !;.. code-block:: REPL
   !;
@@ -1688,6 +1688,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   !;   >>> _
   !;   [1, 2, 3, 4, 5, 6]
   !;
+  !;See also: `X# <XQzHASH_>`.
   #"\n"
   (if-else (&& (op#is_ str (type f))
                (.startswith f "."))
