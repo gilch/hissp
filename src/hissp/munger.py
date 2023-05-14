@@ -116,7 +116,7 @@ TO_NAME = {
         "[": "LSQB",
         "\\": "BSOL",
         "]": "RSQB",
-        "^": "CARET",
+        "^": "HAT",
         # Underscore is valid in Python identifiers.
         "`": "GRAVE",
         # Small letters are also always valid.
