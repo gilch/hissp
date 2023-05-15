@@ -290,40 +290,28 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
                   ',name
                   ,$fn)))))
 
-(defmacro <<\# (single : :* lines)
-  (if-else lines
-    `',(.join (ast..literal_eval single)
-              (map (operator..attrgetter 'content) lines))
-    `',(getattr single 'content)))
+(defmacro <<\# (comment)
+  `',(getattr comment 'content))
 
 (setattr
  _macro_.<<\# '__doc__
  <<#
- !;``<<#`` comment-string reader macro.
- !;
- !;Converts a line comment to a raw string.
- !;
- !;.. code-block:: REPL
- !;
- !;   #> <<#;Don't worry about the "quotes".
- !;   >>> 'Don\'t worry about the "quotes".'
- !;   'Don\'t worry about the "quotes".'
- !;
- !;Or joins extra comments with a string object,
- !;such as ``#"\n"``.
- !;
- !;.. code-block:: REPL
- !;
- !;   #> <<#
- !;   #..!;C:\bin
- !;   #..!;C:\Users\ME\Documents
- !;   #..!;C:\Users\ME\Pictures
- !;   #..";"
- !;   >>> 'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
- !;   'C:\\bin;C:\\Users\\ME\\Documents;C:\\Users\\ME\\Pictures'
- !;
- !;See also: `str.join`, `Extra`, `triple-quoted string`.
- #"\n")
+ ;; ``<<#`` comment-string reader macro.
+ ;;
+ ;; Converts a block of line comments to a raw string.
+ ;;
+ ;; .. code-block:: REPL
+ ;;
+ ;;    #> <<#
+ ;;    #..;; You won't have to
+ ;;    #..;; escape the "quotes".
+ ;;    #..
+ ;;    >>> 'You won\'t have to\nescape the "quotes".'
+ ;;    'You won\'t have to\nescape the "quotes".'
+ ;;
+ ;; See also: `triple-quoted string`.
+ ;;
+ _#/)
 
 (defmacro define (name value)
   "Assigns a global the value in the current module.
@@ -404,47 +392,46 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (defmacro deftype (name bases : :* body)
   <<#
-  !;Defines a type (class) in the current module.
-  !;
-  !;Key-value pairs are implied by position in the body.
-  !;
-  !;.. code-block:: REPL
-  !;
-  !;   #> (deftype Point2D (tuple)
-  !;   #..  __doc__ "Simple ordered pair."
-  !;   #..  __new__ (lambda (cls x y)
-  !;   #..            (.__new__ tuple cls `(,x ,y)))
-  !;   #..  __repr__ (lambda (self)
-  !;   #..             (.format "Point2D({!r}, {!r})" : :* self)))
-  !;   >>> # deftype
-  !;   ... # hissp.macros.._macro_.define
-  !;   ... __import__('builtins').globals().update(
-  !;   ...   Point2D=__import__('builtins').type(
-  !;   ...             'Point2D',
-  !;   ...             (lambda * _: _)(
-  !;   ...               tuple),
-  !;   ...             __import__('builtins').dict(
-  !;   ...               __doc__=('Simple ordered pair.'),
-  !;   ...               __new__=(lambda cls,x,y:
-  !;   ...                         tuple.__new__(
-  !;   ...                           cls,
-  !;   ...                           (lambda * _: _)(
-  !;   ...                             x,
-  !;   ...                             y))),
-  !;   ...               __repr__=(lambda self:
-  !;   ...                          ('Point2D({!r}, {!r})').format(
-  !;   ...                            *self)))))
-  !;
-  !;   #> (Point2D 1 2)
-  !;   >>> Point2D(
-  !;   ...   (1),
-  !;   ...   (2))
-  !;   Point2D(1, 2)
-  !;
-  !;See also: `attach`, `type`, `@#!<QzAT_QzHASH_>`, :keyword:`class`,
-  !;`types.new_class`
-  !;
-  #"\n"
+  ;; Defines a type (class) in the current module.
+  ;;
+  ;; Key-value pairs are implied by position in the body.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (deftype Point2D (tuple)
+  ;;    #..  __doc__ "Simple ordered pair."
+  ;;    #..  __new__ (lambda (cls x y)
+  ;;    #..            (.__new__ tuple cls `(,x ,y)))
+  ;;    #..  __repr__ (lambda (self)
+  ;;    #..             (.format "Point2D({!r}, {!r})" : :* self)))
+  ;;    >>> # deftype
+  ;;    ... # hissp.macros.._macro_.define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   Point2D=__import__('builtins').type(
+  ;;    ...             'Point2D',
+  ;;    ...             (lambda * _: _)(
+  ;;    ...               tuple),
+  ;;    ...             __import__('builtins').dict(
+  ;;    ...               __doc__=('Simple ordered pair.'),
+  ;;    ...               __new__=(lambda cls,x,y:
+  ;;    ...                         tuple.__new__(
+  ;;    ...                           cls,
+  ;;    ...                           (lambda * _: _)(
+  ;;    ...                             x,
+  ;;    ...                             y))),
+  ;;    ...               __repr__=(lambda self:
+  ;;    ...                          ('Point2D({!r}, {!r})').format(
+  ;;    ...                            *self)))))
+  ;;
+  ;;    #> (Point2D 1 2)
+  ;;    >>> Point2D(
+  ;;    ...   (1),
+  ;;    ...   (2))
+  ;;    Point2D(1, 2)
+  ;;
+  ;; See also: `attach`, `type`, `@#!<QzAT_QzHASH_>`, :keyword:`class`,
+  ;; `types.new_class`
+  ;;
   `(define ,name
        (type ',name (,hissp.reader..ENTUPLE ,@bases)
              (dict : ,@body))))
@@ -611,74 +598,73 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (defmacro X\# e
   <<#
-  !;``X#`` Anaphoric. Make ``e`` an anonymous function with paramter X.
-  !;
-  !;Convert macro to function.
-  !;
-  !;.. code-block:: REPL
-  !;
-  !;   #> (list (map X#(@ X) "abc")) ; en#list would also work here.
-  !;   >>> list(
-  !;   ...   map(
-  !;   ...     (lambda X:
-  !;   ...       # QzAT_
-  !;   ...       (lambda *xs:[*xs])(
-  !;   ...         X)),
-  !;   ...     ('abc')))
-  !;   [['a'], ['b'], ['c']]
-  !;
-  !;Compact function definition using Python operators.
-  !;
-  !;.. code-block:: REPL
-  !;
-  !;   #> (define teen? X#.#"13<=X<20")
-  !;   >>> # define
-  !;   ... __import__('builtins').globals().update(
-  !;   ...   teenQzQUERY_=(lambda X:13<=X<20))
-  !;
-  !;   #> (teen? 12.5)
-  !;   >>> teenQzQUERY_(
-  !;   ...   (12.5))
-  !;   False
-  !;
-  !;   #> (teen? 19.5)
-  !;   >>> teenQzQUERY_(
-  !;   ...   (19.5))
-  !;   True
-  !;
-  !;Get an attribute without calling it.
-  !;
-  !;.. code-block:: REPL
-  !;
-  !;   #> (X#X.upper "shout")
-  !;   >>> (lambda X:X.upper)(
-  !;   ...   ('shout'))
-  !;   <built-in method upper of str object at ...>
-  !;
-  !;   #> (_)
-  !;   >>> _()
-  !;   'SHOUT'
-  !;
-  !;   #> (define class-name X#X.__class__.__name__) ; Attributes chain.
-  !;   >>> # define
-  !;   ... __import__('builtins').globals().update(
-  !;   ...   classQz_name=(lambda X:X.__class__.__name__))
-  !;
-  !;   #> (class-name object)
-  !;   >>> classQz_name(
-  !;   ...   object)
-  !;   'type'
-  !;
-  !;   #> (class-name "foo")
-  !;   >>> classQz_name(
-  !;   ...   ('foo'))
-  !;   'str'
-  !;
-  !;See also:
-  !;`en#<enQzHASH_>`, `O#<OQzHASH_>`, `XY#<XYQzHASH_>`, `getattr`,
-  !;`operator.attrgetter`, `lambda`.
-  !;
-  #"\n"
+  ;; ``X#`` Anaphoric. Make ``e`` an anonymous function with paramter X.
+  ;;
+  ;; Convert macro to function.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (list (map X#(@ X) "abc")) ; en#list would also work here.
+  ;;    >>> list(
+  ;;    ...   map(
+  ;;    ...     (lambda X:
+  ;;    ...       # QzAT_
+  ;;    ...       (lambda *xs:[*xs])(
+  ;;    ...         X)),
+  ;;    ...     ('abc')))
+  ;;    [['a'], ['b'], ['c']]
+  ;;
+  ;; Compact function definition using Python operators.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (define teen? X#.#"13<=X<20")
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   teenQzQUERY_=(lambda X:13<=X<20))
+  ;;
+  ;;    #> (teen? 12.5)
+  ;;    >>> teenQzQUERY_(
+  ;;    ...   (12.5))
+  ;;    False
+  ;;
+  ;;    #> (teen? 19.5)
+  ;;    >>> teenQzQUERY_(
+  ;;    ...   (19.5))
+  ;;    True
+  ;;
+  ;; Get an attribute without calling it.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (X#X.upper "shout")
+  ;;    >>> (lambda X:X.upper)(
+  ;;    ...   ('shout'))
+  ;;    <built-in method upper of str object at ...>
+  ;;
+  ;;    #> (_)
+  ;;    >>> _()
+  ;;    'SHOUT'
+  ;;
+  ;;    #> (define class-name X#X.__class__.__name__) ; Attributes chain.
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   classQz_name=(lambda X:X.__class__.__name__))
+  ;;
+  ;;    #> (class-name object)
+  ;;    >>> classQz_name(
+  ;;    ...   object)
+  ;;    'type'
+  ;;
+  ;;    #> (class-name "foo")
+  ;;    >>> classQz_name(
+  ;;    ...   ('foo'))
+  ;;    'str'
+  ;;
+  ;; See also:
+  ;; `en#<enQzHASH_>`, `O#<OQzHASH_>`, `XY#<XYQzHASH_>`, `getattr`,
+  ;; `operator.attrgetter`, `lambda`.
+  ;;
   `(lambda ,'X ,e))
 
 (defmacro XY\# e
@@ -701,57 +687,54 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (defmacro XYZ\# e
   <<#
-  !;``XYZ#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z.
-  !;
-  !;.. code-block:: REPL
-  !;
-  !;   #> (XYZ#.#"X*Y == Z" : X math..pi  Y 2  Z math..tau)
-  !;   >>> (lambda X,Y,Z:X*Y == Z)(
-  !;   ...   X=__import__('math').pi,
-  !;   ...   Y=(2),
-  !;   ...   Z=__import__('math').tau)
-  !;   True
-  !;
-  !;See also: `XY#<XYQzHASH_>`, `XYZW#<XYZWQzHASH_>`.
-  #"\n"
+  ;; ``XYZ#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (XYZ#.#"X*Y == Z" : X math..pi  Y 2  Z math..tau)
+  ;;    >>> (lambda X,Y,Z:X*Y == Z)(
+  ;;    ...   X=__import__('math').pi,
+  ;;    ...   Y=(2),
+  ;;    ...   Z=__import__('math').tau)
+  ;;    True
+  ;;
+  ;; See also: `XY#<XYQzHASH_>`, `XYZW#<XYZWQzHASH_>`.
   `(lambda ,'XYZ ,e))
 
 (defmacro XYZW\# e
   <<#
-  !;``XYZW#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z W.
-  !;
-  !;.. code-block:: REPL
-  !;
-  !;   #> (XYZW#.#"X[Y:Z:W]" "QuaoblcldefHg" -2 1 -2)
-  !;   >>> (lambda X,Y,Z,W:X[Y:Z:W])(
-  !;   ...   ('QuaoblcldefHg'),
-  !;   ...   (-2),
-  !;   ...   (1),
-  !;   ...   (-2))
-  !;   'Hello'
-  !;
-  !;See also: `XYZ#<XYZQzHASH_>`, `en#<enQzHASH_>`, `X#<XQzHASH_>`.
-  !;
-  #"\n"
+  ;; ``XYZW#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z W.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (XYZW#.#"X[Y:Z:W]" "QuaoblcldefHg" -2 1 -2)
+  ;;    >>> (lambda X,Y,Z,W:X[Y:Z:W])(
+  ;;    ...   ('QuaoblcldefHg'),
+  ;;    ...   (-2),
+  ;;    ...   (1),
+  ;;    ...   (-2))
+  ;;    'Hello'
+  ;;
+  ;; See also: `XYZ#<XYZQzHASH_>`, `en#<enQzHASH_>`, `X#<XQzHASH_>`.
+  ;;
   `(lambda ,'XYZW ,e))
 
 (defmacro alias (alias module)
   <<#
-  !;Defines a reader macro abbreviation of a qualifier. For example,
-  !;
-  !;.. code-block:: Lissp
-  !;
-  !;   (hissp.macros.._macro_.alias M/ hissp.macros.._macro_)
-  !;   ;; Now the same as (hissp.macros.._macro_.alias op sub.).
-  !;   (M/#alias op operator.)
-  !;   ;; Use an extra to name a reader macro.
-  !;   M/#!b"byte string"
-  !;   (op#sub 2 3)
-  !;   #> op#!pow !3 2
-  !;   >>> (8)
-  !;   8
-  !;
-  #"\n"
+  ;; Defines a reader macro abbreviation of a qualifier. For example,
+  ;;
+  ;; .. code-block:: Lissp
+  ;;
+  ;;    (hissp.macros.._macro_.alias M/ hissp.macros.._macro_)
+  ;;    ;; Now the same as (hissp.macros.._macro_.alias op sub.).
+  ;;    (M/#alias op operator.)
+  ;;    ;; Use an extra to name a reader macro.
+  ;;    M/#!b"byte string"
+  ;;    (op#sub 2 3)
+  ;;    #> op#!pow !3 2
+  ;;    >>> (8)
+  ;;    8
+  ;;
   `(defmacro ,(.format "{}{}" alias '#)
              ($#prime : $#reader None :* $#args)
      ',(.format "Aliases ``{}`` as ``{}#``." module alias)
@@ -773,42 +756,41 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (defmacro get\# e
   <<#
-  !;``get#`` 'itemgetter-' Makes an `operator.itemgetter` function from ``e``.
-  !;
-  !;.. code-block:: REPL
-  !;
-  !;   #> (define first get#0)                ;Gets an item by key.
-  !;   >>> # define
-  !;   ... __import__('builtins').globals().update(
-  !;   ...   first=__import__('operator').itemgetter(
-  !;   ...           (0)))
-  !;
-  !;   #> (first "abc")
-  !;   >>> first(
-  !;   ...   ('abc'))
-  !;   'a'
-  !;
-  !;   #> (get#(slice None None -1) "abc")    ;Slicing without injection.
-  !;   >>> __import__('operator').itemgetter(
-  !;   ...   slice(
-  !;   ...     None,
-  !;   ...     None,
-  !;   ...     (-1)))(
-  !;   ...   ('abc'))
-  !;   'cba'
-  !;
-  !;   #> (get#'+ (dict : foo 2  + 1))        ;These also work on dicts.
-  !;   >>> __import__('operator').itemgetter(
-  !;   ...   'QzPLUS_')(
-  !;   ...   dict(
-  !;   ...     foo=(2),
-  !;   ...     QzPLUS_=(1)))
-  !;   1
-  !;
-  !;See also: `operator.getitem`, `[#<QzLSQB_QzHASH_>`,
-  !;`set!<setQzBANG_>`.
-  !;
-  #"\n"
+  ;; ``get#`` 'itemgetter-' Makes an `operator.itemgetter` function from ``e``.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (define first get#0)                ;Gets an item by key.
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   first=__import__('operator').itemgetter(
+  ;;    ...           (0)))
+  ;;
+  ;;    #> (first "abc")
+  ;;    >>> first(
+  ;;    ...   ('abc'))
+  ;;    'a'
+  ;;
+  ;;    #> (get#(slice None None -1) "abc")    ;Slicing without injection.
+  ;;    >>> __import__('operator').itemgetter(
+  ;;    ...   slice(
+  ;;    ...     None,
+  ;;    ...     None,
+  ;;    ...     (-1)))(
+  ;;    ...   ('abc'))
+  ;;    'cba'
+  ;;
+  ;;    #> (get#'+ (dict : foo 2  + 1))        ;These also work on dicts.
+  ;;    >>> __import__('operator').itemgetter(
+  ;;    ...   'QzPLUS_')(
+  ;;    ...   dict(
+  ;;    ...     foo=(2),
+  ;;    ...     QzPLUS_=(1)))
+  ;;    1
+  ;;
+  ;; See also: `operator.getitem`, `[#<QzLSQB_QzHASH_>`,
+  ;; `set!<setQzBANG_>`.
+  ;;
   `(op#itemgetter ,e))
 
 (defmacro @\# (definition decoration)
@@ -1660,35 +1642,35 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (defmacro en\# (f)
   <<#
-  !;``en#`` reader macro.
-  !;Wrap a function applicable to a tuple as a function of its elements.
-  !;
-  !;.. code-block:: REPL
-  !;
-  !;   #> (en#list 1 2 3)
-  !;   >>> (lambda *_QzNo53_xs:
-  !;   ...   list(
-  !;   ...     _QzNo53_xs))(
-  !;   ...   (1),
-  !;   ...   (2),
-  !;   ...   (3))
-  !;   [1, 2, 3]
-  !;
-  !;   #> (en#.extend _ 4 5 6) ; Methods too.
-  !;   >>> (lambda _QzNo52_self,*_QzNo52_xs:
-  !;   ...   _QzNo52_self.extend(
-  !;   ...     _QzNo52_xs))(
-  !;   ...   _,
-  !;   ...   (4),
-  !;   ...   (5),
-  !;   ...   (6))
-  !;
-  !;   #> _
-  !;   >>> _
-  !;   [1, 2, 3, 4, 5, 6]
-  !;
-  !;See also: `X# <XQzHASH_>`.
-  #"\n"
+  ;; ``en#`` reader macro.
+  ;; Wrap a function applicable to a tuple as a function of its elements.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (en#list 1 2 3)
+  ;;    >>> (lambda *_QzNo53_xs:
+  ;;    ...   list(
+  ;;    ...     _QzNo53_xs))(
+  ;;    ...   (1),
+  ;;    ...   (2),
+  ;;    ...   (3))
+  ;;    [1, 2, 3]
+  ;;
+  ;;    #> (en#.extend _ 4 5 6) ; Methods too.
+  ;;    >>> (lambda _QzNo52_self,*_QzNo52_xs:
+  ;;    ...   _QzNo52_self.extend(
+  ;;    ...     _QzNo52_xs))(
+  ;;    ...   _,
+  ;;    ...   (4),
+  ;;    ...   (5),
+  ;;    ...   (6))
+  ;;
+  ;;    #> _
+  ;;    >>> _
+  ;;    [1, 2, 3, 4, 5, 6]
+  ;;
+  ;; See also: `X# <XQzHASH_>`.
+  ;;
   (if-else (&& (op#is_ str (type f))
                (.startswith f "."))
     `(lambda ($#self : :* $#xs)
@@ -1700,26 +1682,26 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (defmacro @ (: :* xs)
   <<#
-  !;``@`` 'list of' Mnemonic: @rray list.
-  !;
-  !;Creates the `list` from each expresssion's result.
-  !;A ``:*`` unpacks the next argument.
-  !;
-  !;.. code-block:: REPL
-  !;
-  !;   #> (@ :* "AB" (math..sqrt 9) :* "XY" 2 1)
-  !;   >>> # QzAT_
-  !;   ... (lambda *xs:[*xs])(
-  !;   ...   *('AB'),
-  !;   ...   __import__('math').sqrt(
-  !;   ...     (9)),
-  !;   ...   *('XY'),
-  !;   ...   (2),
-  !;   ...   (1))
-  !;   ['A', 'B', 3.0, 'X', 'Y', 2, 1]
-  !;
-  !;See also: `#<QzHASH_>`, `%<QzPCENT_>`.
-  #"\n"
+  ;; ``@`` 'list of' Mnemonic: @rray list.
+  ;;
+  ;; Creates the `list` from each expresssion's result.
+  ;; A ``:*`` unpacks the next argument.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (@ :* "AB" (math..sqrt 9) :* "XY" 2 1)
+  ;;    >>> # QzAT_
+  ;;    ... (lambda *xs:[*xs])(
+  ;;    ...   *('AB'),
+  ;;    ...   __import__('math').sqrt(
+  ;;    ...     (9)),
+  ;;    ...   *('XY'),
+  ;;    ...   (2),
+  ;;    ...   (1))
+  ;;    ['A', 'B', 3.0, 'X', 'Y', 2, 1]
+  ;;
+  ;; See also: `#<QzHASH_>`, `%<QzPCENT_>`.
+  ;;
   (when (&& xs (op#eq :* (get#-1 xs)))
      (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
@@ -1914,56 +1896,55 @@ except ModuleNotFoundError:pass"
 
 (defmacro case (key default : :* pairs)
   <<#
-  !;Switch case macro.
-  !;
-  !;Precomputes a lookup table (dict), so must switch on a hashable key.
-  !;Target keys are not evaluated, so don't quote them; they must be known
-  !;at compile time.
-  !;
-  !;The default case is first and required.
-  !;The remainder are implicitly paired by position.
-  !;
-  !;.. code-block:: REPL
-  !;
-  !;   #> (any-map x '(1 2 spam .#"42" :eggs)
-  !;   #..  (case x (print "default")
-  !;   #..    (0 2 .#"42") (print "even")
-  !;   #..    (1 3 spam) (print "odd")))
-  !;   >>> # anyQz_map
-  !;   ... __import__('builtins').any(
-  !;   ...   __import__('builtins').map(
-  !;   ...     (lambda x:
-  !;   ...       # case
-  !;   ...       __import__('operator').getitem(
-  !;   ...         # hissp.macros.._macro_.QzAT_
-  !;   ...         (lambda *xs:[*xs])(
-  !;   ...           (lambda :
-  !;   ...             print(
-  !;   ...               ('odd'))),
-  !;   ...           (lambda :
-  !;   ...             print(
-  !;   ...               ('even'))),
-  !;   ...           (lambda :
-  !;   ...             print(
-  !;   ...               ('default')))),
-  !;   ...         {1: 0, 3: 0, 'spam': 0, 0: 1, 2: 1, '42': 1}.get(
-  !;   ...           x,
-  !;   ...           (-1)))()),
-  !;   ...     ((1),
-  !;   ...      (2),
-  !;   ...      'spam',
-  !;   ...      '42',
-  !;   ...      ':eggs',)))
-  !;   odd
-  !;   even
-  !;   odd
-  !;   even
-  !;   default
-  !;   False
-  !;
-  !;See also: `cond`.
-  !;
-  #"\n"
+  ;; Switch case macro.
+  ;;
+  ;; Precomputes a lookup table (dict), so must switch on a hashable key.
+  ;; Target keys are not evaluated, so don't quote them; they must be known
+  ;; at compile time.
+  ;;
+  ;; The default case is first and required.
+  ;; The remainder are implicitly paired by position.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (any-map x '(1 2 spam .#"42" :eggs)
+  ;;    #..  (case x (print "default")
+  ;;    #..    (0 2 .#"42") (print "even")
+  ;;    #..    (1 3 spam) (print "odd")))
+  ;;    >>> # anyQz_map
+  ;;    ... __import__('builtins').any(
+  ;;    ...   __import__('builtins').map(
+  ;;    ...     (lambda x:
+  ;;    ...       # case
+  ;;    ...       __import__('operator').getitem(
+  ;;    ...         # hissp.macros.._macro_.QzAT_
+  ;;    ...         (lambda *xs:[*xs])(
+  ;;    ...           (lambda :
+  ;;    ...             print(
+  ;;    ...               ('odd'))),
+  ;;    ...           (lambda :
+  ;;    ...             print(
+  ;;    ...               ('even'))),
+  ;;    ...           (lambda :
+  ;;    ...             print(
+  ;;    ...               ('default')))),
+  ;;    ...         {1: 0, 3: 0, 'spam': 0, 0: 1, 2: 1, '42': 1}.get(
+  ;;    ...           x,
+  ;;    ...           (-1)))()),
+  ;;    ...     ((1),
+  ;;    ...      (2),
+  ;;    ...      'spam',
+  ;;    ...      '42',
+  ;;    ...      ':eggs',)))
+  ;;    odd
+  ;;    even
+  ;;    odd
+  ;;    even
+  ;;    default
+  ;;    False
+  ;;
+  ;; See also: `cond`.
+  ;;
   (when (op#mod (len pairs) 2)
     (throw (TypeError "Incomplete pair")))
   (let (kss ([#-2::-2] pairs)

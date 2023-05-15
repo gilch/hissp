@@ -1044,27 +1044,24 @@ Align extras spanning lines like tuple contents.
 .. code-block:: Lissp
 
    ;; Extras aligned with the first extra.
-   <<#!;C:\bin
-      !;C:\Users\ME\Documents
-      !;C:\Users\ME\Pictures
-   ";"                                    ;Primary isn't an extra. Aligned with tag.
+   foo#!spam
+       !eggs
+       !ham
+   bar                                    ;Primary isn't an extra. Aligned with tag.
 
    ;; Extras aligned with the first extra.
-   (exec
-     <<#
-     !;for i in 'abc':
-     !;    for j in 'xyz':
-     !;        print(i+j, end=" ")
-     !;print('.')
-     !;
-     #"\n")
+   foo#
+   !spam
+   !eggs
+   !ham
+   bar
 
    ;; Indent recursively.
-   foo#!;spam
-       !bar#!;sausage
-            !;bacon
+   foo#!spam
+       !bar#!sausage
+            !bacon
        :tomato
-       !;eggs
+       !eggs
    :beans
 
    ;; Don't dangle brackets!

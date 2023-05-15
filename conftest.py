@@ -39,7 +39,7 @@ class ParseLissp(DocTestParser):
         assert type(document.text) is str
         if document.path.endswith(".lissp"):
             document.text = re.sub(
-                r"(?m)(^ *!? *;+)", lambda m: " " * len(m[1]), document.text
+                r"(?m)(^ *;+)", lambda m: " " * len(m[1]), document.text
             )
         return super().__call__(document, *a, **kw)
 
