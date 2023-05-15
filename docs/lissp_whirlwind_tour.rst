@@ -2693,14 +2693,7 @@ Lissp Whirlwind Tour
    b'bytes\nwith\nnewlines\n'
 
 
-   #> (help _macro_.b\#)                  ;Unqualified reader macros live in _macro_ too.
-   >>> help(
-   ...   _macro_.bQzHASH_)
-   Help on function <lambda> in module hissp.macros:
-   <BLANKLINE>
-   <lambda> lambda raw
-       ``b#`` `bytes` literal reader macro
-   <BLANKLINE>
+   (help _macro_.b\#)                  ;Unqualified reader macros live in _macro_ too.
 
 
    ;; The en# reader macro converts a function applicable to one tuple

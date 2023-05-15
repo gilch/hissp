@@ -41,7 +41,7 @@ but you can override this by setting some other value here.
 
 TOKENS = re.compile(
     r"""(?x)
-     (?P<comment>;.*)
+     (?P<comment>(?:[ ]*;.*[\n])+)
     |(?P<whitespace>[\n ]+)
     |(?P<badspace>\s)  # Other whitespace not allowed.
     |(?P<open>\()
@@ -60,7 +60,10 @@ TOKENS = re.compile(
         )*  # Zero or more times.
       "  # Close quote.
      )
-    |(?P<continue>[#]?")  # String not closed.
+    |(?P<continue>
+       [#]?"  # String not closed.
+      |;.*  # Comment may need another line.
+     )
     |(?P<atom>(?:[^\\ \n"();]|\\.)+)  # Let Python deal with it.
     |(?P<error>.)
     """
@@ -129,7 +132,6 @@ Comment = namedtuple("Comment", ["content"])
 """Parsed object for a comment.
 
 The reader normally discards these, but reader macros can use them.
-The content does not include the initial semicolon.
 """
 
 
@@ -212,7 +214,7 @@ class Lissp:
         for k, v, self._p in self.tokens:
             # fmt: off
             if k == "whitespace": continue
-            elif k == "comment":  yield Comment(v[1:])
+            elif k == "comment":  yield Comment(re.sub(r"\n$|(?m)^ *;+ ?", "", v))
             elif k == "badspace": raise self._badspace(v)
             elif k == "open":     yield from self._open()
             elif k == "close":    return self._close()

@@ -1642,16 +1642,15 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (defmacro b\# (raw)
   <<#
-  !;``b#`` `bytes` literal reader macro
-  !;
-  !;.. code-block:: REPL
-  !;
-  !;   #> b#"bytes
-  !;   #..with\nnewlines"
-  !;   >>> b'bytes\nwith\nnewlines'
-  !;   b'bytes\nwith\nnewlines'
-  !;
-  #"\n"
+  ;; ``b#`` `bytes` literal reader macro
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> b#"bytes
+  ;;    #..with\nnewlines"
+  ;;    >>> b'bytes\nwith\nnewlines'
+  ;;    b'bytes\nwith\nnewlines'
+  ;;
   (-> raw
       ast..literal_eval
       (.replace "'" "\'")
