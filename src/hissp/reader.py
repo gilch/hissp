@@ -41,8 +41,8 @@ but you can override this by setting some other value here.
 
 TOKENS = re.compile(
     r"""(?x)
-     (?P<comment>(?:[ ]*;.*[\n])+)
-    |(?P<whitespace>[\n ]+)
+     (?P<whitespace>[\n ]+)
+    |(?P<comment>(?:[ ]*;.*[\n])+)
     |(?P<badspace>\s)  # Other whitespace not allowed.
     |(?P<open>\()
     |(?P<close>\))
