@@ -1760,8 +1760,8 @@ Lissp Whirlwind Tour
 
    ;; The reader normally discards them, but
    #> 'builtins..repr#;comments are parsed objects too!
-   >>> "Comment(content='comments are parsed objects too!')"
-   "Comment(content='comments are parsed objects too!')"
+   >>> "Comment(';comments are parsed objects too!\\n')"
+   "Comment(';comments are parsed objects too!\\n')"
 
 
    ;;; Except for strings and tuples, objects in Hissp should evaluate

@@ -291,7 +291,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
                   ,$fn)))))
 
 (defmacro <<\# (comment)
-  `',(getattr comment 'content))
+  `',(.contents comment))
 
 (setattr
  _macro_.<<\# '__doc__

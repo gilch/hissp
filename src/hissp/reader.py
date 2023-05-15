@@ -128,11 +128,22 @@ class Lexer(Iterator):
 
 
 _Unquote = namedtuple("_Unquote", ["target", "value"])
-Comment = namedtuple("Comment", ["content"])
-"""Parsed object for a comment.
 
-The reader normally discards these, but reader macros can use them.
-"""
+
+class Comment:
+    """Parsed object for a comment.
+
+    The reader normally discards these, but reader macros can use them.
+    """
+
+    def __init__(self, token):
+        self.token = token
+
+    def contents(self):
+        return re.sub(r"\n$|(?m)^ *;+ ?", "", self.token)
+
+    def __repr__(self):
+        return f"Comment({self.token!r})"
 
 
 class Extra(tuple):
@@ -214,7 +225,7 @@ class Lissp:
         for k, v, self._p in self.tokens:
             # fmt: off
             if k == "whitespace": continue
-            elif k == "comment":  yield Comment(re.sub(r"\n$|(?m)^ *;+ ?", "", v))
+            elif k == "comment":  yield Comment(v)
             elif k == "badspace": raise self._badspace(v)
             elif k == "open":     yield from self._open()
             elif k == "close":    return self._close()
