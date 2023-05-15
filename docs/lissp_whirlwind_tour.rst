@@ -1760,8 +1760,8 @@ Lissp Whirlwind Tour
 
    ;; The reader normally discards them, but
    #> 'builtins..repr#;comments are parsed objects too!
-   >>> "Comment(content='comments are parsed objects too!')"
-   "Comment(content='comments are parsed objects too!')"
+   >>> "Comment(';comments are parsed objects too!\\n')"
+   "Comment(';comments are parsed objects too!\\n')"
 
 
    ;;; Except for strings and tuples, objects in Hissp should evaluate
@@ -2619,16 +2619,6 @@ Lissp Whirlwind Tour
    ;;; qualified names. The prelude (§14.7) is the easiest way to add the
    ;;; bundled macros to a module.
 
-   #> (reduce XY#(add Y X) "abcd")        ;Binary anaphoric lambda.
-   >>> reduce(
-   ...   (lambda X,Y:
-   ...     add(
-   ...       Y,
-   ...       X)),
-   ...   ('abcd'))
-   'dcba'
-
-
    #> (engarde Exception
    #..         X#(print X.__cause__)      ;Unary again.
    #..         O#(throw-from Exception (Exception "msg"))) ;Nullary/thunk.
@@ -2674,14 +2664,6 @@ Lissp Whirlwind Tour
    ;;; The imports would have been harder if the whole expression were
    ;;; injected Python. Get the best of both worlds.
 
-   #> (XYZ#.#"X*Y == Z" : X math..pi  Y 2  Z math..tau) ;Or inject the 2.
-   >>> (lambda X,Y,Z:X*Y == Z)(
-   ...   X=__import__('math').pi,
-   ...   Y=(2),
-   ...   Z=__import__('math').tau)
-   True
-
-
    ;;; Slicing is important enough for a shorthand.
    ;;; This variant works best on simple cases. The slice indexes are all
    ;;; injected Python here.
@@ -2711,14 +2693,7 @@ Lissp Whirlwind Tour
    b'bytes\nwith\nnewlines\n'
 
 
-   #> (help _macro_.b\#)                  ;Unqualified reader macros live in _macro_ too.
-   >>> help(
-   ...   _macro_.bQzHASH_)
-   Help on function <lambda> in module hissp.macros:
-   <BLANKLINE>
-   <lambda> lambda raw
-       ``b#`` `bytes` literal reader macro
-   <BLANKLINE>
+   (help _macro_.b\#)                  ;Unqualified reader macros live in _macro_ too.
 
 
    ;; The en# reader macro converts a function applicable to one tuple
