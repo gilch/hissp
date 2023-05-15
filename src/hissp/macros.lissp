@@ -1669,6 +1669,33 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    >>> _
   ;;    [1, 2, 3, 4, 5, 6]
   ;;
+  ;;    #> (define enjoin en#X#(.join "" (map str X)))
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   enjoin=(lambda *_QzNo55_xs:
+  ;;    ...            (lambda X:
+  ;;    ...              ('').join(
+  ;;    ...                map(
+  ;;    ...                  str,
+  ;;    ...                  X)))(
+  ;;    ...              _QzNo55_xs)))
+  ;;
+  ;;    #> (enjoin "Sum: "(op#add 2 3)". Product: "(op#mul 2 3)".")
+  ;;    >>> enjoin(
+  ;;    ...   ('Sum: '),
+  ;;    ...   __import__('operator').add(
+  ;;    ...     (2),
+  ;;    ...     (3)),
+  ;;    ...   ('. Product: '),
+  ;;    ...   __import__('operator').mul(
+  ;;    ...     (2),
+  ;;    ...     (3)),
+  ;;    ...   ('.'))
+  ;;    'Sum: 5. Product: 6.'
+  ;;
+  ;; There are no bundled reader macros for a quinary, senary, etc. but
+  ;; the en#X# variadic or a normal lambda form can be used instead.
+  ;;
   ;; See also: `X# <XQzHASH_>`.
   ;;
   (if-else (&& (op#is_ str (type f))

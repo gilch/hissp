@@ -2696,31 +2696,6 @@ Lissp Whirlwind Tour
    (help _macro_.b\#)                  ;Unqualified reader macros live in _macro_ too.
 
 
-   ;; The en# reader macro converts a function applicable to one tuple
-   ;; to a function of its elements.
-   #> (en#list 1 2 3)
-   >>> (lambda *_QzNo31_xs:
-   ...   list(
-   ...     _QzNo31_xs))(
-   ...   (1),
-   ...   (2),
-   ...   (3))
-   [1, 2, 3]
-
-   #> (en#.extend _ 4 5 6)                ;Methods too.
-   >>> (lambda _QzNo31_self,*_QzNo31_xs:
-   ...   _QzNo31_self.extend(
-   ...     _QzNo31_xs))(
-   ...   _,
-   ...   (4),
-   ...   (5),
-   ...   (6))
-
-   #> _
-   >>> _
-   [1, 2, 3, 4, 5, 6]
-
-
    #> (en#collections..deque 1 2 3)
    >>> (lambda *_QzNo31_xs:
    ...   __import__('collections').deque(
@@ -2730,35 +2705,6 @@ Lissp Whirlwind Tour
    ...   (3))
    deque([1, 2, 3])
 
-
-   ;; Applying en# to X# results in a variadic anaphoric lambda.
-   #> (define enjoin en#X#(.join "" (map str X)))
-   >>> # define
-   ... __import__('builtins').globals().update(
-   ...   enjoin=(lambda *_QzNo55_xs:
-   ...            (lambda X:
-   ...              ('').join(
-   ...                map(
-   ...                  str,
-   ...                  X)))(
-   ...              _QzNo55_xs)))
-
-   #> (enjoin "Sum: "(add 2 3)". Product: "(mul 2 3)".")
-   >>> enjoin(
-   ...   ('Sum: '),
-   ...   add(
-   ...     (2),
-   ...     (3)),
-   ...   ('. Product: '),
-   ...   mul(
-   ...     (2),
-   ...     (3)),
-   ...   ('.'))
-   'Sum: 5. Product: 6.'
-
-
-   ;;; There are no bundled reader macros for a quinary, senary, etc. but
-   ;;; the en#X# variadic or a normal lambda form can be used.
 
    ;;; Not technically a reader macro, but a bundled macro for defining them.
    ;;; Alias makes a new reader macro to abbreviate a qualifier.
