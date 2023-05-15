@@ -17,9 +17,9 @@ class LisspLexer(RegexLexer):
     class CommentSubLexer(RegexLexer):
         tokens = {
             "root": [
-                (r";;;;.*", pt.Generic.Heading),
-                (r";;;.*", pt.Generic.Subheading),
-                (r";.*", pt.Comment),
+                (r";;;;.*\n( *;.*\n)*", pt.Generic.Heading),
+                (r"(?:;;;.*\n)+", pt.Generic.Subheading),
+                (r"(?: *;.*\n)+", pt.Comment),
             ]
         }
 
@@ -61,8 +61,8 @@ class LisspLexer(RegexLexer):
             (
                 TOKENS.pattern,
                 bygroups(
-                    using(CommentSubLexer),
                     pt.Text,  # whitespace
+                    using(CommentSubLexer),
                     pt.Error,  # badspace
                     pt.Punctuation,  # open
                     pt.Punctuation,  # close
