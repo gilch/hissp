@@ -2074,15 +2074,55 @@ except ModuleNotFoundError:pass"
        $#val)))
 
 (defmacro ensure (e predicate : :* args)
-  "Anaphoric. Raises `AssertionError` `unless` (-> e predicate).
-
-  Additional arguments are evaluated in a context where ``it`` refers
-  to the result of e. These (if any) are passed to the `AssertionError`.
-
-  Expansion is simply ``e`` when `__debug__` is off.
-
-  See also: `assert`.
-  "
+  <<#
+  ;; Anaphoric. Raises `AssertionError` `unless` (-> e predicate).
+  ;;
+  ;; Additional arguments are evaluated in a context where ``it`` refers
+  ;; to the result of e. These (if any) are passed to the `AssertionError`.
+  ;; Evaluates to the result of e.
+  ;;
+  ;; Expansion is simply ``e`` when `__debug__` is off:
+  ;;
+  ;; .. code-block:: console
+  ;;
+  ;;     $ python -Om hissp -c "(print (ensure 0 bool))"
+  ;;     0
+  ;;
+  ;;     $ lissp -c "(print (ensure 0 bool))"
+  ;;     Hissp abort!
+  ;;     Traceback (most recent call last):
+  ;;       ...
+  ;;     AssertionError
+  ;;
+  ;; Note that for pre-compiled code, it's the __debug__ state at
+  ;; compile time, not at run time, that determines if ensure
+  ;; assertions are turned on.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (ensure 7 (X#.#"X%2 == 0")
+  ;;    #..  it "That's odd.")
+  ;;    >>> # ensure
+  ;;    ... # hissp.macros.._macro_.let
+  ;;    ... (lambda it=(7):(
+  ;;    ...   # hissp.macros.._macro_.unless
+  ;;    ...   (lambda b,a:()if b else a())(
+  ;;    ...     # hissp.macros.._macro_.Qz_QzGT_
+  ;;    ...     (lambda X:X%2 == 0)(
+  ;;    ...       it),
+  ;;    ...     (lambda :
+  ;;    ...       # hissp.macros.._macro_.throw
+  ;;    ...       # hissp.macros.._macro_.throwQzSTAR_
+  ;;    ...       (lambda g:g.close()or g.throw)(c for c in'')(
+  ;;    ...         __import__('builtins').AssertionError(
+  ;;    ...           it,
+  ;;    ...           ("That's odd."))))),
+  ;;    ...   it)[-1])()
+  ;;    Traceback (most recent call last):
+  ;;      ...
+  ;;    AssertionError: (7, "That's odd.")
+  ;;
+  ;; See also: `assert`.
   (if-else __debug__
     `(let (,'it ,e)
        (unless (-> ,'it ,predicate)

@@ -2124,42 +2124,6 @@ Lissp Whirlwind Tour
 
    ;;; There's also a throw* you normally shouldn't use. See API doc.
 
-   ;;; Assertions. They're always about something, which is
-   ;;; threaded-first into the predicate expression, and is the result of
-   ;;; the form. The message expressions are optional. In this context,
-   ;;; the `it` refers to the something.
-   ;;; Try turning off __debug__ in a new REPL: $ python -Om hissp
-
-   #> (ensure 7 (-> (mod 2) (eq 0))
-   #..  it "That's odd.")
-   >>> # ensure
-   ... # hissp.macros.._macro_.let
-   ... (lambda it=(7):(
-   ...   # hissp.macros.._macro_.unless
-   ...   (lambda b,a:()if b else a())(
-   ...     # hissp.macros.._macro_.Qz_QzGT_
-   ...     # Qz_QzGT_
-   ...     eq(
-   ...       mod(
-   ...         it,
-   ...         (2)),
-   ...       (0)),
-   ...     (lambda :
-   ...       # hissp.macros.._macro_.throw
-   ...       # hissp.macros.._macro_.throwQzSTAR_
-   ...       (lambda g:g.close()or g.throw)(c for c in'')(
-   ...         __import__('builtins').AssertionError(
-   ...           it,
-   ...           ("That's odd."))))),
-   ...   it)[-1])()
-   Traceback (most recent call last):
-     ...
-   AssertionError: (7, "That's odd.")
-
-
-   ;;; Note that for pre-compiled code, it's the __debug__ state at
-   ;;; compile time, not at run time, that determines if ensure
-   ;;; assertions are turned on.
 
    ;;;; 14.10 Obligatory Factorial III
 
