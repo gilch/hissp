@@ -3,7 +3,7 @@
 import re
 
 import pygments.token as pt
-from pygments.lexer import RegexLexer, bygroups, using
+from pygments.lexer import RegexLexer, bygroups, using, DelegatingLexer
 from pygments.lexers.python import Python3Lexer, PythonConsoleLexer
 
 from hissp.reader import Lissp, TOKENS
@@ -78,9 +78,21 @@ class LisspLexer(RegexLexer):
 
 
 class LisspReplLexer(RegexLexer):
+    class LisspPromptLexer(DelegatingLexer):
+        class PromptLexer(RegexLexer):
+            tokens = {
+                "root": [
+                    (r"^#> |^#\.\.", pt.Generic.Prompt),
+                    (r".*\n", pt.Other),
+                ]
+            }
+
+        def __init__(self, **options):
+            super().__init__(LisspLexer, self.PromptLexer, **options)
+
     tokens = {
         "root": [
-            (r"^#> .*\n(?:^#\.\..*\n)*", using(LisspLexer)),
+            (r"^#> .*\n(?:^#\.\..*\n)*", using(LisspPromptLexer)),
             (r"^>>> .*\n(?:\.\.\. .*\n)*", using(PythonConsoleLexer)),
             (r".*\n", pt.Text),
         ]

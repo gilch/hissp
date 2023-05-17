@@ -839,7 +839,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Creates a function from the Python expression ``e`` prepended with
   the argument and a ``[``.
 
-  .. code-block:: Lissp
+  .. code-block:: REPL
 
      #> ([#1][::2] '(foo bar))
      >>> (lambda _QzNo76_G:(_QzNo76_G[1][::2]))(
