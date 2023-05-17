@@ -295,13 +295,13 @@ You can use Hissp's other special form, ``quote``, to prevent evaluation.
 OK, but that just turned it into a string.
 We could have done that much in Python:
 
-.. code-block:: Python
+.. code-block:: pycon
 
    >>> L = 'lambda'
 
 That worked, but can we use it?
 
-.. code-block:: Python
+.. code-block:: pycon
 
    >>> squares = map(L x: x * x, range(10))
    Traceback (most recent call last):
@@ -2191,7 +2191,7 @@ Hexadecimal
 You can use Python's `int` builtin to convert a string containing a hexadecimal
 number to the corresponding integer value.
 
-.. code-block:: Python
+.. code-block:: pycon
 
    >>> int("FF", 16)
    255
@@ -2199,7 +2199,7 @@ number to the corresponding integer value.
 Of course, Python already has a built-in notation for this,
 disambiguated from normal base-ten ints using the ``0x`` tag.
 
-.. code-block:: Python
+.. code-block:: pycon
 
    >>> 0xFF
    255
@@ -2208,7 +2208,7 @@ But what if it didn't?
 
 About the best Python could do would be something like this.
 
-.. code-block:: Python
+.. code-block:: pycon
 
    >>> def b16(x):
    ...     return int(x, 16)
@@ -2270,7 +2270,7 @@ but ``12`` is a valid base-ten int,
 so it's read as an int.
 Python's `int` builtin doesn't do base conversions for those.
 
-.. code-block:: Python
+.. code-block:: pycon
 
    >>> int(12, 16)
    Traceback (most recent call last):
@@ -2281,7 +2281,7 @@ No matter, this is an easy fix.
 Convert it to a string,
 and it works regardless of which type you start with.
 
-.. code-block:: Python
+.. code-block:: pycon
 
    >>> int(str(12), 16)
    18
@@ -2534,7 +2534,7 @@ Decimal
 Floating-point numbers are very useful,
 but they have some important limitations.
 
-.. code-block:: Python
+.. code-block:: pycon
 
    >>> 0.2 * 3
    0.6000000000000001
@@ -2735,7 +2735,7 @@ Python has a powerful and compact notation for operating on *slices* of sequence
 It has three arguments: *start*, *stop*, and *step*.
 Each one is optional, and defaults to ``None``.
 
-.. code-block:: Python
+.. code-block:: pycon
 
    >>> "abcdefg"[-1::-2]
    'geca'
@@ -2747,7 +2747,7 @@ but it comes at a cost.
 
 (We'll be reusing this simple "geca" test case as we iterate. Feel free to try others.)
 
-.. code-block:: Python
+.. code-block:: pycon
 
    >>> a = "abcdefg"
    >>> b = slice(-1, None, -2)
