@@ -93,8 +93,8 @@ class LisspReplLexer(RegexLexer):
     tokens = {
         "root": [
             (r"^#> .*\n(?:^#\.\..*\n)*", using(LisspPromptLexer)),
-            (r"^>>> .*\n(?:\.\.\. .*\n)*", using(PythonConsoleLexer)),
-            (r".*\n", pt.Text),
+            (r"^>>> .*\n(?:\.\.\. .*\n)*(.+\n)*", using(PythonConsoleLexer)),
+            (r"\n", pt.Whitespace),
         ]
     }
 
