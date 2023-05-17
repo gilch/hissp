@@ -94,6 +94,7 @@ class LisspReplLexer(RegexLexer):
         "root": [
             (r"^#> .*\n(?:^#\.\..*\n)*", using(LisspPromptLexer)),
             (r"^>>> .*\n(?:\.\.\. .*\n)*(.+\n)*", using(PythonConsoleLexer)),
+            (r".+\n", pt.Generic.Error),
             (r"\n", pt.Whitespace),
         ]
     }
