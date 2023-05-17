@@ -839,7 +839,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Creates a function from the Python expression ``e`` prepended with
   the argument and a ``[``.
 
-  .. code-block:: Lissp
+  .. code-block:: REPL
 
      #> ([#1][::2] '(foo bar))
      >>> (lambda _QzNo76_G:(_QzNo76_G[1][::2]))(
@@ -1983,27 +1983,27 @@ except ModuleNotFoundError:pass"
                         ,key
                         -1)))))
 
-(defmacro _spy e
-  `(let ($#e ,e)
-     (print (pprint..pformat ',e : sort_dicts 0)
+(defmacro _spy (expr file)
+  `(let ($#e ,expr)
+     (print (pprint..pformat ',expr : sort_dicts 0)
             "=>"
             (repr $#e)
-            : file sys..stderr)
+            : file ,file)
      $#e))
 
-(defmacro spy\# e
-  "``spy#`` Print e => its value to stderr. Return the value.
+(defmacro spy\# (expr : file 'sys..stderr)
+  "``spy#`` Print e => its value to the file. Return the value.
 
   Typically used to debug a Lissp expression.
 
   .. code-block:: REPL
 
-     #> (op#add 5 spy#(op#mul 7 3)) ; stderr: ('mul', 7, 3) => 21
+     #> (op#add 5 spy#!sys..stdout(op#mul 7 3))
      >>> __import__('operator').add(
      ...   (5),
      ...   # hissp.._macro_._spy
      ...   # hissp.macros.._macro_.let
-     ...   (lambda _QzNo71_e=__import__('operator').mul(
+     ...   (lambda _QzNo73_e=__import__('operator').mul(
      ...     (7),
      ...     (3)):(
      ...     __import__('builtins').print(
@@ -2014,27 +2014,28 @@ except ModuleNotFoundError:pass"
      ...         sort_dicts=(0)),
      ...       ('=>'),
      ...       __import__('builtins').repr(
-     ...         _QzNo71_e),
-     ...       file=__import__('sys').stderr),
-     ...     _QzNo71_e)[-1])())
+     ...         _QzNo73_e),
+     ...       file=__import__('sys').stdout),
+     ...     _QzNo73_e)[-1])())
+     ('operator..mul', 7, 3) => 21
      26
 
   See also: `print`, `doto`, `progn`.
   "
-  `(hissp.._macro_._spy ,e))
+  `(hissp.._macro_._spy ,expr ,file))
 
-(defmacro time\# e
-  "``time#`` Print ms elapsed running e to stderr. Return its value.
+(defmacro time\# (expr : file 'sys..stderr)
+  "``time#`` Print ms elapsed running e to the file. Return its value.
 
   Typically used when optimizing a Lissp expression.
 
   .. code-block:: REPL
 
-     #> time#(time..sleep .05) ; (Exact printed time will vary.)
+     #> time#!sys..stdout(time..sleep .05)
      >>> # hissp.macros.._macro_.let
-     ... (lambda _QzNo73_time=__import__('time').time_ns:
+     ... (lambda _QzNo75_time=__import__('time').time_ns:
      ...   # hissp.macros.._macro_.letQz_from
-     ...   (lambda _QzNo73_start,_QzNo73_val,_QzNo73_end:(
+     ...   (lambda _QzNo75_start,_QzNo75_val,_QzNo75_end:(
      ...     __import__('builtins').print(
      ...       ('time# ran'),
      ...       __import__('pprint').pformat(
@@ -2044,45 +2045,84 @@ except ModuleNotFoundError:pass"
      ...       ('in'),
      ...       __import__('operator').truediv(
      ...         __import__('operator').sub(
-     ...           _QzNo73_end,
-     ...           _QzNo73_start),
+     ...           _QzNo75_end,
+     ...           _QzNo75_start),
      ...         __import__('decimal').Decimal(
      ...           (1000000.0))),
      ...       ('ms'),
-     ...       file=__import__('sys').stderr),
-     ...     _QzNo73_val)[-1])(
+     ...       file=__import__('sys').stdout),
+     ...     _QzNo75_val)[-1])(
      ...     *# hissp.macros.._macro_.QzAT_
      ...      (lambda *xs:[*xs])(
-     ...        _QzNo73_time(),
+     ...        _QzNo75_time(),
      ...        __import__('time').sleep(
      ...          (0.05)),
-     ...        _QzNo73_time())))()
-
-     ;; stderr: time# ran ('time..sleep', 0.05) in 61.9695 ms
+     ...        _QzNo75_time())))()
+     time# ran ('time..sleep', 0.05) in ... ms
 
   See also: `timeit`.
   "
   `(let ($#time time..time_ns)
-     (let-from ($#start $#val $#end) (@ ($#time) ,e ($#time))
+     (let-from ($#start $#val $#end) (@ ($#time) ,expr ($#time))
        (print "time# ran"
-              (pprint..pformat ',e : sort_dicts 0)
+              (pprint..pformat ',expr : sort_dicts 0)
               "in"
               (op#truediv (op#sub $#end $#start)
                           (decimal..Decimal 1e6))
               "ms"
-              : file sys..stderr)
+              : file ,file)
        $#val)))
 
 (defmacro ensure (e predicate : :* args)
-  "Anaphoric. Raises `AssertionError` `unless` (-> e predicate).
-
-  Additional arguments are evaluated in a context where ``it`` refers
-  to the result of e. These (if any) are passed to the `AssertionError`.
-
-  Expansion is simply ``e`` when `__debug__` is off.
-
-  See also: `assert`.
-  "
+  <<#
+  ;; Anaphoric. Raises `AssertionError` `unless` (-> e predicate).
+  ;;
+  ;; Additional arguments are evaluated in a context where ``it`` refers
+  ;; to the result of e. These (if any) are passed to the `AssertionError`.
+  ;; Evaluates to the result of e.
+  ;;
+  ;; Expansion is simply ``e`` when `__debug__` is off:
+  ;;
+  ;; .. code-block:: console
+  ;;
+  ;;     $ python -Om hissp -c "(print (ensure 0 bool))"
+  ;;     0
+  ;;
+  ;;     $ lissp -c "(print (ensure 0 bool))"
+  ;;     Hissp abort!
+  ;;     Traceback (most recent call last):
+  ;;       ...
+  ;;     AssertionError
+  ;;
+  ;; Note that for pre-compiled code, it's the __debug__ state at
+  ;; compile time, not at run time, that determines if ensure
+  ;; assertions are turned on.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (ensure 7 (X#.#"X%2 == 0")
+  ;;    #..  it "That's odd.")
+  ;;    >>> # ensure
+  ;;    ... # hissp.macros.._macro_.let
+  ;;    ... (lambda it=(7):(
+  ;;    ...   # hissp.macros.._macro_.unless
+  ;;    ...   (lambda b,a:()if b else a())(
+  ;;    ...     # hissp.macros.._macro_.Qz_QzGT_
+  ;;    ...     (lambda X:X%2 == 0)(
+  ;;    ...       it),
+  ;;    ...     (lambda :
+  ;;    ...       # hissp.macros.._macro_.throw
+  ;;    ...       # hissp.macros.._macro_.throwQzSTAR_
+  ;;    ...       (lambda g:g.close()or g.throw)(c for c in'')(
+  ;;    ...         __import__('builtins').AssertionError(
+  ;;    ...           it,
+  ;;    ...           ("That's odd."))))),
+  ;;    ...   it)[-1])()
+  ;;    Traceback (most recent call last):
+  ;;      ...
+  ;;    AssertionError: (7, "That's odd.")
+  ;;
+  ;; See also: `assert`.
   (if-else __debug__
     `(let (,'it ,e)
        (unless (-> ,'it ,predicate)
