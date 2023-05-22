@@ -39,7 +39,7 @@
 
   test_inner_gensym
   (lambda (self)
-    (self.assertRegex `$#self.$foo "self._QzNo\d+_foo$"))
+    (self.assertRegex `$#self.$foo "self._Qz[A-Z2-7]+z_foo$"))
 
   test_qualified_symbol
   (lambda (self)

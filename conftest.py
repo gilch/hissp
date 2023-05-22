@@ -70,14 +70,14 @@ class ParseLissp(DocTestParser):
 
 
 def norm_gensym_eq(compiled, python):
-    """The special gensym prefix ``_QzNo..._`` will match regardless of number."""
+    """The special gensym prefix ``_Qz...z_`` will match regardless of hash."""
     return re.fullmatch(
-        re.sub(r"_QzNo\d+_", r"_QzNo\\d+_", re.escape(python)), compiled
+        re.sub(r"_Qz[A-Z2-7]+z_", r"_Qz[A-Z2-7]+z_", re.escape(python)), compiled
     )
 
 
 def norm_gensyms(s):
-    s = re.sub(r"_QzNo\d+_", r"_QzNo000_", s)
+    s = re.sub(r"_Qz[A-Z2-7]+z_", r"_QzABCDEFGHz_", s)
     return indent(s, " " * 2).splitlines(True)
 
 
