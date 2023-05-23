@@ -1983,6 +1983,49 @@ except ModuleNotFoundError:pass"
                         ,key
                         -1)))))
 
+(defmacro ^\# s
+  "``^#`` 'composition' concatenative mini-language functions
+
+  Builds a function whose arguments are pushed to a stack, operates on
+  the stack according to the program, and finally pops its result.
+
+  The language is applied right-to-left, like function calls.
+  Magic chars are
+  ``^`` depth increaser suffix. Assume depth 1 otherwise.
+  ``/`` pop
+  ``&`` pick
+  ``@`` roll (default depth 2)
+  ``*`` splat
+  ``:`` nop (no depth)
+  They can be escaped with a backtick.
+
+  All other words use the following program: Read as Lissp, if it
+  resolves to a callable, call it with args from the stack (up to depth)
+  and append the result.
+  "
+  (let (reader (hissp..reader.Lissp : ns (.get hissp.compiler..NS)))
+    `(lambda (: :* $#args)
+       (let ($#stack (list $#args))
+         (.reverse $#stack)
+         ,@(i#starmap
+            XY#(case X (let (obj (next (.reads reader (.replace X "`" ""))))
+                         `(.append ,'$#stack
+                                   (let ($#G ,obj)
+                                     (if-else (callable $#G)
+                                       ($#G ,@(XY#.#"X*(Y+1)" `((.pop ,'$#stack))
+                                                              (len Y)))
+                                       $#G))))
+                     .#"/" `(.pop ,'$#stack ,(op#sub -1 (len Y)))
+                     .#"&" `(.append ,'$#stack (,'XY#.#"X[-1-Y]" ,'$#stack ,(len Y)))
+                     .#"@" `(.append ,'$#stack (.pop ,'$#stack ,(op#sub -2 (len Y))))
+                     .#"*" `(.extend ,'$#stack
+                                     (reversed (tuple (.pop ,'$#stack
+                                                            ,(op#sub -1 (len Y))))))
+                     : ())
+            (reversed (re..findall "([/&@*:]|(?:[^^`/&@*:]|`[/&@*:])+)(\^*)"
+                                   (hissp..demunge s))))
+         (.pop $#stack)))))
+
 (defmacro _spy (expr file)
   `(let ($#e ,expr)
      (print (pprint..pformat ',expr : sort_dicts 0)
