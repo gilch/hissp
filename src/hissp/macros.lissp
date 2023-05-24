@@ -1995,6 +1995,8 @@ except ModuleNotFoundError:pass"
   ``/`` pop
   ``&`` pick
   ``@`` roll (default depth 2)
+  ``]`` mark (no depth)
+  ``[`` pack (no depth)
   ``*`` splat
   ``:`` nop (no depth)
   They can be escaped with a backtick.
@@ -2018,11 +2020,13 @@ except ModuleNotFoundError:pass"
                      .#"/" `(.pop ,'$#stack ,(op#sub -1 (len Y)))
                      .#"&" `(.append ,'$#stack (,'XY#.#"X[-1-Y]" ,'$#stack ,(len Y)))
                      .#"@" `(.append ,'$#stack (.pop ,'$#stack ,(op#sub -2 (len Y))))
+                     .#"[" `(.append ,'$#stack (tuple (iter ,'$#stack.pop ','$#\])))
+                     .#"]" `(.append ,'$#stack ','$#\])
                      .#"*" `(.extend ,'$#stack
                                      (reversed (tuple (.pop ,'$#stack
                                                             ,(op#sub -1 (len Y))))))
                      : ())
-            (reversed (re..findall "([/&@*:]|(?:[^^`/&@*:]|`[/&@*:])+)(\^*)"
+            (reversed (re..findall "([/&@*:[\]]|(?:[^^`/&@*:[\]]|`[/&@*:[\]])+)(\^*)"
                                    (hissp..demunge s))))
          (.pop $#stack)))))
 
