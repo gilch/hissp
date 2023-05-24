@@ -1811,90 +1811,116 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 ;;;; Import
 
 (defmacro prelude (: ns `(globals))
-  "Hissp's bundled micro prelude.
-
-  Brings Hissp up to a minimal standard of usability without adding any
-  dependencies in the compiled output.
-
-  Mainly intended for single-file scripts that can't have dependencies,
-  or similarly constrained environments (e.g. embedded, readerless).
-  There, the first form should be ``(hissp.._macro_.prelude)``,
-  which is also implied in ``$ lissp -c`` commands.
-
-  Larger projects with access to functional and macro libraries need not
-  use this prelude at all.
-
-  The prelude has several effects:
-
-  * Imports `functools.partial` and `functools.reduce`.
-    Star imports from `itertools` and `operator`::
-
-     from functools import partial,reduce
-     from itertools import *;from operator import *
-
-  .. _engarde:
-
-  * Defines ``engarde``, which calls a function with exception handler::
-
-     def engarde(xs,h,f,/,*a,**kw):
-      try:return f(*a,**kw)
-      except xs as e:return h(e)
-
-    ``engarde`` with handlers can stack above in a single form.
-
-    See `lissp_whirlwind_tour` (§15) for usage examples.
-
-  .. _enter:
-
-  * Defines ``enter``, which calls a function with context manager::
-
-     def enter(c,f,/,*a):
-      with c as C:return f(*a,C)
-
-    ``enter`` with context managers can stack above in a single form.
-
-    See `lissp_whirlwind_tour` (§17) for usage examples.
-
-  .. _Ensue:
-
-  * Defines the ``Ensue`` class; trampolined continuation generators::
-
-     class Ensue(__import__('collections.abc').abc.Generator):
-      send=lambda s,v:s.g.send(v);throw=lambda s,*x:s.g.throw(*x);F=0;X=();Y=[]
-      def __init__(s,p):s.p,s.g,s.n=p,s._(s),s.Y
-      def _(s,k,v=None):
-       while isinstance(s:=k,__class__) and not setattr(s,'sent',v):
-        try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)
-        except s.X as e:v=e
-       return k
-
-    ``Ensue`` takes a step function and returns a generator. The step
-    function recieves the previous Ensue step and must return the next
-    one to continue. Returning a different type raises a `StopIteration`
-    with that object. Set the ``Y`` attribute on the current step to
-    [Y]ield a value this step. Set the ``F`` attribute to a true value
-    to yield values [F]rom the ``Y`` iterable instead. Set the ``X``
-    attribute to an e[X]ception class or tuple to catch any targeted
-    exceptions on the next step. Each step keeps a ``sent`` attribute,
-    which is the value sent to the generator this step, or the exception
-    caught this step instead.
-
-    See `lissp_whirlwind_tour` (§§16–17) for usage examples.
-
-    See also: `types.coroutine`, `collections.abc.Generator`.
-
-  * Adds the bundled macros, but only if available
-    (macros are typically only used at compile time),
-    so its compiled expansion does not require Hissp to be installed.
-    (This replaces ``_macro_`` if you already had one.)::
-
-     _macro_=__import__('types').SimpleNamespace()
-     try:exec('from {}._macro_ import *',vars(_macro_))
-     except ModuleNotFoundError:pass
-
-  The REPL has the bundled macros loaded by default, but not the prelude.
-  Invoke ``(prelude)`` to get the rest.
-  "
+  <<#
+  ;; Hissp's bundled micro prelude.
+  ;;
+  ;; Brings Hissp up to a minimal standard of usability without adding any
+  ;; dependencies in the compiled output.
+  ;;
+  ;; Mainly intended for single-file scripts that can't have dependencies,
+  ;; or similarly constrained environments (e.g. embedded, readerless).
+  ;; There, the first form should be ``(hissp.._macro_.prelude)``,
+  ;; which is also implied in ``$ lissp -c`` commands.
+  ;;
+  ;; Larger projects with access to functional and macro libraries need not
+  ;; use this prelude at all.
+  ;;
+  ;; The prelude has several effects:
+  ;;
+  ;; * Imports `functools.partial` and `functools.reduce`.
+  ;;   Star imports from `itertools` and `operator`::
+  ;;
+  ;;    from functools import partial,reduce
+  ;;    from itertools import *;from operator import *
+  ;;
+  ;; .. _engarde:
+  ;;
+  ;; * Defines ``engarde``, which calls a function with exception handler::
+  ;;
+  ;;    def engarde(xs,h,f,/,*a,**kw):
+  ;;     try:return f(*a,**kw)
+  ;;     except xs as e:return h(e)
+  ;;
+  ;;   ``engarde`` with handlers can stack above in a single form.
+  ;;
+  ;;   See `lissp_whirlwind_tour` (§15) for usage examples.
+  ;;
+  ;; .. _enter:
+  ;;
+  ;; * Defines ``enter``, which calls a function with context manager::
+  ;;
+  ;;    def enter(c,f,/,*a):
+  ;;     with c as C:return f(*a,C)
+  ;;
+  ;;   ``enter`` with context managers can stack above in a single form.
+  ;;
+  ;;   See `lissp_whirlwind_tour` (§17) for usage examples.
+  ;;
+  ;; .. _Ensue:
+  ;;
+  ;; * Defines the ``Ensue`` class; trampolined continuation generators::
+  ;;
+  ;;    class Ensue(__import__('collections.abc').abc.Generator):
+  ;;     send=lambda s,v:s.g.send(v);throw=lambda s,*x:s.g.throw(*x);F=0;X=();Y=[]
+  ;;     def __init__(s,p):s.p,s.g,s.n=p,s._(s),s.Y
+  ;;     def _(s,k,v=None):
+  ;;      while isinstance(s:=k,__class__) and not setattr(s,'sent',v):
+  ;;       try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)
+  ;;       except s.X as e:v=e
+  ;;      return k
+  ;;
+  ;;   ``Ensue`` takes a step function and returns a generator. The step
+  ;;   function recieves the previous Ensue step and must return the next
+  ;;   one to continue. Returning a different type raises a `StopIteration`
+  ;;   with that object. Set the ``Y`` attribute on the current step to
+  ;;   [Y]ield a value this step. Set the ``F`` attribute to a true value
+  ;;   to yield values [F]rom the ``Y`` iterable instead. Set the ``X``
+  ;;   attribute to an e[X]ception class or tuple to catch any targeted
+  ;;   exceptions on the next step. Each step keeps a ``sent`` attribute,
+  ;;   which is the value sent to the generator this step, or the exception
+  ;;   caught this step instead.
+  ;;
+  ;;   See `lissp_whirlwind_tour` (§§16–17) for usage examples.
+  ;;
+  ;;   See also: `types.coroutine`, `collections.abc.Generator`.
+  ;;
+  ;; * Adds the bundled macros, but only if available
+  ;;   (macros are typically only used at compile time),
+  ;;   so its compiled expansion does not require Hissp to be installed.
+  ;;   (This replaces ``_macro_`` if you already had one.)::
+  ;;
+  ;;    _macro_=__import__('types').SimpleNamespace()
+  ;;    try:exec('from {}._macro_ import *',vars(_macro_))
+  ;;    except ModuleNotFoundError:pass
+  ;;
+  ;; The REPL has the bundled macros loaded by default, but not the prelude.
+  ;; Invoke ``(prelude)`` to get the rest.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (prelude)
+  ;;    >>> # prelude
+  ;;    ... __import__('builtins').exec(
+  ;;    ...   ('from functools import partial,reduce\n'
+  ;;    ...    'from itertools import *;from operator import *\n'
+  ;;    ...    'def engarde(xs,h,f,/,*a,**kw):\n'
+  ;;    ...    ' try:return f(*a,**kw)\n'
+  ;;    ...    ' except xs as e:return h(e)\n'
+  ;;    ...    'def enter(c,f,/,*a):\n'
+  ;;    ...    ' with c as C:return f(*a,C)\n'
+  ;;    ...    "class Ensue(__import__('collections.abc').abc.Generator):\n"
+  ;;    ...    ' send=lambda s,v:s.g.send(v);throw=lambda s,*x:s.g.throw(*x);F=0;X=();Y=[]\n'
+  ;;    ...    ' def __init__(s,p):s.p,s.g,s.n=p,s._(s),s.Y\n'
+  ;;    ...    ' def _(s,k,v=None):\n'
+  ;;    ...    "  while isinstance(s:=k,__class__) and not setattr(s,'sent',v):\n"
+  ;;    ...    '   try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)\n'
+  ;;    ...    '   except s.X as e:v=e\n'
+  ;;    ...    '  return k\n'
+  ;;    ...    "_macro_=__import__('types').SimpleNamespace()\n"
+  ;;    ...    "try:exec('from hissp.macros._macro_ import *',vars(_macro_))\n"
+  ;;    ...    'except ModuleNotFoundError:pass'),
+  ;;    ...   __import__('builtins').globals())
+  ;;
   `(exec ',(.format #"\
 from functools import partial,reduce
 from itertools import *;from operator import *
