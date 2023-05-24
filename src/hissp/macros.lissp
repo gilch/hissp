@@ -2015,21 +2015,176 @@ except ModuleNotFoundError:pass"
   Builds a function whose arguments are pushed to a stack, operates on
   the stack according to the program, and finally pops its result.
 
-  The language is applied right-to-left, like function calls.
-  Magic chars are
-  ``^`` depth increaser suffix. Assume depth 1 otherwise.
-  ``/`` pop
-  ``&`` pick
-  ``@`` roll (default depth 2)
-  ``]`` mark (no depth)
-  ``[`` pack (no depth)
-  ``*`` splat
-  ``:`` nop (no depth)
-  They can be escaped with a backtick.
+  Expressions are often terse enough to be used one-off inline.
 
-  All other words use the following program: Read as Lissp, if it
-  resolves to a callable, call it with args from the stack (up to depth)
-  and append the result.
+  The language is applied right-to-left, like function calls.
+  Magic characters are
+
+  ``^`` DEPTH
+     Suffix to increase arity. Assume depth 1 otherwise.
+  ``/`` DROP
+     Pops (at depth) and discards.
+  ``&`` PICK
+     Copies (at depth) and pushes.
+  ``@`` ROLL (default depth 2)
+     Pops (at depth) and pushes.
+  ``]`` MARK (no depth)
+     Pushes a sentinel gensym for PACK.
+     Callables are data when there's a mark.
+  ``[`` PACK (no depth)
+     Pops to MARK and pushes as tuple.
+  ``*`` SPLAT
+     Pops (at depth) and pushes its elements.
+  ``:`` NOP (no depth)
+     No effect. Used as a separator when no other magic applies.
+
+  They can be escaped with a backtick (:literal:`\``).
+
+  Other elements are either callables or data, and read as Lissp.
+  Data elements just put themselves on the stack.
+  Callables pop args to their depth and push their result.
+
+  .. code-block:: REPL
+
+     #> (define average ^#truediv^sum@len&)
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   average=(lambda *_QzNo73_args:
+     ...             # hissp.macros.._macro_.let
+     ...             (lambda _QzNo73_stack=__import__('builtins').list(
+     ...               _QzNo73_args):(
+     ...               _QzNo73_stack.reverse(),
+     ...               _QzNo73_stack.append(
+     ...                 (lambda X,Y:X[-1-Y])(
+     ...                   _QzNo73_stack,
+     ...                   (0))),
+     ...               _QzNo73_stack.append(
+     ...                 len(
+     ...                   _QzNo73_stack.pop())),
+     ...               _QzNo73_stack.append(
+     ...                 _QzNo73_stack.pop(
+     ...                   (-2))),
+     ...               _QzNo73_stack.append(
+     ...                 sum(
+     ...                   _QzNo73_stack.pop())),
+     ...               _QzNo73_stack.append(
+     ...                 truediv(
+     ...                   _QzNo73_stack.pop(),
+     ...                   _QzNo73_stack.pop())),
+     ...               _QzNo73_stack.pop())[-1])()))
+
+     #> (define geomean ^#pow^reduce^*[mul]@truediv^1:len&)
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   geomean=(lambda *_QzNo73_args:
+     ...             # hissp.macros.._macro_.let
+     ...             (lambda _QzNo73_stack=__import__('builtins').list(
+     ...               _QzNo73_args):(
+     ...               _QzNo73_stack.reverse(),
+     ...               _QzNo73_stack.append(
+     ...                 (lambda X,Y:X[-1-Y])(
+     ...                   _QzNo73_stack,
+     ...                   (0))),
+     ...               _QzNo73_stack.append(
+     ...                 len(
+     ...                   _QzNo73_stack.pop())),
+     ...               (),
+     ...               _QzNo73_stack.append(
+     ...                 (1)),
+     ...               _QzNo73_stack.append(
+     ...                 truediv(
+     ...                   _QzNo73_stack.pop(),
+     ...                   _QzNo73_stack.pop())),
+     ...               _QzNo73_stack.append(
+     ...                 _QzNo73_stack.pop(
+     ...                   (-2))),
+     ...               _QzNo73_stack.append(
+     ...                 '_QzNo73_QzRSQB_'),
+     ...               _QzNo73_stack.append(
+     ...                 mul),
+     ...               _QzNo73_stack.append(
+     ...                 __import__('builtins').tuple(
+     ...                   __import__('builtins').iter(
+     ...                     _QzNo73_stack.pop,
+     ...                     '_QzNo73_QzRSQB_'))),
+     ...               _QzNo73_stack.extend(
+     ...                 __import__('builtins').reversed(
+     ...                   __import__('builtins').tuple(
+     ...                     _QzNo73_stack.pop(
+     ...                       (-1))))),
+     ...               _QzNo73_stack.append(
+     ...                 reduce(
+     ...                   _QzNo73_stack.pop(),
+     ...                   _QzNo73_stack.pop())),
+     ...               _QzNo73_stack.append(
+     ...                 pow(
+     ...                   _QzNo73_stack.pop(),
+     ...                   _QzNo73_stack.pop())),
+     ...               _QzNo73_stack.pop())[-1])()))
+
+     #> (geomean '(1 10))
+     >>> geomean(
+     ...   ((1),
+     ...    (10),))
+     3.1622776601683795
+
+     #> (average '(.1 10))
+     >>> average(
+     ...   ((0.1),
+     ...    (10),))
+     5.05
+
+     #> (geomean '(.1 10))
+     >>> geomean(
+     ...   ((0.1),
+     ...    (10),))
+     1.0
+
+     #> (en#average 4 5 6)
+     >>> (lambda *_QzNo60_xs:
+     ...   average(
+     ...     _QzNo60_xs))(
+     ...   (4),
+     ...   (5),
+     ...   (6))
+     5.0
+
+     #> (define decrement ^#sub^@1)
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   decrement=(lambda *_QzNo73_args:
+     ...               # hissp.macros.._macro_.let
+     ...               (lambda _QzNo73_stack=__import__('builtins').list(
+     ...                 _QzNo73_args):(
+     ...                 _QzNo73_stack.reverse(),
+     ...                 _QzNo73_stack.append(
+     ...                   (1)),
+     ...                 _QzNo73_stack.append(
+     ...                   _QzNo73_stack.pop(
+     ...                     (-2))),
+     ...                 _QzNo73_stack.append(
+     ...                   sub(
+     ...                     _QzNo73_stack.pop(),
+     ...                     _QzNo73_stack.pop())),
+     ...                 _QzNo73_stack.pop())[-1])()))
+
+     #> (^#decrement:decrement 5)
+     >>> (lambda *_QzNo73_args:
+     ...   # hissp.macros.._macro_.let
+     ...   (lambda _QzNo73_stack=__import__('builtins').list(
+     ...     _QzNo73_args):(
+     ...     _QzNo73_stack.reverse(),
+     ...     _QzNo73_stack.append(
+     ...       decrement(
+     ...         _QzNo73_stack.pop())),
+     ...     (),
+     ...     _QzNo73_stack.append(
+     ...       decrement(
+     ...         _QzNo73_stack.pop())),
+     ...     _QzNo73_stack.pop())[-1])())(
+     ...   (5))
+     3
+
   "
   (let (reader (hissp..reader.Lissp : ns (.get hissp.compiler..NS))
         marks (list))
