@@ -2012,11 +2012,17 @@ except ModuleNotFoundError:pass"
          ,@(i#starmap
             XY#(case X (let (obj (next (.reads reader (.replace X "`" ""))))
                          `(.append ,'$#stack
-                                   (let ($#G ,obj)
-                                     (if-else (callable $#G)
-                                       ($#G ,@(XY#.#"X*(Y+1)" `((.pop ,'$#stack))
-                                                              (len Y)))
-                                       $#G))))
+                                   ,(if-else (|| (not (op#contains (@ tuple str)
+                                                                   (type obj)))
+                                                 (hissp.reader..is_lissp_string obj)
+                                                 (&& (op#is_ str (type obj))
+                                                     (|| (.startswith obj ":")
+                                                         (.endswith obj ".")))
+                                                 (&& (op#is_ tuple (type obj))
+                                                     (op#eq 'quote (get#0 obj))))
+                                      obj
+                                      `(,obj ,@(XY#.#"X*(Y+1)" `((.pop ,'$#stack))
+                                                               (len Y))))))
                      .#"/" `(.pop ,'$#stack ,(op#sub -1 (len Y)))
                      .#"&" `(.append ,'$#stack (,'XY#.#"X[-1-Y]" ,'$#stack ,(len Y)))
                      .#"@" `(.append ,'$#stack (.pop ,'$#stack ,(op#sub -2 (len Y))))
