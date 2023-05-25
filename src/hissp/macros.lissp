@@ -2017,6 +2017,9 @@ except ModuleNotFoundError:pass"
 
   Expressions are often terse enough to be used one-off inline.
 
+  The mini-language supports higher-order function manipulation
+  including composition, partial application, and point-free data flow.
+
   The language is applied right-to-left, like function calls.
   Magic characters are
 
@@ -2028,21 +2031,24 @@ except ModuleNotFoundError:pass"
      Copies (at depth) and pushes.
   ``@`` ROLL (default depth 2)
      Pops (at depth) and pushes.
-  ``]`` MARK (no depth)
-     Pushes a sentinel gensym for PACK.
-     Callables are data when there's a mark.
+  ``]`` MARK (default depth 0)
+     Inserts a sentinel gensym for PACK (at depth).
+     Callables are quoted between ``[]``.
   ``[`` PACK (no depth)
-     Pops to MARK and pushes as tuple.
+     Pops to the first sentinel and pushes as tuple.
   ``*`` SPLAT
-     Pops (at depth) and pushes its elements.
+     Pops (at depth) and pushes elements.
   ``:`` NOP (no depth)
      No effect. Used as a separator when no other magic applies.
 
   They can be escaped with a backtick (:literal:`\``).
 
   Other elements are either callables or data, and read as Lissp.
-  Data elements just put themselves on the stack.
+  Data elements just push themselves on the stack (depth 0).
   Callables pop args to their depth and push their result.
+  These are categorized at read time. Literals are always data, but
+  elements that read as `tuple` or `str` types are sometimes ambiguous,
+  in which case they are assumed callable, unless between ``[]``.
 
   .. code-block:: REPL
 
@@ -2213,7 +2219,9 @@ except ModuleNotFoundError:pass"
                                   `(.append ,'$#stack
                                             (tuple (iter ,'$#stack.pop ','$#\]))))
                      .#"]" (progn (.append marks "]")
-                                  `(.append ,'$#stack ','$#\]))
+                                  `(.insert ,'$#stack
+                                            (op#sub (len ,'$#stack) ,(len Y))
+                                            ','$#\]))
                      .#"*" `(.extend ,'$#stack
                                      (reversed (tuple (.pop ,'$#stack
                                                             ,(op#sub -1 (len Y))))))
