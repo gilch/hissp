@@ -2201,7 +2201,7 @@ except ModuleNotFoundError:pass"
             XY#(case X (let (obj (next (.reads reader (.replace X "`" ""))))
                          `(.append ,'$#stack
                                    ,(if-else (|| marks
-                                                 (not (op#contains (@ tuple str)
+                                                 (not (op#contains (# tuple str)
                                                                    (type obj)))
                                                  (hissp.reader..is_lissp_string obj)
                                                  (&& (op#is_ str (type obj))
