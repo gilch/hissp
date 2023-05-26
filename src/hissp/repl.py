@@ -88,29 +88,22 @@ def interact(locals=None):
 
 def force_main():
     """:meta private:"""
+    # Creates a new ``__main__`` to take the place of the current
+    # ``__main__`` module.
     __main__ = ModuleType("__main__")
     sys.modules["__main__"] = __main__
     sys.path.insert(0, "")
     return __main__
 
 
-def main(__main__=None):
+def main(__main__):
     """REPL command-line entry point.
-
-    If ``__main__`` is not provided, it creates a new one to take the
-    place of the current ``__main__`` module.
 
     `hissp.macros._macro_` is imported into the module namespace,
     making the bundled macros immediately available unqualified.
     """
-    if not __main__:
-        __main__ = force_main()
     repl = LisspREPL(locals=__main__.__dict__)
     import hissp.macros  # Here so repl can import before compilation.
 
     repl.locals["_macro_"] = SimpleNamespace(**vars(hissp.macros._macro_))
     repl.interact()
-
-
-if __name__ == "__main__":
-    main()
