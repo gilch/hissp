@@ -54,9 +54,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements-dev.txt
     - name: Test install with pytest (including doctests)
+      env:
+        PYTHONWARNINGS: error
       run: |
         python -c "import tests"  # Compiles hissp.basic on package import.
-        pytest -v --cov=hissp --cov-report=xml --doctest-modules --doctest-glob *.md src/hissp/*.lissp tests/ docs/ $(python -c "import hissp; print(hissp.__path__[0])")
+        pytest -p no:cacheprovider -v --cov=hissp --cov-report=xml --doctest-modules --doctest-glob *.md src/hissp/*.lissp tests/ docs/ $(python -c "import hissp; print(hissp.__path__[0])")
     - name: Codecov
       uses: codecov/codecov-action@v1.0.4
       with:

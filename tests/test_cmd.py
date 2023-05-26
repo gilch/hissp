@@ -53,7 +53,7 @@ __name__='__main__' __package__=None
 
 
 def test_repl_read_exception():
-    out, err = cmd("python -m hissp.repl", ".#(operator..truediv 1 0)\n")
+    out, err = cmd("python -m hissp", ".#(operator..truediv 1 0)\n")
     assert ">>> # Compilation failed!\nTraceback (most recent call last):\n  F" in err
     assert "\nZeroDivisionError: division by zero" in err
     assert out.count("#> ") == 2
