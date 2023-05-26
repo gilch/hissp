@@ -140,7 +140,7 @@ class Comment:
         self.token = token
 
     def contents(self):
-        return re.sub(r"\n$|(?m)^ *;+ ?", "", self.token)
+        return re.sub(r"(?m)\n$|^ *;+ ?", "", self.token)
 
     def __repr__(self):
         return f"Comment({self.token!r})"
