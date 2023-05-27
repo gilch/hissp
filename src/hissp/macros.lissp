@@ -2043,7 +2043,16 @@ except ModuleNotFoundError:pass"
   They can be escaped with a backtick (:literal:`\``).
 
   Other elements are either callables or data, and read as Lissp.
-  Data elements just push themselves on the stack (depth 0).
+  Data elements just push themselves on the stack (default depth 0).
+
+    #> (^#2)
+    2
+
+  Increasing the depth to 1 implies a lookup on the next element.
+
+    #> (^#:'foo^ (% 'foo 2))
+    2
+
   Callables pop args to their depth and push their result.
   These are categorized at read time. Literals are always data, but
   elements that read as `tuple` or `str` types are sometimes ambiguous,
@@ -2065,7 +2074,9 @@ except ModuleNotFoundError:pass"
                                                          (.endswith obj ".")))
                                                  (&& (op#is_ tuple (type obj))
                                                      (op#eq 'quote (get#0 obj))))
-                                      obj
+                                      (if-else Y
+                                        `(op#getitem (.pop ,'$#stack) ,obj)
+                                        obj)
                                       `(,obj ,@(XY#.#"X*(Y+1)" `((.pop ,'$#stack))
                                                                (len Y))))))
                      .#"/" `(.pop ,'$#stack ,(op#sub -1 (len Y)))
@@ -2079,7 +2090,7 @@ except ModuleNotFoundError:pass"
                                      (reversed (tuple (.pop ,'$#stack
                                                             ,(op#sub -1 (len Y))))))
                      : ())
-            (reversed (re..findall "([/&@*:[\]]|(?:[^^`/&@*:[\]]|`[/&@*:[\]])+)(\^*)"
+            (reversed (re..findall "([/&@[\]*:]|(?:[^^`/&@[\]*:]|`[/&@[\]*:])+)(\^*)"
                                    (hissp..demunge s))))
          (.pop $#stack)))))
 
