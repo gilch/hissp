@@ -2033,8 +2033,9 @@ except ModuleNotFoundError:pass"
      Pops (at depth) and pushes.
   ``]`` MARK (default depth 0)
      Inserts a sentinel gensym for PACK (at depth).
-  ``[`` PACK (no depth)
+  ``[`` PACK
      Pops to the first sentinel and pushes as tuple.
+     With depth, looks tuple up on the next element.
   ``*`` SPLAT
      Pops (at depth) and pushes elements.
   ``:`` NOP (no depth)
@@ -2082,7 +2083,10 @@ except ModuleNotFoundError:pass"
                      .#"/" `(.pop ,'$#stack ,(op#sub -1 (len Y)))
                      .#"&" `(.append ,'$#stack (,'XY#.#"X[-1-Y]" ,'$#stack ,(len Y)))
                      .#"@" `(.append ,'$#stack (.pop ,'$#stack ,(op#sub -2 (len Y))))
-                     .#"[" `(.append ,'$#stack (tuple (iter ,'$#stack.pop ','$#\])))
+                     .#"[" `(.append ,'$#stack
+                                     (-<>> (tuple (iter ,'$#stack.pop ','$#\]))
+                                           ,@(when Y `(op#itemgetter
+                                                       (:<> (,'$#stack.pop))))))
                      .#"]" `(.insert ,'$#stack
                                      (op#sub (len ,'$#stack) ,(len Y))
                                      ','$#\])
