@@ -2033,7 +2033,6 @@ except ModuleNotFoundError:pass"
      Pops (at depth) and pushes.
   ``]`` MARK (default depth 0)
      Inserts a sentinel gensym for PACK (at depth).
-     Callables are quoted between ``[]``.
   ``[`` PACK (no depth)
      Pops to the first sentinel and pushes as tuple.
   ``*`` SPLAT
@@ -2051,16 +2050,14 @@ except ModuleNotFoundError:pass"
   in which case they are assumed callable.
 
   "
-  (let (reader (hissp..reader.Lissp : ns (.get hissp.compiler..NS))
-        marks (list))
+  (let (reader (hissp..reader.Lissp : ns (.get hissp.compiler..NS)))
     `(lambda (: :* $#args)
        (let ($#stack (list $#args))
          (.reverse $#stack)
          ,@(i#starmap
             XY#(case X (let (obj (next (.reads reader (.replace X "`" ""))))
                          `(.append ,'$#stack
-                                   ,(if-else (|| marks
-                                                 (not (op#contains (# tuple str)
+                                   ,(if-else (|| (not (op#contains (# tuple str)
                                                                    (type obj)))
                                                  (hissp.reader..is_lissp_string obj)
                                                  (&& (op#is_ str (type obj))
@@ -2074,13 +2071,10 @@ except ModuleNotFoundError:pass"
                      .#"/" `(.pop ,'$#stack ,(op#sub -1 (len Y)))
                      .#"&" `(.append ,'$#stack (,'XY#.#"X[-1-Y]" ,'$#stack ,(len Y)))
                      .#"@" `(.append ,'$#stack (.pop ,'$#stack ,(op#sub -2 (len Y))))
-                     .#"[" (progn (.pop marks)
-                                  `(.append ,'$#stack
-                                            (tuple (iter ,'$#stack.pop ','$#\]))))
-                     .#"]" (progn (.append marks "]")
-                                  `(.insert ,'$#stack
-                                            (op#sub (len ,'$#stack) ,(len Y))
-                                            ','$#\]))
+                     .#"[" `(.append ,'$#stack (tuple (iter ,'$#stack.pop ','$#\])))
+                     .#"]" `(.insert ,'$#stack
+                                     (op#sub (len ,'$#stack) ,(len Y))
+                                     ','$#\])
                      .#"*" `(.extend ,'$#stack
                                      (reversed (tuple (.pop ,'$#stack
                                                             ,(op#sub -1 (len Y))))))
