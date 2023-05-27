@@ -2054,17 +2054,22 @@ except ModuleNotFoundError:pass"
     #> (^#:'foo^ (% 'foo 2))
     2
 
-  Callables pop args to their depth and push their result.
-  These are categorized at read time. Literals are always data, but
-  elements that read as `tuple` or `str` types are sometimes ambiguous,
-  in which case they are assumed callable.
+  Callables (default depth 1) pop args to their depth and push their
+  result. These are categorized at read time. Literals are always data,
+  but elements that read as `tuple` or `str` types are sometimes
+  ambiguous, in which case they are assumed callable.
 
+  Methods at depth one are converted to attribute lookups.
+
+    #> (^#.__class__.__name__ :x)
+    'str'
   "
   (let (reader (hissp..reader.Lissp : ns (.get hissp.compiler..NS))
         literal? X#(not (op#contains (# tuple str) (type X)))
         control-word? X#(&& (op#is_ (type X) str) (.startswith X ":"))
         module-handle? X#(&& (op#is_ (type X) str) (.endswith X "."))
-        quotation? X#(&& (op#is_ (type X) tuple) (op#eq 'quote (get#0 X))))
+        quotation? X#(&& (op#is_ (type X) tuple) (op#eq 'quote (get#0 X)))
+        method? X#(&& (op#is_ (type X) str) (.startswith X ".")))
     `(lambda (: :* $#args)
        (let ($#stack (list $#args))
          (.reverse $#stack)
@@ -2079,8 +2084,14 @@ except ModuleNotFoundError:pass"
                                       (if-else Y
                                         `(op#getitem (.pop ,'$#stack) ,obj)
                                         obj)
-                                      `(,obj ,@(XY#.#"X*(Y+1)" `((.pop ,'$#stack))
-                                                               (len Y))))))
+                                      (if-else (method? obj)
+                                        (if-else Y
+                                          `(,obj ,@(XY#.#"X*Y" `((.pop ,'$#stack))
+                                                               (len Y)))
+                                          `((op#attrgetter ',.#"obj[1:]")
+                                            (.pop ,'$#stack)))
+                                        `(,obj ,@(XY#.#"X*(Y+1)" `((.pop ,'$#stack))
+                                                                 (len Y)))))))
                      .#"/" `(.pop ,'$#stack ,(op#sub -1 (len Y)))
                      .#"&" `(.append ,'$#stack (,'XY#.#"X[-1-Y]" ,'$#stack ,(len Y)))
                      .#"@" `(.append ,'$#stack (.pop ,'$#stack ,(op#sub -2 (len Y))))
