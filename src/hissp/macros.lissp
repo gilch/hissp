@@ -2060,21 +2060,22 @@ except ModuleNotFoundError:pass"
   in which case they are assumed callable.
 
   "
-  (let (reader (hissp..reader.Lissp : ns (.get hissp.compiler..NS)))
+  (let (reader (hissp..reader.Lissp : ns (.get hissp.compiler..NS))
+        literal? X#(not (op#contains (# tuple str) (type X)))
+        control-word? X#(&& (op#is_ (type X) str) (.startswith X ":"))
+        module-handle? X#(&& (op#is_ (type X) str) (.endswith X "."))
+        quotation? X#(&& (op#is_ (type X) tuple) (op#eq 'quote (get#0 X))))
     `(lambda (: :* $#args)
        (let ($#stack (list $#args))
          (.reverse $#stack)
          ,@(i#starmap
             XY#(case X (let (obj (next (.reads reader (.replace X "`" ""))))
                          `(.append ,'$#stack
-                                   ,(if-else (|| (not (op#contains (# tuple str)
-                                                                   (type obj)))
+                                   ,(if-else (|| (literal? obj)
                                                  (hissp.reader..is_lissp_string obj)
-                                                 (&& (op#is_ str (type obj))
-                                                     (|| (.startswith obj ":")
-                                                         (.endswith obj ".")))
-                                                 (&& (op#is_ tuple (type obj))
-                                                     (op#eq 'quote (get#0 obj))))
+                                                 (control-word? obj)
+                                                 (module-handle? obj)
+                                                 (quotation? obj))
                                       (if-else Y
                                         `(op#getitem (.pop ,'$#stack) ,obj)
                                         obj)
