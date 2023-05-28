@@ -2015,8 +2015,6 @@ except ModuleNotFoundError:pass"
   Builds a function whose arguments are pushed to a stack, operates on
   the stack according to the program, and finally pops its result.
 
-  Expressions are often terse enough to be used one-off inline.
-
   The mini-language supports higher-order function manipulation
   including composition, partial application, and point-free data flow.
 
@@ -2024,11 +2022,12 @@ except ModuleNotFoundError:pass"
   Magic characters are
 
   ``,`` -data
-     Suffix interprets callable as data. Write before any ``^``.
+     Suffix interprets callable as data.
   ``%`` -kwargs
-     Suffix interprets top element as **kwargs. Write before any ``^``.
+     Suffix interprets top element as ``**kwargs``.
   ``^`` -depth
      Suffix increases arity. Assume depth 1 otherwise. Can be repeated.
+     Write after other suffixes.
   ``/`` DROP
      Pops (at depth) and discards.
   ``&`` PICK
@@ -2050,23 +2049,157 @@ except ModuleNotFoundError:pass"
   Other elements are either callables or data, and read as Lissp.
   Data elements just push themselves on the stack (default depth 0).
 
-    #> (^#2)
-    2
+  .. code-block:: REPL
 
-  Increasing the depth to 1 implies a lookup on the next element.
-
-    #> (^#:'foo^ (% 'foo 2))
-    2
+     #> (^#:2)
+     >>> (lambda *_QzNo73_args:
+     ...   # hissp.macros.._macro_.let
+     ...   (lambda _QzNo73_stack=__import__('builtins').list(
+     ...     _QzNo73_args):(
+     ...     _QzNo73_stack.reverse(),
+     ...     _QzNo73_stack.append(
+     ...       (2)),
+     ...     (),
+     ...     _QzNo73_stack.pop())[-1])())()
+     2
 
   Callables (default depth 1) pop args to their depth and push their
-  result. These are categorized at read time. Literals are always data,
-  but an element that reads as `tuple` or `str` type may be ambiguous,
-  in which case they are presumed callable, unless it ends with a ``,``.
+  result. Combine with a datum for partial application.
 
-  Methods at depth one are converted to attribute lookups.
+  .. code-block:: REPL
 
-    #> (^#.__class__.__name__ :x)
-    'str'
+     #> (define decrement ^#sub^@1)
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   decrement=(lambda *_QzNo73_args:
+     ...               # hissp.macros.._macro_.let
+     ...               (lambda _QzNo73_stack=__import__('builtins').list(
+     ...                 _QzNo73_args):(
+     ...                 _QzNo73_stack.reverse(),
+     ...                 _QzNo73_stack.append(
+     ...                   (1)),
+     ...                 _QzNo73_stack.append(
+     ...                   _QzNo73_stack.pop(
+     ...                     (-2))),
+     ...                 _QzNo73_stack.append(
+     ...                   sub(
+     ...                     _QzNo73_stack.pop(
+     ...                       (-1)),
+     ...                     _QzNo73_stack.pop(
+     ...                       (-1)))),
+     ...                 _QzNo73_stack.pop())[-1])()))
+
+     #> (decrement 5)
+     >>> decrement(
+     ...   (5))
+     4
+
+  Increasing the depth of data to 1 implies a lookup on the next
+  element. Methods always need a self, so they can be converted to
+  attribute lookups at the default depth of 1. Combine them to drill
+  into complex data structures.
+
+  .. code-block:: REPL
+
+     #> (^#.__class__.__name__:'spam^ (dict : spam 'eggs))
+     >>> (lambda *_QzNo73_args:
+     ...   # hissp.macros.._macro_.let
+     ...   (lambda _QzNo73_stack=__import__('builtins').list(
+     ...     _QzNo73_args):(
+     ...     _QzNo73_stack.reverse(),
+     ...     _QzNo73_stack.append(
+     ...       __import__('operator').getitem(
+     ...         _QzNo73_stack.pop(),
+     ...         'spam')),
+     ...     (),
+     ...     _QzNo73_stack.append(
+     ...       __import__('operator').attrgetter(
+     ...         '__class__.__name__')(
+     ...         _QzNo73_stack.pop())),
+     ...     _QzNo73_stack.pop())[-1])())(
+     ...   dict(
+     ...     spam='eggs'))
+     'str'
+
+  The callable or data type is determined at read time. Literals are
+  always data. but an element that reads as `tuple` or `str` type may be
+  ambiguous, in which case they are presumed callable, unless it ends
+  with a ``,``.
+
+  .. code-block:: REPL
+
+     #> (define prod ^#reduce^mul,)
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   prod=(lambda *_QzNo73_args:
+     ...          # hissp.macros.._macro_.let
+     ...          (lambda _QzNo73_stack=__import__('builtins').list(
+     ...            _QzNo73_args):(
+     ...            _QzNo73_stack.reverse(),
+     ...            _QzNo73_stack.append(
+     ...              mul),
+     ...            _QzNo73_stack.append(
+     ...              reduce(
+     ...                _QzNo73_stack.pop(
+     ...                  (-1)),
+     ...                _QzNo73_stack.pop(
+     ...                  (-1)))),
+     ...            _QzNo73_stack.pop())[-1])()))
+
+     #> (en#prod 1 2 3)
+     >>> (lambda *_QzNo60_xs:
+     ...   prod(
+     ...     _QzNo60_xs))(
+     ...   (1),
+     ...   (2),
+     ...   (3))
+     6
+
+     #> (define geomean ^#pow^prod@truediv^1:len&)
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   geomean=(lambda *_QzNo73_args:
+     ...             # hissp.macros.._macro_.let
+     ...             (lambda _QzNo73_stack=__import__('builtins').list(
+     ...               _QzNo73_args):(
+     ...               _QzNo73_stack.reverse(),
+     ...               _QzNo73_stack.append(
+     ...                 (lambda X,Y:X[-1-Y])(
+     ...                   _QzNo73_stack,
+     ...                   (0))),
+     ...               _QzNo73_stack.append(
+     ...                 len(
+     ...                   _QzNo73_stack.pop(
+     ...                     (-1)))),
+     ...               (),
+     ...               _QzNo73_stack.append(
+     ...                 (1)),
+     ...               _QzNo73_stack.append(
+     ...                 truediv(
+     ...                   _QzNo73_stack.pop(
+     ...                     (-1)),
+     ...                   _QzNo73_stack.pop(
+     ...                     (-1)))),
+     ...               _QzNo73_stack.append(
+     ...                 _QzNo73_stack.pop(
+     ...                   (-2))),
+     ...               _QzNo73_stack.append(
+     ...                 prod(
+     ...                   _QzNo73_stack.pop(
+     ...                     (-1)))),
+     ...               _QzNo73_stack.append(
+     ...                 pow(
+     ...                   _QzNo73_stack.pop(
+     ...                     (-1)),
+     ...                   _QzNo73_stack.pop(
+     ...                     (-1)))),
+     ...               _QzNo73_stack.pop())[-1])()))
+
+     #> (geomean '(1 10))
+     >>> geomean(
+     ...   ((1),
+     ...    (10),))
+     3.1622776601683795
 
   "
   (let (reader (hissp..reader.Lissp : ns (.get hissp.compiler..NS))
