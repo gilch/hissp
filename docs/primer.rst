@@ -1563,20 +1563,43 @@ Within a template, the same gensym name always makes the same gensym:
 
    #> `($#hiss $#hiss)
    >>> (lambda * _: _)(
-   ...   '_QzNo41_hiss',
-   ...   '_QzNo41_hiss')
-   ('_QzNo41_hiss', '_QzNo41_hiss')
+   ...   '_QzTAMTDLDRz_hiss',
+   ...   '_QzTAMTDLDRz_hiss')
+   ('_QzTAMTDLDRz_hiss', '_QzTAMTDLDRz_hiss')
 
-But each new template increments the counter.
+But each new template changes the hash.
 
 .. code-block:: REPL
 
-   #> `$#hiss
-   >>> '_QzNo42_hiss'
-   '_QzNo42_hiss'
+   #> `($#hiss $#hiss)
+   >>> (lambda * _: _)(
+   ...   '_QzZSOXD2IOz_hiss',
+   ...   '_QzZSOXD2IOz_hiss')
+   ('_QzZSOXD2IOz_hiss', '_QzZSOXD2IOz_hiss')
 
 Gensyms are mainly used to prevent accidental name collisions in generated code,
 which is very important for reliable compiler macros.
+
+The 40-bit hash is computed from the entire code string being read
+(the whole ``.lissp`` file)
+the module's `__name__`, and a count of the templates read so far this session.
+
+(In the REPL, there is no ``.lissp`` file,
+so "the entire code string" is the top-level form entered.)
+
+A count alone isn't enough.
+Files can be compiled individually in different sessions,
+which would each start with a fresh counter.
+It can ensure templates have a unique name within a file,
+but not between files.
+
+Adding the module's `__name__` isn't enough either,
+since it will be re-used for multiple versions of the module.
+The code string stands in for the module version,
+without resorting to things like tedious manual versioning
+or timestamps that would prohibit reproducible builds.
+The `__name__` is still required in case different modules happen to have the same code,
+which can sometimes happen when they are very short.
 
 Extra
 +++++

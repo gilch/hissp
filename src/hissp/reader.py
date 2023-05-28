@@ -14,7 +14,9 @@ and track its position for error messages.
 
 import ast
 import builtins
+import hashlib
 import re
+from base64 import b32encode
 from collections import namedtuple
 from contextlib import contextmanager, nullcontext, suppress
 from functools import reduce
@@ -24,11 +26,24 @@ from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
 from threading import Lock
-from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union
+from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union, List
 
 import hissp.compiler as C
 from hissp.compiler import Compiler, readerless
 from hissp.munger import force_qz_encode, munge
+
+GENSYM_BYTES = 5
+"""
+The number of bytes gensym `$# <parse_macro>` hashes have.
+
+The default 5 bytes (40 bits) should be more than sufficient space to
+eliminate collisions with typical usage, but for unusual applications,
+hash length can be increased, up to a maximum of 32 bytes.
+(16 would have more space than UUID4.)
+
+Each hash character encodes 5 bits (base32 encoding), so 40-bit hashes
+typically take 8 characters.
+"""
 
 ENTUPLE = ("lambda",(":",":*"," _")," _",)  # fmt: skip
 """
@@ -156,7 +171,7 @@ class Extra(tuple):
         return f"Extra({list(self)!r})"
 
 
-def gensym_counter(_count=[0], _lock=Lock()):
+def gensym_counter(_count=[0], _lock=Lock()) -> int:
     """
     Call to increment the gensym counter, and return the new count.
     Used by the gensym reader macro ``$#`` to ensure symbols are unique.
@@ -188,7 +203,7 @@ class Lissp:
 
     def reinit(self):
         """Reset position, nesting depth, and gensym stack."""
-        self.counters = []
+        self.counters: List[int] = []
         self.context = []
         self.depth = []
         self._p = 0
@@ -209,6 +224,9 @@ class Lissp:
 
     def reads(self, code: str) -> Iterable:
         """Read Hissp forms from code string."""
+        self.blake = hashlib.blake2s(digest_size=GENSYM_BYTES)
+        self.blake.update(code.encode())
+        self.blake.update(self.ns.get("__name__", "__main__").encode())
         res: Iterable[object] = self.parse(Lexer(code, self.filename))
         self.reinit()
         return res
@@ -395,14 +413,16 @@ class Lissp:
         Re-munges any $'s as a gensym counter, or adds it as a prefix if
         there aren't any.
         """
-        prefix = f"_QzNo{self._get_counter()}_"
+        blk = self.blake.copy()
+        blk.update((c := self._get_counter()).to_bytes(1 + c.bit_length() // 8, "big"))
+        prefix = f"_Qz{b32encode(blk.digest()).rstrip(b'=').decode()}z_"
         marker = munge("$")
         if marker not in form:
             return f"{prefix}{(form)}"
         # TODO: escape $'s somehow? $$? \$?
         return form.replace(marker, prefix)
 
-    def _get_counter(self):
+    def _get_counter(self) -> int:
         index = self.context.count("`") - self.context.count(",")
         if not self.context or index < 0:
             raise SyntaxError("Gensym outside of template.", self.position()) from None
@@ -538,7 +558,7 @@ def is_qualifiable(symbol):
     return (
         symbol not in {"quote", "__import__"}
         and not _iskeyword(symbol)
-        and not re.match(r"_QzNo\d+_", symbol)
+        and not re.match(r"_Qz[A-Z2-7]+z_", symbol)
         and all(map(str.isidentifier, symbol.split(".")))
     )
 

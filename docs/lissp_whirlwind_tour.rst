@@ -982,36 +982,47 @@ Lissp Whirlwind Tour
 
 
    ;;; Full qualification prevents accidental name collisions in
-   ;;; programmatically generated code. But full qualification doesn't work on
-   ;;; local variables, which can't be imported. For these, we use a template
-   ;;; count prefix instead of a qualifier to ensure a variable can only
-   ;;; be used in the same template it was defined in. The gensym reader
-   ;;; macro ($#) generates a symbol with the current template's number.
+   ;;; programmatically generated code. But full qualification doesn't work
+   ;;; on local variables, which can't be imported. For these, we use a
+   ;;; $# (gensym) which adds a prefix containing a hash of the code being
+   ;;; read, __name__, and a count of the templates the reader has seen,
+   ;;; instead of a qualifier to ensure a variable can only be used in the
+   ;;; same template it was defined in.
 
-   #> `($#eggs $#spam $#bacon $#spam)     ;Generated symbols for macro hygiene.
+   #> `($#eggs $#spam $#bacon $#spam)
    >>> (lambda * _: _)(
-   ...   '_QzNo9_eggs',
-   ...   '_QzNo9_spam',
-   ...   '_QzNo9_bacon',
-   ...   '_QzNo9_spam')
-   ('_QzNo9_eggs', '_QzNo9_spam', '_QzNo9_bacon', '_QzNo9_spam')
+   ...   '_QzIWMX5OB2z_eggs',
+   ...   '_QzIWMX5OB2z_spam',
+   ...   '_QzIWMX5OB2z_bacon',
+   ...   '_QzIWMX5OB2z_spam')
+   ('_QzIWMX5OB2z_eggs', '_QzIWMX5OB2z_spam', '_QzIWMX5OB2z_bacon', '_QzIWMX5OB2z_spam')
 
-   #> `$#spam                             ;Template number in name prevents collisions.
-   >>> '_QzNo10_spam'
-   '_QzNo10_spam'
+   ;; Each new template increases the count, so it results in a new hash,
+   #> `$#spam
+   >>> '_QzIOSOZAXYz_spam'
+   '_QzIOSOZAXYz_spam'
 
+   ;; even if the code is identical.
+   #> `$#spam
+   >>> '_QzY6OWMZS7z_spam'
+   '_QzY6OWMZS7z_spam'
 
-   ;; If you don't specify, by default, the template number is a prefix,
+   ;;; However, the hashing procedure is fully deteministic, so builds are
+   ;;; reproducible even when they contain generated symbols.
+
+   ;; If you don't specify, by default, the gensym hash is a prefix,
    ;; but you can put them anywhere in the symbol; $ marks the positions.
-   #> `$#spam$.$eggs$                     ;Lacking a gensym prefix, it gets fully qualified.
-   >>> '__main__..spam_QzNo8_._QzNo8_eggs_QzNo8_'
-   '__main__..spam_QzNo8_._QzNo8_eggs_QzNo8_'
+   ;; Lacking a gensym prefix, it gets fully qualified by the template.
+   #> `$#spam$.$eggs$
+   >>> '__main__..spam_QzA4IBV7J7z_._QzA4IBV7J7z_eggs_QzA4IBV7J7z_'
+   '__main__..spam_QzA4IBV7J7z_._QzA4IBV7J7z_eggs_QzA4IBV7J7z_'
 
 
    ;; This is typically used for partially-qualified variables.
-   #> `,'$#self.$foo                      ;Interpolation suppressed auto-qualification.
-   >>> 'self._QzNo9_foo'
-   'self._QzNo9_foo'
+   ;; The interpolation suppressed auto-qualification.
+   #> `,'$#self.$foo
+   >>> 'self._Qz7UU6WAD6z_foo'
+   'self._Qz7UU6WAD6z_foo'
 
 
    ;;; You can use templates to make collections with interpolated values.
@@ -1328,25 +1339,25 @@ Lissp Whirlwind Tour
    ...         'lambda',
    ...         (lambda * _: _)(
    ...           ':',
-   ...           '_QzNo22_x',
+   ...           '_QzIF7WPGTUz_x',
    ...           x),
    ...         (lambda * _: _)(
    ...           '__main__..QzMaybe_.QzPLUS_',
-   ...           '_QzNo22_x',
+   ...           '_QzIF7WPGTUz_x',
    ...           (lambda * _: _)(
    ...             '__main__..QzMaybe_.QzPLUS_',
-   ...             '_QzNo22_x',
-   ...             '_QzNo22_x'))))))
+   ...             '_QzIF7WPGTUz_x',
+   ...             '_QzIF7WPGTUz_x'))))))
 
    #> (once-triple (loud-number 14))
    >>> # onceQz_triple
-   ... (lambda _QzNo22_x=loudQz_number(
+   ... (lambda _QzIF7WPGTUz_x=loudQz_number(
    ...   (14)):
    ...   __import__('builtins').globals()['QzPLUS_'](
-   ...     _QzNo22_x,
+   ...     _QzIF7WPGTUz_x,
    ...     __import__('builtins').globals()['QzPLUS_'](
-   ...       _QzNo22_x,
-   ...       _QzNo22_x)))()
+   ...       _QzIF7WPGTUz_x,
+   ...       _QzIF7WPGTUz_x)))()
    14
    42
 
@@ -1872,12 +1883,13 @@ Lissp Whirlwind Tour
    ;;; passed in after the primary argument.
 
    #> (setattr _macro_ 'L\# en#list) ; (help _macro_.en\#)
+   #..
    >>> setattr(
    ...   _macro_,
    ...   'LQzHASH_',
-   ...   (lambda *_QzNo84_xs:
+   ...   (lambda *_Qz6RFWTTVXz_xs:
    ...     list(
-   ...       _QzNo84_xs)))
+   ...       _Qz6RFWTTVXz_xs)))
 
 
    #> L#primary
@@ -1891,37 +1903,38 @@ Lissp Whirlwind Tour
 
    ;; Alias can work on reader macros too!
    #> (hissp.._macro_.alias M: hissp.._macro_) ; prelude alternative
+   #..
    >>> # hissp.._macro_.alias
    ... # hissp.macros.._macro_.defmacro
    ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo7_fn=(lambda _QzNo27_prime,_QzNo27_reader=None,*_QzNo27_args:(
+   ... (lambda _QzAW22OE5Kz_fn=(lambda _QzARAQTXTEz_prime,_QzARAQTXTEz_reader=None,*_QzARAQTXTEz_args:(
    ...   'Aliases ``hissp.._macro_`` as ``MQzCOLON_#``.',
    ...   # hissp.macros.._macro_.ifQz_else
    ...   (lambda b,c,a:c()if b else a())(
-   ...     _QzNo27_reader,
+   ...     _QzARAQTXTEz_reader,
    ...     (lambda :
    ...       __import__('builtins').getattr(
    ...         __import__('hissp')._macro_,
    ...         ('{}{}').format(
-   ...           _QzNo27_reader,
+   ...           _QzARAQTXTEz_reader,
    ...           # hissp.macros.._macro_.ifQz_else
    ...           (lambda b,c,a:c()if b else a())(
    ...             'hissp.._macro_'.endswith(
    ...               '._macro_'),
    ...             (lambda :'QzHASH_'),
    ...             (lambda :('')))))(
-   ...         _QzNo27_prime,
-   ...         *_QzNo27_args)),
+   ...         _QzARAQTXTEz_prime,
+   ...         *_QzARAQTXTEz_args)),
    ...     (lambda :
    ...       ('{}.{}').format(
    ...         'hissp.._macro_',
-   ...         _QzNo27_prime))))[-1]):(
+   ...         _QzARAQTXTEz_prime))))[-1]):(
    ...   __import__('builtins').setattr(
-   ...     _QzNo7_fn,
+   ...     _QzAW22OE5Kz_fn,
    ...     '__doc__',
    ...     'Aliases ``hissp.._macro_`` as ``MQzCOLON_#``.'),
    ...   __import__('builtins').setattr(
-   ...     _QzNo7_fn,
+   ...     _QzAW22OE5Kz_fn,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
@@ -1931,7 +1944,7 @@ Lissp Whirlwind Tour
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
    ...     'MQzCOLON_QzHASH_',
-   ...     _QzNo7_fn))[-1])()
+   ...     _QzAW22OE5Kz_fn))[-1])()
 
    #> M:#!b"Read-time b# via alias."      ;Extra arg for alias with (!)
    >>> b'Read-time b# via alias.'
@@ -2227,31 +2240,31 @@ Lissp Whirlwind Tour
    ...     # hissp.macros.._macro_.throwQzSTAR_
    ...     (lambda g:g.close()or g.throw)(c for c in'')(
    ...       # hissp.macros.._macro_.let
-   ...       (lambda _QzNo130_G=(lambda _QzNo130_x:
+   ...       (lambda _Qz2IKKUCBWz_G=(lambda _Qz2IKKUCBWz_x:
    ...         # hissp.macros.._macro_.ifQz_else
    ...         (lambda b,c,a:c()if b else a())(
    ...           # hissp.macros.._macro_.QzET_QzET_
    ...           (lambda x0,x1:x0 and x1())(
    ...             __import__('builtins').isinstance(
-   ...               _QzNo130_x,
+   ...               _Qz2IKKUCBWz_x,
    ...               __import__('builtins').type),
    ...             (lambda :
    ...               __import__('builtins').issubclass(
-   ...                 _QzNo130_x,
+   ...                 _Qz2IKKUCBWz_x,
    ...                 __import__('builtins').BaseException))),
-   ...           (lambda :_QzNo130_x()),
-   ...           (lambda :_QzNo130_x))):
+   ...           (lambda :_Qz2IKKUCBWz_x()),
+   ...           (lambda :_Qz2IKKUCBWz_x))):
    ...         # hissp.macros.._macro_.attach
    ...         # hissp.macros.._macro_.let
-   ...         (lambda _QzNo112_target=_QzNo130_G(
+   ...         (lambda _QzWG5WN73Wz_target=_Qz2IKKUCBWz_G(
    ...           Exception):(
    ...           __import__('builtins').setattr(
-   ...             _QzNo112_target,
+   ...             _QzWG5WN73Wz_target,
    ...             '__cause__',
-   ...             _QzNo130_G(
+   ...             _Qz2IKKUCBWz_G(
    ...               Exception(
    ...                 ('msg')))),
-   ...           _QzNo112_target)[-1])())())))
+   ...           _QzWG5WN73Wz_target)[-1])())())))
    Exception('msg')
 
 
@@ -2271,12 +2284,12 @@ Lissp Whirlwind Tour
    ...                 (lambda step:(
    ...                   # setQzAT_
    ...                   # hissp.macros.._macro_.let
-   ...                   (lambda _QzNo29_val=a:(
+   ...                   (lambda _QzRMG5GSSIz_val=a:(
    ...                     __import__('builtins').setattr(
    ...                       step,
    ...                       'Y',
-   ...                       _QzNo29_val),
-   ...                     _QzNo29_val)[-1])(),
+   ...                       _QzRMG5GSSIz_val),
+   ...                     _QzRMG5GSSIz_val)[-1])(),
    ...                   fibonacci(
    ...                     b,
    ...                     add(
@@ -2298,6 +2311,7 @@ Lissp Whirlwind Tour
    #..             (when (lt i n)         ;Acts like a while loop.
    #..               (set@ step.Y i)
    #..               (my-range (add i 1) n)))))) ;Conditional recursion.
+   #..
    >>> # define
    ... __import__('builtins').globals().update(
    ...   myQz_range=(lambda i,n:
@@ -2311,12 +2325,12 @@ Lissp Whirlwind Tour
    ...                      (lambda :(
    ...                        # setQzAT_
    ...                        # hissp.macros.._macro_.let
-   ...                        (lambda _QzNo108_val=i:(
+   ...                        (lambda _QzRMG5GSSIz_val=i:(
    ...                          __import__('builtins').setattr(
    ...                            step,
    ...                            'Y',
-   ...                            _QzNo108_val),
-   ...                          _QzNo108_val)[-1])(),
+   ...                            _QzRMG5GSSIz_val),
+   ...                          _QzRMG5GSSIz_val)[-1])(),
    ...                        myQz_range(
    ...                          add(
    ...                            i,
@@ -2341,9 +2355,9 @@ Lissp Whirlwind Tour
    ...   (lambda step:(
    ...     # attach
    ...     # hissp.macros.._macro_.let
-   ...     (lambda _QzNo31_target=step:(
+   ...     (lambda _QzWG5WN73Wz_target=step:(
    ...       __import__('builtins').setattr(
-   ...         _QzNo31_target,
+   ...         _QzWG5WN73Wz_target,
    ...         'Y',
    ...         ((1),
    ...          (2),
@@ -2351,10 +2365,10 @@ Lissp Whirlwind Tour
    ...          (4),
    ...          (5),)),
    ...       __import__('builtins').setattr(
-   ...         _QzNo31_target,
+   ...         _QzWG5WN73Wz_target,
    ...         'F',
    ...         True),
-   ...       _QzNo31_target)[-1])(),
+   ...       _QzWG5WN73Wz_target)[-1])(),
    ...     None)[-1]))
    <...Ensue object at ...>
 
@@ -2370,6 +2384,7 @@ Lissp Whirlwind Tour
    #..             (attach step :         ;Implicit continuation.
    #..               Y itr
    #..               F 1)))))             ;The step is an Ensue instance.
+   #..
    >>> # define
    ... __import__('builtins').globals().update(
    ...   recycle=(lambda itr:
@@ -2377,16 +2392,16 @@ Lissp Whirlwind Tour
    ...               (lambda step:
    ...                 # attach
    ...                 # hissp.macros.._macro_.let
-   ...                 (lambda _QzNo31_target=step:(
+   ...                 (lambda _QzWG5WN73Wz_target=step:(
    ...                   __import__('builtins').setattr(
-   ...                     _QzNo31_target,
+   ...                     _QzWG5WN73Wz_target,
    ...                     'Y',
    ...                     itr),
    ...                   __import__('builtins').setattr(
-   ...                     _QzNo31_target,
+   ...                     _QzWG5WN73Wz_target,
    ...                     'F',
    ...                     (1)),
-   ...                   _QzNo31_target)[-1])()))))
+   ...                   _QzWG5WN73Wz_target)[-1])()))))
 
    #> (-> '(1 2 3) recycle (islice 7) list)
    >>> # Qz_QzGT_
@@ -2410,12 +2425,12 @@ Lissp Whirlwind Tour
    ...          (lambda step:(
    ...            # setQzAT_
    ...            # hissp.macros.._macro_.let
-   ...            (lambda _QzNo29_val=step.sent:(
+   ...            (lambda _QzRMG5GSSIz_val=step.sent:(
    ...              __import__('builtins').setattr(
    ...                step,
    ...                'Y',
-   ...                _QzNo29_val),
-   ...              _QzNo29_val)[-1])(),
+   ...                _QzRMG5GSSIz_val),
+   ...              _QzRMG5GSSIz_val)[-1])(),
    ...            step)[-1])))
 
    #> (.send echo None)                   ;Always send a None first. Same as Python.
@@ -2454,12 +2469,12 @@ Lissp Whirlwind Tour
    ...              (lambda step:(
    ...                # setQzAT_
    ...                # hissp.macros.._macro_.let
-   ...                (lambda _QzNo33_val=msg:(
+   ...                (lambda _QzRMG5GSSIz_val=msg:(
    ...                  __import__('builtins').setattr(
    ...                    step,
    ...                    'Y',
-   ...                    _QzNo33_val),
-   ...                  _QzNo33_val)[-1])(),
+   ...                    _QzRMG5GSSIz_val),
+   ...                  _QzRMG5GSSIz_val)[-1])(),
    ...                Ensue(
    ...                  (lambda step:
    ...                    print(
@@ -2525,16 +2540,16 @@ Lissp Whirlwind Tour
    ...                        (lambda step:(
    ...                          # attach
    ...                          # hissp.macros.._macro_.let
-   ...                          (lambda _QzNo35_target=step:(
+   ...                          (lambda _QzWG5WN73Wz_target=step:(
    ...                            __import__('builtins').setattr(
-   ...                              _QzNo35_target,
+   ...                              _QzWG5WN73Wz_target,
    ...                              'Y',
    ...                              None),
    ...                            __import__('builtins').setattr(
-   ...                              _QzNo35_target,
+   ...                              _QzWG5WN73Wz_target,
    ...                              'X',
    ...                              ZeroDivisionError),
-   ...                            _QzNo35_target)[-1])(),
+   ...                            _QzWG5WN73Wz_target)[-1])(),
    ...                          Ensue(
    ...                            (lambda step:
    ...                              print(
@@ -2586,6 +2601,7 @@ Lissp Whirlwind Tour
    #> (engarde Exception
    #..         X#(print X.__cause__)      ;Unary again.
    #..         O#(throw-from Exception (Exception "msg"))) ;Nullary/thunk.
+   #..
    >>> engarde(
    ...   Exception,
    ...   (lambda X:
@@ -2596,31 +2612,31 @@ Lissp Whirlwind Tour
    ...     # hissp.macros.._macro_.throwQzSTAR_
    ...     (lambda g:g.close()or g.throw)(c for c in'')(
    ...       # hissp.macros.._macro_.let
-   ...       (lambda _QzNo130_G=(lambda _QzNo130_x:
+   ...       (lambda _Qz2IKKUCBWz_G=(lambda _Qz2IKKUCBWz_x:
    ...         # hissp.macros.._macro_.ifQz_else
    ...         (lambda b,c,a:c()if b else a())(
    ...           # hissp.macros.._macro_.QzET_QzET_
    ...           (lambda x0,x1:x0 and x1())(
    ...             __import__('builtins').isinstance(
-   ...               _QzNo130_x,
+   ...               _Qz2IKKUCBWz_x,
    ...               __import__('builtins').type),
    ...             (lambda :
    ...               __import__('builtins').issubclass(
-   ...                 _QzNo130_x,
+   ...                 _Qz2IKKUCBWz_x,
    ...                 __import__('builtins').BaseException))),
-   ...           (lambda :_QzNo130_x()),
-   ...           (lambda :_QzNo130_x))):
+   ...           (lambda :_Qz2IKKUCBWz_x()),
+   ...           (lambda :_Qz2IKKUCBWz_x))):
    ...         # hissp.macros.._macro_.attach
    ...         # hissp.macros.._macro_.let
-   ...         (lambda _QzNo112_target=_QzNo130_G(
+   ...         (lambda _QzWG5WN73Wz_target=_Qz2IKKUCBWz_G(
    ...           Exception):(
    ...           __import__('builtins').setattr(
-   ...             _QzNo112_target,
+   ...             _QzWG5WN73Wz_target,
    ...             '__cause__',
-   ...             _QzNo130_G(
+   ...             _Qz2IKKUCBWz_G(
    ...               Exception(
    ...                 ('msg')))),
-   ...           _QzNo112_target)[-1])())())))
+   ...           _QzWG5WN73Wz_target)[-1])())())))
    msg
 
 
@@ -2633,7 +2649,7 @@ Lissp Whirlwind Tour
    ;;; injected Python here.
 
    #> ([#-2:1:-2] "QuaoblcldefHg")
-   >>> (lambda _QzNo32_G:(_QzNo32_G[-2:1:-2]))(
+   >>> (lambda _Qz5GEAOGSQz_G:(_Qz5GEAOGSQz_G[-2:1:-2]))(
    ...   ('QuaoblcldefHg'))
    'Hello'
 
@@ -2661,9 +2677,9 @@ Lissp Whirlwind Tour
 
 
    #> (en#collections..deque 1 2 3)
-   >>> (lambda *_QzNo31_xs:
+   >>> (lambda *_Qz6RFWTTVXz_xs:
    ...   __import__('collections').deque(
-   ...     _QzNo31_xs))(
+   ...     _Qz6RFWTTVXz_xs))(
    ...   (1),
    ...   (2),
    ...   (3))
@@ -2678,34 +2694,34 @@ Lissp Whirlwind Tour
    >>> # hissp.._macro_.alias
    ... # hissp.macros.._macro_.defmacro
    ... # hissp.macros.._macro_.let
-   ... (lambda _QzNo7_fn=(lambda _QzNo27_prime,_QzNo27_reader=None,*_QzNo27_args:(
+   ... (lambda _QzAW22OE5Kz_fn=(lambda _QzARAQTXTEz_prime,_QzARAQTXTEz_reader=None,*_QzARAQTXTEz_args:(
    ...   'Aliases ``hissp.._macro_`` as ``MQzCOLON_#``.',
    ...   # hissp.macros.._macro_.ifQz_else
    ...   (lambda b,c,a:c()if b else a())(
-   ...     _QzNo27_reader,
+   ...     _QzARAQTXTEz_reader,
    ...     (lambda :
    ...       __import__('builtins').getattr(
    ...         __import__('hissp')._macro_,
    ...         ('{}{}').format(
-   ...           _QzNo27_reader,
+   ...           _QzARAQTXTEz_reader,
    ...           # hissp.macros.._macro_.ifQz_else
    ...           (lambda b,c,a:c()if b else a())(
    ...             'hissp.._macro_'.endswith(
    ...               '._macro_'),
    ...             (lambda :'QzHASH_'),
    ...             (lambda :('')))))(
-   ...         _QzNo27_prime,
-   ...         *_QzNo27_args)),
+   ...         _QzARAQTXTEz_prime,
+   ...         *_QzARAQTXTEz_args)),
    ...     (lambda :
    ...       ('{}.{}').format(
    ...         'hissp.._macro_',
-   ...         _QzNo27_prime))))[-1]):(
+   ...         _QzARAQTXTEz_prime))))[-1]):(
    ...   __import__('builtins').setattr(
-   ...     _QzNo7_fn,
+   ...     _QzAW22OE5Kz_fn,
    ...     '__doc__',
    ...     'Aliases ``hissp.._macro_`` as ``MQzCOLON_#``.'),
    ...   __import__('builtins').setattr(
-   ...     _QzNo7_fn,
+   ...     _QzAW22OE5Kz_fn,
    ...     '__qualname__',
    ...     ('.').join(
    ...       ('_macro_',
@@ -2715,7 +2731,7 @@ Lissp Whirlwind Tour
    ...       __import__('builtins').globals(),
    ...       '_macro_'),
    ...     'MQzCOLON_QzHASH_',
-   ...     _QzNo7_fn))[-1])()
+   ...     _QzAW22OE5Kz_fn))[-1])()
 
    #> 'M:#alias
    >>> 'hissp.._macro_.alias'
