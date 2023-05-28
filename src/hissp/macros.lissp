@@ -2023,6 +2023,8 @@ except ModuleNotFoundError:pass"
   The language is applied right-to-left, like function calls.
   Magic characters are
 
+  ``,`` -data
+     Suffix interprets callable as data. Write before any ``^``.
   ``%`` -kwargs
      Suffix interprets top element as **kwargs. Write before any ``^``.
   ``^`` -depth
@@ -2058,13 +2060,14 @@ except ModuleNotFoundError:pass"
 
   Callables (default depth 1) pop args to their depth and push their
   result. These are categorized at read time. Literals are always data,
-  but elements that read as `tuple` or `str` types are sometimes
-  ambiguous, in which case they are assumed callable.
+  but an element that reads as `tuple` or `str` type may be ambiguous,
+  in which case they are presumed callable, unless it ends with a ``,``.
 
   Methods at depth one are converted to attribute lookups.
 
     #> (^#.__class__.__name__ :x)
     'str'
+
   "
   (let (reader (hissp..reader.Lissp : ns (.get hissp.compiler..NS))
         literal? X#(not (op#contains (# tuple str) (type X)))
@@ -2081,6 +2084,7 @@ except ModuleNotFoundError:pass"
             XY#(case X (let (obj (next (.reads reader (.replace X "`" ""))))
                          `(.append ,'$#stack
                                    ,(if-else (|| (literal? obj)
+                                                 (.startswith Y ",")
                                                  (hissp.reader..is_lissp_string obj)
                                                  (control-word? obj)
                                                  (module-handle? obj)
@@ -2114,7 +2118,7 @@ except ModuleNotFoundError:pass"
                                                             ,(op#sub -1 (depth Y))))))
                      : ())
             (reversed (re..findall
-                       "([/&@[\]*:]|(?:[^%^`/&@[\]*:]|`[%^/&@[\]*:])+)(%?\^*)"
+                       "([/&@[\]*:]|(?:[^,%^`/&@[\]*:]|`[,%^/&@[\]*:])+)(%?,?\^*)"
                        (hissp..demunge s))))
          (.pop $#stack)))))
 
