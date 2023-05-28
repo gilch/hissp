@@ -2015,139 +2015,58 @@ except ModuleNotFoundError:pass"
   Builds a function whose arguments are pushed to a stack, operates on
   the stack according to the program, and finally pops its result.
 
-  Expressions are often terse enough to be used one-off inline.
+  The mini-language supports higher-order function manipulation
+  including composition, partial application, and point-free data flow.
 
   The language is applied right-to-left, like function calls.
   Magic characters are
 
-  ``^`` DEPTH
-     Suffix to increase arity. Assume depth 1 otherwise.
+  ``,`` -data
+     Suffix interprets callable as data.
+  ``%`` -kwargs
+     Suffix interprets top element as ``**kwargs``.
+  ``^`` -depth
+     Suffix increases arity. Assume depth 1 otherwise. Can be repeated.
+     Write after other suffixes.
   ``/`` DROP
      Pops (at depth) and discards.
   ``&`` PICK
      Copies (at depth) and pushes.
   ``@`` ROLL (default depth 2)
      Pops (at depth) and pushes.
-  ``]`` MARK (no depth)
-     Pushes a sentinel gensym for PACK.
-     Callables are data when there's a mark.
-  ``[`` PACK (no depth)
-     Pops to MARK and pushes as tuple.
+  ``]`` MARK (default depth 0)
+     Inserts a sentinel gensym for PACK (at depth).
+  ``[`` PACK
+     Pops to the first sentinel and pushes as tuple.
+     With depth, looks tuple up on the next element.
   ``*`` SPLAT
-     Pops (at depth) and pushes its elements.
+     Pops (at depth) and pushes elements.
   ``:`` NOP (no depth)
      No effect. Used as a separator when no other magic applies.
 
   They can be escaped with a backtick (:literal:`\``).
 
   Other elements are either callables or data, and read as Lissp.
-  Data elements just put themselves on the stack.
-  Callables pop args to their depth and push their result.
+  Data elements just push themselves on the stack (default depth 0).
 
   .. code-block:: REPL
 
-     #> (define average ^#truediv^sum@len&)
-     >>> # define
-     ... __import__('builtins').globals().update(
-     ...   average=(lambda *_QzNo73_args:
-     ...             # hissp.macros.._macro_.let
-     ...             (lambda _QzNo73_stack=__import__('builtins').list(
-     ...               _QzNo73_args):(
-     ...               _QzNo73_stack.reverse(),
-     ...               _QzNo73_stack.append(
-     ...                 (lambda X,Y:X[-1-Y])(
-     ...                   _QzNo73_stack,
-     ...                   (0))),
-     ...               _QzNo73_stack.append(
-     ...                 len(
-     ...                   _QzNo73_stack.pop())),
-     ...               _QzNo73_stack.append(
-     ...                 _QzNo73_stack.pop(
-     ...                   (-2))),
-     ...               _QzNo73_stack.append(
-     ...                 sum(
-     ...                   _QzNo73_stack.pop())),
-     ...               _QzNo73_stack.append(
-     ...                 truediv(
-     ...                   _QzNo73_stack.pop(),
-     ...                   _QzNo73_stack.pop())),
-     ...               _QzNo73_stack.pop())[-1])()))
+     #> (^#:2)
+     >>> (lambda *_QzNo73_args:
+     ...   # hissp.macros.._macro_.let
+     ...   (lambda _QzNo73_stack=__import__('builtins').list(
+     ...     _QzNo73_args):(
+     ...     _QzNo73_stack.reverse(),
+     ...     _QzNo73_stack.append(
+     ...       (2)),
+     ...     (),
+     ...     _QzNo73_stack.pop())[-1])())()
+     2
 
-     #> (define geomean ^#pow^reduce^*[mul]@truediv^1:len&)
-     >>> # define
-     ... __import__('builtins').globals().update(
-     ...   geomean=(lambda *_QzNo73_args:
-     ...             # hissp.macros.._macro_.let
-     ...             (lambda _QzNo73_stack=__import__('builtins').list(
-     ...               _QzNo73_args):(
-     ...               _QzNo73_stack.reverse(),
-     ...               _QzNo73_stack.append(
-     ...                 (lambda X,Y:X[-1-Y])(
-     ...                   _QzNo73_stack,
-     ...                   (0))),
-     ...               _QzNo73_stack.append(
-     ...                 len(
-     ...                   _QzNo73_stack.pop())),
-     ...               (),
-     ...               _QzNo73_stack.append(
-     ...                 (1)),
-     ...               _QzNo73_stack.append(
-     ...                 truediv(
-     ...                   _QzNo73_stack.pop(),
-     ...                   _QzNo73_stack.pop())),
-     ...               _QzNo73_stack.append(
-     ...                 _QzNo73_stack.pop(
-     ...                   (-2))),
-     ...               _QzNo73_stack.append(
-     ...                 '_QzNo73_QzRSQB_'),
-     ...               _QzNo73_stack.append(
-     ...                 mul),
-     ...               _QzNo73_stack.append(
-     ...                 __import__('builtins').tuple(
-     ...                   __import__('builtins').iter(
-     ...                     _QzNo73_stack.pop,
-     ...                     '_QzNo73_QzRSQB_'))),
-     ...               _QzNo73_stack.extend(
-     ...                 __import__('builtins').reversed(
-     ...                   __import__('builtins').tuple(
-     ...                     _QzNo73_stack.pop(
-     ...                       (-1))))),
-     ...               _QzNo73_stack.append(
-     ...                 reduce(
-     ...                   _QzNo73_stack.pop(),
-     ...                   _QzNo73_stack.pop())),
-     ...               _QzNo73_stack.append(
-     ...                 pow(
-     ...                   _QzNo73_stack.pop(),
-     ...                   _QzNo73_stack.pop())),
-     ...               _QzNo73_stack.pop())[-1])()))
+  Callables (default depth 1) pop args to their depth and push their
+  result. Combine with a datum for partial application.
 
-     #> (geomean '(1 10))
-     >>> geomean(
-     ...   ((1),
-     ...    (10),))
-     3.1622776601683795
-
-     #> (average '(.1 10))
-     >>> average(
-     ...   ((0.1),
-     ...    (10),))
-     5.05
-
-     #> (geomean '(.1 10))
-     >>> geomean(
-     ...   ((0.1),
-     ...    (10),))
-     1.0
-
-     #> (en#average 4 5 6)
-     >>> (lambda *_QzNo60_xs:
-     ...   average(
-     ...     _QzNo60_xs))(
-     ...   (4),
-     ...   (5),
-     ...   (6))
-     5.0
+  .. code-block:: REPL
 
      #> (define decrement ^#sub^@1)
      >>> # define
@@ -2164,62 +2083,176 @@ except ModuleNotFoundError:pass"
      ...                     (-2))),
      ...                 _QzNo73_stack.append(
      ...                   sub(
-     ...                     _QzNo73_stack.pop(),
-     ...                     _QzNo73_stack.pop())),
+     ...                     _QzNo73_stack.pop(
+     ...                       (-1)),
+     ...                     _QzNo73_stack.pop(
+     ...                       (-1)))),
      ...                 _QzNo73_stack.pop())[-1])()))
 
-     #> (^#decrement:decrement 5)
+     #> (decrement 5)
+     >>> decrement(
+     ...   (5))
+     4
+
+  Increasing the depth of data to 1 implies a lookup on the next
+  element. Methods always need a self, so they can be converted to
+  attribute lookups at the default depth of 1. Combine them to drill
+  into complex data structures.
+
+  .. code-block:: REPL
+
+     #> (^#.__class__.__name__:'spam^ (dict : spam 'eggs))
      >>> (lambda *_QzNo73_args:
      ...   # hissp.macros.._macro_.let
      ...   (lambda _QzNo73_stack=__import__('builtins').list(
      ...     _QzNo73_args):(
      ...     _QzNo73_stack.reverse(),
      ...     _QzNo73_stack.append(
-     ...       decrement(
-     ...         _QzNo73_stack.pop())),
+     ...       __import__('operator').getitem(
+     ...         _QzNo73_stack.pop(),
+     ...         'spam')),
      ...     (),
      ...     _QzNo73_stack.append(
-     ...       decrement(
+     ...       __import__('operator').attrgetter(
+     ...         '__class__.__name__')(
      ...         _QzNo73_stack.pop())),
      ...     _QzNo73_stack.pop())[-1])())(
-     ...   (5))
-     3
+     ...   dict(
+     ...     spam='eggs'))
+     'str'
+
+  The callable or data type is determined at read time. Literals are
+  always data. but an element that reads as `tuple` or `str` type may be
+  ambiguous, in which case they are presumed callable, unless it ends
+  with a ``,``.
+
+  .. code-block:: REPL
+
+     #> (define prod ^#reduce^mul,)
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   prod=(lambda *_QzNo73_args:
+     ...          # hissp.macros.._macro_.let
+     ...          (lambda _QzNo73_stack=__import__('builtins').list(
+     ...            _QzNo73_args):(
+     ...            _QzNo73_stack.reverse(),
+     ...            _QzNo73_stack.append(
+     ...              mul),
+     ...            _QzNo73_stack.append(
+     ...              reduce(
+     ...                _QzNo73_stack.pop(
+     ...                  (-1)),
+     ...                _QzNo73_stack.pop(
+     ...                  (-1)))),
+     ...            _QzNo73_stack.pop())[-1])()))
+
+     #> (en#prod 1 2 3)
+     >>> (lambda *_QzNo60_xs:
+     ...   prod(
+     ...     _QzNo60_xs))(
+     ...   (1),
+     ...   (2),
+     ...   (3))
+     6
+
+     #> (define geomean ^#pow^prod@truediv^1:len&)
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   geomean=(lambda *_QzNo73_args:
+     ...             # hissp.macros.._macro_.let
+     ...             (lambda _QzNo73_stack=__import__('builtins').list(
+     ...               _QzNo73_args):(
+     ...               _QzNo73_stack.reverse(),
+     ...               _QzNo73_stack.append(
+     ...                 (lambda X,Y:X[-1-Y])(
+     ...                   _QzNo73_stack,
+     ...                   (0))),
+     ...               _QzNo73_stack.append(
+     ...                 len(
+     ...                   _QzNo73_stack.pop(
+     ...                     (-1)))),
+     ...               (),
+     ...               _QzNo73_stack.append(
+     ...                 (1)),
+     ...               _QzNo73_stack.append(
+     ...                 truediv(
+     ...                   _QzNo73_stack.pop(
+     ...                     (-1)),
+     ...                   _QzNo73_stack.pop(
+     ...                     (-1)))),
+     ...               _QzNo73_stack.append(
+     ...                 _QzNo73_stack.pop(
+     ...                   (-2))),
+     ...               _QzNo73_stack.append(
+     ...                 prod(
+     ...                   _QzNo73_stack.pop(
+     ...                     (-1)))),
+     ...               _QzNo73_stack.append(
+     ...                 pow(
+     ...                   _QzNo73_stack.pop(
+     ...                     (-1)),
+     ...                   _QzNo73_stack.pop(
+     ...                     (-1)))),
+     ...               _QzNo73_stack.pop())[-1])()))
+
+     #> (geomean '(1 10))
+     >>> geomean(
+     ...   ((1),
+     ...    (10),))
+     3.1622776601683795
 
   "
   (let (reader (hissp..reader.Lissp : ns (.get hissp.compiler..NS))
-        marks (list))
+        literal? X#(not (op#contains (# tuple str) (type X)))
+        control-word? X#(&& (op#is_ (type X) str) (.startswith X ":"))
+        module-handle? X#(&& (op#is_ (type X) str) (.endswith X "."))
+        quotation? X#(&& (op#is_ (type X) tuple) (op#eq 'quote (get#0 X)))
+        method? X#(&& (op#is_ (type X) str) (.startswith X "."))
+        kwargs? X#(.startswith X "%")
+        depth X#(.count X "^"))
     `(lambda (: :* $#args)
        (let ($#stack (list $#args))
          (.reverse $#stack)
          ,@(i#starmap
             XY#(case X (let (obj (next (.reads reader (.replace X "`" ""))))
                          `(.append ,'$#stack
-                                   ,(if-else (|| marks
-                                                 (not (op#contains (@ tuple str)
-                                                                   (type obj)))
+                                   ,(if-else (|| (literal? obj)
+                                                 (.startswith Y ",")
                                                  (hissp.reader..is_lissp_string obj)
-                                                 (&& (op#is_ str (type obj))
-                                                     (|| (.startswith obj ":")
-                                                         (.endswith obj ".")))
-                                                 (&& (op#is_ tuple (type obj))
-                                                     (op#eq 'quote (get#0 obj))))
-                                      obj
-                                      `(,obj ,@(XY#.#"X*(Y+1)" `((.pop ,'$#stack))
-                                                               (len Y))))))
-                     .#"/" `(.pop ,'$#stack ,(op#sub -1 (len Y)))
-                     .#"&" `(.append ,'$#stack (,'XY#.#"X[-1-Y]" ,'$#stack ,(len Y)))
-                     .#"@" `(.append ,'$#stack (.pop ,'$#stack ,(op#sub -2 (len Y))))
-                     .#"[" (progn (.pop marks)
-                                  `(.append ,'$#stack
-                                            (tuple (iter ,'$#stack.pop ','$#\]))))
-                     .#"]" (progn (.append marks "]")
-                                  `(.append ,'$#stack ','$#\]))
+                                                 (control-word? obj)
+                                                 (module-handle? obj)
+                                                 (quotation? obj))
+                                      (if-else (depth Y)
+                                        `(op#getitem (.pop ,'$#stack) ,obj)
+                                        obj)
+                                      (if-else (|| (depth Y) (not (method? obj)))
+                                        `(,obj ,@(XYZW#.#"(X+1-Y-Z)*W"
+                                                  (depth Y)
+                                                  (method? obj)
+                                                  (kwargs? Y)
+                                                  `((.pop ,'$#stack
+                                                          ,(op#sub -1 (kwargs? Y)))))
+                                               : ,@(when (kwargs? Y)
+                                                     `(:** (dict (.pop ,'$#stack)))))
+                                        `((op#attrgetter ',.#"obj[1:]")
+                                          (.pop ,'$#stack))))))
+                     .#"/" `(.pop ,'$#stack ,(op#sub -1 (depth Y)))
+                     .#"&" `(.append ,'$#stack (,'XY#.#"X[-1-Y]" ,'$#stack ,(depth Y)))
+                     .#"@" `(.append ,'$#stack (.pop ,'$#stack ,(op#sub -2 (depth Y))))
+                     .#"[" `(.append ,'$#stack
+                                     (-<>> (tuple (iter ,'$#stack.pop ','$#\]))
+                                           ,@(when Y `(op#itemgetter
+                                                       (:<> (,'$#stack.pop))))))
+                     .#"]" `(.insert ,'$#stack
+                                     (op#sub (len ,'$#stack) ,(depth Y))
+                                     ','$#\])
                      .#"*" `(.extend ,'$#stack
                                      (reversed (tuple (.pop ,'$#stack
-                                                            ,(op#sub -1 (len Y))))))
+                                                            ,(op#sub -1 (depth Y))))))
                      : ())
-            (reversed (re..findall "([/&@*:[\]]|(?:[^^`/&@*:[\]]|`[/&@*:[\]])+)(\^*)"
-                                   (hissp..demunge s))))
+            (reversed (re..findall
+                       "([/&@[\]*:]|(?:[^,%^`/&@[\]*:]|`[,%^/&@[\]*:])+)(%?,?\^*)"
+                       (hissp..demunge s))))
          (.pop $#stack)))))
 
 (defmacro _spy (expr file)
