@@ -2039,9 +2039,9 @@ except ModuleNotFoundError:pass"
   ``@`` ROLL (default depth 2)
      Pops (at depth) and pushes.
   ``]`` MARK (default depth 0)
-     Inserts a sentinel gensym for PACK (at depth).
+     Inserts a sentinel object for PACK (at depth).
   ``[`` PACK
-     Pops to the first sentinel and pushes as tuple.
+     Pops to the first MARK and pushes as tuple.
      With depth, looks tuple up on the next element.
   ``*`` SPLAT
      Pops (at depth) and pushes elements.
@@ -2244,12 +2244,14 @@ except ModuleNotFoundError:pass"
                      .#"&" `(.append ,'$#stack (,'XY#.#"X[-1-Y]" ,'$#stack ,(depth Y)))
                      .#"@" `(.append ,'$#stack (.pop ,'$#stack ,(op#sub -2 (depth Y))))
                      .#"[" `(.append ,'$#stack
-                                     (-<>> (tuple (iter ,'$#stack.pop ','$#\]))
+                                     (-<>> (tuple (iter ,'$#stack.pop
+                                                        (getattr unittest.mock..sentinel
+                                                                 "hissp.]")))
                                            ,@(when Y `(op#itemgetter
                                                        (:<> (,'$#stack.pop))))))
                      .#"]" `(.insert ,'$#stack
                                      (op#sub (len ,'$#stack) ,(depth Y))
-                                     ','$#\])
+                                     (getattr unittest.mock..sentinel "hissp.]"))
                      .#"*" `(.extend ,'$#stack
                                      (reversed (tuple (.pop ,'$#stack
                                                             ,(op#sub -1 (depth Y))))))
