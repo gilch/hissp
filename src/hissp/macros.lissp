@@ -2238,7 +2238,7 @@ except ModuleNotFoundError:pass"
                                                         ,(op#sub -1 (kwargs? Y)))))
                                              ,@(when (kwargs? Y)
                                                  `(: :** (dict (.pop ,'$#stack)))))
-                                      `((op#attrgetter ',.#"obj[1:]")
+                                      `((op#attrgetter ',([#1:] obj))
                                         (.pop ,'$#stack))))))
                 .#"/" `(.pop ,'$#stack ,(op#sub -1 (depth Y)))
                 .#"&" `(.append ,'$#stack (,'XY#.#"X[-1-Y]" ,'$#stack ,(depth Y)))
