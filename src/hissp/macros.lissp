@@ -2230,9 +2230,8 @@ except ModuleNotFoundError:pass"
                                         `(op#getitem (.pop ,'$#stack) ,obj)
                                         obj)
                                       (if-else (|| (depth Y) (not (method? obj)))
-                                        `(,obj ,@(XYZW#.#"(X+1-Y-Z)*W"
+                                        `(,obj ,@(XYZ#.#"(X+1-Y)*Z"
                                                   (depth Y)
-                                                  (method? obj)
                                                   (kwargs? Y)
                                                   `((.pop ,'$#stack
                                                           ,(op#sub -1 (kwargs? Y)))))
