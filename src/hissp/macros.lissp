@@ -2351,36 +2351,83 @@ except ModuleNotFoundError:pass"
               : file ,file)
        $#val)))
 
-(defmacro ensure (e predicate : :* args)
+(defmacro avow (e predicate : :* args)
   <<#
   ;; Anaphoric. Raises `AssertionError` `unless` (-> e predicate).
   ;;
   ;; Additional arguments are evaluated in a context where ``it`` refers
-  ;; to the result of e. These (if any) are passed to the `AssertionError`.
-  ;; Evaluates to the result of e.
+  ;; to the result of e. These (if any) are passed to the
+  ;; `AssertionError`. Evaluates to the result of e.
   ;;
-  ;; Expansion is simply ``e`` when `__debug__` is off:
+  ;; Assertions document assumptions that should never be false; only
+  ;; raise `AssertionError`\ s to fail fast when there is a bug in your
+  ;; code violating one, which can never happen if the code was written
+  ;; correctly. Though implemented as exceptions in Python, they should
+  ;; almost never be caught, except (perhaps) by a supervising system
+  ;; (such as a REPL) capable of dealing with broken subsystems. They
+  ;; are not to be used like normal exceptions to handle expected cases.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (avow 7 (X#.#"X%2 == 0")
+  ;;    #..  it "That's odd.")
+  ;;    >>> # avow
+  ;;    ... # hissp.macros.._macro_.let
+  ;;    ... (lambda it=(7):(
+  ;;    ...   # hissp.macros.._macro_.unless
+  ;;    ...   (lambda b,a:()if b else a())(
+  ;;    ...     # hissp.macros.._macro_.Qz_QzGT_
+  ;;    ...     (lambda X:X%2 == 0)(
+  ;;    ...       it),
+  ;;    ...     (lambda :
+  ;;    ...       # hissp.macros.._macro_.throw
+  ;;    ...       # hissp.macros.._macro_.throwQzSTAR_
+  ;;    ...       (lambda g:g.close()or g.throw)(c for c in'')(
+  ;;    ...         __import__('builtins').AssertionError(
+  ;;    ...           it,
+  ;;    ...           ("That's odd."))))),
+  ;;    ...   it)[-1])()
+  ;;    Traceback (most recent call last):
+  ;;      ...
+  ;;    AssertionError: (7, "That's odd.")
+  ;;
+  ;; See also: `assert`, `assure`, `throw`.
+  `(let (,'it ,e)
+     (unless (-> ,'it ,predicate)
+       (throw (AssertionError ,@args)))
+     ,'it))
+
+(defmacro assure (e predicate : :* args)
+  <<#
+  ;; Anaphoric. Raises `AssertionError` `unless` (-> e predicate).
+  ;;
+  ;; As `avow`, but expansion is simply ``e`` when `__debug__` is off:
   ;;
   ;; .. code-block:: console
   ;;
-  ;;     $ python -Om hissp -c "(print (ensure 0 bool))"
+  ;;     $ python -Om hissp -c "(print (assure 0 bool))"
   ;;     0
   ;;
-  ;;     $ lissp -c "(print (ensure 0 bool))"
+  ;;     $ lissp -c "(print (assure 0 bool))"
   ;;     Hissp abort!
   ;;     Traceback (most recent call last):
   ;;       ...
   ;;     AssertionError
   ;;
-  ;; Note that for pre-compiled code, it's the __debug__ state at
-  ;; compile time, not at run time, that determines if ensure
+  ;; Note that for pre-compiled code, it's the `__debug__` state at
+  ;; compile time, not at run time, that determines if assure
   ;; assertions are turned on.
+  ;;
+  ;; Prefer `avow` to `assure`, unless profiling indicates the check is
+  ;; unacceptably expensive in production, and the risk of not checking
+  ;; is acceptable; assume `__debug__` will later be turned off.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (ensure 7 (X#.#"X%2 == 0")
+  ;;    #> (assure 7 (X#.#"X%2 == 0")
   ;;    #..  it "That's odd.")
-  ;;    >>> # ensure
+  ;;    >>> # assure
+  ;;    ... # hissp.macros.._macro_.avow
   ;;    ... # hissp.macros.._macro_.let
   ;;    ... (lambda it=(7):(
   ;;    ...   # hissp.macros.._macro_.unless
@@ -2402,8 +2449,5 @@ except ModuleNotFoundError:pass"
   ;;
   ;; See also: `assert`.
   (if-else __debug__
-    `(let (,'it ,e)
-       (unless (-> ,'it ,predicate)
-         (throw (AssertionError ,@args)))
-       ,'it)
+    `(avow ,e ,predicate ,@args)
     e))
