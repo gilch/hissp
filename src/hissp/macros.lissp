@@ -429,12 +429,48 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   (2))
   ;;    Point2D(1, 2)
   ;;
+  ;; Also supports kwds in the bases tuple for
+  ;; `object.__init_subclass__`. Separate with a ``:``.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (deftype Foo ()
+  ;;    #..  __init_subclass__ (lambda (cls :/ : :** kwargs)
+  ;;    #..                      (print kwargs)))
+  ;;    >>> # deftype
+  ;;    ... # hissp.macros.._macro_.define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   Foo=__import__('builtins').type(
+  ;;    ...         'Foo',
+  ;;    ...         (lambda * _: _)(),
+  ;;    ...         __import__('builtins').dict(
+  ;;    ...           __init_subclass__=(lambda cls,/,**kwargs:
+  ;;    ...                               print(
+  ;;    ...                                 kwargs)))))
+  ;;
+  ;;    #> (deftype Bar (Foo : a 1  b 2))
+  ;;    >>> # deftype
+  ;;    ... # hissp.macros.._macro_.define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   Bar=__import__('builtins').type(
+  ;;    ...         'Bar',
+  ;;    ...         (lambda * _: _)(
+  ;;    ...           Foo),
+  ;;    ...         __import__('builtins').dict(),
+  ;;    ...         a=(1),
+  ;;    ...         b=(2)))
+  ;;    {'a': 1, 'b': 2}
+  ;;
   ;; See also: `attach`, `type`, `@#!<QzAT_QzHASH_>`, :keyword:`class`,
   ;; `types.new_class`
   ;;
-  `(define ,name
-       (type ',name (,hissp.reader..ENTUPLE ,@bases)
-             (dict : ,@body))))
+  (let (ibases (iter bases))
+    `(define ,name
+       (type ',name (,hissp.reader..ENTUPLE
+                     ,@(itertools..takewhile (lambda x (operator..ne x ':))
+                                             ibases))
+             (dict : ,@body)
+             : ,@ibases))))
 
 ;;;; Locals
 
