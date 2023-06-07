@@ -2049,6 +2049,10 @@ except ModuleNotFoundError:pass"
                         ,key
                         -1)))))
 
+(defmacro nil\# x
+  "`nil#` evaluates to x or (). Adapter for 'nil punning'."
+  `(|| ,x ()))
+
 (defmacro ^\# s
   "``^#`` 'composition' concatenative mini-language functions
 
