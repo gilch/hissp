@@ -207,7 +207,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      x aa
      a b
 
-  See also: `let-from<letQz_from>`, `the#<theQzHASH_>`, `locals`.
+  See also: `let-from<letQz_from>`, `my#<myQzHASH_>`, `locals`.
   "
   `((lambda (: ,@pairs)
       ,@body)))
@@ -585,8 +585,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
          ,@body))
     `(progn ,@body)))
 
-(defmacro the\# e
-  "``the#`` Anaphoric. `let` ``the`` be a fresh `types.SimpleNamespace`
+(defmacro my\# e
+  "``my#`` Anaphoric. `let` ``my`` be a fresh `types.SimpleNamespace`
   in a lexical scope surrounding e.
 
   Creates a local namespace for imperative-style reassignments,
@@ -594,10 +594,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   .. code-block:: REPL
 
-     #> the#(print (set@ the.x (op#add 1 1))
-     #..           the.x)
+     #> my#(print (set@ my.x (op#add 1 1))
+     #..           my.x)
      >>> # hissp.macros.._macro_.let
-     ... (lambda the=__import__('types').SimpleNamespace():
+     ... (lambda my=__import__('types').SimpleNamespace():
      ...   print(
      ...     # setQzAT_
      ...     # hissp.macros.._macro_.let
@@ -605,22 +605,22 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...       (1),
      ...       (1)):(
      ...       __import__('builtins').setattr(
-     ...         the,
+     ...         my,
      ...         'x',
      ...         _QzRMG5GSSIz_val),
      ...       _QzRMG5GSSIz_val)[-1])(),
-     ...     the.x))()
+     ...     my.x))()
      2 2
 
-  ``the#the`` is a shorthand for a new empty namespace.
+  ``my#my`` is a shorthand for a new empty namespace.
 
   Often combined with branching macros to reuse the results of an
   expression, with uses similar to Python's 'walrus' operator ``:=``.
-  See `python-grammar:assignment_expression`.
 
+  See also, `attach`, `python-grammar:assignment_expression`.
   "
   ;; TODO: consider using extras for initial contents.
-  `(let (,'the (types..SimpleNamespace))
+  `(let (,'my (types..SimpleNamespace))
      ,e))
 
 ;;;; Abbreviations

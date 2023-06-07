@@ -1116,7 +1116,7 @@ should start with the demunged name in doubled backticks
 
 .. code-block:: Lissp
 
-   "``the#`` Anaphoric. Let ``the`` be a fresh `types.SimpleNamespace`
+   "``my#`` Anaphoric. Let ``my`` be a fresh `types.SimpleNamespace`
    in a lexical scope surrounding ``e``.
    "
 
