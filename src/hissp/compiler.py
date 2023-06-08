@@ -54,9 +54,11 @@ def _trace(method):
         except Exception as e:
             self.error = e
             message = (
-                f"\nCompiler.{method.__name__}() {type(e).__name__}:\n {e}".replace(
-                    "\n", "\n# "
-                )
+                "\nCompiler.{}() {}:\n {}".format(
+                    method.__name__,
+                    type(e).__name__,
+                    format_exc() if method.__name__ == "macro" else e,
+                ).replace("\n", "\n# ")
                 + "\n"
             )
             return f"(>   >  > >>{pformat(expr)}<< <  <   <){message}"
