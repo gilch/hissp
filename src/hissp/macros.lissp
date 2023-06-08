@@ -207,7 +207,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      x aa
      a b
 
-  See also: `let-from<letQz_from>`, `the#<theQzHASH_>`, `locals`.
+  See also: `let-from<letQz_from>`, `my#<myQzHASH_>`, `locals`.
   "
   `((lambda (: ,@pairs)
       ,@body)))
@@ -585,8 +585,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
          ,@body))
     `(progn ,@body)))
 
-(defmacro the\# e
-  "``the#`` Anaphoric. `let` ``the`` be a fresh `types.SimpleNamespace`
+(defmacro my\# e
+  "``my#`` Anaphoric. `let` ``my`` be a fresh `types.SimpleNamespace`
   in a lexical scope surrounding e.
 
   Creates a local namespace for imperative-style reassignments,
@@ -594,10 +594,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   .. code-block:: REPL
 
-     #> the#(print (set@ the.x (op#add 1 1))
-     #..           the.x)
+     #> my#(print (set@ my.x (op#add 1 1))
+     #..           my.x)
      >>> # hissp.macros.._macro_.let
-     ... (lambda the=__import__('types').SimpleNamespace():
+     ... (lambda my=__import__('types').SimpleNamespace():
      ...   print(
      ...     # setQzAT_
      ...     # hissp.macros.._macro_.let
@@ -605,22 +605,22 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...       (1),
      ...       (1)):(
      ...       __import__('builtins').setattr(
-     ...         the,
+     ...         my,
      ...         'x',
      ...         _QzRMG5GSSIz_val),
      ...       _QzRMG5GSSIz_val)[-1])(),
-     ...     the.x))()
+     ...     my.x))()
      2 2
 
-  ``the#the`` is a shorthand for a new empty namespace.
+  ``my#my`` is a shorthand for a new empty namespace.
 
   Often combined with branching macros to reuse the results of an
   expression, with uses similar to Python's 'walrus' operator ``:=``.
-  See `python-grammar:assignment_expression`.
 
+  See also, `attach`, `python-grammar:assignment_expression`.
   "
   ;; TODO: consider using extras for initial contents.
-  `(let (,'the (types..SimpleNamespace))
+  `(let (,'my (types..SimpleNamespace))
      ,e))
 
 ;;;; Abbreviations
@@ -2049,58 +2049,71 @@ except ModuleNotFoundError:pass"
                         ,key
                         -1)))))
 
-(defmacro ^\# s
-  "``^#`` 'composition' concatenative mini-language functions
+(defmacro nil\# x
+  "``nil#`` evaluates to x or (). Adapter for 'nil punning'."
+  `(|| ,x ()))
 
-  Builds a function whose arguments are pushed to a stack, operates on
-  the stack according to the program, and finally pops its result.
+(defmacro ^*\# (stack terms)
+  "``^*#!`` 'synexpand' concatenative mini-language expressions
+
+  Builds an expression from a stack of expressions operated on by the
+  mini-language terms. The result is the stack spliced into a `prog1`
+  (or the element itself if there's only one).
 
   The mini-language supports higher-order function manipulation
   including composition, partial application, and point-free data flow.
+
+  The stack must be read-time iterable (typically a tuple). The first
+  element is the 'top'.
+
+  The terms (not optional) must read to a `str` (typically a symbol,
+  control word, or injected string literal), and are split into terms on
+  magic characters.
+
+  The
+  `^#<QzHAT_QzHASH_>`,
+  `^^#<QzHAT_QzHAT_QzHASH_>`,
+  `^^^#<QzHAT_QzHAT_QzHAT_QzHASH_>`, and
+  `^^^^#<QzHAT_QzHAT_QzHAT_QzHAT_QzHASH_>` macros apply to terms and
+  wrap a ``^*#!`` expression in a lambda of arity 1-4 (respectively)
+  using their parameters as the initial stack.
 
   The language is applied right-to-left, like function calls.
   Magic characters are
 
   ``,`` -data
      Suffix interprets callable as data.
-  ``%`` -kwargs
-     Suffix interprets top element as ``**kwargs``.
   ``^`` -depth
      Suffix increases arity. Assume depth 1 otherwise. Can be repeated.
-     Write after other suffixes.
+     Write after -data.
   ``/`` DROP
-     Pops (at depth) and discards.
+     Removes expression (at depth).
   ``&`` PICK
-     Copies (at depth) and pushes.
+     Copies expression (at depth) and pushes. Non-literal expressions
+     are extracted to a local first (using `let`), and the resulting
+     symbol is copied instead.
   ``@`` ROLL (default depth 2)
-     Pops (at depth) and pushes.
-  ``]`` MARK (default depth 0)
+     Pops expression (at depth) and pushes.
+  ``>`` MARK (default depth 0)
      Inserts a sentinel object for PACK (at depth).
-  ``[`` PACK
-     Pops to the first MARK and pushes as tuple.
-     With depth, looks tuple up on the next element.
+  ``<`` PACK
+     Pops to the first MARK (if any) and pushes as tuple.
+     With depth, looks tuple up on the next expression.
   ``*`` SPLAT
-     Pops (at depth) and pushes elements.
+     Splices an iterable (in-place, at depth).
   ``:`` NOP (no depth)
      No effect. Used as a separator when no other magic applies.
 
   They can be escaped with a backtick (:literal:`\``).
 
-  Other elements are either callables or data, and read as Lissp.
-  Data elements just push themselves on the stack (default depth 0).
+  Other terms are either callables or data, and read as Lissp.
+  Data terms just push themselves on the stack (default depth 0).
 
   .. code-block:: REPL
 
-     #> (^#:2)
-     >>> (lambda *_Qz5P6Q3J7Uz_args:
-     ...   # hissp.macros.._macro_.let
-     ...   (lambda _Qz5P6Q3J7Uz_stack=__import__('builtins').list(
-     ...     _Qz5P6Q3J7Uz_args):(
-     ...     _Qz5P6Q3J7Uz_stack.reverse(),
-     ...     _Qz5P6Q3J7Uz_stack.append(
-     ...       (2)),
-     ...     (),
-     ...     _Qz5P6Q3J7Uz_stack.pop())[-1])())()
+     #> ^*#!:2 ()
+     >>> ### hissp.macros..QzMaybe_._rewrite
+     ... (2)
      2
 
   Callables (default depth 1) pop args to their depth and push their
@@ -2111,23 +2124,12 @@ except ModuleNotFoundError:pass"
      #> (define decrement ^#sub^@1)
      >>> # define
      ... __import__('builtins').globals().update(
-     ...   decrement=(lambda *_Qz5P6Q3J7Uz_args:
-     ...               # hissp.macros.._macro_.let
-     ...               (lambda _Qz5P6Q3J7Uz_stack=__import__('builtins').list(
-     ...                 _Qz5P6Q3J7Uz_args):(
-     ...                 _Qz5P6Q3J7Uz_stack.reverse(),
-     ...                 _Qz5P6Q3J7Uz_stack.append(
-     ...                   (1)),
-     ...                 _Qz5P6Q3J7Uz_stack.append(
-     ...                   _Qz5P6Q3J7Uz_stack.pop(
-     ...                     (-2))),
-     ...                 _Qz5P6Q3J7Uz_stack.append(
-     ...                   sub(
-     ...                     _Qz5P6Q3J7Uz_stack.pop(
-     ...                       (-1)),
-     ...                     _Qz5P6Q3J7Uz_stack.pop(
-     ...                       (-1)))),
-     ...                 _Qz5P6Q3J7Uz_stack.pop())[-1])()))
+     ...   decrement=(lambda _QzX7FS3TFJz_x:
+     ...               # hissp.macros.._macro_.QzHAT_QzSTAR_QzHASH_
+     ...               #### hissp.macros..QzMaybe_._rewrite
+     ...               sub(
+     ...                 _QzX7FS3TFJz_x,
+     ...                 (1))))
 
      #> (decrement 5)
      >>> decrement(
@@ -2135,34 +2137,27 @@ except ModuleNotFoundError:pass"
      4
 
   Increasing the depth of data to 1 implies a lookup on the next
-  element. Methods always need a self, so they can be converted to
+  expression. Methods always need a self, so they can be converted to
   attribute lookups at the default depth of 1. Combine them to drill
   into complex data structures.
 
   .. code-block:: REPL
 
      #> (^#.__class__.__name__:'spam^ (dict : spam 'eggs))
-     >>> (lambda *_Qz5P6Q3J7Uz_args:
-     ...   # hissp.macros.._macro_.let
-     ...   (lambda _Qz5P6Q3J7Uz_stack=__import__('builtins').list(
-     ...     _Qz5P6Q3J7Uz_args):(
-     ...     _Qz5P6Q3J7Uz_stack.reverse(),
-     ...     _Qz5P6Q3J7Uz_stack.append(
-     ...       __import__('operator').getitem(
-     ...         _Qz5P6Q3J7Uz_stack.pop(),
-     ...         'spam')),
-     ...     (),
-     ...     _Qz5P6Q3J7Uz_stack.append(
-     ...       __import__('operator').attrgetter(
-     ...         '__class__.__name__')(
-     ...         _Qz5P6Q3J7Uz_stack.pop())),
-     ...     _Qz5P6Q3J7Uz_stack.pop())[-1])())(
+     >>> (lambda _QzX7FS3TFJz_x:
+     ...   # hissp.macros.._macro_.QzHAT_QzSTAR_QzHASH_
+     ...   #### hissp.macros..QzMaybe_._rewrite
+     ...   __import__('operator').attrgetter(
+     ...     '__class__.__name__')(
+     ...     __import__('operator').getitem(
+     ...       _QzX7FS3TFJz_x,
+     ...       'spam')))(
      ...   dict(
      ...     spam='eggs'))
      'str'
 
   The callable or data type is determined at read time. Literals are
-  always data. but an element that reads as `tuple` or `str` type may be
+  always data, but a term that reads as `tuple` or `str` type may be
   ambiguous, in which case they are presumed callable, unless it ends
   with a ``,``.
 
@@ -2171,20 +2166,12 @@ except ModuleNotFoundError:pass"
      #> (define prod ^#reduce^mul,)
      >>> # define
      ... __import__('builtins').globals().update(
-     ...   prod=(lambda *_Qz5P6Q3J7Uz_args:
-     ...          # hissp.macros.._macro_.let
-     ...          (lambda _Qz5P6Q3J7Uz_stack=__import__('builtins').list(
-     ...            _Qz5P6Q3J7Uz_args):(
-     ...            _Qz5P6Q3J7Uz_stack.reverse(),
-     ...            _Qz5P6Q3J7Uz_stack.append(
-     ...              mul),
-     ...            _Qz5P6Q3J7Uz_stack.append(
-     ...              reduce(
-     ...                _Qz5P6Q3J7Uz_stack.pop(
-     ...                  (-1)),
-     ...                _Qz5P6Q3J7Uz_stack.pop(
-     ...                  (-1)))),
-     ...            _Qz5P6Q3J7Uz_stack.pop())[-1])()))
+     ...   prod=(lambda _QzX7FS3TFJz_x:
+     ...          # hissp.macros.._macro_.QzHAT_QzSTAR_QzHASH_
+     ...          ### hissp.macros..QzMaybe_._rewrite
+     ...          reduce(
+     ...            mul,
+     ...            _QzX7FS3TFJz_x)))
 
      #> (en#prod 1 2 3)
      >>> (lambda *_Qz6RFWTTVXz_xs:
@@ -2198,42 +2185,16 @@ except ModuleNotFoundError:pass"
      #> (define geomean ^#pow^prod@truediv^1:len&)
      >>> # define
      ... __import__('builtins').globals().update(
-     ...   geomean=(lambda *_Qz5P6Q3J7Uz_args:
-     ...             # hissp.macros.._macro_.let
-     ...             (lambda _Qz5P6Q3J7Uz_stack=__import__('builtins').list(
-     ...               _Qz5P6Q3J7Uz_args):(
-     ...               _Qz5P6Q3J7Uz_stack.reverse(),
-     ...               _Qz5P6Q3J7Uz_stack.append(
-     ...                 (lambda X,Y:X[-1-Y])(
-     ...                   _Qz5P6Q3J7Uz_stack,
-     ...                   (0))),
-     ...               _Qz5P6Q3J7Uz_stack.append(
+     ...   geomean=(lambda _QzX7FS3TFJz_x:
+     ...             # hissp.macros.._macro_.QzHAT_QzSTAR_QzHASH_
+     ...             ######### hissp.macros..QzMaybe_._rewrite
+     ...             pow(
+     ...               prod(
+     ...                 _QzX7FS3TFJz_x),
+     ...               truediv(
+     ...                 (1),
      ...                 len(
-     ...                   _Qz5P6Q3J7Uz_stack.pop(
-     ...                     (-1)))),
-     ...               (),
-     ...               _Qz5P6Q3J7Uz_stack.append(
-     ...                 (1)),
-     ...               _Qz5P6Q3J7Uz_stack.append(
-     ...                 truediv(
-     ...                   _Qz5P6Q3J7Uz_stack.pop(
-     ...                     (-1)),
-     ...                   _Qz5P6Q3J7Uz_stack.pop(
-     ...                     (-1)))),
-     ...               _Qz5P6Q3J7Uz_stack.append(
-     ...                 _Qz5P6Q3J7Uz_stack.pop(
-     ...                   (-2))),
-     ...               _Qz5P6Q3J7Uz_stack.append(
-     ...                 prod(
-     ...                   _Qz5P6Q3J7Uz_stack.pop(
-     ...                     (-1)))),
-     ...               _Qz5P6Q3J7Uz_stack.append(
-     ...                 pow(
-     ...                   _Qz5P6Q3J7Uz_stack.pop(
-     ...                     (-1)),
-     ...                   _Qz5P6Q3J7Uz_stack.pop(
-     ...                     (-1)))),
-     ...               _Qz5P6Q3J7Uz_stack.pop())[-1])()))
+     ...                   _QzX7FS3TFJz_x)))))
 
      #> (geomean '(1 10))
      >>> geomean(
@@ -2242,60 +2203,83 @@ except ModuleNotFoundError:pass"
      3.1622776601683795
 
   "
-  (let (reader (hissp..reader.Lissp : ns (.get hissp.compiler..NS))
-        literal? X#(not (op#contains (# tuple str) (type X)))
-        control-word? X#(&& (op#is_ (type X) str) (.startswith X ":"))
-        module-handle? X#(&& (op#is_ (type X) str) (.endswith X "."))
-        quotation? X#(&& (op#is_ (type X) tuple) (op#eq 'quote (get#0 X)))
-        method? X#(&& (op#is_ (type X) str) (.startswith X "."))
-        kwargs? X#(.startswith X "%")
-        depth X#(.count X "^"))
-    `(lambda (: :* $#args)
-       (let ($#stack (list $#args))
-         (.reverse $#stack)
-         ,@(i#starmap
-            XY#(case X
-                (let (obj (next (.reads reader (.replace X "`" ""))))
-                  `(.append ,'$#stack
-                            : :? ,(if-else (|| (literal? obj)
-                                               (.startswith Y ",")
-                                               (hissp.reader..is_lissp_string obj)
-                                               (control-word? obj)
-                                               (module-handle? obj)
-                                               (quotation? obj))
-                                    (if-else (depth Y)
-                                      `(op#getitem (.pop ,'$#stack) ,obj)
-                                      obj)
-                                    (if-else (|| (depth Y) (not (method? obj)))
-                                      `(,obj ,@(XYZ#.#"(X+1-Y)*Z"
-                                                (depth Y)
-                                                (kwargs? Y)
-                                                `((.pop ,'$#stack
-                                                        ,(op#sub -1 (kwargs? Y)))))
-                                             ,@(when (kwargs? Y)
-                                                 `(: :** (dict (.pop ,'$#stack)))))
-                                      `((op#attrgetter ',([#1:] obj))
-                                        (.pop ,'$#stack))))))
-                .#"/" `(.pop ,'$#stack ,(op#sub -1 (depth Y)))
-                .#"&" `(.append ,'$#stack (,'XY#.#"X[-1-Y]" ,'$#stack ,(depth Y)))
-                .#"@" `(.append ,'$#stack (.pop ,'$#stack ,(op#sub -2 (depth Y))))
-                .#"[" `(.append ,'$#stack
-                                (-<>> (tuple (iter ,'$#stack.pop
-                                                   (getattr unittest.mock..sentinel
-                                                            "hissp.]")))
-                                      ,@(when Y `(op#itemgetter
-                                                  (:<> (,'$#stack.pop))))))
-                .#"]" `(.insert ,'$#stack
-                                (op#sub (len ,'$#stack) ,(depth Y))
-                                (getattr unittest.mock..sentinel "hissp.]"))
-                .#"*" `(.extend ,'$#stack
-                                (reversed (tuple (.pop ,'$#stack
-                                                       ,(op#sub -1 (depth Y))))))
-                : ())
-            (reversed (re..findall
-                       "([/&@[\]*:]|(?:[^,%^`/&@[\]*:]|`[,%^/&@[\]*:])+)(%?,?\^*)"
-                       (hissp..demunge s))))
-         (.pop $#stack)))))
+  `(_rewrite ,(re..findall "([/&@<>*:]|(?:[^,^`/&@<>*:]|`[,^/&@<>*:])+)(,?\^*)"
+                           (hissp..demunge terms))
+            ,@stack))
+
+(defmacro _rewrite (program : :* exprs)
+  (if-else (not program)
+    (case (len exprs) `(prog1 ,@exprs)
+      (1) (get#0 exprs))
+    my#
+    (let-from (cmd suffix) (.pop program)
+      (attach my
+        : reader (hissp..reader.Lissp : ns (.get hissp.compiler..NS))
+        is? XY#(op#is_ X (type Y))
+        str? X#(my.is? str X)
+        startswith? XY#(&& (my.str? X) (.startswith X Y))
+        literal? X#(|| (op#eq () X) (not (op#contains (# tuple str) (type X))))
+        quotation? X#(&& (my.is? tuple X) (op#eq 'quote (get#0 X)))
+        control-word? X#(my.startswith? X ":")
+        module-handle? X#(&& (my.str? X) (.endswith X "."))
+        method? X#(my.startswith? X ".")
+        symbol? X#(&& (my.str? X) (.isidentifier (.replace X "." "")))
+        G None
+        exprs (list exprs)
+        arity (.count suffix "^")
+        mark (getattr unittest.mock..sentinel "hissp.>"))
+      (attach my
+        : iexprs (iter my.exprs)
+        obj (next (.reads my.reader (.replace cmd "`" "")))
+        arity+1 (op#add 1 my.arity))
+      (when (&& (op#eq "&" cmd)
+                (not (my.literal? (set@ my.target (op#getitem exprs my.arity))))
+                (not (my.control-word? my.target))
+                (not (my.symbol? my.target))
+                (not (my.quotation? my.target)))
+        (set@ my.G (.format "{}{}" `$#G (hissp.reader..gensym_counter)))
+        (setitem my.exprs my.arity my.G))
+      (set@ my.result
+        (case cmd (@ (if-else (|| (my.literal? my.obj)
+                                  (.startswith suffix ",")
+                                  (hissp.reader..is_lissp_string my.obj)
+                                  (my.control-word? my.obj)
+                                  (my.module-handle? my.obj)
+                                  (my.quotation? my.obj))
+                       (if-else my.arity `(op#getitem ,(next my.iexprs) ,my.obj) my.obj)
+                       (if-else (|| my.arity (not (my.method? my.obj)))
+                         `(,cmd ,@(i#islice my.iexprs my.arity+1))
+                         `((op#attrgetter ',([#1:] my.obj))
+                           ,(next my.iexprs)))))
+              .#"/" nil#(.pop my.exprs my.arity)
+              .#"&" (@ (op#getitem my.exprs my.arity))
+              .#"@" (@ (.pop my.exprs my.arity+1))
+              .#"<" (@ (let (x (tuple (i#takewhile X#(op#ne X my.mark) my.iexprs)))
+                         (if-else suffix
+                           `(op#getitem ,(next my.iexprs) x)
+                           x)))
+              .#">" nil#(.insert my.exprs my.arity my.mark)
+              .#"*" (@ :* (i#islice my.iexprs my.arity) :* (next my.iexprs))
+              : ()))
+      (set@ my.result
+        `(_rewrite ,program ,@my.result ,@my.iexprs))
+      (when my.G
+        (set@ my.result
+          `(let (,my.G ,my.target) ,my.result)))
+      my.result)))
+
+.#`(progn ,@(map X#(let (args (get#(slice X) `($#x $#y $#z $#w))
+                         name (.format "{}#" (op#mul X "^")))
+                    `(defmacro ,(hissp..munge name) (,'sym)
+                       ',(.format "``{}`` 'synexpand-{X}'.
+
+Creates a lambda of arity {X} containing a `^*#!<QzHAT_QzSTAR_QzHASH_>`
+applied to sym and a tuple of the parameters.
+"
+                                  name : X X)
+                       `(lambda ,',args
+                          (^*\# ,',args ,,'sym))))
+                 (range 1 5)))
 
 (defmacro _spy (expr file)
   `(let ($#e ,expr)

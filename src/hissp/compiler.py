@@ -262,8 +262,10 @@ class Compiler:
     @_trace
     def invocation(self, form: Tuple) -> str:
         """Try to compile as `macro`, else normal `call`."""
-        if (result := self.macro(form)) is not _SENTINEL:
-            return f"# {form[0]}\n{result}"
+        if (res := self.macro(form)) is not _SENTINEL:
+            if res.startswith("#") and res.lstrip("#").startswith(f" {form[0]}\n"):
+                return f"#{res}"  # Abbreviate direct recursion.
+            return f"# {form[0]}\n{res}"
         form = form[0].replace(MAYBE, "..", 1), *form[1:]
         return self.call(form)
 
