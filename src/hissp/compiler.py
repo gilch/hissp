@@ -513,13 +513,19 @@ class Compiler:
         nl = "\n" if "\n" in r else ""
         return f"__import__('pickle').loads({nl}  # {r}\n    {dumps}\n)"
 
+    @staticmethod
+    def linenos(form):
+        lines = form.split("\n")
+        digits = len(str(len(lines)))
+        return "\n".join(f"{i:0{digits}} {line}" for i, line in enumerate(lines, 1))
+
     def eval(self, form: str, form_number: int) -> Tuple[str, ...]:
         """Execute compiled form, but only if evaluate mode is enabled."""
         try:
             if self.evaluate:
                 filename = (
                     f"<Compiled Hissp #{form_number} of {self.qualname}:\n"
-                    f"{_linenos(form)}\n"
+                    f"{self.linenos(form)}\n"
                     f">"
                 )
                 exec(compile(form, filename, "exec"), self.ns)
@@ -533,12 +539,6 @@ class Compiler:
                 )
             return form, "# " + exc.replace("\n", "\n# ")
         return (form,)
-
-
-def _linenos(form):
-    lines = form.split("\n")
-    digits = len(str(len(lines)))
-    return "\n".join(f"{i:0{digits}} {line}" for i, line in enumerate(lines, 1))
 
 
 def _join_args(*args):
