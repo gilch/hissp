@@ -2255,7 +2255,7 @@ except ModuleNotFoundError:pass"
                 (not (my.symbol? my.target))
                 (not (my.quotation? my.target)))
         (set@ my.G (.format "{}{}" `$#G (hissp.reader..gensym_counter)))
-        (setitem my.exprs my.arity my.G))
+        (op#setitem my.exprs my.arity my.G))
       (set@ my.result
         (case cmd (@ (if-else (|| (my.literal? my.obj)
                                   (.startswith suffix ",")
