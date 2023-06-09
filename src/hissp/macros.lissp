@@ -2246,6 +2246,7 @@ except ModuleNotFoundError:pass"
         arity+1 (op#add 1 my.arity))
       (when (&& (op#eq "&" cmd)
                 (not (my.literal? (set@ my.target (op#getitem exprs my.arity))))
+                (not (hissp.reader..is_lissp_string my.target))
                 (not (my.control-word? my.target))
                 (not (my.symbol? my.target))
                 (not (my.quotation? my.target)))
