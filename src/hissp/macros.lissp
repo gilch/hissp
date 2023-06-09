@@ -2220,7 +2220,7 @@ except ModuleNotFoundError:pass"
         `(_rewrite
           ,(re..findall "([/&@<>*:]|(?:[^,^`/&@<>*:]|`[,^/&@<>*:])+)(,?\^*)"
                         (hissp..demunge sym))
-          ,@args)
+          ,@(map X#(.^*\# _macro_ X) args))
         `(,@(map X#(.^*\# _macro_ X) e))))
     e))
 
