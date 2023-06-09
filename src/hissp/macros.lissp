@@ -2053,68 +2053,65 @@ except ModuleNotFoundError:pass"
   "``nil#`` evaluates to x or (). Adapter for 'nil punning'."
   `(|| ,x ()))
 
-(defmacro ^*\# (stack terms)
+(defmacro ^*\# e
   "``^*#!`` 'synexpand' concatenative mini-language expressions
 
-  Builds an expression from a stack of expressions operated on by the
-  mini-language terms. The result is the stack spliced into a `prog1`
-  (or the element itself if there's only one).
+  Walks e expanding any mini-language syntax found.
 
   The mini-language supports higher-order function manipulation
   including composition, partial application, and point-free data flow.
 
-  The stack must be read-time iterable (typically a tuple). The first
-  element is the 'top'.
+  A mini-language expression is a tuple beginning with an element
+  containing at least one magic character that is not the first
+  character (to avoid detecting all control words). The remainder form
+  the initial stack.
 
-  The terms (not optional) must read to a `str` (typically a symbol,
-  control word, or injected string literal), and are split into terms on
-  magic characters.
+  The first element must read to a `str` (typically a symbol, control
+  word, or injected string literal), is demunged, and is split into
+  terms on magic characters.
+
+  Syntax expansion builds an expression from the stack of expressions
+  operated on by the mini-language terms. The result is the stack
+  spliced into a `prog1` (or the element itself if only one remains).
 
   The
   `^#<QzHAT_QzHASH_>`,
   `^^#<QzHAT_QzHAT_QzHASH_>`,
   `^^^#<QzHAT_QzHAT_QzHAT_QzHASH_>`, and
   `^^^^#<QzHAT_QzHAT_QzHAT_QzHAT_QzHASH_>` macros apply to terms and
-  wrap a ``^*#!`` expression in a lambda of arity 1-4 (respectively)
+  wrap a ``^*#`` expression in a lambda of arity 1-4 (respectively)
   using their parameters as the initial stack.
 
-  The language is applied right-to-left, like function calls.
+  The terms are applied right-to-left, like function calls.
   Magic characters are
 
-  ``,`` -data
-     Suffix interprets callable as data.
-  ``^`` -depth
-     Suffix increases arity. Assume depth 1 otherwise. Can be repeated.
+  ``,`` -data (Suffix)
+     Interprets callable term as data.
+  ``^`` -depth (Suffix)
+     Increases arity of a term. Assume depth 1 otherwise. Can be repeated.
      Write after -data.
-  ``/`` DROP
+  ``/`` DROP (term)
      Removes expression (at depth).
-  ``&`` PICK
+  ``&`` PICK (term)
      Copies expression (at depth) and pushes. Non-literal expressions
      are extracted to a local first (using `let`), and the resulting
      symbol is copied instead.
-  ``@`` ROLL (default depth 2)
+  ``@`` ROLL (term, default depth 2)
      Pops expression (at depth) and pushes.
-  ``>`` MARK (default depth 0)
+  ``>`` MARK (term, default depth 0)
      Inserts a sentinel object for PACK (at depth).
-  ``<`` PACK
+  ``<`` PACK (term)
      Pops to the first MARK (if any) and pushes as tuple.
      With depth, looks tuple up on the next expression.
+     Used for invocations.
   ``*`` SPLAT
      Splices an iterable (in-place, at depth).
   ``:`` NOP (no depth)
-     No effect. Used as a separator when no other magic applies.
+     Has no effect. A separator when no other magic applies.
 
   They can be escaped with a backtick (:literal:`\``).
 
   Other terms are either callables or data, and read as Lissp.
-  Data terms just push themselves on the stack (default depth 0).
-
-  .. code-block:: REPL
-
-     #> ^*#!:2 ()
-     >>> ### hissp.macros..QzMaybe_._rewrite
-     ... (2)
-     2
 
   Callables (default depth 1) pop args to their depth and push their
   result. Combine with a datum for partial application.
@@ -2135,6 +2132,19 @@ except ModuleNotFoundError:pass"
      >>> decrement(
      ...   (5))
      4
+
+  Data terms just push themselves on the stack (default depth 0).
+
+  .. code-block:: REPL
+
+     #> ^*#(<`@,1:2:3)
+     >>> ######## hissp.macros..QzMaybe_._rewrite
+     ... # QzAT_
+     ... (lambda *xs:[*xs])(
+     ...   (1),
+     ...   (2),
+     ...   (3))
+     [1, 2, 3]
 
   Increasing the depth of data to 1 implies a lookup on the next
   expression. Methods always need a self, so they can be converted to
@@ -2203,9 +2213,16 @@ except ModuleNotFoundError:pass"
      3.1622776601683795
 
   "
-  `(_rewrite ,(re..findall "([/&@<>*:]|(?:[^,^`/&@<>*:]|`[,^/&@<>*:])+)(,?\^*)"
-                           (hissp..demunge terms))
-            ,@stack))
+  (if-else (&& e (op#is_ tuple (type e)))
+    (let-from (sym : :* args) e
+      (if-else (&& (op#is_ str (type sym))
+                   (re..search ".[/&@<>*:^,]" (hissp..demunge sym)))
+        `(_rewrite
+          ,(re..findall "([/&@<>*:]|(?:[^,^`/&@<>*:]|`[,^/&@<>*:])+)(,?\^*)"
+                        (hissp..demunge sym))
+          ,@args)
+        `(,@(map X#(.^*\# _macro_ X) e))))
+    e))
 
 (defmacro _rewrite (program : :* exprs)
   (if-else (not program)
@@ -2248,17 +2265,17 @@ except ModuleNotFoundError:pass"
                                   (my.quotation? my.obj))
                        (if-else my.arity `(op#getitem ,(next my.iexprs) ,my.obj) my.obj)
                        (if-else (|| my.arity (not (my.method? my.obj)))
-                         `(,cmd ,@(i#islice my.iexprs my.arity+1))
+                         `(,my.obj ,@(i#islice my.iexprs my.arity+1))
                          `((op#attrgetter ',([#1:] my.obj))
                            ,(next my.iexprs)))))
-              .#"/" nil#(.pop my.exprs my.arity)
+              .#"/" (progn (.pop my.exprs my.arity) ())
               .#"&" (@ (op#getitem my.exprs my.arity))
               .#"@" (@ (.pop my.exprs my.arity+1))
+              .#">" nil#(.insert my.exprs my.arity my.mark)
               .#"<" (@ (let (x (tuple (i#takewhile X#(op#ne X my.mark) my.iexprs)))
                          (if-else suffix
                            `(op#getitem ,(next my.iexprs) x)
                            x)))
-              .#">" nil#(.insert my.exprs my.arity my.mark)
               .#"*" (@ :* (i#islice my.iexprs my.arity) :* (next my.iexprs))
               : ()))
       (set@ my.result
@@ -2270,15 +2287,17 @@ except ModuleNotFoundError:pass"
 
 .#`(progn ,@(map X#(let (args (get#(slice X) `($#x $#y $#z $#w))
                          name (.format "{}#" (op#mul X "^")))
-                    `(defmacro ,(hissp..munge name) (,'sym)
-                       ',(.format "``{}`` 'synexpand-{X}'.
+                     `(defmacro ,(hissp..munge name) (,'terms)
+                        ',(.format "``{}`` 'synexpand-{X}'.
 
-Creates a lambda of arity {X} containing a `^*#!<QzHAT_QzSTAR_QzHASH_>`
-applied to sym and a tuple of the parameters.
+Creates a lambda of arity {X} containing a ^*# applied with terms to a
+tuple of the parameters.
+
+See also: `^*#<QzHAT_QzSTAR_QzHASH_>`.
 "
-                                  name : X X)
-                       `(lambda ,',args
-                          (^*\# ,',args ,,'sym))))
+                                   name : X X)
+                        `(lambda ,',args
+                           (^*\#  (,,'terms ,@',args)))))
                  (range 1 5)))
 
 (defmacro _spy (expr file)
