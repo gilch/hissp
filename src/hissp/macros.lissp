@@ -1920,9 +1920,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;   which is the value sent to the generator this step, or the exception
   ;;   caught this step instead.
   ;;
-  ;;   See `lissp_whirlwind_tour` (§§16–17) for usage examples.
+  ;;   See `Ensue examples`_ below.
   ;;
-  ;;   See also: `types.coroutine`, `collections.abc.Generator`.
+  ;;   See also:
+  ;;   `types.coroutine`, `collections.abc.Generator`, `loop-from<loopQz_from>`.
   ;;
   ;; * Adds the bundled macros, but only if available
   ;;   (macros are typically only used at compile time),
@@ -1966,8 +1967,6 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; engarde examples
   ;; ----------------
   ;; .. code-block:: REPL
-  ;;
-  ;;    ;;;; engarde usage
   ;;
   ;;    #> (engarde `(,FloatingPointError ,ZeroDivisionError) ;two targets
   ;;    #..         (lambda e (print "Oops!") e)    ;handler (returns exception)
@@ -2060,6 +2059,177 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...                 ('msg')))),
   ;;    ...           _QzWG5WN73Wz_target)[-1])())())))
   ;;    Exception('msg')
+  ;;
+  ;; Ensue examples
+  ;; --------------
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (define fibonacci
+  ;;    #..  (lambda (: a 1  b 1)
+  ;;    #..    (Ensue (lambda (step)
+  ;;    #..             (set@ step.Y a)            ;Y for yield.
+  ;;    #..             (fibonacci b (add a b))))))
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   fibonacci=(lambda a=(1),b=(1):
+  ;;    ...               Ensue(
+  ;;    ...                 (lambda step:(
+  ;;    ...                   # setQzAT_
+  ;;    ...                   # hissp.macros.._macro_.let
+  ;;    ...                   (lambda _QzRMG5GSSIz_val=a:(
+  ;;    ...                     __import__('builtins').setattr(
+  ;;    ...                       step,
+  ;;    ...                       'Y',
+  ;;    ...                       _QzRMG5GSSIz_val),
+  ;;    ...                     _QzRMG5GSSIz_val)[-1])(),
+  ;;    ...                   fibonacci(
+  ;;    ...                     b,
+  ;;    ...                     add(
+  ;;    ...                       a,
+  ;;    ...                       b)))[-1]))))
+  ;;
+  ;;    #> (list (islice (fibonacci) 7))
+  ;;    >>> list(
+  ;;    ...   islice(
+  ;;    ...     fibonacci(),
+  ;;    ...     (7)))
+  ;;    [1, 1, 2, 3, 5, 8, 13]
+  ;;
+  ;;    #> (define my-range ; Terminate by not returning an Ensue.
+  ;;    #..  (lambda in
+  ;;    #..    (Ensue (lambda (step)
+  ;;    #..             (when (lt i n)             ;Acts like a while loop.
+  ;;    #..               (set@ step.Y i)
+  ;;    #..               (my-range (add i 1) n)))))) ;Conditional recursion.
+  ;;    #..
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   myQz_range=(lambda i,n:
+  ;;    ...                Ensue(
+  ;;    ...                  (lambda step:
+  ;;    ...                    # when
+  ;;    ...                    (lambda b,c:c()if b else())(
+  ;;    ...                      lt(
+  ;;    ...                        i,
+  ;;    ...                        n),
+  ;;    ...                      (lambda :(
+  ;;    ...                        # setQzAT_
+  ;;    ...                        # hissp.macros.._macro_.let
+  ;;    ...                        (lambda _QzRMG5GSSIz_val=i:(
+  ;;    ...                          __import__('builtins').setattr(
+  ;;    ...                            step,
+  ;;    ...                            'Y',
+  ;;    ...                            _QzRMG5GSSIz_val),
+  ;;    ...                          _QzRMG5GSSIz_val)[-1])(),
+  ;;    ...                        myQz_range(
+  ;;    ...                          add(
+  ;;    ...                            i,
+  ;;    ...                            (1)),
+  ;;    ...                          n))[-1]))))))
+  ;;
+  ;;    #> (list (my-range 1 6))
+  ;;    >>> list(
+  ;;    ...   myQz_range(
+  ;;    ...     (1),
+  ;;    ...     (6)))
+  ;;    [1, 2, 3, 4, 5]
+  ;;
+  ;;    #> (Ensue (lambda (step)
+  ;;    #..         (attach step :
+  ;;    #..           F True ; Set F for yield-From mode.
+  ;;    #..           Y '(1 2 3 4 5))
+  ;;    #..         None))
+  ;;    >>> Ensue(
+  ;;    ...   (lambda step:(
+  ;;    ...     # attach
+  ;;    ...     # hissp.macros.._macro_.let
+  ;;    ...     (lambda _QzWG5WN73Wz_target=step:(
+  ;;    ...       __import__('builtins').setattr(
+  ;;    ...         _QzWG5WN73Wz_target,
+  ;;    ...         'F',
+  ;;    ...         True),
+  ;;    ...       __import__('builtins').setattr(
+  ;;    ...         _QzWG5WN73Wz_target,
+  ;;    ...         'Y',
+  ;;    ...         ((1),
+  ;;    ...          (2),
+  ;;    ...          (3),
+  ;;    ...          (4),
+  ;;    ...          (5),)),
+  ;;    ...       _QzWG5WN73Wz_target)[-1])(),
+  ;;    ...     None)[-1]))
+  ;;    <...Ensue object at ...>
+  ;;
+  ;;    #> (list _)
+  ;;    >>> list(
+  ;;    ...   _)
+  ;;    [1, 2, 3, 4, 5]
+  ;;
+  ;;    #> (define recycle
+  ;;    #..  (lambda (itr)
+  ;;    #..    (Ensue (lambda (step)
+  ;;    #..             ;; Implicit continuation; step is an Ensue.
+  ;;    #..             (attach step : Y itr  F 1)))))
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   recycle=(lambda itr:
+  ;;    ...             Ensue(
+  ;;    ...               (lambda step:
+  ;;    ...                 # attach
+  ;;    ...                 # hissp.macros.._macro_.let
+  ;;    ...                 (lambda _QzWG5WN73Wz_target=step:(
+  ;;    ...                   __import__('builtins').setattr(
+  ;;    ...                     _QzWG5WN73Wz_target,
+  ;;    ...                     'Y',
+  ;;    ...                     itr),
+  ;;    ...                   __import__('builtins').setattr(
+  ;;    ...                     _QzWG5WN73Wz_target,
+  ;;    ...                     'F',
+  ;;    ...                     (1)),
+  ;;    ...                   _QzWG5WN73Wz_target)[-1])()))))
+  ;;
+  ;;    #> (-> '(1 2 3) recycle (islice 7) list)
+  ;;    >>> # Qz_QzGT_
+  ;;    ... list(
+  ;;    ...   islice(
+  ;;    ...     recycle(
+  ;;    ...       ((1),
+  ;;    ...        (2),
+  ;;    ...        (3),)),
+  ;;    ...     (7)))
+  ;;    [1, 2, 3, 1, 2, 3, 1]
+  ;;
+  ;;    #> (define echo
+  ;;    #..  (Ensue (lambda (step)
+  ;;    #..           (set@ step.Y step.sent)
+  ;;    #..           step)))
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   echo=Ensue(
+  ;;    ...          (lambda step:(
+  ;;    ...            # setQzAT_
+  ;;    ...            # hissp.macros.._macro_.let
+  ;;    ...            (lambda _QzRMG5GSSIz_val=step.sent:(
+  ;;    ...              __import__('builtins').setattr(
+  ;;    ...                step,
+  ;;    ...                'Y',
+  ;;    ...                _QzRMG5GSSIz_val),
+  ;;    ...              _QzRMG5GSSIz_val)[-1])(),
+  ;;    ...            step)[-1])))
+  ;;
+  ;;    #> (.send echo None) ; Always send a None first. Same as Python.
+  ;;    >>> echo.send(
+  ;;    ...   None)
+  ;;
+  ;;    #> (.send echo "Yodle!") ; Generators are two-way.
+  ;;    >>> echo.send(
+  ;;    ...   ('Yodle!'))
+  ;;    'Yodle!'
+  ;;
+  ;;    #> (.send echo 42)
+  ;;    >>> echo.send(
+  ;;    ...   (42))
+  ;;    42
   ;;
   `(exec ',(.format #"\
 from functools import partial,reduce
