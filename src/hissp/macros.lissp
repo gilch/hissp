@@ -1894,7 +1894,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;;   ``enter`` with context managers can stack above in a single form.
   ;;
-  ;;   See `lissp_whirlwind_tour` (§17) for usage examples.
+  ;;   See `enter examples`_ below.
   ;;
   ;; .. _Ensue:
   ;;
@@ -1920,7 +1920,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;   which is the value sent to the generator this step, or the exception
   ;;   caught this step instead.
   ;;
-  ;;   See `Ensue examples`_ below.
+  ;;   See `Ensue examples`_ and `enter examples`_ below.
   ;;
   ;;   See also:
   ;;   `types.coroutine`, `collections.abc.Generator`, `loop-from<loopQz_from>`.
@@ -2230,6 +2230,147 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    >>> echo.send(
   ;;    ...   (42))
   ;;    42
+  ;;
+  ;; enter examples
+  ;; --------------
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (define wrap
+  ;;    #..  (contextlib..contextmanager
+  ;;    #..   (lambda (msg)
+  ;;    #..     (print "enter" msg)
+  ;;    #..     (Ensue (lambda (step)
+  ;;    #..              (set@ step.Y msg)
+  ;;    #..              (Ensue (lambda (step)
+  ;;    #..                       (print "exit" msg))))))))
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   wrap=__import__('contextlib').contextmanager(
+  ;;    ...          (lambda msg:(
+  ;;    ...            print(
+  ;;    ...              ('enter'),
+  ;;    ...              msg),
+  ;;    ...            Ensue(
+  ;;    ...              (lambda step:(
+  ;;    ...                # setQzAT_
+  ;;    ...                # hissp.macros.._macro_.let
+  ;;    ...                (lambda _QzRMG5GSSIz_val=msg:(
+  ;;    ...                  __import__('builtins').setattr(
+  ;;    ...                    step,
+  ;;    ...                    'Y',
+  ;;    ...                    _QzRMG5GSSIz_val),
+  ;;    ...                  _QzRMG5GSSIz_val)[-1])(),
+  ;;    ...                Ensue(
+  ;;    ...                  (lambda step:
+  ;;    ...                    print(
+  ;;    ...                      ('exit'),
+  ;;    ...                      msg))))[-1])))[-1])))
+  ;;
+  ;;    #> (enter (wrap 'A)
+  ;;    #..       (lambda a (print a)))
+  ;;    >>> enter(
+  ;;    ...   wrap(
+  ;;    ...     'A'),
+  ;;    ...   (lambda a:
+  ;;    ...     print(
+  ;;    ...       a)))
+  ;;    enter A
+  ;;    A
+  ;;    exit A
+  ;;
+  ;;    #> (enter (wrap 'A)
+  ;;    #.. enter (wrap 'B)
+  ;;    #.. enter (wrap 'C) ; You can stack them.
+  ;;    #.. (lambda abc (print a b c)))
+  ;;    >>> enter(
+  ;;    ...   wrap(
+  ;;    ...     'A'),
+  ;;    ...   enter,
+  ;;    ...   wrap(
+  ;;    ...     'B'),
+  ;;    ...   enter,
+  ;;    ...   wrap(
+  ;;    ...     'C'),
+  ;;    ...   (lambda a,b,c:
+  ;;    ...     print(
+  ;;    ...       a,
+  ;;    ...       b,
+  ;;    ...       c)))
+  ;;    enter A
+  ;;    enter B
+  ;;    enter C
+  ;;    A B C
+  ;;    exit C
+  ;;    exit B
+  ;;    exit A
+  ;;
+  ;;    #> (define suppress-zde
+  ;;    #..  (contextlib..contextmanager
+  ;;    #..   (lambda :
+  ;;    #..     (Ensue (lambda (step)
+  ;;    #..              (attach step :
+  ;;    #..                Y None
+  ;;    #..                X ZeroDivisionError) ;X for eXcept (can be a tuple).
+  ;;    #..              (Ensue (lambda (step)
+  ;;    #..                       (print "Caught a" step.sent))))))))
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   suppressQz_zde=__import__('contextlib').contextmanager(
+  ;;    ...                    (lambda :
+  ;;    ...                      Ensue(
+  ;;    ...                        (lambda step:(
+  ;;    ...                          # attach
+  ;;    ...                          # hissp.macros.._macro_.let
+  ;;    ...                          (lambda _QzWG5WN73Wz_target=step:(
+  ;;    ...                            __import__('builtins').setattr(
+  ;;    ...                              _QzWG5WN73Wz_target,
+  ;;    ...                              'Y',
+  ;;    ...                              None),
+  ;;    ...                            __import__('builtins').setattr(
+  ;;    ...                              _QzWG5WN73Wz_target,
+  ;;    ...                              'X',
+  ;;    ...                              ZeroDivisionError),
+  ;;    ...                            _QzWG5WN73Wz_target)[-1])(),
+  ;;    ...                          Ensue(
+  ;;    ...                            (lambda step:
+  ;;    ...                              print(
+  ;;    ...                                ('Caught a'),
+  ;;    ...                                step.sent))))[-1])))))
+  ;;
+  ;;    #> (enter (suppress-zde)
+  ;;    #..  (lambda _ (truediv 1 0)))
+  ;;    >>> enter(
+  ;;    ...   suppressQz_zde(),
+  ;;    ...   (lambda _:
+  ;;    ...     truediv(
+  ;;    ...       (1),
+  ;;    ...       (0))))
+  ;;    Caught a division by zero
+  ;;
+  ;;    ;; No exception, so step.sent was .send() value.
+  ;;    #> (enter (suppress-zde)
+  ;;    #..  (lambda _ (truediv 4 2)))
+  ;;    >>> enter(
+  ;;    ...   suppressQz_zde(),
+  ;;    ...   (lambda _:
+  ;;    ...     truediv(
+  ;;    ...       (4),
+  ;;    ...       (2))))
+  ;;    Caught a None
+  ;;    2.0
+  ;;
+  ;;    #> (enter (suppress-zde)
+  ;;    #..  (lambda _ (throw Exception)))
+  ;;    >>> enter(
+  ;;    ...   suppressQz_zde(),
+  ;;    ...   (lambda _:
+  ;;    ...     # throw
+  ;;    ...     # hissp.macros.._macro_.throwQzSTAR_
+  ;;    ...     (lambda g:g.close()or g.throw)(c for c in'')(
+  ;;    ...       Exception)))
+  ;;    Traceback (most recent call last):
+  ;;      ...
+  ;;    Exception
   ;;
   `(exec ',(.format #"\
 from functools import partial,reduce
