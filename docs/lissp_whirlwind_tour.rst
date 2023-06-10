@@ -2274,67 +2274,6 @@ Lissp Whirlwind Tour
    ;;; Alias makes a new reader macro to abbreviate a qualifier.
    ;;; This is an alternative to adding an import to _macro_ or globals.
 
-   #> (hissp.._macro_.alias M: hissp.._macro_)
-   >>> # hissp.._macro_.alias
-   ... # hissp.macros.._macro_.defmacro
-   ... # hissp.macros.._macro_.let
-   ... (lambda _QzAW22OE5Kz_fn=(lambda _QzARAQTXTEz_prime,_QzARAQTXTEz_reader=None,*_QzARAQTXTEz_args:(
-   ...   'Aliases ``hissp.._macro_`` as ``MQzCOLON_#``.',
-   ...   # hissp.macros.._macro_.ifQz_else
-   ...   (lambda b,c,a:c()if b else a())(
-   ...     _QzARAQTXTEz_reader,
-   ...     (lambda :
-   ...       __import__('builtins').getattr(
-   ...         __import__('hissp')._macro_,
-   ...         ('{}{}').format(
-   ...           _QzARAQTXTEz_reader,
-   ...           # hissp.macros.._macro_.ifQz_else
-   ...           (lambda b,c,a:c()if b else a())(
-   ...             'hissp.._macro_'.endswith(
-   ...               '._macro_'),
-   ...             (lambda :'QzHASH_'),
-   ...             (lambda :('')))))(
-   ...         _QzARAQTXTEz_prime,
-   ...         *_QzARAQTXTEz_args)),
-   ...     (lambda :
-   ...       ('{}.{}').format(
-   ...         'hissp.._macro_',
-   ...         _QzARAQTXTEz_prime))))[-1]):(
-   ...   __import__('builtins').setattr(
-   ...     _QzAW22OE5Kz_fn,
-   ...     '__doc__',
-   ...     'Aliases ``hissp.._macro_`` as ``MQzCOLON_#``.'),
-   ...   __import__('builtins').setattr(
-   ...     _QzAW22OE5Kz_fn,
-   ...     '__qualname__',
-   ...     ('.').join(
-   ...       ('_macro_',
-   ...        'MQzCOLON_QzHASH_',))),
-   ...   __import__('builtins').setattr(
-   ...     __import__('operator').getitem(
-   ...       __import__('builtins').globals(),
-   ...       '_macro_'),
-   ...     'MQzCOLON_QzHASH_',
-   ...     _QzAW22OE5Kz_fn))[-1])()
-
-   #> 'M:#alias
-   >>> 'hissp.._macro_.alias'
-   'hissp.._macro_.alias'
-
-   #> M:#b\#                              ;b# macro callable
-   >>> __import__('hissp')._macro_.bQzHASH_
-   <function _macro_.bQzHASH_ at ...>
-
-   #> (M:#b\# "b# macro at compile time")
-   >>> # hissp.._macro_.bQzHASH_
-   ... b'b# macro at compile time'
-   b'b# macro at compile time'
-
-   #> hissp.._macro_.b#"Fully-qualified b# macro at read time."
-   >>> b'Fully-qualified b# macro at read time.'
-   b'Fully-qualified b# macro at read time.'
-
-
    ;; A couple of aliases are bundled:
    #> op#add
    >>> __import__('operator').add
