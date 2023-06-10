@@ -2123,7 +2123,6 @@ except ModuleNotFoundError:pass"
      ... __import__('builtins').globals().update(
      ...   decrement=(lambda _QzX7FS3TFJz_x:
      ...               # hissp.macros.._macro_.QzHAT_QzSTAR_QzHASH_
-     ...               #### hissp.macros..QzMaybe_._rewrite
      ...               sub(
      ...                 _QzX7FS3TFJz_x,
      ...                 (1))))
@@ -2138,8 +2137,7 @@ except ModuleNotFoundError:pass"
   .. code-block:: REPL
 
      #> ^*#(<`@,1:2:3)
-     >>> ######## hissp.macros..QzMaybe_._rewrite
-     ... # QzAT_
+     >>> # QzAT_
      ... (lambda *xs:[*xs])(
      ...   (1),
      ...   (2),
@@ -2156,7 +2154,6 @@ except ModuleNotFoundError:pass"
      #> (^#.__class__.__name__:'spam^ (dict : spam 'eggs))
      >>> (lambda _QzX7FS3TFJz_x:
      ...   # hissp.macros.._macro_.QzHAT_QzSTAR_QzHASH_
-     ...   #### hissp.macros..QzMaybe_._rewrite
      ...   __import__('operator').attrgetter(
      ...     '__class__.__name__')(
      ...     __import__('operator').getitem(
@@ -2178,7 +2175,6 @@ except ModuleNotFoundError:pass"
      ... __import__('builtins').globals().update(
      ...   prod=(lambda _QzX7FS3TFJz_x:
      ...          # hissp.macros.._macro_.QzHAT_QzSTAR_QzHASH_
-     ...          ### hissp.macros..QzMaybe_._rewrite
      ...          reduce(
      ...            mul,
      ...            _QzX7FS3TFJz_x)))
@@ -2197,7 +2193,6 @@ except ModuleNotFoundError:pass"
      ... __import__('builtins').globals().update(
      ...   geomean=(lambda _QzX7FS3TFJz_x:
      ...             # hissp.macros.._macro_.QzHAT_QzSTAR_QzHASH_
-     ...             ######### hissp.macros..QzMaybe_._rewrite
      ...             pow(
      ...               prod(
      ...                 _QzX7FS3TFJz_x),
@@ -2217,10 +2212,10 @@ except ModuleNotFoundError:pass"
     (let-from (sym : :* args) e
       (if-else (&& (op#is_ str (type sym))
                    (re..search ".[/&@<>*:^,]" (hissp..demunge sym)))
-        `(_rewrite
-          ,(re..findall "([/&@<>*:]|(?:[^,^`/&@<>*:]|`[,^/&@<>*:])+)(,?\^*)"
-                        (hissp..demunge sym))
-          ,@args)
+        (._rewrite _macro_
+         (re..findall "([/&@<>*:]|(?:[^,^`/&@<>*:]|`[,^/&@<>*:])+)(,?\^*)"
+                      (hissp..demunge sym))
+         : :* (map X#(.^*\# _macro_ X) args))
         `(,@(map X#(.^*\# _macro_ X) e))))
     e))
 
@@ -2251,11 +2246,12 @@ except ModuleNotFoundError:pass"
         arity+1 (op#add 1 my.arity))
       (when (&& (op#eq "&" cmd)
                 (not (my.literal? (set@ my.target (op#getitem exprs my.arity))))
+                (not (hissp.reader..is_lissp_string my.target))
                 (not (my.control-word? my.target))
                 (not (my.symbol? my.target))
                 (not (my.quotation? my.target)))
         (set@ my.G (.format "{}{}" `$#G (hissp.reader..gensym_counter)))
-        (setitem my.exprs my.arity my.G))
+        (op#setitem my.exprs my.arity my.G))
       (set@ my.result
         (case cmd (@ (if-else (|| (my.literal? my.obj)
                                   (.startswith suffix ",")
@@ -2279,7 +2275,7 @@ except ModuleNotFoundError:pass"
               .#"*" (@ :* (i#islice my.iexprs my.arity) :* (next my.iexprs))
               : ()))
       (set@ my.result
-        `(_rewrite ,program ,@my.result ,@my.iexprs))
+        (._rewrite _macro_ program : :* my.result :* my.iexprs))
       (when my.G
         (set@ my.result
           `(let (,my.G ,my.target) ,my.result)))
