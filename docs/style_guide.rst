@@ -721,6 +721,8 @@ Margin Comments ;X
 Margin comments begin with one semicolon ``;x``.
 The semicolon must be aligned with spaces to rest on column 40,
 or one space after the code, whichever is greater.
+(That's if you're using zero-based column indexing, like Emacs.
+The semicolon goes on column 41 if you're counting columns starting from 1.)
 The semicolon is not followed by a space unless it continues a margin
 comment from the previous line.
 Unlike inline comments,
