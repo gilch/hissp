@@ -216,7 +216,8 @@ Create a Lissp file (perhaps ``macros.lissp``),
 and open it in your Lisp editor of choice.
 
 Fire up the Lissp REPL in a terminal,
-or in your editor if it does that.
+or in your editor if it does that,
+in the same directory as your Lissp file.
 
 Add the prelude to the top of the file:
 
@@ -262,11 +263,53 @@ And push it to the REPL as well:
    but not the en- group or imports.
 
 I'll mostly be showing the REPL from here on.
-Remember, compose in your Lissp file,
-then push to the REPL.
+Remember, compose non-trivial forms in your Lissp file first,
+*then* push to the REPL,
+not the other way around.
+Your editor is for editing.
+The REPL isn't good at that.
 We'll be modifying these definitions through several iterations.
 
-Let's try the same idea in Lissp:
+You can compile your Lissp file to Python using the REPL with a command like
+
+.. code-block:: Lissp
+
+   #> (hissp..transpile __package__ 'foo)
+
+where ``foo`` is the name of your module
+(so, ``macros`` if your Lissp file was named that).
+
+We're not actually in a package,
+so the `__package__` argument is just going to resolve to `None`
+(empty string also works),
+but it's important that you do include it when you are,
+or the compiler might not be able to resolve names correctly,
+so it doesn't hurt to always add it.
+
+You should see a Python file with the same name appear.
+If you open it in your editor, you should see the compiled prelude, like you saw in the REPL.
+
+.. sidebar::
+
+   What? You never use a Python console in any module but ``__main__``?
+   Goodness, whyever not?
+   Do you also eschew ``cd`` in the shell, you masochist?
+   `code.interact`. Try it!
+
+Start a subREPL in the new Python module. The command is like
+
+.. code-block:: Lissp
+
+   #> (hissp..interact (vars foo.))
+
+And confirm that `__name__` resolves to your foo.
+If you need to, you can quit the subREPL and return to main by entering an EOF.
+(That's :kbd:`Ctrl+D`, if you didn't know,
+or :kbd:`Ctrl+Z Enter`, for Windows.)
+It's just a subREPL, so this doesn't exit Python.
+Any globals you defined in the module will still be there.
+
+Now, let's try that same idea in Lissp:
 
 .. code-block:: REPL
 
@@ -629,6 +672,30 @@ before moving on.
 Don't generalize before we have examples to work with.
 
 I'll wait.
+
+\...
+
+\...
+
+\...
+
+\...
+
+\...
+
+\...
+
+\...
+
+\...
+
+\...
+
+\...
+
+\...
+
+\...
 
 \...
 
@@ -1370,6 +1437,18 @@ We can create numbered X's the same way we created the numbered L's.
    ...     'L',
    ...     _QzAW22OE5Kz_fn))[-1])()
 
+.. tip::
+
+   Oh, by the way, we've been pushing individual forms to the subREPL up till now,
+   but it's sometimes more convenient to save, recompile,
+   and reload the whole module.
+   Comment out anything you don't want loaded.
+   You can still push them later.
+   A `_#<parse_macro>` can discard a tuple and everything in it.
+   (Although it still gets *read*.)
+   You already know how to compile.
+   No, you don't have to restart the REPL!
+   `importlib.reload`. See also, `defonce`, `del`.
 
 .. code-block:: REPL
 
@@ -1661,13 +1740,27 @@ Let's review. The code you need to make the version we have so far is
                   form)))
 
 Given all of this in a file named ``macros.lissp``,
-you can start the REPL with these already loaded using the command
+you can start a subREPL with these already loaded using the shell command
 
 .. code-block:: Text
 
-   $ lissp -i macros.lissp
+   $ lissp -c "(hissp..interact (vars macros.))"
 
-rather than pasting them in.
+rather than pasting them all in again.
+
+.. tip::
+
+   Is there more than that in your file?
+   If you've been composing in your editor (rather than directly in the REPL)
+   like you're supposed to,
+   you've probably accumulated some junk for experiments.
+   Don't delete it yet!
+   Experiments often make excellent test cases.
+   Wrap them in top-level `assure` forms.
+   In a larger project, you might move them to `unittest` modules.
+   Also, the Lissp REPL was designed for compatibility with `doctest`;
+   although that won't test the compilation from Lissp to Python
+   (making it less useful for testing macros).
 
 You can use the resulting macro as a shorter lambda for higher-order functions:
 
