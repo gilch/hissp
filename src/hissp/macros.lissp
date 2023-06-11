@@ -2921,9 +2921,15 @@ See also: `^*#<QzHAT_QzSTAR_QzHASH_>`.
   ;; compile time, not at run time, that determines if assure
   ;; assertions are turned on.
   ;;
-  ;; Prefer `avow` to `assure`, unless profiling indicates the check is
-  ;; unacceptably expensive in production, and the risk of not checking
-  ;; is acceptable; assume `__debug__` will later be turned off.
+  ;; For internal integrity checks, prefer `avow` to `assure`, unless
+  ;; profiling indicates the check is unacceptably expensive in
+  ;; production, and the risk of not checking is acceptable; assume
+  ;; `__debug__` will later be turned off.
+  ;;
+  ;; Also useful at the top level for quick unit tests in smaller
+  ;; projects, because they can be turned off. Larger projects may be
+  ;; better off with `unittest` and separated test modules, wich need
+  ;; not be distributed and likely produce better error messages.
   ;;
   ;; .. code-block:: REPL
   ;;
