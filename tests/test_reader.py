@@ -277,13 +277,14 @@ EXPECTED = {
          "QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_QzFULLxSTOP_QzSOL_",)
     ],
 
-    R"""\1 \12 \[] \(\) \{} \[] \; \# \` \, \' \" \\ \\. \. \ """: [
+    R"""\1 \12 \[] \(\) \{} \[] \: \; \# \` \, \' \" \\ \\. \. \ """: [
         "QzDIGITxONE_",
         "QzDIGITxONE_2",
         "QzLSQB_QzRSQB_",
         "QzLPAR_QzRPAR_",
         "QzLCUB_QzRCUB_",
         "QzLSQB_QzRSQB_",
+        "QzCOLON_",
         "QzSEMI_",
         "QzHASH_",
         "QzGRAVE_",

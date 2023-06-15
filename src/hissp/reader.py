@@ -453,8 +453,9 @@ class Lissp:
     @staticmethod
     def escape(atom):
         """Process the backslashes in a token."""
-        full_stop = force_qz_encode(".")
-        return re.sub(r"\\(.)", lambda m: full_stop if m[1] == "." else m[1], atom)
+        return re.sub(
+            r"\\(.)", lambda m: force_qz_encode(m[1]) if m[1] in ".:" else m[1], atom
+        )
 
     @staticmethod
     def _string(v):
