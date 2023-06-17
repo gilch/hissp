@@ -64,8 +64,9 @@ TOKENS = re.compile(
     |(?P<macro>
        ,@
       |['`,!]
-       # Any atom that ends in (an unescaped) ``#``
-      |(?:[^\\ \n"();#]|\\.)+[#]
+      |[.][#]
+      # Any atom that ends in ``#``, but not ``.#`` or ``\#``.
+      |(?:[^\\ \n"();#]|\\.)*(?:[^.\\ \n"();#]|\\.)[#]
      )
     |(?P<string>
       [#]?  # raw?
@@ -433,6 +434,7 @@ class Lissp:
     def _custom_macro(self, form, tag, extras):
         assert tag.endswith("#")
         tag = force_munge(self.escape(tag[:-1]))
+        tag = re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), tag)
         m = (self._fully_qualified if ".." in tag else self._local)(tag)
         with self.compiler.macro_context():
             args, kwargs = parse_extras(extras)
