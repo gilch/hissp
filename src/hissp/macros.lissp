@@ -2530,7 +2530,7 @@ except ModuleNotFoundError:pass"
   including composition, partial application, and point-free data flow.
 
   A mini-language expression is a tuple beginning with an element
-  containing at least one magic character that is not the first
+  containing at least one ``^`` or ``:`` character that is not the first
   character (to avoid detecting all control words). The remainder form
   the initial stack.
 
@@ -2679,7 +2679,7 @@ except ModuleNotFoundError:pass"
   (if-else (&& e (op#is_ tuple (type e)))
     (let-from (sym : :* args) e
       (if-else (&& (op#is_ str (type sym))
-                   (re..search ".[/&@<>*:^,]" (hissp..demunge sym)))
+                   (re..search ".[:^]" (hissp..demunge sym)))
         (._rewrite _macro_
          (re..findall "([/&@<>*:]|(?:[^,^`/&@<>*:]|`[,^/&@<>*:])+)(,?\^*)"
                       (hissp..demunge sym))
