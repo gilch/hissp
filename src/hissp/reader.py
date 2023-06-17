@@ -30,7 +30,7 @@ from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union, Lis
 
 import hissp.compiler as C
 from hissp.compiler import Compiler, readerless
-from hissp.munger import force_qz_encode, munge
+from hissp.munger import force_munge, force_qz_encode, munge
 
 GENSYM_BYTES = 5
 """
@@ -64,8 +64,9 @@ TOKENS = re.compile(
     |(?P<macro>
        ,@
       |['`,!]
-       # Any atom that ends in (an unescaped) ``#``
-      |(?:[^\\ \n"();#]|\\.)+[#]
+      |[.][#]
+      # Any atom that ends in ``#``, but not ``.#`` or ``\#``.
+      |(?:[^\\ \n"();#]|\\.)*(?:[^.\\ \n"();#]|\\.)[#]
      )
     |(?P<string>
       [#]?  # raw?
@@ -432,7 +433,8 @@ class Lissp:
 
     def _custom_macro(self, form, tag, extras):
         assert tag.endswith("#")
-        tag = munge(self.escape(tag[:-1]))
+        tag = force_munge(self.escape(tag[:-1]))
+        tag = re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), tag)
         m = (self._fully_qualified if ".." in tag else self._local)(tag)
         with self.compiler.macro_context():
             args, kwargs = parse_extras(extras)
@@ -453,8 +455,9 @@ class Lissp:
     @staticmethod
     def escape(atom):
         """Process the backslashes in a token."""
-        atom = atom.replace(r"\.", force_qz_encode("."))
-        return re.sub(r"\\(.)", lambda m: m[1], atom)
+        return re.sub(
+            r"\\(.)", lambda m: force_qz_encode(m[1]) if m[1] in ".:" else m[1], atom
+        )
 
     @staticmethod
     def _string(v):
