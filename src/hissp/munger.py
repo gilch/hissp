@@ -61,6 +61,14 @@ def munge(s: str) -> str:
     """
     if s.startswith(":"):
         return s  # control word
+    return force_munge(s)
+
+
+def force_munge(s: str) -> str:
+    """As `munge`, but skips the control word check.
+
+    Used for reader tags.
+    """
     # Always normalize identifiers:
     # >>> 𝐀 = 'MATHEMATICAL BOLD CAPITAL A'
     # >>> 'A' in globals()

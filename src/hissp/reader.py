@@ -30,7 +30,7 @@ from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union, Lis
 
 import hissp.compiler as C
 from hissp.compiler import Compiler, readerless
-from hissp.munger import force_qz_encode, munge
+from hissp.munger import force_munge, force_qz_encode, munge
 
 GENSYM_BYTES = 5
 """
@@ -432,7 +432,7 @@ class Lissp:
 
     def _custom_macro(self, form, tag, extras):
         assert tag.endswith("#")
-        tag = munge(self.escape(tag[:-1]))
+        tag = force_munge(self.escape(tag[:-1]))
         m = (self._fully_qualified if ".." in tag else self._local)(tag)
         with self.compiler.macro_context():
             args, kwargs = parse_extras(extras)
