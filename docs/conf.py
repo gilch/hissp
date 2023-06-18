@@ -42,6 +42,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "lissp_lexer",
     "lissp_directive",
+    "sphinx.ext.viewcode",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
