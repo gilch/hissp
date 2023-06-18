@@ -1,4 +1,4 @@
-.. Copyright 2020, 2021, 2022 Matthew Egan Odendahl
+.. Copyright 2020, 2021, 2022, 2023 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 Style Guide
@@ -7,7 +7,7 @@ Style Guide
 Why have a style guide?
 
 Code was made for the human, not only for the machine,
-otherwise we'd all be writing programs in binary.
+otherwise we'd all still be writing programs in binary.
 Style is not merely a matter of aesthetics.
 Consistency lifts a burden from the mind, and,
 with experience, improves human performance.
@@ -16,7 +16,8 @@ Style is a practical matter.
 Code is written once, and rewritten many times.
 It is *read* much more than it is written,
 and often by multiple individuals,
-so it is that much more important to make code easy to read and edit than to write.
+so making code easy to read and edit is that much more important than making it easy to write.
+Learning style is as much about learning to *read* code as it is about learning to write it.
 
 To the uninitiated, Lisp is an unreadable homogenous ball of mud.
 Lots of Irritating Superfluous Parentheses. That's L.I.S.P.
@@ -218,36 +219,6 @@ This also goes for readerless mode.
        ),
    )
 
-If you're using an auto formatter that isn't aware of Hissp,
-you may have to turn it off.
-
-.. code-block:: Python
-
-   # Right.
-   # fmt: off
-   ('define','fib'
-    ,('lambda',('n',)
-      ,('ifQz_else',('operator..le','n',2,)
-        ,'n'
-        ,('operator..add',('fib',('operator..sub','n',1,),)
-                         ,('fib',('operator..sub','n',2,),),),),),)
-   # fmt: on
-
-A few notes about tuple commas in readerless.
-The last element always ends with one (commas are used as terminators,
-not separators),
-even on the same line.
-This is to prevent the common error of forgetting the required trailing comma for a monuple.
-If your syntax highlighter can distinguish ``(x)`` from ``(x,)``, you may be OK without it.
-But this had better be the case for the whole team and project.
-Be consistent.
-
-Also note that tuple commas do not end the line, but rather start the next one.
-This marks the head element as special, because it starts with a ``(`` instead of a ``,``,
-and naturally starts one column earlier.
-Linewise edits and indentation are also more consistent this way.
-Commas are not followed by a space except to imply groups (when an extra space would be used in Lissp).
-
 Unambiguous Indentation
 :::::::::::::::::::::::
 
@@ -367,7 +338,7 @@ so you know when to break them.
 Sometimes differences of opinion come down to taste.
 Use your best judgement;
 it's not always black and white.
-(But don't make the worse mistake of thinking there's only one shade of gray ;)
+But don't make the worse mistake of thinking there's only one shade of gray ;)
 
 Lisp is one of the oldest programming languages in common use.
 It has splintered into many dialects (Lissp among them),
@@ -378,8 +349,9 @@ with some small modifications for its own unique features.
 Tuples
 ::::::
 
-Separate *top level* forms from each other with a single blank like,
-unless they are very closely related.
+By default, separate *top level* forms from each other with a single blank like.
+Don't use multiple blank lines in succession.
+When greater separation is required, use comments.
 
 .. _top level:
 
@@ -387,6 +359,18 @@ Top Level
   Not nested inside another form.
   "Top" here means the top of the syntax tree,
   not the top of the file.
+
+Small and closely-related forms may be semantically "attached" to the next
+or previous form by omitting the usual blank line.
+E.g., several one-line "constant" `define` forms making up a conceptual group need not be separated;
+one only used by the following definition may be attached to it;
+a form modifying the previous (e.g. decorating, attaching attributes),
+or adding it to a collection may be attached to it.
+
+However, in many of these cases,
+the groups could be written as a single top-level form insead,
+given the appropriate functions or macros.
+E.g. `dict.update` (on `globals`), `let`, `@#!<QzAT_QzHASH_>`, `attach`, `doto`.
 
 Try to avoid blank lines within forms.
 You may need them for separating groups whose elements span lines
@@ -402,6 +386,9 @@ If you add a line break for one group,
 then put all of its sibling groups on their own line as well.
 Keep items within implied groups (like kwargs) together.
 Control words used as labels should be grouped with what they label.
+The main idea here is that you can imply groups with whitespace
+and should not imply groupings that are not meaningful.
+
 Your code should look like these examples, recursively applied to subforms:
 
 .. code-block:: Lissp
@@ -486,7 +473,7 @@ Your code should look like these examples, recursively applied to subforms:
     :
     kw1
     kwarg1
-                                          ;Break for everything, and extra line to separate pairs.
+    ;;                                    ;Break for everything, and ;; line to separate pairs.
     kw2
     kwarg2)
 
@@ -504,6 +491,7 @@ Your code should look like these examples, recursively applied to subforms:
      body2
      body3)
 
+   ;; Group control words with the things they label.
    ;; Without any positional-only parameters, there's no need for :/ at all, so it groups left.
    (lambda (pos1 :/
             param1
@@ -539,7 +527,50 @@ Readerless style is similar:
 
 Note the space between 'kwarg1' and 'kw2' used to imply groups,
 which is absent after the other commas in the tuple.
-Also recall that commas start the line rather than ending it.
+
+If you're using a full-file formatter that isn't aware of Hissp,
+you may have to turn it off in places.
+
+.. code-block:: Python
+
+   # fmt: off
+   ('define','fib'
+    ,('lambda',('n',)
+      ,('ifQz_else',('operator..le','n',2,)
+        ,'n'
+        ,('operator..add',('fib',('operator..sub','n',1,),)
+                         ,('fib',('operator..sub','n',2,),),),),),)
+   # fmt: on
+
+There are a few things to note about tuple commas in readerless.
+The last element always ends with one (commas are used as terminators,
+not separators),
+even on the same line.
+This is to prevent the common error of forgetting the required trailing comma for a monuple.
+If your syntax highlighter can distinguish ``(x)`` from ``(x,)``, you may be OK without it.
+But this had better be the case for the whole team and project.
+Be consistent.
+
+Also note that in this example the tuple commas did not end the line,
+but rather started the next one.
+In the case of the ``ifQz_else`` macro,
+this gave the body the proper one-column indent it would have had in Lissp.
+In the case of the ``operator..add`` function,
+this aligned the arguments.
+Linewise edits and indentation are also more consistent this way.
+
+Commas are not followed by a space except to imply groups (when an extra space would be used in Lissp).
+In cases where there wouldn't be any whitespace groupings in Lissp,
+the commas would end the line in readerless Hissp as well.
+
+.. code-block:: Python
+
+   ('quote'
+    ,('some rather excessively long data',
+      'and some more',
+      'and a little more after that making the data tuple too long to fit on one line',),)
+
+.. _enjoin:
 
 Alignment styles can be bent a little in the interest of readability,
 especially for macros, but even for calls,
@@ -579,8 +610,8 @@ not just the fact that it's a call.
 .. code-block:: Lissp
 
    (enter (wrap 'A)                       ;Stacked context managers.
-    enter (wrap 'B)                       ; enter is from the prelude.
-    enter (wrap 'C)
+    enter (wrap 'B)                       ; Note pairs.
+    enter (wrap 'C)                       ; `enter` is from the prelude.
     (lambda abc (print a b c)))
 
    (engarde `(,FloatingPointError ,ZeroDivisionError) ; engarde from prelude
@@ -629,7 +660,7 @@ this can be done at read time instead:
 
 Because the string was injected (``.#``),
 don't forget to quote it (``'``),
-or the compiler will inject the string contents as Python code.
+or the compiler will assume the string contents are Python code to be inlined.
 
 With the principal exception of docstrings,
 long multiline strings should be declared at the `top level`_ and referenced by name.
@@ -669,9 +700,9 @@ Prefer "why"-comments that describe rationale or intent.
    "Comments Example
 
    Prefer to use docstrings like this one over comments when applicable.
-   Docstrings are always indented with their containing form, including
-   their contents, wrap at column 72, and, if multiline, their closing
-   quote has its own line. Use reStructuredText markup in docstrings.
+   Docstrings are indented with their containing form, including their
+   contents, wrap at column 72, and, if multiline, their closing quote
+   has its own line. Use reStructuredText markup in docstrings.
    "
 
    ;;;; ** Decorated Major Section Heading **
@@ -679,9 +710,9 @@ Prefer "why"-comments that describe rationale or intent.
 
    ;;; Long Exposition about this section. Wrap at column 72.
 
-   ;;; This example has the more typical two-level heading scheme,
-   ;;; with the major heading above made emphatic with a double underline
-   ;;; and upper case, and an undecorated minor heading below. (The whole-
+   ;;; This example has the more typical two-level heading scheme.
+   ;;; The major heading above is made emphatic with stars around and
+   ;;; underlining. The minor heading below is undecorated. (The whole-
    ;;; file title is in the module docstring in this case, not a comment.)
 
    ;;;; Undecorated Minor Subsection Heading
@@ -711,7 +742,11 @@ starting **one** space after the code.
 They never get their own line,
 but follow code on the same line.
 
-This acceptable in Lissp, and closer to the Python style (which would start *two* spaces after the code).
+This acceptable in Lissp, and closer to the Python style
+(which would start *two* spaces after the code.
+This also goes for readerless mode,
+where, aside from occasionally being used to imply groups,
+comment styles follow the same rules as normal Python.)
 Lisp traditionally uses margin comments instead (as described below),
 but this inline style is also common in Clojure.
 
@@ -734,11 +769,16 @@ but they are a valid target for reader macros,
 in which case they may be treated as literal values.
 Avoid using inline or margin comments as commentary between a tag and its target,
 as this can cause errors when they are instead treated as arguments.
-(Usually, tags are attached to their target, so this doesn't come up,
+(Usually, tags are attached to their primary, so this doesn't come up,
 but e.g. the bundled decorator macro `@#!<QzAT_QzHASH_>` typically is not.)
 You may use a discarded string instead ``_#"NB foo"``.
 A good syntax highlighter specialized for Lissp may be able to indicate when a comment token is not discarded,
 but a traditional Lisp editor like Emacs ``lisp-mode`` would not.
+
+In rare cases, a margin comment may occupy the same line as some other comment form.
+This is usually acceptable style,
+but a ``;`` following a ``;;`` is still tokenized as part of the ``;;`` block,
+which can matter for reader macros like `<\<#<QzLT_QzLT_QzHASH_>`.
 
 **Never** put a single-semicolon comment on its own line unless
 it's a continuation aligned to the margin!
@@ -746,21 +786,25 @@ This one is about established tooling, not just taste.
 Traditional Lisp editors automatically indent these to column 40,
 and Lissp was designed to work with Emacs ``lisp-mode``.
 If you break this rule, others will have to fix all your comments,
-or reconfigure their editors to collaborate at all.
+or reconfigure their editors to collaborate at all,
+and then change them back when working on Lissp files with normal style.
 That's not nice.
 
 This includes comment tokens meant as arguments for reader macros!
-They must follow code on the same line,
+Lissp parses comments in blocks,
+so multiline comments used as reader arguments nearly always
+use a form/group comment starting with two semicolons and a space as described below.
+But with a single ``;``, they must follow code on the same line,
 typically the reader tag itself, or an `Extra` macro ``!``.
 In the rare case neither is valid,
-precede with a discarded item ``_#:;foo``.
+precede with a discarded item ``_#: ;foo``.
 
 Avoid using either margin or inline comments in any situation that would result in a dangling bracket.
-It's not acceptable to follow the bracket either,
+It's not acceptable for the comment to follow the bracket either,
 if the comment isn't about the whole tuple.
 You may instead hold open the bracket with ``_#/)``,
-or convert the comment to a discarded string ``_#"NB foo")``,
-or (if appropriate) use a form/group ``;;`` comment, as described below.
+convert the comment to a discarded string ``_#"NB foo")``,
+or (if appropriate) use a form/group ``;;`` comment above the item, as described below.
 
 ;; Form/Group Comments
 ++++++++++++++++++++++
@@ -771,13 +815,10 @@ and are not followed by a blank line.
 
 Commented-out code does not belong in version control,
 but disabling code without deleting it can be helpful during development.
-Use the discard macro ``_#`` to comment out code structurally,
-or use ``;;`` at the start of each line.
+Use ``;;`` at the start of each line,
+or use the discard macro ``_#`` to comment out code structurally.
 
-Prefer class or function docstrings over ``;;`` comments where applicable.
-Function docstrings are not for implementation details internal to their containing function.
-Class docstrings are not for implementation details internal to their containing class,
-And likewise, function docstrings are not for details internal to their function.
+Prefer class and function docstrings over ``;;`` comments where applicable.
 
 ;;; Top-Level Comments
 ++++++++++++++++++++++
@@ -795,13 +836,7 @@ but differ on which is which.
 To avoid confusion,
 do not use triple-semicolon comments as headings at all.
 
-Prefer module docstrings over top-level comments where applicable.
-Module docstrings are not for implementation details internal to their module.
-
-Docstrings can use some other markup format if the whole team can agree on one,
-and it's done for the entire project.
-But reStructuredText is the default in the Python ecosystem.
-You can automatically generate API documentation with these.
+Prefer module docstrings over top-level comments where applicable
 
 ;;;; Headings
 +++++++++++++
@@ -820,7 +855,7 @@ Headings can be decorated with symbol characters to make them more emphatic.
 A Lissp file would typically be broken up into smaller modules before you need more than one or two heading levels.
 
 But for a project distributed as a single large file,
-you may want to develop a project style more levels than that,
+you may want to develop a project style with more levels than that,
 especially if you don't use classes to group functions.
 
 Avoid using
@@ -889,13 +924,21 @@ _#_#_#The Discard Macro
 The discard macro ``_#`` applied to a string literal is acceptable for long block comments.
 
 Several discard macros may be used in a row to comment out that many forms following them.
-A discarded tuple may be used to contain scratch code during development,
-but as with line comments,
-commented-out code does not belong in version control.
+
+A discarded tuple may be used to contain scratch code during development
+(but beware that discarded code is still *read*,
+executing any reader macros).
+
+As with line comments,
+commented-out code does not belong in shared version control;
+old versions should be in old commits.
+Move the functionality you need to keep out of the comments or into scripts.
+Move the experiments you want to keep running to assertions
+(See `assure`, `unittest`, and `doctest`).
 
 A discarded string with code following it in line is acceptable as commentary,
 but use this style sparingly.
-Include an arrow or NB in the string to make it clear this is a comment and not just disabled code.
+Include an arrow or NB (nota bene) in the string to make it clear this is a comment and not just disabled code.
 
 .. code-block:: Lissp
 
@@ -905,21 +948,21 @@ Include an arrow or NB in the string to make it clear this is a comment and not 
 An extra space is typically used to imply separation between groups on the same line.
 Where one level of grouping is not sufficient,
 typically newlines,
-then single blank lines indicate increasing levels of separation.
+then single ``;;`` lines indicate increasing levels of separation.
 Avoid more than two spaces in a row for implying separation between groups in a line,
-or more than one blank line in a row.
-In rare cases where those aren't enough levels or newlines and blank lines would spread things out too much,
+or more than one ``;;`` separator line in succession.
+In rare cases where those aren't enough levels,
+or newlines and ``;;`` lines would spread things out too much,
 it is acceptable to additionally use discarded symbols like ``_#,``
 within a line to indicate greater separation than the extra spaces.
-(One may also use grouping comments ``;;`` between lines.
-These are greater separations than newlines, but smaller separations than blank lines.)
 
 "Docstrings"
 ++++++++++++
 
 Prefer docstrings over comments where applicable.
-Docstrings are for describing the interface,
-not the implementation of their object.
+
+Docstrings describe interface and usage;
+they are not for irrelevant implementation details internal to their containing object.
 
 "Private" helper functions/classes/modules (conventionally named with a leading underscore)
 need not have docstrings at all,
@@ -952,6 +995,37 @@ It is acceptable to use reader macros that resolve to a string literal like `<\<
 as long as the documentation text is also legible in the source code.
 
 Follow Python style on docstring contents.
+
+While reStructuredText is currently the default in the Python ecosystem,
+docstrings can use some other markup format if the whole team can agree on one,
+and it's done for the entire project.
+MyST Markdown also has pretty good support now.
+You can automatically generate API documentation with these.
+
+Anaphoric or code string–injection macros are potential gotchas.
+Docstrings for them should include the word "Anaphoric" or "Injection" up front.
+Anaphoric macro docstrings should also state what the anaphors are,
+named in doubled backticks.
+
+Any docstring for something with a munged name
+should start with the demunged name in doubled backticks
+(this includes anything with a hyphen).
+
+.. code-block:: Lissp
+
+   "``my#`` Anaphoric. Let ``my`` be a fresh `types.SimpleNamespace`
+   in a lexical scope surrounding ``e``.
+   "
+
+The demunged names should be followed by the pronunciation in single quotes,
+if it's not obvious from the identifier.
+
+.. code-block:: Lissp
+
+   "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
+
+This way, all three name versions (munged, demunged, and pronounced)
+will appear in generated docs.
 
 Reader Macros
 :::::::::::::
@@ -1028,7 +1102,7 @@ but only imply groups of extras with whitespace if they are semantically grouped
    'foo#!(spam)!(eggs)bar                 ;Preferred. Spacing not required.
    'foo# !(spam) !(eggs) bar              ;OK. Extras may always be separated.
    'foo# !(spam)!(eggs) bar               ;Bad if grouping not meaningful.
-   'foo#!(spam) !(eggs) bar               ;Same.
+   'foo#!(spam) !(eggs) bar               ;Bad for the same reason.
 
 You can also imply groups by stacking bangs,
 but no more than three in a row.
@@ -1105,33 +1179,6 @@ let the munger do the munging for you.
 Avoid writing anything in the Quotez style yourself.
 (This can confuse the demunger and risks collision with compiler-generated names like gensyms.)
 
-Docstrings use reStructuredText markup, like Python.
-
-Anaphoric or code string–injection macros are potential gotchas if you don't know this,
-so docstrings for them should include the word "Anaphoric" or "Injection" up front.
-Anaphoric macro docstrings should also state what the anaphors are,
-named in doubled backticks.
-
-Any docstring for something with a munged name
-should start with the demunged name in doubled backticks
-(this includes anything with a hyphen).
-
-.. code-block:: Lissp
-
-   "``my#`` Anaphoric. Let ``my`` be a fresh `types.SimpleNamespace`
-   in a lexical scope surrounding ``e``.
-   "
-
-The demunged names should be followed by the pronunciation in single quotes,
-if it's not obvious from the identifier.
-
-.. code-block:: Lissp
-
-   "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
-
-This way, all three name versions (munged, demunged, and pronounced)
-will appear in generated docs.
-
 Method Syntax vs Attribute Calls
 ::::::::::::::::::::::::::::::::
 
@@ -1174,7 +1221,7 @@ For an argument, i.e. other method calls, prefer ``.foo bar``.
    (.foo cls spam eggs)                   ;OK.
 
    ;; self as namespace, self.accumulator as argument
-   (.append self.accumulator x)
+   (.append self.accumulator x)           ;Good use of both.
 
 The End of the Line
 ===================
@@ -1209,7 +1256,12 @@ then the tree structure is clear from the indents.
              (len xs))
           "on average.")
 
-Implied groups should be kept together.
+A train of ``)``'s within a line is almost never acceptable.
+A rare exception might be in something like an `enjoin`_,
+because the structure of the string is more important for readability than the structure of the tree,
+but even then, limit it to three ``)))``.
+
+Semantic groups should be kept together.
 Closing brackets inside a pair can happen in `cond`,
 for example.
 
@@ -1221,45 +1273,41 @@ for example.
            (gt x 0) (print "positive")
            :else (print "not a number")))
 
-A train of ``)``'s must not appear inside of a line,
+However, a train of ``)``'s must not appear inside of a line,
 even in an implied group.
 
 .. code-block:: Lissp
 
-   (define compare                        ;Bad. Internal ))'s.
+   (define compare                        ;Bad. Internal ))'s are hard to read.
      (lambda (xs ys)
-       (cond (eq (len xs) (len ys)) (print "0")
-             (lt (len xs) (len ys)) (print "<")
-             (gt (len xs) (len ys)) (print ">"))))
+       (cond (lt (len xs) (len ys)) (print "<")
+             (gt (len xs) (len ys)) (print ">")
+             :else (print "0"))))
 
-   (define compare                        ;Bad. Pairs not grouped.
+   (define compare                        ;Bad. No groups. Can't tell if from then.
      (lambda (xs ys)
-       (cond (eq (len xs) (len ys))
-             (print "0")
-             (lt (len xs) (len ys))
+       (cond (lt (len xs) (len ys))
              (print "<")
              (gt (len xs) (len ys))
-             (print ">"))))
+             (print ">")
+             :else
+             (print "0"))))
 
-   (define compare                        ;OK, but the empty lines smell.
+   (define compare                        ;OK. The ;; smells though.
      (lambda (xs ys)
-       (cond (eq (len xs)
-                 (len ys))
-             (print "0")
-             ;;
-             (lt (len xs)
-                 (len ys))
+       (cond (lt (len xs) (len ys))
              (print "<")
-             ;;
-             (gt (len xs)
-                 (len ys))
-             (print ">"))))
+             ;;                           ;Separator comments can be empty,
+             (gt (len xs) (len ys))       ; (unless there's something to say.)
+             (print ">")
+             ;; No internal ), so 1 line is OK. Still grouped.
+             :else (print "0"))))
 
    (define compare                        ;Preferred. Keep cond simple.
      (lambda (xs ys)
        (let (lxs (len xs)
              lys (len ys))
-         (cond (eq lxs lys) (print "0")
-               (lt lxs lys) (print "<")
-               (gt lxs lys) (print ">"))))))
+         (cond (lt lxs lys) (print "<")
+               (gt lxs lys) (print ">")
+               :else (print "0")))))
 
