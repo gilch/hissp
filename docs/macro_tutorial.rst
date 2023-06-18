@@ -1739,28 +1739,36 @@ Let's review. The code you need to make the version we have so far is
                       `(,x)))
                   form)))
 
-Given all of this in a file named ``macros.lissp``,
-you can start a subREPL with these already loaded using the shell command
-
-.. code-block:: Text
-
-   $ lissp -c "(hissp..interact (vars macros.))"
-
-rather than pasting them all in again.
-
 .. tip::
 
    Is there more than that in your file?
    If you've been composing in your editor (rather than directly in the REPL)
    like you're supposed to,
-   you've probably accumulated some junk for experiments.
+   you've probably accumulated some junk from experiments.
    Don't delete it yet!
    Experiments often make excellent test cases.
    Wrap them in top-level `assure` forms.
    In a larger project, you might move them to `unittest` modules.
-   Also, the Lissp REPL was designed for compatibility with `doctest`;
+   Additionally, the Lissp REPL was designed for compatibility with `doctest`,
    although that won't test the compilation from Lissp to Python
    (making it less useful for testing macros).
+
+Given all of this in a file named ``macros.lissp``,
+you can start a subREPL with these already loaded using the shell command
+
+.. code-block:: Text
+
+   $ lissp -ic "(hissp..interact (vars macros.))"
+
+rather than pasting them all in again.
+
+To use your macros from other Lissp modules,
+use their fully-qualified names,
+abbreviate the qualifier with `alias`,
+or (if you must) `attach` them to your current module's ``_macro_`` object.
+That last one would require that your macros also be available at run time,
+although there are ways to avoid that if you need to.
+See the `prelude` expansion for a hint.
 
 You can use the resulting macro as a shorter lambda for higher-order functions:
 
