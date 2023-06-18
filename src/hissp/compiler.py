@@ -1,4 +1,4 @@
-# Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -31,7 +31,7 @@ RE_MACRO = re.compile(rf"({re.escape(MACRO)}|{re.escape(MAYBE)})")
 
 NS = ContextVar("NS", default=None)
 """
-Sometimes macros need the current namespace when expanding,
+Sometimes a macro needs the current namespace when expanding,
 instead of its defining namespace.
 Rather than pass in an implicit argument to all macros,
 it's available here.
@@ -67,7 +67,16 @@ def _trace(method):
 
 
 class PostCompileWarning(Warning):
-    """Form compiled to Python, but execution of it failed."""
+    """Form compiled to Python, but its execution failed.
+
+    Only possible when compiling in evaluate mode and not in __main__.
+    Would be a "Hissp Abort!" instead when in __main__, but other
+    modules can be allowed to continue compiling for debugging purposes.
+
+    Continuing execution after a failure can be dangerous if non-main
+    modules have side effects besides definitions. Warnings can be
+    upgraded to errors if this is a concern. See `warnings` for how.
+    """
 
 
 class Compiler:
@@ -371,9 +380,9 @@ class Compiler:
         but (as in Python) a '*' is not allowed to follow '**'.
 
         Method calls are similar to function calls:
-        (.<method name> <object> <args> : <kwargs>)
-        Like Clojure, a method on the first object is assumed if the
-        function name starts with a dot:
+        (.<method name> <self> <args> : <kwargs>)
+        A method on the self argument is assumed if the function name
+        starts with a dot:
 
         >>> readerless(('.conjugate', 1j,),)
         '(1j).conjugate()'
