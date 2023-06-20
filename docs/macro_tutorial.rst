@@ -26,11 +26,11 @@ in the more primitive assembly languages.
 Before the development of the structured programming paradigm,
 the industry standard was GOTO spaghetti.
 
-Similarly, in Python, abstractions like iterators, classes, higher-order functions,
+Similarly, in Python, abstractions like iterators, classes, higher-order functions, hash tables,
 and garbage collection are *primitives*,
 but in C, those are *design patterns*,
 discovered and developed over time as best practice,
-and built with lower-level parts like structs and pointers,
+and built with lower-level parts like arrays, structs, and pointers,
 which have to be repeated each time they're needed.
 
 To someone who started out in assembly or BASIC, or C, or even Java,
@@ -66,7 +66,7 @@ because macros give you hooks into the compiler itself.
 
 Lisp can do things you might not have realized were possible.
 Until you understand what Lisp can do,
-you're forgoing much of Lisp's power.
+you're forgoing much of its power.
 This is a tutorial,
 not a reference,
 and I'll be explaining not just how to write macros,
@@ -123,7 +123,6 @@ but copy-and-paste into a terminal window will do.
 Setting up your editor for Lissp is beyond the scope of this tutorial.
 If you're not already comfortable with Emacs and Paredit,
 give `Parinfer <https://shaunlebron.github.io/parinfer/>`_ a try.
-It's probably easiest to set up in `Atom <https://atom.io/packages/parinfer>`_.
 
 Shorter Lambdas
 ===============
@@ -305,7 +304,7 @@ Start a subREPL in the new Python module. The command is like
 And confirm that `__name__` resolves to your foo.
 If you need to, you can quit the subREPL and return to main by entering an EOF.
 (That's :kbd:`Ctrl+D`, if you didn't know,
-or :kbd:`Ctrl+Z Enter`, for Windows.)
+or :kbd:`Ctrl+Z Enter`, for the Windows terminal.)
 It's just a subREPL, so this doesn't exit Python.
 Any globals you defined in the module will still be there.
 
@@ -437,11 +436,50 @@ I bet we could preprocess Python too somehow."
 To which I'd reply,
 *What do you think Lissp is?*
 
-The C preprocessor is pretty limited.
-Lissp is a transpiler.
-That's *much* more powerful.
+.. topic:: Preprocessing Python like C
 
-But since Python is supposed to be such a marvelously high-level language compared to C,
+   The C preprocessor actually can be used on other languages;
+   Python is close enough to C to be compatible with it,
+   unless you have any comment lines (although there are workarounds).
+
+   Most flavors of Unix have one. For example, given a file ``hello.py.cp``
+
+   .. code-block:: python
+
+      #define L lambda
+      print(*map(L x: x * x, range(10)))
+
+   You could try something like
+
+   .. code-block:: console
+
+      $ cpp -P hello.py.cp -o hello.py && python3 hello.py
+      0 1 4 9 16 25 36 49 64 81
+
+   which you could also add to your build scripts.
+
+   On Windows, you'd need a C preprocessor to be installed first.
+   Any C compiler should have one.
+   If you're using Microsoft's, usually you'd start a "Developer Command Prompt",
+   and then the command would be something like
+
+   .. code-block:: doscon
+
+      > cl hello.py.cp /EP > hello.py && py hello.py
+
+   While the C preprocessor is useful,
+   it's pretty much limited to just a few flavors of find-and-replace.
+   On the other hand,
+   this also makes it fairly tame compared to the more powerful general-purpose preprocessors,
+   like m4.
+
+Lissp is a *transpiler*.
+It's much more powerful than the C preprocessor,
+but despite this it is also less error prone,
+because it mostly operates on the more structured AST rather than text.
+
+Since Python is supposed to be such a marvelously high-level language compared to C
+that it doesn't need a preprocessor,
 can't it do that too?
 
 No, it really can't:
@@ -489,10 +527,13 @@ Simple Compiler Macros
 Despite my recent boasting,
 our Lissp version is not actually shorter than Python's yet:
 
-.. code-block:: Text
+.. Lissp::
 
    (.#L (x)
      (mul x x))
+
+.. code-block:: Python
+
    lambda x: x * x
 
 If you like, we can give `mul <operator.mul>` a shorter name:
@@ -506,9 +547,12 @@ If you like, we can give `mul <operator.mul>` a shorter name:
 
 And the params tuple doesn't technically have to be a tuple:
 
-.. code-block:: Text
+.. Lissp::
 
    (.#L x (* x x))
+
+.. code-block:: Python
+
    lambda x: x * x
 
 Symbols become strings at the Hissp level,
@@ -571,18 +615,24 @@ Try this definition.
 Success.
 Now compare:
 
-.. code-block:: Text
+.. Lissp::
 
    (L x (* x x))
+
+.. code-block:: Python
+
    lambda x: x * x
 
 Are we doing better?
 Barely.
 If we remove the spaces that aren't required:
 
-.. code-block:: Text
+.. Lissp::
 
    (L x(* x x))
+
+.. code-block:: Python
+
    lambda x:x*x
 
 We've caught up to where Python started.
@@ -607,7 +657,7 @@ So the template would look something like this::
      (<expr>))
 
 Remember this is basically the same as
-that anaphoric macro we did in the `primer`.
+that `anaphoric macro <anaphoric>` we did in the `primer`.
 
 .. Lissp::
 
@@ -652,15 +702,18 @@ that anaphoric macro we did in the `primer`.
 
 Now we're shorter than Python:
 
-.. code-block:: Text
+.. Lissp::
 
    (L * X X)
-   lambda x: x*x
+
+.. code-block:: Python
+
+   lambda x:x*x
 
 But we're also less general.
 We can change the expression,
 but we've hardcoded the parameters to it.
-The fixed parameter name is fine as long as we don't have to nest these,
+The fixed parameter name is fine as long unless it shadows a `nonlocal <nonlocal>` we need,
 but what if we needed two parameters?
 Could we make a macro for that?
 
@@ -745,7 +798,7 @@ Ready?
 
 That's another easy template.
 Between ``L`` and ``L2``,
-we've probably covered 80% of short-lambda use cases.
+we've probably covered the Pareto 80% majority of short-lambda use cases.
 But you can see the pattern now.
 We could continue to an ``L3`` with a ``Z`` parameter,
 and then we've run out of alphabet.
@@ -1374,6 +1427,19 @@ but it's a little mind-bending.
 
 Finally, we slice the params string to the appropriate number of characters.
 
+.. topic:: Exercise: eliminate the magic literals
+
+   This version could be improved a bit.
+   That particular string is already in the standard library,
+   as `string.ascii_uppercase`.
+   The `range` is using a magic number (27),
+   which is a bit of a code smell.
+   It should instead be derived from the `len` of the string.
+   There are only 26 letters in the alphabet,
+   but we also generated an ``L0`` not using any,
+   hence 27 `defmacro`'s.
+   Fixing this is left as an exercise for the reader.
+
 Take a breath.
 We're not done.
 
@@ -1562,10 +1628,10 @@ Can we just iterate through the expression and check?
 
 Does that make sense?
 Read the definition carefully.
-You can experiment with macros you don't recognize in the REPL.
-All the bundled macros,
-including the `|| <QzVERT_QzVERT_>`
-and `when` were covered in the `lissp_whirlwind_tour`.
+You can view the docs for any bundled macro
+you don't recognize in the REPL like ``(help hissp.._macro_.foo)``,
+but you might prefer searching the rendered version in the `API docs <hissp.macro>`.
+Most have documented usage examples you can experiment with in the REPL.
 We're using them to coalesce Python's awkward regex matches,
 which can return ``None``, into a ``0``,
 unless it's a string with a match.
@@ -1603,7 +1669,7 @@ Pretty cool.
 
 Oh. Not that easy.
 What happened?
-The lambda only took one parameter,
+The error message says that lambda only took one parameter,
 even though the expression contained an ``X3``.
 
 We need to be able to check for symbols nested in tuples.
@@ -1756,7 +1822,7 @@ Let's review. The code you need to make the version we have so far is
 Given all of this in a file named ``macros.lissp``,
 you can start a subREPL with these already loaded using the shell command
 
-.. code-block:: Text
+.. code-block:: console
 
    $ lissp -ic "(hissp..interact (vars macros.))"
 
@@ -1825,7 +1891,7 @@ or the reader will recognize the name as a macro rather than a symbol
 and immediately try to apply it to ``(expr)``, which is not what we want.
 Notice that we still used a `defmacro`,
 like we do for compiler macros.
-It's the way you invoke it that makes it happen at read time:
+It's the way you invoke it (with a reader ``tag#``) that makes it happen at read time:
 
 .. code-block:: REPL
 
@@ -1875,7 +1941,7 @@ by reinterpreting existing reader syntax.
 So now we have function literals.
 
 These are very similar to the function literals in Clojure,
-and we implemented them from scratch in about a page of code.
+and we implemented them from scratch in about a page of Lissp code.
 That's the power of metaprogramming.
 You can copy features from other languages,
 tweak them, and experiment with your own.
@@ -1992,10 +2058,12 @@ Attempting to splice in an empty tuple conveniently doesn't do anything
 so the ``Xi`` anaphor is only present in the parameters tuple when the
 (flattened) ``expr`` `contains <operator.contains>` it.
 
-It would be nice for Python interoperability if we also had an anaphor for the kwargs.
-Clojure doesn't have these.
-Adding this is left as an exercise.
-Can you figure out how to do it?
+.. topic:: Exercise: add a kwargs anahpor
+
+   It would be nice for Python interoperability if we also had an anaphor for the kwargs.
+   Clojure doesn't have these.
+   Adding this is left as an exercise.
+   Can you figure out how to do it?
 
 Implied Number 1
 ++++++++++++++++
@@ -2111,42 +2179,57 @@ This version uses a bool pun.
 Recall that ``False`` is a special case of ``0``
 and ``True`` is a special case of ``1`` in Python.
 
-The design could be improved a bit.
-You'll probably want some automated test cases before refactoring.
-Writing tests is a little beyond the scope of this lesson,
-but you can use the standard library unit test class in Lissp, just like Python.
+.. topic:: Exercise: tests
 
-There are several repetitions of ``flatten`` and `contains <operator.contains>`.
-Don't worry too much about the efficiency of code that only runs once at compile time.
-What matters is what comes out in the expansions.
+   The design could be improved a bit.
+   You'll probably want some automated test cases before refactoring.
+   Writing tests is a little beyond the scope of this lesson,
+   but you can use `assure` forms at the top level
+   or subclass the standard library
+   `unittest.TestCase` class in Lissp (with a `deftype`),
+   just like Python.
 
-You could factor these out using a `let` and local variable.
-But sometimes a terse implementation is the clearest name.
-You might also consider flattening before passing to ``max-X``
-instead of letting ``max-X`` do it,
-because then you can give it the same local variable.
+.. topic:: Exercise: refactoring
 
-Another thing to consider is that you might change the ``X``'s to ``%``'s,
-and then it would really look like Clojure.
-This should not be hard.
-It would require munging,
-with the tradeoffs that entails for Python interop or other Hissp readers.
-Python already has an operator named ``%``.
-If you want to give `mod <operator.mod>` that name,
-then you might want to stick with the ``X``,
-or remove the special case aliasing ``%1`` to ``%``.
-Also, rather than ``%&`` for the catch-all as in Clojure,
-a ``%*`` might be more consistent if you've also got a kwargs parameter,
-which you could call ``%**``.
+   There are several repetitions of ``flatten`` and `contains <operator.contains>`.
+   Don't worry too much about the efficiency of code that only runs once at compile time.
+   What matters is what comes out in the expansions.
+
+   You could factor these out using a `let` and local variable.
+   But sometimes a terse implementation is the clearest name.
+   You might also consider flattening before passing to ``max-X``
+   instead of letting ``max-X`` do it,
+   because then you can give it the same local variable.
+
+.. topic:: Exercise: % anaphors
+
+   Another thing to consider is that you might change the ``X``'s to ``%``'s,
+   and then it would really look like Clojure.
+   This should not be hard.
+   It would require munging,
+   with the tradeoffs that entails for Python interop or other Hissp readers.
+   Use ``%#`` as the tag name instead.
+   We'll still need the ``X#`` version for later.
+   Python already has an operator named ``%``.
+
+   If you want to give `mod <operator.mod>` that name,
+   then you might want to stick with the ``X``,
+   or remove the special case aliasing ``%1`` to ``%``.
+   Also, rather than ``%&`` for the catch-all as in Clojure,
+   a ``%*`` might be more consistent if you've also got a kwargs parameter,
+   which you could call ``%**``.
 
 Results
 +++++++
 
 Are we shorter than Python now?
 
-.. code-block:: Text
+.. code-block:: Python
 
    lambda x:x*x
+
+.. Lissp::
+
    %#(* % %)
 
 Did we lose generality?
@@ -2209,7 +2292,7 @@ but look at the compiled Python output.
 This lambda takes no parameters!
 Python injections hide information that code-reading macros need to work.
 A macro that doesn't have to read the code,
-like our ``L3``, would have worked fine.
+like our ``L3`` (or the bundled `XYZ#<XYZQzHASH_>`), would have worked fine.
 
 The code-reading macro was unable to detect any matching symbols
 because it doesn't look inside the injected strings.
@@ -2222,9 +2305,14 @@ Regex might be good enough for a simple case like this,
 but even if you write it very carefully,
 are you sure you're catching all the edge cases?
 To really do it right,
-you'd have to *parse the AST*.
-The whole point of using Hissp tuples instead is so you don't have to do this.
+you'd have to *parse the Python to AST*,
+understand the structure (not exactly trivial), search it, and then keep it up to date with new versions of Python,
+since it's not an especially stable API.
+
+The whole point of using Hissp instead is so you don't have to do all this.
 Hissp is a kind of AST with lower complexity.
+It's just tuples.
+Stay out of parsing text.
 
 Arguably, our final ``%#`` or ``X#`` macro didn't do it right either,
 since it still detects the anaphors even if they're quoted,
@@ -2242,11 +2330,10 @@ then you also have to handle the entirety of all Python expressions.
 Don't expect Hissp macros to do this.
 Be reluctant to use Python injections,
 and be aware of where they might break things.
-They're mainly useful as performance optimizations.
+They're mainly useful as performance optimizations
+(but can be convenient when used judiciously).
 In principle,
 you should be able to do everything else without them.
-
-
 
 .. TODO: optimize macro
 
@@ -2484,7 +2571,8 @@ This makes them more like Clojure's tagged literals
 than like Common Lisp's reader macros.
 
 The ``16#`` reader macro was very easy to implement when you only applied it to strings,
-but since it can take multiple types you have to be sure to handle each of them.
+but since it can take multiple types,
+you have to be sure to handle each of them.
 
 Fortunately, we can fix this too,
 because munging is (mostly) reversible.
@@ -2493,14 +2581,14 @@ because munging is (mostly) reversible.
 
    #> (defmacro \16\# (x)
    #..  "hexadecimal"
-   #..  (int (hissp.munger..demunge (str x))
+   #..  (int (hissp..demunge (str x))
    #..       16))
    >>> # defmacro
    ... # hissp.macros.._macro_.let
    ... (lambda _QzAW22OE5Kz_fn=(lambda x:(
    ...   ('hexadecimal'),
    ...   int(
-   ...     __import__('hissp.munger',fromlist='?').demunge(
+   ...     __import__('hissp').demunge(
    ...       str(
    ...         x)),
    ...     (16)))[-1]):(
@@ -2578,7 +2666,7 @@ Or you can add floating-point. Python's notation can't do that.
 .. Lissp::
 
    #> (defmacro \16\# (x)
-   #..  (let (x (hissp.munger..demunge (str x)))
+   #..  (let (x (hissp..demunge (str x)))
    #..    (if-else (re..search "[.Pp]" x)
    #..      (float.fromhex x)
    #..      (int x 16))))
@@ -2586,7 +2674,7 @@ Or you can add floating-point. Python's notation can't do that.
    ... # hissp.macros.._macro_.let
    ... (lambda _QzAW22OE5Kz_fn=(lambda x:
    ...   # let
-   ...   (lambda x=__import__('hissp.munger',fromlist='?').demunge(
+   ...   (lambda x=__import__('hissp').demunge(
    ...     str(
    ...       x)):
    ...     # ifQz_else
@@ -2955,18 +3043,24 @@ Search Hissp's docs if you can't figure out what they do.)
 
 Getting better, but not actually shorter yet.
 
-.. code-block:: Text
+.. code-block:: Python
 
    slice(-1, None, -2)
    slice(-1, step=-2)
+
+.. Lissp::
+
    .#"slicer[-1::-2]"
 
 With shorter names, we see there's a ways to go yet.
 
-.. code-block:: Text
+.. code-block:: Python
 
    S(-1,N,-2)  # S, N = slice, None
    S(-1,c=-2)  # S = lambda a=None, b=None, c=None: slice(a, b, c)
+
+.. Lissp::
+
    .#"S[-1::-2]" ; (define S slicer)
 
 Time for Macros
@@ -3027,10 +3121,13 @@ although you have to be careful.
 
 Compare.
 
-.. code-block:: Text
+.. Lissp::
 
    (operator..getitem "abcdefg" (slice -1 None -2)) ; No macros.
    (S#[-1::-2] "abcdefg") ; Slice-getter literal.
+
+.. code-block:: Python
+
    "abcdefg"[-1::-2]  # Python slice notation.
 
 We have made a lot of progress. This is pretty good. Python is better.
@@ -3048,7 +3145,7 @@ Currently, best practice is to keep them balanced, even in symbols,
 But they're OK individually if you escape them.
 
 Also, the reader macro is a bit sloppy.
-Best practice is to surround string injections with ``()``.
+Best practice is (usually) to surround string injections with ``()``.
 Sometimes it matters, and macros don't know their expansion context.
 
 .. code-block:: REPL
@@ -3069,6 +3166,7 @@ and might subtly break if someone uses the wrong word.
 Normally templates qualify symbols to avoid these problems,
 but since the ``slicer`` identifier was part of the string,
 that never had a chance to happen.
+Yet another reason to be cautious with string injections.
 
 You usually want to run Hissp objects through
 `readerless` before embedding them in a code string.
@@ -3122,7 +3220,7 @@ Putting that all together we get
 
 Notice that this requires the ``]`` in the symbol it's applied to.
 This keeps it balanced. It also pretty well ensures the argument is a symbol
-or at least a control word.
+or at least a control word. Numbers don't contain a ``]``.
 
 Now look at what we can do.
 
@@ -3154,15 +3252,18 @@ Now look at what we can do.
 Amazing. Not quite as concise as Python, but really close.
 To within a few characters.
 
-.. code-block:: Text
+.. Lissp::
 
    ([#-1::-2]"abcdefg")
+
+.. code-block:: Python
+
    "abcdefg"[-1::-2]
 
 But our version is more powerful.
 It's a function object even when detached from the lookup context.
-And as a macro we programmed ourselves, it's entirely customizable.
-It is possible to do a little better with ``!`` by eliminating the ``()`` and ``[]``.
+And, as a macro we programmed ourselves, it's entirely customizable.
+It is possible to do a little better with `\! <Lissp.parse_macro>` by eliminating the ``()`` and ``[]``.
 That gets us to within one character, but it's probably not worth it.
 This is good enough.
 
@@ -3182,7 +3283,7 @@ The alternative was injecting both operands,
 or using a far more verbose notation.
 This macro lets us use a concise notation from Python while injecting a minimal amount.
 
-But what if we had nested a ``[#`` usage inside our ``X#`` function literal?
+But what if we had nested a ``[#`` usage inside our ``X#`` `function literals`_?
 This would usually not be a problem since the slice arguments are numeric literals.
 But what if one of the slice arguments was ``X``?
 That's still valid Python.

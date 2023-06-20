@@ -1937,6 +1937,8 @@ There's really no need to use a macro when a function will do.
 The above are for illustrative purposes only.
 But there are times when a function will not do:
 
+.. _anaphoric:
+
 .. code-block:: REPL
 
    #> (setattr _macro_ '# (lambda (: :* body) `(lambda (,'#) ,body)))

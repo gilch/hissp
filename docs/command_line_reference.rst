@@ -43,7 +43,7 @@ It is possible to run transpile commands in the shell via ``python -c`` or ``lis
 
 For example, using `hissp.reader.transpile`, a package name, and module names,
 
-.. code-block:: shell
+.. code-block:: console
 
    $ alias lisspt="lissp -c '(hissp..transpile : :* ([#1:] sys..argv))'"
    $ lisspt pkg foo # Transpiles pkg/foo.lissp to pkg/foo.py in a package context.
@@ -52,7 +52,7 @@ For example, using `hissp.reader.transpile`, a package name, and module names,
 
 or using `hissp.reader.transpile_file`, a file name, and a package name,
 
-.. code-block:: shell
+.. code-block:: console
 
    $ alias lissptf="lissp -c '(hissp.reader..transpile_file : :* ([#1:] sys..argv))'"
    $ lissptf spam.lissp # Transpile a single file without a package.
