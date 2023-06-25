@@ -1,9 +1,7 @@
-# Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 """
 The Lissp language reader and associated helper functions.
-
-Compiles Lissp files to Python files when run as the main module.
 
 The reader is organized as a lexer and parser.
 The parser is extensible with Lissp reader macros.
@@ -39,7 +37,7 @@ The number of bytes gensym `$# <parse_macro>` hashes have.
 The default 5 bytes (40 bits) should be more than sufficient space to
 eliminate collisions with typical usage, but for unusual applications,
 hash length can be increased, up to a maximum of 32 bytes.
-(16 would have more space than UUID4.)
+(16 would have more space than a `uuid.uuid4`.)
 
 Each hash character encodes 5 bits (base32 encoding), so 40-bit hashes
 typically take 8 characters.
@@ -147,7 +145,7 @@ _Unquote = namedtuple("_Unquote", ["target", "value"])
 
 
 class Comment:
-    """Parsed object for a comment.
+    """Parsed object for a comment token (line comment block).
 
     The reader normally discards these, but reader macros can use them.
     """
@@ -156,6 +154,11 @@ class Comment:
         self.token = token
 
     def contents(self):
+        """Gets the comment text inside the comment token.
+
+        Strips any leading indent, the ``;`` character(s), and up to one
+        following space for each line in the comment block.
+        """
         return re.sub(r"(?m)\n$|^ *;+ ?", "", self.token)
 
     def __repr__(self):
@@ -176,6 +179,11 @@ def gensym_counter(_count=[0], _lock=Lock()) -> int:
     """
     Call to increment the gensym counter, and return the new count.
     Used by the gensym reader macro ``$#`` to ensure symbols are unique.
+
+    Uses a `threading.Lock` to ensure a number is not allocated more
+    than once in a session, however builds may not be reproducible if
+    templates are allocated numbers in a nondeterministic order,
+    therefore reading gensyms with multiple threads is not recommended.
     """
     with _lock:
         _count[0] += 1
@@ -411,8 +419,11 @@ class Lissp:
 
     def gensym(self, form: str):
         """Generate a symbol unique to the current template.
-        Re-munges any $'s as a gensym counter, or adds it as a prefix if
-        there aren't any.
+        Re-munges any $'s as a gensym hash, or adds it as a prefix if
+        there aren't any. Gensym hashes are deterministic for
+        reproducible builds. Inputs are the code string being read,
+        the current `__name__` (defaults to "__main__" if not found)
+        and a `count<gensym_counter>` of templates read so far.
         """
         blk = self.blake.copy()
         blk.update((c := self._get_counter()).to_bytes(1 + c.bit_length() // 8, "big"))

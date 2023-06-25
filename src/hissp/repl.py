@@ -100,7 +100,7 @@ def force_main():
 def main(__main__):
     """REPL command-line entry point.
 
-    `hissp.macros._macro_` is imported into the module namespace,
+    `hissp.macros._macro_` is copied into the module namespace,
     making the bundled macros immediately available unqualified.
     """
     repl = LisspREPL(locals=__main__.__dict__)

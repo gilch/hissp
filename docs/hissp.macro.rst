@@ -4,6 +4,7 @@
 
 hissp.macros module
 ===================
+`[source] <hissp.macros.lissp>`
 
 .. automodule:: hissp.macros
    :members:

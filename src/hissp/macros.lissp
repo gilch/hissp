@@ -29,11 +29,13 @@ all.
 They also eschew any expansions of subexpressions to non-atomic Python
 code strings, relying only on the built-in special forms ``quote`` and
 ``lambda``, which makes their expansions compatible with advanced
-rewriting macros that process the Hissp expansions of other macros.
-(`[# <QzLSQB_QzHASH_>` is something of an exception here, as one
-subexpression is written in Python to begin with.) Note that this need
-not apply to inlined helper functions that contain no user code.
-`if-else <ifQz_else>` is one such example.
+rewriting macros that process the Hissp expansions of other macros. (`[#
+<QzLSQB_QzHASH_>` is something of an exception, as one subexpression is
+written in Python to begin with.) Note that this need not apply to
+inlined helper functions that contain no user code. `if-else
+<ifQz_else>` is one such example, expanding to a lambda containing a
+Python `conditional expression<if_expr>`, immediately called with the
+subexpressions as arguments.
 "
 
 ;;; This module is not necessarily a good example of how you should
@@ -67,7 +69,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 "
 
-;;;; BOOTSTRAP MACROS ;;;;
+;;;; - Bootstrap Macros -
 ;;;  ---
 
 ;; Bootstrap macro namespace using builtins.
@@ -158,6 +160,34 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   resulting in the value of the last.
   Otherwise, skips them and returns ``()``.
 
+  .. code-block:: REPL
+
+     #> (any-map c 'abcd
+     #..  (print c)
+     #..  (when (op#eq c 'b)
+     #..    (print 'found)
+     #..    :break))
+     >>> # anyQz_map
+     ... __import__('builtins').any(
+     ...   __import__('builtins').map(
+     ...     (lambda c:(
+     ...       print(
+     ...         c),
+     ...       # when
+     ...       (lambda b,c:c()if b else())(
+     ...         __import__('operator').eq(
+     ...           c,
+     ...           'b'),
+     ...         (lambda :(
+     ...           print(
+     ...             'found'),
+     ...           ':break')[-1])))[-1]),
+     ...     'abcd'))
+     a
+     b
+     found
+     True
+
   See also: `if-else<ifQz_else>`, `unless`, `if`.
   "
   `((lambda ,'bc .#"c()if b else()") ; boolean, consequent
@@ -168,6 +198,29 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   evaluates each expression in sequence for side effects,
   resulting in the value of the last.
   Otherwise, skips them and returns ``()``.
+
+  .. code-block:: REPL
+
+     #> (any-map c 'abcd
+     #..  (unless (op#eq c 'b)
+     #..    (print c)))
+     >>> # anyQz_map
+     ... __import__('builtins').any(
+     ...   __import__('builtins').map(
+     ...     (lambda c:
+     ...       # unless
+     ...       (lambda b,a:()if b else a())(
+     ...         __import__('operator').eq(
+     ...           c,
+     ...           'b'),
+     ...         (lambda :
+     ...           print(
+     ...             c)))),
+     ...     'abcd'))
+     a
+     c
+     d
+     False
 
   See also: `when`.
   "
@@ -212,7 +265,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `((lambda (: ,@pairs)
       ,@body)))
 
-;;;; Post-Bootstrap ;;;;
+;;;; - Post-Bootstrap -
 ;;;  ---
 
 ;;;; Definition
@@ -292,11 +345,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (defmacro <<\# (comment)
   `',(.contents comment))
-
 (setattr
  _macro_.<<\# '__doc__
  <<#
- ;; ``<<#`` comment-string reader macro.
+ ;; ``<<#`` 'comment string' reader macro.
  ;;
  ;; Converts a block of line comments to a raw string.
  ;;
@@ -318,7 +370,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   .. code-block:: REPL
 
-     #> (define SPAM 'tomato)              ;We've seen this one already.
+     #> (define SPAM 'tomato)
      >>> # define
      ... __import__('builtins').globals().update(
      ...   SPAM='tomato')
@@ -327,7 +379,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      >>> SPAM
      'tomato'
 
-  See also: `globals`, `dict.update`, `defonce`, `def`, `assignment`.
+  See also:
+  `globals`, `dict.update`, `defonce`, `def`, `assignment`, `global`.
   "
   `(.update (globals)
             : ,name
@@ -499,7 +552,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
     : :* ,itr))
 
 (defmacro let*from (pairs : :* body)
-  "``let*from`` Nested `let-from<letQz_from>`.
+  "``let*from`` 'let star from' Nested `let-from<letQz_from>`.
 
   Can unpack nested iterables by using multiple stages.
 
@@ -636,6 +689,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   <<#
   ;; ``X#`` Anaphoric. Make ``e`` an anonymous function with paramter X.
   ;;
+  ;; Examples:
+  ;;
   ;; Convert macro to function.
   ;;
   ;; .. code-block:: REPL
@@ -699,7 +754,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; See also:
   ;; `en#<enQzHASH_>`, `O#<OQzHASH_>`, `XY#<XYQzHASH_>`, `getattr`,
-  ;; `operator.attrgetter`, `lambda`.
+  ;; `operator.attrgetter`, `lambda`, `^#<QzHAT_QzHASH_>`.
   ;;
   `(lambda ,'X ,e))
 
@@ -717,7 +772,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   'abcd')
      'dcba'
 
-  See also: `X#<XQzHASH_>`, `XYZ#<XYZQzHASH_>`.
+  See also: `X#<XQzHASH_>`, `XYZ#<XYZQzHASH_>`, `^^#<QzHAT_QzHAT_QzHASH_>`.
   "
   `(lambda ,'XY ,e))
 
@@ -734,7 +789,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   Z=__import__('math').tau)
   ;;    True
   ;;
-  ;; See also: `XY#<XYQzHASH_>`, `XYZW#<XYZWQzHASH_>`.
+  ;; See also: `XY#<XYQzHASH_>`, `XYZW#<XYZWQzHASH_>`,
+  ;; `^^^#<QzHAT_QzHAT_QzHAT_QzHASH_>`.
+  ;;
   `(lambda ,'XYZ ,e))
 
 (defmacro XYZW\# e
@@ -752,6 +809,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    'Hello'
   ;;
   ;; See also: `XYZ#<XYZQzHASH_>`, `en#<enQzHASH_>`, `X#<XQzHASH_>`.
+  ;; `^^^^#<QzHAT_QzHAT_QzHAT_QzHAT_QzHASH_>`.
   ;;
   `(lambda ,'XYZW ,e))
 
@@ -828,6 +886,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; The bundled `op#<opQzHASH_>` and `i#<iQzHASH_>` reader macros are aliases
   ;; for `operator` and `itertools`, respectively.
   ;;
+  ;; See also: `prelude`, `attach`.
+  ;;
   `(defmacro ,(.format "{}{}" abbreviation '#)
              ($#prime : $#reader None :* $#args)
      ',(.format "Aliases ``{}`` as ``{}#``." qualifier abbreviation)
@@ -882,19 +942,18 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    1
   ;;
   ;; See also: `operator.getitem`, `[#<QzLSQB_QzHASH_>`,
-  ;; `set!<setQzBANG_>`.
+  ;; `set!<setQzBANG_>`, `^*#<QzHAT_QzSTAR_QzHASH_>`.
   ;;
   `(op#itemgetter ,e))
 
 (defmacro @\# (definition decoration)
-  "``@#!`` 'decorator' applies ``decoration`` to global and reassigns.
+  "``@#!`` 'decorator' applies ``decoration`` to a global and reassigns.
 
   ``definition`` form must assign a global identified by its first arg.
-  (E.g. `define` and `deftype` are compatible.) Expands to a `define`,
-  meaning decorators can stack.
+  Expands to a `define`, meaning decorators can stack.
 
   Decorator syntax is for global definitions, like `define` and
-  `deftype`, but would work on any global definition macro that has
+  `deftype`, and would work on any global definition macro that has
   the (unqualified) defined name as its first argument.
 
   .. code-block:: REPL
@@ -1100,9 +1159,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro attach (target : :* args)
   "Attaches the named variables to the target as attributes.
 
-  Positional arguments must be unqualified identifiers,
-  and use that as the attribute name.
-  Names after the ``:`` are identifier-value pairs.
+  Positional arguments must be identifiers. The identifier name becomes
+  the attribute name. Names after the ``:`` are identifier-value pairs.
   Returns the target.
 
   .. code-block:: REPL
@@ -1126,7 +1184,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   _QzWG5WN73Wz_target)[-1])()
      namespace(a=1, attach=<function _macro_.attach at 0x...>, b='Hi')
 
-  See also: `setattr`, `set@<setQzAT_>`, `locals`.
+  See also: `setattr`, `set@<setQzAT_>`, `vars`.
   "
   (let (iargs (iter args)
         $target `$#target)
@@ -1171,7 +1229,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
                (map X#.#"X if type(X) is tuple else (X,)" invocations))
         ,$self))))
 
-;;;; Threading
+;;;; Arrange Macros
 
 (defmacro -> (expr : :* forms)
   "``->`` 'Thread-first'.
@@ -1215,7 +1273,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
                      expr))
 
 (defmacro -<>> (expr : :* forms)
-  "``-<>>`` 'Thread'.
+  "``-<>>`` 'Thread-through'.
 
   Converts a pipeline to function calls by recursively threading
   expressions into the next form at the first point indicated with
@@ -1274,8 +1332,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro cond (: :* pairs)
   "Multiple condition branching.
 
-  Pairs are implied. Default is ``()``. Use ``:else`` to change it.
-  For example,
+  Pairs are implied by position. Default is ``()``, use something always
+  truthy to change it, like ``:else`` or `True`. For example,
 
   .. code-block:: REPL
 
@@ -1364,7 +1422,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...       (11))))
      1:2:3:4:5:6:7:True
 
-  See also: `any`, `map`, `any*map<anyQzSTAR_map>`, `for`, `break`.
+  See also: `any`, `map`, `any*map<anyQzSTAR_map>`, `for`, `break`,
+  `functools.reduce`.
   "
   `(any (map (lambda (,variable)
                ,@body)
@@ -1513,7 +1572,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ... (42)
      42
 
-  See also: `||<QzVERT_QzVERT_>`, `not`, `and`.
+  See also: `||<QzVERT_QzVERT_>`, `and`.
   "
   (cond (not exprs) True
         (op#eq (len exprs) 1) (get#0 exprs)
@@ -1575,7 +1634,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
           ,@(map X#`O#,X ([#1:] exprs)))))
 
 (defmacro throw* (: :* exception)
-  "``throw*`` Creates a closed generator and calls its throw method.
+  "``throw*`` 'throw star' Creates a closed generator and calls .throw.
 
   Despite PEP 3109, .throw still seems to accept multiple arguments.
   Avoid using this form except when implementing throw method overrides.
@@ -1612,7 +1671,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `(throw* ,exception))
 
 (defmacro throw-from (exception cause)
-  "Raise an exception with a cause, which can be None.
+  "``throw-from`` Raise an exception with a cause, which can be None.
 
   .. code-block:: REPL
 
@@ -2020,6 +2079,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...    "try:exec('from hissp.macros._macro_ import *',vars(_macro_))\n"
   ;;    ...    'except ModuleNotFoundError:pass'),
   ;;    ...   __import__('builtins').globals())
+  ;;
+  ;; See also, `alias`.
   ;;
   ;; engarde examples
   ;; ----------------
@@ -2518,11 +2579,11 @@ except ModuleNotFoundError:pass"
                         -1)))))
 
 (defmacro nil\# x
-  "``nil#`` evaluates to x or (). Adapter for 'nil punning'."
+  "``nil#`` evaluates as ``x or ()``. Adapter for 'nil punning'."
   `(|| ,x ()))
 
 (defmacro ^*\# e
-  "``^*#!`` 'synexpand' concatenative mini-language expressions
+  "``^*#`` 'synexpand' concatenative mini-language expressions
 
   Walks e expanding any mini-language syntax found.
 
@@ -2572,7 +2633,7 @@ except ModuleNotFoundError:pass"
      Pops to the first MARK (if any) and pushes as tuple.
      With depth, looks tuple up on the next expression.
      Used for invocations.
-  ``*`` SPLAT
+  ``*`` SPLAT (term)
      Splices an iterable (in-place, at depth).
   ``:`` NOP (no depth)
      Has no effect. A separator when no other magic applies.
@@ -2631,10 +2692,10 @@ except ModuleNotFoundError:pass"
      ...     spam='eggs'))
      'str'
 
-  The callable or data type is determined at read time. Literals are
-  always data, but a term that reads as `tuple` or `str` type may be
-  ambiguous, in which case they are presumed callable, unless it ends
-  with a ``,``.
+  Terms are categorized as callable or data at read time. Literals are
+  always data, but a term that reads as a `tuple` or `str` type may be
+  ambiguous, in which case it's presumed callable, unless it ends with a
+  ``,``.
 
   .. code-block:: REPL
 
@@ -2754,10 +2815,8 @@ except ModuleNotFoundError:pass"
                      `(defmacro ,(hissp..munge name) (,'terms)
                         ',(.format "``{}`` 'synexpand-{X}'.
 
-Creates a lambda of arity {X} containing a ^*# applied with terms to a
-tuple of the parameters.
-
-See also: `^*#<QzHAT_QzSTAR_QzHASH_>`.
+Creates a lambda of arity {X} containing a `^*#<QzHAT_QzSTAR_QzHASH_>`
+(synexpand) applied with terms to a tuple of the parameters.
 "
                                    name : X X)
                         `(lambda ,',args
@@ -2895,6 +2954,7 @@ See also: `^*#<QzHAT_QzSTAR_QzHASH_>`.
   ;;    AssertionError: (7, "That's odd.")
   ;;
   ;; See also: `assert`, `assure`, `throw`.
+  ;;
   `(let (,'it ,e)
      (unless (-> ,'it ,predicate)
        (throw (AssertionError ,@args)))
@@ -2928,7 +2988,7 @@ See also: `^*#<QzHAT_QzSTAR_QzHASH_>`.
   ;;
   ;; Also useful at the top level for quick unit tests in smaller
   ;; projects, because they can be turned off. Larger projects may be
-  ;; better off with `unittest` and separated test modules, wich need
+  ;; better off with `unittest` and separated test modules, which need
   ;; not be distributed and likely produce better error messages.
   ;;
   ;; .. code-block:: REPL
@@ -2957,6 +3017,7 @@ See also: `^*#<QzHAT_QzSTAR_QzHASH_>`.
   ;;    AssertionError: (7, "That's odd.")
   ;;
   ;; See also: `assert`.
+  ;;
   (if-else __debug__
     `(avow ,e ,predicate ,@args)
     e))

@@ -53,14 +53,25 @@ Installation
 
 Hissp requires Python 3.8+ and has no other dependencies.
 
-Install the Hissp version matching this document with::
+Confirm your Python version with
 
-   $ pip install git+https://github.com/gilch/hissp
+.. code-block:: console
+
+   $ python -V
+
+(Re-)install the Hissp version matching this document with
+
+.. code-block:: console
+
+   $ python -m pip install --upgrade --force-reinstall git+https://github.com/gilch/hissp
 
 These docs are for the latest development version of Hissp.
 Most examples are tested automatically,
 but details may be dated.
+
 Report issues or try the current release version instead.
+More details about Pip, Python versions, and virtual environments may be helpful,
+but are beyond the scope of this document.
 
 Hello World
 ===========
@@ -331,7 +342,10 @@ and do not appear in the output.
 
 .. code-block:: REPL
 
-   #> ;; Use two ';'s if it starts the line.
+   #> ;; Use two ';'s when it's positioned like a form.
+   #..;;; Use three for top-level commentary not attached to anything.
+   #..;;;; Four for headers. See the style guide for details.
+   #..
    >>>
 
 
@@ -378,7 +392,7 @@ The second double-quote character didn't end the raw string,
 but the backslash "escaping" it was still read literally.
 The third double quote did end the string despite being adjacent to a backslash,
 because that was already paired with another backslash.
-Again, this is the same as Python's r-strings.
+Again, this is the `same as Python's r-strings <faq-programming-raw-string-backslash>`.
 
 Recall that the Hissp-level `str` type is used to represent Python identifiers in the compiled output,
 and must be quoted with the ``quote`` special form to represent text data instead.
@@ -513,7 +527,7 @@ Symbols can have internal ``.``'s to access attributes.
    >>> int.__name__.__class__
    <class 'str'>
 
-.. _qualified identifiers:
+.. _qualified identifier:
 
 Module Handles and Qualified Identifiers
 ----------------------------------------
@@ -639,7 +653,7 @@ Control Words
 -------------
 
 Atoms that begin with a colon are called *control words* [#key]_.
-These are mainly used to give internal structure to macro invocations—You
+These are mainly used to give internal structure to macro invocations—you
 want a word distinguishable from a string at compile time,
 but it's not meant to be a Python identifier.
 Thus, they do not get munged:
@@ -711,7 +725,7 @@ Python's parameter types are rather involved.
 Hissp's lambdas have a simplified format designed for metaprogramming.
 When the parameters tuple [#LambdaList]_
 starts with a colon,
-then all parameters are pairs.
+then all parameters are pairs, implied by position.
 Hissp can represent all of Python's parameter types this way.
 
 .. code-block:: REPL
@@ -748,8 +762,8 @@ or as keyword arguments.
 The ``:*`` can instead pair with a parameter name,
 which collects the remainder of the positional arguments into a tuple.
 This is one of two exceptions to the rule that the parameter name is the left of the pair.
-This matches Python's ordering.
-Notice that this means that the rule that the ``:?`` goes on the right has no exceptions.
+This matches Python's ordering,
+and means the rule that the ``:?`` goes on the right has no exceptions.
 The other exception is the parameter name after ``:**``,
 which collects the remaining keyword arguments into a dict.
 
@@ -770,8 +784,8 @@ of a pair with a ``:?``.
 Each element before the ``:`` is implicitly paired with
 the placeholder control word ``:?``.
 Notice the Python compilation is exactly the same as before,
-and that a ``:?`` was still required in the pairs section to indicate that the
-``i`` parameter has no default value.
+and that a ``:?`` was still required in the pairs section (after the ``:``)
+to indicate that the ``i`` parameter has no default value.
 
 The ``:*`` and ``:**`` control words mark their parameters as
 taking the remainder of the positional and keyword arguments,
@@ -838,6 +852,10 @@ Not having it is the same as putting it last:
    >>> (lambda :())
    <function <lambda> at ...>
 
+   #> (lambda :) ; This also works (guess why), and is idiomatic in Lissp.
+   >>> (lambda :())
+   <function <lambda> at ...>
+
 The ``:`` is required if there are any explicit pairs,
 even if there are no ``:?`` pairs:
 
@@ -858,7 +876,7 @@ The remaining elements are for the arguments.
 
 Like lambda's parameters tuple,
 when you start the arguments with ``:``,
-the rest are pairs.
+the rest are pairs, implied by position.
 
 .. code-block:: REPL
 
@@ -974,10 +992,19 @@ function name starts with a dot:
    >>> (1j).conjugate()
    -1j
 
+To make metaprogramming easier, the ``:`` can go before the ``<self>`` as well,
+but must be paired with a ``:?``.
+
+.. code-block:: REPL
+
+   #> (.conjugate : :? 1j)
+   >>> (1j).conjugate()
+   -1j
+
 Reader Macros
 :::::::::::::
 
-Up until now, Lissp has been a pretty direct representation of Hissp.
+Up to this point, the Lissp examples have been a pretty direct representation of Hissp.
 Metaprogramming changes that.
 
 So far, all of our Hissp examples written in readerless mode
@@ -986,7 +1013,7 @@ have been tuple trees with string leaves,
 >>> eval(readerless(('print','1','2','3',':','sep',':')))
 1:2:3
 
-but the Hissp compiler will accept other object types.
+but the Hissp compiler will accept other types of atoms.
 
 >>> eval(readerless((print,1,2,3,':','sep',':')))
 1:2:3
@@ -995,7 +1022,7 @@ Tuples represent invocations in Hissp.
 Strings are Python code (and imports and control words).
 Other objects simply represent themselves.
 In fact,
-some of the reader syntax we have already seen creates non-string objects in the Hissp.
+some of the reader syntax we have already seen creates non-string atoms in the Hissp.
 
 .. code-block:: REPL
 
@@ -1021,6 +1048,7 @@ Hello, World!
 Here, we changed a lowercase string to title case before the compiler even saw it.
 
 Are we giving up this kind of power by using Lissp instead?
+No, that's why we have reader macros.
 
 Inject
 ++++++
@@ -1048,20 +1076,24 @@ Let's quote the whole form to see the intermediate Hissp.
    ...   'Hello, World!',),)
    ('print', ('quote', 'Hello, World!'))
 
-Notice the title casing method has already been applied.
+Notice the `str.title` method has already been applied,
+changing the "H" and "W" case.
 Just like our Python example,
 this ran a program to help generate the Hissp before passing it to the compiler.
 
 The ``.#`` is another built-in reader macro called *inject*.
 It compiles and evaluates the next form
 and is replaced with the resulting object in the Hissp.
-Reader macros are unary operators that apply inside-out,
+These reader macros are unary operators that apply inside-out,
 like functions do,
 at `read time`_.
+The ``'.#`` means the inject is applied first,
+then the quote to its result.
 
 You can use inject to modify code at read time,
 to inject non-string objects that don't have their own reader syntax in Lissp,
-and to inject Python code strings by evaluating the reader syntax that would normally add quotation marks.
+and to inject Python code strings
+by evaluating the string literal reader syntax that would normally add quotation marks.
 It's pretty important.
 
 Python injection:
@@ -1160,9 +1192,11 @@ How about these?
    ... )
    [[], [], []]
 
+Surpised?
 What's with the `pickle.loads` expression?
 It seems to produce the right object.
 Is this the reader's doing?
+Let's check.
 
 >>> readerless('[[]]*3')
 '[[]]*3'
@@ -1260,6 +1294,7 @@ If you tried to run
     readerless((<built-in function print>, 1, 2, 3, ':', 'sep', ':'))
 
 then you'd get a syntax error.
+Try it, if you'd like.
 
 How can the Hissp compiler generate Python code from this tuple?
 
@@ -1337,9 +1372,11 @@ Qualified Reader Macros
 
 Besides a few built-ins,
 reader macros in Lissp consist of a symbol ending with a ``#``,
-followed by another form.
+called a *tag*,
+followed by another form,
+called its *primary*.
 
-A function named by a qualified identifier is invoked on the form,
+A function named by a `qualified identifier`_ is invoked on the form,
 and the reader embeds the resulting object into the output Hissp:
 
 .. code-block:: REPL
@@ -1407,12 +1444,12 @@ then there is no run-time overhead for the alternative notation,
 because it's compiled to ``(81)``,
 just like there's no run-time overhead for using a hex literal instead of decimal in Python.
 
-Reader macros can also be unqualified.
-These three macros are built into the reader:
-Inject ``.#``, discard ``_#``, and gensym ``$#``.
+Sometimes tags can be unqualified.
+Three tags are built into the reader:
+inject ``.#``, discard ``_#``, and gensym ``$#``.
 The reader will also check the current module's ``_macro_`` namespace (if it has one)
 for attributes ending in ``#`` (i.e. ``QzHASH_``)
-when it encounters an unqualified reader macro name.
+when it encounters an unqualified tag.
 
 Discard
 +++++++
@@ -1555,8 +1592,8 @@ you can make your own sugar.
 Gensyms
 +++++++
 
-The built-in reader macro ``$#`` creates a *generated symbol*
-(gensym) based on the given symbol.
+The built-in tag ``$#`` creates a *generated symbol*
+(gensym) based on the given primary symbol.
 Within a template, the same gensym name always makes the same gensym:
 
 .. code-block:: REPL
@@ -1567,7 +1604,7 @@ Within a template, the same gensym name always makes the same gensym:
    ...   '_QzTAMTDLDRz_hiss')
    ('_QzTAMTDLDRz_hiss', '_QzTAMTDLDRz_hiss')
 
-But each new template changes the hash.
+But each new template changes the prefix hash.
 
 .. code-block:: REPL
 
@@ -1601,12 +1638,15 @@ or timestamps that would prohibit reproducible builds.
 The `__name__` is still required in case different modules happen to have the same code,
 which can sometimes happen when they are very short.
 
+By default, the hash is a prefix, but you can mark some other location for it using a $.
+
 Extra
 +++++
 
 The final built-in reader macro ``!``
 is used to pass extra arguments to other reader macros.
-None of Lissp's built-in reader macros use it,
+None of Lissp's built-in reader macros use it
+(although some of the `bundled macros <hissp.macros>` do),
 but extras can be helpful quick refinements for functions with optional arguments,
 without the need to create a new reader macro for each specialization.
 
@@ -1648,7 +1688,7 @@ like calls. ``:*`` and ``:**`` unpacking also work here.
    >>> (13)
    13
 
-See the `lissp_whirlwind_tour` for more examples.
+See the section on Extras in the `lissp_whirlwind_tour` for more examples.
 
 Macros
 ======
@@ -1685,7 +1725,7 @@ for matching macro names when compiling an unqualified invocation.
 
 While ``.lissp`` files don't have one until you add it,
 the REPL automatically includes a ``_macro_``
-namespace with all of the `bundled macros <hissp.macros._macro_>`:
+namespace with all of the `bundled macros <hissp.macros>`:
 
 .. code-block:: REPL
 
@@ -1772,18 +1812,28 @@ Qualified symbols are especially important
 when a macro expands in a module it was not defined in.
 This prevents accidental name collisions
 when the unqualified name was already in use.
-And the qualified identifiers in the expansion will automatically import any required modules.
+Any `qualified identifier`_ in the expansion will automatically import any required module.
 
 You can force an import from a particular location by using
 a fully-qualified symbol yourself in the template in the first place.
 Fully-qualified symbols in templates are not qualified again.
 Usually, if you want an unqualified symbol in the template's result,
 it's a sign that you need to use a gensym instead.
-(Gensyms are never qualified.)
+Symbols already "qualified" with a gensym hash prefix are considered "local" and do not get qualified with a module.
 If you don't think it needs to be a gensym,
 that's a sign that the macro could maybe be an ordinary function.
 
-There are a couple of special cases worth pointing out here.
+There are a few special cases worth pointing out here.
+
+If the gensym hash is *not* in prefix position, it doesn't count as local, and gets qualified.
+
+.. code-block:: REPL
+
+   #> `$#spam.$eggs
+   >>> '__main__..spam._Qz6AE4GUT3z_eggs'
+   '__main__..spam._Qz6AE4GUT3z_eggs'
+
+A ``_macro_`` namespace is not the same as its module.
 
 .. code-block:: REPL
 
@@ -1830,8 +1880,8 @@ Then the ``p123`` macro works.
    ...   sep=':')
    1:2:3
 
-The compiler ignores qualifications on kwargs in normal calls to make metaprogramming easier;
-It looks like a problem, but it's not.
+The compiler ignores qualifiers on kwargs in normal calls to make metaprogramming easier;
+it looks like a problem, but it's not.
 This is fine.
 The templating system, on the other hand,
 *has to* qualify symbols, even if they might be kwargs.
@@ -1937,47 +1987,49 @@ There's really no need to use a macro when a function will do.
 The above are for illustrative purposes only.
 But there are times when a function will not do:
 
+.. _anaphoric:
+
 .. code-block:: REPL
 
-   #> (setattr _macro_ '# (lambda (: :* body) `(lambda (,'#) ,body)))
+   #> (setattr _macro_ '% (lambda (: :* body) `(lambda (,'%) ,body)))
    >>> setattr(
    ...   _macro_,
-   ...   'QzHASH_',
+   ...   'QzPCENT_',
    ...   (lambda *body:
    ...     (lambda * _: _)(
    ...       'lambda',
    ...       (lambda * _: _)(
-   ...         'QzHASH_'),
+   ...         'QzPCENT_'),
    ...       body)))
 
-   #> ((lambda (#)
-   #..   (print (.upper #)))              ;This lambda expression
+   #> ((lambda (%)
+   #..   (print (.upper %)))              ;This lambda expression
    #.. "q")
-   >>> (lambda QzHASH_:
+   >>> (lambda QzPCENT_:
    ...   print(
-   ...     QzHASH_.upper()))(
+   ...     QzPCENT_.upper()))(
    ...   ('q'))
    Q
 
-   #> ((# print (.upper #))               ; can now be abbreviated.
+   #> ((% print (.upper %))               ; can now be abbreviated.
    ... "q")
-   >>> # QzHASH_
-   ... (lambda QzHASH_:
+   >>> # QzPCENT_
+   ... (lambda QzPCENT_:
    ...   print(
-   ...     QzHASH_.upper()))(
+   ...     QzPCENT_.upper()))(
    ...   ('q'))
    Q
 
-   #> (any (map (# print (.upper #) ":" #)
+   #> (any (map (% print (.upper %) ":" %)
    #..          "abc"))
    >>> any(
    ...   map(
-   ...     # QzHASH_
-   ...     (lambda QzHASH_:
+   ...     # QzPCENT_
+   ...     (lambda QzPCENT_:
    ...       print(
-   ...         QzHASH_.upper(),
+   ...         QzPCENT_.upper(),
    ...         (':'),
-   ...         QzHASH_)),
+   ...         QzPCENT_)),
    ...     ('abc')))
    A : a
    B : b
@@ -1986,7 +2038,7 @@ But there are times when a function will not do:
 
 This macro is a metaprogram that creates a one-argument lambda.
 This is an example of intentional capture.
-The anaphor [#capture]_ is ``#``.
+The anaphor [#capture]_ is ``%``.
 Try doing that in Python.
 You can get pretty close with higher-order functions,
 but you can't delay the evaluation of the `.upper()<str.upper>`
@@ -2012,11 +2064,15 @@ Compiling Packages
 
 It isn't always necessary to create a compiled file.
 While you could compile it to Python first,
-you can run a ``.lissp`` file directly as the main module using ``hissp``::
+you can run a ``.lissp`` file directly as the main module using ``hissp``,
+
+.. code-block:: console
 
    $ python -m hissp foo.lissp
 
-Or::
+or
+
+.. code-block:: console
 
    $ lissp foo.lissp
 
@@ -2046,9 +2102,7 @@ which gives you fine-grained control over what gets compiled when.
 
    is included in the distributed Hissp package for completeness,
    but Hissp doesn't automatically recompile it on import.
-   If you do an
-   `editable install <https://setuptools.pypa.io/en/latest/userguide/development_mode.html>`_
-   don't forget to recompile it when making changes!
+   If you do make edits, don't forget to recompile!
 
 Before distributing a Lissp project to users who won't be modifying it,
 compilation could be disabled or removed altogether,
@@ -2152,5 +2206,12 @@ and there would be no such attribute.
    and the "params vector" in Clojure,
    but Hissp is made of tuples, not linked-lists or vectors, hence "parameters tuple".
 
-.. [#capture] When symbol capture is done on purpose, these are known as *anaphoric macros*.
+.. [#capture] In natural language,
+   anaphors are words used to avoid repetition,
+   and they refer to something contextually.
+   Pronouns are one example.
+   When symbol capture is done on purpose in Lisp,
+   these are known as *anaphoric macros*,
+   and the bound name is called an *anaphor*,
+   which is often chosen to be a pronoun word.
    (When it's done on accident, these are known as *bugs*.)
