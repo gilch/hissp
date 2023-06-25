@@ -37,7 +37,7 @@ The number of bytes gensym `$# <parse_macro>` hashes have.
 The default 5 bytes (40 bits) should be more than sufficient space to
 eliminate collisions with typical usage, but for unusual applications,
 hash length can be increased, up to a maximum of 32 bytes.
-(16 would have more space than UUID4.)
+(16 would have more space than a `uuid.uuid4`.)
 
 Each hash character encodes 5 bits (base32 encoding), so 40-bit hashes
 typically take 8 characters.
