@@ -27,11 +27,13 @@ Python—Syntactic macro metaprogramming with full access to the Python ecosyste
 - [Installation](#installation)
 - [Examples!](#examples)
     - [Quick Start: Readerless Mode](#quick-start-readerless-mode)
-        - [Special Cases](#special-cases)
+        - [Special Forms](#special-forms)
         - [Macros](#macros)
     - [The Lissp Reader](#the-lissp-reader)
-        - [A Small Lissp Example](#a-small-lissp-example)
-    - [Hebigo](#hebigo)
+        - [A Small Lissp Application](#a-small-lissp-application)
+    - [Alternate Readers](#alternate-readers)
+        - [Hebigo](#hebigo)
+        - [Garden of EDN](#garden-of-edn)
 - [Features and Design](#features-and-design)
     - [Radical Extensibility](#radical-extensibility)
     - [Minimal implementation](#minimal-implementation)
@@ -46,7 +48,6 @@ Python—Syntactic macro metaprogramming with full access to the Python ecosyste
 <!-- markdown-toc end -->
 
 # Installation
-
 Hissp requires Python 3.8+.
 
 Install the latest PyPI release with
@@ -148,6 +149,7 @@ Hello,
 A:L:I:C:E
 
 ```
+
 ### Macros
 The ability to make lambdas and call out to arbitrary Python helper functions entails that Hissp can do anything Python can.
 For example, control flow via higher-order functions.
@@ -204,7 +206,6 @@ no
 ```
 
 ## The Lissp Reader
-
 The Hissp data-structure language can be written directly in Python using the "readerless mode" demonstrated above,
 or it can be read in from a lightweight textual language called *Lissp* that represents the Hissp
 a little more neatly.
@@ -231,7 +232,7 @@ which compiles Hissp (read from Lissp) to Python and passes that to the Python R
 Lissp can also be read from ``.lissp`` files,
 which compile to Python modules.
 
-### A Small Lissp Example
+### A Small Lissp Application
 This is a Lissp web app for converting between Celsius and Fahrenheit,
 which demonstrates a number of language features.
 Run as the main script or enter it into the Lissp REPL.
@@ -267,12 +268,14 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
 
 (bottle..run : host "localhost"  port 8080  debug True)
 ```
-You should be able to understand this much after completing the
-[Lissp Whirlwind Tour](https://hissp.readthedocs.io/).
 
-## Hebigo
+Consult the [Hissp documentation](https://hissp.readthedocs.io/)
+for an explanation of each form.
 
+## Alternate Readers
 Hissp is modular, and the reader included for Lissp is not the only one.
+
+### Hebigo
 Here's a native unit test class from the separate
 [Hebigo](https://github.com/gilch/hebigo) prototype,
 a Hissp reader and macro suite implementing a language designed to resemble Python:
@@ -385,17 +388,101 @@ In [1]: pprint..pp:quote:class: TestOr: TestCase
    ('hebi.basic.._macro_.or_', 'x', 'y', 'z'))))
 ```
 
-Want more examples? See the [Hissp documentation](https://hissp.readthedocs.io/).
+### Garden of EDN
+Extensible Data Notation (EDN) is a subset of Clojure used for data exchange,
+as JSON is to JavaScript, only more extensible.
+Any standard Clojure editor should be able to handle EDN.
+
+The separate [Garden of EDN](https://github.gilch/garden-of-edn)
+prototype contains a variety of EDN readers in Python,
+and two of them read EDN into Hissp.
+
+Here's little snake game in PandoraHissp,
+one of the EDN Hissp dialects,
+which includes Clojure-like persistent data structures.
+
+```EDN
+0 ; from garden_of_edn import _this_file_as_main_; """#"
+(hissp/_macro_.prelude)
+(attach _macro_ . ors #hissp/$"_macro_.||", ands #hissp/$"_macro_.&&")
+(defmacro #hissp/$"m#" t (tuple (.extend [(quote pyrsistent/m) (quote .)] t)))
+(defmacro #hissp/$"j#" j (complex 0 j))
+
+(define TICK 100)
+(define WIDTH 40)
+(define HEIGHT 20)
+(define SNAKE (pyrsistent/dq (complex 3 2) (complex 2 2)))
+(define BINDS #m(w [#j -1], a [-1], s [#j 1], d [1]))
+
+(define arrow (collections/deque))
+
+(define root (doto (tkinter/Tk)
+               (.resizable 0 0)
+               (.bind "<Key>" #X(.extendleft arrow (.get BINDS X.char ())))))
+
+(define label (doto (tkinter/Label) .pack (.configure . font "TkFixedFont"
+                                                      justify "left"
+                                                      height (add 1 HEIGHT)
+                                                      width WIDTH)))
+
+(define wall? (lambda z (ors (contains #{WIDTH  -1} z.real)
+                             (contains #{HEIGHT -1} z.imag))))
+
+(define food! #O(complex (random/randint 0 (sub WIDTH 1))
+                         (random/randint 0 (sub HEIGHT 1))))
+
+(define frame (lambda (state)
+                (-<>> (product (range HEIGHT) (range WIDTH))
+                      (starmap #XY(complex Y X))
+                      (map (lambda z (concat (cond (contains state.snake z) "O"
+                                                   (eq z state.food) "@"
+                                                   :else " ")
+                                             (if-else (eq 0 z.real) "\n" ""))))
+                      (.join ""))))
+
+(define move (lambda (state new-food arrow)
+               (let (direction (if-else (ands arrow (ne arrow (neg state.direction)))
+                                 arrow state.direction))
+                 (let (head (add (#get 0 state.snake) direction))
+                   (-> state
+                       (.update (if-else (eq head state.food)
+                                  #m(score (add 1 state.score)
+                                     food new-food)
+                                  #m(snake (.pop state.snake)))
+                                #m(direction direction))
+                       (.transform [(quote snake)] #X(.appendleft X head)))))))
+
+(define lost? (lambda (state)
+                (let (head (#get 0 state.snake))
+                  (ors (wall? head)
+                       (contains (#get(slice 1 None) state.snake)
+                                 head)))))
+
+(define update!
+  (lambda (state)
+    (-<>> (if-else (lost? state)
+            " GAME OVER!"
+            (prog1 "" (.after root TICK update! (move state (food!) (when arrow
+                                                                      (.pop arrow))))))
+          (.format "Score: {}{}{}" state.score :<> (frame state))
+          (.configure label . text))))
+
+(when (eq __name__ "__main__")
+  (update! #m(score 0, direction 1, snake SNAKE, food (food!)))
+  (.mainloop root))
+;; """#"
+```
 
 # Features and Design
 
 ## Radical Extensibility
-
-Python is already a really nice language, so why do we need Hissp?
-
 > *Any sufficiently complicated C or Fortran program contains an ad hoc,
 informally-specified, bug-ridden, slow implementation of half of Common Lisp.*  
 — Greenspun's Tenth Rule
+
+Python is already a really nice language, a lot closer to Lisp than C or Fortran.
+It has dynamic types and automatic garbage collection, for example.
+So why do we need Hissp?
 
 If the only programming languages you've tried are those designed to feel familiar to C programmers,
 you might think they're all the same.
@@ -431,7 +518,8 @@ Python really is a great language to work with.
 "Executable pseudocode" is not far off.
 But it is too complex to be good at metaprogramming.
 By stripping Python down to a minimal subset,
-and encoding that subset as data structures rather than text,
+and encoding that subset as simple data structures rather than text
+(or complicated and error-prone Python AST),
 Hissp makes metaprogramming as easy as
 the kind of data manipulation you already do every day.
 On its own, meta-power doesn't seem that impressive.
@@ -465,9 +553,8 @@ And it will be hard,
 because you'll be using a language too low-level for your needs,
 even if it's a relatively high-level language like Python.
 
-Lisp is as high level as it gets.
-You're going to need it.
-Why settle for anything less?
+Lisp is as high level as it gets,
+because you can program in anything higher.
 
 ## Minimal implementation
 Hissp serves as a modular component for other projects.
@@ -512,12 +599,13 @@ This gives Hissp a massive advantage over other Lisps with less selection.
 If you don't care to work with the Python ecosystem,
 perhaps Hissp is not the Lisp for you.
 
-Note that the Hissp compiler is written in Python 3.8.
+Note that the Hissp compiler is written in Python 3.8,
+and the bundled macros assume at least that level.
 (Supporting older versions is not a goal,
 because that would complicate the compiler.
 This may limit the available libraries.)
 But because the compiler's target functional Python subset is so small,
-the compiled output can usually run on Python 3.5 without too much difficulty.
+the compiled output can usually be made to run on Python 3.5 without too much difficulty.
 Watch out for positional-only arguments (new to 3.8)
 and changes to the standard library.
 Running on versions even older than 3.5 is not recommended,
@@ -534,6 +622,12 @@ Any errors that prevent compilation should be easy to find.
 A language is not very usable without tools.
 Hissp's basic reader syntax (Lissp) should work with Emacs.
 
+The alternative EDN readers are compatible with Clojure editors.
+
+Hebigo was designed to work with minimal editor support.
+All it really needs is the ability to cut, paste, and indent/dedent blocks of code.
+Even [IDLE](https://docs.python.org/3/library/idle.html) would do.
+
 ## Standalone output
 This is part of Hissp's commitment to modularity.
 
@@ -548,6 +642,17 @@ Their expansions have no external requirements either.
 
 Libraries built on Hissp need not have this restriction.
 
+## Reproducible builds
+A newer Python feature that Lissp respects.
+
+Lissp's gensym format is deterministic,
+yet unlikely to collide even among standalone modules compiled at different times.
+If you haven't changed anything,
+your code will compile the same way.
+
+One could, of course, write randomized macros,
+but that's no fault of Lissp's.
+
 ## REPL
 A Lisp tradition, and Hissp is no exception.
 Even though it's a compiled language,
@@ -561,7 +666,7 @@ Lissp is not the only Hissp reader.)
 Functions are generally preferable to macros when functions can do the job.
 They're more reusable and composable.
 Therefore, it makes sense for macros to delegate to functions where possible.
-But such a macro should work in the same module.
+But such a macro should work in the same module as its helper functions.
 This requires incremental compilation and evaluation of forms in Lissp modules,
 like the REPL.
 
