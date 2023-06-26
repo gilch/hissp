@@ -178,6 +178,11 @@ class TestReader(TestCase):
         with self.assertRaises(SyntaxError):
             next(self.parser.reads("(x# !2"))
 
+    def test_reader_initial_dot(self):
+        msg = r"Unknown reader macro 'QzFULLxSTOP_foo'."
+        with self.assertRaisesRegex(SyntaxError, msg):
+            next(self.parser.reads(".foo# 0"))
+
     def test_template(self):
         self.assertEqual(
             [("quote", "('foo')",), 7],
