@@ -18,7 +18,7 @@ hissp.transpile(hissp.__package__, "macros")
 
 setuptools.setup(
     name="hissp",
-    version=hissp.__version__,
+    version=hissp.VERSION,
     description="It's Python with a Lissp.",
     long_description=long_description,
     long_description_content_type="text/markdown",

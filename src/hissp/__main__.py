@@ -10,7 +10,7 @@ import sys
 import traceback
 
 import hissp.repl
-from hissp import __version__ as ver
+from hissp import VERSION
 from hissp.reader import Lissp
 
 
@@ -60,7 +60,7 @@ def _no_interact(code, ns):
 
 def _arg_parser():
     root = argparse.ArgumentParser(
-        description=f"(Hissp {ver}) Starts a LisspREPL if there are no arguments."
+        description=f"(Hissp {VERSION}) Starts a LisspREPL if there are no arguments."
     )
     _ = root.add_argument
     _(

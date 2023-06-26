@@ -55,4 +55,4 @@ with suppress(ImportError):
 del suppress
 
 
-__version__ = "0.4.dev"
+VERSION = "0.5.dev"

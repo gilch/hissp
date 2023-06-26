@@ -41,6 +41,7 @@ Python—Syntactic macro metaprogramming with full access to the Python ecosyste
     - [Useful error messages](#useful-error-messages)
     - [Syntax compatible with Emacs' `lisp-mode` and Parlinter](#syntax-compatible-with-emacs-lisp-mode-and-parlinter)
     - [Standalone output](#standalone-output)
+    - [Reproducible builds](#reproducible-builds)
     - [REPL](#repl)
     - [Same-module macro helpers](#same-module-macro-helpers)
     - [Modularity](#modularity)
@@ -393,7 +394,7 @@ Extensible Data Notation (EDN) is a subset of Clojure used for data exchange,
 as JSON is to JavaScript, only more extensible.
 Any standard Clojure editor should be able to handle EDN.
 
-The separate [Garden of EDN](https://github.gilch/garden-of-edn)
+The separate [Garden of EDN](https://github.com/gilch/garden-of-edn)
 prototype contains a variety of EDN readers in Python,
 and two of them read EDN into Hissp.
 
