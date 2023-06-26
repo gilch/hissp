@@ -397,11 +397,13 @@ class Compiler:
         form = iter(form)
         head = next(form)
         args = chain(
-            map(self.form, takewhile(lambda a: a != ":", form)),
-            starmap(self._pair_arg, _pairs(form)),
+            (singles := [*map(self.form, takewhile(lambda a: a != ":", form))]),
+            starmap(self._pair_arg, pairs := [*_pairs(form)]),
         )
         if type(head) is str and head.startswith("."):
-            return "{}.{}({})".format(next(args), head[1:], _join_args(*args))
+            if singles or pairs[0][0] == ":?":
+                return "{}.{}({})".format(next(args), head[1:], _join_args(*args))
+            raise CompileError("self must be paired with :?")
         return "{}({})".format(self.form(head), _join_args(*args))
 
     def _pair_arg(self, k, v):
