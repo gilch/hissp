@@ -63,13 +63,8 @@ Confirm your Python version with
 
 .. code-block:: console
 
-   $ python -m pip install --upgrade --force-reinstall git+https://github.com/gilch/hissp
+   $ python -m pip install --upgrade hissp==0.4
 
-These docs are for the latest development version of Hissp.
-Most examples are tested automatically,
-but details may be dated.
-
-Report issues or try the current release version instead.
 More details about Pip, Python versions, and virtual environments may be helpful,
 but are beyond the scope of this document.
 
