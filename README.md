@@ -41,6 +41,7 @@ Python—Syntactic macro metaprogramming with full access to the Python ecosyste
     - [Useful error messages](#useful-error-messages)
     - [Syntax compatible with Emacs' `lisp-mode` and Parlinter](#syntax-compatible-with-emacs-lisp-mode-and-parlinter)
     - [Standalone output](#standalone-output)
+    - [Reproducible builds](#reproducible-builds)
     - [REPL](#repl)
     - [Same-module macro helpers](#same-module-macro-helpers)
     - [Modularity](#modularity)
