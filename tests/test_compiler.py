@@ -50,6 +50,11 @@ class TestCompileGeneral(TestCase):
         with self.assertRaises(compiler.CompileError):
             compiler.readerless(("hissp.macros.._macro_.foobar",))
 
+    def test_compile_method(self):
+        msg = r"self must be paired with :\?"
+        with self.assertRaisesRegex(compiler.CompileError, msg):
+            compiler.readerless(('.hex',':','self',2.0))  # fmt: skip
+
     def test_post_compile_warn(self):
         c = compiler.Compiler("oops")
         with self.assertWarns(compiler.PostCompileWarning):
