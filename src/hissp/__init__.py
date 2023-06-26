@@ -55,4 +55,4 @@ with suppress(ImportError):
 del suppress
 
 
-VERSION = "0.4.dev"
+VERSION = "0.4.0"
