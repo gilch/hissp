@@ -1643,7 +1643,7 @@ Lissp Whirlwind Tour
    ...   ('(print "Hello from spam!")\n(.update (globals) : x 42)'))
    53
 
-   #> (hissp.reader..transpile __package__ 'spam 'eggs) ; Side effects on compilation
+   #> (hissp.reader..transpile __package__ 'spam 'eggs) ;Side effects on compilation.
    >>> __import__('hissp.reader',fromlist='?').transpile(
    ...   __package__,
    ...   'spam',
@@ -1652,19 +1652,19 @@ Lissp Whirlwind Tour
    Hello World!
 
 
-   #> spam..x                             ; and import!
-   >>> __import__('spam').x
-   Hello from spam!
-   42
-
-   #> spam..x                             ;Python caches imports.
+   #> spam..x                             ;Compiled modules are cached.
    >>> __import__('spam').x
    42
 
    #> eggs.
    >>> __import__('eggs')
-   Hello World!
    <module 'eggs' from ...>
+
+   #> (importlib..reload spam.)           ;Side effects again on .py reload.
+   >>> __import__('importlib').reload(
+   ...   __import__('spam'))
+   Hello from spam!
+   <module 'spam' from ...>
 
 
    #> (any (map (lambda f (os..remove f)) ;Cleanup.
