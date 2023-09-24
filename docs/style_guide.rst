@@ -131,7 +131,7 @@ But *because* the brackets make it easy to parse (for a computer),
 editor support for Lisp is really very good.
 Emacs can do it, but it's got a bit of a learning curve.
 For a beginner, try installing `Parinfer <https://shaunlebron.github.io/parinfer/>`_
-in a supported editor, like `Atom <https://atom.io/packages/parinfer>`_.
+in a supported editor, like `Pulsar <https://web.pulsar-edit.dev/packages/parinfer>`_.
 If you get the indent right, Parinfer will manage the trails for you.
 Parinfer makes editing Lisp feel more like editing Python.
 
