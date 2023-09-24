@@ -14,11 +14,11 @@ import sys
 from contextlib import contextmanager, suppress
 from contextvars import ContextVar
 from functools import wraps
-from itertools import chain, takewhile, starmap
+from itertools import chain, starmap, takewhile
 from pprint import pformat
 from traceback import format_exc
 from types import ModuleType
-from typing import Iterable, List, NewType, Tuple, TypeVar, Union
+from typing import Any, Dict, Iterable, List, NewType, Tuple, TypeVar, Union
 from warnings import warn
 
 PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
@@ -95,16 +95,17 @@ class Compiler:
         self.abort = None
 
     @staticmethod
-    def new_ns(name, doc=None, package=None):
-        """Creates and initializes a dict namespace like a module,
-        with the given `__name__`, ``__doc__``, and `__package__`;
-        ``__builtins__``; an empty ``__annotations__``; and whatever
-        else Python currently adds to new module objects.
+    def new_ns(name, doc=None, package=None) -> Dict[str, Any]:
+        """Imports the named module, creating it if necessary.
+
+        Returns the module's ``__dict__``.
         """
         mod = ModuleType(name, doc)
         mod.__annotations__ = {}
         mod.__package__ = package
         mod.__builtins__ = builtins
+        if name != "__main__":
+            mod = sys.modules.setdefault(name, mod)
         return vars(mod)
 
     def compile(self, forms: Iterable) -> str:

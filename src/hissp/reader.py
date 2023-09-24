@@ -24,7 +24,7 @@ from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
 from threading import Lock
-from typing import Any, Iterable, Iterator, NewType, Optional, Tuple, Union, List
+from typing import Any, Dict, Iterable, Iterator, List, NewType, Optional, Tuple, Union
 
 import hissp.compiler as C
 from hissp.compiler import Compiler, readerless
@@ -218,7 +218,7 @@ class Lissp:
         self._p = 0
 
     @property
-    def ns(self):
+    def ns(self) -> Dict[str, Any]:
         """The wrapped `Compiler`'s ``ns``."""
         return self.compiler.ns
 
@@ -603,9 +603,13 @@ def transpile_file(path: Union[Path, str], package: Optional[str] = None):
     because macro definitions can alter the compilation of subsequent
     top-level forms. A packaged Lissp file must know its package at
     compile time to handle templates and macros correctly.
+
+    After the .py file is written, `__file__` will be set to it, if it
+    doesn't exist already.
     """
     path = Path(path).resolve(strict=True)
     qualname = f"{package or ''}{'.' if package else ''}{PurePath(path.name).stem}"
     L = Lissp(qualname=qualname, evaluate=True, filename=str(path))
     python = L.compile(re.sub(r"^#!.*\n", "", path.read_text("utf8")))
-    path.with_suffix(".py").write_text(python, "utf8")
+    (py := path.with_suffix(".py")).write_text(python, "utf8")
+    L.ns.setdefault("__file__", str(py))
