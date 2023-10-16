@@ -1327,7 +1327,7 @@ Lissp Whirlwind Tour
 
 
    ;; Remember, a gensym hash prefix is an alternative to qualification
-   ;; for locals. (Thus, templates don't qualified them.)
+   ;; for locals. (Thus, templates don't qualify them.)
    #> (setattr _macro_
    #..         'once-triple
    #..         (lambda x
