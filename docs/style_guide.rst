@@ -344,9 +344,9 @@ than the consistency itself.
 Know what the rules are for
 so you know when to break them.
 Sometimes differences of opinion come down to taste.
-Use your best judgement;
-it's not always black and white.
-But don't make the worse mistake of thinking there's only one shade of gray ;)
+Use your best judgement.
+It's not always black and white,
+but there are better and worse options among the shades of gray.
 
 Lisp is one of the oldest programming languages in common use.
 It has splintered into many dialects (Lissp among them),
