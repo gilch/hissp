@@ -421,10 +421,11 @@ which includes Clojure-like persistent data structures.
                (.resizable 0 0)
                (.bind "<Key>" #X(.extendleft arrow (.get BINDS X.char ())))))
 
-(define label (doto (tkinter/Label) .pack (.configure . font "TkFixedFont"
-                                                      justify "left"
-                                                      height (add 1 HEIGHT)
-                                                      width WIDTH)))
+(define label
+  (doto (tkinter/Label) .pack (.configure . font "TkFixedFont"
+                                            justify "left"
+                                            height (add 1 HEIGHT)
+                                            width WIDTH)))
 
 (define wall? (lambda z (ors (contains #{WIDTH  -1} z.real)
                              (contains #{HEIGHT -1} z.imag))))
