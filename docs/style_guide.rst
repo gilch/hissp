@@ -780,7 +780,8 @@ as this can cause errors when they are instead treated as arguments.
 (Usually, tags are attached to their primary, so this doesn't come up,
 but e.g. the bundled decorator macro `@#!<QzAT_QzHASH_>` typically is not.)
 You may use a discarded string instead ``_#"NB foo"``.
-A good syntax highlighter specialized for Lissp may be able to indicate when a comment token is not discarded,
+A good syntax highlighter specialized for Lissp may be able
+to indicate when a comment token is not discarded,
 but a traditional Lisp editor like Emacs ``lisp-mode`` would not.
 
 In rare cases, a margin comment may occupy the same line as some other comment form.
