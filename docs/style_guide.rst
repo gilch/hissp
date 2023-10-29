@@ -19,6 +19,14 @@ and often by multiple individuals,
 so making code easy to read and edit is that much more important than making it easy to write.
 Learning style is as much about learning to *read* code as it is about learning to write it.
 
+Style is the starting point for legibility,
+but good style doesn't excuse bad design.
+Good style is consistent, but good design is elegant.
+The more elegant designs often employ concepts novices would consider arcane.
+Choose elegance anyway.
+Refactor your code.
+Doing that well is an art, but beyond the scope of a style guide.
+
 To the uninitiated, Lisp is an unreadable homogenous ball of mud.
 Lots of Irritating Superfluous Parentheses. That's L.I.S.P.
 *How can anyone even read that?*
