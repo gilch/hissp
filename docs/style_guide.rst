@@ -1311,3 +1311,70 @@ even in an implied group.
                (gt lxs lys) (print ">")
                :else (print "0")))))
 
+The Limits of Length
+::::::::::::::::::::
+
+Readability is mainly laid out on the page.
+
+The optimal length for a line in a block of English text is thought to be around 50-75 characters,
+given the limitations of the human eye.
+More than that, and it gets difficult to find the next line in the return sweep.
+Excessively long lines are intimidating and may not get read as carefully.
+
+Lines under about 10 characters can be read vertically with no lateral eye motion,
+but lines of 10-50 characters require rapid-eye movements that become tiresome after too many lines,
+which is really only a concern when the ratio of small lines becomes excessive.
+The last line in a paragraph may (of course) be well under 50 characters as it runs out of words.
+
+When your code contains flowing prose (e.g., docstrings), the rules for prose apply,
+and one should try to keep most lines within these limits.
+
+But the code itself is a different language.
+Lisp's tree structure is read by indentation, and this is paramount for legibility.
+It's not justified to the left like a typical block of English.
+This can make finding the next line easier on the return sweep,
+making longer lines somewhat more acceptable than for prose.
+
+Regardless, the code must still fit on your screen.
+Use an absolute limit of 120 characters.
+(A smaller house limit of 100 is not unreasonable, if the team agrees.)
+
+Horizontal scrolling is even more of a pain than eye movements.
+Wrapped code lines are even worse as they disrupt the indent,
+although an occasional string literal containing a newline is acceptable,
+even in deeply nested code.
+If it's more than occasional, consider alternatives.
+Remember you can use ``\n``, constants, `<\<#<QzLT_QzLT_QzHASH_>`,
+or `textwrap.dedent` (even at read time).
+
+In rare instances (e.g., URLs), a constant definition containing a one-line string
+literal may exceed even the 120-character limit.
+Horizontal scrolling or wrapping is perhaps acceptable for the occasional top-level definition,
+but Lissp does give you the option of building constant strings programmatically at read time.
+Use your best judgement on which is more readable.
+Multiline strings exceeding the limit are perhaps best read from a separate text file,
+although one could perhaps justify embedding resources when the expected distribution is a single Python file.
+Recall that macros can read files at compile time too.
+
+For code lines (that are under the absolute limit of 120),
+length should be counted relative to the indent, i.e., the leading spaces don't count,
+and neither do the trailing brackets, because we ignore those.
+Those are only there for the computer.
+
+Margin comments are like a separate column of text,
+so they don't count against the code's line length either,
+but they do get their own relative limit starting from the first word after the semicolon.
+They do count against the absolute line limit of 120, however.
+
+Inline comments do count against the line, but are typically very brief.
+If you're tempted to exceed limits with an inline comment,
+consider using a margin comment or form/group comment instead.
+
+Relative length is a concern secondary to proper indentation.
+Follow the `Alignment Styles`_ given earlier in this guide.
+Within those constraints (given the choice),
+prefer relative line lengths either between 50-75 characters,
+or less than about 10.
+Sometimes that means joining short lines, not just splitting long ones.
+An occasional line between 10-50 is preferable to a line over 75,
+like the end of a paragraph in prose.
