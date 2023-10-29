@@ -805,8 +805,8 @@ so multiline comments used as reader arguments nearly always
 use a form/group comment starting with two semicolons and a space as described below.
 But with a single ``;``, they must follow code on the same line,
 typically the reader tag itself, or an `Extra` macro ``!``.
-In the rare case neither is valid,
-precede with a discarded item ``_#: ;foo``.
+In the rare case neither is valid (if the macro is counting the semicolons),
+then it's a margin comment. Indent it to the margin.
 
 Avoid using either margin or inline comments in any situation that would result in a dangling bracket.
 It's not acceptable for the comment to follow the bracket either,
