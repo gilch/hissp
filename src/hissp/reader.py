@@ -23,7 +23,19 @@ from itertools import chain, takewhile
 from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
-from typing import Any, Dict, Iterable, Iterator, List, NewType, Optional, Tuple, Union
+from typing import (
+    Any,
+    Callable as Fn,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    NewType,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+)
 
 import hissp.compiler as C
 from hissp.compiler import Compiler, readerless
@@ -428,22 +440,22 @@ class Lissp:
             return self.counters[-1]
         return self.counters[index]
 
-    def _custom_macro(self, form, tag, extras):
+    def _custom_macro(self, form, tag: str, extras):
         assert tag.endswith("#")
         tag = force_munge(self.escape(tag[:-1]))
         tag = re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), tag)
-        m = (self._fully_qualified if ".." in tag else self._local)(tag)
+        m: Fn[[str], Fn] = self._fully_qualified if ".." in tag else self._local
         with self.compiler.macro_context():
             args, kwargs = parse_extras(extras)
-            return m(form, *args, **kwargs)
+            return m(tag)(form, *args, **kwargs)
 
-    def _fully_qualified(self, tag):
+    def _fully_qualified(self, tag: str) -> Fn:
         module, function = tag.split("..", 1)
         if re.match(rf"{C.MACROS}\.[^.]+$", function):
             function += munge("#")
-        return reduce(getattr, function.split("."), import_module(module))
+        return cast(Fn, reduce(getattr, function.split("."), import_module(module)))
 
-    def _local(self, tag):
+    def _local(self, tag: str) -> Fn:
         try:
             return getattr(self.ns[C.MACROS], tag + munge("#"))
         except (AttributeError, KeyError):
