@@ -23,7 +23,6 @@ from itertools import chain, takewhile
 from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
-from threading import Lock
 from typing import Any, Dict, Iterable, Iterator, List, NewType, Optional, Tuple, Union
 
 import hissp.compiler as C
@@ -175,21 +174,6 @@ class Extra(tuple):
         return f"Extra({list(self)!r})"
 
 
-def gensym_counter(_count=[0], _lock=Lock()) -> int:
-    """
-    Call to increment the gensym counter, and return the new count.
-    Used by the gensym reader macro ``$#`` to ensure symbols are unique.
-
-    Uses a `threading.Lock` to ensure a number is not allocated more
-    than once in a session, however builds may not be reproducible if
-    templates are allocated numbers in a nondeterministic order,
-    therefore reading gensyms with multiple threads is not recommended.
-    """
-    with _lock:
-        _count[0] += 1
-        return _count[0]
-
-
 class Lissp:
     """
     The parser for the Lissp language.
@@ -205,6 +189,7 @@ class Lissp:
         evaluate=False,
         filename="<?>",
     ):
+        self.template_count = 0
         self.qualname = qualname
         self.compiler = Compiler(self.qualname, ns, evaluate)
         self.filename = filename
@@ -298,7 +283,8 @@ class Lissp:
     @contextmanager
     def gensym_context(self):
         """Start a new gensym context for the current template."""
-        self.counters.append(gensym_counter())
+        self.template_count += 1
+        self.counters.append(self.template_count)
         self.context.append("`")
         try:
             yield
@@ -423,7 +409,7 @@ class Lissp:
         there aren't any. Gensym hashes are deterministic for
         reproducible builds. Inputs are the code string being read,
         the current `__name__` (defaults to "__main__" if not found)
-        and a `count<gensym_counter>` of templates read so far.
+        and a count of templates read so far.
         """
         blk = self.blake.copy()
         blk.update((c := self._get_counter()).to_bytes(1 + c.bit_length() // 8, "big"))
