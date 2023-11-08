@@ -428,7 +428,7 @@ class Lissp:
         prefix = f"_Qz{b32encode(blk.digest()).rstrip(b'=').decode()}z_"
         marker = munge("$")
         if marker not in form:
-            return f"{prefix}{(form)}"
+            return f"{prefix}{form}"
         # TODO: escape $'s somehow? $$? \$?
         return form.replace(marker, prefix)
 
