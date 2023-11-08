@@ -212,7 +212,7 @@ class Lissp:
         self.counters: List[int] = []
         self.context = []
         self.depth = []
-        self._p = 0
+        self._pos = 0
 
     @property
     def ns(self) -> Dict[str, Any]:
@@ -246,7 +246,7 @@ class Lissp:
         return (x for x in self._parse() if x is not DROP)
 
     def _parse(self) -> Iterator:
-        for k, v, self._p in self.tokens:
+        for k, v, self._pos in self.tokens:
             # fmt: off
             if k == "whitespace": continue
             elif k == "comment":  yield Comment(v)
@@ -272,10 +272,10 @@ class Lissp:
         Get the ``filename``, ``lineno``, ``offset`` and ``text``
         for a `SyntaxError`, from the `Lexer` given to `parse`.
         """
-        return self.tokens.position(self._p if index is None else index)
+        return self.tokens.position(self._pos if index is None else index)
 
     def _open(self):
-        self.depth.append(self._p)
+        self.depth.append(self._pos)
         yield (*self.parse(self.tokens),)
 
     def _close(self):
@@ -284,7 +284,7 @@ class Lissp:
         self.depth.pop()
 
     def _macro(self, v):
-        p = self._p
+        p = self._pos
         with {
             "`": self.gensym_context,
             ",": self.unquote_context,
