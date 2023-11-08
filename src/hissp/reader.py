@@ -449,7 +449,8 @@ class Lissp:
             args, kwargs = parse_extras(extras)
             return fn(tag)(form, *args, **kwargs)
 
-    def _fully_qualified(self, tag: str) -> Fn:
+    @staticmethod
+    def _fully_qualified(tag: str) -> Fn:
         module, function = tag.split("..", 1)
         if re.match(rf"{C.MACROS}\.[^.]+$", function):
             function += munge("#")
