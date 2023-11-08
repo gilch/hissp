@@ -208,11 +208,12 @@ class Lissp:
         self.reinit()
 
     def reinit(self):
-        """Reset position, nesting depth, and gensym stack."""
+        """Reset hasher, position, nesting depth, and gensym stacks."""
         self.counters: List[int] = []
         self.context = []
         self.depth = []
         self._pos = 0
+        self.blake = hashlib.blake2s(digest_size=GENSYM_BYTES)
 
     @property
     def ns(self) -> Dict[str, Any]:
@@ -230,7 +231,6 @@ class Lissp:
 
     def reads(self, code: str) -> Iterable:
         """Read Hissp forms from code string."""
-        self.blake = hashlib.blake2s(digest_size=GENSYM_BYTES)
         self.blake.update(code.encode())
         self.blake.update(self.ns.get("__name__", "__main__").encode())
         res: Iterable[object] = self.parse(Lexer(code, self.filename))
