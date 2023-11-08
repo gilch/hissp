@@ -444,10 +444,10 @@ class Lissp:
         assert tag.endswith("#")
         tag = force_munge(self.escape(tag[:-1]))
         tag = re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), tag)
-        m: Fn[[str], Fn] = self._fully_qualified if ".." in tag else self._local
+        fn: Fn[[str], Fn] = self._fully_qualified if ".." in tag else self._local
         with self.compiler.macro_context():
             args, kwargs = parse_extras(extras)
-            return m(tag)(form, *args, **kwargs)
+            return fn(tag)(form, *args, **kwargs)
 
     def _fully_qualified(self, tag: str) -> Fn:
         module, function = tag.split("..", 1)
