@@ -2622,9 +2622,7 @@ except ModuleNotFoundError:pass"
   ``/`` DROP (term)
      Removes expression (at depth).
   ``&`` PICK (term)
-     Copies expression (at depth) and pushes. Non-literal expressions
-     are extracted to a local first (using `let`), and the resulting
-     symbol is copied instead.
+     Copies expression (at depth) and pushes.
   ``@`` ROLL (term, default depth 2)
      Pops expression (at depth) and pushes.
   ``>`` MARK (term, default depth 0)
@@ -2764,8 +2762,6 @@ except ModuleNotFoundError:pass"
         control-word? X#(my.startswith? X ":")
         module-handle? X#(&& (my.str? X) (.endswith X "."))
         method? X#(my.startswith? X ".")
-        symbol? X#(&& (my.str? X) (.isidentifier (.replace X "." "")))
-        G None
         exprs (list exprs)
         arity (.count suffix "^")
         mark (getattr unittest.mock..sentinel "hissp.>"))
@@ -2773,14 +2769,6 @@ except ModuleNotFoundError:pass"
         : iexprs (iter my.exprs)
         obj (next (.reads my.reader (.replace cmd "`" "")))
         arity+1 (op#add 1 my.arity))
-      (when (&& (op#eq "&" cmd)
-                (not (my.literal? (set@ my.target (op#getitem exprs my.arity))))
-                (not (hissp.reader..is_lissp_string my.target))
-                (not (my.control-word? my.target))
-                (not (my.symbol? my.target))
-                (not (my.quotation? my.target)))
-        (set@ my.G (.format "{}{}" `$#G (hissp.reader..gensym_counter)))
-        (op#setitem my.exprs my.arity my.G))
       (set@ my.result
         (case cmd (@ (if-else (|| (my.literal? my.obj)
                                   (.startswith suffix ",")
@@ -2805,9 +2793,6 @@ except ModuleNotFoundError:pass"
               : ()))
       (set@ my.result
         (._rewrite _macro_ program : :* my.result :* my.iexprs))
-      (when my.G
-        (set@ my.result
-          `(let (,my.G ,my.target) ,my.result)))
       my.result)))
 
 .#`(progn ,@(map X#(let (args (get#(slice X) `($#x $#y $#z $#w))
