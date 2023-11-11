@@ -23,8 +23,19 @@ from itertools import chain, takewhile
 from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
-from threading import Lock
-from typing import Any, Dict, Iterable, Iterator, List, NewType, Optional, Tuple, Union
+from typing import (
+    Any,
+    Callable as Fn,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    NewType,
+    Optional,
+    Tuple,
+    Union,
+    cast,
+)
 
 import hissp.compiler as C
 from hissp.compiler import Compiler, readerless
@@ -175,21 +186,6 @@ class Extra(tuple):
         return f"Extra({list(self)!r})"
 
 
-def gensym_counter(_count=[0], _lock=Lock()) -> int:
-    """
-    Call to increment the gensym counter, and return the new count.
-    Used by the gensym reader macro ``$#`` to ensure symbols are unique.
-
-    Uses a `threading.Lock` to ensure a number is not allocated more
-    than once in a session, however builds may not be reproducible if
-    templates are allocated numbers in a nondeterministic order,
-    therefore reading gensyms with multiple threads is not recommended.
-    """
-    with _lock:
-        _count[0] += 1
-        return _count[0]
-
-
 class Lissp:
     """
     The parser for the Lissp language.
@@ -205,17 +201,19 @@ class Lissp:
         evaluate=False,
         filename="<?>",
     ):
+        self.template_count = 0
         self.qualname = qualname
         self.compiler = Compiler(self.qualname, ns, evaluate)
         self.filename = filename
         self.reinit()
 
     def reinit(self):
-        """Reset position, nesting depth, and gensym stack."""
+        """Reset hasher, position, nesting depth, and gensym stacks."""
         self.counters: List[int] = []
         self.context = []
         self.depth = []
-        self._p = 0
+        self._pos = 0
+        self.blake = hashlib.blake2s(digest_size=GENSYM_BYTES)
 
     @property
     def ns(self) -> Dict[str, Any]:
@@ -233,7 +231,6 @@ class Lissp:
 
     def reads(self, code: str) -> Iterable:
         """Read Hissp forms from code string."""
-        self.blake = hashlib.blake2s(digest_size=GENSYM_BYTES)
         self.blake.update(code.encode())
         self.blake.update(self.ns.get("__name__", "__main__").encode())
         res: Iterable[object] = self.parse(Lexer(code, self.filename))
@@ -249,7 +246,7 @@ class Lissp:
         return (x for x in self._parse() if x is not DROP)
 
     def _parse(self) -> Iterator:
-        for k, v, self._p in self.tokens:
+        for k, v, self._pos in self.tokens:
             # fmt: off
             if k == "whitespace": continue
             elif k == "comment":  yield Comment(v)
@@ -275,10 +272,10 @@ class Lissp:
         Get the ``filename``, ``lineno``, ``offset`` and ``text``
         for a `SyntaxError`, from the `Lexer` given to `parse`.
         """
-        return self.tokens.position(self._p if index is None else index)
+        return self.tokens.position(self._pos if index is None else index)
 
     def _open(self):
-        self.depth.append(self._p)
+        self.depth.append(self._pos)
         yield (*self.parse(self.tokens),)
 
     def _close(self):
@@ -287,7 +284,7 @@ class Lissp:
         self.depth.pop()
 
     def _macro(self, v):
-        p = self._p
+        p = self._pos
         with {
             "`": self.gensym_context,
             ",": self.unquote_context,
@@ -298,7 +295,8 @@ class Lissp:
     @contextmanager
     def gensym_context(self):
         """Start a new gensym context for the current template."""
-        self.counters.append(gensym_counter())
+        self.template_count += 1
+        self.counters.append(self.template_count)
         self.context.append("`")
         try:
             yield
@@ -423,14 +421,14 @@ class Lissp:
         there aren't any. Gensym hashes are deterministic for
         reproducible builds. Inputs are the code string being read,
         the current `__name__` (defaults to "__main__" if not found)
-        and a `count<gensym_counter>` of templates read so far.
+        and a count of templates read so far.
         """
         blk = self.blake.copy()
         blk.update((c := self._get_counter()).to_bytes(1 + c.bit_length() // 8, "big"))
         prefix = f"_Qz{b32encode(blk.digest()).rstrip(b'=').decode()}z_"
         marker = munge("$")
         if marker not in form:
-            return f"{prefix}{(form)}"
+            return f"{prefix}{form}"
         # TODO: escape $'s somehow? $$? \$?
         return form.replace(marker, prefix)
 
@@ -442,22 +440,23 @@ class Lissp:
             return self.counters[-1]
         return self.counters[index]
 
-    def _custom_macro(self, form, tag, extras):
+    def _custom_macro(self, form, tag: str, extras):
         assert tag.endswith("#")
         tag = force_munge(self.escape(tag[:-1]))
         tag = re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), tag)
-        m = (self._fully_qualified if ".." in tag else self._local)(tag)
+        fn: Fn[[str], Fn] = self._fully_qualified if ".." in tag else self._local
         with self.compiler.macro_context():
             args, kwargs = parse_extras(extras)
-            return m(form, *args, **kwargs)
+            return fn(tag)(form, *args, **kwargs)
 
-    def _fully_qualified(self, tag):
+    @staticmethod
+    def _fully_qualified(tag: str) -> Fn:
         module, function = tag.split("..", 1)
         if re.match(rf"{C.MACROS}\.[^.]+$", function):
             function += munge("#")
-        return reduce(getattr, function.split("."), import_module(module))
+        return cast(Fn, reduce(getattr, function.split("."), import_module(module)))
 
-    def _local(self, tag):
+    def _local(self, tag: str) -> Fn:
         try:
             return getattr(self.ns[C.MACROS], tag + munge("#"))
         except (AttributeError, KeyError):
