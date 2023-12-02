@@ -713,7 +713,7 @@ Now we're shorter than Python:
 But we're also less general.
 We can change the expression,
 but we've hardcoded the parameters to it.
-The fixed parameter name is fine as long unless it shadows a `nonlocal <nonlocal>` we need,
+The fixed parameter name is fine unless it shadows a `nonlocal <nonlocal>` we need,
 but what if we needed two parameters?
 Could we make a macro for that?
 
