@@ -19,7 +19,7 @@ from collections import namedtuple
 from contextlib import contextmanager, nullcontext, suppress
 from functools import reduce
 from importlib import import_module, resources
-from itertools import chain, islice, takewhile
+from itertools import chain, takewhile, zip_longest
 from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
@@ -452,19 +452,40 @@ class Lissp:
     def _custom_macro(self, form, tag: str, extras):
         assert tag.endswith("#")
         arity = tag.replace(R"\#", "").count("#")
-        label = force_munge(self.escape(tag[:-arity]))
+        assert arity > 0
+        *keywords, label = re.findall(r"((?:[^=\\]|\\.)*(?:=|#+))", tag)
+        if len(keywords) > arity:
+            raise SyntaxError(f"Not enough # for each = in {tag!r}")
+        label = label[:-arity]
+        label = force_munge(self.escape(label))
         label = re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), label)
         fn: Fn[[str], Fn] = self._fully_qualified if ".." in label else self._local
-        if arity == 1:
+        if arity == 1 and not keywords and type(form) is not Pack:
             with self.compiler.macro_context():
                 args, kwargs = parse_extras(extras)
                 return fn(label)(form, *args, **kwargs)
         p = self._pos
         args = []
+        kwargs = {}
         depth = len(self.depth)
         with self.compiler.macro_context():
-            for i, x in enumerate(self._filter_drop(), 2):  # form is #1.
-                args.append(x)
+            for i, [k, v] in enumerate(
+                zip_longest(
+                    (k[:-1] for k in keywords), chain([form], self._filter_drop())
+                ),
+                1,
+            ):
+                if type(v) is Pack:
+                    args.extend(v.args)
+                    kwargs.update(v.kwargs)
+                elif k == "*":
+                    args.extend(v)
+                elif k == "**":
+                    kwargs.update(v)
+                elif k:
+                    kwargs[k] = v
+                else:
+                    args.append(v)
                 if i == arity:
                     break
             else:
@@ -472,7 +493,7 @@ class Lissp:
                 raise e(
                     f"Reader tag {tag!r} missing argument.", self.position(p)
                 ) from None
-            return fn(label)(form, *args)
+            return fn(label)(*args, **kwargs)
 
     @staticmethod
     def _fully_qualified(tag: str) -> Fn:
@@ -482,6 +503,8 @@ class Lissp:
         return cast(Fn, reduce(getattr, function.split("."), import_module(module)))
 
     def _local(self, tag: str) -> Fn:
+        if not tag:
+            return Pack
         try:
             return getattr(self.ns[C.MACROS], tag + munge("#"))
         except (AttributeError, KeyError):
