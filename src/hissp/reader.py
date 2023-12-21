@@ -452,15 +452,27 @@ class Lissp:
     def _custom_macro(self, form, tag: str, extras):
         assert tag.endswith("#")
         arity = tag.replace(R"\#", "").count("#")
-        tag = force_munge(self.escape(tag[:-arity]))
-        tag = re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), tag)
-        fn: Fn[[str], Fn] = self._fully_qualified if ".." in tag else self._local
+        label = force_munge(self.escape(tag[:-arity]))
+        label = re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), label)
+        fn: Fn[[str], Fn] = self._fully_qualified if ".." in label else self._local
         if arity == 1:
             with self.compiler.macro_context():
                 args, kwargs = parse_extras(extras)
-                return fn(tag)(form, *args, **kwargs)
+                return fn(label)(form, *args, **kwargs)
+        p = self._pos
+        args = []
+        depth = len(self.depth)
         with self.compiler.macro_context():
-            return fn(tag)(form, *islice(self._filter_drop(), arity))
+            for i, x in enumerate(self._filter_drop(), 2):  # form is #1.
+                args.append(x)
+                if i == arity:
+                    break
+            else:
+                e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
+                raise e(
+                    f"Reader tag {tag!r} missing argument.", self.position(p)
+                ) from None
+            return fn(label)(form, *args)
 
     @staticmethod
     def _fully_qualified(tag: str) -> Fn:
