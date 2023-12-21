@@ -186,6 +186,15 @@ class Extra(tuple):
         return f"Extra({list(self)!r})"
 
 
+class Pack:
+    def __init__(self, *args, **kwargs):
+        self.args = list(args)
+        self.kwargs = kwargs
+
+    def __repr__(self):
+        return f"Pack(*{self.args},**{self.kwargs})"
+
+
 class Lissp:
     """
     The parser for the Lissp language.
