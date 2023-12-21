@@ -19,7 +19,7 @@ from collections import namedtuple
 from contextlib import contextmanager, nullcontext, suppress
 from functools import reduce
 from importlib import import_module, resources
-from itertools import chain, takewhile
+from itertools import chain, islice, takewhile
 from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
@@ -75,7 +75,7 @@ TOKENS = re.compile(
       |['`,!]
       |[.][#]
       # Any atom that ends in ``#``, but not ``.#`` or ``\#``.
-      |(?:[^\\ \n"();#]|\\.)*(?:[^.\\ \n"();#]|\\.)[#]
+      |(?:[^\\ \n"();#]|\\.)*(?:[^.\\ \n"();#]|\\.)[#]+
      )
     |(?P<string>
       [#]?  # raw?
@@ -451,12 +451,16 @@ class Lissp:
 
     def _custom_macro(self, form, tag: str, extras):
         assert tag.endswith("#")
-        tag = force_munge(self.escape(tag[:-1]))
+        arity = tag.replace(R"\#", "").count("#")
+        tag = force_munge(self.escape(tag[:-arity]))
         tag = re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), tag)
         fn: Fn[[str], Fn] = self._fully_qualified if ".." in tag else self._local
+        if arity == 1:
+            with self.compiler.macro_context():
+                args, kwargs = parse_extras(extras)
+                return fn(tag)(form, *args, **kwargs)
         with self.compiler.macro_context():
-            args, kwargs = parse_extras(extras)
-            return fn(tag)(form, *args, **kwargs)
+            return fn(tag)(form, *islice(self._filter_drop(), arity))
 
     @staticmethod
     def _fully_qualified(tag: str) -> Fn:
