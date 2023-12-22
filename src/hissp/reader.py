@@ -483,7 +483,7 @@ class Lissp:
                 elif k == "**":
                     kwargs.update(v)
                 elif k:
-                    kwargs[k] = v
+                    kwargs[force_munge(self.escape(k))] = v
                 else:
                     args.append(v)
                 if i == arity:
