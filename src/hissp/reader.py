@@ -19,7 +19,7 @@ from collections import namedtuple
 from contextlib import contextmanager, nullcontext, suppress
 from functools import reduce
 from importlib import import_module, resources
-from itertools import chain, takewhile, zip_longest
+from itertools import chain, zip_longest
 from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
@@ -72,7 +72,7 @@ TOKENS = re.compile(
     |(?P<close>\))
     |(?P<macro>
        ,@
-      |['`,!]
+      |['`,]
       |[.][#]
       # Any atom that ends in ``#``, but not ``.#`` or ``\#``.
       |(?:[^\\ \n"();#]|\\.)*(?:[^.\\ \n"();#]|\\.)[#]+
@@ -176,17 +176,12 @@ class Comment:
         return f"Comment({self.token!r})"
 
 
-class Extra(tuple):
-    """Designates Extra read-time arguments for reader macros.
+class Pack:
+    """Contains read-time arguments for reader macros.
 
-    Normally made with the ``!`` macro, but can be constructed directly.
+    Normally made with empty tags, but can be constructed directly.
     """
 
-    def __repr__(self):
-        return f"Extra({list(self)!r})"
-
-
-class Pack:
     def __init__(self, *args, **kwargs):
         self.args = list(args)
         self.kwargs = kwargs
@@ -299,7 +294,7 @@ class Lissp:
             ",": self.unquote_context,
             ",@": self.unquote_context,
         }.get(v, nullcontext)():
-            yield self.parse_macro(v, *self._extras(p, v))
+            yield self.parse_macro(v, self._pull(v, p))
 
     @contextmanager
     def gensym_context(self):
@@ -324,19 +319,16 @@ class Lissp:
         finally:
             self.context.pop()
 
-    def _extras(self, p, v):
-        extras = []
+    def _pull(self, v, p):
         depth = len(self.depth)
         nondrop = self._filter_drop()
         try:
-            while isinstance(form := next(nondrop), Extra):
-                extras.extend(form)
+            return next(nondrop)
         except StopIteration:
             e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
             raise e(f"Reader macro {v!r} missing argument.", self.position(p)) from None
-        return form, extras
 
-    def parse_macro(self, tag: str, form, extras):
+    def parse_macro(self, tag: str, form):
         # fmt: off
         R"""Apply a reader macro to a form.
 
@@ -346,8 +338,6 @@ class Lissp:
 
            * - ``'``
              - `quote<special>`
-           * - ``!``
-             - `Extra`
            * - :literal:`\`` (backtick)
              - template quote (starts a `template`)
            * - ``_#``
@@ -370,19 +360,14 @@ class Lissp:
         The built-in macros are reserved by the reader and cannot be
         reassigned.
         """
-        def case(s):
-            if (b := tag == s) and extras:
-                raise SyntaxError(f"Extra for {s!r} reader macro.")
-            return b
-        if case("'"):  return "quote", form
-        if tag == "!": return Extra([*extras, form])
-        if case("`"):  return self.template(form)
-        if case(","):  return _Unquote(":?", form)
-        if case(",@"): return _Unquote(":*", form)
-        if case("_#"): return DROP
-        if case("$#"): return self.gensym(form)
-        if case(".#"): return eval(readerless(form, self.ns), self.ns)
-        return self._custom_macro(form, tag, extras)
+        if tag == "'":  return "quote", form
+        if tag == "`":  return self.template(form)
+        if tag == ",":  return _Unquote(":?", form)
+        if tag == ",@": return _Unquote(":*", form)
+        if tag == "_#": return DROP
+        if tag == "$#": return self.gensym(form)
+        if tag == ".#": return eval(readerless(form, self.ns), self.ns)
+        return self._custom_macro(form, tag)
         # fmt: on
 
     def template(self, form):
@@ -449,7 +434,7 @@ class Lissp:
             return self.counters[-1]
         return self.counters[index]
 
-    def _custom_macro(self, form, tag: str, extras):
+    def _custom_macro(self, form, tag: str):
         assert tag.endswith("#")
         arity = tag.replace(R"\#", "").count("#")
         assert arity > 0
@@ -460,10 +445,6 @@ class Lissp:
         label = force_munge(self.escape(label))
         label = re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), label)
         fn: Fn[[str], Fn] = self._fully_qualified if ".." in label else self._local
-        if arity == 1 and not keywords and type(form) is not Pack:
-            with self.compiler.macro_context():
-                args, kwargs = parse_extras(extras)
-                return fn(label)(form, *args, **kwargs)
         p = self._pos
         args = []
         kwargs = {}
@@ -596,21 +577,6 @@ def is_string_literal(form) -> Optional[bool]:
     """
     with suppress(Exception):
         return type(ast.literal_eval(form)) is str
-
-
-def parse_extras(extras):
-    it = iter(extras)
-    args = [*takewhile(lambda x: x != ":", it)]
-    kwargs = {}
-    for k in it:
-        # fmt: off
-        v = next(it)
-        if k == ":?":    args.append(v)
-        elif k == ":*":  args.extend(v)
-        elif k == ":**": kwargs.update(v)
-        else:            kwargs[k] = v
-        # fmt: on
-    return args, kwargs
 
 
 def is_qualifiable(symbol):

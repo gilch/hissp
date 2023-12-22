@@ -378,7 +378,7 @@ or adding it to a collection may be attached to it.
 However, in many of these cases,
 the groups could be written as a single top-level form insead,
 given the appropriate functions or macros.
-E.g. `dict.update` (on `globals`), `let`, `@#!<QzAT_QzHASH_>`, `attach`, `doto`.
+E.g. `dict.update` (on `globals`), `let`, `@##<QzAT_QzHASH_>`, `attach`, `doto`.
 
 Try to avoid blank lines within forms.
 You may need them for separating groups whose elements span lines
@@ -771,14 +771,14 @@ comment from the previous line.
 Unlike inline comments,
 margin comment continuation lines need not have code on their line.
 
-Be careful with comments around detached reader tags!.
+Be careful with comments around detached reader tags!
 Comment tokens are normally discarded by the reader in Lissp,
 but they are a valid target for reader macros,
 in which case they may be treated as literal values.
 Avoid using inline or margin comments as commentary between a tag and its target,
 as this can cause errors when they are instead treated as arguments.
-(Usually, tags are attached to their primary, so this doesn't come up,
-but e.g. the bundled decorator macro `@#!<QzAT_QzHASH_>` typically is not.)
+(Usually, tags are attached to one argument, so this doesn't come up,
+but e.g. the bundled decorator macro `@##<QzAT_QzHASH_>` typically is not.)
 You may use a discarded string instead ``_#"NB foo"``.
 A good syntax highlighter specialized for Lissp may be able
 to indicate when a comment token is not discarded,
@@ -804,7 +804,7 @@ Lissp parses comments in blocks,
 so multiline comments used as reader arguments nearly always
 use a form/group comment starting with two semicolons and a space as described below.
 But with a single ``;``, they must follow code on the same line,
-typically the reader tag itself, or an `Extra` macro ``!``.
+typically the reader tag itself.
 In the rare case neither is valid (if the macro is counting the semicolons),
 then it's a margin comment. Indent it to the margin.
 
@@ -1035,123 +1035,6 @@ if it's not obvious from the identifier.
 
 This way, all three name versions (munged, demunged, and pronounced)
 will appear in generated docs.
-
-Reader Macros
-:::::::::::::
-
-Reader macros should not be separated from each other
-or from their primary argument with whitespace.
-
-.. code-block:: Lissp
-
-   ' builtins..repr# .# (lambda :)        ;Bad.
-   'builtins..repr#.#(lambda :)           ;Preferred.
-
-Separating the tag with a space is acceptable when the primary starts with a ``|`` character,
-because ``#|`` starts a block comment in other Lisp dialects.
-Any editor not specialized for Lissp may get confused.
-``#\|`` is an alternative.
-
-If a primary argument spans multiple lines,
-it's acceptable to separate with a newline,
-but be careful not to accidentally put a comment in between,
-unless you explicitly discard it.
-
-.. code-block:: Lissp
-
-   _# ; Bad. Comments are valid reader macro arguments!
-   ((lambda abc                           ;This wasn't discarded!
-      (frobnicate a b c))
-    arg)
-
-   _#
-   ;; Bad. This comment would have been discarded anyway.
-   ((lambda abc                           ;But this wasn't discarded!
-      (frobnicate a b c))
-    arg)
-
-   _#_#
-   ;; OK. This actually works.
-   ((lambda abc                           ;This was discarded too.
-      (frobnicate a b c))
-    arg)
-
-   ;; OK. Put the tag after the comment on its own line.
-   _#
-   ((lambda abc
-      (frobnicate a b c))
-    arg)
-
-   _#((lambda abc
-      (frobnicate a b c))                 ;Bad. Wrong indentation!
-    arg)
-
-   _#((lambda abc                         ;Preferred. No separation, good indents.
-        (frobnicate a b c))
-      arg)
-
-   ;; OK. Composed macros can group. Primary spanned multiple lines.
-   `',
-   ((lambda abc
-      (frobnicate a b c))
-    arg)
-
-   `',((lambda abc                        ;Preferred. No separation.
-         (frobnicate a b c))
-       arg)
-
-Extras may always be separated from the tag,
-but only imply groups of extras with whitespace if they are semantically grouped.
-
-.. code-block:: Lissp
-
-   builtins..int#!6 .#"21"                ;Preferred. Spacing not required.
-   builtins..int# !6 "21"                 ;OK. Extras may always be separated.
-
-   'foo#!(spam)!(eggs)bar                 ;Preferred. Spacing not required.
-   'foo# !(spam) !(eggs) bar              ;OK. Extras may always be separated.
-   'foo# !(spam)!(eggs) bar               ;Bad if grouping not meaningful.
-   'foo#!(spam) !(eggs) bar               ;Bad for the same reason.
-
-You can also imply groups by stacking bangs,
-but no more than three in a row.
-
-.. code-block:: Lissp
-
-   builtins..dict# !: !foo !2  !bar !4 () ;OK. Grouped by extra space.
-   builtins..dict#!: !foo!2 !bar!4()      ;Bad. {'fooQzBANG_2': 'barQzBANG_4'}
-   builtins..dict# !!!: foo 2 !! bar 4 () ;OK. Meaningful breaks, no more than !!!.
-   builtins..dict#!: !!foo 2 !!bar 4()    ;Preferred. Pairs grouped by stacking.
-   builtins..dict#!!!!!: foo 2  bar 4  () ;Bad. Have to count bangs.
-
-Align extras spanning lines like tuple contents.
-
-.. code-block:: Lissp
-
-   ;; Extras aligned with the first extra.
-   foo#!spam
-       !eggs
-       !ham
-   bar                                    ;Primary isn't an extra. Aligned with tag.
-
-   ;; Extras aligned with the first extra.
-   foo#
-   !spam
-   !eggs
-   !ham
-   bar
-
-   ;; Indent recursively.
-   foo#!spam
-       !bar#!sausage
-            !bacon
-       :tomato
-       !eggs
-   :beans
-
-   ;; Don't dangle brackets!
-   (print <<#;Hello, World!
-          _#/)
 
 Identifiers
 ===========
