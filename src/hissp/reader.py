@@ -476,6 +476,10 @@ class Lissp:
                 1,
             ):
                 if type(v) is Pack:
+                    if k:
+                        raise SyntaxError(
+                            f"Can't apply prefix {k}= to {v}.", self.position(self._pos)
+                        )
                     args.extend(v.args)
                     kwargs.update(v.kwargs)
                 elif k == "*":
