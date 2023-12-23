@@ -75,7 +75,7 @@ TOKENS = re.compile(
       |['`,]
       |[.][#]
       # Any atom that ends in ``#``, but not ``.#`` or ``\#``.
-      |(?:[^\\ \n"();#]|\\.)*(?:[^.\\ \n"();#]|\\.)[#]+
+      |(?:[^\\ \n"();#]|\\.)*(?:[^.\\ \n"();#]|\\.)[#]
      )
     |(?P<string>
       [#]?  # raw?
@@ -436,12 +436,11 @@ class Lissp:
 
     def _custom_macro(self, form, tag: str):
         assert tag.endswith("#")
-        arity = tag.replace(R"\#", "").count("#")
+        arity = tag.replace(R"\=", "").count("=")
+        *keywords, label = re.findall(r"((?:[^=\\]|\\.)*[=#])", tag)
+        arity += bool(label[:-1])
         assert arity > 0
-        *keywords, label = re.findall(r"((?:[^=\\]|\\.)*(?:=|#+))", tag)
-        if len(keywords) > arity:
-            raise SyntaxError(f"Not enough # for each = in {tag!r}")
-        label = label[:-arity]
+        label = label[:-1]
         label = force_munge(self.escape(label))
         label = re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), label)
         fn: Fn[[str], Fn] = self._fully_qualified if ".." in label else self._local

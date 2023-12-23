@@ -376,9 +376,9 @@ a form modifying the previous (e.g. decorating, attaching attributes),
 or adding it to a collection may be attached to it.
 
 However, in many of these cases,
-the groups could be written as a single top-level form insead,
+the groups could be written as a single top-level form instead,
 given the appropriate functions or macros.
-E.g. `dict.update` (on `globals`), `let`, `@##<QzAT_QzHASH_>`, `attach`, `doto`.
+E.g. `dict.update` (on `globals`), `let`, `@#<QzAT_QzHASH_>`, `attach`, `doto`.
 
 Try to avoid blank lines within forms.
 You may need them for separating groups whose elements span lines
@@ -778,7 +778,7 @@ in which case they may be treated as literal values.
 Avoid using inline or margin comments as commentary between a tag and its target,
 as this can cause errors when they are instead treated as arguments.
 (Usually, tags are attached to one argument, so this doesn't come up,
-but e.g. the bundled decorator macro `@##<QzAT_QzHASH_>` typically is not.)
+but e.g. the bundled decorator macro `@#<QzAT_QzHASH_>` typically is not.)
 You may use a discarded string instead ``_#"NB foo"``.
 A good syntax highlighter specialized for Lissp may be able
 to indicate when a comment token is not discarded,

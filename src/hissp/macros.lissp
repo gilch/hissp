@@ -823,32 +823,25 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    >>> # hissp.._macro_.alias
   ;;    ... # hissp.macros.._macro_.defmacro
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda _Qz2D5FNHXZz_fn=(lambda _QzE4JATHEUz_first,*_QzE4JATHEUz_rest,**_QzE4JATHEUz_kwargs:(
+  ;;    ... (lambda _Qz2D5FNHXZz_fn=(lambda _QzE4JATHEUz_attr,*_QzE4JATHEUz_args,**_QzE4JATHEUz_kwargs:(
   ;;    ...   'Aliases ``hissp.._macro_`` as ``HQzCOLON_#``.',
   ;;    ...   # hissp.macros.._macro_.ifQz_else
   ;;    ...   (lambda b,c,a:c()if b else a())(
-  ;;    ...     _QzE4JATHEUz_rest,
+  ;;    ...     (lambda X,Y:X or Y)(
+  ;;    ...       _QzE4JATHEUz_args,
+  ;;    ...       _QzE4JATHEUz_kwargs),
   ;;    ...     (lambda :
-  ;;    ...       # hissp.macros.._macro_.let
-  ;;    ...       (lambda _QzE4JATHEUz_rest=__import__('builtins').list(
-  ;;    ...         _QzE4JATHEUz_rest):
-  ;;    ...         __import__('builtins').getattr(
-  ;;    ...           __import__('hissp')._macro_,
-  ;;    ...           ('{}{}').format(
-  ;;    ...             _QzE4JATHEUz_first,
-  ;;    ...             # hissp.macros.._macro_.ifQz_else
-  ;;    ...             (lambda b,c,a:c()if b else a())(
-  ;;    ...               'hissp.._macro_'.endswith(
-  ;;    ...                 '._macro_'),
-  ;;    ...               (lambda :'QzHASH_'),
-  ;;    ...               (lambda :('')))))(
-  ;;    ...           _QzE4JATHEUz_rest.pop(),
-  ;;    ...           *_QzE4JATHEUz_rest,
-  ;;    ...           **_QzE4JATHEUz_kwargs))()),
+  ;;    ...       __import__('builtins').getattr(
+  ;;    ...         __import__('hissp')._macro_,
+  ;;    ...         ('{}{}').format(
+  ;;    ...           _QzE4JATHEUz_attr,
+  ;;    ...           'QzHASH_'))(
+  ;;    ...         *_QzE4JATHEUz_args,
+  ;;    ...         **_QzE4JATHEUz_kwargs)),
   ;;    ...     (lambda :
   ;;    ...       ('{}.{}').format(
   ;;    ...         'hissp.._macro_',
-  ;;    ...         _QzE4JATHEUz_first))))[-1]):(
+  ;;    ...         _QzE4JATHEUz_attr))))[-1]):(
   ;;    ...   __import__('builtins').setattr(
   ;;    ...     _Qz2D5FNHXZz_fn,
   ;;    ...     '__doc__',
@@ -883,7 +876,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    >>> b'Fully-qualified b# macro at read time.'
   ;;    b'Fully-qualified b# macro at read time.'
   ;;
-  ;;    #> H:##b"Read-time b# via alias."
+  ;;    #> =H:#b"Read-time b# via alias."
   ;;    >>> b'Read-time b# via alias.'
   ;;    b'Read-time b# via alias.'
   ;;
@@ -893,17 +886,14 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; See also: `prelude`, `attach`.
   ;;
   `(defmacro ,(.format "{}{}" abbreviation '#)
-             ($#first : :* $#rest  :** $#kwargs)
+             ($#attr : :* $#args  :** $#kwargs)
      ',(.format "Aliases ``{}`` as ``{}#``." qualifier abbreviation)
-     (if-else $#rest
-       (let ($#rest (list $#rest))
-         ((getattr ,qualifier (.format "{}{}"
-                                       $#first
-                                       (if-else (.endswith ',qualifier ','._macro_)
-                                          ','#
-                                          "")))
-          (.pop $#rest) : :* $#rest  :** $#kwargs))
-       (.format "{}.{}" ',qualifier $#first))))
+     (if-else (,'XY#.#"X or Y" $#args $#kwargs)
+       ((getattr ,qualifier ,(if-else (.endswith qualifier '._macro_)
+                               `(.format "{}{}" ,'$#attr ','#)
+                               '$#attr))
+        : :* $#args  :** $#kwargs)
+       (.format "{}.{}" ',qualifier $#attr))))
 
 (alias i itertools.)
 (alias op operator.)
@@ -963,8 +953,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   .. code-block:: REPL
 
-     #> @##str.swapcase
-     #..@##str.title
+     #> =@#str.swapcase
+     #..=@#str.title
      #..(define spam 'spam) ; Unlike Python def, not always a function.
      >>> # hissp.macros.._macro_.define
      ... __import__('builtins').globals().update(
@@ -2828,7 +2818,7 @@ Creates a lambda of arity {X} containing a `^*#<QzHAT_QzSTAR_QzHASH_>`
 
   .. code-block:: REPL
 
-     #> (op#add 5 file=spy##sys..stdout(op#mul 7 3))
+     #> (op#add 5 file=spy#sys..stdout(op#mul 7 3))
      >>> __import__('operator').add(
      ...   (5),
      ...   # hissp.._macro_._spy
@@ -2861,7 +2851,7 @@ Creates a lambda of arity {X} containing a `^*#<QzHAT_QzSTAR_QzHASH_>`
 
   .. code-block:: REPL
 
-     #> file=time##sys..stdout(time..sleep .05)
+     #> file=time#sys..stdout(time..sleep .05)
      >>> # hissp.macros.._macro_.let
      ... (lambda _QzPMWTVFTZz_time=__import__('time').time_ns:
      ...   # hissp.macros.._macro_.letQz_from

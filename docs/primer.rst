@@ -1371,7 +1371,7 @@ Reader Tags
 +++++++++++
 
 Besides a few built-ins,
-reader macros in Lissp consist of a special symbol ending with ``#``\ s,
+reader macros in Lissp consist of a special symbol ending with a ``#``,
 called a *tag*,
 followed by additional argument forms.
 
@@ -1446,8 +1446,23 @@ just like there's no run-time overhead for using a hex literal instead of decima
 Multiary Tags
 +++++++++++++
 
-Reader tags may take multiple arguments.
-You indicate how many with the number of trailing ``#``\ s.
+Reader tags may also take keyword arguments indicated by keyword prefixes,
+which can be helpful quick refinements for functions with optional arguments,
+without the need to create a new reader macro for each specialization.
+
+.. code-block:: REPL
+
+   #> builtins..int#.#"21" ; Normal base ten
+   >>> (21)
+   21
+
+   #> base=builtins..int#6 .#"21" ; base six via optional base= kwarg
+   >>> (13)
+   13
+
+The special prefixes ``*=`` and ``**=`` unpack the argument at that position,
+either as positional arguments or keyword arguments, respectively.
+An empty prefix (``=``) indicates an additional positional argument.
 
 .. code-block:: REPL
 
@@ -1460,7 +1475,7 @@ You indicate how many with the number of trailing ``#``\ s.
    ... )
    Fraction(2, 3)
 
-   #> fractions..Fraction## 2 3 ; Notice the extra #.
+   #> =fractions..Fraction# 2 3 ; Notice the =.
    >>> __import__('pickle').loads(  # Fraction(2, 3)
    ...     b'cfractions\n'
    ...     b'Fraction\n'
@@ -1469,56 +1484,9 @@ You indicate how many with the number of trailing ``#``\ s.
    ... )
    Fraction(2, 3)
 
-Reader tags may also take keyword arguments indicated by keyword prefixes,
-which can be helpful quick refinements for functions with optional arguments,
-without the need to create a new reader macro for each specialization.
-
-.. code-block:: REPL
-
-   #> builtins..int#.#"21" ; Normal base ten
-   >>> (21)
-   21
-
-   #> base=builtins..int##6 .#"21" ; base six via optional base= kwarg
-   >>> (13)
-   13
-
-The special prefixes ``*=`` and ``**=`` unpack the agument at that position,
-either as positional arguments or keyword arguments, respectively.
-Prefixes pull from the reader stream in the order written.
-Each prefix requires another ``#``.
-Any leftover ``#``\ s each pull a positional argument after that.
-An empty prefix (``=``) indicates a single positional argument.
-These can be used to put positional arguments between or before kwargs.
-
-Pack Objects
-++++++++++++
-
-Try to avoid using more than about 3 or 4 ``#``\ s in a tag,
-because that gets hard to read.
-You typically won't need more than that.
-For too many homogeneous arguments,
-(i.e., with the same semantic type)
-consider using ``*=`` applied to a tuple instead.
-For too many heterogeneous arguments, consider ``**=``.
-For complicated expressions,
-consider using inject (``.#``) on tuple expressions instead of using tags.
-
-A tag can be empty if it has at least one prefix,
-even the empty prefix (``=``).
-An empty tag creates a `Pack` object,
-which contains any args and kwargs given.
-When a reader tag pulls one, it automatically unpacks it.
-
-`Pack`\ s are used to order and group tag arguments in a hierarchical way,
-for improved legibility.
-They're another way to avoid using too many ``#``\ s in a row.
-They allow you to write the keywords immediately before their values,
-instead of up front.
-
-`Pack`\ s are only meant for reader tags.
-They should be consumed immediately at read time,
-and are only allowed to survive past that for debugging purposes.
+Multiple prefixes are allowed.
+They pull from the reader stream in the order written.
+(The final argument for the tag itself is always positional.)
 
 Unqualified Tags
 ++++++++++++++++
@@ -1530,11 +1498,36 @@ inject ``.#``, discard ``_#``, and gensym ``$#``.
 The reader will also check the current module's ``_macro_`` namespace (if it has one)
 for attributes ending in ``#`` (i.e. ``QzHASH_``)
 when it encounters an unqualified tag.
-The ``#`` is only in an attribute name to distinguish them from normal compile-time macros,
-not to indicate arity.
-Prefixes should not be included in the attribute name either.
-It is possible to use a tag name containing ``=`` or extra ``#``\ s,
-but they must be escaped with a ``\``.
+Prefixes should not be included in the attribute name.
+It is possible to use a tag name containing ``=``\ s.
+but they must each be escaped with a ``\``.
+
+Pack Objects
+++++++++++++
+
+A tag can be empty if it has at least one prefix,
+even the empty prefix (``=``).
+An empty tag creates a `Pack` object,
+which contains any args and kwargs given.
+When another reader tag pulls one as a positional argument, it automatically unpacks it.
+
+`Pack`\ s are only meant for reader tags.
+They should be consumed immediately at read time,
+and are only allowed to survive past that for debugging purposes.
+
+`Pack`\ s are used to order and group tag arguments in a hierarchical way,
+for improved legibility.
+They allow you to write the keywords immediately before their values,
+instead of up front.
+They're also a way to avoid using too many positional prefixes (``=``\ s) in a row,
+which can get hard to read.
+You typically won't need more than ``===``.
+For too many homogeneous arguments,
+(i.e., with the same semantic type)
+consider using ``*=`` applied to a tuple instead.
+For too many heterogeneous arguments, consider ``**=``.
+For complicated expressions,
+consider using inject (``.#``) on tuple expressions instead of using tags.
 
 Discard
 +++++++
