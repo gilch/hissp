@@ -376,7 +376,7 @@ a form modifying the previous (e.g. decorating, attaching attributes),
 or adding it to a collection may be attached to it.
 
 However, in many of these cases,
-the groups could be written as a single top-level form insead,
+the groups could be written as a single top-level form instead,
 given the appropriate functions or macros.
 E.g. `dict.update` (on `globals`), `let`, `@##<QzAT_QzHASH_>`, `attach`, `doto`.
 
