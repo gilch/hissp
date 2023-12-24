@@ -228,7 +228,7 @@
 
   test_string_newline
   (lambda (self)
-    (self.assertEqual #"\
+    (self.assertEqual "\
 foo\
 bar\nbaz"
                   "foobar
@@ -238,7 +238,7 @@ baz")
 foo
 bar
 "
-                  #"\n\nfoo\nbar\n"))
+                  "\n\nfoo\nbar\n"))
 
   test_string_reader_macro
   (lambda (self)

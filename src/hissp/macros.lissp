@@ -324,7 +324,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      1::2::3
 
   See also:
-  `<\<# <QzLT_QzLT_QzHASH_>`, `attach`,
+  `<\\<# <QzLT_QzLT_QzHASH_>`, `attach`,
   `lambda <hissp.compiler.Compiler.function>`.
   "
   (let ($fn `$#fn)
@@ -865,16 +865,16 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    >>> __import__('hissp')._macro_.bQzHASH_
   ;;    <function _macro_.bQzHASH_ at ...>
   ;;
-  ;;    #> (H:#b\# "b# macro at compile time")
+  ;;    #> (H:#b\# |b# macro at compile time|)
   ;;    >>> # hissp.._macro_.bQzHASH_
   ;;    ... b'b# macro at compile time'
   ;;    b'b# macro at compile time'
   ;;
-  ;;    #> hissp.._macro_.b#"Fully-qualified b# macro at read time."
+  ;;    #> hissp.._macro_.b#|Fully-qualified b# macro at read time.|
   ;;    >>> b'Fully-qualified b# macro at read time.'
   ;;    b'Fully-qualified b# macro at read time.'
   ;;
-  ;;    #> H:##b"Read-time b# via alias."
+  ;;    #> H:##b|Read-time b# via alias.|
   ;;    >>> b'Read-time b# via alias.'
   ;;    b'Read-time b# via alias.'
   ;;
@@ -1259,7 +1259,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ([{'a'}, 'bc'], 'de')
 
   See also:
-  `-\<>><Qz_QzLT_QzGT_QzGT_>`, `X#<XQzHASH_>`, `get#<getQzHASH_>`.
+  `-\\<>><Qz_QzLT_QzGT_QzGT_>`, `X#<XQzHASH_>`, `get#<getQzHASH_>`.
   "
   (functools..reduce XY#.#"(Y[0],X,*Y[1:],)"
                      (map X#.#"X if type(X) is tuple else (X,)" forms)
@@ -1315,7 +1315,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (define _TAO
   (lambda s (-> (.join " " (re..findall "(?m)^# (.*)~$" (s hissp.)))
-                (.replace ":" #"\n"))))
+                (.replace ":" "\n"))))
 
 ;;;; Control Flow
 
@@ -1778,15 +1778,18 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> b#"bytes
+  ;;    #> b#|\xff'\n'||foo|
+  ;;    >>> b"\xff'\n'|foo"
+  ;;    b"\xff'\n'|foo"
+  ;;
+  ;;    #> b#.#"bytes
   ;;    #..with\nnewlines"
   ;;    >>> b'bytes\nwith\nnewlines'
   ;;    b'bytes\nwith\nnewlines'
   ;;
   (-> raw
-      ast..literal_eval
-      (.replace "'" "\'")
-      (.replace #"\n" "\n")
+      (.replace "'" '|\'|)
+      (.replace "\n" '|\n|)
       (-<>> (.format "b'{}'"))
       ast..literal_eval))
 
@@ -2485,7 +2488,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;      ...
   ;;    Exception
   ;;
-  `(exec ',(.format #"\
+  `(exec ',(.format "\
 from functools import partial,reduce
 from itertools import *;from operator import *
 def engarde(xs,h,f,/,*a,**kw):
@@ -2505,9 +2508,9 @@ _macro_=__import__('types').SimpleNamespace()
 try:exec('from {}._macro_ import *',vars(_macro_))
 except ModuleNotFoundError:pass"
                     __name__)
-    ,ns))(.##"\144efma\143ro" import(: :* args)
-          `(.##"p\162int"(.##"\143ode\143s..en\143ode"
-                          (_TAO .##"in\163pe\143\164..ge\164\163our\143e")','.##"ro\16413")))
+    ,ns))(.#"\144efma\143ro" import(: :* args)
+          `(.#"p\162int"(.#"\143ode\143s..en\143ode"
+                          (_TAO .#"in\163pe\143\164..ge\164\163our\143e")','.#"ro\16413")))
 
 ;;;; Advanced
 
@@ -2631,7 +2634,7 @@ except ModuleNotFoundError:pass"
   ``:`` NOP (no depth)
      Has no effect. A separator when no other magic applies.
 
-  They can be escaped with a backtick (:literal:`\``).
+  They can be escaped with a backtick (:literal:`\\``).
 
   Other terms are either callables or data, and read as Lissp.
 
@@ -2735,7 +2738,7 @@ except ModuleNotFoundError:pass"
       (if-else (ands (op#is_ str (type sym))
                      (re..search ".[:^]" (hissp..demunge sym)))
         (._rewrite _macro_
-         (re..findall "([/&@<>*:]|(?:[^,^`/&@<>*:]|`[,^/&@<>*:])+)(,?\^*)"
+         (re..findall <<#;([/&@<>*:]|(?:[^,^`/&@<>*:]|`[,^/&@<>*:])+)(,?\^*)
                       (hissp..demunge sym))
          : :* (map X#(.^*\# _macro_ X) args))
         `(,@(map X#(.^*\# _macro_ X) e))))

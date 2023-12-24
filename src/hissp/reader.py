@@ -75,17 +75,16 @@ TOKENS = re.compile(
       |['`,]
       |[.][#]
       # Any atom that ends in ``#``, but not ``.#`` or ``\#``.
-      |(?:[^\\ \n"();#]|\\.)*(?:[^.\\ \n"();#]|\\.)[#]+
+      |(?:[^\\ \n"|();#]|\\.)*(?:[^.\\ \n"|();#]|\\.)[#]+
      )
     |(?P<string>
-      [#]?  # raw?
       "  # Open quote.
         (?:[^"\\]  # Any non-magic character.
            |\\(?:.|\n)  # Backslash only if paired, including with newline.
         )*  # Zero or more times.
       "  # Close quote.
      )
-    |(?P<injection>
+    |(?P<fragment>
       [|]  # open
         (?:[^|\n]  # No newlines or unpaired |.
            |[|][|]  # | only if paired.
@@ -94,10 +93,10 @@ TOKENS = re.compile(
      )
     |(?P<continue>
        [#]?"  # String not closed.
-      |[|]  # Injection not closed.
       |;.*  # Comment may need another line.
      )
-    |(?P<atom>(?:[^\\ \n"();]|\\.)+)  # Let Python deal with it.
+    |(?P<unclosed>[|])
+    |(?P<atom>(?:[^\\ \n"|();]|\\.)+)  # Let Python deal with it.
     |(?P<error>.)
     """
 )
@@ -267,8 +266,9 @@ class Lissp:
             elif k == "close":    return self._close()
             elif k == "macro":    yield from self._macro(v)
             elif k == "string":   yield self._string(v)
-            elif k == "injection":yield self._injection(v)
+            elif k == "fragment": yield self._fragment(v)
             elif k == "continue": raise self._continue()
+            elif k == "unclosed": raise SyntaxError("Unpaired |", self.position())
             elif k == "atom":     yield self.atom(v)
             else:                 raise self._error(k)
             # fmt: on
@@ -500,14 +500,11 @@ class Lissp:
 
     @staticmethod
     def _string(v):
-        if v[0] == "#":  # Let Python process escapes.
-            v = v.replace("\\\n", "").replace("\n", R"\n")
-            val = ast.literal_eval(v[1:])
-        else:  # raw
-            val = v[1:-1]  # Only remove quotes.
+        v = v.replace("\\\n", "").replace("\n", R"\n")
+        val = ast.literal_eval(v)
         return v if (v := pformat(val)).startswith("(") else f"({v})"
 
-    def _injection(self, v):
+    def _fragment(self, v):
         return v[1:-1].replace("||", "|")
 
     def _continue(self):

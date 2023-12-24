@@ -198,17 +198,18 @@ def test_repl_str_continue():
 
         x
         "
-        b#""
-        b#"foo bar"
-        b#"
+        b#.#""
+        b#.#"foo bar"
+        b#.#"
 
 
         "
-        b#"
+        b#.#"
 
         x"
-        (.decode b#"\\xff
-        foo" : errors 'ignore)
+        (.decode b#.#<<#;\\xff
+        ;; foo
+                 : errors 'ignore)
         """,
         out="""\
         """
@@ -220,7 +221,7 @@ def test_repl_str_continue():
         #> b'foo bar'
         #> #..#..#..b'\n\n\n'
         #> #..#..b'\n\nx'
-        #> #..'\nfoo'
+        #> #..#..'\nfoo'
         #> """,
         err="""\
         """

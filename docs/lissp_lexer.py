@@ -68,7 +68,9 @@ class LisspLexer(RegexLexer):
                     pt.Punctuation,  # close
                     pt.Operator,  # macro
                     pt.String,
+                    pt.String.Symbol,
                     pt.Error,  # continue
+                    pt.Error,  # unclosed
                     using(AtomSubLexer),
                     pt.Error,
                 ),
