@@ -87,8 +87,8 @@ TOKENS = re.compile(
      )
     |(?P<injection>
       [|]  # open
-        (?:[^|\\]  # Any non-magic character.
-           |\\(?:.|\n)  # Backslash only if paired, including with newline.
+        (?:[^|\n]  # No newlines or unpaired |.
+           |[|][|]  # | only if paired.
         )*
       [|]  # close
      )
@@ -508,7 +508,7 @@ class Lissp:
         return v if (v := pformat(val)).startswith("(") else f"({v})"
 
     def _injection(self, v):
-        return re.sub(r"(?s)\\(.)", R'\1', v[1:-1])
+        return v[1:-1].replace("||", "|")
 
     def _continue(self):
         return SoftSyntaxError("Incomplete string token.", self.position())
