@@ -1524,23 +1524,24 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
        (get#0 $#stack))))
 
 ;; I would have named this 'and, but that's a reserved word.
-(defmacro && (: :* exprs)
-  "``&&`` 'and'. Shortcutting logical AND.
+(defmacro ands (: :* exprs)
+  "Variadic shortcutting logical AND.
+
   Returns the first false value, otherwise the last value.
   There is an implicit initial value of ``True``.
 
   .. code-block:: REPL
 
-     #> (&& True True False) ; and finds the False
-     >>> # QzET_QzET_
+     #> (ands True True False) ; and finds the False
+     >>> # ands
      ... (lambda x0,x1,x2:x0 and x1()and x2())(
      ...   True,
      ...   (lambda :True),
      ...   (lambda :False))
      False
 
-     #> (&& False (print 'oops)) ; Shortcutting.
-     >>> # QzET_QzET_
+     #> (ands False (print 'oops)) ; Shortcutting.
+     >>> # ands
      ... (lambda x0,x1:x0 and x1())(
      ...   False,
      ...   (lambda :
@@ -1548,20 +1549,20 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...       'oops')))
      False
 
-     #> (&& True 42)
-     >>> # QzET_QzET_
+     #> (ands True 42)
+     >>> # ands
      ... (lambda x0,x1:x0 and x1())(
      ...   True,
      ...   (lambda :(42)))
      42
 
-     #> (&&)
-     >>> # QzET_QzET_
+     #> (ands)
+     >>> # ands
      ... True
      True
 
-     #> (&& 42)
-     >>> # QzET_QzET_
+     #> (ands 42)
+     >>> # ands
      ... (42)
      42
 
@@ -1618,7 +1619,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ... ()
      ()
 
-  See also: `&&<QzET_QzET_>`, `bool`, `or`.
+  See also: `ands`, `bool`, `or`.
   "
   (cond (op#eq (len exprs) 1) (get#0 exprs)
         exprs
@@ -1678,7 +1679,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   (lambda _Qz2IKKUCBWz_G=(lambda _Qz2IKKUCBWz_x:
      ...     # hissp.macros.._macro_.ifQz_else
      ...     (lambda b,c,a:c()if b else a())(
-     ...       # hissp.macros.._macro_.QzET_QzET_
+     ...       # hissp.macros.._macro_.ands
      ...       (lambda x0,x1:x0 and x1())(
      ...         __import__('builtins').isinstance(
      ...           _Qz2IKKUCBWz_x,
@@ -1707,8 +1708,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   See also: `throw`, `throw*<throwQzSTAR_>`.
   "
   `(throw* (let ($#G (lambda ($#x)
-                       (if-else (&& (isinstance $#x type)
-                                    (issubclass $#x BaseException))
+                       (if-else (ands (isinstance $#x type)
+                                      (issubclass $#x BaseException))
                          ($#x) $#x)))
              (attach ($#G ,exception) : ,'__cause__ ($#G ,cause)))))
 
@@ -1848,8 +1849,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; See also: `X# <XQzHASH_>`.
   ;;
-  (if-else (&& (op#is_ str (type f))
-               (.startswith f "."))
+  (if-else (ands (op#is_ str (type f))
+                 (.startswith f "."))
     `(lambda ($#self : :* $#xs)
        (,f $#self $#xs))
     `(lambda (: :* $#xs)
@@ -1879,7 +1880,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; See also: `#<QzHASH_>`, `%<QzPCENT_>`.
   ;;
-  (when (&& xs (op#eq :* (get#-1 xs)))
+  (when (ands xs (op#eq :* (get#-1 xs)))
      (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
     `((lambda (: :* ,'xs) .#"[*xs]")
@@ -1910,7 +1911,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   See also: `@<QzAT_>`, `%<QzPCENT_>`.
   "
-  (when (&& xs (op#eq :* (get#-1 xs)))
+  (when (ands xs (op#eq :* (get#-1 xs)))
      (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
     `((lambda (: :* ,'xs) .#"{*xs}")
@@ -2148,7 +2149,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...       (lambda _Qz2IKKUCBWz_G=(lambda _Qz2IKKUCBWz_x:
   ;;    ...         # hissp.macros.._macro_.ifQz_else
   ;;    ...         (lambda b,c,a:c()if b else a())(
-  ;;    ...           # hissp.macros.._macro_.QzET_QzET_
+  ;;    ...           # hissp.macros.._macro_.ands
   ;;    ...           (lambda x0,x1:x0 and x1())(
   ;;    ...             __import__('builtins').isinstance(
   ;;    ...               _Qz2IKKUCBWz_x,
@@ -2729,10 +2730,10 @@ except ModuleNotFoundError:pass"
      3.1622776601683795
 
   "
-  (if-else (&& e (op#is_ tuple (type e)))
+  (if-else (ands e (op#is_ tuple (type e)))
     (let-from (sym : :* args) e
-      (if-else (&& (op#is_ str (type sym))
-                   (re..search ".[:^]" (hissp..demunge sym)))
+      (if-else (ands (op#is_ str (type sym))
+                     (re..search ".[:^]" (hissp..demunge sym)))
         (._rewrite _macro_
          (re..findall "([/&@<>*:]|(?:[^,^`/&@<>*:]|`[,^/&@<>*:])+)(,?\^*)"
                       (hissp..demunge sym))
@@ -2750,11 +2751,11 @@ except ModuleNotFoundError:pass"
         : reader (hissp..reader.Lissp : ns (.get hissp.compiler..NS))
         is? XY#(op#is_ X (type Y))
         str? X#(my.is? str X)
-        startswith? XY#(&& (my.str? X) (.startswith X Y))
+        startswith? XY#(ands (my.str? X) (.startswith X Y))
         literal? X#(ors (op#eq () X) (not (op#contains (# tuple str) (type X))))
-        quotation? X#(&& (my.is? tuple X) (op#eq 'quote (get#0 X)))
+        quotation? X#(ands (my.is? tuple X) (op#eq 'quote (get#0 X)))
         control-word? X#(my.startswith? X ":")
-        module-handle? X#(&& (my.str? X) (.endswith X "."))
+        module-handle? X#(ands (my.str? X) (.endswith X "."))
         method? X#(my.startswith? X ".")
         exprs (list exprs)
         arity (.count suffix "^")
