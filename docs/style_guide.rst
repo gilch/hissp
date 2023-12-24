@@ -1031,7 +1031,7 @@ if it's not obvious from the identifier.
 
 .. code-block:: Lissp
 
-   "``&&`` 'and'. Like Python's ``and`` operator, but for any number of arguments."
+   "``@#`` 'decorator' applies ``decoration`` to a global and reassigns."
 
 This way, all three name versions (munged, demunged, and pronounced)
 will appear in generated docs.

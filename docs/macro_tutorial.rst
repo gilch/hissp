@@ -1590,11 +1590,11 @@ Can we just iterate through the expression and check?
    #> (define max-X
    #..  (lambda (expr)
    #..    (max (map (lambda (x)
-   #..                (|| (when (is_ str (type x))
-   #..                      (let (match (re..fullmatch "X([1-9][0-9]*)" x))
-   #..                        (when match
-   #..                          (int (.group match 1)))))
-   #..                    0))
+   #..                (ors (when (is_ str (type x))
+   #..                       (let (match (re..fullmatch "X([1-9][0-9]*)" x))
+   #..                         (when match
+   #..                           (int (.group match 1)))))
+   #..                     0))
    #..              expr))))
    >>> # define
    ... __import__('builtins').globals().update(
@@ -1602,7 +1602,7 @@ Can we just iterate through the expression and check?
    ...             max(
    ...               map(
    ...                 (lambda x:
-   ...                   # QzVERT_QzVERT_
+   ...                   # ors
    ...                   (lambda x0,x1:x0 or x1())(
    ...                     # when
    ...                     (lambda b,c:c()if b else())(
@@ -1717,11 +1717,11 @@ Now we can fix ``max-X``.
    #> (define max-X
    #..  (lambda (expr)
    #..    (max (map (lambda (x)
-   #..                (|| (when (is_ str (type x))
-   #..                      (let (match (re..fullmatch "X([1-9][0-9]*)" x))
-   #..                        (when match
-   #..                          (int (.group match 1)))))
-   #..                    0))
+   #..                (ors (when (is_ str (type x))
+   #..                       (let (match (re..fullmatch "X([1-9][0-9]*)" x))
+   #..                         (when match
+   #..                           (int (.group match 1)))))
+   #..                     0))
    #..              (flatten expr)))))
    >>> # define
    ... __import__('builtins').globals().update(
@@ -1729,7 +1729,7 @@ Now we can fix ``max-X``.
    ...             max(
    ...               map(
    ...                 (lambda x:
-   ...                   # QzVERT_QzVERT_
+   ...                   # ors
    ...                   (lambda x0,x1:x0 or x1())(
    ...                     # when
    ...                     (lambda b,c:c()if b else())(
@@ -1790,11 +1790,11 @@ Let's review. The code you need to make the version we have so far is
    (define max-X
      (lambda (expr)
        (max (map (lambda (x)
-                   (|| (when (is_ str (type x))
-                         (let (match (re..fullmatch "X([1-9][0-9]*)" x))
-                           (when match
-                             (int (.group match 1)))))
-                       0))
+                   (ors (when (is_ str (type x))
+                          (let (match (re..fullmatch "X([1-9][0-9]*)" x))
+                            (when match
+                              (int (.group match 1)))))
+                        0))
                  (flatten expr)))))
 
    (define flatten
@@ -2082,9 +2082,9 @@ Here you go:
    #> (defmacro L (: :* expr)
    #..  `(lambda (,@(map (lambda (i)
    #..                     (.format "X{}" i))
-   #..                   (range 1 (add 1 (|| (max-X expr)
-   #..                                       (contains (flatten expr)
-   #..                                                 'X)))))
+   #..                   (range 1 (add 1 (ors (max-X expr)
+   #..                                        (contains (flatten expr)
+   #..                                                  'X)))))
    #..            :
    #..            ,@(when (contains (flatten expr)
    #..                              'Xi)
@@ -2108,7 +2108,7 @@ Here you go:
    ...            (1),
    ...            add(
    ...              (1),
-   ...              # QzVERT_QzVERT_
+   ...              # ors
    ...              (lambda x0,x1:x0 or x1())(
    ...                maxQz_X(
    ...                  expr),

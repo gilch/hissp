@@ -116,36 +116,36 @@
         (operator..not_ (operator..mod i 7)))
       (self.assertEqual xs (enlist 1 2 3 4 5 6 7))))
 
-  test_&&
+  test_ands
   (lambda (self)
     (*#let (xs (list))
       (*#doto xs
-        (.append (*#&&))
-        (.append (*#&& 0))
-        (.append (*#&& 1))
-        (.append (*#&& 0 (.append xs :oops)))
-        (.append (*#&& 1 (.append xs 2)))
-        (.append (*#&& True
-                       (.append xs 3)
-                       (.append xs :oops)))
-        (.append (*#&& True
-                       (*#progn (.append xs 4)
-                                :oops)
-                       (.append xs 5)))
-        (.append (*#&& 1 2 (*#progn (.append xs 6) 7))))
+        (.append (*#ands))
+        (.append (*#ands 0))
+        (.append (*#ands 1))
+        (.append (*#ands 0 (.append xs :oops)))
+        (.append (*#ands 1 (.append xs 2)))
+        (.append (*#ands True
+                         (.append xs 3)
+                         (.append xs :oops)))
+        (.append (*#ands True
+                         (*#progn (.append xs 4)
+                                  :oops)
+                         (.append xs 5)))
+        (.append (*#ands 1 2 (*#progn (.append xs 6) 7))))
       (self.assertEqual (enlist True 0 1 0 2 None 3 None 4 5 None 6 7)
                         xs)))
 
-  test_||
+  test_ors
   (lambda (self)
     (*#let (xs (list))
       (*#doto xs
-        (.append (*# ||))
-        (.append (*# || 0))
-        (.append (*# || 1))
-        (.append (*# || 2 (.append xs :oops)))
-        (.append (*# || 0 (.append xs 3)))
-        (.append (*# || 0 (.append xs 5) 6)))
+        (.append (*#ors))
+        (.append (*#ors 0))
+        (.append (*#ors 1))
+        (.append (*#ors 2 (.append xs :oops)))
+        (.append (*#ors 0 (.append xs 3)))
+        (.append (*#ors 0 (.append xs 5) 6)))
       (self.assertEqual (enlist () 0 1 2 3 None 5 6)
                         xs)))
 
