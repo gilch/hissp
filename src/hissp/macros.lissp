@@ -2828,7 +2828,7 @@ Creates a lambda of arity {X} containing a `^*#<QzHAT_QzSTAR_QzHASH_>`
 
   .. code-block:: REPL
 
-     #> (op#add 5 file=spy##sys..stdout(op#mul 7 3))
+     #> (op#add 5 spy##file=#sys..stdout(op#mul 7 3))
      >>> __import__('operator').add(
      ...   (5),
      ...   # hissp.._macro_._spy
@@ -2861,7 +2861,7 @@ Creates a lambda of arity {X} containing a `^*#<QzHAT_QzSTAR_QzHASH_>`
 
   .. code-block:: REPL
 
-     #> file=time##sys..stdout(time..sleep .05)
+     #> time##file=#sys..stdout(time..sleep .05)
      >>> # hissp.macros.._macro_.let
      ... (lambda _QzPMWTVFTZz_time=__import__('time').time_ns:
      ...   # hissp.macros.._macro_.letQz_from

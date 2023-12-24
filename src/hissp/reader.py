@@ -19,7 +19,7 @@ from collections import namedtuple
 from contextlib import contextmanager, nullcontext, suppress
 from functools import reduce
 from importlib import import_module, resources
-from itertools import chain, zip_longest
+from itertools import chain
 from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
@@ -176,18 +176,18 @@ class Comment:
         return f"Comment({self.token!r})"
 
 
-class Pack:
-    """Contains read-time arguments for reader macros.
+class Kwarg:
+    """Contains a read-time keyword argument for reader macros.
 
-    Normally made with empty tags, but can be constructed directly.
+    Normally made with kwarg tags, but can be constructed directly.
     """
 
-    def __init__(self, *args, **kwargs):
-        self.args = list(args)
-        self.kwargs = kwargs
+    def __init__(self, k, v):
+        self.k = k
+        self.v = v
 
     def __repr__(self):
-        return f"Pack(*{self.args},**{self.kwargs})"
+        return f"Kwarg({self.k}, {self.v})"
 
 
 class Lissp:
@@ -436,12 +436,11 @@ class Lissp:
 
     def _custom_macro(self, form, tag: str):
         assert tag.endswith("#")
+        if re.fullmatch(r"(?:[^\\]|\\.)+=#", tag):
+            return Kwarg(tag[:-2], form)
         arity = tag.replace(R"\#", "").count("#")
         assert arity > 0
-        *keywords, label = re.findall(r"((?:[^=\\]|\\.)*(?:=|#+))", tag)
-        if len(keywords) > arity:
-            raise SyntaxError(f"Not enough # for each = in {tag!r}")
-        label = label[:-arity]
+        label = tag[:-arity]
         label = force_munge(self.escape(label))
         label = re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), label)
         fn: Fn[[str], Fn] = self._fully_qualified if ".." in label else self._local
@@ -450,27 +449,17 @@ class Lissp:
         kwargs = {}
         depth = len(self.depth)
         with self.compiler.macro_context():
-            for i, [k, v] in enumerate(
-                zip_longest(
-                    (k[:-1] for k in keywords), chain([form], self._filter_drop())
-                ),
-                1,
-            ):
-                if type(v) is Pack:
-                    if k:
-                        raise SyntaxError(
-                            f"Can't apply prefix {k}= to {v}.", self.position(self._pos)
-                        )
-                    args.extend(v.args)
-                    kwargs.update(v.kwargs)
-                elif k == "*":
-                    args.extend(v)
-                elif k == "**":
-                    kwargs.update(v)
-                elif k:
-                    kwargs[force_munge(self.escape(k))] = v
+            for i, x in enumerate(chain([form], self._filter_drop()), 1):
+                if type(x) is Kwarg:
+                    k, v = x.k, x.v
+                    if k == "*":
+                        args.extend(v)
+                    elif k == "**":
+                        kwargs.update(v)
+                    else:
+                        kwargs[force_munge(self.escape(k))] = v
                 else:
-                    args.append(v)
+                    args.append(x)
                 if i == arity:
                     break
             else:
@@ -488,8 +477,6 @@ class Lissp:
         return cast(Fn, reduce(getattr, function.split("."), import_module(module)))
 
     def _local(self, tag: str) -> Fn:
-        if not tag:
-            return Pack
         try:
             return getattr(self.ns[C.MACROS], tag + munge("#"))
         except (AttributeError, KeyError):
