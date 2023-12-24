@@ -1565,7 +1565,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ... (42)
      42
 
-  See also: `||<QzVERT_QzVERT_>`, `and`.
+  See also: `ors`, `and`.
   "
   (cond (not exprs) True
         (op#eq (len exprs) 1) (get#0 exprs)
@@ -1575,15 +1575,16 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
           ,([#0] exprs)
           ,@(map X#`O#,X ([#1:] exprs)))))
 
-(defmacro || (: :* exprs)
-  "``||`` 'or'. Shortcutting logical OR.
+(defmacro ors (: :* exprs)
+  "Variadic shortcutting logical OR.
+
   Returns the first true value, otherwise the last value.
   There is an implicit initial value of ``()``.
 
   .. code-block:: REPL
 
-     #> (|| True (print 'oops)) ; Shortcutting.
-     >>> # QzVERT_QzVERT_
+     #> (ors True (print 'oops)) ; Shortcutting.
+     >>> # ors
      ... (lambda x0,x1:x0 or x1())(
      ...   True,
      ...   (lambda :
@@ -1591,15 +1592,15 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...       'oops')))
      True
 
-     #> (|| 42 False)
-     >>> # QzVERT_QzVERT_
+     #> (ors 42 False)
+     >>> # ors
      ... (lambda x0,x1:x0 or x1())(
      ...   (42),
      ...   (lambda :False))
      42
 
-     #> (|| () False 0 1)  ; or seeks the truth
-     >>> # QzVERT_QzVERT_
+     #> (ors () False 0 1)  ; or seeks the truth
+     >>> # ors
      ... (lambda x0,x1,x2,x3:x0 or x1()or x2()or x3())(
      ...   (),
      ...   (lambda :False),
@@ -1607,13 +1608,13 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   (lambda :(1)))
      1
 
-     #> (|| False)
-     >>> # QzVERT_QzVERT_
+     #> (ors False)
+     >>> # ors
      ... False
      False
 
-     #> (||)
-     >>> # QzVERT_QzVERT_
+     #> (ors)
+     >>> # ors
      ... ()
      ()
 
@@ -2573,7 +2574,7 @@ except ModuleNotFoundError:pass"
 
 (defmacro nil\# x
   "``nil#`` evaluates as ``x or ()``. Adapter for 'nil punning'."
-  `(|| ,x ()))
+  `(ors ,x ()))
 
 (defmacro ^*\# e
   "``^*#`` 'synexpand' concatenative mini-language expressions
@@ -2750,7 +2751,7 @@ except ModuleNotFoundError:pass"
         is? XY#(op#is_ X (type Y))
         str? X#(my.is? str X)
         startswith? XY#(&& (my.str? X) (.startswith X Y))
-        literal? X#(|| (op#eq () X) (not (op#contains (# tuple str) (type X))))
+        literal? X#(ors (op#eq () X) (not (op#contains (# tuple str) (type X))))
         quotation? X#(&& (my.is? tuple X) (op#eq 'quote (get#0 X)))
         control-word? X#(my.startswith? X ":")
         module-handle? X#(&& (my.str? X) (.endswith X "."))
@@ -2763,14 +2764,14 @@ except ModuleNotFoundError:pass"
         obj (next (.reads my.reader (.replace cmd "`" "")))
         arity+1 (op#add 1 my.arity))
       (set@ my.result
-        (case cmd (@ (if-else (|| (my.literal? my.obj)
-                                  (.startswith suffix ",")
-                                  (hissp.reader..is_lissp_string my.obj)
-                                  (my.control-word? my.obj)
-                                  (my.module-handle? my.obj)
-                                  (my.quotation? my.obj))
+        (case cmd (@ (if-else (ors (my.literal? my.obj)
+                                   (.startswith suffix ",")
+                                   (hissp.reader..is_lissp_string my.obj)
+                                   (my.control-word? my.obj)
+                                   (my.module-handle? my.obj)
+                                   (my.quotation? my.obj))
                        (if-else my.arity `(op#getitem ,(next my.iexprs) ,my.obj) my.obj)
-                       (if-else (|| my.arity (not (my.method? my.obj)))
+                       (if-else (ors my.arity (not (my.method? my.obj)))
                          `(,my.obj ,@(i#islice my.iexprs my.arity+1))
                          `((op#attrgetter ',([#1:] my.obj))
                            ,(next my.iexprs)))))

@@ -405,7 +405,7 @@ which includes Clojure-like persistent data structures.
 ```EDN
 0 ; from garden_of_edn import _this_file_as_main_; """#"
 (hissp/_macro_.prelude)
-(attach _macro_ . ors #hissp/$"_macro_.||", ands #hissp/$"_macro_.&&")
+(attach _macro_ . ands #hissp/$"_macro_.&&")
 (defmacro #hissp/$"m#" t (tuple (.extend [(quote pyrsistent/m) (quote .)] t)))
 (defmacro #hissp/$"j#" j (complex 0 j))
 
