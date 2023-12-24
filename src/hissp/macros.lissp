@@ -514,7 +514,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...         b=(2)))
   ;;    {'a': 1, 'b': 2}
   ;;
-  ;; See also: `attach`, `type`, `@#!<QzAT_QzHASH_>`, :keyword:`class`,
+  ;; See also: `attach`, `type`, `@#<QzAT_QzHASH_>`, :keyword:`class`,
   ;; `types.new_class`
   ;;
   (let (ibases (iter bases))
@@ -672,7 +672,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   See also, `attach`, `python-grammar:assignment_expression`.
   "
-  ;; TODO: consider using extras for initial contents.
+  ;; TODO: consider using kwargs for initial contents.
   `(let (,'my (types..SimpleNamespace))
      ,e))
 
@@ -823,34 +823,29 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    >>> # hissp.._macro_.alias
   ;;    ... # hissp.macros.._macro_.defmacro
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda _QzAW22OE5Kz_fn=(lambda _QzARAQTXTEz_prime,_QzARAQTXTEz_reader=None,*_QzARAQTXTEz_args:(
+  ;;    ... (lambda _Qz2D5FNHXZz_fn=(lambda _QzE4JATHEUz_attr,*_QzE4JATHEUz_args,**_QzE4JATHEUz_kwargs:(
   ;;    ...   'Aliases ``hissp.._macro_`` as ``HQzCOLON_#``.',
   ;;    ...   # hissp.macros.._macro_.ifQz_else
   ;;    ...   (lambda b,c,a:c()if b else a())(
-  ;;    ...     _QzARAQTXTEz_reader,
+  ;;    ...     _QzE4JATHEUz_args,
   ;;    ...     (lambda :
   ;;    ...       __import__('builtins').getattr(
   ;;    ...         __import__('hissp')._macro_,
   ;;    ...         ('{}{}').format(
-  ;;    ...           _QzARAQTXTEz_reader,
-  ;;    ...           # hissp.macros.._macro_.ifQz_else
-  ;;    ...           (lambda b,c,a:c()if b else a())(
-  ;;    ...             'hissp.._macro_'.endswith(
-  ;;    ...               '._macro_'),
-  ;;    ...             (lambda :'QzHASH_'),
-  ;;    ...             (lambda :('')))))(
-  ;;    ...         _QzARAQTXTEz_prime,
-  ;;    ...         *_QzARAQTXTEz_args)),
+  ;;    ...           _QzE4JATHEUz_attr,
+  ;;    ...           'QzHASH_'))(
+  ;;    ...         *_QzE4JATHEUz_args,
+  ;;    ...         **_QzE4JATHEUz_kwargs)),
   ;;    ...     (lambda :
   ;;    ...       ('{}.{}').format(
   ;;    ...         'hissp.._macro_',
-  ;;    ...         _QzARAQTXTEz_prime))))[-1]):(
+  ;;    ...         _QzE4JATHEUz_attr))))[-1]):(
   ;;    ...   __import__('builtins').setattr(
-  ;;    ...     _QzAW22OE5Kz_fn,
+  ;;    ...     _Qz2D5FNHXZz_fn,
   ;;    ...     '__doc__',
   ;;    ...     'Aliases ``hissp.._macro_`` as ``HQzCOLON_#``.'),
   ;;    ...   __import__('builtins').setattr(
-  ;;    ...     _QzAW22OE5Kz_fn,
+  ;;    ...     _Qz2D5FNHXZz_fn,
   ;;    ...     '__qualname__',
   ;;    ...     ('.').join(
   ;;    ...       ('_macro_',
@@ -860,7 +855,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...       __import__('builtins').globals(),
   ;;    ...       '_macro_'),
   ;;    ...     'HQzCOLON_QzHASH_',
-  ;;    ...     _QzAW22OE5Kz_fn))[-1])()
+  ;;    ...     _Qz2D5FNHXZz_fn))[-1])()
   ;;
   ;;    #> 'H:#alias
   ;;    >>> 'hissp.._macro_.alias'
@@ -879,7 +874,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    >>> b'Fully-qualified b# macro at read time.'
   ;;    b'Fully-qualified b# macro at read time.'
   ;;
-  ;;    #> H:#!b"Read-time b# via alias."      ;Extra arg for alias with (!)
+  ;;    #> H:##b"Read-time b# via alias."
   ;;    >>> b'Read-time b# via alias.'
   ;;    b'Read-time b# via alias.'
   ;;
@@ -889,16 +884,14 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; See also: `prelude`, `attach`.
   ;;
   `(defmacro ,(.format "{}{}" abbreviation '#)
-             ($#prime : $#reader None :* $#args)
+             ($#attr : :* $#args  :** $#kwargs)
      ',(.format "Aliases ``{}`` as ``{}#``." qualifier abbreviation)
-     (if-else $#reader
-       ((getattr ,qualifier (.format "{}{}"
-                                     $#reader
-                                     (if-else (.endswith ',qualifier ','._macro_)
-                                        ','#
-                                        "")))
-        $#prime : :* $#args)
-       (.format "{}.{}" ',qualifier $#prime))))
+     (if-else $#args
+       ((getattr ,qualifier ,(if-else (.endswith qualifier '._macro_)
+                               `(.format "{}{}" ,'$#attr ','#)
+                               '$#attr))
+        : :* $#args  :** $#kwargs)
+       (.format "{}.{}" ',qualifier $#attr))))
 
 (alias i itertools.)
 (alias op operator.)
@@ -946,8 +939,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   `(op#itemgetter ,e))
 
-(defmacro @\# (definition decoration)
-  "``@#!`` 'decorator' applies ``decoration`` to a global and reassigns.
+(defmacro @\# (decoration definition)
+  "``@#`` 'decorator' applies ``decoration`` to a global and reassigns.
 
   ``definition`` form must assign a global identified by its first arg.
   Expands to a `define`, meaning decorators can stack.
@@ -958,8 +951,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   .. code-block:: REPL
 
-     #> @#!str.swapcase
-     #..@#!str.title
+     #> @##str.swapcase
+     #..@##str.title
      #..(define spam 'spam) ; Unlike Python def, not always a function.
      >>> # hissp.macros.._macro_.define
      ... __import__('builtins').globals().update(
@@ -2823,7 +2816,7 @@ Creates a lambda of arity {X} containing a `^*#<QzHAT_QzSTAR_QzHASH_>`
 
   .. code-block:: REPL
 
-     #> (op#add 5 spy#!sys..stdout(op#mul 7 3))
+     #> (op#add 5 spy##file=#sys..stdout(op#mul 7 3))
      >>> __import__('operator').add(
      ...   (5),
      ...   # hissp.._macro_._spy
@@ -2856,7 +2849,7 @@ Creates a lambda of arity {X} containing a `^*#<QzHAT_QzSTAR_QzHASH_>`
 
   .. code-block:: REPL
 
-     #> time#!sys..stdout(time..sleep .05)
+     #> time##file=#sys..stdout(time..sleep .05)
      >>> # hissp.macros.._macro_.let
      ... (lambda _QzPMWTVFTZz_time=__import__('time').time_ns:
      ...   # hissp.macros.._macro_.letQz_from
