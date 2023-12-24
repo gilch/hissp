@@ -1566,7 +1566,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ... (42)
      42
 
-  See also: `ors`, `and`.
+  See also: `ors`, `and`, `all`, `when`.
   "
   (cond (not exprs) True
         (op#eq (len exprs) 1) (get#0 exprs)
@@ -1619,7 +1619,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ... ()
      ()
 
-  See also: `ands`, `bool`, `or`.
+  See also: `ands`, `bool`, `or`, `any`.
   "
   (cond (op#eq (len exprs) 1) (get#0 exprs)
         exprs
