@@ -1862,7 +1862,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   <<#
   ;; ``@`` 'list of' Mnemonic: @rray list.
   ;;
-  ;; Creates the `list` from each expresssion's result.
+  ;; Creates the `list` from each expression's result.
   ;; A ``:*`` unpacks the next argument.
   ;;
   ;; .. code-block:: REPL
