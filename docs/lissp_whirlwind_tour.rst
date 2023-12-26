@@ -357,21 +357,17 @@ Lissp Whirlwind Tour
 
    ;;;; 6.3 String Literals
 
-   #> "raw string"
-   >>> ('raw string')
-   'raw string'
+   #> "a string"
+   >>> ('a string')
+   'a string'
 
    #> 'not-string'                        ;symbol
    >>> 'notQz_stringQzAPOS_'
    'notQz_stringQzAPOS_'
 
-   #> #"Say \"Cheese!\" \u263a"           ;Hash strings process Python escapes.
+   #> "Say \"Cheese!\" \u263a"            ;Python escape sequences.
    >>> ('Say "Cheese!" ☺')
    'Say "Cheese!" ☺'
-
-   #> "Say \"Cheese!\" \u263a"            ;Raw strings don't.
-   >>> ('Say \\"Cheese!\\" \\u263a')
-   'Say \\"Cheese!\\" \\u263a'
 
 
    #> "string
@@ -380,12 +376,6 @@ Lissp Whirlwind Tour
    #.."                                   ;Same as #"string\nwith\nnewlines\n".
    >>> ('string\nwith\nnewlines\n')
    'string\nwith\nnewlines\n'
-
-
-   #> "one\"
-   #..string\\"                           ;Tokenizer expects paired \'s, even raw.
-   >>> ('one\\"\nstring\\\\')
-   'one\\"\nstring\\\\'
 
 
    ;;;; 7 Advanced Calls
@@ -443,7 +433,7 @@ Lissp Whirlwind Tour
    #..       :* "xyz"                     ;:* is a repeatable positional target.
    #..       :** (dict : sep "-")         ;Target :** to unpack mapping.
    #..       flush True                   ;Kwargs still allowed after :**.
-   #..       :** (dict : end #"!?\n"))    ;Multiple :** allowed too.
+   #..       :** (dict : end "!?\n"))     ;Multiple :** allowed too.
    >>> print(
    ...   (1),
    ...   *('abc'),
@@ -1629,14 +1619,14 @@ Lissp Whirlwind Tour
 
    ;; Finds spam.lissp & eggs.lissp in the current package & compile to spam.py & eggs.py
    #> (.write_text (pathlib..Path "eggs.lissp")
-   #..             #"(print \"Hello World!\")")
+   #..             "(print \"Hello World!\")")
    >>> __import__('pathlib').Path(
    ...   ('eggs.lissp')).write_text(
    ...   ('(print "Hello World!")'))
    22
 
    #> (.write_text (pathlib..Path "spam.lissp")
-   #..             #"(print \"Hello from spam!\")
+   #..             "(print \"Hello from spam!\")
    #..(.update (globals) : x 42)")
    >>> __import__('pathlib').Path(
    ...   ('spam.lissp')).write_text(

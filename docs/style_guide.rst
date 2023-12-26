@@ -656,7 +656,7 @@ this can be done at read time instead:
 
 .. code-block:: REPL
 
-   #> (print (.upper '.#(textwrap..dedent #"\
+   #> (print (.upper '.#(textwrap..dedent "\
    #..                   These lines
    #..                   Don't interrupt
    #..                   the flow.")))

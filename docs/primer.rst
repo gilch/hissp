@@ -1,12 +1,12 @@
 .. Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
-..  Hidden doctest adds bundled macros for REPL-consistent behavior.
-    #> (.update (globals) : _macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
-    >>> globals().update(
-    ...   _macro_=__import__('types').SimpleNamespace(
-    ...             **vars(
-    ...                 __import__('hissp')._macro_)))
+.. Hidden doctest adds bundled macros for REPL-consistent behavior.
+   #> (.update (globals) : _macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
+   >>> globals().update(
+   ...   _macro_=__import__('types').SimpleNamespace(
+   ...             **vars(
+   ...                 __import__('hissp')._macro_)))
 
 Hissp Primer
 ############
@@ -296,6 +296,36 @@ Hissp has special behaviors for Python's `tuple` and `str` types.
 Everything else is just data,
 and Hissp does its best to compile it that way.
 
+In Lissp, the Hissp `tuple` and `str` elements
+are written with ``()`` and ``||``, respectively.
+The `str`\ s represents text fragments,
+so the ``||`` tokens in Lissp are called "fragments".
+
+Lissp has full generality with just these two elements,
+although some things would be awkward.
+Here's our first Hissp program again written that way:
+
+.. code-block:: REPL
+
+   #> (|lambda| (|name|)
+   #..  (|print| (|quote| |Hello|) |name|))
+   >>> (lambda name:
+   ...   print(
+   ...     'Hello',
+   ...     name))
+   <function <lambda> at 0x...>
+
+   #> (|_| (|quote| |World|))
+   >>> _(
+   ...   'World')
+   Hello World
+
+Notice that the fragments are interpreted in different ways depending on the context.
+``|lambda|`` is a special instruction to the Hissp compiler.
+``|print|`` is a fragment of Python code, an identifier in this case,
+but basically any Python expression works.
+``|Hello|`` is a string.
+
 In addition to the special behaviors from the Hissp level for tuple
 and string lexical elements,
 the Lissp level has special behavior for *reader macros*.
@@ -306,7 +336,7 @@ which is passed through to the Hissp level with minimal processing.
 Basic Atoms
 +++++++++++
 
-Most literals work just like Python:
+Most data literals work just like Python:
 
 .. code-block:: REPL
 
@@ -349,129 +379,92 @@ and do not appear in the output.
    >>>
 
 
-Raw Strings
-+++++++++++
+Strings
++++++++
 
-Hash strings and raw strings represent text data,
-but are lexically distinct from the other atoms,
-and have somewhat different behavior.
-
-*Raw strings* in Lissp are double-quoted and read backslashes and newlines literally,
-which makes them similar to triple-quoted r-strings in Python.
-In other words, escape sequences are not processed.
+You've already seen how to make strings from fragments: you quote them.
 
 .. code-block:: REPL
 
-   #> "Two
-   #..lines\ntotal"
-   >>> ('Two\nlines\\ntotal')
-   'Two\nlines\\ntotal'
+   #> (|quote| |Hello|)
+   >>> 'Hello'
+   'Hello'
 
-   #> (print _)
+We've already seen that the reader has a shorthand for quotation.
+
+.. code-block:: REPL
+
+   #> '|Hello|
+   >>> 'Hello'
+   'Hello'
+
+If that particular fragment weren't quoted in this context,
+it would be interpreted as a Python identifier instead.
+
+Fragment text is raw; you can't use Python's escape sequences for special characters.
+(Although you can escape a ``|`` by doubling it.)
+
+.. code-block:: REPL
+
+   #> '|Say "Cheese!"\n\u263a|
+   >>> 'Say "Cheese!"\\n\\u263a'
+   'Say "Cheese!"\\n\\u263a'
+
+The solution, of course, is to put a Python string literal in the fragment,
+and then not quote it.
+This is another way to make strings from fragments.
+
+.. code-block:: REPL
+
+   #> |"Say \"Cheese!\"\n\u263a"| ; There is a reason we used double quotes.
+   >>> "Say \"Cheese!\"\n\u263a"
+   'Say "Cheese!"\n☺'
+
+   #> (|print| |_|)
    >>> print(
    ...   _)
-   Two
-   lines\ntotal
+   Say "Cheese!"
+   ☺
 
-Do note, however, that the `tokenizer <Lexer>` still expects backslashes to be paired with another character.
-
-.. code-block:: REPL
-
-   #> "\"
-   #..\\" ; One string, not two!
-   >>> ('\\"\n\\\\')
-   '\\"\n\\\\'
-
-   #> (print _)
-   >>> print(
-   ...   _)
-   \"
-   \\
-
-The second double-quote character didn't end the raw string,
-but the backslash "escaping" it was still read literally.
-The third double quote did end the string despite being adjacent to a backslash,
-because that was already paired with another backslash.
-Again, this is the `same as Python's r-strings <faq-programming-raw-string-backslash>`.
-
-Recall that the Hissp-level `str` type is used to represent Python identifiers in the compiled output,
-and must be quoted with the ``quote`` special form to represent text data instead.
-
->>> readerless(
-...     ('print'  # str containing identifier
-...      ,('quote','hi'),)  # string as data
-... )
-"print(\n  'hi')"
->>> eval(_)
-hi
-
-Hissp-level strings can represent almost any Python code to include in the compiled output,
-not just identifiers.
-So another way to represent text data in Hissp
-is a Hissp-level string that contains the Python code for a string literal.
-
->>> readerless(
-...     ('print'  # str containing identifier
-...      ,'"hi"',)  # str containing a string literal
-... )
-'print(\n  "hi")'
->>> eval(_)
-hi
-
-Quoting our entire example shows us how that Lissp would get translated to Hissp.
-(When quoted, it's just data.)
+And, in fact, the reader has a shorthand for this already.
+If you've got a fragment surrounded by double quotes (``"``), you can drop the ``||``.
+(This doesn't work on single quotes, since those are reserved for the reader's quotation shorthand.)
 
 .. code-block:: REPL
 
-   #> (quote
-   #..  (lambda (name)
-   #..    (print "Hello" name)))
-   >>> ('lambda',
-   ...  ('name',),
-   ...  ('print',
-   ...   "('Hello')",
-   ...   'name',),)
-   ('lambda', ('name',), ('print', "('Hello')", 'name'))
+   #> "Say \"Cheese!\"
+   #..\u263a" ; Notice it includes parentheses.
+   >>> ('Say "Cheese!"\n☺')
+   'Say "Cheese!"\n☺'
 
-This tuple is data, but it's also valid Hissp code.
-You could pass it to `readerless()` to get working Python code:
+Also notice that you're allowed a literal newline
+(although the ``\n`` escape sequence also works),
+like in Python's triple-quoted strings.
+This is a convenience not currently allowed in the ``||``-delimited tokens.
 
->>> readerless(('lambda', ('name',), ('print', "('Hello')", 'name')))
-"(lambda name:\n  print(\n    ('Hello'),\n    name))"
->>> print(_)
-(lambda name:
-  print(
-    ('Hello'),
-    name))
+These are not direct representations like the other atoms!
+They're reader shorthand for a fragment *containing* a string literal.
+If you expect them to represent themselves in the Hissp when you quote them,
+you will be confused.
+``'"foo"`` is a shorthand for ``|('foo')|``. Try it.
 
-Notice the raw string reader syntax
-``"Hello"`` produced a string in the Hissp output containing
-``('Hello')``, a Python string literal,
-which saved us a ``quote`` form.
-
-Hash Strings
-++++++++++++
-
-You can enable the processing of Python's backslash escape sequences
-by prefixing the raw string syntax with a hash ``#``.
-These are called *hash strings*.
+This also applies to double-quoted (``""``) tokens quoted indirectly through a tuple.
+See the difference?
 
 .. code-block:: REPL
 
-   #> #"Three
-   #..lines\ntotal"
-   >>> ('Three\nlines\ntotal')
-   'Three\nlines\ntotal'
-
-   #> (print _)
-   >>> print(
-   ...   _)
-   Three
-   lines
-   total
+   #> '("foo" |bar|)
+   >>> ("('foo')",
+   ...  'bar',)
+   ("('foo')", 'bar')
 
 Symbols
 +++++++
+
+Symbols are meant for variable names and the like.
+They're another reader shorthand.
+If you have a fragment containing a valid Python identifier,
+you can drop the ``||``.
 
 In our basic example:
 
@@ -483,8 +476,7 @@ In our basic example:
 ``lambda``, ``name``, ``print``, ``Hello``, and
 ``name`` are *symbols*.
 
-Symbols are meant for variable names and the like.
-Quoting our example again to see how Lissp would get read as Hissp,
+Quoting our example to see how Lissp would get read as Hissp,
 
 .. code-block:: REPL
 
@@ -500,22 +492,21 @@ Quoting our example again to see how Lissp would get read as Hissp,
    ('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
 
 we see that there are *no symbol objects* at the Hissp level.
-The Lissp symbols are read in as strings.
+The Lissp symbols are read in as strings, just like fragments.
 
 In other Lisps, symbols are a data type in their own right,
 but symbols only exist as a *reader syntax* in Lissp,
 where they represent the subset of Hissp-level strings that can act as identifiers.
+Python has no built in symbol type
+and instead uses strings pervasively whenever it has to represent identifiers.
 
 Symbols in Lissp become strings in Hissp which become identifiers in Python,
-unless they're quoted, like ``('quote','Hello',)``,
-in which case they become string literals in Python.
-
-Experiment with this process in the REPL.
+unless they're quoted, in which case they become string literals in Python.
 
 Attributes
 ----------
 
-Symbols can have internal ``.``'s to access attributes.
+Symbols can have internal ``.``\ s to access attributes.
 
 .. code-block:: REPL
 
@@ -561,7 +552,7 @@ but used in another.
 Munging
 -------
 
-Symbols have another important difference from raw strings:
+Symbols have another important difference from other fragments.
 
 .. code-block:: REPL
 
@@ -649,14 +640,20 @@ Notice that only the first digit had to be munged to make it a valid Python iden
    >>> 'QzDIGITxONE_o8'
    'QzDIGITxONE_o8'
 
+By the way, since module handles count as symbols,
+special characters in them also get munged.
+They will then attempt to import modules with funny names,
+which only works if you have modules with said names to import. Just saying.
+
 Control Words
 -------------
 
-Atoms that begin with a colon are called *control words* [#key]_.
+Symbols that begin with a colon are called *control words* [#key]_.
+(They don't need the ``||``\ s either, but they're allowed.)
 These are mainly used to give internal structure to macro invocations—you
 want a word distinguishable from a string at compile time,
 but it's not meant to be a Python identifier.
-Thus, they do not get munged:
+Thus, they do not get munged like normal symbols would:
 
 .. code-block:: REPL
 
@@ -674,7 +671,7 @@ but you can:
    >>> ':foo->bar?'
    ':foo->bar?'
 
-Note that you can do nearly the same thing with a raw string:
+Note that you can do nearly the same thing with a ``""`` token:
 
 .. code-block:: REPL
 
@@ -880,7 +877,7 @@ the rest are pairs, implied by position.
 
 .. code-block:: REPL
 
-   #> (print : :? 1  :? 2  :? 3  sep ":"  end #"\n.")
+   #> (print : :? 1  :? 2  :? 3  sep ":"  end "\n.")
    >>> print(
    ...   (1),
    ...   (2),
@@ -908,7 +905,7 @@ For example:
 
 .. code-block:: REPL
 
-   #> (print 1 2 3 : sep ":"  end #"\n.")
+   #> (print 1 2 3 : sep ":"  end "\n.")
    >>> print(
    ...   (1),
    ...   (2),
@@ -961,7 +958,7 @@ Use the control words ``:*`` for iterable unpacking,
 
 .. code-block:: REPL
 
-   #> (print : :* '(1 2)  :? 3  :* '(4)  :** (dict : sep :  end #"\n."))
+   #> (print : :* '(1 2)  :? 3  :* '(4)  :** (dict : sep :  end "\n."))
    >>> print(
    ...   *((1),
    ...     (2),),
@@ -1100,7 +1097,7 @@ Python injection:
 
 .. code-block:: REPL
 
-   #> .##"{(1, 2): \"\"\"buckle my shoe\"\"\"}  # This is Python!"
+   #> .#"{(1, 2): \"\"\"buckle my shoe\"\"\"}  # This is Python!"
    >>> {(1, 2): """buckle my shoe"""}  # This is Python!
    {(1, 2): 'buckle my shoe'}
 
@@ -1291,7 +1288,7 @@ If you tried to run
 
 .. code-block:: Python
 
-    readerless((<built-in function print>, 1, 2, 3, ':', 'sep', ':'))
+   readerless((<built-in function print>, 1, 2, 3, ':', 'sep', ':'))
 
 then you'd get a syntax error.
 Try it, if you'd like.
