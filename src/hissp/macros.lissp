@@ -58,6 +58,10 @@ subexpressions as arguments.
 ;;; substitution is available, and judicious use can improve performance
 ;;; and maintainability.
 
+;;; Don't let the size of this file intimidate you. Most of the lines
+;;; are documentation. After you remove the comments, docstrings, and
+;;; blank lines, only about 400 lines of actual code remain.
+
 
 _#"
 Hidden doctest adds bundled macros for REPL-consistent behavior.
