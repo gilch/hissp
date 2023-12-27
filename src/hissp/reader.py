@@ -194,7 +194,7 @@ class Kwarg:
         self.v = v
 
     def __repr__(self):
-        return f"Kwarg({self.k}, {self.v})"
+        return f"Kwarg({self.k!r}, {self.v!r})"
 
 
 class Lissp:
