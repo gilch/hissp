@@ -298,7 +298,7 @@ and Hissp does its best to compile it that way.
 
 In Lissp, the Hissp `tuple` and `str` elements
 are written with ``()`` and ``||``, respectively.
-The `str`\ s represents text fragments,
+The `str`\ s represent text fragments,
 so the ``||`` tokens in Lissp are called "fragments".
 
 Lissp has full generality with just these two elements,
@@ -1189,7 +1189,7 @@ How about these?
    ... )
    [[], [], []]
 
-Surpised?
+Surprised?
 What's with the `pickle.loads` expression?
 It seems to produce the right object.
 Is this the reader's doing?
