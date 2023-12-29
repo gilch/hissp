@@ -1,6 +1,13 @@
 .. Copyright 2020, 2021, 2022, 2023 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
+.. Hidden doctest adds bundled macros for REPL-consistent behavior.
+   #> (.update (globals) : _macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
+   >>> globals().update(
+   ...   _macro_=__import__('types').SimpleNamespace(
+   ...             **vars(
+   ...                 __import__('hissp')._macro_)))
+
 Style Guide
 ###########
 
@@ -1201,6 +1208,66 @@ even in an implied group.
          (cond (lt lxs lys) (print "<")
                (gt lxs lys) (print ">")
                :else (print "0")))))
+
+Avoid Trailing Whitespace
+:::::::::::::::::::::::::
+
+Trailing whitespace is usually a mistake.
+For small project with a single author, it's a fairly harmless one.
+But for a team project under version control,
+it may be the cause of pointless diffs and blames,
+reducing the clarity of the history.
+
+It is best practice to at least configure your editor to make trailing whitespace visible,
+although there are many cases you might be viewing code outside your primary editor.
+
+Failing that, automation to automatically strip it is also common practice.
+However, trailing whitespace can be significant in multiline ``""`` tokens,
+and similarly in `Comment`\ s that are not discarded.
+
+Trailing spaces are significant in certain languages you may sometimes want to embed in your code,
+such as Markdown.
+
+In the case of ``""`` tokens,
+it's usually preferable to use explicit escape sequences,
+like ``\N{space}`` to clearly indicate to humans that those trailing spaces are intentional,
+and so automation does not remove them.
+The alternative spellings ``\40`` and ``\x20`` are acceptable (especially for `bytes`),
+but not as clear.
+``\u0020`` ``\u00000020`` should be avoided in most cases.
+
+.. code-block:: REPL
+
+   #> "\
+   #..foobar  \N{space}
+   #..spameggs "
+   >>> ('foobar   \nspameggs ')
+   'foobar   \nspameggs '
+
+Notice that only the last space of a line has to be replaced in order to make the rest apparent.
+Also notice that the last line does not have a trailing space,
+even thought the string does,
+because the final character for the line is not a space but a ``"``.
+
+`Comment`\ s are raw, but preprocessing can be done at read time, e.g.,
+
+.. code-block:: REPL
+
+   #> '.#
+   #..(.format <<#
+   #.. ;; foobar  {space}
+   #.. ;; spameggs{space}
+   #.. : space " ")
+   >>> 'foobar   \nspameggs '
+   'foobar   \nspameggs '
+
+If, for some reason,
+you judge that explicitly showing trailing whitespace in code like this isn't worth it for your case,
+you should still at least add a comment indicating it's meant to be there.
+It's still up to your team how to deal with automation, if any.
+It may be possible to surpress its effect with a special comment
+(which would also suffice as notice for human readers familiar with it),
+or it may be possible to configure it to ignore violations in strings or comments.
 
 The Limits of Length
 ::::::::::::::::::::
