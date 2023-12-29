@@ -1951,18 +1951,28 @@ Lissp Whirlwind Tour
    ;; like newlines and string escape codes.
    #> (lambda abc
    #..  .#"(-b + (b**2 - 4*a*c)**0.5)
-   #..  /(2*a)")
+   #..    /(2*a)")
    >>> (lambda a,b,c:
    ...   (-b + (b**2 - 4*a*c)**0.5)
-   ...     /(2*a))
+   ...       /(2*a))
    <function <lambda> at 0x...>
 
 
-   ;;; Remember the "" tokens make Python-level strings, via a Hissp-level
-   ;;; string containing a Python string literal. It is NOT for creating a
-   ;;; Hissp-level string, which would normally contain Python code. For
-   ;;; that, you can use the raw || tokens, or inject any Lissp expression
-   ;;; that evaluates to a string, including "" tokens.
+   ;;; Remember, the Lissp-level "" tokens compile down to Python-level
+   ;;; string literals via a Hissp-level fragment (i.e., a Hissp atom of
+   ;;; the str type) whose text contains the Python string literal. A Lissp
+   ;;; "" token does NOT read as a general-purpose Hissp fragment, even
+   ;;; though fragments usually look similar in readerless mode (i.e., the
+   ;;; text making up any Lissp "" token without a newline would also be a
+   ;;; valid spelling of a Python string literal, even though these are
+   ;;; different languages, and fragments at the Hissp level are str
+   ;;; objects). Remember, Hissp is made of data, rather than text, unlike
+   ;;; Lissp, which is a text representation of it. Data can be represented
+   ;;; in different ways. If you need a fragment in Lissp, you can use the
+   ;;; raw || tokens, or use .# (i.e., an injection to the Hissp level) on
+   ;;; any Lissp expression that evaluates to an instance of str like Hissp
+   ;;; expects for fragments (and yes, that includes the "" tokens, among
+   ;;; other expressions).
 
    ;; Objects without literals don't pickle until the compiler has to emit
    ;; them as Python code. That may never happen if another macro gets it.
