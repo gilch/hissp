@@ -205,6 +205,7 @@ branch(
 no
 
 ```
+A number of useful macros come bundled with Hissp.
 
 ## The Lissp Reader
 The Hissp data-structure language can be written directly in Python using the "readerless mode" demonstrated above,
