@@ -355,6 +355,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
  ;; ``<<#`` 'comment string' reader macro.
  ;;
  ;; Converts a block of line comments to a raw string.
+ ;; Roughly equivalent to ``'hissp.reader..Comment.contents#``.
  ;;
  ;; .. code-block:: REPL
  ;;
