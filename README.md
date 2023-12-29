@@ -478,11 +478,17 @@ which includes Clojure-like persistent data structures.
 # Features and Design
 
 ## Radical Extensibility
-> *Any sufficiently complicated C or Fortran program contains an ad hoc,
-informally-specified, bug-ridden, slow implementation of half of Common Lisp.*  
-— Greenspun's Tenth Rule
+> A Lisp programmer who notices a common pattern in their code can write a macro to give themselves a source-level
+> abstraction of that pattern. A Java programmer who notices the same pattern has to convince Sun that this particular
+> abstraction is worth adding to the language. Then Sun has to publish a JSR and convene an industry-wide "expert group"
+> to hash everything out. That process--according to Sun--takes an average of 18 months. After that, the compiler writers
+> all have to go upgrade their compilers to support the new feature. And even once the Java programmer's favorite compiler
+> supports the new version of Java, they probably still can't use the new feature until they're allowed to break source
+> compatibility with older versions of Java. So an annoyance that Common Lisp programmers can resolve for themselves
+> within five minutes plagues Java programmers for years.  
+> — Peter Seibel (2005) *Practical Common Lisp*
 
-Python is already a really nice language, a lot closer to Lisp than C or Fortran.
+Python is already a really nice language, a lot closer to Lisp than to C or Fortran.
 It has dynamic types and automatic garbage collection, for example.
 So why do we need Hissp?
 
