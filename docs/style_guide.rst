@@ -303,12 +303,12 @@ Note that a multiline string is still an atom.
         "abc
    xyz")
 
-   (foo (bar #"\
+   (foo (bar "\
    abc
    xyz"))
 
    (foo (bar)
-        #"\
+        "\
    abc
    xyz")
 
@@ -323,12 +323,12 @@ We can still unambiguously reconstruct the trails.
         "abc
    xyz"
 
-   (foo (bar #"\
+   (foo (bar "\
    abc
    xyz"
 
    (foo (bar
-        #"\
+        "\
    abc
    xyz"
 
@@ -675,7 +675,7 @@ long multiline strings should be declared at the `top level`_ and referenced by 
 
 .. code-block:: Lissp
 
-   (define MESSAGE #"\
+   (define MESSAGE "\
    These lines
    don't interrupt
    the flow either.
@@ -990,7 +990,6 @@ The bundled `deftype` macro does not have any special case for docstrings.
 Instead add a ``__doc__`` as its first key.
 
 Indent docstrings to the same column as their opening ``"``
-(or to the ``#`` in an opening ``#"``),
 even when using something like the attach macro.
 This does put the leading whitespace inside the string itself,
 but Python tooling expects this in docstrings,
