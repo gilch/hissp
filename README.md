@@ -249,7 +249,7 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
 
 (defmacro script (: :* forms)
   `',(tag "script type='text/python'" #"\n"
-      (.join #"\n" (map hissp.compiler..readerless forms))))
+      (.join "\n" (map hissp.compiler..readerless forms))))
 
 ((bottle..route "/") ; https://bottlepy.org
  O#(enjoin
@@ -261,8 +261,8 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
        (define getf@v X#(float (X#X.value (getE X))))
        (define set@v XY#(setattr (getE Y) 'value X))
        (attach browser..window
-         : Celsius O#(-> (getf@v 'Celsius) (X#.#"X*1.8+32") (set@v 'Fahrenheit))
-         Fahrenheit O#(-> (getf@v 'Fahrenheit) (X#.#"(X-32)/1.8") (set@v 'Celsius))))
+         : Celsius O#(-> (getf@v 'Celsius) (X#|X*1.8+32|) (set@v 'Fahrenheit))
+         Fahrenheit O#(-> (getf@v 'Fahrenheit) (X#|(X-32)/1.8|) (set@v 'Celsius))))
      (let (row (enjoin (tag "input id='{0}' onkeyup='{0}()'")
                        (tag "label for='{0}'" "°{1}")))
        (enjoin (.format row "Fahrenheit" "F")"<br>"(.format row "Celsius" "C"))))))
