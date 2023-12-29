@@ -379,7 +379,7 @@ Small and closely-related forms may be semantically "attached" to the next
 or previous form by omitting the usual blank line.
 E.g., several one-line "constant" `define` forms making up a conceptual group need not be separated;
 one only used by the following definition may be attached to it;
-a form modifying the previous (e.g. decorating, attaching attributes),
+a form configuring the previous one (e.g. decorating, attaching attributes),
 or adding it to a collection may be attached to it.
 
 However, in many of these cases,
@@ -393,7 +393,9 @@ or to separate methods in long classes.
 This is a code smell indicating your form may be too complex.
 You can use comment lines to separate internal groups instead,
 but consider refactoring.
-Blank lines are OK in docstrings.
+Blank lines are OK in docstrings,
+but comment strings (`<\<#<QzLT_QzLT_QzHASH_>`)
+instead of ``""`` tokens are preferred for docstrings when they have more than a single paragraph.
 
 Keep the elements in a tuple aligned to start on the same column.
 Treat sibling groups equally:
@@ -412,7 +414,7 @@ Your code should look like these examples, recursively applied to subforms:
 
    '(data1                                ;Line break for one, break for all.
      data2                                ;Items start on the same column.
-     data3)
+     data3)                               ;Could've all fit on 1 line. (Just an example.)
 
    '(                                     ;This is better for linewise version control.
      data1                                ; Probably only worth it if there's a lot more than 3,
@@ -580,10 +582,10 @@ the commas would end the line in readerless Hissp as well.
 
 .. code-block:: Python
 
-   ('quote'
-    ,('some rather excessively long data',
-      'and some more',
-      'and a little more after that making the data tuple too long to fit on one line',),)
+   ('lambda',()
+    ,('quote',('data1',  # Notice how a , both begins and ends this line.
+               'data2',
+               'data3',),),)
 
 .. _enjoin:
 
@@ -665,10 +667,10 @@ this can be done at read time instead:
 
    #> (print (.upper '.#(textwrap..dedent "\
    #..                   These lines
-   #..                   Don't interrupt
+   #..                   don't interrupt
    #..                   the flow.")))
    >>> print(
-   ...   "These lines\nDon't interrupt\nthe flow.".upper())
+   ...   "These lines\ndon't interrupt\nthe flow.".upper())
    THESE LINES
    DON'T INTERRUPT
    THE FLOW.
@@ -759,7 +761,7 @@ but follow code on the same line.
 
 This acceptable in Lissp, and closer to the Python style
 (which would start *two* spaces after the code.
-This also goes for readerless mode,
+It's also two spaces for readerless mode,
 where, aside from occasionally being used to imply groups,
 comment styles follow the same rules as normal Python.)
 Lisp traditionally uses margin comments instead (as described below),
@@ -807,7 +809,7 @@ and then change them back when working on Lissp files with normal style.
 That's not nice.
 
 This includes comment tokens meant as arguments for reader macros!
-Lissp parses comments in blocks,
+Lissp tokenizes comments in blocks,
 so multiline comments used as reader arguments nearly always
 use a form/group comment starting with two semicolons and a space as described below.
 But with a single ``;``, they must follow code on the same line,
@@ -937,7 +939,7 @@ This will minimize the number of heading style changes you need to make if you l
 _#_#_#The Discard Macro
 +++++++++++++++++++++++
 
-The discard macro ``_#`` applied to a string literal is acceptable for long block comments.
+The discard macro ``_#`` applied to a ``""`` token is acceptable for long block comments.
 
 Several discard macros may be used in a row to comment out that many forms following them.
 
@@ -982,16 +984,16 @@ they are not for irrelevant implementation details internal to their containing 
 
 "Private" helper functions/classes/modules (conventionally named with a leading underscore)
 need not have docstrings at all,
-but again prefer docstrings over comments when applicable,
+but again, prefer docstrings over comments when applicable,
 in which case they describe an interface internal to their object's container,
-but still do not their describe their object's implementation details.
+but still do not describe their object's implementation details.
 
 The first expression of a module (if it compiles to a string literal) is its docstring.
 Prefer this form over assigning the ``__doc__`` global directly.
 
 The ``lambda`` special form does not create docstrings.
 However, you can attach a ``.__doc__`` attribute to the lambda object after creating it,
-e.g. using the `attach` macro.
+e.g., using the `attach` macro.
 
 The bundled `deftype` macro does not have any special case for docstrings.
 Instead add a ``__doc__`` as its first key.
@@ -1015,7 +1017,7 @@ While reStructuredText is currently the default in the Python ecosystem,
 docstrings can use some other markup format if the whole team can agree on one,
 and it's done for the entire project.
 MyST Markdown also has pretty good support now.
-You can automatically generate API documentation with these.
+You can automatically generate API documentation with either of these.
 
 Anaphoric or code string–injection macros are potential gotchas.
 Docstrings for them should include the word "Anaphoric" or "Injection" up front.
@@ -1195,7 +1197,7 @@ even in an implied group.
      (lambda (xs ys)
        (cond (lt (len xs) (len ys))
              (print "<")
-             ;;                           ;Separator comments can be empty,
+             ;;                           ;Separator comments can be empty
              (gt (len xs) (len ys))       ; (unless there's something to say.)
              (print ">")
              ;; No internal ), so 1 line is OK. Still grouped.
