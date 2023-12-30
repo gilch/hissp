@@ -9,7 +9,7 @@ including the Lissp syntax highlighter.
 A significant additional portion of Hissp's rendered documentation is derived from
 docstrings in Hissp's source code (the API docs).
 ## Quick Links
-**<font color="royalblue">(</font><font color="green">-</font><font color="gold">)</font><font color="gainsboro">:</font>**
+${\boldsymbol {\color{royalblue}{(}\color{green}{\textsf -}\color{gold}{)}\color{gainsboro}{\kern-1.5pt{\textsf :}}}}$
 [Rendered Documentation ](https://hissp.readthedocs.io/) 🢦 START HERE.  
 [**m**] [Community Chat](https://gitter.im/hissp-lang/community)  
 ⭐ [On GitHub (Source Code)](https://github.com/gilch/hissp)  
