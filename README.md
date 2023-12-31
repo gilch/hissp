@@ -249,7 +249,7 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
     (enjoin "<"tag">"(enjoin : :* contents)"</"(get#0 (.split tag))">")))
 
 (defmacro script (: :* forms)
-  `',(tag "script type='text/python'" #"\n"
+  `',(tag "script type='text/python'" "\n"
       (.join "\n" (map hissp.compiler..readerless forms))))
 
 ((bottle..route "/") ; https://bottlepy.org
@@ -318,16 +318,16 @@ Given Hebigo's macros, the class above could be written in the equivalent way in
   (def_ (.test_two self x y)
     :@ (given (st.from_type type)
               (st.from_type type))
-    (self.assertIs .#"x or y" (or_ x y)))
+    (self.assertIs |x or y| (or_ x y)))
   (def_ (.test_shortcut self)
-    (or_ 1 .#"0/0")
-    (or_ 0 1 .#"0/0")
-    (or_ 1 .#"0/0" .#"0/0"))
+    (or_ 1 |0/0|)
+    (or_ 0 1 |0/0|)
+    (or_ 1 |0/0| |0/0|))
   (def_ (.test_three self x y z)
     :@ (given (st.from_type type)
               (st.from_type type)
               (st.from_type type))
-    (self.assertIs .#"x or y or z" (or_ x y z))))
+    (self.assertIs |x or y or z| (or_ x y z))))
 ```
 
 Hebigo looks very different from Lissp, but they are both Hissp!
