@@ -427,11 +427,11 @@ Lissp Whirlwind Tour
    'notQz_stringQzAPOS_'
 
 
-   #> '|"a string"|                       ;What did you expect?
+   #> '|"a string"|
    >>> '"a string"'
    '"a string"'
 
-   #> '"a string"                         ;You should have known.
+   #> '"a string"                         ;What did you expect?
    >>> "('a string')"
    "('a string')"
 
@@ -440,7 +440,7 @@ Lissp Whirlwind Tour
    'Say "Cheese!" ☺'
 
 
-   ;; || tokens can't have newlines btw. But "" tokens can.
+   ;; || tokens can't have newlines, by the way. But "" tokens can.
    #> "string
    #..with
    #..newlines
@@ -851,7 +851,7 @@ Lissp Whirlwind Tour
    (7, 42)
 
 
-   ;;; Other objects evaluate to themselves, but strings and tuples have
+   ;;; Other objects evaluate to themselves, but str atoms and tuples have
    ;;; special evaluation rules in Hissp. Tuples represent invocations of
    ;;; functions, macros, and special forms.
 
@@ -866,8 +866,8 @@ Lissp Whirlwind Tour
    ('print', 1, 2, 3, ':', 'sep', "('-')")
 
 
-   ;;; Notice how the string gets an extra layer of quotes vs identifiers.
-   ;;; This particular tuple happens to be a valid form.
+   ;;; Notice how the atom read from "-" gets an extra layer of quotes vs
+   ;;; the identifiers. This particular tuple happens to be a valid form.
 
    ;; The readerless function runs the Hissp compiler without the Lissp reader.
    ;; (Remember, _ is the last result that wasn't None in the Python REPL.)
@@ -885,18 +885,18 @@ Lissp Whirlwind Tour
    ;;; Programmatically modifying the data before compiling it is when
    ;;; things start to get interesting, but more on that later.
 
-   ;;; Hissp-level strings contain Python code to include in the compiled
-   ;;; output. These usually contain identifiers, but can be anything.
-   ;;; Thus, Lissp identifiers (and fragments in general) read as strings
-   ;;; at the Hissp level.
+   ;;; Hissp-level str atoms contain Python code to include in the compiled
+   ;;; output. These often contain identifiers, but can be anything.
+   ;;; Thus, Lissp identifiers (and fragments in general) read as str
+   ;;; atoms at the Hissp level.
 
    #> (quote identifier)                  ;Just a string.
    >>> 'identifier'
    'identifier'
 
 
-   ;;; The "" tokens in Lissp also read as strings at the Hissp level, but
-   ;;; they contain a Python string literal instead of a Python identifier.
+   ;;; The "" tokens in Lissp also read as str atoms at the Hissp level,
+   ;;; but they contain a Python string literal instead of an identifier.
 
    #> (quote "a string")
    >>> "('a string')"
@@ -1888,7 +1888,7 @@ Lissp Whirlwind Tour
    "Comment(';comments are parsed objects too!\\n')"
 
 
-   ;;; Except for strings and tuples, objects in Hissp should evaluate
+   ;;; Except for str atoms and tuples, objects in Hissp should evaluate
    ;;; to themselves. But when the object lacks a Python literal notation,
    ;;; the compiler is in a pickle!
 
@@ -1937,9 +1937,9 @@ Lissp Whirlwind Tour
    Fraction(1, 2)
 
 
-   ;;; Recall that Hissp-level string objects can represent
-   ;;; arbitrary Python code. It's usually used for identifiers,
-   ;;; but can be anything, even complex formulas.
+   ;;; Recall that Hissp-level str atoms can represent arbitrary Python
+   ;;; code. It's usually used for identifiers, but can be anything, even
+   ;;; complex formulas.
 
    ;; Hissp may not have operators, but Python does.
    #> (lambda abc |(-b + (b**2 - 4*a*c)**0.5)/(2*a)|)
