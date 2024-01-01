@@ -692,7 +692,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (defmacro X\# e
   <<#
-  ;; ``X#`` Anaphoric. Make ``e`` an anonymous function with paramter X.
+  ;; ``X#`` Anaphoric. Make ``e`` an anonymous function with parameter X.
   ;;
   ;; Examples:
   ;;
@@ -764,7 +764,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `(lambda ,'X ,e))
 
 (defmacro XY\# e
-  "``XY#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y.
+  "``XY#`` Anaphoric. Make ``e`` an anonymous function with parameters X Y.
 
   .. code-block:: REPL
 
@@ -783,7 +783,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (defmacro XYZ\# e
   <<#
-  ;; ``XYZ#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z.
+  ;; ``XYZ#`` Anaphoric. Make ``e`` an anonymous function with parameters X Y Z.
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -801,7 +801,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (defmacro XYZW\# e
   <<#
-  ;; ``XYZW#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z W.
+  ;; ``XYZW#`` Anaphoric. Make ``e`` an anonymous function with parameters X Y Z W.
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -1870,7 +1870,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   <<#
   ;; ``@`` 'list of' Mnemonic: @rray list.
   ;;
-  ;; Creates the `list` from each expresssion's result.
+  ;; Creates the `list` from each expression's result.
   ;; A ``:*`` unpacks the next argument.
   ;;
   ;; .. code-block:: REPL
@@ -2029,7 +2029,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;      return k
   ;;
   ;;   ``Ensue`` takes a step function and returns a generator. The step
-  ;;   function recieves the previous Ensue step and must return the next
+  ;;   function receives the previous Ensue step and must return the next
   ;;   one to continue. Returning a different type raises a `StopIteration`
   ;;   with that object. Set the ``Y`` attribute on the current step to
   ;;   [Y]ield a value this step. Set the ``F`` attribute to a true value
@@ -2342,10 +2342,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    >>> echo.send(
   ;;    ...   None)
   ;;
-  ;;    #> (.send echo "Yodle!") ; Generators are two-way.
+  ;;    #> (.send echo "Yodel!") ; Generators are two-way.
   ;;    >>> echo.send(
-  ;;    ...   ('Yodle!'))
-  ;;    'Yodle!'
+  ;;    ...   ('Yodel!'))
+  ;;    'Yodel!'
   ;;
   ;;    #> (.send echo 42)
   ;;    >>> echo.send(

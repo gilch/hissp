@@ -1050,7 +1050,7 @@ Lissp Whirlwind Tour
    ;;; on local variables, which can't be imported. For these, we use a $#
    ;;; (gensym) which (instead of a qualifier) adds a prefix to ensure a
    ;;; variable can only be used in the same template it was defined in. It
-   ;;; contains a hash of the following, the code being read, __name__, and
+   ;;; contains a hash of three things: the code being read, __name__, and
    ;;; a count of the templates the reader has seen so far.
 
    #> `($#eggs $#spam $#bacon $#spam)
