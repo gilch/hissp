@@ -562,7 +562,7 @@ And the params tuple doesn't technically have to be a tuple:
 
    lambda x: x * x
 
-Lissp Symbol tokens become `str` atoms at the Hissp level,
+Lissp symbol tokens become `str` atoms at the Hissp level,
 which are `Iterable`\ s containing character strings.
 This only works because the variable name is a single character.
 Now we're at the same length as Python.
@@ -2225,7 +2225,7 @@ and ``True`` is a special case of ``1`` in Python.
    This would only collide in the invocation position.
    (And macros get priority there.
    Bonus round: how do you force an invocation of ``%`` to use the local instead?
-   With no run time overhead?)
+   With no run-time overhead?)
 
    If you want to give `mod <operator.mod>` that name,
    or use the `%<QzPCENT_>` macro unqualified without renaming it,

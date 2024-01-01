@@ -13,7 +13,7 @@ pip install -r requirements-dev.txt
 ```
 
 A significant additional portion of Hissp's test coverage is derived from
-REPL examples (via Sybil) found in the reStructuredText files in docs/
+REPL examples (via Sybil) found in the reStructuredText files in `docs/`
 and in docstrings in the source code.
 Find the setup for that in `conftest.py`.
 
