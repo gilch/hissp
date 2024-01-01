@@ -205,6 +205,7 @@ branch(
 no
 
 ```
+A number of useful macros come bundled with Hissp.
 
 ## The Lissp Reader
 The Hissp data-structure language can be written directly in Python using the "readerless mode" demonstrated above,
@@ -248,8 +249,8 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
     (enjoin "<"tag">"(enjoin : :* contents)"</"(get#0 (.split tag))">")))
 
 (defmacro script (: :* forms)
-  `',(tag "script type='text/python'" #"\n"
-      (.join #"\n" (map hissp.compiler..readerless forms))))
+  `',(tag "script type='text/python'" "\n"
+      (.join "\n" (map hissp.compiler..readerless forms))))
 
 ((bottle..route "/") ; https://bottlepy.org
  O#(enjoin
@@ -261,8 +262,8 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
        (define getf@v X#(float (X#X.value (getE X))))
        (define set@v XY#(setattr (getE Y) 'value X))
        (attach browser..window
-         : Celsius O#(-> (getf@v 'Celsius) (X#.#"X*1.8+32") (set@v 'Fahrenheit))
-         Fahrenheit O#(-> (getf@v 'Fahrenheit) (X#.#"(X-32)/1.8") (set@v 'Celsius))))
+         : Celsius O#(-> (getf@v 'Celsius) (X#|X*1.8+32|) (set@v 'Fahrenheit))
+         Fahrenheit O#(-> (getf@v 'Fahrenheit) (X#|(X-32)/1.8|) (set@v 'Celsius))))
      (let (row (enjoin (tag "input id='{0}' onkeyup='{0}()'")
                        (tag "label for='{0}'" "°{1}")))
        (enjoin (.format row "Fahrenheit" "F")"<br>"(.format row "Celsius" "C"))))))
@@ -317,16 +318,16 @@ Given Hebigo's macros, the class above could be written in the equivalent way in
   (def_ (.test_two self x y)
     :@ (given (st.from_type type)
               (st.from_type type))
-    (self.assertIs .#"x or y" (or_ x y)))
+    (self.assertIs |x or y| (or_ x y)))
   (def_ (.test_shortcut self)
-    (or_ 1 .#"0/0")
-    (or_ 0 1 .#"0/0")
-    (or_ 1 .#"0/0" .#"0/0"))
+    (or_ 1 |0/0|)
+    (or_ 0 1 |0/0|)
+    (or_ 1 |0/0| |0/0|))
   (def_ (.test_three self x y z)
     :@ (given (st.from_type type)
               (st.from_type type)
               (st.from_type type))
-    (self.assertIs .#"x or y or z" (or_ x y z))))
+    (self.assertIs |x or y or z| (or_ x y z))))
 ```
 
 Hebigo looks very different from Lissp, but they are both Hissp!
@@ -478,11 +479,17 @@ which includes Clojure-like persistent data structures.
 # Features and Design
 
 ## Radical Extensibility
-> *Any sufficiently complicated C or Fortran program contains an ad hoc,
-informally-specified, bug-ridden, slow implementation of half of Common Lisp.*  
-— Greenspun's Tenth Rule
+> A Lisp programmer who notices a common pattern in their code can write a macro to give themselves a source-level
+> abstraction of that pattern. A Java programmer who notices the same pattern has to convince Sun that this particular
+> abstraction is worth adding to the language. Then Sun has to publish a JSR and convene an industry-wide "expert group"
+> to hash everything out. That process--according to Sun--takes an average of 18 months. After that, the compiler writers
+> all have to go upgrade their compilers to support the new feature. And even once the Java programmer's favorite compiler
+> supports the new version of Java, they probably still can't use the new feature until they're allowed to break source
+> compatibility with older versions of Java. So an annoyance that Common Lisp programmers can resolve for themselves
+> within five minutes plagues Java programmers for years.  
+> — Peter Seibel (2005) *Practical Common Lisp*
 
-Python is already a really nice language, a lot closer to Lisp than C or Fortran.
+Python is already a really nice language, a lot closer to Lisp than to C or Fortran.
 It has dynamic types and automatic garbage collection, for example.
 So why do we need Hissp?
 
@@ -572,6 +579,8 @@ Hissp's powerful macro system means that additions to the compiler are
 rarely needed.
 Feature creep belongs in external libraries,
 not in the compiler proper.
+If you strip out the documentation and blank lines,
+The `hissp` package only has around 1200 lines of actual code left over.
 
 Hissp compiles to an unpythonic *functional subset* of Python.
 This subset has a direct and easy-to-understand correspondence to the Hissp code,

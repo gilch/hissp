@@ -298,7 +298,7 @@ and Hissp does its best to compile it that way.
 
 In Lissp, the Hissp `tuple` and `str` elements
 are written with ``()`` and ``||``, respectively.
-The `str`\ s represents text fragments,
+The `str`\ s represent text fragments,
 so the ``||`` tokens in Lissp are called "fragments".
 
 Lissp has full generality with just these two elements,
@@ -401,8 +401,9 @@ We've already seen that the reader has a shorthand for quotation.
 If that particular fragment weren't quoted in this context,
 it would be interpreted as a Python identifier instead.
 
-Fragment text is raw; you can't use Python's escape sequences for special characters.
-(Although you can escape a ``|`` by doubling it.)
+Although you can escape a ``|`` by doubling it,
+fragment text is otherwise raw;
+you can't use Python's escape sequences for special characters.
 
 .. code-block:: REPL
 
@@ -410,7 +411,10 @@ Fragment text is raw; you can't use Python's escape sequences for special charac
    >>> 'Say "Cheese!"\\n\\u263a'
    'Say "Cheese!"\\n\\u263a'
 
-The solution, of course, is to put a Python string literal in the fragment,
+If you do want the escapes,
+the solution, of course,
+is to put a Python string literal in the fragment
+(making it a fragment of Python code)
 and then not quote it.
 This is another way to make strings from fragments.
 
@@ -428,7 +432,6 @@ This is another way to make strings from fragments.
 
 And, in fact, the reader has a shorthand for this already.
 If you've got a fragment surrounded by double quotes (``"``), you can drop the ``||``.
-(This doesn't work on single quotes, since those are reserved for the reader's quotation shorthand.)
 
 .. code-block:: REPL
 
@@ -437,13 +440,15 @@ If you've got a fragment surrounded by double quotes (``"``), you can drop the `
    >>> ('Say "Cheese!"\n☺')
    'Say "Cheese!"\n☺'
 
+This doesn't work for single quotes,
+because those are reserved for the reader's quotation shorthand.
 Also notice that you're allowed a literal newline
-(although the ``\n`` escape sequence also works),
+(and the ``\n`` escape sequence also works),
 like in Python's triple-quoted strings.
 This is a convenience not currently allowed in the ``||``-delimited tokens.
 
 These are not direct representations like the other atoms!
-They're reader shorthand for a fragment *containing* a string literal.
+They're reader shorthand for a fragment of Python *containing* a string literal.
 If you expect them to represent themselves in the Hissp when you quote them,
 you will be confused.
 ``'"foo"`` is a shorthand for ``|('foo')|``. Try it.
@@ -458,8 +463,8 @@ See the difference?
    ...  'bar',)
    ("('foo')", 'bar')
 
-Symbols
-+++++++
+Symbol Tokens
++++++++++++++
 
 Symbols are meant for variable names and the like.
 They're another reader shorthand.
@@ -492,7 +497,7 @@ Quoting our example to see how Lissp would get read as Hissp,
    ('lambda', ('name',), ('print', ('quote', 'Hello'), 'name'))
 
 we see that there are *no symbol objects* at the Hissp level.
-The Lissp symbols are read in as strings, just like fragments.
+The Lissp symbol tokens are read in as strings, just like fragments.
 
 In other Lisps, symbols are a data type in their own right,
 but symbols only exist as a *reader syntax* in Lissp,
@@ -552,7 +557,7 @@ but used in another.
 Munging
 -------
 
-Symbols have another important difference from other fragments.
+Symbol tokens have another important difference from other fragments.
 
 .. code-block:: REPL
 
@@ -1016,7 +1021,7 @@ but the Hissp compiler will accept other types of atoms.
 1:2:3
 
 Tuples represent invocations in Hissp.
-Strings are Python code (and imports and control words).
+Strings are Python fragments (and imports and control words).
 Other objects simply represent themselves.
 In fact,
 some of the reader syntax we have already seen creates non-string atoms in the Hissp.
@@ -1189,7 +1194,7 @@ How about these?
    ... )
    [[], [], []]
 
-Surpised?
+Surprised?
 What's with the `pickle.loads` expression?
 It seems to produce the right object.
 Is this the reader's doing?
@@ -1448,7 +1453,7 @@ You indicate how many with the number of trailing ``#``\ s.
 
 .. code-block:: REPL
 
-   #> fractions..Fraction# .#"2/3" ; Two thirds.
+   #> fractions..Fraction#|2/3| ; Two thirds.
    >>> __import__('pickle').loads(  # Fraction(2, 3)
    ...     b'cfractions\n'
    ...     b'Fraction\n'
@@ -1473,11 +1478,11 @@ without the need to create a new reader macro for each specialization.
 
 .. code-block:: REPL
 
-   #> builtins..int# .#"21" ; Normal base ten
+   #> builtins..int#|21| ; Normal base ten
    >>> (21)
    21
 
-   #> builtins..int## base=#6 .#"21" ; base 6, via base=# kwarg tag
+   #> builtins..int## base=#6 |21| ; base 6, via base=# kwarg tag
    >>> (13)
    13
 

@@ -58,6 +58,10 @@ subexpressions as arguments.
 ;;; substitution is available, and judicious use can improve performance
 ;;; and maintainability.
 
+;;; Don't let the size of this file intimidate you. Most of the lines
+;;; are documentation. After you remove the comments, docstrings, and
+;;; blank lines, only about 400 lines of actual code remain.
+
 
 _#"
 Hidden doctest adds bundled macros for REPL-consistent behavior.
@@ -122,7 +126,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   See also: `when`, `cond`, `any-map <anyQz_map>`, `if_expr`.
   "
-  `((lambda ,'bca .#"c()if b else a()") ; boolean, consequent, alternate
+  `((lambda ,'bca |c()if b else a()|) ; boolean, consequent, alternate
     ,test
     (lambda : ,consequent)
     (lambda : ,alternate)))
@@ -190,7 +194,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   See also: `if-else<ifQz_else>`, `unless`, `if`.
   "
-  `((lambda ,'bc .#"c()if b else()") ; boolean, consequent
+  `((lambda ,'bc |c()if b else()|) ; boolean, consequent
     ,condition (lambda : ,@body)))
 
 (defmacro unless (condition : :* body)
@@ -224,7 +228,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   See also: `when`.
   "
-  `((lambda ,'ba .#"()if b else a()") ; boolean, alternate
+  `((lambda ,'ba |()if b else a()|) ; boolean, alternate
     ,condition (lambda : ,@body)))
 
 (defmacro let (pairs : :* body)
@@ -351,6 +355,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
  ;; ``<<#`` 'comment string' reader macro.
  ;;
  ;; Converts a block of line comments to a raw string.
+ ;; Roughly equivalent to ``'hissp.reader..Comment.contents#``.
  ;;
  ;; .. code-block:: REPL
  ;;
@@ -687,7 +692,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (defmacro X\# e
   <<#
-  ;; ``X#`` Anaphoric. Make ``e`` an anonymous function with paramter X.
+  ;; ``X#`` Anaphoric. Make ``e`` an anonymous function with parameter X.
   ;;
   ;; Examples:
   ;;
@@ -709,7 +714,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (define teen? X#.#"13<=X<20")
+  ;;    #> (define teen? X#|13<=X<20|)
   ;;    >>> # define
   ;;    ... __import__('builtins').globals().update(
   ;;    ...   teenQzQUERY_=(lambda X:13<=X<20))
@@ -759,7 +764,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `(lambda ,'X ,e))
 
 (defmacro XY\# e
-  "``XY#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y.
+  "``XY#`` Anaphoric. Make ``e`` an anonymous function with parameters X Y.
 
   .. code-block:: REPL
 
@@ -778,11 +783,11 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (defmacro XYZ\# e
   <<#
-  ;; ``XYZ#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z.
+  ;; ``XYZ#`` Anaphoric. Make ``e`` an anonymous function with parameters X Y Z.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (XYZ#.#"X*Y == Z" : X math..pi  Y 2  Z math..tau)
+  ;;    #> (XYZ#|X*Y == Z| : X math..pi  Y 2  Z math..tau)
   ;;    >>> (lambda X,Y,Z:X*Y == Z)(
   ;;    ...   X=__import__('math').pi,
   ;;    ...   Y=(2),
@@ -796,11 +801,11 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (defmacro XYZW\# e
   <<#
-  ;; ``XYZW#`` Anaphoric. Make ``e`` an anonymous function with paramters X Y Z W.
+  ;; ``XYZW#`` Anaphoric. Make ``e`` an anonymous function with parameters X Y Z W.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (XYZW#.#"X[Y:Z:W]" "QuaoblcldefHg" -2 1 -2)
+  ;;    #> (XYZW#|X[Y:Z:W]| "QuaoblcldefHg" -2 1 -2)
   ;;    >>> (lambda X,Y,Z,W:X[Y:Z:W])(
   ;;    ...   ('QuaoblcldefHg'),
   ;;    ...   (-2),
@@ -1183,7 +1188,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
         $target `$#target)
     (let (args (i#takewhile X#(op#ne X ':) iargs))
       `(let (,$target ,target)
-         ,@(map X#`(setattr ,$target ',.#"X.split('.')[-1]" ,X) args)
+         ,@(map X#`(setattr ,$target ',|X.split('.')[-1]| ,X) args)
          ,@(map X#`(setattr ,$target ',X ,(next iargs))
                 iargs)
          ,$target))))
@@ -1219,7 +1224,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
         ,@(map X#`(,(get#0 X)
                    ,$self
                    ,@([#1:] X))
-               (map X#.#"X if type(X) is tuple else (X,)" invocations))
+               (map X# |X if type(X) is tuple else (X,)| invocations))
         ,$self))))
 
 ;;;; Arrange Macros
@@ -1261,8 +1266,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   See also:
   `-\\<>><Qz_QzLT_QzGT_QzGT_>`, `X#<XQzHASH_>`, `get#<getQzHASH_>`.
   "
-  (functools..reduce XY#.#"(Y[0],X,*Y[1:],)"
-                     (map X#.#"X if type(X) is tuple else (X,)" forms)
+  (functools..reduce XY# |(Y[0],X,*Y[1:],)|
+                     (map X# |X if type(X) is tuple else (X,)| forms)
                      expr))
 
 (defmacro -<>> (expr : :* forms)
@@ -1308,7 +1313,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   "
   (functools..reduce XY#(let (i (iter Y))
                           `(,@(i#takewhile X#(op#ne X :<>) i) ,X ,@i))
-                     (map X#.#"X if type(X) is tuple else (X,)" forms)
+                     (map X# |X if type(X) is tuple else (X,)| forms)
                      expr))
 
 ;;; TODO: implement other arrange macros?
@@ -1380,9 +1385,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   See also: `if-else<ifQz_else>`, `case`, `any-map<anyQz_map>`, `elif`.
   "
   (when pairs
-    `((lambda (,@(map X#.#"f'x{X}'" (range (X#.#"X+1&-2" (len pairs)))))
+    `((lambda (,@(map X# |f'x{X}'| (range (X# |X+1&-2| (len pairs)))))
         ,(op#concat
-          (.join "else " `(,"x1()if x0 " ,@(map X#.#"f'x{X+1}()if x{X}()'"
+          (.join "else " `(,"x1()if x0 " ,@(map X# |f'x{X+1}()if x{X}()'|
                                                 (range 2 (len pairs) 2))))
           "else()"))
       ,([#0] pairs)
@@ -1571,8 +1576,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   (cond (not exprs) True
         (op#eq (len exprs) 1) (get#0 exprs)
         :else
-        `((lambda (,@(map X#.#"f'x{X}'" (range (len exprs))))
-            ,(.join "and " `(,"x0 " ,@(map X#.#"f'x{X}()'" (range 1 (len exprs))))))
+        `((lambda (,@(map X# |f'x{X}'| (range (len exprs))))
+            ,(.join "and " `(,"x0 " ,@(map X# |f'x{X}()'| (range 1 (len exprs))))))
           ,([#0] exprs)
           ,@(map X#`O#,X ([#1:] exprs)))))
 
@@ -1623,8 +1628,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   "
   (cond (op#eq (len exprs) 1) (get#0 exprs)
         exprs
-        `((lambda (,@(map X#.#"f'x{X}'" (range (len exprs))))
-            ,(.join "or " `(,"x0 " ,@(map X#.#"f'x{X}()'" (range 1 (len exprs))))))
+        `((lambda (,@(map X# |f'x{X}'| (range (len exprs))))
+            ,(.join "or " `(,"x0 " ,@(map X# |f'x{X}()'| (range 1 (len exprs))))))
           ,([#0] exprs)
           ,@(map X#`O#,X ([#1:] exprs)))))
 
@@ -1635,7 +1640,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   Avoid using this form except when implementing throw method overrides.
   Prefer `throw` instead.
   "
-  `(.#"(lambda g:g.close()or g.throw)(c for c in'')" ,@exception))
+  `(|(lambda g:g.close()or g.throw)(c for c in'')| ,@exception))
 
 (defmacro throw (exception)
   "Raise an exception.
@@ -1865,7 +1870,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   <<#
   ;; ``@`` 'list of' Mnemonic: @rray list.
   ;;
-  ;; Creates the `list` from each expresssion's result.
+  ;; Creates the `list` from each expression's result.
   ;; A ``:*`` unpacks the next argument.
   ;;
   ;; .. code-block:: REPL
@@ -1886,7 +1891,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   (when (ands xs (op#eq :* (get#-1 xs)))
      (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
-    `((lambda (: :* ,'xs) .#"[*xs]")
+    `((lambda (: :* ,'xs) |[*xs]|)
       : ,@chain#(map X#(if-else (op#eq X ":*")
                          `(,X ,(next ixs))
                          `(:? ,X))
@@ -1917,7 +1922,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   (when (ands xs (op#eq :* (get#-1 xs)))
      (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
-    `((lambda (: :* ,'xs) .#"{*xs}")
+    `((lambda (: :* ,'xs) |{*xs}|)
       : ,@chain#(map X#(if-else (op#eq X ":*")
                                 `(,X ,(next ixs))
                                 `(:? ,X))
@@ -1952,12 +1957,12 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   "
   (cond
    (op#mod (len kvs) 2) (throw (TypeError "extra key without value"))
-   kvs `((lambda (,@(i#starmap XY#.#"f'x{X}'" (filter X#(op#ne :** (get#1 X))
-                                                      (enumerate kvs))))
+   kvs `((lambda (,@(i#starmap XY# |f'x{X}'| (filter X#(op#ne :** (get#1 X))
+                                                     (enumerate kvs))))
            ,(.format "{{{}}}"
                      (.join "," (i#starmap XY#(if-else (op#eq Y :**)
-                                                .#"f'**x{X+1}'"
-                                                .#"f'x{X}:x{X+1}'")
+                                                |f'**x{X+1}'|
+                                                |f'x{X}:x{X+1}'|)
                                            (-> kvs enumerate (i#islice 0 None 2))))))
          ,@(filter X#(op#ne X :**) kvs))
    :else (dict)))
@@ -2024,7 +2029,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;      return k
   ;;
   ;;   ``Ensue`` takes a step function and returns a generator. The step
-  ;;   function recieves the previous Ensue step and must return the next
+  ;;   function receives the previous Ensue step and must return the next
   ;;   one to continue. Returning a different type raises a `StopIteration`
   ;;   with that object. Set the ``Y`` attribute on the current step to
   ;;   [Y]ield a value this step. Set the ``F`` attribute to a true value
@@ -2337,10 +2342,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    >>> echo.send(
   ;;    ...   None)
   ;;
-  ;;    #> (.send echo "Yodle!") ; Generators are two-way.
+  ;;    #> (.send echo "Yodel!") ; Generators are two-way.
   ;;    >>> echo.send(
-  ;;    ...   ('Yodle!'))
-  ;;    'Yodle!'
+  ;;    ...   ('Yodel!'))
+  ;;    'Yodel!'
   ;;
   ;;    #> (.send echo 42)
   ;;    >>> echo.send(
@@ -2527,9 +2532,9 @@ except ModuleNotFoundError:pass"
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (any-map x '(1 2 spam .#"42" :eggs)
+  ;;    #> (any-map x '(1 2 spam |42| :eggs)
   ;;    #..  (case x (print "default")
-  ;;    #..    (0 2 .#"42") (print "even")
+  ;;    #..    (0 2 |42|) (print "even")
   ;;    #..    (1 3 spam) (print "odd")))
   ;;    >>> # anyQz_map
   ;;    ... __import__('builtins').any(
@@ -2779,15 +2784,15 @@ except ModuleNotFoundError:pass"
                          `(,my.obj ,@(i#islice my.iexprs my.arity+1))
                          `((op#attrgetter ',([#1:] my.obj))
                            ,(next my.iexprs)))))
-              .#"/" (progn (.pop my.exprs my.arity) ())
-              .#"&" (@ (op#getitem my.exprs my.arity))
-              .#"@" (@ (.pop my.exprs my.arity+1))
-              .#">" nil#(.insert my.exprs my.arity my.mark)
-              .#"<" (@ (let (x (tuple (i#takewhile X#(op#ne X my.mark) my.iexprs)))
-                         (if-else suffix
-                           `(op#getitem ,(next my.iexprs) x)
-                           x)))
-              .#"*" (@ :* (i#islice my.iexprs my.arity) :* (next my.iexprs))
+              |/| (progn (.pop my.exprs my.arity) ())
+              |&| (@ (op#getitem my.exprs my.arity))
+              |@| (@ (.pop my.exprs my.arity+1))
+              |>| nil#(.insert my.exprs my.arity my.mark)
+              |<| (@ (let (x (tuple (i#takewhile X#(op#ne X my.mark) my.iexprs)))
+                      (if-else suffix
+                        `(op#getitem ,(next my.iexprs) x)
+                        x)))
+              |*| (@ :* (i#islice my.iexprs my.arity) :* (next my.iexprs))
               : ()))
       (set@ my.result
         (._rewrite _macro_ program : :* my.result :* my.iexprs))
@@ -2914,7 +2919,7 @@ Creates a lambda of arity {X} containing a `^*#<QzHAT_QzSTAR_QzHASH_>`
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (avow 7 (X#.#"X%2 == 0")
+  ;;    #> (avow 7 (X#|X%2 == 0|)
   ;;    #..  it "That's odd.")
   ;;    >>> # avow
   ;;    ... # hissp.macros.._macro_.let
@@ -2976,7 +2981,7 @@ Creates a lambda of arity {X} containing a `^*#<QzHAT_QzSTAR_QzHASH_>`
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (assure 7 (X#.#"X%2 == 0")
+  ;;    #> (assure 7 (X#|X%2 == 0|)
   ;;    #..  it "That's odd.")
   ;;    >>> # assure
   ;;    ... # hissp.macros.._macro_.avow

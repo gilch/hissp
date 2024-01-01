@@ -1,5 +1,8 @@
-# Copyright 2020, 2021, 2022 Matthew Egan Odendahl
+# Copyright 2020, 2021, 2022, 2023 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
+"""
+Pygments Lexer for Lissp syntax highlighting.
+"""
 import re
 
 import pygments.token as pt

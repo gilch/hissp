@@ -66,7 +66,7 @@ but you can override this by setting some other value here.
 TOKENS = re.compile(
     r"""(?x)
      (?P<whitespace>[\n ]+)
-    |(?P<comment>(?:[ ]*;.*[\n])+)
+    |(?P<comment>(?:[ ]*;.*\n)+)
     |(?P<badspace>\s)  # Other whitespace not allowed.
     |(?P<open>\()
     |(?P<close>\))
@@ -92,7 +92,7 @@ TOKENS = re.compile(
       [|]  # close
      )
     |(?P<continue>
-       [#]?"  # String not closed.
+       "  # String not closed.
       |;.*  # Comment may need another line.
      )
     |(?P<unclosed>[|])
@@ -194,7 +194,7 @@ class Kwarg:
         self.v = v
 
     def __repr__(self):
-        return f"Kwarg({self.k}, {self.v})"
+        return f"Kwarg({self.k!r}, {self.v!r})"
 
 
 class Lissp:

@@ -37,7 +37,7 @@ Lissp Whirlwind Tour
 
    Familiarity with another Lisp dialect is not assumed, but helpful. If
    you get confused or stuck, look for the Hissp community chat or try the
-   Hissp Primer.
+   more expository Hissp Primer.
    "
 
    ;;;; 1 Installation
@@ -57,9 +57,9 @@ Lissp Whirlwind Tour
    ;;;; 2 Simple Atoms
 
    ;;; To a first approximation, the Hissp intermediate language is made
-   ;;; of Python tuples representing syntax trees. The nodes are tuples
+   ;;; of Python data representing syntax trees. The nodes are tuples
    ;;; and the leaves are called "atoms". Simple atoms in Lissp are
-   ;;; written the same way as Python.
+   ;;; written the same way as Python. Skim if you've seen these before.
 
    ;;;; 2.1 Singleton
 
@@ -287,15 +287,62 @@ Lissp Whirlwind Tour
    <BLANKLINE>
 
 
-   ;;;; 6 String Atoms
+   ;;;; 6 Fragments
 
-   #> :control-word                       ;Colon prefix. Similar to Lisp ":keywords".
+   ;;; To a first approximation, fragments can stand in for any other
+   ;;; type of atom, because they compile as Python expressions.
+
+   #> |1+1|                               ;Any Python expression. (Addition)
+   >>> 1+1
+   2
+
+   #> |1||2|                              ;Escape | by doubling it. (Bitwise OR)
+   >>> 1|2
+   3
+
+
+   ;;; At the top level, even non-expression lines can work.
+
+   ;; Shebang line.
+   #> |#!usr/bin/python -m hissp|
+   >>> #!usr/bin/python -m hissp
+
+   ;; A star import statement. It's just Python. But with more ||s.
+   #> |from operator import *|            ;All your operator are belong to us.
+   >>> from operator import *
+
+
+   ;;; Data fragments compile to string literals.
+
+   #> '|1+1|                              ;Data fragments also start with '.
+   >>> '1+1'
+   '1+1'
+
+   #> '|Hello, World!|
+   >>> 'Hello, World!'
+   'Hello, World!'
+
+   #> '|No\nEscape|                       ;Backslash is taken literally. (Raw string.)
+   >>> 'No\\nEscape'
+   'No\\nEscape'
+
+
+   #> |:control word|                     ;Colon prefix. Similar to Lisp ":keywords".
+   >>> ':control word'
+   ':control word'
+
+
+   #> :control-word                       ;You can drop the || in this case.
    >>> ':control-word'
    ':control-word'
 
-   #> 'symbol                             ;Apostrophe prefix. Represents identifier.
-   >>> 'symbol'
-   'symbol'
+   #> |dict|                              ;Any Python expression. (Identifier)
+   >>> dict
+   <class 'dict'>
+
+   #> dict                                ;You can drop the || in this case too.
+   >>> dict
+   <class 'dict'>
 
 
    ;;;; 6.1 Munging
@@ -355,25 +402,49 @@ Lissp Whirlwind Tour
    >>> None
 
 
+   #> |:control word|                     ;Remember this?
+   >>> ':control word'
+   ':control word'
+
+   #> :control\ word                      ;This also works.
+   >>> ':control word'
+   ':control word'
+
+
    ;;;; 6.3 String Literals
 
-   #> "a string"
+   #> |"a string"|                        ;Any Python expression. (String literal)
+   >>> "a string"
+   'a string'
+
+
+   #> "a string"                          ;You can also drop the || in this case.
    >>> ('a string')
    'a string'
 
-   #> 'not-string'                        ;symbol
+   #> 'not-string'                        ;Symbol
    >>> 'notQz_stringQzAPOS_'
    'notQz_stringQzAPOS_'
+
+
+   #> '|"a string"|
+   >>> '"a string"'
+   '"a string"'
+
+   #> '"a string"                         ;What did you expect?
+   >>> "('a string')"
+   "('a string')"
 
    #> "Say \"Cheese!\" \u263a"            ;Python escape sequences.
    >>> ('Say "Cheese!" ☺')
    'Say "Cheese!" ☺'
 
 
+   ;; || tokens can't have newlines, by the way. But "" tokens can.
    #> "string
    #..with
    #..newlines
-   #.."                                   ;Same as #"string\nwith\nnewlines\n".
+   #.."                                   ;Same as "string\nwith\nnewlines\n".
    >>> ('string\nwith\nnewlines\n')
    'string\nwith\nnewlines\n'
 
@@ -591,8 +662,9 @@ Lissp Whirlwind Tour
           (input "enter y/n> ")
           (lambda () (print "Unrecognized input."))))
 
-   ;;; Don't worry, Hissp metaprogramming will make this much easier,
-   ;;; but our limited tools so far are enough for a ternary operator.
+   ;;; Don't worry, Hissp metaprogramming will make this much easier
+   ;;; (and Hissp comes bundled with macros for these things), but our
+   ;;; limited tools so far are enough for a ternary operator.
 
    #> (.update (globals) : bool->caller (dict))
    >>> globals().update(
@@ -779,7 +851,7 @@ Lissp Whirlwind Tour
    (7, 42)
 
 
-   ;;; Other objects evaluate to themselves, but strings and tuples have
+   ;;; Other objects evaluate to themselves, but str atoms and tuples have
    ;;; special evaluation rules in Hissp. Tuples represent invocations of
    ;;; functions, macros, and special forms.
 
@@ -794,8 +866,8 @@ Lissp Whirlwind Tour
    ('print', 1, 2, 3, ':', 'sep', "('-')")
 
 
-   ;;; Notice how the string gets an extra layer of quotes vs identifiers.
-   ;;; This particular tuple happens to be a valid form.
+   ;;; Notice how the atom read from "-" gets an extra layer of quotes vs
+   ;;; the identifiers. This particular tuple happens to be a valid form.
 
    ;; The readerless function runs the Hissp compiler without the Lissp reader.
    ;; (Remember, _ is the last result that wasn't None in the Python REPL.)
@@ -813,20 +885,20 @@ Lissp Whirlwind Tour
    ;;; Programmatically modifying the data before compiling it is when
    ;;; things start to get interesting, but more on that later.
 
-   ;;; Hissp-level strings contain Python code to include in the compiled
-   ;;; output. These usually contain identifiers, but can be anything.
-   ;;; Thus, Lissp identifiers read as strings at the Hissp level.
+   ;;; Hissp-level str atoms contain Python code to include in the compiled
+   ;;; output. These often contain identifiers, but can be anything.
+   ;;; Thus, Lissp identifiers (and fragments in general) read as str
+   ;;; atoms at the Hissp level.
 
    #> (quote identifier)                  ;Just a string.
    >>> 'identifier'
    'identifier'
 
 
-   ;;; The raw strings and hash strings in Lissp ("..."/#"..." syntax)
-   ;;; also read as strings at the Hissp level, but they contain a Python
-   ;;; string literal instead of a Python identifier.
+   ;;; The "" tokens in Lissp also read as str atoms at the Hissp level,
+   ;;; but they contain a Python string literal instead of an identifier.
 
-   #> (quote "a string")                  ;"..."/#"..." is reader syntax!
+   #> (quote "a string")
    >>> "('a string')"
    "('a string')"
 
@@ -975,11 +1047,11 @@ Lissp Whirlwind Tour
 
    ;;; Full qualification prevents accidental name collisions in
    ;;; programmatically generated code. But full qualification doesn't work
-   ;;; on local variables, which can't be imported. For these, we use a
-   ;;; $# (gensym) which adds a prefix containing a hash of the code being
-   ;;; read, __name__, and a count of the templates the reader has seen,
-   ;;; instead of a qualifier to ensure a variable can only be used in the
-   ;;; same template it was defined in.
+   ;;; on local variables, which can't be imported. For these, we use a $#
+   ;;; (gensym) which (instead of a qualifier) adds a prefix to ensure a
+   ;;; variable can only be used in the same template it was defined in. It
+   ;;; contains a hash of three things: the code being read, __name__, and
+   ;;; a count of the templates the reader has seen so far.
 
    #> `($#eggs $#spam $#bacon $#spam)
    >>> (lambda * _: _)(
@@ -999,7 +1071,7 @@ Lissp Whirlwind Tour
    >>> '_QzY6OWMZS7z_spam'
    '_QzY6OWMZS7z_spam'
 
-   ;;; However, the hashing procedure is fully deteministic, so builds are
+   ;;; However, the hashing procedure is fully deterministic, so builds are
    ;;; reproducible even when they contain generated symbols.
 
    ;; If you don't specify, by default, the gensym hash is a prefix,
@@ -1040,7 +1112,7 @@ Lissp Whirlwind Tour
    ['a', 'b', 'c', 1, 2, 3]
 
 
-   #> `(0 "a" 'b)                         ;Beware of strings and symbols.
+   #> `(0 "a" 'b)                         ;Beware of "" tokens and symbols.
    >>> (lambda * _: _)(
    ...   (0),
    ...   "('a')",
@@ -1127,7 +1199,7 @@ Lissp Whirlwind Tour
    ;;; Macros run at compile time, so they get all of their arguments
    ;;; unevaluated. The compiler inserts the resulting Hissp
    ;;; (the expansion) at that point in the program. Like special forms,
-   ;;; macro invocations look like function calls, but aren't.
+   ;;; macro invocations look like ordinary function calls, but aren't.
 
    #> (setattr _macro_ 'assign assign)    ;We can use our assign function as a macro!
    >>> setattr(
@@ -1165,7 +1237,7 @@ Lissp Whirlwind Tour
    ;; Our assign macro just re-implemented this.
    (help hissp.._macro_.define)
 
-   ;; An invocation qualified with _macro_ is a macro invocation.
+   ;; An invocation fully qualified with _macro_ is a macro invocation.
    #> (hissp.._macro_.define SPAM "eggs") ;Note SPAM is not quoted.
    >>> # hissp.._macro_.define
    ... __import__('builtins').globals().update(
@@ -1180,6 +1252,12 @@ Lissp Whirlwind Tour
    ;; This way, the callable isn't qualified with _macro_, so it's a normal call.
    #> (.define hissp.._macro_ 'SPAM '"eggs") ;Method syntax is never macro invocation.
    >>> __import__('hissp')._macro_.define(
+   ...   'SPAM',
+   ...   "('eggs')")
+   ('.update', ('builtins..globals',), ':', 'SPAM', "('eggs')")
+
+   #> (_macro_.define 'SPAM '"eggs") ;Partial qualification also works, when available.
+   >>> _macro_.define(
    ...   'SPAM',
    ...   "('eggs')")
    ('.update', ('builtins..globals',), ':', 'SPAM', "('eggs')")
@@ -1453,9 +1531,9 @@ Lissp Whirlwind Tour
 
 
    ;; Notice that the stacked expansion comments left by the compiler
-   ;; have been squashed together. You can count the # to see how many.
+   ;; have been squashed together. You can count the #s to see how many.
    ;; 4 of them were recursive invocations and had to use the QzMaybe.
-   ;; The 5th didn't, and that accounds for all 5 calls in the expansion.
+   ;; The 5th didn't, and that accounts for all 5 calls in the expansion.
    #> (* 1 2 3 4 5 6)
    >>> # QzSTAR_
    ... #### __main__..QzMaybe_.QzSTAR_
@@ -1614,7 +1692,7 @@ Lissp Whirlwind Tour
 
    ;;;; 13 Compiling and Running Files
 
-   ;;; ``$ lissp`` can run a .lissp file as __main__.
+   ;;; The ``lissp`` shell command can run a .lissp file as __main__.
    ;;; You cannot import .lissp directly. Compile it to .py first.
 
    ;; Finds spam.lissp & eggs.lissp in the current package & compile to spam.py & eggs.py
@@ -1715,7 +1793,7 @@ Lissp Whirlwind Tour
 
    (help _macro_.prelude)
 
-   ;;; The dosctrings use reStructuredText markup. While readable as plain
+   ;;; The docstrings use reStructuredText markup. While readable as plain
    ;;; text in the help console, they're also rendered as HTML using Sphinx
    ;;; in Hissp's online API docs. Find them at https://hissp.rtfd.io
 
@@ -1760,6 +1838,35 @@ Lissp Whirlwind Tour
    2.718281828459045
 
 
+   #> builtins..bytes##bytes ascii        ;Add more #s for more arguments.
+   >>> b'bytes'
+   b'bytes'
+
+   #> builtins..bytes##encoding=#ascii|moar bytes| ;Convert to a Kwarg via foo=#.
+   >>> b'moar bytes'
+   b'moar bytes'
+
+
+   ;; Yes, these are a type of object special-cased in the reader. They're
+   ;; only meant for use at read time, but they're allowed to survive to
+   ;; run time for debugging purposes.
+   #> spam=#eggs
+   >>> __import__('pickle').loads(  # Kwarg('spam', 'eggs')
+   ...     b'ccopyreg\n'
+   ...     b'_reconstructor\n'
+   ...     b'(chissp.reader\n'
+   ...     b'Kwarg\n'
+   ...     b'cbuiltins\n'
+   ...     b'object\n'
+   ...     b'NtR(dVk\n'
+   ...     b'Vspam\n'
+   ...     b'sVv\n'
+   ...     b'Veggs\n'
+   ...     b'sb.'
+   ... )
+   Kwarg('spam', 'eggs')
+
+
    ;; Reader macros compose like functions.
    #> 'hissp.munger..demunge#Qz_QzLT_QzGT_QzGT_   ;Note the starting '.
    >>> '-<>>'
@@ -1781,7 +1888,7 @@ Lissp Whirlwind Tour
    "Comment(';comments are parsed objects too!\\n')"
 
 
-   ;;; Except for strings and tuples, objects in Hissp should evaluate
+   ;;; Except for str atoms and tuples, objects in Hissp should evaluate
    ;;; to themselves. But when the object lacks a Python literal notation,
    ;;; the compiler is in a pickle!
 
@@ -1830,31 +1937,42 @@ Lissp Whirlwind Tour
    Fraction(1, 2)
 
 
-   ;;; Recall that Hissp-level string objects can represent
-   ;;; arbitrary Python code. It's usually used for identifiers,
-   ;;; but can be anything, even complex formulas.
+   ;;; Recall that Hissp-level str atoms can represent arbitrary Python
+   ;;; code. It's usually used for identifiers, but can be anything, even
+   ;;; complex formulas.
 
-   #> (lambda abc
-   #..  ;; Hissp may not have operators, but Python does.
-   #..  .#"(-b + (b**2 - 4*a*c)**0.5)/(2*a)")
+   ;; Hissp may not have operators, but Python does.
+   #> (lambda abc |(-b + (b**2 - 4*a*c)**0.5)/(2*a)|)
    >>> (lambda a,b,c:(-b + (b**2 - 4*a*c)**0.5)/(2*a))
    <function <lambda> at 0x...>
 
 
-   ;;; Remember the raw string and hash string reader syntax makes Python-
-   ;;; level strings, via a Hissp-level string containing a Python string
-   ;;; literal. It is NOT for creating a Hissp-level string, which would
-   ;;; normally contain Python code. Use inject for that.
+   ;; An injected "" token acts like a || fragment, but can have things
+   ;; like newlines and string escape codes.
+   #> (lambda abc
+   #..  .#"(-b + (b**2 - 4*a*c)**0.5)
+   #..    /(2*a)")
+   >>> (lambda a,b,c:
+   ...   (-b + (b**2 - 4*a*c)**0.5)
+   ...       /(2*a))
+   <function <lambda> at 0x...>
 
-   #> '"a string"                         ;Python code for a string. In a string.
-   >>> "('a string')"
-   "('a string')"
 
-   ;; Injection of an object to the Hissp level. In this case, a string object.
-   #> '.#"a string"                       ;Quoting renders a Hissp-level string as data.
-   >>> 'a string'
-   'a string'
-
+   ;;; Remember, the Lissp-level "" tokens compile down to Python-level
+   ;;; string literals via a Hissp-level fragment (i.e., a Hissp atom of
+   ;;; the str type) whose text contains the Python string literal. A Lissp
+   ;;; "" token does NOT read as a general-purpose Hissp fragment, even
+   ;;; though fragments usually look similar in readerless mode (i.e., the
+   ;;; text making up any Lissp "" token without a newline would also be a
+   ;;; valid spelling of a Python string literal, even though these are
+   ;;; different languages, and fragments at the Hissp level are str
+   ;;; objects). Remember, Hissp is made of data, rather than text, unlike
+   ;;; Lissp, which is a text representation of it. Data can be represented
+   ;;; in different ways. If you need a fragment in Lissp, you can use the
+   ;;; raw || tokens, or use .# (i.e., an injection to the Hissp level) on
+   ;;; any Lissp expression that evaluates to an instance of str like Hissp
+   ;;; expects for fragments (and yes, that includes the "" tokens, among
+   ;;; other expressions).
 
    ;; Objects without literals don't pickle until the compiler has to emit
    ;; them as Python code. That may never happen if another macro gets it.
@@ -1871,8 +1989,3 @@ Lissp Whirlwind Tour
    ...     b'tR.'
    ... )
    re.compile('[1-9][0-9]*')
-
-
-   ;; Statement injections work at the top level only.
-   #> .#"from operator import *"          ;All your operator are belong to us.
-   >>> from operator import *

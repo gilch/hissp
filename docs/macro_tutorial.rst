@@ -476,7 +476,7 @@ To which I'd reply,
 Lissp is a *transpiler*.
 It's much more powerful than the C preprocessor,
 but despite this it is also less error prone,
-because it mostly operates on the more structured AST rather than text.
+because it mostly operates on the more structured Hissp, rather than text.
 
 Since Python is supposed to be such a marvelously high-level language compared to C
 that it doesn't need a preprocessor,
@@ -488,9 +488,16 @@ No, it really can't:
 >>> list(squares)
 [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
 
-Sometimes higher-level tools cut you off from the lower level.
 You can get pretty close to the same idea,
 but that's about the best Python can do.
+Sometimes higher-level tools cut you off from the lower level.
+This shouldn't be too surprising.
+More restrictions mean less to keep track of—greater predictability
+and thus (theoretically) better comprehensibility.
+Most of us don't miss ``GOTO`` anymore.
+On the other hand, poorly chosen restrictions force us into bloated workarounds.
+It's an underappreciated problem.
+
 Compare:
 
 .. code-block:: Python
@@ -555,8 +562,8 @@ And the params tuple doesn't technically have to be a tuple:
 
    lambda x: x * x
 
-Symbols become strings at the Hissp level,
-which are iterables containing character strings.
+Lissp symbol tokens become `str` atoms at the Hissp level,
+which are `Iterable`\ s containing character strings.
 This only works because the variable name is a single character.
 Now we're at the same length as Python.
 
@@ -1411,11 +1418,12 @@ Nothing is above abstraction in Lissp.
 and Hissp code is made of data structures we can manipulate programmatically.
 We can make them with templates like anything else.
 
-We need to give each one a different name,
-so we combine the ``i`` with ``"L"``.
+We need to give each `defmacro` form a different name,
+so we combine the ``i`` with ``"L"`` using `str.format`.
 
 The parameters tuple for `defmacro` contains a gensym, ``$#expr``,
-since it shouldn't be qualified and it doesn't need to be an anaphor.
+since it's a local, which shouldn't be qualified,
+and it doesn't need to be an anaphor.
 
 The next part is tricky.
 We've directly nested a template inside another one,
@@ -1423,7 +1431,7 @@ without unquoting it first,
 because the defmacro also needed a template to work.
 Note that you can unquote through nested templates.
 This is an important capability,
-but it's a little mind-bending.
+but it can be a little mind-bending until you get used to it.
 
 Finally, we slice the params string to the appropriate number of characters.
 
@@ -1437,7 +1445,7 @@ Finally, we slice the params string to the appropriate number of characters.
    It should instead be derived from the `len` of the string.
    There are only 26 letters in the alphabet,
    but we also generated an ``L0`` not using any,
-   hence 27 `defmacro`'s.
+   hence 27 `defmacro`\ s.
    Fixing this is left as an exercise for the reader.
 
 Take a breath.
@@ -1629,7 +1637,7 @@ Can we just iterate through the expression and check?
 Does that make sense?
 Read the definition carefully.
 You can view the docs for any bundled macro
-you don't recognize in the REPL like ``(help hissp.._macro_.foo)``,
+you don't recognize in the REPL like ``(help _macro_.foo)``,
 but you might prefer searching the rendered version in the `API docs <hissp.macro>`.
 Most have documented usage examples you can experiment with in the REPL.
 We're using them to coalesce Python's awkward regex matches,
@@ -1887,7 +1895,7 @@ you must define them in ``_macro_`` with a name ending in a ``#``.
    ...     _QzAW22OE5Kz_fn))[-1])()
 
 We have to escape the ``#`` with a backslash
-or the reader will recognize the name as a macro rather than a symbol
+or the reader will parse the name as a tag rather than a symbol
 and immediately try to apply it to ``(expr)``, which is not what we want.
 Notice that we still used a `defmacro`,
 like we do for compiler macros.
@@ -1929,7 +1937,7 @@ It's the way you invoke it (with a reader ``tag#``) that makes it happen at read
    or at least make them idempotent.
    Tooling that reads Lissp may have to backtrack
    or restart reading of an invalid form.
-   E.g. before compiling a form,
+   E.g., before compiling a form,
    the bundled `LisspREPL` attempts to read it to see if it is complete.
    If it isn't, it will ask for another line and attempt to read it again.
    Thus, a reader macro on the first line will get evaluated again for each line input after,
@@ -2210,14 +2218,30 @@ and ``True`` is a special case of ``1`` in Python.
    with the tradeoffs that entails for Python interop or other Hissp readers.
    Use ``%#`` as the tag name instead.
    We'll still need the ``X#`` version for later.
-   Python already has an operator named ``%``.
+
+   While ``%`` is a standard anaphor in Clojure,
+   `%<QzPCENT_>` (but not ``%#``) is one of the bundled macro names,
+   and Python already has a `%<operator-summary>` operator.
+   This would only collide in the invocation position.
+   (And macros get priority there.
+   Bonus round: how do you force an invocation of ``%`` to use the local instead?
+   With no run-time overhead?)
 
    If you want to give `mod <operator.mod>` that name,
-   then you might want to stick with the ``X``,
-   or remove the special case aliasing ``%1`` to ``%``.
+   or use the `%<QzPCENT_>` macro unqualified without renaming it,
+   then you might want to stick with the ``X`` naming,
+   or at least remove the special case aliasing ``%1`` to ``%``.
    Also, rather than ``%&`` for the catch-all as in Clojure,
    a ``%*`` might be more consistent if you've also got a kwargs parameter,
    which you could call ``%**``.
+
+   `X#<XQzHASH_>` is also a bundled macro name.
+   Ours might seem like a drop-in replacement,
+   but the bundled `X#<XQzHASH_>` has less trouble nesting,
+   isn't required to use its parameter,
+   and can be applied to any expression, not just tuple forms.
+   If you want to use both,
+   I suggest naming the anaphoric one either ``Xi#`` or ``%#``.
 
 Results
 +++++++
@@ -2242,8 +2266,8 @@ try it in the REPL.
 But Clojure's version has the same problems,
 and it gets used quite a lot.
 
-Why You Should Be Reluctant to Use Python Injections
-++++++++++++++++++++++++++++++++++++++++++++++++++++
+Why You Should Be Reluctant to Inject Python Fragments
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Suppose we wanted to use Python infix notation for a complex formula.
 
@@ -2251,7 +2275,7 @@ Do you see the problem with this?
 
 .. code-block:: Lissp
 
-   %#(.#"(-%2 + (%2**2 - 4*%1*%3)**0.5)/(2*%1)")
+   %#(|(-%2 + (%2**2 - 4*%1*%3)**0.5)/(2*%1)|)
 
 This was supposed to be the quadratic formula.
 The ``%`` is an operator in Python,
@@ -2261,7 +2285,7 @@ But what if we had kept the ``X``?
 
 .. code-block:: REPL
 
-   #> X#(.#"(-X2 + (X2**2 - 4*X1*X3)**0.5)/(2*X1)")
+   #> X#(|(-X2 + (X2**2 - 4*X1*X3)**0.5)/(2*X1)|)
    >>> # __main__.._macro_.L
    ... (lambda :(-X2 + (X2**2 - 4*X1*X3)**0.5)/(2*X1)())
    <function <lambda> at ...>
@@ -2272,14 +2296,14 @@ which would evaluate to a number, not a callable,
 so this doesn't really make sense.
 
 The macro is expecting at least one function in prefix notation.
-Sure, the macro could be modified, but
+Sure, the macro could be modified (Try it!), but
 maybe we can do the divide in prefix and keep the others infix?
 This doesn't look too bad if you think of it like a fraction bar.
 
 .. code-block:: REPL
 
-   #> X#(truediv .#"(-X2 + (X2**2 - 4*X1*X3)**0.5)"
-   #..           .#"(2*X1)")
+   #> X#(truediv |(-X2 + (X2**2 - 4*X1*X3)**0.5)|
+   #..           |(2*X1)|)
    >>> # __main__.._macro_.L
    ... (lambda :
    ...   truediv(
@@ -2298,7 +2322,8 @@ The code-reading macro was unable to detect any matching symbols
 because it doesn't look inside the injected strings.
 In principle, it *could have*,
 but it might be a lot more work if you want it to be reliable.
-It could function if the highest parameter also appeared outside the string,
+It could function if the highest parameter also appeared outside the string
+(in a `progn`, say),
 but at that point, you might as well use a normal lambda.
 
 Regex might be good enough for a simple case like this,
@@ -2325,7 +2350,7 @@ and handle atoms, calls, ``quote``, and ``lambda``.
 
 .. TODO: Which we will be demonstrating later!
 
-If you add injections to the list,
+If you add Python injections to the list,
 then you also have to handle the entirety of all Python expressions.
 Don't expect Hissp macros to do this.
 Be reluctant to use Python injections,
@@ -2360,7 +2385,10 @@ which may make them more or less convenient for certain problem domains.
 
 What notations would an ideal language have?
 Every conceivable "primitive"?
-Such a language would be more difficult to learn.
+Or at least all of those in common use?
+(Mathematica?)
+Such a language would be more difficult to learn,
+and perhaps difficult to type and debug.
 It's much easier to familiarize oneself with a small set of primitive notations,
 and the means of combination.
 And in any case,
@@ -2432,7 +2460,7 @@ Lissp gives us a better option.
 We've defined a tag that turns hexadecimal strings into ints.
 And it does it so at *read time*.
 There's no run-time overhead for the conversion;
-the result is compiled in.
+the result is compiled in line.
 
 This works,
 
@@ -2453,9 +2481,9 @@ however, this doesn't.
 
 What's going on?
 Well, ``FF`` is a valid identifier,
-so it reads as a string containing that identifier,
+so it reads as a Hissp `str` atom containing that identifier,
 but ``12`` is a valid base-ten int,
-so it's read as an int.
+so it's read as an `int` atom.
 Python's `int` builtin doesn't do base conversions for those.
 
 .. code-block:: pycon
@@ -2549,7 +2577,7 @@ But this is fine.
 
 .. code-block:: REPL
 
-   #> 16#.#"-FF"
+   #> 16#|-FF|
    >>> (-255)
    -255
 
@@ -2561,7 +2589,7 @@ But this is fine.
    your tooling would no longer be able to tokenize your code.
 
 What's going on?
-Symbols do read as strings,
+Symbol tokens do read as Hissp `str` atoms like the ``||`` fragments,
 but special characters get munged!
 
 Remember, Lissp's reader macros are applied to the next *parsed object*,
@@ -2570,7 +2598,7 @@ and certainly not to the raw character stream.
 This makes them more like Clojure's tagged literals
 than like Common Lisp's reader macros.
 
-The ``16#`` reader macro was very easy to implement when you only applied it to strings,
+The ``16#`` tag was very easy to implement when you only applied it to `str` atoms,
 but since it can take multiple types,
 you have to be sure to handle each of them.
 
@@ -2616,6 +2644,7 @@ because munging is (mostly) reversible.
    -255
 
 But what's the point of all of this when we already have hexadecimal notation built in?
+
 Well, with reader macros, you can implement any base you want.
 
 .. Lissp::
@@ -2661,7 +2690,7 @@ Well, with reader macros, you can implement any base you want.
    >>> (44790)
    44790
 
-Or you can add floating-point. Python's notation can't do that.
+Or you can add floating-point. Python's literal notation can't do that.
 
 .. Lissp::
 
@@ -2746,7 +2775,7 @@ you can already use `decimal.Decimal` as a reader macro:
 
 .. code-block:: REPL
 
-   #> (mul decimal..Decimal#.#".2" 3)
+   #> (mul decimal..Decimal#|.2| 3)
    >>> mul(
    ...   __import__('pickle').loads(  # Decimal('0.2')
    ...       b'cdecimal\n'
@@ -2759,11 +2788,16 @@ you can already use `decimal.Decimal` as a reader macro:
 
 It's kind of long though.
 
+Fully-qualified tags like this are fine for occasional one-offs
+or ``lissp -c`` commands when it's not worth the overhead to implement something better,
+but it's going to get tedious for the human to type
+(and probably to read) if it gets used a lot.
+
 Notice that Hissp had to use a pickle here,
 because it had to emit code for the object,
 but Python has no literal notation for Decimal objects.
 
-The reader macro didn't inject the code for making a Decimal,
+The reader didn't inject the code for making a Decimal,
 but an actual Decimal object, at read time.
 The pickling isn't done by the reader.
 It doesn't happen until the compiler has to emit something
@@ -2773,7 +2807,7 @@ Something like this never goes through a pickle.
 
 .. code-block:: REPL
 
-   #> 'builtins..repr#decimal..Decimal#.#".2"
+   #> 'builtins..repr#decimal..Decimal#|.2|
    >>> "Decimal('0.2')"
    "Decimal('0.2')"
 
@@ -2854,7 +2888,7 @@ But there's still a subtle problem:
    ...   '0.12345678901234568')
    Decimal('0.12345678901234568')
 
-   #> 10#.#".1234567890_1234567890_000"
+   #> 10#|.1234567890_1234567890_000|
    >>> __import__('decimal').Decimal(
    ...   '.1234567890_1234567890_000')
    Decimal('0.12345678901234567890000')
@@ -2873,10 +2907,11 @@ and by then, some information has been lost.
 One could argue that a float literal written with more precision than is
 available should be a syntax error,
 but Python doesn't care.
+``||`` fragments are often a good choice of argument type for reader tags.
 
 In cases like this,
 it's best to not use a float at all,
-but a string is not the only alternative available:
+but a ``||`` fragment is not the only alternative available:
 
 .. Lissp::
 
@@ -2915,7 +2950,7 @@ but a string is not the only alternative available:
    Decimal('0.12345678901234567890000')
 
 With a control word like this,
-you get full precision and don't need a trailing double quote.
+you get full precision and don't need a trailing ``|``.
 
 A Slice of Python
 =================
@@ -2963,11 +2998,11 @@ This is so much longer that one would be tempted to inject the Python version.
 Unfortunately, the rest of the expression is often easier to write in Lissp.
 You can usually work around this by using
 `let` to give an easily-injectable name to a complex operand,
-but that adds as significant overhead.
+but that adds significant overhead.
 
 .. code-block:: REPL
 
-   #> (let (x "abcdefg") .#"x[-1::-2]")
+   #> (let (x "abcdefg") |x[-1::-2]|)
    >>> # let
    ... (lambda x=('abcdefg'):x[-1::-2])()
    'geca'
@@ -3031,17 +3066,17 @@ Search Hissp's docs if you can't figure out what they do.)
    ...              '__getitem__',
    ...              (lambda X,Y:Y)))())
 
-   #> .#"slicer[-1::-2]"
+   #> |slicer[-1::-2]|
    >>> slicer[-1::-2]
    slice(-1, None, -2)
 
-   #> (getitem "abcdefg" .#"slicer[-1::-2]")
+   #> (getitem "abcdefg" |slicer[-1::-2]|)
    >>> getitem(
    ...   ('abcdefg'),
    ...   slicer[-1::-2])
    'geca'
 
-Getting better, but not actually shorter yet.
+Getting better.
 
 .. code-block:: Python
 
@@ -3050,9 +3085,9 @@ Getting better, but not actually shorter yet.
 
 .. Lissp::
 
-   .#"slicer[-1::-2]"
+   |slicer[-1::-2]|
 
-With shorter names, we see there's a ways to go yet.
+With shorter names, we see we're not quite there yet.
 
 .. code-block:: Python
 
@@ -3061,30 +3096,28 @@ With shorter names, we see there's a ways to go yet.
 
 .. Lissp::
 
-   .#"S[-1::-2]" ; (define S slicer)
+   |S[-1::-2]| ; (define S slicer)
 
-Time for Macros
-:::::::::::::::
+Macro Time
+::::::::::
 
 We can remove the `getitem <operator.getitem>` overhead by using the bundled
 `get# <getQzHASH_>` macro to make an `itemgetter <operator.itemgetter>`.
 
 .. code-block:: REPL
 
-   #> (get#.#"slicer[-1::-2]" "abcdefg")
+   #> (get#|slicer[-1::-2]| "abcdefg")
    >>> __import__('operator').itemgetter(
    ...   slicer[-1::-2])(
    ...   ('abcdefg'))
    'geca'
 
-Notice we have two reader macros in a row now:
-`get# <getQzHASH_>` and ``.#``.
-We could consolidate these with a single reader macro.
-Macros can expand to any Python object at the Hissp level, including code strings.
-The ``slicer`` part never changes,
-so we could include that in the expansion.
-And, as we learned earlier, we can often `demunge` a symbol instead of using a string,
+As we learned earlier, we can often `demunge` a symbol instead of using a ``||`` fragment,
 although you have to be careful.
+Macros can expand to any Python object for use at the Hissp level.
+In this case, we can return a `str` atom containing Python code.
+The ``slicer`` part never changes,
+so we could include that and the ``itemgetter`` call in the expansion.
 
 .. Lissp::
 
@@ -3145,28 +3178,29 @@ Currently, best practice is to keep them balanced, even in symbols,
 But they're OK individually if you escape them.
 
 Also, the reader macro is a bit sloppy.
-Best practice is (usually) to surround string injections with ``()``.
+Best practice is (usually) to surround Python injections with ``()``,
+unless you have a very good reason not to.
 Sometimes it matters, and macros don't know their expansion context.
 
 .. code-block:: REPL
 
-   #> (.bit_length .#"7")
+   #> (.bit_length |7|)
    >>> 7.bit_length()
    Traceback (most recent call last):
      ...
    SyntaxError: invalid syntax
 
-   #> (.bit_length .#"(7)")
+   #> (.bit_length |(7)|)
    >>> (7).bit_length()
    3
 
 And ``slicer`` is only valid where that's a global and hasn't been shadowed by a local.
 This means the macro wouldn't work in another module,
 and might subtly break if someone uses the wrong word.
-Normally templates qualify symbols to avoid these problems,
+Normally, templates qualify symbols to avoid these problems,
 but since the ``slicer`` identifier was part of the string,
 that never had a chance to happen.
-Yet another reason to be cautious with string injections.
+Yet another reason to be cautious with Python injections.
 
 You usually want to run Hissp objects through
 `readerless` before embedding them in a code string.
@@ -3263,19 +3297,25 @@ To within a few characters.
 But our version is more powerful.
 It's a function object even when detached from the lookup context.
 And, as a macro we programmed ourselves, it's entirely customizable.
-It is possible to do a little better with `\! <Lissp.parse_macro>` by eliminating the ``()`` and ``[]``.
-That gets us to within one character, but it's probably not worth it.
-This is good enough.
+It is possible to do a little better with a binary tag
+(like ``S##-1::-2"abcdefg"``) by eliminating the ``()`` and ``[]``.
+That gets us to within one character,
+but it's probably not worth giving up the notational clarity of our current version.
+Although a case could perhaps be made for only dropping the ``()`` like ``[##-1::-2]"abcdefg"``,
+which gets us within two,
+I think our current version is good enough.
 
-Let's review. This section covered a number of advanced techniques.
-Brackets in symbols. A code string macro leveraging partial Python syntax.
-The need for parentheses in injections.
-Demunging.
-Calls to runtime helpers, even in other modules.
-Qualifying symbols with template quote.
-Compiling in macros using `readerless`.
+Let's review. This section covered a number of advanced techniques:
 
-This macro produced a code injection.
+- Brackets in symbols.
+- A code string macro leveraging partial Python syntax.
+- The need for parentheses in injections.
+- Demunging.
+- Calls to runtime helpers, even in other modules.
+- Qualifying symbols with template quote.
+- Compiling in macros using `readerless`.
+
+This macro produced a Python injection.
 We already talked about why you should be reluctant to use those.
 This one is probably worth it.
 Python's slice notation is that good.
@@ -3291,7 +3331,7 @@ Normally, that would work in an injection.
 But if that's the only ``X``, ``X#`` won't be able to find it.
 Injections are somewhat opaque. Sometimes this is OK.
 
-The ``[#`` macro works best on simple literal arguments,
+The ``[#`` macro works best on simple numeric arguments,
 and works OK on local variables and their attributes:
 the kind of things you wouldn't bother putting spaces around in Python.
 These cases are very common.
@@ -3328,7 +3368,7 @@ Compare.
    ...   ('abcdefg'))
    'geca'
 
-   #> ((lambda a .#"a[-1::-2]") "abcdefg")
+   #> ((lambda a |a[-1::-2]|) "abcdefg")
    >>> (lambda a:a[-1::-2])(
    ...   ('abcdefg'))
    'geca'
@@ -3350,11 +3390,12 @@ The lambda object, on the other hand, is opaque.
 
 .. code-block:: REPL
 
-   #> (lambda a .#"a[-1::-2]")
+   #> (lambda a |a[-1::-2]|)
    >>> (lambda a:a[-1::-2])
    <function <lambda> at 0x...>
 
-But if we can eliminate the ``Slicer`` this is probably worth it.
+But if we can eliminate the ``Slicer`` class altogether,
+this is probably worth it.
 
 We can pretty easily expand to this form.
 Our previous macro was almost there.

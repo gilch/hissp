@@ -1,6 +1,13 @@
 .. Copyright 2020, 2021, 2022, 2023 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
+.. Hidden doctest adds bundled macros for REPL-consistent behavior.
+   #> (.update (globals) : _macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
+   >>> globals().update(
+   ...   _macro_=__import__('types').SimpleNamespace(
+   ...             **vars(
+   ...                 __import__('hissp')._macro_)))
+
 Style Guide
 ###########
 
@@ -303,12 +310,12 @@ Note that a multiline string is still an atom.
         "abc
    xyz")
 
-   (foo (bar #"\
+   (foo (bar "\
    abc
    xyz"))
 
    (foo (bar)
-        #"\
+        "\
    abc
    xyz")
 
@@ -323,12 +330,12 @@ We can still unambiguously reconstruct the trails.
         "abc
    xyz"
 
-   (foo (bar #"\
+   (foo (bar "\
    abc
    xyz"
 
    (foo (bar
-        #"\
+        "\
    abc
    xyz"
 
@@ -372,7 +379,7 @@ Small and closely-related forms may be semantically "attached" to the next
 or previous form by omitting the usual blank line.
 E.g., several one-line "constant" `define` forms making up a conceptual group need not be separated;
 one only used by the following definition may be attached to it;
-a form modifying the previous (e.g. decorating, attaching attributes),
+a form configuring the previous one (e.g. decorating, attaching attributes),
 or adding it to a collection may be attached to it.
 
 However, in many of these cases,
@@ -386,7 +393,9 @@ or to separate methods in long classes.
 This is a code smell indicating your form may be too complex.
 You can use comment lines to separate internal groups instead,
 but consider refactoring.
-Blank lines are OK in docstrings.
+Blank lines are OK in docstrings,
+but comment strings (`<\<#<QzLT_QzLT_QzHASH_>`)
+instead of ``""`` tokens are preferred for docstrings when they have more than a single paragraph.
 
 Keep the elements in a tuple aligned to start on the same column.
 Treat sibling groups equally:
@@ -405,7 +414,7 @@ Your code should look like these examples, recursively applied to subforms:
 
    '(data1                                ;Line break for one, break for all.
      data2                                ;Items start on the same column.
-     data3)
+     data3)                               ;Could've all fit on 1 line. (Just an example.)
 
    '(                                     ;This is better for linewise version control.
      data1                                ; Probably only worth it if there's a lot more than 3,
@@ -573,10 +582,10 @@ the commas would end the line in readerless Hissp as well.
 
 .. code-block:: Python
 
-   ('quote'
-    ,('some rather excessively long data',
-      'and some more',
-      'and a little more after that making the data tuple too long to fit on one line',),)
+   ('lambda',()
+    ,('quote',('data1',  # Notice how a , both begins and ends this line.
+               'data2',
+               'data3',),),)
 
 .. _enjoin:
 
@@ -658,10 +667,10 @@ this can be done at read time instead:
 
    #> (print (.upper '.#(textwrap..dedent "\
    #..                   These lines
-   #..                   Don't interrupt
+   #..                   don't interrupt
    #..                   the flow.")))
    >>> print(
-   ...   "These lines\nDon't interrupt\nthe flow.".upper())
+   ...   "These lines\ndon't interrupt\nthe flow.".upper())
    THESE LINES
    DON'T INTERRUPT
    THE FLOW.
@@ -675,7 +684,7 @@ long multiline strings should be declared at the `top level`_ and referenced by 
 
 .. code-block:: Lissp
 
-   (define MESSAGE #"\
+   (define MESSAGE "\
    These lines
    don't interrupt
    the flow either.
@@ -752,7 +761,7 @@ but follow code on the same line.
 
 This acceptable in Lissp, and closer to the Python style
 (which would start *two* spaces after the code.
-This also goes for readerless mode,
+It's also two spaces for readerless mode,
 where, aside from occasionally being used to imply groups,
 comment styles follow the same rules as normal Python.)
 Lisp traditionally uses margin comments instead (as described below),
@@ -800,7 +809,7 @@ and then change them back when working on Lissp files with normal style.
 That's not nice.
 
 This includes comment tokens meant as arguments for reader macros!
-Lissp parses comments in blocks,
+Lissp tokenizes comments in blocks,
 so multiline comments used as reader arguments nearly always
 use a form/group comment starting with two semicolons and a space as described below.
 But with a single ``;``, they must follow code on the same line,
@@ -930,7 +939,7 @@ This will minimize the number of heading style changes you need to make if you l
 _#_#_#The Discard Macro
 +++++++++++++++++++++++
 
-The discard macro ``_#`` applied to a string literal is acceptable for long block comments.
+The discard macro ``_#`` applied to a ``""`` token is acceptable for long block comments.
 
 Several discard macros may be used in a row to comment out that many forms following them.
 
@@ -975,22 +984,21 @@ they are not for irrelevant implementation details internal to their containing 
 
 "Private" helper functions/classes/modules (conventionally named with a leading underscore)
 need not have docstrings at all,
-but again prefer docstrings over comments when applicable,
+but again, prefer docstrings over comments when applicable,
 in which case they describe an interface internal to their object's container,
-but still do not their describe their object's implementation details.
+but still do not describe their object's implementation details.
 
 The first expression of a module (if it compiles to a string literal) is its docstring.
 Prefer this form over assigning the ``__doc__`` global directly.
 
 The ``lambda`` special form does not create docstrings.
 However, you can attach a ``.__doc__`` attribute to the lambda object after creating it,
-e.g. using the `attach` macro.
+e.g., using the `attach` macro.
 
 The bundled `deftype` macro does not have any special case for docstrings.
 Instead add a ``__doc__`` as its first key.
 
 Indent docstrings to the same column as their opening ``"``
-(or to the ``#`` in an opening ``#"``),
 even when using something like the attach macro.
 This does put the leading whitespace inside the string itself,
 but Python tooling expects this in docstrings,
@@ -1009,7 +1017,7 @@ While reStructuredText is currently the default in the Python ecosystem,
 docstrings can use some other markup format if the whole team can agree on one,
 and it's done for the entire project.
 MyST Markdown also has pretty good support now.
-You can automatically generate API documentation with these.
+You can automatically generate API documentation with either of these.
 
 Anaphoric or code string–injection macros are potential gotchas.
 Docstrings for them should include the word "Anaphoric" or "Injection" up front.
@@ -1189,7 +1197,7 @@ even in an implied group.
      (lambda (xs ys)
        (cond (lt (len xs) (len ys))
              (print "<")
-             ;;                           ;Separator comments can be empty,
+             ;;                           ;Separator comments can be empty
              (gt (len xs) (len ys))       ; (unless there's something to say.)
              (print ">")
              ;; No internal ), so 1 line is OK. Still grouped.
@@ -1202,6 +1210,66 @@ even in an implied group.
          (cond (lt lxs lys) (print "<")
                (gt lxs lys) (print ">")
                :else (print "0")))))
+
+Avoid Trailing Whitespace
+:::::::::::::::::::::::::
+
+Trailing whitespace is usually a mistake.
+For small project with a single author, it's a fairly harmless one.
+But for a team project under version control,
+it may be the cause of pointless diffs and blames,
+reducing the clarity of the history.
+
+It is best practice to at least configure your editor to make trailing whitespace visible,
+although there are many cases you might be viewing code outside your primary editor.
+
+Failing that, automation to automatically strip it is also common practice.
+However, trailing whitespace can be significant in multiline ``""`` tokens,
+and similarly in `Comment`\ s that are not discarded.
+
+Trailing spaces are significant in certain languages you may sometimes want to embed in your code,
+such as Markdown.
+
+In the case of ``""`` tokens,
+it's usually preferable to use explicit escape sequences,
+like ``\N{space}`` to clearly indicate to humans that those trailing spaces are intentional,
+and so automation does not remove them.
+The alternative spellings ``\40`` and ``\x20`` are acceptable (especially for `bytes`),
+but not as clear.
+``\u0020`` ``\u00000020`` should be avoided in most cases.
+
+.. code-block:: REPL
+
+   #> "\
+   #..foobar  \N{space}
+   #..spameggs "
+   >>> ('foobar   \nspameggs ')
+   'foobar   \nspameggs '
+
+Notice that only the last space of a line has to be replaced in order to make the rest apparent.
+Also notice that the last line does not have a trailing space,
+even thought the string does,
+because the final character for the line is not a space but a ``"``.
+
+`Comment`\ s are raw, but preprocessing can be done at read time, e.g.,
+
+.. code-block:: REPL
+
+   #> '.#
+   #..(.format <<#
+   #.. ;; foobar  {space}
+   #.. ;; spameggs{space}
+   #.. : space " ")
+   >>> 'foobar   \nspameggs '
+   'foobar   \nspameggs '
+
+If, for some reason,
+you judge that explicitly showing trailing whitespace in code like this isn't worth it for your case,
+you should still at least add a comment indicating it's meant to be there.
+It's still up to your team how to deal with automation, if any.
+It may be possible to surpress its effect with a special comment
+(which would also suffice as notice for human readers familiar with it),
+or it may be possible to configure it to ignore violations in strings or comments.
 
 The Limits of Length
 ::::::::::::::::::::
