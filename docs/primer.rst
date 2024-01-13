@@ -1369,6 +1369,11 @@ Unfortunately, there are some objects even pickle can't handle.
 
 Hissp had to give up with an error this time.
 
+.. TIP::
+   The third-party `Dill <https://pypi.org/project/dill/>`_
+   library can pickle more types.
+   Set :mod:`hissp.compiler`'s ``pickle`` attribute to the ``dill`` module to enable.
+
 Reader Tags
 +++++++++++
 
