@@ -523,7 +523,7 @@ class Compiler:
         dumps = "\n    ".join(f"{b!r}" for b in dumps.splitlines(keepends=True))
         r = repr(form).replace("\n", "\n  # ")
         nl = "\n" if "\n" in r else ""
-        return f"__import__('pickle').loads({nl}  # {r}\n    {dumps}\n)"
+        return f"__import__({pickle.__name__!r}).loads({nl}  # {r}\n    {dumps}\n)"
 
     @staticmethod
     def linenos(form):
