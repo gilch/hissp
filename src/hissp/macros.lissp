@@ -60,7 +60,7 @@ subexpressions as arguments.
 
 ;;; Don't let the size of this file intimidate you. Most of the lines
 ;;; are documentation. After you remove the comments, docstrings, and
-;;; blank lines, only about 400 lines of actual code remain.
+;;; blank lines, only about 300 lines of actual code remain.
 
 
 _#"
