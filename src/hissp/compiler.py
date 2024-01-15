@@ -1,4 +1,4 @@
-# Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -300,16 +300,16 @@ class Compiler:
     def _qualified_macro(self, head, parts):
         try:
             if parts[0] == self.qualname:  # Internal?
-                return vars(self.ns[MACROS])[parts[2]]
+                return getattr(self.ns[MACROS], parts[2])
             return eval(self.str(head))
-        except (KeyError, AttributeError):
+        except (LookupError, AttributeError):
             if parts[1] != MAYBE:
                 raise
 
     def _unqualified_macro(self, head):
         try:
-            return vars(self.ns[MACROS])[head]
-        except KeyError:
+            return getattr(self.ns[MACROS], head)
+        except (LookupError, AttributeError):
             pass
 
     @contextmanager
