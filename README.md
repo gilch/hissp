@@ -1,5 +1,5 @@
 <!--
-Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
+Copyright 2019, 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
 SPDX-License-Identifier: Apache-2.0
 -->
 [![Gitter](https://badges.gitter.im/hissp-lang/community.svg)](https://gitter.im/hissp-lang/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)

@@ -1,4 +1,4 @@
-.. Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
+.. Copyright 2019, 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 .. Hidden doctest adds bundled macros for REPL-consistent behavior.
