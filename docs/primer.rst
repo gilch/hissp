@@ -1138,11 +1138,11 @@ Keeping the phases of compilation straight can be confusing.
 
 .. code-block:: REPL
 
-   #> '"{(1, 2): 'buckle my shoe'}" ; quoted raw string contains a Python literal
+   #> '"{(1, 2): 'buckle my shoe'}" ; quoted "" token contains a Python literal
    >>> '("{(1, 2): \'buckle my shoe\'}")'
    '("{(1, 2): \'buckle my shoe\'}")'
 
-   #> '.#"{(3, 4): 'shut the door'}" ; quoted injected raw contains a dict
+   #> '.#"{(3, 4): 'shut the door'}" ; quoted injected "" contains a dict
    >>> "{(3, 4): 'shut the door'}"
    "{(3, 4): 'shut the door'}"
 
@@ -1966,7 +1966,7 @@ Note the three reader macros in a row: ``','``.
 
 Using a symbol here is a bit sloppy.
 If you really meant it to be text, rather than an identifier,
-a raw string might have been a better idea:
+a "" token might have been a better idea:
 
 .. code-block:: REPL
 
