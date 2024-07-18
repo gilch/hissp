@@ -52,3 +52,23 @@ except ImportError:  # Print warning, but continue.
     print("Unable to import hissp macros.", file=__import__("sys").stderr)
 
 VERSION = "0.5.dev"
+
+
+def prelude(ns):
+    """Lissp prelude shorthand tag.
+
+    ``hissp..prelude#:`` is short for
+    ``hissp..prelude#(builtins..globals)``.
+    Expands to ``(hissp.macros.._macro_.prelude ns)``
+    """
+    return "hissp.macros.._macro_.prelude", *([] if ns == ":" else [ns])
+
+
+def alias(abbreviation, qualifier="hissp.macros.._macro_"):
+    """Lissp alias shorthand tag.
+
+    Usage: ``hissp..alias## abbreviation qualifier``,
+    which expands to
+    ``(hissp.macros.._macro_.alias abbreviation qualifier)``
+    """
+    return "hissp.macros.._macro_.alias", abbreviation, qualifier
