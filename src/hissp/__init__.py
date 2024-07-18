@@ -57,9 +57,16 @@ VERSION = "0.5.dev"
 def prelude(ns):
     """Lissp prelude shorthand tag.
 
+    Usage: ``hissp..prelude#ns``, which expands to
+
+    .. code-block:: Lissp
+
+       (hissp.macros.._macro_.prelude ns)
+
     ``hissp..prelude#:`` is short for
     ``hissp..prelude#(builtins..globals)``.
-    Expands to ``(hissp.macros.._macro_.prelude ns)``
+
+    See `hissp.macros._macro_.prelude`.
     """
     return "hissp.macros.._macro_.prelude", *([] if ns == ":" else [ns])
 
@@ -69,6 +76,14 @@ def alias(abbreviation, qualifier="hissp.macros.._macro_"):
 
     Usage: ``hissp..alias## abbreviation qualifier``,
     which expands to
-    ``(hissp.macros.._macro_.alias abbreviation qualifier)``
+
+    .. code-block:: Lissp
+
+       (hissp.macros.._macro_.alias abbreviation qualifier)
+
+    The single-argument form
+    ``hissp..alias#abbreviation`` aliases the bundled macro qualifier.
+
+    See `hissp.macros._macro_.alias`.
     """
     return "hissp.macros.._macro_.alias", abbreviation, qualifier

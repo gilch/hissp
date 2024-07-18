@@ -1,8 +1,8 @@
 #! Transpiler should ignore the shebang line!
-;;; Copyright 2019, 2020 Matthew Egan Odendahl
+;;; Copyright 2019, 2020, 2024 Matthew Egan Odendahl
 ;;; SPDX-License-Identifier: Apache-2.0
 
-(hissp.._macro_.alias * hissp.._macro_)
+hissp..alias#*
 
 (*#define enlist
   (lambda (: :* a) (list a)))

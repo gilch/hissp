@@ -240,7 +240,7 @@ which demonstrates a number of language features.
 Run as the main script or enter it into the Lissp REPL.
 Requires [Bottle.](https://bottlepy.org/docs/dev/)
 ```Racket
-(hissp.._macro_.prelude)
+hissp..prelude#:
 
 (define enjoin en#X#(.join "" (map str X)))
 

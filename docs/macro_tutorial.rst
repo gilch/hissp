@@ -1,4 +1,4 @@
-.. Copyright 2020, 2021, 2022, 2023 Matthew Egan Odendahl
+.. Copyright 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 .. All Source Code Examples in this file are licensed "Apache-2.0 OR CC-BY-SA-4.0"
@@ -218,18 +218,18 @@ Fire up the Lissp REPL in a terminal,
 or in your editor if it does that,
 in the same directory as your Lissp file.
 
-Add the prelude to the top of the file:
+Add the `prelude<hissp.prelude>` shorthand to the top of the file:
 
 .. code-block:: Lissp
 
-   (hissp.._macro_.prelude)
+   hissp..prelude#:
 
 And push it to the REPL as well:
 
 .. code-block:: REPL
 
-   #> (hissp.._macro_.prelude)
-   >>> # hissp.._macro_.prelude
+   #> hissp..prelude#:
+   >>> # hissp.macros.._macro_.prelude
    ... __import__('builtins').exec(
    ...   ('from functools import partial,reduce\n'
    ...    'from itertools import *;from operator import *\n'
@@ -253,7 +253,9 @@ And push it to the REPL as well:
 
 .. caution::
 
-   The `prelude` macro overwrites your ``_macro_`` namespace with a copy of the bundled one.
+   The ``:`` directs it to dump into the module's global namespace.
+   The `prelude<hissp.macros._macro_.prelude>`
+   macro overwrites your ``_macro_`` namespace (if any) with a copy of the bundled one.
    Any macros you've defined in there are lost.
    In Lissp files, the prelude is meant to be used before any definitions,
    when it is used at all.
@@ -1787,7 +1789,7 @@ Let's review. The code you need to make the version we have so far is
 
 .. code-block:: Lissp
 
-   (hissp.._macro_.prelude)
+   hissp..prelude#:
 
    (defmacro L (: :* expr)
      `(lambda ,(map (lambda (i)
@@ -1838,11 +1840,11 @@ rather than pasting them all in again.
 
 To use your macros from other Lissp modules,
 use their fully-qualified names,
-abbreviate the qualifier with `alias`,
+abbreviate the qualifier with `alias<hissp.macros._macro_.alias>`,
 or (if you must) `attach` them to your current module's ``_macro_`` object.
 That last one would require that your macros also be available at run time,
 although there are ways to avoid that if you need to.
-See the `prelude` expansion for a hint.
+See the `prelude<hissp.macros._macro_.alias>` expansion for a hint.
 
 You can use the resulting macro as a shorter lambda for higher-order functions:
 
