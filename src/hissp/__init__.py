@@ -1,4 +1,4 @@
-# Copyright 2020, 2022 Matthew Egan Odendahl
+# Copyright 2020, 2022, 2024 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,13 +46,9 @@ from hissp.munger import demunge, munge
 from hissp.reader import transpile
 from hissp.repl import interact
 
-from contextlib import suppress
-
-# Hissp must be importable to compile macros.lissp in the first place.
-with suppress(ImportError):
-    # noinspection PyUnresolvedReferences
+try:  # Hissp must be importable to compile macros.lissp the first time.
     from hissp.macros import _macro_
-del suppress
-
+except ImportError:  # Print warning, but continue.
+    print("Unable to import hissp macros.", file=__import__("sys").stderr)
 
 VERSION = "0.5.dev"
