@@ -295,7 +295,7 @@ class Compiler:
         head = head.replace(MAYBE, MACRO, 1)
         if len(parts) > 1:
             return self._qualified_macro(head, parts)
-        return self._unqualified_macro(head)
+        return self._unqualified_macro(self.ns, head)
 
     def _qualified_macro(self, head, parts):
         try:
@@ -306,9 +306,10 @@ class Compiler:
             if parts[1] != MAYBE:
                 raise
 
-    def _unqualified_macro(self, head):
+    @staticmethod
+    def _unqualified_macro(ns, head):
         try:
-            return getattr(self.ns[MACROS], head)
+            return getattr(ns[MACROS], head)
         except (LookupError, AttributeError):
             pass
 
