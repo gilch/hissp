@@ -1,4 +1,4 @@
-# Copyright 2020, 2022 Matthew Egan Odendahl
+# Copyright 2020, 2022, 2024 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,13 +46,44 @@ from hissp.munger import demunge, munge
 from hissp.reader import transpile
 from hissp.repl import interact
 
-from contextlib import suppress
-
-# Hissp must be importable to compile macros.lissp in the first place.
-with suppress(ImportError):
-    # noinspection PyUnresolvedReferences
+try:  # Hissp must be importable to compile macros.lissp the first time.
     from hissp.macros import _macro_
-del suppress
-
+except ImportError:  # Print warning, but continue.
+    print("Unable to import hissp macros.", file=__import__("sys").stderr)
 
 VERSION = "0.5.dev"
+
+
+def prelude(ns):
+    """Lissp prelude shorthand tag.
+
+    Usage: ``hissp..prelude#ns``, which expands to
+
+    .. code-block:: Lissp
+
+       (hissp.macros.._macro_.prelude ns)
+
+    ``hissp..prelude#:`` is short for
+    ``hissp..prelude#(builtins..globals)``.
+
+    See `hissp.macros._macro_.prelude`.
+    """
+    return "hissp.macros.._macro_.prelude", *([] if ns == ":" else [ns])
+
+
+def alias(abbreviation, qualifier="hissp.macros.._macro_"):
+    """Lissp alias shorthand tag.
+
+    Usage: ``hissp..alias## abbreviation qualifier``,
+    which expands to
+
+    .. code-block:: Lissp
+
+       (hissp.macros.._macro_.alias abbreviation qualifier)
+
+    The single-argument form
+    ``hissp..alias#abbreviation`` aliases the bundled macro qualifier.
+
+    See `hissp.macros._macro_.alias`.
+    """
+    return "hissp.macros.._macro_.alias", abbreviation, qualifier
