@@ -292,6 +292,10 @@ class Compiler:
 
     @classmethod
     def get_macro(cls, symbol, ns=None):
+        """Returns the macro function for a symbol given the namespace.
+
+        Uses NS if not provided. Returns None if symbol isn't a macro.
+        """
         if type(symbol) is not str or symbol.startswith(":"):
             return None
         return cls._get_macro(symbol, NS.get() if ns is None else ns)
