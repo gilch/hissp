@@ -608,3 +608,16 @@ def macroexpand1(form, ns=None):
     if callable(macro := Compiler.get_macro(form[0], ns)):
         return macro(*tail)
     return form
+
+
+def macroexpand(form, ns=None):
+    """Repeatedly macroexpand outermost form until not a macro form.
+
+    If form is not a macro form, returns it unaltered.
+    Uses the current `NS` for context, unless an alternative is provided.
+    """
+    while True:
+        expanded = macroexpand1(form, ns)
+        if expanded is form:
+            return form
+        form = expanded
