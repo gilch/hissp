@@ -420,14 +420,18 @@ class Compiler:
         Expands qualified identifiers and module handles into imports.
         Otherwise, injects as raw Python directly into the output.
         """
+        return self._str(self.qualname, code)
+
+    @classmethod
+    def _str(cls, qualname, code):
         if "..." in code:
             return code
         if not all(s.isidentifier() for s in code.split(".") if s):
             return code
         if ".." in code:
-            return self.qualified_identifier(self.qualname, code)
+            return cls.qualified_identifier(qualname, code)
         elif code.endswith("."):
-            return self.module_identifier(code)
+            return cls.module_identifier(code)
         return code
 
     @staticmethod
