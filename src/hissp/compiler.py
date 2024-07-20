@@ -594,3 +594,17 @@ def readerless(form, ns=None):
     if ns is None and (ns := NS.get()) is None:
         ns = {"__name__": "__main__"}
     return Compiler(evaluate=False, ns=ns).compile([form])
+
+
+def macroexpand1(form, ns=None):
+    """Macroexpand outermost form once.
+
+    If form is not a macro form, returns it unaltered.
+    Uses the current `NS` for context, unless an alternative is provided.
+    """
+    if type(form) is not tuple or not form:
+        return form
+    head, *tail = form
+    if callable(macro := Compiler.get_macro(form[0], ns)):
+        return macro(*tail)
+    return form
