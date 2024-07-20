@@ -625,3 +625,15 @@ def macroexpand(form, ns=None):
         if expanded is form:
             return form
         form = expanded
+
+
+def macroexpand_all(form, ns=None):
+    """Recursively macroexpand everything possible from the outside-in.
+
+    If form is not a macro form, returns it unaltered.
+    Uses the current `NS` for context, unless an alternative is provided.
+    """
+    form = macroexpand(form, ns)
+    if type(form) is tuple:
+        return tuple(macroexpand_all(e, ns) for e in form)
+    return form
