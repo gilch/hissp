@@ -285,17 +285,18 @@ class Compiler:
     def macro(self, form: Tuple) -> Union[str, Sentinel]:
         """Macroexpand and start over with `form`, if it's a macro."""
         head, *tail = form
-        if (macro := self._get_macro(head)) is not None:
+        if (macro := self.get_macro(self.ns, head)) is not None:
             with self.macro_context():
                 return self.form(macro(*tail))
         return _SENTINEL
 
-    def _get_macro(self, head):
+    @classmethod
+    def get_macro(cls, ns, head):
         parts = RE_MACRO.split(head, 1)
         head = head.replace(MAYBE, MACRO, 1)
         if len(parts) > 1:
-            return self._qualified_macro(self.ns, head, parts)
-        return self._unqualified_macro(self.ns, head)
+            return cls._qualified_macro(ns, head, parts)
+        return cls._unqualified_macro(ns, head)
 
     @classmethod
     def _qualified_macro(cls, ns, head, parts):
