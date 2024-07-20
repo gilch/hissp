@@ -299,7 +299,7 @@ class Compiler:
 
     def _qualified_macro(self, head, parts):
         try:
-            if parts[0] == self.qualname:  # Internal?
+            if parts[0] == self.ns.get("__name__", "__main__"):  # Internal?
                 return getattr(self.ns[MACROS], parts[2])
             return eval(self.str(head))
         except (LookupError, AttributeError):
@@ -442,7 +442,8 @@ class Compiler:
             parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
         )
 
-    def module_identifier(self, code):
+    @staticmethod
+    def module_identifier(code):
         """Compile module identifier to import."""
         module = code[:-1]
         return f"""__import__({module !r}{",fromlist='?'" if "." in module else ""})"""
