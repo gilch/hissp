@@ -609,9 +609,9 @@ def macroexpand1(form, ns=None):
     if type(form) is not tuple or not form:
         return form
     head, *tail = form
-    if callable(macro := Compiler.get_macro(form[0], ns)):
-        return macro(*tail)
-    return form
+    if (macro := Compiler.get_macro(form[0], ns)) is None:
+        return form
+    return macro(*tail)
 
 
 def macroexpand(form, ns=None):
