@@ -425,15 +425,16 @@ class Compiler:
         if not all(s.isidentifier() for s in code.split(".") if s):
             return code
         if ".." in code:
-            return self.qualified_identifier(code)
+            return self.qualified_identifier(self.qualname, code)
         elif code.endswith("."):
             return self.module_identifier(code)
         return code
 
-    def qualified_identifier(self, code):
+    @staticmethod
+    def qualified_identifier(qualname, code):
         """Compile qualified identifier into import and attribute."""
         parts = code.split("..", 1)
-        if parts[0] == self.qualname:  # This module. No import required.
+        if parts[0] == qualname:  # This module. No import required.
             chain = parts[1].split(".", 1)
             # Avoid local shadowing.
             chain[0] = f"__import__('builtins').globals()[{pformat(chain[0])}]"
