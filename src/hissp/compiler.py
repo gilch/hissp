@@ -294,14 +294,16 @@ class Compiler:
         parts = RE_MACRO.split(head, 1)
         head = head.replace(MAYBE, MACRO, 1)
         if len(parts) > 1:
-            return self._qualified_macro(head, parts)
+            return self._qualified_macro(self.ns, head, parts)
         return self._unqualified_macro(self.ns, head)
 
-    def _qualified_macro(self, head, parts):
+    @classmethod
+    def _qualified_macro(cls, ns, head, parts):
         try:
-            if parts[0] == self.ns.get("__name__", "__main__"):  # Internal?
-                return getattr(self.ns[MACROS], parts[2])
-            return eval(self.str(head))
+            qualname = ns.get("__name__", "__main__")
+            if parts[0] == qualname:  # Internal?
+                return getattr(ns[MACROS], parts[2])
+            return eval(cls._str(qualname, head))
         except (LookupError, AttributeError):
             if parts[1] != MAYBE:
                 raise
