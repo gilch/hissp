@@ -376,7 +376,7 @@ class Lissp:
         if tag == "_#": return DROP
         if tag == "$#": return self.gensym(form)
         if tag == ".#": return eval(readerless(form, self.ns), self.ns)
-        if re.fullmatch(r"(?:[^\\]|\\.)+=#", tag): return Kwarg(tag[:-2], form)
+        if m := re.fullmatch(r"((?:[^\\]|\\.)+)=#", tag): return Kwarg(m[1], form)
         return self._custom_macro(form, tag)
         # fmt: on
 
