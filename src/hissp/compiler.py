@@ -17,7 +17,7 @@ from functools import wraps
 from itertools import chain, starmap, takewhile
 from pprint import pformat
 from traceback import format_exc
-from types import ModuleType
+from types import MappingProxyType, ModuleType
 from typing import Any, Dict, Iterable, List, NewType, Tuple, TypeVar, Union
 from warnings import warn
 
@@ -42,7 +42,7 @@ it's available here.
 @contextmanager
 def macro_context(ns):
     """Sets `NS` during macroexpansions."""
-    token = NS.set(ns)
+    token = NS.set(MappingProxyType(ns))
     try:
         yield
     finally:
