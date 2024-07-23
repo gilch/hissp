@@ -449,34 +449,34 @@ class Lissp:
             return Kwarg(tag[:-2], form)
         arity = tag.replace(R"\#", "").count("#")
         assert arity > 0
-        label = tag[:-arity]
-        label = force_munge(self.escape(label))
+        label = force_munge(self.escape(tag[:-arity]))
         label = re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), label)
         fn: Fn[[str], Fn] = self._fully_qualified if ".." in label else self._local
-        p = self._pos
-        args = []
-        kwargs = {}
-        depth = len(self.depth)
+        tag_pos, tag_depth = self._pos, len(self.depth)
+        args, kwargs = [], {}
         with C.macro_context(self.compiler.ns):
             for i, x in enumerate(chain([form], self._filter_drop()), 1):
-                if type(x) is Kwarg:
-                    k, v = x.k, x.v
-                    if k == "*":
-                        args.extend(v)
-                    elif k == "**":
-                        kwargs.update(v)
-                    else:
-                        kwargs[force_munge(self.escape(k))] = v
-                else:
-                    args.append(x)
+                self._collect(args, kwargs, x)
                 if i == arity:
                     break
             else:
-                e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
-                raise e(
-                    f"Reader tag {tag!r} missing argument.", self.position(p)
-                ) from None
+                e = SoftSyntaxError if len(self.depth) == tag_depth else SyntaxError
+                msg = f"Reader tag {tag!r} missing argument."
+                raise e(msg, self.position(tag_pos)) from None
             return fn(label)(*args, **kwargs)
+
+    @classmethod
+    def _collect(cls, args, kwargs, x):
+        if type(x) is Kwarg:
+            k, v = x.k, x.v
+            if k == "*":
+                args.extend(v)
+            elif k == "**":
+                kwargs.update(v)
+            else:
+                kwargs[force_munge(cls.escape(k))] = v
+        else:
+            args.append(x)
 
     @staticmethod
     def _fully_qualified(tag: str) -> Fn:
