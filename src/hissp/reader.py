@@ -376,6 +376,7 @@ class Lissp:
         if tag == "_#": return DROP
         if tag == "$#": return self.gensym(form)
         if tag == ".#": return eval(readerless(form, self.ns), self.ns)
+        if re.fullmatch(r"(?:[^\\]|\\.)+=#", tag): return Kwarg(tag[:-2], form)
         return self._custom_macro(form, tag)
         # fmt: on
 
@@ -445,8 +446,6 @@ class Lissp:
 
     def _custom_macro(self, form, tag: str):
         assert tag.endswith("#")
-        if re.fullmatch(r"(?:[^\\]|\\.)+=#", tag):
-            return Kwarg(tag[:-2], form)
         arity = tag.replace(R"\#", "").count("#")
         assert arity > 0
         label = force_munge(self.escape(tag[:-arity]))
