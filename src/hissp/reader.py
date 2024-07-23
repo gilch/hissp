@@ -375,10 +375,13 @@ class Lissp:
         if tag == ",@": return _Unquote(":*", form)
         if tag == "_#": return DROP
         if tag == "$#": return self.gensym(form)
-        if tag == ".#": return eval(readerless(form, self.ns), self.ns)
-        if m := re.fullmatch(r"((?:[^\\]|\\.)+)=#", tag): return Kwarg(m[1], form)
-        return self._custom_macro(form, tag)
         # fmt: on
+        if tag == ".#":
+            with C.macro_context(self.ns):
+                return eval(readerless(form, self.ns), self.ns)
+        if m := re.fullmatch(r"((?:[^\\]|\\.)+)=#", tag):
+            return Kwarg(m[1], form)
+        return self._custom_macro(form, tag)
 
     def template(self, form):
         """Process form as template."""
