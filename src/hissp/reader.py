@@ -447,22 +447,23 @@ class Lissp:
     def _custom_macro(self, form, tag: str):
         assert tag.endswith("#")
         arity = tag.replace(R"\#", "").count("#")
-        assert arity > 0
-        label = force_munge(self.escape(tag[:-arity]))
-        label = re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), label)
-        fn: Fn[[str], Fn] = self._fully_qualified if ".." in label else self._local
         tag_pos, tag_depth = self._pos, len(self.depth)
         args, kwargs = [], {}
-        with C.macro_context(self.compiler.ns):
-            for i, x in enumerate(chain([form], self._filter_drop()), 1):
-                self._collect(args, kwargs, x)
-                if i == arity:
-                    break
-            else:
-                e = SoftSyntaxError if len(self.depth) == tag_depth else SyntaxError
-                msg = f"Reader tag {tag!r} missing argument."
-                raise e(msg, self.position(tag_pos)) from None
+        for i, x in enumerate(chain([form], self._filter_drop()), 1):
+            self._collect(args, kwargs, x)
+            if i == arity:
+                break
+        else:
+            self._tag_error(tag, tag_depth, tag_pos)
+        label = self._label(arity, tag)
+        fn: Fn[[str], Fn] = self._fully_qualified if ".." in label else self._local
+        with C.macro_context(self.ns):
             return fn(label)(*args, **kwargs)
+
+    @classmethod
+    def _label(cls, arity, tag):
+        label = force_munge(cls.escape(tag[:-arity]))
+        return re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), label)
 
     @classmethod
     def _collect(cls, args, kwargs, x):
@@ -476,6 +477,11 @@ class Lissp:
                 kwargs[force_munge(cls.escape(k))] = v
         else:
             args.append(x)
+
+    def _tag_error(self, tag, tag_depth, tag_pos):
+        e = SoftSyntaxError if len(self.depth) == tag_depth else SyntaxError
+        msg = f"Reader tag {tag!r} missing argument."
+        raise e(msg, self.position(tag_pos)) from None
 
     @staticmethod
     def _fully_qualified(tag: str) -> Fn:
