@@ -38,6 +38,17 @@ it's available here.
 `readerless` uses this automatically.
 """
 
+
+@contextmanager
+def macro_context(ns):
+    """Sets `NS` during macroexpansions."""
+    token = NS.set(ns)
+    try:
+        yield
+    finally:
+        NS.reset(token)
+
+
 Sentinel = NewType("Sentinel", object)
 _SENTINEL = Sentinel(object())
 
@@ -286,19 +297,19 @@ class Compiler:
         """Macroexpand and start over with `form`, if it's a macro."""
         head, *tail = form
         if (macro := self._get_macro(head, self.ns)) is not None:
-            with self.macro_context():
+            with macro_context(self.ns):
                 return self.form(macro(*tail))
         return _SENTINEL
 
     @classmethod
-    def get_macro(cls, symbol, ns=None):
+    def get_macro(cls, symbol, ns):
         """Returns the macro function for a symbol given the namespace.
 
-        Uses NS if not provided. Returns None if symbol isn't a macro.
+        Returns None if symbol isn't a macro.
         """
         if type(symbol) is not str or symbol.startswith(":"):
             return None
-        return cls._get_macro(symbol, NS.get() if ns is None else ns)
+        return cls._get_macro(symbol, ns)
 
     @classmethod
     def _get_macro(cls, head, ns):
@@ -325,15 +336,6 @@ class Compiler:
             return getattr(ns[MACROS], head)
         except (LookupError, AttributeError):
             pass
-
-    @contextmanager
-    def macro_context(self):
-        """Sets `NS` during macroexpansions."""
-        token = NS.set(self.ns)
-        try:
-            yield
-        finally:
-            NS.reset(token)
 
     @_trace
     def call(self, form: Iterable) -> str:
@@ -606,12 +608,14 @@ def macroexpand1(form, ns=None):
     If form is not a macro form, returns it unaltered.
     Uses the current `NS` for context, unless an alternative is provided.
     """
-    if type(form) is not tuple or not form:
+    if type(form) is not tuple or not form or form[0] in {"quote", "lambda"}:
         return form
     head, *tail = form
+    ns = NS.get() if ns is None else ns
     if (macro := Compiler.get_macro(form[0], ns)) is None:
         return form
-    return macro(*tail)
+    with macro_context(ns):
+        return macro(*tail)
 
 
 def macroexpand(form, ns=None):

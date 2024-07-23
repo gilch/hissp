@@ -457,7 +457,7 @@ class Lissp:
         args = []
         kwargs = {}
         depth = len(self.depth)
-        with self.compiler.macro_context():
+        with C.macro_context(self.compiler.ns):
             for i, x in enumerate(chain([form], self._filter_drop()), 1):
                 if type(x) is Kwarg:
                     k, v = x.k, x.v
