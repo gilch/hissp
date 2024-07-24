@@ -638,6 +638,29 @@ def macroexpand_all(form, ns=None):
     Uses the current `NS` for context, unless an alternative is provided.
     """
     form = macroexpand(form, ns)
-    if type(form) is tuple:
+    if type(form) is not tuple or not form or form[0] == "quote":
+        return form
+    if form[0] != "lambda":
         return tuple(macroexpand_all(e, ns) for e in form)
-    return form
+    return "lambda", _pexpand(form[1], ns), *(macroexpand_all(e, ns) for e in form[2:])
+
+
+def _pexpand(params, ns):
+    if ":" not in params:
+        return params
+    singles, pairs = parse_params(params)
+    stars = {":*", ":**"}
+    if not pairs.keys() - stars:
+        return params
+    pairs = {k: v if k in stars else macroexpand_all(v, ns) for k, v in pairs.items()}
+    return *singles, ":", *chain.from_iterable(pairs.items())
+
+
+def parse_params(params):
+    """Parses a lambda form's params into a tuple of singles and a dict of pairs."""
+    iparams = iter(params)
+    singles = tuple(takewhile(lambda x: x != ":", iparams))
+    pairs = dict(zip(iparams, iparams))
+    if len(singles) + len(pairs) * 2 != len(params) - (":" in params):
+        raise ValueError("Incomplete pair.")  # TODO: zip strict.
+    return singles, pairs
