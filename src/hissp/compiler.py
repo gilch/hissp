@@ -612,12 +612,15 @@ def macroexpand1(form, ns=None):
     """Macroexpand outermost form once.
 
     If form is not a macro form, returns it unaltered.
-    Uses the current `NS` for context, unless an alternative is provided.
+    Uses the current `NS` (available in a `macro_context`), unless
+    an alternative mapping (such as `globals()`) is provided.
     """
     if type(form) is not tuple or not form or form[0] in {"quote", "lambda"}:
         return form
     head, *tail = form
     ns = NS.get() if ns is None else ns
+    if ns is None:
+        raise TypeError("outside of macro context, ns argument required")
     if (macro := Compiler.get_macro(form[0], ns)) is None:
         return form
     with macro_context(ns):
