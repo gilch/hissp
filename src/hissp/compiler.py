@@ -41,12 +41,18 @@ it's available here.
 
 @contextmanager
 def macro_context(ns):
-    """Sets `NS` during macroexpansions."""
-    token = NS.set(MappingProxyType(ns))
-    try:
+    """Sets `NS` during macroexpansions.
+
+    Does nothing if ns is None or already the current context.
+    """
+    if ns is None or NS.get() is ns:
         yield
-    finally:
-        NS.reset(token)
+    else:
+        token = NS.set(MappingProxyType(ns))
+        try:
+            yield
+        finally:
+            NS.reset(token)
 
 
 Sentinel = NewType("Sentinel", object)
