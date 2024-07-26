@@ -640,18 +640,28 @@ def macroexpand(form, ns=None):
         form = expanded
 
 
-def macroexpand_all(form, ns=None):
+def macroexpand_all(form, ns=None, *, preprocess=lambda x: x, postprocess=lambda x: x):
     """Recursively macroexpand everything possible from the outside-in.
 
-    If form is not a macro form, returns it unaltered.
+    Pipes outer form through preprocess, `macroexpand`, and postprocess,
+    then recurs into subforms of the resulting expansion, if applicable.
+
+    Pre/postprocess are called with `macro_context` so, e.g.,
+    `macroexpand1` may be called by preprocess to handle intermediate
+    expansions.
+
+    If expansion is not a macro form, returns it.
+    As in the compiler, lambda parameter names are not considered
+    expandable subforms, but default expressions are.
     Uses the current `NS` for context, unless an alternative is provided.
     """
-    form = macroexpand(form, ns)
-    if type(form) is not tuple or not form or form[0] == "quote":
-        return form
-    if form[0] != "lambda":
-        return tuple(macroexpand_all(e, ns) for e in form)
-    return "lambda", _pexpand(form[1], ns), *(macroexpand_all(e, ns) for e in form[2:])
+    with macro_context(ns):
+        exp = postprocess(macroexpand(preprocess(form)))
+    if type(exp) is not tuple or not exp or exp[0] == "quote":
+        return exp
+    if exp[0] != "lambda":
+        return tuple(macroexpand_all(e, ns) for e in exp)
+    return "lambda", _pexpand(exp[1], ns), *(macroexpand_all(e, ns) for e in exp[2:])
 
 
 def _pexpand(params, ns):
