@@ -2,14 +2,18 @@
 # Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 import os
+import shutil
 import sys
 
 import setuptools
 
-os.chdir("setup")
+os.makedirs("setup", exist_ok=True)
+shutil.copy("LICENSE.txt", "setup/LICENSE.txt")
 
-with open("../README.md", encoding="utf8") as f:
+with open("README.md", encoding="utf8") as f:
     long_description = f.read()
+
+os.chdir("setup")
 
 sys.path.insert(0, "../src")
 import hissp
