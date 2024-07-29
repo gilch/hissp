@@ -46,10 +46,9 @@ from hissp.munger import demunge, munge
 from hissp.reader import transpile
 from hissp.repl import interact
 
-try:  # Hissp must be importable to compile macros.lissp the first time.
+# Hissp must be importable to compile macros.lissp the first time.
+with __import__("contextlib").suppress(ImportError):
     from hissp.macros import _macro_
-except ImportError:  # Print warning, but continue.
-    print("Unable to import hissp macros.", file=__import__("sys").stderr)
 
 VERSION = "0.5.dev"
 

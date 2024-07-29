@@ -1,7 +1,13 @@
-This repository is licensed Apache-2.0 except for
-the docs/ directory which is mostly licensed CC-BY-SA-4.0 instead.
-Which license applies is noted inside each file near the top.
+# Notice Regarding Separate Licensing of Documentation #
 
-See the setup/LICENSE.txt and docs/CC-BY-SA-4.0.txt files for the full text of each license.
+See LICENSE.txt for the full text of the Apache-2.0 license.
+See docs/LICENSE.txt for the full text of the CC-BY-SA-4.0 license.
+
+Apache-2.0 applies to most of the repository, but CC-BY-SA-4.0 applies
+to most of the files in the docs/ directory. Check the individual files;
+which license applies is noted inside each near the top.
 
 The docs/hissp.svg and docs/H.svg logos are trademarks.
+
+(Hissp package-only distributions do not include the extra documentation
+or this notice.)

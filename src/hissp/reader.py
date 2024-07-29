@@ -375,9 +375,13 @@ class Lissp:
         if tag == ",@": return _Unquote(":*", form)
         if tag == "_#": return DROP
         if tag == "$#": return self.gensym(form)
-        if tag == ".#": return eval(readerless(form, self.ns), self.ns)
-        return self._custom_macro(form, tag)
         # fmt: on
+        if tag == ".#":
+            with C.macro_context(self.ns):
+                return eval(readerless(form, self.ns), self.ns)
+        if m := re.fullmatch(r"((?:[^\\]|\\.)+)=#", tag):
+            return Kwarg(m[1], form)
+        return self._custom_macro(form, tag)
 
     def template(self, form):
         """Process form as template."""
@@ -445,38 +449,42 @@ class Lissp:
 
     def _custom_macro(self, form, tag: str):
         assert tag.endswith("#")
-        if re.fullmatch(r"(?:[^\\]|\\.)+=#", tag):
-            return Kwarg(tag[:-2], form)
         arity = tag.replace(R"\#", "").count("#")
-        assert arity > 0
-        label = tag[:-arity]
-        label = force_munge(self.escape(label))
-        label = re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), label)
+        tag_pos, tag_depth = self._pos, len(self.depth)
+        args, kwargs = [], {}
+        for i, x in enumerate(chain([form], self._filter_drop()), 1):
+            self._collect(args, kwargs, x)
+            if i == arity:
+                break
+        else:
+            self._tag_error(tag, tag_depth, tag_pos)
+        label = self._label(arity, tag)
         fn: Fn[[str], Fn] = self._fully_qualified if ".." in label else self._local
-        p = self._pos
-        args = []
-        kwargs = {}
-        depth = len(self.depth)
-        with self.compiler.macro_context():
-            for i, x in enumerate(chain([form], self._filter_drop()), 1):
-                if type(x) is Kwarg:
-                    k, v = x.k, x.v
-                    if k == "*":
-                        args.extend(v)
-                    elif k == "**":
-                        kwargs.update(v)
-                    else:
-                        kwargs[force_munge(self.escape(k))] = v
-                else:
-                    args.append(x)
-                if i == arity:
-                    break
-            else:
-                e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
-                raise e(
-                    f"Reader tag {tag!r} missing argument.", self.position(p)
-                ) from None
+        with C.macro_context(self.ns):
             return fn(label)(*args, **kwargs)
+
+    @classmethod
+    def _label(cls, arity, tag):
+        label = force_munge(cls.escape(tag[:-arity]))
+        return re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), label)
+
+    @classmethod
+    def _collect(cls, args, kwargs, x):
+        if type(x) is Kwarg:
+            k, v = x.k, x.v
+            if k == "*":
+                args.extend(v)
+            elif k == "**":
+                kwargs.update(v)
+            else:
+                kwargs[force_munge(cls.escape(k))] = v
+        else:
+            args.append(x)
+
+    def _tag_error(self, tag, tag_depth, tag_pos):
+        e = SoftSyntaxError if len(self.depth) == tag_depth else SyntaxError
+        msg = f"Reader tag {tag!r} missing argument."
+        raise e(msg, self.position(tag_pos)) from None
 
     @staticmethod
     def _fully_qualified(tag: str) -> Fn:

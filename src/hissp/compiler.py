@@ -17,7 +17,7 @@ from functools import wraps
 from itertools import chain, starmap, takewhile
 from pprint import pformat
 from traceback import format_exc
-from types import ModuleType
+from types import MappingProxyType, ModuleType
 from typing import Any, Dict, Iterable, List, NewType, Tuple, TypeVar, Union
 from warnings import warn
 
@@ -37,6 +37,23 @@ Rather than pass in an implicit argument to all macros,
 it's available here.
 `readerless` uses this automatically.
 """
+
+
+@contextmanager
+def macro_context(ns):
+    """Sets `NS` during macroexpansions.
+
+    Does nothing if ns is None or already the current context.
+    """
+    if ns is None or NS.get() is ns:
+        yield
+    else:
+        token = NS.set(MappingProxyType(ns))
+        try:
+            yield
+        finally:
+            NS.reset(token)
+
 
 Sentinel = NewType("Sentinel", object)
 _SENTINEL = Sentinel(object())
@@ -285,41 +302,46 @@ class Compiler:
     def macro(self, form: Tuple) -> Union[str, Sentinel]:
         """Macroexpand and start over with `form`, if it's a macro."""
         head, *tail = form
-        if (macro := self._get_macro(head)) is not None:
-            with self.macro_context():
+        if (macro := self._get_macro(head, self.ns)) is not None:
+            with macro_context(self.ns):
                 return self.form(macro(*tail))
         return _SENTINEL
 
-    def _get_macro(self, head):
+    @classmethod
+    def get_macro(cls, symbol, ns):
+        """Returns the macro function for a symbol given the namespace.
+
+        Returns None if symbol isn't a macro.
+        """
+        if type(symbol) is not str or symbol.startswith(":"):
+            return None
+        return cls._get_macro(symbol, ns)
+
+    @classmethod
+    def _get_macro(cls, head, ns):
         parts = RE_MACRO.split(head, 1)
         head = head.replace(MAYBE, MACRO, 1)
         if len(parts) > 1:
-            return self._qualified_macro(head, parts)
-        return self._unqualified_macro(head)
+            return cls._qualified_macro(ns, head, parts)
+        return cls._unqualified_macro(ns, head)
 
-    def _qualified_macro(self, head, parts):
+    @classmethod
+    def _qualified_macro(cls, ns, head, parts):
         try:
-            if parts[0] == self.qualname:  # Internal?
-                return getattr(self.ns[MACROS], parts[2])
-            return eval(self.str(head))
+            qualname = ns.get("__name__", "__main__")
+            if parts[0] == qualname:  # Internal?
+                return getattr(ns[MACROS], parts[2])
+            return eval(cls._str(qualname, head))
         except (LookupError, AttributeError):
             if parts[1] != MAYBE:
                 raise
 
-    def _unqualified_macro(self, head):
+    @staticmethod
+    def _unqualified_macro(ns, head):
         try:
-            return getattr(self.ns[MACROS], head)
+            return getattr(ns[MACROS], head)
         except (LookupError, AttributeError):
             pass
-
-    @contextmanager
-    def macro_context(self):
-        """Sets `NS` during macroexpansions."""
-        token = NS.set(self.ns)
-        try:
-            yield
-        finally:
-            NS.reset(token)
 
     @_trace
     def call(self, form: Iterable) -> str:
@@ -419,29 +441,35 @@ class Compiler:
         Expands qualified identifiers and module handles into imports.
         Otherwise, injects as raw Python directly into the output.
         """
+        return self._str(self.qualname, code)
+
+    @classmethod
+    def _str(cls, qualname, code):
         if "..." in code:
             return code
         if not all(s.isidentifier() for s in code.split(".") if s):
             return code
         if ".." in code:
-            return self.qualified_identifier(code)
+            return cls.qualified_identifier(qualname, code)
         elif code.endswith("."):
-            return self.module_identifier(code)
+            return cls.module_identifier(code)
         return code
 
-    def qualified_identifier(self, code):
+    @staticmethod
+    def qualified_identifier(qualname, code):
         """Compile qualified identifier into import and attribute."""
         parts = code.split("..", 1)
-        if parts[0] == self.qualname:  # This module. No import required.
+        if parts[0] == qualname:  # This module. No import required.
             chain = parts[1].split(".", 1)
             # Avoid local shadowing.
-            chain[0] = f"__import__('builtins').globals()[{self.atom(chain[0])}]"
+            chain[0] = f"__import__('builtins').globals()[{pformat(chain[0])}]"
             return ".".join(chain)
         return "__import__({0!r}{fromlist}).{1}".format(
             parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
         )
 
-    def module_identifier(self, code):
+    @staticmethod
+    def module_identifier(code):
         """Compile module identifier to import."""
         module = code[:-1]
         return f"""__import__({module !r}{",fromlist='?'" if "." in module else ""})"""
@@ -578,3 +606,80 @@ def readerless(form, ns=None):
     if ns is None and (ns := NS.get()) is None:
         ns = {"__name__": "__main__"}
     return Compiler(evaluate=False, ns=ns).compile([form])
+
+
+def macroexpand1(form, ns=None):
+    """Macroexpand outermost form once.
+
+    If form is not a macro form, returns it unaltered.
+    Uses the current `NS` (available in a `macro_context`), unless
+    an alternative mapping (such as `globals()`) is provided.
+    """
+    if type(form) is not tuple or not form or form[0] in {"quote", "lambda"}:
+        return form
+    head, *tail = form
+    ns = NS.get() if ns is None else ns
+    if ns is None:
+        raise TypeError("outside of macro context, ns argument required")
+    if (macro := Compiler.get_macro(form[0], ns)) is None:
+        return form
+    with macro_context(ns):
+        return macro(*tail)
+
+
+def macroexpand(form, ns=None):
+    """Repeatedly macroexpand outermost form until not a macro form.
+
+    If form is not a macro form, returns it unaltered.
+    Uses the current `NS` for context, unless an alternative is provided.
+    """
+    while True:
+        expanded = macroexpand1(form, ns)
+        if expanded is form:
+            return form
+        form = expanded
+
+
+def macroexpand_all(form, ns=None, *, preprocess=lambda x: x, postprocess=lambda x: x):
+    """Recursively macroexpand everything possible from the outside-in.
+
+    Pipes outer form through preprocess, `macroexpand`, and postprocess,
+    then recurs into subforms of the resulting expansion, if applicable.
+
+    Pre/postprocess are called with `macro_context` so, e.g.,
+    `macroexpand1` may be called by preprocess to handle intermediate
+    expansions.
+
+    If expansion is not a macro form, returns it.
+    As in the compiler, lambda parameter names are not considered
+    expandable subforms, but default expressions are.
+    Uses the current `NS` for context, unless an alternative is provided.
+    """
+    with macro_context(ns):
+        exp = postprocess(macroexpand(preprocess(form)))
+    if type(exp) is not tuple or not exp or exp[0] == "quote":
+        return exp
+    if exp[0] != "lambda":
+        return tuple(macroexpand_all(e, ns) for e in exp)
+    return "lambda", _pexpand(exp[1], ns), *(macroexpand_all(e, ns) for e in exp[2:])
+
+
+def _pexpand(params, ns):
+    if ":" not in params:
+        return params
+    singles, pairs = parse_params(params)
+    stars = {":*", ":**"}
+    if not pairs.keys() - stars:
+        return params
+    pairs = {k: v if k in stars else macroexpand_all(v, ns) for k, v in pairs.items()}
+    return *singles, ":", *chain.from_iterable(pairs.items())
+
+
+def parse_params(params):
+    """Parses a lambda form's params into a tuple of singles and a dict of pairs."""
+    iparams = iter(params)
+    singles = tuple(takewhile(lambda x: x != ":", iparams))
+    pairs = dict(zip(iparams, iparams))
+    if len(singles) + len(pairs) * 2 != len(params) - (":" in params):
+        raise ValueError("Incomplete pair.")  # TODO: zip strict.
+    return singles, pairs
