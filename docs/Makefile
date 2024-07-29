@@ -1,4 +1,6 @@
-# Sphinx-generated file. See https://www.sphinx-doc.org for copyright and license.
+# Sphinx generated this file. See https://www.sphinx-doc.org for copyright and license.
+# SPDX-License-Identifier: BSD-2-Clause
+
 # Minimal makefile for Sphinx documentation
 #
 

@@ -1,4 +1,6 @@
-REM Sphinx-generated file. See https://www.sphinx-doc.org for copyright and license.
+@REM Sphinx generated this file.
+@REM SPDX-License-Identifier: BSD-2-Clause
+
 @ECHO OFF
 
 pushd %~dp0

@@ -1,3 +1,6 @@
+# This configuration file is part of Hissp's test suite,
+# Copyright 2019, 2024 Matthew Egan Odendahl
+# SPDX-License-Identifier: Apache-2.0
 [run]
 source=.
 omit=
