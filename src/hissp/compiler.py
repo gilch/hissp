@@ -613,7 +613,7 @@ def macroexpand1(form, ns=None):
 
     If form is not a macro form, returns it unaltered.
     Uses the current `NS` (available in a `macro_context`), unless
-    an alternative mapping (such as `globals()`) is provided.
+    an alternative mapping (such as ``globals()``) is provided.
     """
     if type(form) is not tuple or not form or form[0] in {"quote", "lambda"}:
         return form
