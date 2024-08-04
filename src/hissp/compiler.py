@@ -640,7 +640,11 @@ def macroexpand(form, ns=None):
         form = expanded
 
 
-def macroexpand_all(form, ns=None, *, preprocess=lambda x: x, postprocess=lambda x: x):
+def _identity(x):
+    return x
+
+
+def macroexpand_all(form, ns=None, *, preprocess=_identity, postprocess=_identity):
     """Recursively macroexpand everything possible from the outside-in.
 
     Pipes outer form through preprocess, `macroexpand`, and postprocess,
