@@ -285,10 +285,12 @@ def test_compile_error():
         "> #> ", "< (lambda :x)",
         "! >>> # CompileError\n",
         "! \n",
-        "! (lambda (>   >  > >>':x'<< <  <   <)\n",
+        "! (\n",
+        "!  lambda (>   >  > >>':x'<< <  <   <)\n",
         "! # Compiler.parameters() CompileError:\n",
         "! #  Incomplete pair.\n",
-        "! :())\n",
+        "! :\n",
+        "!     ())\n",
         "> #> ",
     )  # fmt: skip
 
@@ -301,7 +303,7 @@ def test_interact():
         "! ...   y=(2))\n",
         "> #> ", "< (let (x 42) (hissp..interact))\n",
         "! >>> # let\n",
-        "! ... (lambda x=(42):__import__('hissp').interact())()\n",
+        "! ... (lambda x=(42): __import__('hissp').interact())()\n",
         f"! {BANNER}",
         "> #> ", "< x\n",
         "! >>> x\n",

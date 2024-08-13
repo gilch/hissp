@@ -39,7 +39,7 @@ hissp..alias#*
 
   test_inner_gensym
   (lambda (self)
-    (self.assertRegex `$#self.$foo "self._Qz[A-Z2-7]+z_foo$"))
+    (self.assertRegex `$#self.$foo "self._Qz[A-Z2-7]+z___foo$"))
 
   test_qualified_symbol
   (lambda (self)

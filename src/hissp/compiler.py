@@ -28,6 +28,8 @@ MACROS = "_macro_"
 MACRO = f"..{MACROS}."
 MAYBE = "..QzMaybe_."
 RE_MACRO = re.compile(rf"({re.escape(MACRO)}|{re.escape(MAYBE)})")
+_PARAM_INDENT = f"\n{len('(lambda ')*' '}"
+_BODY_INDENT = f"\n{4*' '}"
 
 NS = ContextVar("NS", default=None)
 """
@@ -201,14 +203,26 @@ class Compiler:
         Parameter types are the same as Python's.
         For example,
 
-        >>> readerless(
+        >>> print(readerless(
         ... ('lambda', ('a',':/','b'
         ...            ,':', 'e',1, 'f',2
         ...            ,':*','args', 'h',4, 'i',':?', 'j',1
         ...            ,':**','kwargs',)
         ...  ,42,)
-        ... )
-        '(lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))'
+        ... ))
+        (
+         lambda a,
+                /,
+                b,
+                e=(1),
+                f=(2),
+                *args,
+                h=(4),
+                i,
+                j=(1),
+                **kwargs:
+            (42))
+
 
         The special control words ``:*`` and ``:**`` designate the
         remainder of the positional and keyword parameters, respectively.
@@ -220,42 +234,62 @@ class Compiler:
         ...  ,('print','args',)
         ...  ,('print','kwargs',),)
         ... ))
-        (lambda *args,**kwargs:(
-          print(
-            args),
-          print(
-            kwargs))[-1])
+        (
+         lambda *args,
+                **kwargs:
+           (print(
+              args),
+            print(
+              kwargs))  [-1])
 
         You can omit the right of a pair with ``:?``
         (except the final ``**kwargs``).
         Also note that the body can be empty.
 
-        >>> readerless(
+        >>> print(readerless(
         ... ('lambda', (':','a',1, ':/',':?', ':*',':?', 'b',':?', 'c',2,),),
-        ... )
-        '(lambda a=(1),/,*,b,c=(2):())'
+        ... ))
+        (
+         lambda a=(1),
+                /,
+                *,
+                b,
+                c=(2):
+            ())
 
         The ``:`` may be omitted if there are no paired parameters.
 
-        >>> readerless(('lambda', ('a','b','c',':',),),)
-        '(lambda a,b,c:())'
-        >>> readerless(('lambda', ('a','b','c',),),)
-        '(lambda a,b,c:())'
+        >>> print(readerless(('lambda', ('a','b','c',':',),),))
+        (
+         lambda a,
+                b,
+                c:
+            ())
+        >>> print(readerless(('lambda', ('a','b','c',),),))
+        (
+         lambda a,
+                b,
+                c:
+            ())
         >>> readerless(('lambda', (':',),),)
-        '(lambda :())'
+        '(lambda : ())'
         >>> readerless(('lambda', (),),)
-        '(lambda :())'
+        '(lambda : ())'
 
         The ``:`` is required if there are any pair parameters, even
         if there are no single parameters:
 
         >>> readerless(('lambda', (':',':**','kwargs',),),)
-        '(lambda **kwargs:())'
+        '(lambda **kwargs: ())'
 
         """
         fn, parameters, *body = form
         assert fn == "lambda"
-        return f"(lambda {self.parameters(parameters)}:{self.body(body)})"
+        parameters, body = self.parameters(parameters), self.body(body)
+        param_has_nl = "\n" in parameters
+        drop = param_has_nl * "\n "
+        sep = ("\n" in body or param_has_nl) * f"\n{3 * ' '}"
+        return f"({drop}lambda {parameters}:{sep}{body})"
 
     @_trace
     def parameters(self, parameters: Iterable) -> str:
@@ -276,17 +310,16 @@ class Compiler:
                 r.append(k)
             else:
                 r.append(f"{k}={self.form(v)}")
-        return ",".join(r)
+        return ",\n".join(r).replace("\n", _PARAM_INDENT)
 
     @_trace
     def body(self, body: list) -> str:
         """Compile body of `function`."""
+        body = tuple(map(self.form, body))
         if len(body) > 1:
-            return f"({_join_args(*map(self.form, body))})[-1]"
-        if not body:
-            return "()"
-        result = self.form(body[0])
-        return ("\n" * ("\n" in result) + result).replace("\n", "\n  ")
+            result = ",\n".join(body).replace("\n", _BODY_INDENT)
+            return f"({result})  [-1]"
+        return f" {body and body[0]}".replace("\n", _BODY_INDENT)
 
     @_trace
     def invocation(self, form: Tuple) -> str:
