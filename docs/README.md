@@ -1,5 +1,5 @@
 <!--
-Copyright 2023 Matthew Egan Odendahl
+Copyright 2023, 2024 Matthew Egan Odendahl
 SPDX-License-Identifier: CC-BY-SA-4.0
 -->
 # Hissp Documentation
@@ -15,7 +15,7 @@ ${\boldsymbol {\color{royalblue}{(}\color{green}{\textsf -}\color{gold}{)}\color
 [**m**] [Community Chat](https://gitter.im/hissp-lang/community)  
 ⭐ [On GitHub (Source Code)](https://github.com/gilch/hissp)  
 🗪 [Discussions Page](https://github.com/gilch/hissp/discussions)  
-🕸 [Hissp Wiki](https://github.com/gilch/hissp/wiki)  
+📖 [Hissp Wiki](https://github.com/gilch/hissp/wiki)  
 
 ## Building Docs
 Hissp proper has no dependencies, but its documentation is built with Sphinx.
