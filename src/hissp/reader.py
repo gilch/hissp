@@ -68,8 +68,8 @@ TOKENS = re.compile(
      (?P<whitespace>[\n ]+)
     |(?P<comment>(?:[ ]*;.*\n)+)
     |(?P<badspace>\s)  # Other whitespace not allowed.
-    |(?P<open>\()
-    |(?P<close>\))
+    |(?P<open>[(])
+    |(?P<close>[)])
     |(?P<macro>
        ,@
       |['`,]
