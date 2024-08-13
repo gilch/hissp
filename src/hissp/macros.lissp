@@ -2782,3 +2782,29 @@ except ModuleNotFoundError:pass"
   (if-else __debug__
     `(avow ,e ,predicate ,@args)
     e))
+
+(defmacro refresh\# (module)
+  "For interactive use. Attempt to recompile and reload a module.
+
+  There must be a corresponding ``.lissp`` file present to recompile.
+  The module must have ``__name__`` and ``__package__`` attributes.
+
+  A `:` argument will attempt to recompile the current module.
+
+  Reloading the main module (which would have side effects) is not
+  supported. Send the REPL updated top-level definitions individually or
+  restart the REPL instead. A corresponding compiled Python file is not
+  required for a ``.lissp`` file run as the main module.
+
+  See also: `subrepl#<subreplQzHASH_>`.
+  "
+  `(let ($#ns ,(if-else (op#eq ': module)
+                 `(globals)
+                 `(vars ,module)))
+     (hissp.reader..transpile (.get $#ns "__package__")
+                              (.get $#ns "__name__"))
+     (importlib..reload (importlib..import_module (.get $#ns "__name__")))))
+
+(defmacro subrepl\# (module)
+  "For interactive use. Start a Lissp subREPL in the given module."
+  `(hissp..interact (vars ,module)))
