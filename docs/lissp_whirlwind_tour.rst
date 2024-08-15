@@ -587,13 +587,12 @@ Lissp Whirlwind Tour
    #..                           (.title salutation)
    #..                           name))))
    >>> globals().update(
-   ...   greet=(
-   ...          lambda salutation,
-   ...                 name:
+   ...   greet=(lambda salutation, name:
    ...             print(
    ...               ('{}, {}!').format(
    ...                 salutation.title(),
-   ...                 name))))
+   ...                 name))
+   ...         ))
 
    #> (greet "hello" "World")
    >>> greet(
@@ -626,7 +625,8 @@ Lissp Whirlwind Tour
    ...                       i,
    ...                       (0),
    ...                       (-1)),
-   ...                     (1))))
+   ...                     (1))
+   ...               ))
 
    #> (factorial_I 0)
    >>> factorial_I(
@@ -678,10 +678,7 @@ Lissp Whirlwind Tour
    >>> __import__('operator').setitem(
    ...   boolQz_QzGT_caller,
    ...   True,
-   ...   (
-   ...    lambda L,
-   ...           R:
-   ...       L()))
+   ...   (lambda L, R: L()))
 
 
    ;; False calls right.
@@ -689,10 +686,7 @@ Lissp Whirlwind Tour
    >>> __import__('operator').setitem(
    ...   boolQz_QzGT_caller,
    ...   False,
-   ...   (
-   ...    lambda L,
-   ...           R:
-   ...       R()))
+   ...   (lambda L, R: R()))
 
 
    #> (.update (globals)
@@ -701,16 +695,14 @@ Lissp Whirlwind Tour
    #..           ((operator..getitem bool->caller (bool condition))
    #..            then_thunk else_thunk)))
    >>> globals().update(
-   ...   ternary=(
-   ...            lambda condition,
-   ...                   then_thunk,
-   ...                   else_thunk:
+   ...   ternary=(lambda condition, then_thunk, else_thunk:
    ...               __import__('operator').getitem(
    ...                 boolQz_QzGT_caller,
    ...                 bool(
    ...                   condition))(
    ...                 then_thunk,
-   ...                 else_thunk)))
+   ...                 else_thunk)
+   ...           ))
 
 
    ;;;; 8.3 Obligatory Factorial II
@@ -736,7 +728,9 @@ Lissp Whirlwind Tour
    ...                            factorial_II(
    ...                              __import__('operator').sub(
    ...                                i,
-   ...                                (1))))))))
+   ...                                (1))))
+   ...                      ))
+   ...                ))
 
    #> (factorial_II 5)
    >>> factorial_II(
@@ -774,7 +768,8 @@ Lissp Whirlwind Tour
    ...       globals()),
    ...     print(
    ...       locals()),
-   ...     b)  [-1])
+   ...     b)  [-1]
+   ... )
    <function <lambda> at 0x...>
 
 
@@ -808,31 +803,19 @@ Lissp Whirlwind Tour
    <function <lambda> at 0x...>
 
    #> (lambda (: :* :?  x :?))            ;Empty star arg, so x is keyword only.
-   >>> (
-   ...  lambda *,
-   ...         x:
-   ...     ())
+   >>> (lambda *, x: ())
    <function <lambda> at 0x...>
 
    #> (lambda (:* : x :?))                ;Slid : over one. Still a kwonly.
-   >>> (
-   ...  lambda *,
-   ...         x:
-   ...     ())
+   >>> (lambda *, x: ())
    <function <lambda> at 0x...>
 
    #> (lambda (:* x :))                   ;Implicit :? is the same. Compare.
-   >>> (
-   ...  lambda *,
-   ...         x:
-   ...     ())
+   >>> (lambda *, x: ())
    <function <lambda> at 0x...>
 
    #> (lambda (:* a))                     ;Kwonly! Not star arg! Final : implied.
-   >>> (
-   ...  lambda *,
-   ...         a:
-   ...     ())
+   >>> (lambda *, a: ())
    <function <lambda> at 0x...>
 
 
@@ -857,23 +840,18 @@ Lissp Whirlwind Tour
 
 
    #> (lambda (spam eggs) eggs)           ;Simple cases look like other Lisps, but
-   >>> (
-   ...  lambda spam,
-   ...         eggs:
-   ...     eggs)
+   >>> (lambda spam, eggs: eggs)
    <function <lambda> at 0x...>
 
    #> ((lambda abc                        ; params not strictly required to be a tuple.
    #..   (print c b a))                   ;There are three parameters.
    #.. 3 2 1)
-   >>> (
-   ...  lambda a,
-   ...         b,
-   ...         c:
+   >>> (lambda a, b, c:
    ...     print(
    ...       c,
    ...       b,
-   ...       a))(
+   ...       a)
+   ... )(
    ...   (3),
    ...   (2),
    ...   (1))
@@ -887,7 +865,8 @@ Lissp Whirlwind Tour
    #> (lambda : (print "oops"))           ;Thunk resembles Python.
    >>> (lambda :
    ...     print(
-   ...       ('oops')))
+   ...       ('oops'))
+   ... )
    <function <lambda> at 0x...>
 
    #> ((lambda :x1 x))                    ;Control words are strings are iterable.
@@ -1220,16 +1199,15 @@ Lissp Whirlwind Tour
    #..         (lambda (key value)
    #..           `(.update (globals) : ,key ,value)))
    >>> globals().update(
-   ...   assign=(
-   ...           lambda key,
-   ...                  value:
+   ...   assign=(lambda key, value:
    ...              (lambda * _:  _)(
    ...                '.update',
    ...                (lambda * _:  _)(
    ...                  'builtins..globals'),
    ...                ':',
    ...                key,
-   ...                value)))
+   ...                value)
+   ...          ))
 
 
    ;; Notice the arguments to it are quoted.
@@ -1350,7 +1328,8 @@ Lissp Whirlwind Tour
    ...         (lambda * _:  _)(
    ...           '__main__..QzMaybe_.QzPLUS_',
    ...           x,
-   ...           x))))
+   ...           x))
+   ...   ))
 
    #> (triple 4)                          ;12
    >>> # triple
@@ -1371,7 +1350,8 @@ Lissp Whirlwind Tour
    ...   loudQz_number=(lambda x:
    ...                    (print(
    ...                       x),
-   ...                     x)  [-1]))
+   ...                     x)  [-1]
+   ...                 ))
 
    #> (triple (loud-number 14))           ;Triples the *code*, not just the *value*.
    >>> # triple
@@ -1399,7 +1379,8 @@ Lissp Whirlwind Tour
    ...       x,
    ...       QzPLUS_(
    ...         x,
-   ...         x)))(
+   ...         x))
+   ... )(
    ...   loudQz_number(
    ...     (14)))
    14
@@ -1416,7 +1397,8 @@ Lissp Whirlwind Tour
    ...       x,
    ...       QzPLUS_(
    ...         x,
-   ...         x)))()
+   ...         x))
+   ... )()
    14
    42
 
@@ -1444,7 +1426,8 @@ Lissp Whirlwind Tour
    ...             (lambda * _:  _)(
    ...               '__main__..QzMaybe_.QzPLUS_',
    ...               '__main__..x',
-   ...               '__main__..x'))))))
+   ...               '__main__..x'))))
+   ...   ))
 
    #> (oops-triple 14)                    ;Oops. Templates qualify symbols!
    >>> # oopsQz_triple
@@ -1453,7 +1436,8 @@ Lissp Whirlwind Tour
    ...       __import__('builtins').globals()['x'],
    ...       __import__('builtins').globals()['QzPLUS_'](
    ...         __import__('builtins').globals()['x'],
-   ...         __import__('builtins').globals()['x'])))()
+   ...         __import__('builtins').globals()['x']))
+   ... )()
    Traceback (most recent call last):
      ...
        (lambda __main__..x=(14):
@@ -1485,7 +1469,8 @@ Lissp Whirlwind Tour
    ...             (lambda * _:  _)(
    ...               '__main__..QzMaybe_.QzPLUS_',
    ...               '_QzIF7WPGTUz___x',
-   ...               '_QzIF7WPGTUz___x'))))))
+   ...               '_QzIF7WPGTUz___x'))))
+   ...   ))
 
    #> (once-triple (loud-number 14))
    >>> # onceQz_triple
@@ -1496,7 +1481,8 @@ Lissp Whirlwind Tour
    ...       _QzIF7WPGTUz___x,
    ...       __import__('builtins').globals()['QzPLUS_'](
    ...         _QzIF7WPGTUz___x,
-   ...         _QzIF7WPGTUz___x)))()
+   ...         _QzIF7WPGTUz___x))
+   ... )()
    14
    42
 
@@ -1542,7 +1528,8 @@ Lissp Whirlwind Tour
    ...             '__main__..QzMaybe_.QzPLUS_',
    ...             *args))).__getitem__(
    ...         bool(
-   ...           args))))
+   ...           args))
+   ...   ))
 
    #> (+ 1 2 3 4)
    >>> # QzPLUS_
@@ -1600,7 +1587,8 @@ Lissp Whirlwind Tour
    ...             second),
    ...           *args)).__getitem__(
    ...         bool(
-   ...           args))))
+   ...           args))
+   ...   ))
 
 
    ;; Notice that the stacked expansion comments left by the compiler
@@ -1639,13 +1627,12 @@ Lissp Whirlwind Tour
    #> (functools..reduce (lambda xy (* x y)) ;Invocation, not argument.
    #..                   '(1 2 3 4))
    >>> __import__('functools').reduce(
-   ...   (
-   ...    lambda x,
-   ...           y:
+   ...   (lambda x, y:
    ...       # QzSTAR_
    ...       __import__('operator').mul(
    ...         x,
-   ...         y)),
+   ...         y)
+   ...   ),
    ...   ((1),
    ...    (2),
    ...    (3),
@@ -1674,20 +1661,20 @@ Lissp Whirlwind Tour
    ...         (lambda * _:  _)(
    ...           'X',
    ...           'Y'),
-   ...         body)))
+   ...         body)
+   ...   ))
 
 
    #> (functools..reduce (XY * X Y)       ;Invocation, not argument!
    #..                   '(1 2 3 4))
    >>> __import__('functools').reduce(
    ...   # XY
-   ...   (
-   ...    lambda X,
-   ...           Y:
+   ...   (lambda X, Y:
    ...       # QzSTAR_
    ...       __import__('operator').mul(
    ...         X,
-   ...         Y)),
+   ...         Y)
+   ...   ),
    ...   ((1),
    ...    (2),
    ...    (3),
@@ -1696,14 +1683,13 @@ Lissp Whirlwind Tour
 
    #> ((XY + Y X) "Eggs" "Spam")
    >>> # XY
-   ... (
-   ...  lambda X,
-   ...         Y:
+   ... (lambda X, Y:
    ...     # QzPLUS_
    ...     __import__('operator').add(
    ...       Y,
    ...       # __main__..QzMaybe_.QzPLUS_
-   ...       X))(
+   ...       X)
+   ... )(
    ...   ('Eggs'),
    ...   ('Spam'))
    'SpamEggs'
@@ -1753,7 +1739,8 @@ Lissp Whirlwind Tour
    ...         (3),
    ...         ':',
    ...         '__main__..sep',
-   ...         sep)))
+   ...         sep)
+   ...   ))
 
 
    ;; Note the : didn't have to be quoted here, because it's in a macro
@@ -1820,7 +1807,8 @@ Lissp Whirlwind Tour
    ...   map(
    ...     (lambda f:
    ...         __import__('os').remove(
-   ...           f)),
+   ...           f)
+   ...     ),
    ...     ('eggs.lissp',
    ...      'spam.lissp',
    ...      'spam.py',
@@ -2022,11 +2010,7 @@ Lissp Whirlwind Tour
 
    ;; Hissp may not have operators, but Python does.
    #> (lambda abc |(-b + (b**2 - 4*a*c)**0.5)/(2*a)|)
-   >>> (
-   ...  lambda a,
-   ...         b,
-   ...         c:
-   ...     (-b + (b**2 - 4*a*c)**0.5)/(2*a))
+   >>> (lambda a, b, c: (-b + (b**2 - 4*a*c)**0.5)/(2*a))
    <function <lambda> at 0x...>
 
 
@@ -2035,12 +2019,10 @@ Lissp Whirlwind Tour
    #> (lambda abc
    #..  .#"(-b + (b**2 - 4*a*c)**0.5)
    #..    /(2*a)")
-   >>> (
-   ...  lambda a,
-   ...         b,
-   ...         c:
+   >>> (lambda a, b, c:
    ...     (-b + (b**2 - 4*a*c)**0.5)
-   ...         /(2*a))
+   ...         /(2*a)
+   ... )
    <function <lambda> at 0x...>
 
 

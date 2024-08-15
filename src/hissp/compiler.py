@@ -234,13 +234,12 @@ class Compiler:
         ...  ,('print','args',)
         ...  ,('print','kwargs',),)
         ... ))
-        (
-         lambda *args,
-                **kwargs:
+        (lambda *args, **kwargs:
            (print(
               args),
             print(
-              kwargs))  [-1])
+              kwargs))  [-1]
+        )
 
         You can omit the right of a pair with ``:?``
         (except the final ``**kwargs``).
@@ -260,17 +259,9 @@ class Compiler:
         The ``:`` may be omitted if there are no paired parameters.
 
         >>> print(readerless(('lambda', ('a','b','c',':',),),))
-        (
-         lambda a,
-                b,
-                c:
-            ())
+        (lambda a, b, c: ())
         >>> print(readerless(('lambda', ('a','b','c',),),))
-        (
-         lambda a,
-                b,
-                c:
-            ())
+        (lambda a, b, c: ())
         >>> readerless(('lambda', (':',),),)
         '(lambda : ())'
         >>> readerless(('lambda', (),),)
@@ -286,10 +277,10 @@ class Compiler:
         fn, parameters, *body = form
         assert fn == "lambda"
         parameters, body = self.parameters(parameters), self.body(body)
-        param_has_nl = "\n" in parameters
-        drop = param_has_nl * "\n "
-        sep = ("\n" in body or param_has_nl) * f"\n{3 * ' '}"
-        return f"({drop}lambda {parameters}:{sep}{body})"
+        param_has_nl, body_has_nl = "\n" in parameters, "\n" in body
+        begin, end = param_has_nl * "\n ", body_has_nl * "\n"
+        middle = (body_has_nl or param_has_nl) * f"\n{3*' '}"
+        return f"({begin}lambda {parameters}:{middle}{body}{end})"
 
     @_trace
     def parameters(self, parameters: Iterable) -> str:
@@ -299,6 +290,7 @@ class Compiler:
             {":/": "/", ":*": "*"}.get(a, a)
             for a in takewhile(lambda a: a != ":", parameters)
         ]
+        sep = ", "
         for k, v in _pairs(parameters):
             if k == ":*":
                 r.append("*" if v == ":?" else f"*{v}")
@@ -310,7 +302,8 @@ class Compiler:
                 r.append(k)
             else:
                 r.append(f"{k}={self.form(v)}")
-        return ",\n".join(r).replace("\n", _PARAM_INDENT)
+                sep = ",\n"
+        return sep.join(r).replace("\n", _PARAM_INDENT)
 
     @_trace
     def body(self, body: list) -> str:

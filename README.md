@@ -85,7 +85,8 @@ which are compiled to Python code,
 (lambda name:
     print(
       'Hello',
-      name))
+      name)
+)
 
 ```
 and evaluated by Python.
@@ -140,7 +141,8 @@ Strings also have a few special cases:
     print(
       *name.upper(),
       sep=':',
-      file=__import__('sys').stdout))  [-1])
+      file=__import__('sys').stdout))  [-1]
+)
 >>> greetier = eval(readerless(adv_hissp_code))
 >>> greetier()
 Hello,
@@ -196,11 +198,13 @@ branch(
   # thunk
   (lambda :
       print(
-        'yes')),
+        'yes')
+  ),
   # thunk
   (lambda :
       print(
-        'no')))
+        'no')
+  ))
 >>> eval(expansion)
 no
 

@@ -109,20 +109,19 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   __import__('builtins').map(
      ...     (lambda c:
      ...         # ifQz_else
-     ...         (
-     ...          lambda b,
-     ...                 c,
-     ...                 a:
-     ...             c()if b else a())(
+     ...         (lambda b, c, a: c()if b else a())(
      ...           __import__('operator').eq(
      ...             c,
      ...             'b'),
      ...           (lambda :
      ...               print(
-     ...                 'Yes')),
+     ...                 'Yes')
+     ...           ),
      ...           (lambda :
      ...               print(
-     ...                 'No')))),
+     ...                 'No')
+     ...           ))
+     ...     ),
      ...     'ab'))
      No
      Yes
@@ -151,7 +150,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...         (1)),
      ...       print(
      ...         (2)),
-     ...       (3))  [-1])())
+     ...       (3))  [-1]
+     ...   )())
      1
      2
      3
@@ -182,17 +182,16 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...        (print(
      ...           c),
      ...         # when
-     ...         (
-     ...          lambda b,
-     ...                 c:
-     ...             c()if b else())(
+     ...         (lambda b, c: c()if b else())(
      ...           __import__('operator').eq(
      ...             c,
      ...             'b'),
      ...           (lambda :
      ...              (print(
      ...                 'found'),
-     ...               ':break')  [-1])))  [-1]),
+     ...               ':break')  [-1]
+     ...           )))  [-1]
+     ...     ),
      ...     'abcd'))
      a
      b
@@ -220,16 +219,15 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   __import__('builtins').map(
      ...     (lambda c:
      ...         # unless
-     ...         (
-     ...          lambda b,
-     ...                 a:
-     ...             ()if b else a())(
+     ...         (lambda b, a: ()if b else a())(
      ...           __import__('operator').eq(
      ...             c,
      ...             'b'),
      ...           (lambda :
      ...               print(
-     ...                 c)))),
+     ...                 c)
+     ...           ))
+     ...     ),
      ...     'abcd'))
      a
      c
@@ -270,10 +268,12 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...               x):
      ...         print(
      ...           x,
-     ...           y))(),
+     ...           y)
+     ...     )(),
      ...     print(
      ...       x,
-     ...       y))  [-1])()
+     ...       y))  [-1]
+     ... )()
      a b
      x aa
      a b
@@ -315,7 +315,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...               (3),
      ...               ':',
      ...               '__main__..sep',
-     ...               sep))  [-1]):
+     ...               sep))  [-1]
+     ...         ):
      ...    (__import__('builtins').setattr(
      ...       _QzAW22OE5Kz___fn,
      ...       '__doc__',
@@ -331,7 +332,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...         __import__('builtins').globals(),
      ...         '_macro_'),
      ...       'p123',
-     ...       _QzAW22OE5Kz___fn))  [-1])()
+     ...       _QzAW22OE5Kz___fn))  [-1]
+     ... )()
 
      #> (p123 ::)
      >>> # p123
@@ -419,10 +421,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      #> (defonce CACHE (types..SimpleNamespace : x 1))
      >>> # defonce
      ... # hissp.macros.._macro_.unless
-     ... (
-     ...  lambda b,
-     ...         a:
-     ...     ()if b else a())(
+     ... (lambda b, a: ()if b else a())(
      ...   __import__('operator').contains(
      ...     __import__('builtins').globals(),
      ...     'CACHE'),
@@ -430,7 +429,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...       # hissp.macros.._macro_.define
      ...       __import__('builtins').globals().update(
      ...         CACHE=__import__('types').SimpleNamespace(
-     ...                 x=(1)))))
+     ...                 x=(1)))
+     ...   ))
 
      #> (setattr CACHE 'x 42)
      >>> setattr(
@@ -442,10 +442,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      #..                      (types..SimpleNamespace : x 1)))
      >>> # defonce
      ... # hissp.macros.._macro_.unless
-     ... (
-     ...  lambda b,
-     ...         a:
-     ...     ()if b else a())(
+     ... (lambda b, a: ()if b else a())(
      ...   __import__('operator').contains(
      ...     __import__('builtins').globals(),
      ...     'CACHE'),
@@ -458,7 +455,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...                     'not',
      ...                     'evaluated'),
      ...                   __import__('types').SimpleNamespace(
-     ...                     x=(1)))  [-1])())))
+     ...                     x=(1)))  [-1]
+     ...               )())
+     ...   ))
      ()
 
      #> CACHE ; The second defonce had no effect.
@@ -492,18 +491,17 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...               tuple),
   ;;    ...             __import__('builtins').dict(
   ;;    ...               __doc__=('Simple ordered pair.'),
-  ;;    ...               __new__=(
-  ;;    ...                        lambda cls,
-  ;;    ...                               x,
-  ;;    ...                               y:
+  ;;    ...               __new__=(lambda cls, x, y:
   ;;    ...                           tuple.__new__(
   ;;    ...                             cls,
   ;;    ...                             (lambda * _:  _)(
   ;;    ...                               x,
-  ;;    ...                               y))),
+  ;;    ...                               y))
+  ;;    ...                       ),
   ;;    ...               __repr__=(lambda self:
   ;;    ...                            ('Point2D({!r}, {!r})').format(
-  ;;    ...                              *self)))))
+  ;;    ...                              *self)
+  ;;    ...                        ))))
   ;;
   ;;    #> (Point2D 1 2)
   ;;    >>> Point2D(
@@ -526,12 +524,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...         'Foo',
   ;;    ...         (lambda * _:  _)(),
   ;;    ...         __import__('builtins').dict(
-  ;;    ...           __init_subclass__=(
-  ;;    ...                              lambda cls,
-  ;;    ...                                     /,
-  ;;    ...                                     **kwargs:
+  ;;    ...           __init_subclass__=(lambda cls, /, **kwargs:
   ;;    ...                                 print(
-  ;;    ...                                   kwargs)))))
+  ;;    ...                                   kwargs)
+  ;;    ...                             ))))
   ;;
   ;;    #> (deftype Bar (Foo : a 1  b 2))
   ;;    >>> # deftype
@@ -569,14 +565,12 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      #> (let-from (a b : :* cs) 'ABCDEFG
      #..  (print cs b a))
      >>> # letQz_from
-     ... (
-     ...  lambda a,
-     ...         b,
-     ...         *cs:
+     ... (lambda a, b, *cs:
      ...     print(
      ...       cs,
      ...       b,
-     ...       a))(
+     ...       a)
+     ... )(
      ...   *'ABCDEFG')
      ('C', 'D', 'E', 'F', 'G') B A
 
@@ -605,19 +599,13 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      #..  (print a b c d))
      >>> # letQzSTAR_from
      ... # hissp.macros.._macro_.letQz_from
-     ... (
-     ...  lambda ab,
-     ...         cd:
+     ... (lambda ab, cd:
      ...     # hissp.macros..QzMaybe_.letQzSTAR_from
      ...     # hissp.macros.._macro_.letQz_from
-     ...     (
-     ...      lambda a,
-     ...             b:
+     ...     (lambda a, b:
      ...         # hissp.macros..QzMaybe_.letQzSTAR_from
      ...         # hissp.macros.._macro_.letQz_from
-     ...         (
-     ...          lambda c,
-     ...                 d:
+     ...         (lambda c, d:
      ...             # hissp.macros..QzMaybe_.letQzSTAR_from
      ...             # hissp.macros.._macro_.progn
      ...             (lambda :
@@ -625,9 +613,13 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...                   a,
      ...                   b,
      ...                   c,
-     ...                   d))())(
-     ...           *cd))(
-     ...       *ab))(
+     ...                   d)
+     ...             )()
+     ...         )(
+     ...           *cd)
+     ...     )(
+     ...       *ab)
+     ... )(
      ...   *_.items())
      A B C D
 
@@ -637,16 +629,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      #..  (print a b c d))
      >>> # letQzSTAR_from
      ... # hissp.macros.._macro_.letQz_from
-     ... (
-     ...  lambda ab,
-     ...         cd:
+     ... (lambda ab, cd:
      ...     # hissp.macros..QzMaybe_.letQzSTAR_from
      ...     # hissp.macros.._macro_.letQz_from
-     ...     (
-     ...      lambda a,
-     ...             b,
-     ...             c,
-     ...             d:
+     ...     (lambda a, b, c, d:
      ...         # hissp.macros..QzMaybe_.letQzSTAR_from
      ...         # hissp.macros.._macro_.progn
      ...         (lambda :
@@ -654,10 +640,13 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...               a,
      ...               b,
      ...               c,
-     ...               d))())(
+     ...               d)
+     ...         )()
+     ...     )(
      ...       *(lambda * _:  _)(
      ...          *ab,
-     ...          *cd)))(
+     ...          *cd))
+     ... )(
      ...   *_.items())
      A B C D
 
@@ -666,16 +655,13 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      #..          `(,@(.keys _) ,@(.values _)) ; Not always this easy.
      #..  (print a b c d))
      >>> # letQz_from
-     ... (
-     ...  lambda a,
-     ...         c,
-     ...         b,
-     ...         d:
+     ... (lambda a, c, b, d:
      ...     print(
      ...       a,
      ...       b,
      ...       c,
-     ...       d))(
+     ...       d)
+     ... )(
      ...   *(lambda * _:  _)(
      ...      *_.keys(),
      ...      *_.values()))
@@ -713,8 +699,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...             my,
      ...             'x',
      ...             _QzRMG5GSSIz___val),
-     ...           _QzRMG5GSSIz___val)  [-1])(),
-     ...       my.x))()
+     ...           _QzRMG5GSSIz___val)  [-1]
+     ...       )(),
+     ...       my.x)
+     ... )()
      2 2
 
   ``my#my`` is a shorthand for a new empty namespace.
@@ -753,7 +741,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...     (lambda X:
   ;;    ...         # QzAT_
   ;;    ...         (lambda *xs: [*xs])(
-  ;;    ...           X)),
+  ;;    ...           X)
+  ;;    ...     ),
   ;;    ...     ('abc')))
   ;;    [['a'], ['b'], ['c']]
   ;;
@@ -817,12 +806,11 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
      #> (functools..reduce XY#(op#concat Y X) 'abcd)
      >>> __import__('functools').reduce(
-     ...   (
-     ...    lambda X,
-     ...           Y:
+     ...   (lambda X, Y:
      ...       __import__('operator').concat(
      ...         Y,
-     ...         X)),
+     ...         X)
+     ...   ),
      ...   'abcd')
      'dcba'
 
@@ -837,11 +825,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (XYZ#|X*Y == Z| : X math..pi  Y 2  Z math..tau)
-  ;;    >>> (
-  ;;    ...  lambda X,
-  ;;    ...         Y,
-  ;;    ...         Z:
-  ;;    ...     X*Y == Z)(
+  ;;    >>> (lambda X, Y, Z: X*Y == Z)(
   ;;    ...   X=__import__('math').pi,
   ;;    ...   Y=(2),
   ;;    ...   Z=__import__('math').tau)
@@ -858,12 +842,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (XYZW#|X[Y:Z:W]| "QuaoblcldefHg" -2 1 -2)
-  ;;    >>> (
-  ;;    ...  lambda X,
-  ;;    ...         Y,
-  ;;    ...         Z,
-  ;;    ...         W:
-  ;;    ...     X[Y:Z:W])(
+  ;;    >>> (lambda X, Y, Z, W: X[Y:Z:W])(
   ;;    ...   ('QuaoblcldefHg'),
   ;;    ...   (-2),
   ;;    ...   (1),
@@ -885,17 +864,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ... # hissp.macros.._macro_.defmacro
   ;;    ... # hissp.macros.._macro_.let
   ;;    ... (
-  ;;    ...  lambda _Qz2D5FNHXZz___fn=(
-  ;;    ...          lambda _QzE4JATHEUz___attr,
-  ;;    ...                 *_QzE4JATHEUz___args,
-  ;;    ...                 **_QzE4JATHEUz___kwargs:
+  ;;    ...  lambda _Qz2D5FNHXZz___fn=(lambda _QzE4JATHEUz___attr, *_QzE4JATHEUz___args, **_QzE4JATHEUz___kwargs:
   ;;    ...            ('Aliases ``hissp.._macro_`` as ``HQzCOLON_#``.',
   ;;    ...             # hissp.macros.._macro_.ifQz_else
-  ;;    ...             (
-  ;;    ...              lambda b,
-  ;;    ...                     c,
-  ;;    ...                     a:
-  ;;    ...                 c()if b else a())(
+  ;;    ...             (lambda b, c, a: c()if b else a())(
   ;;    ...               _QzE4JATHEUz___args,
   ;;    ...               (lambda :
   ;;    ...                   __import__('builtins').getattr(
@@ -904,11 +876,14 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...                       _QzE4JATHEUz___attr,
   ;;    ...                       'QzHASH_'))(
   ;;    ...                     *_QzE4JATHEUz___args,
-  ;;    ...                     **_QzE4JATHEUz___kwargs)),
+  ;;    ...                     **_QzE4JATHEUz___kwargs)
+  ;;    ...               ),
   ;;    ...               (lambda :
   ;;    ...                   ('{}.{}').format(
   ;;    ...                     'hissp.._macro_',
-  ;;    ...                     _QzE4JATHEUz___attr))))  [-1]):
+  ;;    ...                     _QzE4JATHEUz___attr)
+  ;;    ...               )))  [-1]
+  ;;    ...         ):
   ;;    ...    (__import__('builtins').setattr(
   ;;    ...       _Qz2D5FNHXZz___fn,
   ;;    ...       '__doc__',
@@ -924,7 +899,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...         __import__('builtins').globals(),
   ;;    ...         '_macro_'),
   ;;    ...       'HQzCOLON_QzHASH_',
-  ;;    ...       _Qz2D5FNHXZz___fn))  [-1])()
+  ;;    ...       _Qz2D5FNHXZz___fn))  [-1]
+  ;;    ... )()
   ;;
   ;;    #> 'H:#alias
   ;;    >>> 'hissp.._macro_.alias'
@@ -1035,9 +1011,11 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...                       __import__('builtins').globals().update(
      ...                         spam='spam'),
      ...                       str.title(
-     ...                         spam))  [-1])()),
+     ...                         spam))  [-1]
+     ...                   )()),
      ...            str.swapcase(
-     ...              spam))  [-1])())
+     ...              spam))  [-1]
+     ...        )())
 
      #> spam
      >>> spam
@@ -1088,7 +1066,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...       spam,
      ...       (2),
      ...       _QzE3BPTV2Tz___val),
-     ...     _QzE3BPTV2Tz___val)  [-1])()
+     ...     _QzE3BPTV2Tz___val)  [-1]
+     ... )()
      10
 
      #> spam
@@ -1135,7 +1114,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...           _QzRDZYRDXSz___coll,
      ...           _QzRDZYRDXSz___key,
      ...           _QzE3BPTV2Tz___val),
-     ...         _QzE3BPTV2Tz___val)  [-1])())()
+     ...         _QzE3BPTV2Tz___val)  [-1]
+     ...     )()
+     ... )()
      11
 
      #> spam
@@ -1168,7 +1149,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...       spam,
      ...       'foo',
      ...       _QzRMG5GSSIz___val),
-     ...     _QzRMG5GSSIz___val)  [-1])()
+     ...     _QzRMG5GSSIz___val)  [-1]
+     ... )()
      10
 
      #> spam
@@ -1209,7 +1191,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...       spam,
      ...       'foo',
      ...       _QzRMG5GSSIz___val),
-     ...     _QzRMG5GSSIz___val)  [-1])()
+     ...     _QzRMG5GSSIz___val)  [-1]
+     ... )()
      11
 
      #> spam
@@ -1247,7 +1230,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...       _QzWG5WN73Wz___target,
      ...       'b',
      ...       'Hi'),
-     ...     _QzWG5WN73Wz___target)  [-1])()
+     ...     _QzWG5WN73Wz___target)  [-1]
+     ... )()
      namespace(a=1, attach=<function _macro_.attach at 0x...>, b='Hi')
 
   See also: `setattr`, `set@<setQzAT_>`, `vars`.
@@ -1282,7 +1266,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...     _QzKIUMBHNZz___self.sort(),
      ...     _QzKIUMBHNZz___self.append(
      ...       'foo'),
-     ...     _QzKIUMBHNZz___self)  [-1])()
+     ...     _QzKIUMBHNZz___self)  [-1]
+     ... )()
      ['a', 'b', 'r', 'foo']
 
   See also: `attach`, `progn`, `-> <Qz_QzGT_>`.
@@ -1321,10 +1306,12 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      >>> # Qz_QzGT_
      ... (lambda *_Qz6RFWTTVXz___xs:
      ...     tuple(
-     ...       _Qz6RFWTTVXz___xs))(
+     ...       _Qz6RFWTTVXz___xs)
+     ... )(
      ...   (lambda *_Qz6RFWTTVXz___xs:
      ...       list(
-     ...         _Qz6RFWTTVXz___xs))(
+     ...         _Qz6RFWTTVXz___xs)
+     ...   )(
      ...     set(
      ...       'a'),
      ...     'bc'),
@@ -1365,11 +1352,13 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      >>> # Qz_QzLT_QzGT_QzGT_
      ... (lambda *_Qz6RFWTTVXz___xs:
      ...     tuple(
-     ...       _Qz6RFWTTVXz___xs))(
+     ...       _Qz6RFWTTVXz___xs)
+     ... )(
      ...   'de',
      ...   (lambda *_Qz6RFWTTVXz___xs:
      ...       list(
-     ...         _Qz6RFWTTVXz___xs))(
+     ...         _Qz6RFWTTVXz___xs)
+     ...   )(
      ...     'bc',
      ...     set(
      ...       'a')),
@@ -1413,40 +1402,38 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   __import__('builtins').map(
      ...     (lambda x:
      ...         # cond
-     ...         (
-     ...          lambda x0,
-     ...                 x1,
-     ...                 x2,
-     ...                 x3,
-     ...                 x4,
-     ...                 x5,
-     ...                 x6,
-     ...                 x7:
-     ...             x1()if x0 else x3()if x2()else x5()if x4()else x7()if x6()else())(
+     ...         (lambda x0, x1, x2, x3, x4, x5, x6, x7: x1()if x0 else x3()if x2()else x5()if x4()else x7()if x6()else())(
      ...           __import__('operator').lt(
      ...             x,
      ...             (0)),
      ...           (lambda :
      ...               print(
-     ...                 ':Negative')),
+     ...                 ':Negative')
+     ...           ),
      ...           (lambda :
      ...               __import__('operator').eq(
      ...                 x,
-     ...                 (0))),
+     ...                 (0))
+     ...           ),
      ...           (lambda :
      ...               print(
-     ...                 ':Zero')),
+     ...                 ':Zero')
+     ...           ),
      ...           (lambda :
      ...               __import__('operator').gt(
      ...                 x,
-     ...                 (0))),
+     ...                 (0))
+     ...           ),
      ...           (lambda :
      ...               print(
-     ...                 ':Positive')),
+     ...                 ':Positive')
+     ...           ),
      ...           (lambda : ':else'),
      ...           (lambda :
      ...               print(
-     ...                 ':Not-a-Number')))),
+     ...                 ':Not-a-Number')
+     ...           ))
+     ...     ),
      ...     # QzAT_
      ...     (lambda *xs: [*xs])(
      ...       (-0.6),
@@ -1491,7 +1478,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...         not(
      ...           __import__('operator').mod(
      ...             index,
-     ...             (7))))  [-1]),
+     ...             (7))))  [-1]
+     ...     ),
      ...     range(
      ...       (1),
      ...       (11))))
@@ -1517,13 +1505,12 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      >>> # anyQzSTAR_map
      ... __import__('builtins').any(
      ...   __import__('itertools').starmap(
-     ...     (
-     ...      lambda i,
-     ...             c:
+     ...     (lambda i, c:
      ...         print(
      ...           __import__('operator').mul(
      ...             i,
-     ...             c))),
+     ...             c))
+     ...     ),
      ...     enumerate(
      ...       'abc',
      ...       (1))))
@@ -1576,10 +1563,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...                   # hissp.macros.._macro_.progn
      ...                   (lambda :
      ...                       # when
-     ...                       (
-     ...                        lambda b,
-     ...                               c:
-     ...                           c()if b else())(
+     ...                       (lambda b, c: c()if b else())(
      ...                         x,
      ...                         (lambda :
      ...                            (print(
@@ -1589,14 +1573,19 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...                               (lambda *xs: [*xs])(
      ...                                 __import__('operator').sub(
      ...                                   x,
-     ...                                   (1)))))  [-1])))()),
-     ...                 None)  [-1]),
+     ...                                   (1)))))  [-1]
+     ...                         ))
+     ...                   )()),
+     ...                 None)  [-1]
+     ...             ),
      ...             __import__('builtins').iter(
      ...               _QzDKFIH6Z2z___stack.pop,
      ...               None))),
      ...         __import__('operator').itemgetter(
      ...           (0))(
-     ...           _QzDKFIH6Z2z___stack))  [-1])())()
+     ...           _QzDKFIH6Z2z___stack))  [-1]
+     ...     )()
+     ... )()
      3
      2
      1
@@ -1622,11 +1611,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
      #> (ands True True False) ; and finds the False
      >>> # ands
-     ... (
-     ...  lambda x0,
-     ...         x1,
-     ...         x2:
-     ...     x0 and x1()and x2())(
+     ... (lambda x0, x1, x2: x0 and x1()and x2())(
      ...   True,
      ...   (lambda : True),
      ...   (lambda : False))
@@ -1634,22 +1619,17 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
      #> (ands False (print 'oops)) ; Shortcutting.
      >>> # ands
-     ... (
-     ...  lambda x0,
-     ...         x1:
-     ...     x0 and x1())(
+     ... (lambda x0, x1: x0 and x1())(
      ...   False,
      ...   (lambda :
      ...       print(
-     ...         'oops')))
+     ...         'oops')
+     ...   ))
      False
 
      #> (ands True 42)
      >>> # ands
-     ... (
-     ...  lambda x0,
-     ...         x1:
-     ...     x0 and x1())(
+     ... (lambda x0, x1: x0 and x1())(
      ...   True,
      ...   (lambda : (42)))
      42
@@ -1684,34 +1664,24 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
      #> (ors True (print 'oops)) ; Shortcutting.
      >>> # ors
-     ... (
-     ...  lambda x0,
-     ...         x1:
-     ...     x0 or x1())(
+     ... (lambda x0, x1: x0 or x1())(
      ...   True,
      ...   (lambda :
      ...       print(
-     ...         'oops')))
+     ...         'oops')
+     ...   ))
      True
 
      #> (ors 42 False)
      >>> # ors
-     ... (
-     ...  lambda x0,
-     ...         x1:
-     ...     x0 or x1())(
+     ... (lambda x0, x1: x0 or x1())(
      ...   (42),
      ...   (lambda : False))
      42
 
      #> (ors () False 0 1)  ; or seeks the truth
      >>> # ors
-     ... (
-     ...  lambda x0,
-     ...         x1,
-     ...         x2,
-     ...         x3:
-     ...     x0 or x1()or x2()or x3())(
+     ... (lambda x0, x1, x2, x3: x0 or x1()or x2()or x3())(
      ...   (),
      ...   (lambda : False),
      ...   (lambda : (0)),
@@ -1788,25 +1758,20 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   (
      ...    lambda _Qz2IKKUCBWz___G=(lambda _Qz2IKKUCBWz___x:
      ...               # hissp.macros.._macro_.ifQz_else
-     ...               (
-     ...                lambda b,
-     ...                       c,
-     ...                       a:
-     ...                   c()if b else a())(
+     ...               (lambda b, c, a: c()if b else a())(
      ...                 # hissp.macros.._macro_.ands
-     ...                 (
-     ...                  lambda x0,
-     ...                         x1:
-     ...                     x0 and x1())(
+     ...                 (lambda x0, x1: x0 and x1())(
      ...                   __import__('builtins').isinstance(
      ...                     _Qz2IKKUCBWz___x,
      ...                     __import__('builtins').type),
      ...                   (lambda :
      ...                       __import__('builtins').issubclass(
      ...                         _Qz2IKKUCBWz___x,
-     ...                         __import__('builtins').BaseException))),
+     ...                         __import__('builtins').BaseException)
+     ...                   )),
      ...                 (lambda : _Qz2IKKUCBWz___x()),
-     ...                 (lambda : _Qz2IKKUCBWz___x))):
+     ...                 (lambda : _Qz2IKKUCBWz___x))
+     ...           ):
      ...       # hissp.macros.._macro_.attach
      ...       # hissp.macros.._macro_.let
      ...       (
@@ -1818,7 +1783,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...             _Qz2IKKUCBWz___G(
      ...               Exception(
      ...                 'message'))),
-     ...           _QzWG5WN73Wz___target)  [-1])())())
+     ...           _QzWG5WN73Wz___target)  [-1]
+     ...       )()
+     ...   )())
      Traceback (most recent call last):
        ...
      Exception
@@ -1852,7 +1819,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...         (1)),
      ...       print(
      ...         (2)),
-     ...       _Qz46BJ7IW6z___value1)  [-1])())
+     ...       _Qz46BJ7IW6z___value1)  [-1]
+     ...   )())
      1
      2
      0
@@ -1872,10 +1840,12 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...         (lambda :
      ...            (print(
      ...               (1)),
-     ...             (3))  [-1])():
+     ...             (3))  [-1]
+     ...         )():
      ...    (print(
      ...       (2)),
-     ...     _Qz46BJ7IW6z___value1)  [-1])()
+     ...     _Qz46BJ7IW6z___value1)  [-1]
+     ... )()
      1
      2
      3
@@ -1922,7 +1892,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    #> (en#list 1 2 3)
   ;;    >>> (lambda *_Qz6RFWTTVXz___xs:
   ;;    ...     list(
-  ;;    ...       _Qz6RFWTTVXz___xs))(
+  ;;    ...       _Qz6RFWTTVXz___xs)
+  ;;    ... )(
   ;;    ...   (1),
   ;;    ...   (2),
   ;;    ...   (3))
@@ -1930,11 +1901,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;;    #> (en#.extend _ 4 5 6) ; Methods too.
   ;;    #..
-  ;;    >>> (
-  ;;    ...  lambda _Qz4LWLAFU3z___self,
-  ;;    ...         *_Qz4LWLAFU3z___xs:
+  ;;    >>> (lambda _Qz4LWLAFU3z___self, *_Qz4LWLAFU3z___xs:
   ;;    ...     _Qz4LWLAFU3z___self.extend(
-  ;;    ...       _Qz4LWLAFU3z___xs))(
+  ;;    ...       _Qz4LWLAFU3z___xs)
+  ;;    ... )(
   ;;    ...   _,
   ;;    ...   (4),
   ;;    ...   (5),
@@ -1952,8 +1922,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...                  ('').join(
   ;;    ...                    map(
   ;;    ...                      str,
-  ;;    ...                      X)))(
-  ;;    ...                _Qz6RFWTTVXz___xs)))
+  ;;    ...                      X))
+  ;;    ...              )(
+  ;;    ...                _Qz6RFWTTVXz___xs)
+  ;;    ...          ))
   ;;
   ;;    #> (enjoin "Sum: "(op#add 2 3)". Product: "(op#mul 2 3)".")
   ;;    >>> enjoin(
@@ -1973,12 +1945,12 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; See also: `X# <XQzHASH_>`.
   ;;
-  (if-else (ands (op#is_ str (type f))
-                 (.startswith f "."))
-    `(lambda ($#self : :* $#xs)
-       (,f $#self $#xs))
-    `(lambda (: :* $#xs)
-       (,f $#xs))))
+    (if-else (ands (op#is_ str (type f))
+                   (.startswith f "."))
+      `(lambda ($#self : :* $#xs)
+         (,f $#self $#xs))
+      `(lambda (: :* $#xs)
+         (,f $#xs))))
 
 ;;;; Collection
 
@@ -2054,13 +2026,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
      #> (% 1 2  :** (dict : x 3  y 4)  5 6) ;Dict, with mapping unpacking.
      >>> # QzPCENT_
-     ... (
-     ...  lambda x0,
-     ...         x1,
-     ...         x3,
-     ...         x4,
-     ...         x5:
-     ...     {x0:x1,**x3,x4:x5})(
+     ... (lambda x0, x1, x3, x4, x5: {x0:x1,**x3,x4:x5})(
      ...   (1),
      ...   (2),
      ...   dict(
@@ -2222,7 +2188,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   (lambda e:
   ;;    ...      (print(
   ;;    ...         ('Oops!')),
-  ;;    ...       e)  [-1]),
+  ;;    ...       e)  [-1]
+  ;;    ...   ),
   ;;    ...   truediv,
   ;;    ...   (6),
   ;;    ...   (0))
@@ -2260,7 +2227,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   ZeroDivisionError,
   ;;    ...   (lambda e:
   ;;    ...       print(
-  ;;    ...         ('It means what you want it to mean.'))),
+  ;;    ...         ('It means what you want it to mean.'))
+  ;;    ...   ),
   ;;    ...   truediv,
   ;;    ...   ('6'),
   ;;    ...   (0))
@@ -2280,25 +2248,20 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...         (
   ;;    ...          lambda _Qz2IKKUCBWz___G=(lambda _Qz2IKKUCBWz___x:
   ;;    ...                     # hissp.macros.._macro_.ifQz_else
-  ;;    ...                     (
-  ;;    ...                      lambda b,
-  ;;    ...                             c,
-  ;;    ...                             a:
-  ;;    ...                         c()if b else a())(
+  ;;    ...                     (lambda b, c, a: c()if b else a())(
   ;;    ...                       # hissp.macros.._macro_.ands
-  ;;    ...                       (
-  ;;    ...                        lambda x0,
-  ;;    ...                               x1:
-  ;;    ...                           x0 and x1())(
+  ;;    ...                       (lambda x0, x1: x0 and x1())(
   ;;    ...                         __import__('builtins').isinstance(
   ;;    ...                           _Qz2IKKUCBWz___x,
   ;;    ...                           __import__('builtins').type),
   ;;    ...                         (lambda :
   ;;    ...                             __import__('builtins').issubclass(
   ;;    ...                               _Qz2IKKUCBWz___x,
-  ;;    ...                               __import__('builtins').BaseException))),
+  ;;    ...                               __import__('builtins').BaseException)
+  ;;    ...                         )),
   ;;    ...                       (lambda : _Qz2IKKUCBWz___x()),
-  ;;    ...                       (lambda : _Qz2IKKUCBWz___x))):
+  ;;    ...                       (lambda : _Qz2IKKUCBWz___x))
+  ;;    ...                 ):
   ;;    ...             # hissp.macros.._macro_.attach
   ;;    ...             # hissp.macros.._macro_.let
   ;;    ...             (
@@ -2310,7 +2273,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...                   _Qz2IKKUCBWz___G(
   ;;    ...                     Exception(
   ;;    ...                       ('msg')))),
-  ;;    ...                 _QzWG5WN73Wz___target)  [-1])())())))
+  ;;    ...                 _QzWG5WN73Wz___target)  [-1]
+  ;;    ...             )()
+  ;;    ...         )())
+  ;;    ...   ))
   ;;    Exception('msg')
   ;;
   ;; Ensue examples
@@ -2336,12 +2302,15 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...                             step,
   ;;    ...                             'Y',
   ;;    ...                             _QzRMG5GSSIz___val),
-  ;;    ...                           _QzRMG5GSSIz___val)  [-1])(),
+  ;;    ...                           _QzRMG5GSSIz___val)  [-1]
+  ;;    ...                       )(),
   ;;    ...                       fibonacci(
   ;;    ...                         b,
   ;;    ...                         add(
   ;;    ...                           a,
-  ;;    ...                           b)))  [-1]))))
+  ;;    ...                           b)))  [-1]
+  ;;    ...                   ))
+  ;;    ...             ))
   ;;
   ;;    #> (list (islice (fibonacci) 7))
   ;;    >>> list(
@@ -2359,16 +2328,11 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    #..
   ;;    >>> # define
   ;;    ... __import__('builtins').globals().update(
-  ;;    ...   myQz_range=(
-  ;;    ...               lambda i,
-  ;;    ...                      n:
+  ;;    ...   myQz_range=(lambda i, n:
   ;;    ...                  Ensue(
   ;;    ...                    (lambda step:
   ;;    ...                        # when
-  ;;    ...                        (
-  ;;    ...                         lambda b,
-  ;;    ...                                c:
-  ;;    ...                            c()if b else())(
+  ;;    ...                        (lambda b, c: c()if b else())(
   ;;    ...                          lt(
   ;;    ...                            i,
   ;;    ...                            n),
@@ -2380,12 +2344,16 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...                                    step,
   ;;    ...                                    'Y',
   ;;    ...                                    _QzRMG5GSSIz___val),
-  ;;    ...                                  _QzRMG5GSSIz___val)  [-1])(),
+  ;;    ...                                  _QzRMG5GSSIz___val)  [-1]
+  ;;    ...                              )(),
   ;;    ...                              myQz_range(
   ;;    ...                                add(
   ;;    ...                                  i,
   ;;    ...                                  (1)),
-  ;;    ...                                n))  [-1]))))))
+  ;;    ...                                n))  [-1]
+  ;;    ...                          ))
+  ;;    ...                    ))
+  ;;    ...              ))
   ;;
   ;;    #> (list (my-range 1 6))
   ;;    >>> list(
@@ -2416,8 +2384,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...              (3),
   ;;    ...              (4),
   ;;    ...              (5),)),
-  ;;    ...           _QzWG5WN73Wz___target)  [-1])(),
-  ;;    ...       None)  [-1]))
+  ;;    ...           _QzWG5WN73Wz___target)  [-1]
+  ;;    ...       )(),
+  ;;    ...       None)  [-1]
+  ;;    ...   ))
   ;;    <...Ensue object at ...>
   ;;
   ;;    #> (list _)
@@ -2446,7 +2416,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...                           _QzWG5WN73Wz___target,
   ;;    ...                           'F',
   ;;    ...                           (1)),
-  ;;    ...                         _QzWG5WN73Wz___target)  [-1])()))))
+  ;;    ...                         _QzWG5WN73Wz___target)  [-1]
+  ;;    ...                     )()
+  ;;    ...                 ))
+  ;;    ...           ))
   ;;
   ;;    #> (-> '(1 2 3) recycle (islice 7) list)
   ;;    >>> # Qz_QzGT_
@@ -2474,8 +2447,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...                    step,
   ;;    ...                    'Y',
   ;;    ...                    _QzRMG5GSSIz___val),
-  ;;    ...                  _QzRMG5GSSIz___val)  [-1])(),
-  ;;    ...              step)  [-1])))
+  ;;    ...                  _QzRMG5GSSIz___val)  [-1]
+  ;;    ...              )(),
+  ;;    ...              step)  [-1]
+  ;;    ...          )))
   ;;
   ;;    #> (.send echo None) ; Always send a None first. Same as Python.
   ;;    >>> echo.send(
@@ -2519,12 +2494,16 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...                          step,
   ;;    ...                          'Y',
   ;;    ...                          _QzRMG5GSSIz___val),
-  ;;    ...                        _QzRMG5GSSIz___val)  [-1])(),
+  ;;    ...                        _QzRMG5GSSIz___val)  [-1]
+  ;;    ...                    )(),
   ;;    ...                    Ensue(
   ;;    ...                      (lambda step:
   ;;    ...                          print(
   ;;    ...                            ('exit'),
-  ;;    ...                            msg))))  [-1])))  [-1])))
+  ;;    ...                            msg)
+  ;;    ...                      )))  [-1]
+  ;;    ...                )))  [-1]
+  ;;    ...          )))
   ;;
   ;;    #> (enter (wrap 'A)
   ;;    #..       (lambda a (print a)))
@@ -2533,7 +2512,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...     'A'),
   ;;    ...   (lambda a:
   ;;    ...       print(
-  ;;    ...         a)))
+  ;;    ...         a)
+  ;;    ...   ))
   ;;    enter A
   ;;    A
   ;;    exit A
@@ -2551,14 +2531,12 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   enter,
   ;;    ...   wrap(
   ;;    ...     'C'),
-  ;;    ...   (
-  ;;    ...    lambda a,
-  ;;    ...           b,
-  ;;    ...           c:
+  ;;    ...   (lambda a, b, c:
   ;;    ...       print(
   ;;    ...         a,
   ;;    ...         b,
-  ;;    ...         c)))
+  ;;    ...         c)
+  ;;    ...   ))
   ;;    enter A
   ;;    enter B
   ;;    enter C
@@ -2593,12 +2571,16 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...                                    _QzWG5WN73Wz___target,
   ;;    ...                                    'X',
   ;;    ...                                    ZeroDivisionError),
-  ;;    ...                                  _QzWG5WN73Wz___target)  [-1])(),
+  ;;    ...                                  _QzWG5WN73Wz___target)  [-1]
+  ;;    ...                              )(),
   ;;    ...                              Ensue(
   ;;    ...                                (lambda step:
   ;;    ...                                    print(
   ;;    ...                                      ('Caught a'),
-  ;;    ...                                      step.sent))))  [-1])))))
+  ;;    ...                                      step.sent)
+  ;;    ...                                )))  [-1]
+  ;;    ...                          ))
+  ;;    ...                    )))
   ;;
   ;;    #> (enter (suppress-zde)
   ;;    #..  (lambda _ (truediv 1 0)))
@@ -2607,7 +2589,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   (lambda _:
   ;;    ...       truediv(
   ;;    ...         (1),
-  ;;    ...         (0))))
+  ;;    ...         (0))
+  ;;    ...   ))
   ;;    Caught a division by zero
   ;;
   ;;    ;; No exception, so step.sent was .send() value.
@@ -2618,7 +2601,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   (lambda _:
   ;;    ...       truediv(
   ;;    ...         (4),
-  ;;    ...         (2))))
+  ;;    ...         (2))
+  ;;    ...   ))
   ;;    Caught a None
   ;;    2.0
   ;;
@@ -2630,7 +2614,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...       # throw
   ;;    ...       # hissp.macros.._macro_.throwQzSTAR_
   ;;    ...       (lambda g:g.close()or g.throw)(c for c in'')(
-  ;;    ...         Exception)))
+  ;;    ...         Exception)
+  ;;    ...   ))
   ;;    Traceback (most recent call last):
   ;;      ...
   ;;    Exception
@@ -2688,16 +2673,20 @@ except ModuleNotFoundError:pass"
   ;;    ...           (lambda *xs: [*xs])(
   ;;    ...             (lambda :
   ;;    ...                 print(
-  ;;    ...                   ('odd'))),
+  ;;    ...                   ('odd'))
+  ;;    ...             ),
   ;;    ...             (lambda :
   ;;    ...                 print(
-  ;;    ...                   ('even'))),
+  ;;    ...                   ('even'))
+  ;;    ...             ),
   ;;    ...             (lambda :
   ;;    ...                 print(
-  ;;    ...                   ('default')))),
+  ;;    ...                   ('default'))
+  ;;    ...             )),
   ;;    ...           {1: 0, 3: 0, 'spam': 0, 0: 1, 2: 1, '42': 1}.get(
   ;;    ...             x,
-  ;;    ...             (-1)))()),
+  ;;    ...             (-1)))()
+  ;;    ...     ),
   ;;    ...     ((1),
   ;;    ...      (2),
   ;;    ...      'spam',
@@ -2761,7 +2750,8 @@ except ModuleNotFoundError:pass"
      ...         __import__('builtins').repr(
      ...           _Qz764KZBP5z___e),
      ...         file=__import__('sys').stdout),
-     ...       _Qz764KZBP5z___e)  [-1])())
+     ...       _Qz764KZBP5z___e)  [-1]
+     ...   )())
      ('operator..mul', 7, 3) => 21
      26
 
@@ -2780,10 +2770,7 @@ except ModuleNotFoundError:pass"
      >>> # hissp.macros.._macro_.let
      ... (lambda _QzPMWTVFTZz___time=__import__('time').time_ns:
      ...     # hissp.macros.._macro_.letQz_from
-     ...     (
-     ...      lambda _QzPMWTVFTZz___start,
-     ...             _QzPMWTVFTZz___val,
-     ...             _QzPMWTVFTZz___end:
+     ...     (lambda _QzPMWTVFTZz___start, _QzPMWTVFTZz___val, _QzPMWTVFTZz___end:
      ...        (__import__('builtins').print(
      ...           ('time# ran'),
      ...           __import__('pprint').pformat(
@@ -2799,13 +2786,15 @@ except ModuleNotFoundError:pass"
      ...               (1000000.0))),
      ...           ('ms'),
      ...           file=__import__('sys').stdout),
-     ...         _QzPMWTVFTZz___val)  [-1])(
+     ...         _QzPMWTVFTZz___val)  [-1]
+     ...     )(
      ...       *# hissp.macros.._macro_.QzAT_
      ...        (lambda *xs: [*xs])(
      ...          _QzPMWTVFTZz___time(),
      ...          __import__('time').sleep(
      ...            (0.05)),
-     ...          _QzPMWTVFTZz___time())))()
+     ...          _QzPMWTVFTZz___time()))
+     ... )()
      time# ran ('time..sleep', 0.05) in ... ms
 
   See also: `timeit`.
@@ -2845,10 +2834,7 @@ except ModuleNotFoundError:pass"
   ;;    ... # hissp.macros.._macro_.let
   ;;    ... (lambda it=(7):
   ;;    ...    (# hissp.macros.._macro_.unless
-  ;;    ...     (
-  ;;    ...      lambda b,
-  ;;    ...             a:
-  ;;    ...         ()if b else a())(
+  ;;    ...     (lambda b, a: ()if b else a())(
   ;;    ...       # hissp.macros.._macro_.Qz_QzGT_
   ;;    ...       (lambda X: X%2 == 0)(
   ;;    ...         it),
@@ -2858,8 +2844,10 @@ except ModuleNotFoundError:pass"
   ;;    ...           (lambda g:g.close()or g.throw)(c for c in'')(
   ;;    ...             __import__('builtins').AssertionError(
   ;;    ...               it,
-  ;;    ...               ("That's odd."))))),
-  ;;    ...     it)  [-1])()
+  ;;    ...               ("That's odd.")))
+  ;;    ...       )),
+  ;;    ...     it)  [-1]
+  ;;    ... )()
   ;;    Traceback (most recent call last):
   ;;      ...
   ;;    AssertionError: (7, "That's odd.")
@@ -2911,10 +2899,7 @@ except ModuleNotFoundError:pass"
   ;;    ... # hissp.macros.._macro_.let
   ;;    ... (lambda it=(7):
   ;;    ...    (# hissp.macros.._macro_.unless
-  ;;    ...     (
-  ;;    ...      lambda b,
-  ;;    ...             a:
-  ;;    ...         ()if b else a())(
+  ;;    ...     (lambda b, a: ()if b else a())(
   ;;    ...       # hissp.macros.._macro_.Qz_QzGT_
   ;;    ...       (lambda X: X%2 == 0)(
   ;;    ...         it),
@@ -2924,8 +2909,10 @@ except ModuleNotFoundError:pass"
   ;;    ...           (lambda g:g.close()or g.throw)(c for c in'')(
   ;;    ...             __import__('builtins').AssertionError(
   ;;    ...               it,
-  ;;    ...               ("That's odd."))))),
-  ;;    ...     it)  [-1])()
+  ;;    ...               ("That's odd.")))
+  ;;    ...       )),
+  ;;    ...     it)  [-1]
+  ;;    ... )()
   ;;    Traceback (most recent call last):
   ;;      ...
   ;;    AssertionError: (7, "That's odd.")

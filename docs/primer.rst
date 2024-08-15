@@ -94,7 +94,8 @@ and returns its Python translation as a string.
 (lambda name:
     print(
       'Hello',
-      name))
+      name)
+)
 
 Python can then run this program as normal.
 
@@ -147,16 +148,13 @@ Let's use it.
 ...     ('lambda',('name')
 ...      ,('print',q('Hello'),'name',),)
 ... )
-"(\n lambda n,\n        a,\n        m,\n        e:\n    print(\n      'Hello',\n      name))"
+"(lambda n, a, m, e:\n    print(\n      'Hello',\n      name)\n)"
 >>> print(_)  # Remember, _ is the last result that wasn't None.
-(
- lambda n,
-        a,
-        m,
-        e:
+(lambda n, a, m, e:
     print(
       'Hello',
-      name))
+      name)
+)
 >>> eval(_)('World')
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -191,12 +189,13 @@ with the comma this time.
 ...     ('lambda',('name',)
 ...      ,('print',q('Hello'),'name',),)
 ... )
-"(lambda name:\n    print(\n      'Hello',\n      name))"
+"(lambda name:\n    print(\n      'Hello',\n      name)\n)"
 >>> print(_)
 (lambda name:
     print(
       'Hello',
-      name))
+      name)
+)
 
 That's better.
 
@@ -316,7 +315,8 @@ Here's our first Hissp program again written that way:
    >>> (lambda name:
    ...     print(
    ...       'Hello',
-   ...       name))
+   ...       name)
+   ... )
    <function <lambda> at 0x...>
 
    #> (|_| (|quote| |World|))
@@ -825,14 +825,13 @@ respectively:
    #..  (print args)
    #..  (print kwargs) ; Body expressions evaluate in order.
    #..  42) ; The last value is returned.
-   >>> (
-   ...  lambda *args,
-   ...         **kwargs:
+   >>> (lambda *args, **kwargs:
    ...    (print(
    ...       args),
    ...     print(
    ...       kwargs),
-   ...     (42))  [-1])
+   ...     (42))  [-1]
+   ... )
    <function <lambda> at ...>
 
    #> (_ 1 : b :c)
@@ -873,19 +872,11 @@ Not having it is the same as putting it last:
 .. code-block:: REPL
 
    #> (lambda (a b c :)) ; No pairs after ':'.
-   >>> (
-   ...  lambda a,
-   ...         b,
-   ...         c:
-   ...     ())
+   >>> (lambda a, b, c: ())
    <function <lambda> at ...>
 
    #> (lambda (a b c)) ; The ':' was omitted.
-   >>> (
-   ...  lambda a,
-   ...         b,
-   ...         c:
-   ...     ())
+   >>> (lambda a, b, c: ())
    <function <lambda> at ...>
 
    #> (lambda (:)) ; Colon isn't doing anything.
@@ -1806,7 +1797,8 @@ Let's try it:
    ...   (lambda :
    ...       ('print',
    ...        ('quote',
-   ...         'hello',),)))
+   ...         'hello',),)
+   ...   ))
 
    #> (hello)
    >>> # hello
@@ -1830,7 +1822,8 @@ Let's give it one. Use a template:
    ...         (lambda * _:  _)(
    ...           'quote',
    ...           '__main__..Hello'),
-   ...         name)))
+   ...         name)
+   ...   ))
 
    #> (greet 'Bob)
    >>> # greet
@@ -1898,7 +1891,8 @@ A ``_macro_`` namespace is not the same as its module.
    ...         (3),
    ...         ':',
    ...         '__main__..sep',
-   ...         ':')))
+   ...         ':')
+   ...   ))
 
 Notice the ``QzMaybe_`` qualifying ``p``,
 which means the reader could not determine if ``p`` should be qualified as a global or as a macro,
@@ -1948,7 +1942,8 @@ We can resolve the ``QzMaybe_`` the other way by defining a ``p`` macro.
    ...   (lambda *args:
    ...       (lambda * _:  _)(
    ...         'builtins..print',
-   ...         *args)))
+   ...         *args)
+   ...   ))
 
    #> (p123)
    >>> # p123
@@ -1997,7 +1992,8 @@ Note the three reader macros in a row: ``','``.
    ...         (lambda * _:  _)(
    ...           'quote',
    ...           'Hello'),
-   ...         name)))
+   ...         name)
+   ...   ))
 
    #> (greet 'Bob)
    >>> # greet
@@ -2020,7 +2016,8 @@ a "" token might have been a better idea:
    ...       (lambda * _:  _)(
    ...         'builtins..print',
    ...         "('Hello')",
-   ...         name)))
+   ...         name)
+   ...   ))
 
    #> (greet 'Bob)
    >>> # greet
@@ -2049,14 +2046,16 @@ But there are times when a function will not do:
    ...         'lambda',
    ...         (lambda * _:  _)(
    ...           'QzPCENT_'),
-   ...         body)))
+   ...         body)
+   ...   ))
 
    #> ((lambda (%)
    #..   (print (.upper %)))              ;This lambda expression
    #.. "q")
    >>> (lambda QzPCENT_:
    ...     print(
-   ...       QzPCENT_.upper()))(
+   ...       QzPCENT_.upper())
+   ... )(
    ...   ('q'))
    Q
 
@@ -2065,7 +2064,8 @@ But there are times when a function will not do:
    >>> # QzPCENT_
    ... (lambda QzPCENT_:
    ...     print(
-   ...       QzPCENT_.upper()))(
+   ...       QzPCENT_.upper())
+   ... )(
    ...   ('q'))
    Q
 
@@ -2078,7 +2078,8 @@ But there are times when a function will not do:
    ...         print(
    ...           QzPCENT_.upper(),
    ...           (':'),
-   ...           QzPCENT_)),
+   ...           QzPCENT_)
+   ...     ),
    ...     ('abc')))
    A : a
    B : b
