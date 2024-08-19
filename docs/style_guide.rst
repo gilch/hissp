@@ -1,4 +1,4 @@
-.. Copyright 2020, 2021, 2022, 2023 Matthew Egan Odendahl
+.. Copyright 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 .. Hidden doctest adds bundled macros for REPL-consistent behavior.
@@ -15,15 +15,16 @@ Why have a style guide?
 
 Code was made for the human, not only for the machine,
 otherwise we'd all still be writing programs in binary.
-Style is not merely a matter of aesthetics.
-Consistency lifts a burden from the mind, and,
-with experience, improves human performance.
-Style is a practical matter.
+Style is a practical matter,
+not mere aesthetics.
+Consistency lifts a burden from the mind,
+improving the performance of the human.
 
-Code is written once, and rewritten many times.
-It is *read* much more than it is written,
-and often by multiple individuals,
-so making code easy to read and edit is that much more important than making it easy to write.
+Code is written once, but rewritten many times.
+Code is *read* more than it is written,
+and often by multiple individuals.
+Therefore,
+making code easy to read and edit is much more important than making it easy to write.
 Learning style is as much about learning to *read* code as it is about learning to write it.
 
 Style is the starting point for legibility,
@@ -31,6 +32,9 @@ but good style doesn't excuse bad design.
 Good style is consistent, but good design is elegant.
 The more elegant designs often employ concepts novices would consider arcane.
 Choose elegance anyway.
+Assume a competent audience.
+Learn the concepts yourself.
+Consider your design.
 Refactor your code.
 Doing that well is an art, but beyond the scope of a style guide.
 
@@ -49,7 +53,7 @@ Don't Count the Brackets
 ========================
 
 It is impossible for the human to comprehend the code of a nontrivial program in totality;
-working memory is too small.
+our working memory is too small.
 We handle complexity by chunking it into hierarchies of labeled black boxes within boxes within boxes.
 Mental recursive trees.
 
@@ -143,7 +147,7 @@ with Lisp,
 you have to take on the extra responsibility to keep these two block delimiters in sync.
 This is hard to do consistently without good editor support.
 But *because* the brackets make it easy to parse (for a computer),
-editor support for Lisp is really very good.
+Lisp has structural editing tools that few other languages can match.
 Emacs can do it, but it's got a bit of a learning curve.
 For a beginner, try installing `Parinfer <https://shaunlebron.github.io/parinfer/>`_
 in a supported editor, like `Pulsar <https://web.pulsar-edit.dev/packages/parinfer>`_.
@@ -339,7 +343,7 @@ We can still unambiguously reconstruct the trails.
    abc
    xyz"
 
-The ``"`` is not a bracket,
+The closing ``"`` is not a bracket,
 so we don't delete it or ignore it.
 
 Alignment Styles
@@ -347,19 +351,29 @@ Alignment Styles
 
 The remaining rules are more a matter of that *practical consistency*.
 Exactly what rules *implement* that consistency matter much less
-than the consistency itself.
-Know what the rules are for
-so you know when to break them.
-Sometimes differences of opinion come down to taste.
+than the consistency itself,
+but it's better if the rules are not too complicated.
+A good style guide must be *opinionated* to achieve that consistency.
+
+Consistency with a style guide is good for the community.
+Consistency within a project is a higher priority.
+Legibility is paramount.
+
+When there are gray areas,
+don't forget there are better and worse options among the shades.
 Use your best judgement.
-It's not always black and white,
-but there are better and worse options among the shades of gray.
+This guide often includes a rationale for its recommendations.
+Understand what the rules are for so you know when to break them.
 
 Lisp is one of the oldest programming languages in common use.
 It has splintered into many dialects (Lissp among them),
 with a common culture, but without perfect agreement in all details.
 Lissp's recommended style is based on these,
 with some small modifications for its own unique features.
+Expect the opinions herein to evolve as Hissp does.
+
+Some rules pertain to the use of Hissp's bundled macros.
+The use of the bundled macros is completely optional.
 
 Tuples
 ::::::
@@ -390,12 +404,16 @@ E.g. `dict.update` (on `globals`), `let`, `@##<QzAT_QzHASH_>`, `attach`, `doto`.
 Try to avoid blank lines within forms.
 You may need them for separating groups whose elements span lines
 or to separate methods in long classes.
-This is a code smell indicating your form may be too complex.
+This desire for "paragraphs" is a code smell indicating your form may be too complex.
 You can use comment lines to separate internal groups instead,
 but consider refactoring.
+Longer imperative entry-point scripts (main and the like)
+should be segmented by `let` indentation or similar implied progn forms
+without resorting to blank lines.
+
 Blank lines are OK in docstrings,
-but comment strings (`<\<#<QzLT_QzLT_QzHASH_>`)
-instead of ``""`` tokens are preferred for docstrings when they have more than a single paragraph.
+but comment strings (`<\<#<QzLT_QzLT_QzHASH_>`) instead of ``""``
+tokens are preferred for docstrings when they have more than a single paragraph.
 
 Keep the elements in a tuple aligned to start on the same column.
 Treat sibling groups equally:
@@ -422,7 +440,7 @@ Your code should look like these examples, recursively applied to subforms:
      data3
      _#/)                                 ;Trails NEVER get their own line.
                                           ; But you can hold it open with a discarded item.
-                                          ; The / is the usual choice in Lissp, reminiscent of XML.
+                                          ; This XML-style / doorstop is the norm in Lissp.
 
    (function arg1 arg2 arg3)              ;Typical for calls that fit on one line.
 
@@ -494,6 +512,21 @@ Your code should look like these examples, recursively applied to subforms:
     kw2
     kwarg2)
 
+   (dict : a 1  b 2  c 3)                 ;Preferred
+
+   (dict : a 1                            ;Standard, but could have fit on one line.
+         b 2
+         c 3)
+
+   (dict : a 1                            ;Acceptable if : is first, but be consistent.
+           b 2                            ;Note the alignment with the previous line.
+           c 3)
+
+   (function arg1                         ;Bad. : not first. Weird extra levels.
+             arg2
+             : kw1 kwarg1
+               kw2 kwarg2
+
    (macro special1 special2 special3      ;Macros can have their own alignment rules.
      body1                                ; Simpler macros may look the same as functions.
      body2                                ; Special/body is common. Lambda is also like this.
@@ -527,7 +560,7 @@ Your code should look like these examples, recursively applied to subforms:
             default2 value2)
      body)
 
-   ;; Parameter groups are separated by lines. Pairs are separated by extra space.
+   ;; Parameter groups are separated by lines. Pairs are separated by an extra space.
    (lambda (a b :/                        ;positional-only group
             c d                           ;normal group
             : e 1  f 2                    ;colon group
@@ -550,14 +583,12 @@ you may have to turn it off in places.
 
 .. code-block:: Python
 
-   # fmt: off
    ('define','fib'
     ,('lambda',('n',)
       ,('ifQz_else',('operator..le','n',2,)
         ,'n'
         ,('operator..add',('fib',('operator..sub','n',1,),)
-                         ,('fib',('operator..sub','n',2,),),),),),)
-   # fmt: on
+                         ,('fib',('operator..sub','n',2,),),),),),)  # fmt: skip
 
 There are a few things to note about tuple commas in readerless.
 The last element always ends with one (commas are used as terminators,
@@ -635,12 +666,48 @@ not just the fact that it's a call.
             print
             truediv 6 0)                  ;(truediv 6 0) is a deferred call, so groups.
 
-   (.update (globals) :                   ;OK. Easier for linewise version control.
-    + operator..add
-    - operator..sub
-    * operator..mul
+   (partial foo 0 : spam 1  eggs 2)       ;Preferred. Note extra space.
+
+   (partial foo                           ;OK. Standard if above line is too long.
+            0
+            : spam 1
+            eggs 2)
+
+   (partial                               ;OK. Standard if above line is too long.
+    foo
+    0
+    : spam 1
+    eggs 2)
+
+   (partial foo 0                         ;OK. Deferred call groups.
+                : spam 1
+                eggs 2)
+
+   (partial foo 0                         ;Bad. Weird extra indent levels.
+                : spam 1
+                  eggs 2)
+
+   (partial foo 0 :                       ;Avoid. Trailing : is easy to miss.
+                spam 1                    ; : grouped on wrong side.
+                eggs 2)
+
+   (partial foo : spam 1                  ;OK. : first, sort of. Deferred call group.
+                  eggs 2)
+
+   (partial foo : spam 1                  ;Bad. Meaningless groupings.
+            eggs 2)
+
+   (partial foo                           ;OK. Meaningful groups.
+    0                                     ; foo is acting as the head.
+    : spam 1
+    eggs 2)
+
+   (.update (globals) :                   ;OK. : on wrong side, but easier
+    + operator..add                       ; for linewise version control.
+    - operator..sub                       ; Sometimes worth it, but
+    * operator..mul                       ; use this style sparingly.
     / operator..truediv
-    _#/)
+    _#/)                                  ;Doorstop holding ) on this line.
 
    (.update (globals)                     ;Preferred. Standard style.
             : + operator..add
@@ -675,9 +742,61 @@ this can be done at read time instead:
    DON'T INTERRUPT
    THE FLOW.
 
+Notice the escaped initial newline.
+This is optional,
+but allows the first line to be aligned with the rest.
 Because the string was injected (``.#``),
 don't forget to quote it (``'``),
 or the compiler will assume the string contents are Python code to be inlined.
+
+Remember that `<\<#<QzLT_QzLT_QzHASH_>` can also make multiline strings.
+
+.. code-block:: REPL
+
+   #> (print (.upper <<#
+   #..               ;; These lines
+   #..               ;; don't interrupt
+   #..               ;; the flow.
+   #..               _#/))
+   >>> print(
+   ...   "These lines\ndon't interrupt\nthe flow.".upper())
+   THESE LINES
+   DON'T INTERRUPT
+   THE FLOW.
+
+Notice the required doorstop and identical compilation.
+You can avoid the doorstop by using the `-><Qz_QzGT_>` macro.
+
+.. code-block:: REPL
+
+   #> (print (-> <<#
+   #..           ;; These lines
+   #..           ;; don't interrupt
+   #..           ;; the flow.
+   #..           .upper))
+   >>> print(
+   ...   # Qz_QzGT_
+   ...   "These lines\ndon't interrupt\nthe flow.".upper())
+   THESE LINES
+   DON'T INTERRUPT
+   THE FLOW.
+
+The following more compact style is acceptable.
+It's similar to not escaping the initial newline in a ``""`` string,
+so the first line isn't aligned. The comment block still parses properly.
+
+.. code-block:: REPL
+
+   #> (print (-> <<# ; These lines
+   #..           ;; don't interrupt
+   #..           ;; the flow.
+   #..           .upper))
+   >>> print(
+   ...   # Qz_QzGT_
+   ...   "These lines\ndon't interrupt\nthe flow.".upper())
+   THESE LINES
+   DON'T INTERRUPT
+   THE FLOW.
 
 With the principal exception of docstrings,
 long multiline strings should be declared at the `top level`_ and referenced by name.
@@ -707,10 +826,79 @@ Put the closing quote for any multiline docstring on its own line.
 Comment Styles
 ::::::::::::::
 
+Remember, readability counts.
+Commentary should create clarity, not confusion.
+
 Avoid adding superfluous "what"-comments that are obvious from looking at the code.
-(Except perhaps when writing beginner documentation ;)
+(Except perhaps when writing language documentation for beginners ;)
 
 Prefer "why"-comments that describe rationale or intent.
+Your code is probably not as "self-documenting" as you think it is.
+Assume your reader is competent, not omniscient.
+
+If "what"-comments still seem necessary,
+consider how to make the code itself clearer,
+so the "what"-comments would become obvious by looking at the code.
+
+Software development is fundamentally research, not manufacturing or construction.
+URLs citing sources used can be appropriate,
+especially for copied/adapted code, but also for rationale or technique.
+Don't just drop in a URL; say what it's for.
+URLs are not the only type of reference.
+
+Comments are appropriate for pointing out issues that cannot be fixed yet,
+perhaps awaiting a library update.
+Code that is only needed temporarily
+(perhaps working around issues that cannot be fixed yet)
+should have a comment with removal criteria.
+Comments can be appropriate for pointing out non-obvious coupling between files,
+on both sides, and should be positioned close to likely changes.
+
+Some programmers these days are so afraid of stale comments that they
+refuse to document their code at all,
+and remove what comments they can find.
+This is agile culture taken too far.
+Good names are important, but they aren't enough,
+and don't excuse neglect of commentary.
+Names can become stale too; they're not immune just because they're code.
+
+"Working software over comprehensive documentation"
+doesn't mean literally zero documentation.
+It doesn't even mean asymptotically zero documentation as an ideal to strive for.
+It means that the documentation is not what delivers the bulk of the value,
+and that thorough documentation does not excuse software that doesn't work
+(or doesn't work yet).
+
+Version control commit messages are also documentation.
+Those are attached to particular versions, so they can't become stale,
+and aren't a burden to maintain, but they're still valuable history.
+You can write more than a single line.
+Take the opportunity to explain what you were thinking.
+A few sentences don't take that much time, but can save a lot later.
+
+Documentation is a burden, just as code is a liability.
+Don't accept more of either than delivers value.
+Remove or fix bad comments, as appropriate.
+Check the version control history for more clues.
+
+Prefer documentation that is located as close as possible to what it documents,
+so it doesn't get out of sync as easily,
+and then actually read the commentary before modifying existing code.
+
+Don't manually write separate API docs.
+Generate it from your docstrings with something like Sphinx.
+A docstring in a script, with doctests,
+is better than a manually-written separate README file
+with the same information.
+
+Prefer assertions over comments documenting assumptions.
+These don't go stale, or you'd notice.
+Of the assertion types, prefer `avow` over `assure` over `doctest` over `unittest`,
+which is best for more thorough tests of edge cases that would otherwise
+bloat the more local documentation too much.
+Functional tests are also a kind of documentation.
+Readability counts, even there, and testing commentary can be especially valuable.
+Functional tests make good debugging entry points.
 
 .. code-block:: Lissp
 
@@ -767,6 +955,10 @@ comment styles follow the same rules as normal Python.)
 Lisp traditionally uses margin comments instead (as described below),
 but this inline style is also common in Clojure.
 
+Avoid obtuse abbreviations just to make a comment fit in line.
+When a comment needs to be longer to be clear,
+use a different comment style instead.
+
 Margin Comments ;X
 ++++++++++++++++++
 
@@ -820,7 +1012,7 @@ then it's a margin comment. Indent it to the margin.
 Avoid using either margin or inline comments in any situation that would result in a dangling bracket.
 It's not acceptable for the comment to follow the bracket either,
 if the comment isn't about the whole tuple.
-You may instead hold open the bracket with ``_#/)``,
+You may instead hold open the bracket with a doorstop ``_#/)``,
 convert the comment to a discarded string ``_#"NB foo")``,
 or (if appropriate) use a form/group ``;;`` comment above the item, as described below.
 
@@ -830,6 +1022,8 @@ or (if appropriate) use a form/group ``;;`` comment above the item, as described
 Comments about the next form (or group) begin with two semicolons and a space ``;; x``,
 and are indented to align as if they were forms,
 and are not followed by a blank line.
+These comments can be continued with additional lines with the same indent and beginning,
+forming a comment block.
 
 Commented-out code does not belong in version control,
 but disabling code without deleting it can be helpful during development.
@@ -845,6 +1039,8 @@ Top-level commentary lines not attached to any form in particular
 begin with three semicolons and a space ``;;; Foo Bar``.
 Top-level comments are separated from code with a blank line.
 They are not indented.
+These comments can be continued with additional lines with the same beginning,
+forming a comment block.
 
 Standard usage for more than two semicolons varies with Lisp dialect,
 but they are consistently ony for the `top level`_ and have no indent.
@@ -854,7 +1050,10 @@ but differ on which is which.
 To avoid confusion,
 do not use triple-semicolon comments as headings at all.
 
-Prefer module docstrings over top-level comments where applicable
+Prefer a module docstring over top-level comments where applicable.
+Remember that a `<\<#<QzLT_QzLT_QzHASH_>`
+applied to a comment block compiles to a string literal,
+which can be a docstring.
 
 ;;;; Headings
 +++++++++++++
@@ -866,6 +1065,7 @@ and are written in ``Title Case`` by default.
 Headings are for the `top level`_ only; they aren't nested in forms;
 they get their own line and start at the beginning of it.
 They have a blank line before (unless it's the first line) and after.
+They should not have additional continuation lines.
 They organize the code into sections.
 
 Headings can be decorated with symbol characters to make them more emphatic.
@@ -933,13 +1133,17 @@ Start at the top and work your way down:
 there should be only one H1 in a file (the title);
 keep the H2's for your major sections;
 and proceed in numerical order H3, H4, etc., without skipping any heading levels.
-This will minimize the number of heading style changes you need to make if you later find that you need another level.
+This will minimize the number of heading style changes you need to make
+if you later find that you need another level.
 (This means that if you do not use all six levels, you will not have any undecorated H6's at all.)
+Multiple H1s might be acceptable for large projects distributed as a single concatenated
+Lissp file, where they'd head what would normally be modules in separate files.
 
 _#_#_#The Discard Macro
 +++++++++++++++++++++++
 
-The discard macro ``_#`` applied to a ``""`` token is acceptable for long block comments.
+The discard macro ``_#`` applied to a ``""`` token is acceptable for long block comments
+at the top level.
 
 Several discard macros may be used in a row to comment out that many forms following them.
 
@@ -950,7 +1154,8 @@ executing any reader macros).
 As with line comments,
 commented-out code does not belong in shared version control;
 old versions should be in old commits.
-Move the functionality you need to keep out of the comments or into scripts.
+Move the manually-executed functionality you need to keep out of the comments
+and into functions run by a `name_equals_main` guard or separate scripts.
 Move the experiments you want to keep running to assertions
 (See `assure`, `unittest`, and `doctest`).
 
@@ -974,17 +1179,19 @@ or newlines and ``;;`` lines would spread things out too much,
 it is acceptable to additionally use discarded symbols like ``_#,``
 within a line to indicate greater separation than the extra spaces.
 
+These are also used in the doorstop ``_#/`` used to hold open a trail of brackets.
+
 "Docstrings"
 ++++++++++++
 
-Prefer docstrings over comments where applicable.
+Prefer docstrings over semicolon comments where applicable.
 
 Docstrings describe interface and usage;
 they are not for irrelevant implementation details internal to their containing object.
 
 "Private" helper functions/classes/modules (conventionally named with a leading underscore)
 need not have docstrings at all,
-but again, prefer docstrings over comments when applicable,
+but still, prefer docstrings over comments when applicable,
 in which case they describe an interface internal to their object's container,
 but still do not describe their object's implementation details.
 
@@ -995,8 +1202,8 @@ The ``lambda`` special form does not create docstrings.
 However, you can attach a ``.__doc__`` attribute to the lambda object after creating it,
 e.g., using the `attach` macro.
 
-The bundled `deftype` macro does not have any special case for docstrings.
-Instead add a ``__doc__`` as its first key.
+The bundled `once-deftype<onceQz_deftype>` macro does not have any special case for docstrings.
+Instead add a ``__doc__`` attribute.
 
 Indent docstrings to the same column as their opening ``"``
 even when using something like the attach macro.
@@ -1020,7 +1227,7 @@ MyST Markdown also has pretty good support now.
 You can automatically generate API documentation with either of these.
 
 Anaphoric or code string–injection macros are potential gotchas.
-Docstrings for them should include the word "Anaphoric" or "Injection" up front.
+Docstrings for these should include the word "Anaphoric" or "Injection" up front.
 Anaphoric macro docstrings should also state what the anaphors are,
 named in doubled backticks.
 
@@ -1079,6 +1286,205 @@ let the munger do the munging for you.
 Avoid writing anything in the Quotez style yourself.
 (This can confuse the demunger and risks collision with compiler-generated names like gensyms.)
 
+Abbreviated (even single-character)
+local identifiers are acceptable if their lexical scope is very small,
+preferably within the same line or the next few,
+especially if their initial binding makes their meaning clear.
+This includes `X#<XQzHASH_>` and friends.
+Parameter names of public-facing functions are considered part of their interface,
+since they can be passed as kwargs,
+and should be more descriptive in most cases.
+Single-letter names following a strong mathematical or coding conventions
+may be clear enough even over wider scopes.
+
+It's idiomatic in Lissp to use a symbol as the parameters when they'd each be one
+(non-munging) character.
+
+.. code-block:: Lissp
+
+   (lambda abc (print c b a))             ;Preferred
+
+   (lambda (a b c)                        ;OK
+     (print c b a))
+
+   ;;; This goes for macro arguments directly used as params too.
+
+   (let-from abc 'XYZ (print c b a))      ;Preferred
+
+   (let-from (a b c)                      ;OK
+             'XYZ
+     (print c b a))
+
+   (any*map kv (.items (dict : a 1  b 2)) ;Preferred
+     (print k v))
+
+   (any*map (k v)                         ;OK
+            (.items (dict : a 1  b 2))
+     (print k v))
+
+Avoid abbreviating local identifiers otherwise.
+Remember to optimize for readability rather that writability;
+don't make the reader guess,
+but assume a competent audience.
+Avoid excessively long names; bloat is not readable either.
+Descriptive names do not excuse bad design.
+
+Conventional short names include, but are not limited to,
+* ``i`` and ``j``, in that order, for integer indexes,
+* ``k`` and ``v`` for "key" and "value" when iterating over a mapping,
+* ``kvs`` for a mapping (or other iterable of key-value pairs).
+* ``ks`` or ``vs`` for iterables of keys or of values.
+* ``xss`` or ``yss` for iterables of iterables.
+* ``xs`` or ``ys`` for iterables, especially if pulled from ``xss`` or ``yss``.
+* ``x`` or ``y`` for elements pulled, especially from ``xs`` or ``ys``.
+* ``f``, or ``g`` for function parameters or locals.
+* ``n`` for an integer parameter, especially if it's a size.
+* ``s`` for a string parameter or local.
+* ``b`` for a boolean parameter.
+* ``e`` for an exception.
+
+Throwaway locals should begin with an underscore.
+Some macros or higher-order functions require you to create a binding even when it's useless.
+For example, :ref:`engarde <engarde>`'s exception handler must accept an exception.
+If you're going to use it, you can call it ``e``,
+but if you're not, call it ``_e`` instead.
+Don't let this stop you from using `X#<XQzHASH_>` to make a handler,
+or when otherwise appropriate.
+
+In rare cases, a function may have a mutable default used as a cache.
+Often it's better to put this cache somewhere else,
+but sometimes definition time is the right level.
+Use an argument name starting with an underscore to indicate this is a "private"
+implementation detail not meant to be part of the function's interface.
+These parameters should not be passed in, except perhaps by tests.
+This doesn't conflict with the throwaway case because the existence of the default
+argument distinguishes them.
+
+Shadowing
+:::::::::
+
+While frowned upon in Python with its relatively small number of builtins,
+using a built-in function name as a local is more acceptable in a Lisp-2
+which typically has a lot more built-in functions and separate
+function and variable namespaces anyway.
+
+Although Hissp is dynamic enough to change this, it is a Lisp-1 by default,
+because Python also uses a common namespace for both.
+Lisp-1s often avoid shadowed function names by using awkward workaround abbreviations,
+like ``lst`` for ``list``.
+One can get used to these, but they do impair readability.
+Python's solution is to append an underscore to unavailable names.
+This convention is acceptable in Hissp,
+but occasionally the appended name is also taken.
+A modified Smalltalk-like convention like ``a-list`` is also acceptable,
+or ``a_list`` especially for a parameter that might be called with syntax like
+``a_list=foo`` from Python code, to avoid munging.
+
+Shadowing locals is acceptable,
+and can be thought of as a reassignment.
+Local binding forms have a restricted lexical scope
+which makes them easier to reason about than Python's local (re)assignment statements.
+Hissp functions often immediately convert parameters to a more useful form in a `let`
+and shadow them with the same names.
+Be more careful in imperative scripts where lexical scopes can be larger.
+Consider if multiple smaller scopes are more readable.
+
+Shadowing of builtins is a source of potential errors,
+so it is preferable that you do not,
+but lexical scoping handles this acceptably.
+This preference should be extended to a module's globals, including the `prelude<hissp.macros._macro_.prelude>`'s
+star-imports of `operator` and `itertools`.
+Python's naming conventions for classes (``CapWords``) and "constants"
+(``UPPER_CASE_WITH_UNDERSCORES``) usually prevents local collisions with those,
+but function and module names can be a problem.
+Prefer aliases over defining globals of module type.
+
+Name top-level helper functions that are only being used inside your module
+(or by tests, internal or not) with a leading underscore.
+This is the Python convention for a "private" global,
+although not much enforces it.
+You can always rename these later if you need to.
+You'll only have to update usages in the module.
+(The reverse is harder, but shouldn't be done while there are any external usages left.)
+This aids in readability, because it makes it easy to tell
+what functions are interface and what's implementation detail.
+It also narrows the space of possible local collisions to the public interface functions.
+
+However, memorizing which names are off-limits puts an undue burden on the writer,
+especially for a REPL-driven rather than IDE-driven language like Lissp.
+For reasonably short functions, it's clear what the locals are from their binding forms.
+Macro definitions should be robust enough to handle a shadowed builtin.
+Lissp's template syntax makes this fairly easy as it qualifies symbols by default.
+You have to go out of your way to turn this off for anaphors.
+
+You are free to use the fully-qualified names in handwritten code as well.
+Using a fully-qualified name is preferred over
+changing a shadowing parameter name in an established public-facing function.
+Parameter names are considered part of the interface,
+especially when they can be passed as kwargs
+(includes normal positional parameters, not just the kwonlies).
+Changing positional-only parameters is more acceptable,
+but beware that this change does show up in `help`,
+automated API documentation, and the like.
+
+For these reasons, shadowing a global or builtins isn't considered unacceptable in Lissp
+like it is in other languages you might know.
+It's better to avoid it, but don't worry about it too much,
+and don't go out of your way to correct it either.
+
+Aliasing and Imports
+::::::::::::::::::::
+
+Avoid repeating the name of the containing module or package when writing definitions,
+because they may be accessed through an alias or as a module attribute.
+
+The reader should not have to guess what an alias means when jumping into an unfamiliar file.
+Use consistent aliases within a project.
+Usually, this means the alias is the module name, but not its containing packages,
+unless there is a shorter well-known name in the community
+(like ``np#`` for NumPy or ``op#`` for operators)
+or for an internal module well-known within your project.
+
+When you want an alias both for a module and its macro namespace,
+use the alias for its macro namespace and define a
+global with the same name for the module:
+
+.. code-block:: Lissp
+
+   (alias baz foo.bar.baz.._macro_.)
+   (define _baz foo.bar.baz.)
+
+   ;; Use a macro like
+   (baz#my-macro ...)
+
+   ;; Use a callable like
+   (_baz.my-callable ...)
+
+Non-Hissp Python modules don't have a macro namespace and won't have this conflict.
+Aliases may be preferable in that case,
+because they have the advantage of never colliding with your module's global function names,
+although would use up a tag name instead,
+you probably won't have as many of those.
+
+Avoid redefining (non-module) globals from other modules.
+Just access them from the module they belong to.
+This improves readability,
+and for internal project modules,
+improves reloadability during REPL-driven development.
+Otherwise, instead of just refreshing the module with the updated definition,
+every module redefining it would have to be reloaded as well.
+
+Sometimes separate packages use the same module name internally.
+Aliases are allowed to contain a dot.
+(Fully-qualified tags have a double dot.)
+Usually, you'd alias as the library's root package name followed by a dot,
+followed by the module name.
+Given Python's "flat is better than nested" culture,
+many library packages have no subpackages,
+so this may not be any shorter than using the fully-qualified name.
+
+Prefer using aliases over attaching macros to `_macro_`.
+
 Method Syntax vs Attribute Calls
 ::::::::::::::::::::::::::::::::
 
@@ -1092,7 +1498,7 @@ Which is preferred then depends on whether ``bar`` is a namespace or an argument
 For a namespace, prefer ``bar.foo``.
 Internal use of ``self`` in methods and ``cls`` in classmethods,
 is also more namespace than argument.
-For an argument, i.e. other method calls, prefer ``.foo bar``.
+For an argument, i.e., other method calls, prefer ``.foo bar``.
 
 .. code-block:: Lissp
 
@@ -1102,7 +1508,7 @@ For an argument, i.e. other method calls, prefer ``.foo bar``.
    ;;;; Arguments
 
    (.upper "hi")                          ;Preferred.
-   ("hi".upper)                           ;SyntaxError
+   ("hi".upper)                           ;SyntaxError.
 
    (.upper greeting)                      ;Preferred.
    (greeting.upper)                       ;Bad.
@@ -1122,6 +1528,8 @@ For an argument, i.e. other method calls, prefer ``.foo bar``.
 
    ;; self as namespace, self.accumulator as argument
    (.append self.accumulator x)           ;Good use of both.
+
+.. TODO: consider usage recommendations for individual bundled macros.
 
 The End of the Line
 ===================
@@ -1210,6 +1618,58 @@ even in an implied group.
          (cond (lt lxs lys) (print "<")
                (gt lxs lys) (print ">")
                :else (print "0")))))
+
+Prefer Shorter Definitions
+::::::::::::::::::::::::::
+
+Pure functions and especially methods of a class should be kept very short,
+implementing a single easily-testable concept or perhaps a few very closely related ones.
+Build up a vocabulary of definitions so the requisite function becomes easily expressible.
+Function definition bodies should be no more than 10 lines, and usually no more than 5.
+That's not counting comments, assertions, or parameters.
+
+This rule doesn't apply to imperative scripts used near the top of the call stack
+(main, or similar entry points)
+once the pure functional bits have been factored out.
+At that point, lexical locality is more important for readability,
+so it's better to leave them long than to break them up.
+
+Avoid more than four heterogeneous positional parameters without a very good reason.
+This limit doesn't apply to homogeneous star args or kwonly arguments (usually options),
+although that isn't license to overcomplicate functions.
+The order of arguments is often meaningless,
+and imposing any particular permutation becomes harder to justify the more there are.
+Zero or one positional parameters have one obvious answer. Two only has two to consider.
+These are fine. Three has six. Are you sure you picked the best one?
+Four already has 24 permutations, which, realistically,
+you're not likely to consider exhaustively,
+so you need a good reason to nail at least one of them down.
+It just gets worse from there. The factorial sequence grows pretty quickly.
+Why not make it easy and use meaningful names instead of meaningless positions?
+Kwonly is there for you.
+
+Remember that macro definitions can use helper functions.
+Some macros are effectively a convenience wrapper over what could otherwise be a function.
+It's best to implement and provide that function as well,
+because functions can be easier to compose and pass as arguments.
+
+Newlines
+::::::::
+
+Prefer Unix-style LF over the Dos/Windows CRLF for files in version control
+that might be used on non-Windows systems.
+(Macintosh CR files are obsolete. Modern MacOS and Linux use LF.)
+Even on Windows, most code editors can handle LF files.
+When in doubt, pick LF.
+
+A file that does not end in a newline is not (strictly speaking) a text file;
+they're line *terminators*, not separators.
+Although some tooling can handle this particular malformation gracefully,
+the Lissp reader cannot in all cases.
+
+`transpile_file` (used by `transpile` and `transpile_packaged`)
+always produces LF ``.py`` files, even on Windows.
+Python doesn't mind.
 
 Avoid Trailing Whitespace
 :::::::::::::::::::::::::
