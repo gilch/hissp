@@ -440,7 +440,7 @@ If you've got a fragment surrounded by double quotes (``"``), you can drop the `
 .. code-block:: REPL
 
    #> "Say \"Cheese!\"
-   #..\u263a" ; Notice it includes parentheses.
+   #..\u263a" ; Note the parentheses.
    >>> ('Say "Cheese!"\n☺')
    'Say "Cheese!"\n☺'
 
@@ -506,16 +506,17 @@ The Lissp symbol tokens are read in as strings, just like fragments.
 In other Lisps, symbols are a data type in their own right,
 but symbols only exist as a *reader syntax* in Lissp,
 where they represent the subset of Hissp-level strings that can act as identifiers.
-Python has no built in symbol type
+Python has no built-in symbol type
 and instead uses strings pervasively whenever it has to represent identifiers.
 
-Symbols in Lissp become strings in Hissp which become identifiers in Python,
+In summary,
+symbols in Lissp become strings in Hissp which become identifiers in Python,
 unless they're quoted, in which case they become string literals in Python.
 
 Attributes
 ----------
 
-Symbols can have internal ``.``\ s to access attributes.
+Symbols can have internal ``.``\ s to access attributes, same as Python.
 
 .. code-block:: REPL
 
@@ -1746,7 +1747,7 @@ it is expanded as well (this pattern is known as a *recursive macro*),
 which is an ability that the reader macros lack.
 
 The compiler recognizes a callable as a macro if it is invoked directly
-from a ``_macro_`` namespace:
+from a fully-qualified ``_macro_`` namespace:
 
 .. code-block:: REPL
 
@@ -2135,9 +2136,9 @@ with the name of each top-level ``.lissp`` file,
 or ``.lissp`` file in the corresponding package,
 respectively::
 
-   from hissp import transpile
+   import hissp
 
-   transpile(__package__, "spam", "eggs", "etc")
+   hissp.transpile(__package__, "spam", "eggs", "etc")
 
 Or equivalently in Lissp, used either at the REPL or if the main module is written in Lissp:
 
@@ -2156,7 +2157,9 @@ which gives you fine-grained control over what gets compiled when.
 
 Before distributing a Lissp project to users who won't be modifying it,
 compilation could be disabled or removed altogether,
-especially when not distributing the .lissp sources.
+especially when not distributing the ``.lissp`` sources.
+If you don't want the ``hissp`` package to be a dependency,
+make sure you remove or disable imports of it as well.
 
 .. Note::
    You normally *do* want to recompile the whole project during development.
@@ -2245,7 +2248,7 @@ and there would be no such attribute.
 
 .. rubric:: Footnotes
 
-.. [#EOF] End Of File. Usually Ctrl-D, but enter Ctrl-Z on Windows.
+.. [#EOF] End Of File. Usually Ctrl+D, but enter Ctrl+Z on Windows.
           This doesn't quit Python if the REPL was launched from Python,
           unlike ``(exit)``.
 
