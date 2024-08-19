@@ -1,4 +1,4 @@
-.. Copyright 2020, 2021, 2022, 2023 Matthew Egan Odendahl
+.. Copyright 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
    SPDX-License-Identifier: Apache-2.0
 
 .. This hidden doctest adds bundled macros for REPL-consistent behavior.
@@ -38,6 +38,11 @@ Lissp Whirlwind Tour
    Familiarity with another Lisp dialect is not assumed, but helpful. If
    you get confused or stuck, look for the Hissp community chat or try the
    more expository Hissp Primer.
+
+   You are expected to read through the sections in order. New concepts
+   will be presented incrementally. Examples of a new concept will
+   otherwise be limited to what has been demonstrated so far, which may
+   not be their most natural expression.
    "
 
    ;;;; 1 Installation
@@ -149,7 +154,7 @@ Lissp Whirlwind Tour
 
    ;;;; 3 Simple Tuples
 
-   ;; Tuples group any atoms with (). Data tuples start with '.
+   ;; Tuples can group any atoms with (). Data tuples start with an apostrophe.
    #> '(None 2 3)
    >>> (None,
    ...  (2),
@@ -255,7 +260,7 @@ Lissp Whirlwind Tour
    ...    (3),))
    {1, 2, 3}
 
-   #> (dict '((1 2) (3 4)))               ;Uses nested tuples.
+   #> (dict '((1 2) (3 4)))               ;Note the nested tuples!
    >>> dict(
    ...   (((1),
    ...     (2),),
@@ -314,7 +319,7 @@ Lissp Whirlwind Tour
 
    ;;; Data fragments compile to string literals.
 
-   #> '|1+1|                              ;Data fragments also start with '.
+   #> '|1+1|                              ;Make data fragments with an apostrophe.
    >>> '1+1'
    '1+1'
 
@@ -363,16 +368,16 @@ Lissp Whirlwind Tour
    >>> 'Qz_QzLT_QzGT_QzGT_'
    'Qz_QzLT_QzGT_QzGT_'
 
-   #> :-<>>                               ;Don't represent identifiers, don't munge.
+   #> :-<>>                               ;Doesn't represent identifier; doesn't munge.
    >>> ':-<>>'
    ':-<>>'
 
-   #> :                                   ;Still a control word.
+   #> :                                   ;Shortest a control word.
    >>> ':'
    ':'
 
 
-   ;;;; 6.2 Escaping
+   ;;;; 6.2 Escaping with \
 
    #> 'SPAM\ \"\(\)\;EGGS                 ;These would terminate a symbol if not escaped.
    >>> 'SPAMQzSPACE_QzQUOT_QzLPAR_QzRPAR_QzSEMI_EGGS'
@@ -879,7 +884,7 @@ Lissp Whirlwind Tour
    ;;; Quote is the only other special form. Looks like a call, but isn't.
 
    ;;; A "form" is any Hissp data that can be evaluated.
-   ;;; Not all data is a valid program in Hissp. E.g. ``(7 42)`` is a
+   ;;; Not all data is a valid program in Hissp. E.g., ``(7 42)`` is a
    ;;; tuple, containing the integers 7 in the function position, and 42
    ;;; after in the first argument position. It would compile to a
    ;;; syntactically-valid Python program, but evaluation would crash,
@@ -1818,7 +1823,7 @@ Lissp Whirlwind Tour
 
    ;;;; 14 The Bundled Macros
 
-   ;;; To make it more usable, the REPL comes with the bundled macros
+   ;;; As a convenience, the REPL comes with the bundled macros
    ;;; already defined at start up. They're in the _macro_ namespace.
 
    (dir _macro_)
@@ -1840,6 +1845,7 @@ Lissp Whirlwind Tour
    ;;; fully-qualified names.
 
    ;;; The bundled macros have individual docstrings with usage examples.
+   ;;; At this point in the tour, you should be able to understand them.
 
    (help _macro_.define)
 
@@ -1867,17 +1873,17 @@ Lissp Whirlwind Tour
    ;;; Familiarize yourself with a macro suite, such as the bundled macros.
    ;;; It makes Hissp that much more usable.
 
-   ;;;; 15 Advanced Reader Macros
+   ;;;; 15 Advanced Reader Tags
 
    ;;;; 15.1 The Discard Macro
 
    #> _#"The discard reader macro _# omits the next form.
    #..It's a way to comment out code structurally.
    #..It can also make block comments like this one.
+   #..(But the need to escape double quotes might make ;; comments easier.)
    #..This would show up when compiled if not for _#.
    #..Of course, a string expression like this one wouldn't do anything
-   #..in Python, even if it were compiled in. But the need to escape double
-   #..quotes might make ;; comments easier.
+   #..in Python, even if it were compiled in.
    #.."
    >>>
 
