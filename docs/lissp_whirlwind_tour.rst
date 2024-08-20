@@ -1828,17 +1828,19 @@ Lissp Whirlwind Tour
 
    (dir _macro_)
 
-   ;;; This is a copy of of the following module.
+   ;;; This is a copy of of the following namespace.
 
-   #> hissp.._macro_
-   >>> __import__('hissp')._macro_
-   <module 'hissp.macros._macro_'>
+   hissp.macros.._macro_
 
-   (dir hissp.._macro_)
+   (dir hissp.macros.._macro_)
 
    ;;; Notice its containing module. Take a minute to read its docstring.
 
    (help hissp.macros.)
+
+   ;;; As a convenience, hissp.__init__ imports it as well:
+
+   hissp.._macro_
 
    ;;; The macros will still be available from there even if you clobber
    ;;; your _macro_ copy. Recall that you can invoke macros using their

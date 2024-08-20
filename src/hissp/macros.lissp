@@ -76,21 +76,29 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 ;;;  ---
 
 ;; Bootstrap macro namespace using builtins.
-(.update (globals) : _macro_ (types..ModuleType (.format "{}._macro_" __name__)))
-(operator..setitem sys..modules _macro_.__name__ _macro_)
+(.update (globals) : _macro_ (types..SimpleNamespace))
+(setattr _macro_ '__doc__ "Hissp's bundled macro namespace.")
 
 ;;; YO DAWG, I HERD YOU LIKE MACROS
 ;;; SO I PUT A BOOTSTRAP defmacro IN YOUR _macro_ SO YOU CAN defmacro A
 ;;; REAL defmacro WHILE YOU DEFINE ALL YOUR MACROS!
 
-;; Simplified bootstrap version assumes ideal conditions to avoid branching.
+;; Simplified bootstrap version.
+;; Yes, Python really sets the name in three different places!
 (setattr _macro_
          'defmacro
          (lambda (name parameters docstring : :* body)
            `((lambda (: $#G (lambda ,parameters ,@body))
-               (setattr $#G ','__doc__ ,docstring)
-               (setattr $#G ','__qualname__ (.join "." '(,'_macro_ ,name)))
-               (setattr _macro_ ',name $#G)))))
+               ;; Assume the presence of a docstring--
+               (setattr $#G ','__doc__ ,docstring) ; Needed for help().
+               ;; --and of the _macro_ namespace to avoid branching.
+               (setattr _macro_ ',name $#G)
+               ;; Needed for tracebacks.
+               (setattr $#G ','__code__ (.replace $#G.__code__ : co_name ',name))
+               ;; Also needed for help().
+               (setattr $#G ','__name__ ',name)
+               ;; Needed for repr().
+               (setattr $#G ','__qualname__ (.join "." '(,'_macro_ ,name)))))))
 
 (defmacro if-else (test consequent alternate)
   "``if-else`` Basic ternary branching construct.
@@ -158,85 +166,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   See also: `prog1`, `Expression statements <exprstmts>`.
   "
   ;; TODO: consider flattening nested progns
-  `((lambda :
-      ,@body)))
-
-(defmacro when (condition : :* body)
-  "When the condition is true,
-  evaluates each expression in sequence for side effects,
-  resulting in the value of the last.
-  Otherwise, skips them and returns ``()``.
-
-  .. code-block:: REPL
-
-     #> (any-map c 'abcd
-     #..  (print c)
-     #..  (when (op#eq c 'b)
-     #..    (print 'found)
-     #..    :break))
-     >>> # anyQz_map
-     ... __import__('builtins').any(
-     ...   __import__('builtins').map(
-     ...     (lambda c:
-     ...        (print(
-     ...           c),
-     ...         # when
-     ...         (lambda b, c: c()if b else())(
-     ...           __import__('operator').eq(
-     ...             c,
-     ...             'b'),
-     ...           (lambda :
-     ...              (print(
-     ...                 'found'),
-     ...               ':break')  [-1]
-     ...           )))  [-1]
-     ...     ),
-     ...     'abcd'))
-     a
-     b
-     found
-     True
-
-  See also: `if-else<ifQz_else>`, `unless`, `if`.
-  "
-  `((lambda ,'bc |c()if b else()|) ; boolean, consequent
-    ,condition (lambda : ,@body)))
-
-(defmacro unless (condition : :* body)
-  "Unless the condition is true,
-  evaluates each expression in sequence for side effects,
-  resulting in the value of the last.
-  Otherwise, skips them and returns ``()``.
-
-  .. code-block:: REPL
-
-     #> (any-map c 'abcd
-     #..  (unless (op#eq c 'b)
-     #..    (print c)))
-     >>> # anyQz_map
-     ... __import__('builtins').any(
-     ...   __import__('builtins').map(
-     ...     (lambda c:
-     ...         # unless
-     ...         (lambda b, a: ()if b else a())(
-     ...           __import__('operator').eq(
-     ...             c,
-     ...             'b'),
-     ...           (lambda :
-     ...               print(
-     ...                 c)
-     ...           ))
-     ...     ),
-     ...     'abcd'))
-     a
-     c
-     d
-     False
-
-  See also: `when`.
-  "
-  `((lambda ,'ba |()if b else a()|) ; boolean, alternate
-    ,condition (lambda : ,@body)))
+  `((lambda : ,@body)))
 
 (defmacro let (pairs : :* body)
   "Creates local variables. Pairs are implied by position.
@@ -282,89 +212,6 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `((lambda (: ,@pairs)
       ,@body)))
 
-;;;; - Post-Bootstrap -
-;;;  ---
-
-;;;; Defining Variables
-
-;;; see also from Bootstrap: let
-
-;; Define the real defmacro using the bootstrap macros.
-(defmacro defmacro (name parameters : docstring ()  :* body)
-  "Creates a new macro for the current module.
-
-  If there's no local ``_macro_`` namespace (at compile time), creates
-  one using `types.ModuleType` (at runtime). If there's a docstring,
-  stores it as the new lambda's ``__doc__``. Adds the ``_macro_`` prefix
-  to the lambda's ``__qualname__``. Saves the lambda in ``_macro_``
-  using the given attribute name.
-
-  .. code-block:: REPL
-
-     #> (defmacro p123 (sep)
-     #..  <<#;Prints 1 2 3 with the given separator
-     #..  `(print 1 2 3 : sep ,sep))
-     >>> # defmacro
-     ... # hissp.macros.._macro_.let
-     ... (
-     ...  lambda _QzAW22OE5Kz___fn=(lambda sep:
-     ...            ('Prints 1 2 3 with the given separator',
-     ...             (lambda * _:  _)(
-     ...               'builtins..print',
-     ...               (1),
-     ...               (2),
-     ...               (3),
-     ...               ':',
-     ...               '__main__..sep',
-     ...               sep))  [-1]
-     ...         ):
-     ...    (__import__('builtins').setattr(
-     ...       _QzAW22OE5Kz___fn,
-     ...       '__doc__',
-     ...       'Prints 1 2 3 with the given separator'),
-     ...     __import__('builtins').setattr(
-     ...       _QzAW22OE5Kz___fn,
-     ...       '__qualname__',
-     ...       ('.').join(
-     ...         ('_macro_',
-     ...          'p123',))),
-     ...     __import__('builtins').setattr(
-     ...       __import__('operator').getitem(
-     ...         __import__('builtins').globals(),
-     ...         '_macro_'),
-     ...       'p123',
-     ...       _QzAW22OE5Kz___fn))  [-1]
-     ... )()
-
-     #> (p123 ::)
-     >>> # p123
-     ... __import__('builtins').print(
-     ...   (1),
-     ...   (2),
-     ...   (3),
-     ...   sep='::')
-     1::2::3
-
-  See also:
-  `<\\<# <QzLT_QzLT_QzHASH_>`, `attach`,
-  `lambda <hissp.compiler.Compiler.function>`.
-  "
-  (let ($fn `$#fn)
-    (let (fn `(lambda ,parameters ,docstring ,@body)
-          ns (unless (operator..contains (.get hissp.compiler..NS) '_macro_)
-               `((.update (globals) : _macro_ (types..ModuleType ','_macro_))))
-          dc (when (hissp.reader..is_hissp_string docstring)
-               `((setattr ,$fn ','__doc__ ,docstring)))
-          qn `(setattr ,$fn ','__qualname__ (.join "." '(,'_macro_ ,name))))
-      `(let (,$fn ,fn)
-         ,@ns
-         ,@dc
-         ,qn
-         (setattr (operator..getitem (builtins..globals)
-                                     ','_macro_)
-                  ',name
-                  ,$fn)))))
-
 (defmacro let-from (syms itr : :* body)
   "``let-from`` Create listed locals from iterable.
 
@@ -384,8 +231,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   See also: `let`, `let*from<letQzSTAR_from>`, `assignment`.
   "
-  `((lambda ,syms
-      ,@body)
+  `((lambda ,syms ,@body)
     : :* ,itr))
 
 (defmacro let*from (pairs : :* body)
@@ -483,6 +329,151 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
          ,@body))
     `(progn ,@body)))
 
+(defmacro fun (qualname params : maybe-docstring ()  :* body)
+  "A lambda enhanced with a qualname and optionally a docstring.
+
+  Hissp's (and Python's) lambda syntax do not have docstrings. Named
+  lambdas improve REPL transparency and error messages, at the cost of
+  some configuration overhead to set the name in the three places Python
+  requires.
+
+  Used by `defun`. Not recommended for otherwise anonymous functions due
+  to the additional overhead.
+  "
+  (let*from ((name : :* _xs) (reversed (.split qualname '. 1))
+             (doc top) (if-else (hissp.reader..is_hissp_string maybe-docstring)
+                         `(,(lambda x `((setattr ,x "__doc__" ,maybe-docstring)))
+                           ())
+                         `(,(lambda x)
+                           (,maybe-docstring))))
+    `(let ($#lambda (lambda ,params ,@top ,@body))
+       ,@(doc '$#lambda) ; Used by help().
+       ;; Used by tracebacks.
+       (setattr $#lambda "__code__" (.replace $#lambda.__code__ : co_name ',name))
+       ;; Used by help().
+       (setattr $#lambda "__name__" ',name)
+       ;; Used by repr().
+       (setattr $#lambda "__qualname__" ',qualname)
+       $#lambda)))
+
+(defmacro unless (condition : :* body)
+  "Unless the condition is true,
+  evaluates each expression in sequence for side effects,
+  resulting in the value of the last.
+  Otherwise, skips them and returns ``()``.
+
+  .. code-block:: REPL
+
+     #> (any-map c 'abcd
+     #..  (unless (op#eq c 'b)
+     #..    (print c)))
+     >>> # anyQz_map
+     ... __import__('builtins').any(
+     ...   __import__('builtins').map(
+     ...     (lambda c:
+     ...         # unless
+     ...         (lambda b, a: ()if b else a())(
+     ...           __import__('operator').eq(
+     ...             c,
+     ...             'b'),
+     ...           (lambda :
+     ...               print(
+     ...                 c)
+     ...           ))
+     ...     ),
+     ...     'abcd'))
+     a
+     c
+     d
+     False
+
+  See also: `when`.
+  "
+  `((lambda ,'ba |()if b else a()|) ; boolean, alternate
+    ,condition (lambda : ,@body)))
+
+;;;; - Post-Bootstrap -
+;;;  ---
+
+;;;; Binding Variables
+
+;;; See also: let, let-from, and let*from in Bootstrap.
+
+;; Define the real defmacro using the bootstrap macros.
+(defmacro defmacro (name parameters : :* body)
+  "Creates a new macro for the current module.
+
+  If there's no local ``_macro_`` namespace (at compile time), adds code
+  to create one using `types.SimpleNamespace` (at runtime), if it's
+  still not there. If there's a docstring, stores it as the new lambda's
+  ``__doc__``. Adds the ``_macro_`` prefix to the lambda's
+  ``__qualname__``. Saves the lambda in ``_macro_`` using the given
+  attribute name.
+
+  .. code-block:: REPL
+
+     #> (defmacro p123 (sep)
+     #..  <<#;Prints 1 2 3 with the given separator
+     #..  `(print 1 2 3 : sep ,sep))
+     >>> # defmacro
+     ... __import__('builtins').setattr(
+     ...   __import__('builtins').globals().get(
+     ...     ('_macro_')),
+     ...   'p123',
+     ...   # hissp.macros.._macro_.fun
+     ...   # hissp.macros.._macro_.let
+     ...   (
+     ...    lambda _QzTXNQFMN3z___lambda=(lambda sep:
+     ...               (lambda * _:  _)(
+     ...                 'builtins..print',
+     ...                 (1),
+     ...                 (2),
+     ...                 (3),
+     ...                 ':',
+     ...                 '__main__..sep',
+     ...                 sep)
+     ...           ):
+     ...      (__import__('builtins').setattr(
+     ...         _QzTXNQFMN3z___lambda,
+     ...         ('__doc__'),
+     ...         'Prints 1 2 3 with the given separator'),
+     ...       __import__('builtins').setattr(
+     ...         _QzTXNQFMN3z___lambda,
+     ...         ('__code__'),
+     ...         _QzTXNQFMN3z___lambda.__code__.replace(
+     ...           co_name='p123')),
+     ...       __import__('builtins').setattr(
+     ...         _QzTXNQFMN3z___lambda,
+     ...         ('__name__'),
+     ...         'p123'),
+     ...       __import__('builtins').setattr(
+     ...         _QzTXNQFMN3z___lambda,
+     ...         ('__qualname__'),
+     ...         '_macro_.p123'),
+     ...       _QzTXNQFMN3z___lambda)  [-1]
+     ...   )())
+
+     #> (p123 ::)
+     >>> # p123
+     ... __import__('builtins').print(
+     ...   (1),
+     ...   (2),
+     ...   (3),
+     ...   sep='::')
+     1::2::3
+
+  See also:
+  `<\\<# <QzLT_QzLT_QzHASH_>`, `attach`,
+  `lambda <hissp.compiler.Compiler.function>`.
+  "
+  (let (form `(setattr (.get (globals) "_macro_")
+                       ',name
+                       (fun ,(.format "_macro_.{}" name) ,parameters ,@body)))
+    (if-else (operator..contains (.get hissp.compiler..NS) '_macro_)
+      form
+      `(progn (.setdefault (globals) "_macro_" (types..SimpleNamespace))
+              ,form))))
+
 (defmacro define (qualname value)
   "Assigns an attribute the value.
 
@@ -501,15 +492,19 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      >>> SPAM
      'tomato'
 
-  See also: `globals`, `dict.update`, `once-define`, `def`,
-  `assignment`, `global`.
+  See also: `globals`, `dict.update`, `defonce`,
+  `def`, `assignment`, `global`.
   "
   (let-from (ns _dot attr) (.rpartition qualname ".")
     (if-else ns
       `(setattr ,ns ',attr ,value)
       `(.update (globals) : ,qualname ,value))))
 
-(defmacro once-define (qualname value)
+(defmacro defun (qualname params : :* body)
+  "Define a named function with optional docstring."
+  `(define ,qualname (fun ,qualname ,params ,@body)))
+
+(defmacro defonce (qualname value)
   "Defines an attribute, unless it exists.
 
   Like `define`, but won't overwrite an existing attribute.
@@ -519,8 +514,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   .. code-block:: REPL
 
-     #> (once-define CACHE (types..SimpleNamespace : x 1))
-     >>> # onceQz_define
+     #> (defonce CACHE (types..SimpleNamespace : x 1))
+     >>> # defonce
      ... # hissp.macros.._macro_.unless
      ... (lambda b, a: ()if b else a())(
      ...   __import__('operator').contains(
@@ -539,9 +534,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   'x',
      ...   (42))
 
-     #> (once-define CACHE (progn (print 'not 'evaluated)
-     #..                          (types..SimpleNamespace : x 1)))
-     >>> # onceQz_define
+     #> (defonce CACHE (progn (print 'not 'evaluated)
+     #..                      (types..SimpleNamespace : x 1)))
+     >>> # defonce
      ... # hissp.macros.._macro_.unless
      ... (lambda b, a: ()if b else a())(
      ...   __import__('operator').contains(
@@ -561,7 +556,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   ))
      ()
 
-     #> CACHE ; The second once-define had no effect.
+     #> CACHE ; The second defonce had no effect.
      >>> CACHE
      namespace(x=42)
 
@@ -572,32 +567,33 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
                 `(operator..contains (globals) ',attr)))
      (define ,qualname ,value)))
 
-(defmacro once-deftype (qualname bases : :* decorators)
+(defmacro deftypeonce (qualname bases : :* once-decorators)
   'hissp.reader..Comment.contents#
   ;; Defines a type (class), unless it exists.
   ;;
-  ;; Add class attributes afterwards using `define` or `defun`, and
-  ;; class decorators afterwards using `zap@`. These run again on module
-  ;; reload and patch in existing instances.
+  ;; Add class attributes afterward using `define` or `defun`, and class
+  ;; decorators above with `@##<QzAT_QzHASH_>` or afterward using
+  ;; `zap@<zapQzAT_>`. These run again on module reload and patch in
+  ;; existing instances.
   ;;
-  ;; ``decorators`` apply in the order written (first applies first),
-  ;; unless the type exists (not reapplied on reloads). Beware that type
-  ;; attributes defined afterwards will not be available for the
-  ;; ``decorators`` to operate upon. A decorator can add attributes for
-  ;; subsequent decorators to operate upon, however, and a decorator may
-  ;; be a lambda defined in line. It is possible to add arbitrary
-  ;; attributes at definition time this way, but remember that
-  ;; ``decorators`` don't run again on reloads, so changes here cannot
-  ;; simply be reloaded with the module the way attributes defined
-  ;; afterwards can.
+  ;; The ``once-decorators`` apply before any external ones, in the
+  ;; order written (first applies first), unless the type exists (not
+  ;; reapplied on reloads). Beware that type attributes defined
+  ;; afterward will not be available for the ``once-decorators`` to
+  ;; operate upon. A decorator can add attributes for subsequent
+  ;; decorators to operate upon, however, and a decorator may be a
+  ;; lambda defined in line. It is possible to add arbitrary attributes
+  ;; this way, but remember that ``once-decorators`` don't run again on
+  ;; reloads, so changes here cannot simply be reloaded with the module
+  ;; the way attributes defined afterward can.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (once-deftype Point2D (tuple)
+  ;;    #> (deftypeonce Point2D (tuple)
   ;;    #..  ;; Example of setting an attr with an internal decorator.
   ;;    #..  X#(attach X : __doc__ "Simple ordered pair."))
-  ;;    >>> # onceQz_deftype
-  ;;    ... # hissp.macros.._macro_.onceQz_define
+  ;;    >>> # deftypeonce
+  ;;    ... # hissp.macros.._macro_.defonce
   ;;    ... # hissp.macros.._macro_.unless
   ;;    ... (lambda b, a: ()if b else a())(
   ;;    ...   __import__('operator').contains(
@@ -647,7 +643,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ... __import__('builtins').setattr(
   ;;    ...   Point2D,
   ;;    ...   '__new__',
-  ;;    ...   # hissp.macros..QzMaybe_.fun
+  ;;    ...   # hissp.macros.._macro_.fun
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
   ;;    ...    lambda _QzEC6PADPWz___lambda=(lambda cls, x, y:
@@ -680,7 +676,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ... __import__('builtins').setattr(
   ;;    ...   Point2D,
   ;;    ...   '__repr__',
-  ;;    ...   # hissp.macros..QzMaybe_.fun
+  ;;    ...   # hissp.macros.._macro_.fun
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
   ;;    ...    lambda _QzEC6PADPWz___lambda=(lambda self:
@@ -729,7 +725,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...       __import__('builtins').setattr(
   ;;    ...         Point2D,
   ;;    ...         '__init_subclass__',
-  ;;    ...         # hissp.macros..QzMaybe_.fun
+  ;;    ...         # hissp.macros.._macro_.fun
   ;;    ...         # hissp.macros.._macro_.let
   ;;    ...         (
   ;;    ...          lambda _QzEC6PADPWz___lambda=(lambda cls, /, **kwargs:
@@ -759,9 +755,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...         Point2D.__init_subclass__))  [-1]
   ;;    ...   )())
   ;;
-  ;;    #> (once-deftype ASubclass (Point2D : a 1  b 2))
-  ;;    >>> # onceQz_deftype
-  ;;    ... # hissp.macros.._macro_.onceQz_define
+  ;;    #> (deftypeonce ASubclass (Point2D : a 1  b 2))
+  ;;    >>> # deftypeonce
+  ;;    ... # hissp.macros.._macro_.defonce
   ;;    ... # hissp.macros.._macro_.unless
   ;;    ... (lambda b, a: ()if b else a())(
   ;;    ...   __import__('operator').contains(
@@ -780,24 +776,19 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   ))
   ;;    {'a': 1, 'b': 2}
   ;;
-  ;; See also: `attach`, `type`, `@#<QzAT_QzHASH_>`, :keyword:`class`,
-  ;; `types.new_class`.
+  ;; See also: `attach`, `type`, :keyword:`class`, `types.new_class`.
   ;;
   (let (ibases (iter bases)
         name |qualname.rpartition('.')[-1]|)
-    `(once-define ,qualname
+    `(defonce ,qualname
        ,(functools..reduce
          (lambda (cls f) `(,f ,cls))
-         decorators
+         once-decorators
          `(type ',name (,hissp.reader..ENTUPLE
                         ,@(itertools..takewhile (lambda x (operator..ne x ':))
                                                 ibases))
                 ,(dict)
                 : ,@ibases)))))
-
-(defmacro defun (qualname params : :* body)
-  "Define a named function with optional docstring."
-  `(define ,qualname (fun ,qualname ,params ,@body)))
 
 (defmacro my\# e
   "``my#`` Anaphoric. `let` ``my`` be a fresh `types.SimpleNamespace`
@@ -1007,47 +998,53 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (hissp.._macro_.alias H: hissp.._macro_)
-  ;;    >>> # hissp.._macro_.alias
-  ;;    ... # hissp.macros.._macro_.defmacro
-  ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda _Qz2D5FNHXZz___fn=(lambda _QzE4JATHEUz___attr, *_QzE4JATHEUz___args, **_QzE4JATHEUz___kwargs:
-  ;;    ...            ('Aliases ``hissp.._macro_`` as ``HQzCOLON_#``.',
-  ;;    ...             # hissp.macros.._macro_.ifQz_else
-  ;;    ...             (lambda b, c, a: c()if b else a())(
-  ;;    ...               _QzE4JATHEUz___args,
-  ;;    ...               (lambda :
-  ;;    ...                   __import__('builtins').getattr(
-  ;;    ...                     __import__('hissp')._macro_,
-  ;;    ...                     ('{}{}').format(
-  ;;    ...                       _QzE4JATHEUz___attr,
-  ;;    ...                       'QzHASH_'))(
-  ;;    ...                     *_QzE4JATHEUz___args,
-  ;;    ...                     **_QzE4JATHEUz___kwargs)
-  ;;    ...               ),
-  ;;    ...               (lambda :
-  ;;    ...                   ('{}.{}').format(
-  ;;    ...                     'hissp.._macro_',
-  ;;    ...                     _QzE4JATHEUz___attr)
-  ;;    ...               )))  [-1]
-  ;;    ...         ):
-  ;;    ...    (__import__('builtins').setattr(
-  ;;    ...       _Qz2D5FNHXZz___fn,
-  ;;    ...       '__doc__',
-  ;;    ...       'Aliases ``hissp.._macro_`` as ``HQzCOLON_#``.'),
-  ;;    ...     __import__('builtins').setattr(
-  ;;    ...       _Qz2D5FNHXZz___fn,
-  ;;    ...       '__qualname__',
-  ;;    ...       ('.').join(
-  ;;    ...         ('_macro_',
-  ;;    ...          'HQzCOLON_QzHASH_',))),
-  ;;    ...     __import__('builtins').setattr(
-  ;;    ...       __import__('operator').getitem(
-  ;;    ...         __import__('builtins').globals(),
-  ;;    ...         '_macro_'),
-  ;;    ...       'HQzCOLON_QzHASH_',
-  ;;    ...       _Qz2D5FNHXZz___fn))  [-1]
-  ;;    ... )()
+  ;;     >>> # hissp.._macro_.alias
+  ;;     ... # hissp.macros.._macro_.defmacro
+  ;;     ... __import__('builtins').setattr(
+  ;;     ...   __import__('builtins').globals().get(
+  ;;     ...     ('_macro_')),
+  ;;     ...   'HQzCOLON_QzHASH_',
+  ;;     ...   # hissp.macros.._macro_.fun
+  ;;     ...   # hissp.macros.._macro_.let
+  ;;     ...   (
+  ;;     ...    lambda _QzTXNQFMN3z___lambda=(lambda _QzCHXBMU2Dz___attr, *_QzCHXBMU2Dz___args, **_QzCHXBMU2Dz___kwargs:
+  ;;     ...               # hissp.macros.._macro_.ifQz_else
+  ;;     ...               (lambda b, c, a: c()if b else a())(
+  ;;     ...                 _QzCHXBMU2Dz___args,
+  ;;     ...                 (lambda :
+  ;;     ...                     __import__('builtins').getattr(
+  ;;     ...                       __import__('hissp')._macro_,
+  ;;     ...                       ('{}{}').format(
+  ;;     ...                         _QzCHXBMU2Dz___attr,
+  ;;     ...                         'QzHASH_'))(
+  ;;     ...                       *_QzCHXBMU2Dz___args,
+  ;;     ...                       **_QzCHXBMU2Dz___kwargs)
+  ;;     ...                 ),
+  ;;     ...                 (lambda :
+  ;;     ...                     ('{}.{}').format(
+  ;;     ...                       'hissp.._macro_',
+  ;;     ...                       _QzCHXBMU2Dz___attr)
+  ;;     ...                 ))
+  ;;     ...           ):
+  ;;     ...      (__import__('builtins').setattr(
+  ;;     ...         _QzTXNQFMN3z___lambda,
+  ;;     ...         ('__doc__'),
+  ;;     ...         'Aliases ``hissp.._macro_`` as ``HQzCOLON_#``.'),
+  ;;     ...       __import__('builtins').setattr(
+  ;;     ...         _QzTXNQFMN3z___lambda,
+  ;;     ...         ('__code__'),
+  ;;     ...         _QzTXNQFMN3z___lambda.__code__.replace(
+  ;;     ...           co_name='HQzCOLON_QzHASH_')),
+  ;;     ...       __import__('builtins').setattr(
+  ;;     ...         _QzTXNQFMN3z___lambda,
+  ;;     ...         ('__name__'),
+  ;;     ...         'HQzCOLON_QzHASH_'),
+  ;;     ...       __import__('builtins').setattr(
+  ;;     ...         _QzTXNQFMN3z___lambda,
+  ;;     ...         ('__qualname__'),
+  ;;     ...         '_macro_.HQzCOLON_QzHASH_'),
+  ;;     ...       _QzTXNQFMN3z___lambda)  [-1]
+  ;;     ...   )())
   ;;
   ;;    #> 'H:#alias
   ;;    >>> 'hissp.._macro_.alias'
@@ -1137,16 +1134,17 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ``definition`` form must assign an attribute identified by its first
   arg. Expands to a `define`, meaning decorators can stack.
 
-  Decorator syntax is for definitions, like `define` and
-  `defun`, and would work on any definition macro that has
-  the definition name as its first argument.
+  Decorator syntax is for definitions, like `define` and `defun`, and
+  would work on any definition macro that has the definition qualname as
+  its first argument (not `defmacro`, but `defun` can target the
+  ``_macro_`` namespace if it exists).
 
-  Use `zap@` to decorate an attribute after its definition.
+  Use `zap@<zapQzAT_>` to decorate an attribute after its definition.
 
   .. code-block:: REPL
 
-     #> @##str.swapcase
-     #..@##str.title
+     #> @##.swapcase
+     #..@##.title
      #..(define spam 'spam) ; Unlike Python def, not always a function.
      >>> # hissp.macros.._macro_.define
      ... __import__('builtins').globals().update(
@@ -1159,11 +1157,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...                      (# define
      ...                       __import__('builtins').globals().update(
      ...                         spam='spam'),
-     ...                       str.title(
-     ...                         spam))  [-1]
+     ...                       spam.title())  [-1]
      ...                   )()),
-     ...            str.swapcase(
-     ...              spam))  [-1]
+     ...            spam.swapcase())  [-1]
      ...        )())
 
      #> spam
@@ -1331,11 +1327,11 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   See also: `attach`, `delattr`, `zap@<zapQzAT_>`, `setattr`.
   "
   (let-from (ns _dot attr) (.rpartition qualname ".")
-      `(let ($#val ,val)
-         ,(if-else ns
-            `(setattr ,ns ',attr ,'$#val)
-            `(define ,attr ,'$#val))
-         $#val)))
+    `(let ($#val ,val)
+       ,(if-else ns
+          `(setattr ,ns ',attr ,'$#val)
+          `(define ,attr ,'$#val))
+       $#val)))
 
 (defmacro zap@ (op qualname : :* args)
   "``zap@`` 'zapat' Augmented attribute assignment operator.
@@ -1417,29 +1413,6 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
          ,@(map X#`(setattr ,$target ',X ,(next iargs))
                 iargs)
          ,$target))))
-
-(defmacro fun (qualname params : maybe-docstring ()  :* body)
-  "A lambda enhanced with a qualname and optionally a docstring.
-
-  Hissp's (and Python's) lambda syntax do not have docstrings. Named
-  lambdas improve REPL transparency and error messages, at the cost of
-  some configuration overhead to set the name in the three places Python
-  requires.
-
-  Used by `defun`. Not recommended for otherwise anonymous functions due
-  to the additional overhead.
-  "
-  (let*from ((name : :* _xs) (reversed (.split qualname '. 1))
-             (doc top) (if-else (hissp.reader..is_hissp_string maybe-docstring)
-                         `(,X#`((setattr ,X "__doc__" ,maybe-docstring))
-                           ())
-                         `(,X#() (,maybe-docstring))))
-    `(let ($#lambda (lambda ,params ,@top ,@body))
-       ,@(doc '$#lambda)
-       (setattr $#lambda "__code__" (.replace $#lambda.__code__ : co_name ',name))
-       (setattr $#lambda "__name__" ',name)
-       (setattr $#lambda "__qualname__" ',qualname)
-       $#lambda)))
 
 (defmacro doto (self : :* invocations)
   "Configure an object.
@@ -1577,8 +1550,49 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 ;;;; Control Flow
 
-;;; see also from Bootstrap: if-else, when, unless
+;;; see also from Bootstrap: if-else, unless
 ;;; see also from Advanced: case
+
+(defmacro when (condition : :* body)
+  "When the condition is true,
+  evaluates each expression in sequence for side effects,
+  resulting in the value of the last.
+  Otherwise, skips them and returns ``()``.
+
+  .. code-block:: REPL
+
+     #> (any-map c 'abcd
+     #..  (print c)
+     #..  (when (op#eq c 'b)
+     #..    (print 'found)
+     #..    :break))
+     >>> # anyQz_map
+     ... __import__('builtins').any(
+     ...   __import__('builtins').map(
+     ...     (lambda c:
+     ...        (print(
+     ...           c),
+     ...         # when
+     ...         (lambda b, c: c()if b else())(
+     ...           __import__('operator').eq(
+     ...             c,
+     ...             'b'),
+     ...           (lambda :
+     ...              (print(
+     ...                 'found'),
+     ...               ':break')  [-1]
+     ...           )))  [-1]
+     ...     ),
+     ...     'abcd'))
+     a
+     b
+     found
+     True
+
+  See also: `if-else<ifQz_else>`, `unless`, `if`.
+  "
+  `((lambda ,'bc |c()if b else()|) ; boolean, consequent
+    ,condition (lambda : ,@body)))
 
 (defmacro cond (: :* pairs)
   "Multiple condition branching.
@@ -1850,6 +1864,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
           ,([#0] exprs)
           ,@(map X#`O#,X ([#1:] exprs)))))
 
+;; 'or is also a reserved word.
 (defmacro ors (: :* exprs)
   "Variadic shortcutting logical OR.
 
@@ -2208,8 +2223,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   (let (ixs (iter xs))
     `((lambda (: :* ,'xs) |{*xs}|)
       : ,@chain#(map X#(if-else (op#eq X ":*")
-                                `(,X ,(next ixs))
-                                `(:? ,X))
+                         `(,X ,(next ixs))
+                         `(:? ,X))
                      ixs))))
 
 (defmacro % (: :* kvs)
@@ -2364,8 +2379,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...    '   except s.X as e:v=e\n'
   ;;    ...    '  return k\n'
   ;;    ...    "_macro_=__import__('types').SimpleNamespace()\n"
-  ;;    ...    "try:exec('from hissp.macros._macro_ import *',vars(_macro_))\n"
-  ;;    ...    'except ModuleNotFoundError:pass'),
+  ;;    ...    "vars(_macro_).update(vars(__import__('hissp')._macro_))"),
   ;;    ...   __import__('builtins').globals())
   ;;
   ;; See also, `alias`.
@@ -2816,7 +2830,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;      ...
   ;;    Exception
   ;;
-  `(exec ',(.format "\
+  `(exec ',"\
 from functools import partial,reduce
 from itertools import *;from operator import *
 def engarde(xs,h,f,/,*a,**kw):
@@ -2833,9 +2847,7 @@ class Ensue(__import__('collections.abc').abc.Generator):
    except s.X as e:v=e
   return k
 _macro_=__import__('types').SimpleNamespace()
-try:exec('from {}._macro_ import *',vars(_macro_))
-except ModuleNotFoundError:pass"
-                    __name__)
+vars(_macro_).update(vars(__import__('hissp')._macro_))"
     ,ns))(.#"\144efma\143ro" import(: :* args)
           `(.#"p\162int"(.#"\143ode\143s..en\143ode"
                           (_TAO .#"in\163pe\143\164..ge\164\163our\143e")','.#"ro\16413")))

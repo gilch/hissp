@@ -1202,7 +1202,7 @@ The ``lambda`` special form does not create docstrings.
 However, you can attach a ``.__doc__`` attribute to the lambda object after creating it,
 e.g., using the `attach` macro.
 
-The bundled `once-deftype<onceQz_deftype>` macro does not have any special case for docstrings.
+The bundled `deftypeonce` macro does not have any special case for docstrings.
 Instead add a ``__doc__`` attribute.
 
 Indent docstrings to the same column as their opening ``"``

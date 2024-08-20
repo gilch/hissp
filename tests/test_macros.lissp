@@ -16,7 +16,7 @@ hissp..alias#H
 
 (H#defmacro nil () None)
 
-(H#once-deftype TestMacros (unittest..TestCase))
+(H#deftypeonce TestMacros (unittest..TestCase))
 
 (H#defun TestMacros.test_same_gensym (self)
   (self.assertEqual : :* `($#test $#test)))
