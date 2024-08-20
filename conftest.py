@@ -58,13 +58,19 @@ class ParseLissp(DocTestParser):
             parser.compiler.ns = example.namespace
             hissp = parser.reads(lissp)
             compiled = parser.compiler.compile(hissp) + "\n"
-            assert norm_gensym_eq(compiled, python), "  \n" + "".join(
-                context_diff(
-                    norm_gensyms(python),
-                    norm_gensyms(compiled),
-                    fromfile="expected in doc",
-                    tofile="actually compiled to",
-                )
+            assert norm_gensym_eq(compiled, python), "".join(
+                [
+                    "  \nGENSYM-NORMALIZED DIFF:\n",
+                    *context_diff(
+                        norm_gensyms(python),
+                        norm_gensyms(compiled),
+                        fromfile="expected in doc",
+                        tofile="actually compiled to",
+                    ),
+                    "FULL COMPILATION:\n>>> ",
+                    compiled[:-1].replace("\n", "\n... "),
+                    "\n",
+                ]
             )
         return super().evaluate(example)
 
