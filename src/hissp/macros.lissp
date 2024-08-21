@@ -413,7 +413,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   .. code-block:: REPL
 
      #> (defmacro p123 (sep)
-     #..  <<#;Prints 1 2 3 with the given separator
+     #..  <#;Prints 1 2 3 with the given separator
      #..  `(print 1 2 3 : sep ,sep))
      >>> # defmacro
      ... __import__('builtins').setattr(
@@ -463,7 +463,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      1::2::3
 
   See also:
-  `<\\<# <QzLT_QzLT_QzHASH_>`, `attach`,
+  `<# <QzLT_QzHASH_>`, `attach`,
   `lambda <hissp.compiler.Compiler.function>`.
   "
   (let (form `(setattr (.get (globals) "_macro_")
@@ -833,20 +833,18 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 ;;;; Abbreviations
 
-(defmacro <<\# (comment)
+(defmacro <\# (comment)
   `',(.contents comment))
 (setattr
- _macro_.<<\# '__doc__
- <<#
- ;; ``<<#`` 'comment string' reader macro.
+ _macro_.<\# '__doc__
+ <#;``<#`` 'comment string' tag.
  ;;
  ;; Converts a block of line comments to a raw string.
  ;; Roughly equivalent to ``'hissp.reader..Comment.contents#``.
  ;;
  ;; .. code-block:: REPL
  ;;
- ;;    #> <<#
- ;;    #..;; You won't have to
+ ;;    #> <#;You won't have to
  ;;    #..;; escape the "quotes".
  ;;    #..
  ;;    >>> 'You won\'t have to\nescape the "quotes".'
@@ -864,8 +862,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `(lambda : ,e))
 
 (defmacro X\# e
-  <<#
-  ;; ``X#`` Anaphoric. Make ``e`` an anonymous function with parameter X.
+  <#;``X#`` Anaphoric. Make ``e`` an anonymous function with parameter X.
   ;;
   ;; Examples:
   ;;
@@ -957,8 +954,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `(lambda ,'XY ,e))
 
 (defmacro XYZ\# e
-  <<#
-  ;; ``XYZ#`` Anaphoric. Make ``e`` an anonymous function with parameters X Y Z.
+  <#;``XYZ#`` Anaphoric. Make ``e`` an anonymous function with parameters X Y Z.
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -974,8 +970,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `(lambda ,'XYZ ,e))
 
 (defmacro XYZW\# e
-  <<#
-  ;; ``XYZW#`` Anaphoric. Make ``e`` an anonymous function with parameters X Y Z W.
+  <#;``XYZW#`` Anaphoric. Make ``e`` an anonymous function with parameters X Y Z W.
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -992,8 +987,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `(lambda ,'XYZW ,e))
 
 (defmacro alias (abbreviation qualifier)
-  <<#
-  ;; Defines a reader macro abbreviation of a qualifier.
+  <#;Defines a tag abbreviation of a qualifier.
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -1067,7 +1061,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    >>> b'Read-time b# via alias.'
   ;;    b'Read-time b# via alias.'
   ;;
-  ;; The bundled `op#<opQzHASH_>` and `i#<iQzHASH_>` reader macros are aliases
+  ;; The bundled `op#<opQzHASH_>` and `i#<iQzHASH_>` tags are aliases
   ;; for `operator` and `itertools`, respectively.
   ;;
   ;; See also: `prelude`, `attach`.
@@ -1090,8 +1084,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `(i#chain.from_iterable ,xss))
 
 (defmacro get\# e
-  <<#
-  ;; ``get#`` 'itemgetter-' Makes an `operator.itemgetter` function from ``e``.
+  <#;``get#`` 'itemgetter-' Makes an `operator.itemgetter` function from ``e``.
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -2073,8 +2066,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 ;;;; Reader
 
 (defmacro b\# (raw)
-  <<#
-  ;; ``b#`` `bytes` literal reader macro
+  <#;``b#`` `bytes` literal tag
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -2094,8 +2086,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
       ast..literal_eval))
 
 (defmacro en\# (f)
-  <<#
-  ;; ``en#`` reader macro.
+  <#;``en#`` tag.
   ;; Wrap a function applicable to a tuple as a function of its elements.
   ;;
   ;; .. code-block:: REPL
@@ -2151,7 +2142,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   ('.'))
   ;;    'Sum: 5. Product: 6.'
   ;;
-  ;; There are no bundled reader macros for a quinary, senary, etc. but
+  ;; There are no bundled tags for a quinary, senary, etc. but
   ;; the en#X# variadic or a normal lambda form can be used instead.
   ;;
   ;; See also: `X# <XQzHASH_>`.
@@ -2166,8 +2157,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 ;;;; Collection
 
 (defmacro @ (: :* xs)
-  <<#
-  ;; ``@`` 'list of' Mnemonic: @rray list.
+  <#;``@`` 'list of' Mnemonic: @rray list.
   ;;
   ;; Creates the `list` from each expression's result.
   ;; A ``:*`` unpacks the next argument.
@@ -2269,8 +2259,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 ;;;; Import
 
 (defmacro prelude (: ns `(globals))
-  <<#
-  ;; Hissp's bundled micro prelude.
+  <#;Hissp's bundled micro prelude.
   ;;
   ;; Brings Hissp up to a minimal standard of usability without adding any
   ;; dependencies in the compiled output.
@@ -2855,8 +2844,7 @@ vars(_macro_).update(vars(__import__('hissp')._macro_))"
 ;;;; Advanced
 
 (defmacro case (key default : :* pairs)
-  <<#
-  ;; Switch case macro.
+  <#;Switch case macro.
   ;;
   ;; Precomputes a lookup table (dict), so must switch on a hashable key.
   ;; Target keys are not evaluated, so don't quote them; they must be known
@@ -3019,8 +3007,7 @@ vars(_macro_).update(vars(__import__('hissp')._macro_))"
        $#val)))
 
 (defmacro avow (e predicate : :* args)
-  <<#
-  ;; Anaphoric. Raises `AssertionError` `unless` (-> e predicate).
+  <#;Anaphoric. Raises `AssertionError` `unless` (-> e predicate).
   ;;
   ;; Additional arguments are evaluated in a context where ``it`` refers
   ;; to the result of e. These (if any) are passed to the
@@ -3068,8 +3055,7 @@ vars(_macro_).update(vars(__import__('hissp')._macro_))"
      ,'it))
 
 (defmacro assure (e predicate : :* args)
-  <<#
-  ;; Anaphoric. Raises `AssertionError` `unless` (-> e predicate).
+  <#;Anaphoric. Raises `AssertionError` `unless` (-> e predicate).
   ;;
   ;; As `avow`, but expansion is simply ``e`` when `__debug__` is off:
   ;;

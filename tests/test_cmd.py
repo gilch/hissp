@@ -207,7 +207,7 @@ def test_repl_str_continue():
         b#.#"
 
         x"
-        (.decode b#.#<<#;\\xff
+        (.decode b#.#<#;\\xff
         ;; foo
                  : errors 'ignore)
         """,

@@ -412,7 +412,7 @@ should be segmented by `let` indentation or similar implied progn forms
 without resorting to blank lines.
 
 Blank lines are OK in docstrings,
-but comment strings (`<\<#<QzLT_QzLT_QzHASH_>`) instead of ``""``
+but comment strings (`<# <QzLT_QzHASH_>`) instead of ``""``
 tokens are preferred for docstrings when they have more than a single paragraph.
 
 Keep the elements in a tuple aligned to start on the same column.
@@ -749,12 +749,11 @@ Because the string was injected (``.#``),
 don't forget to quote it (``'``),
 or the compiler will assume the string contents are Python code to be inlined.
 
-Remember that `<\<#<QzLT_QzLT_QzHASH_>` can also make multiline strings.
+Remember that `<# <QzLT_QzHASH_>` can also make multiline strings.
 
 .. code-block:: REPL
 
-   #> (print (.upper <<#
-   #..               ;; These lines
+   #> (print (.upper <#;These lines
    #..               ;; don't interrupt
    #..               ;; the flow.
    #..               _#/))
@@ -769,25 +768,7 @@ You can avoid the doorstop by using the `-><Qz_QzGT_>` macro.
 
 .. code-block:: REPL
 
-   #> (print (-> <<#
-   #..           ;; These lines
-   #..           ;; don't interrupt
-   #..           ;; the flow.
-   #..           .upper))
-   >>> print(
-   ...   # Qz_QzGT_
-   ...   "These lines\ndon't interrupt\nthe flow.".upper())
-   THESE LINES
-   DON'T INTERRUPT
-   THE FLOW.
-
-The following more compact style is acceptable.
-It's similar to not escaping the initial newline in a ``""`` string,
-so the first line isn't aligned. The comment block still parses properly.
-
-.. code-block:: REPL
-
-   #> (print (-> <<# ; These lines
+   #> (print (-> <#;These lines
    #..           ;; don't interrupt
    #..           ;; the flow.
    #..           .upper))
@@ -799,7 +780,7 @@ so the first line isn't aligned. The comment block still parses properly.
    THE FLOW.
 
 With the principal exception of docstrings,
-long multiline strings should be declared at the `top level`_ and referenced by name.
+long multiline ``""`` strings should be declared at the `top level`_ and referenced by name.
 
 .. code-block:: Lissp
 
@@ -988,7 +969,7 @@ but a traditional Lisp editor like Emacs ``lisp-mode`` would not.
 In rare cases, a margin comment may occupy the same line as some other comment form.
 This is usually acceptable style,
 but a ``;`` following a ``;;`` is still tokenized as part of the ``;;`` block,
-which can matter for reader macros like `<\<#<QzLT_QzLT_QzHASH_>`.
+which can matter for reader macros like `<# <QzLT_QzHASH_>`.
 
 **Never** put a single-semicolon comment on its own line unless
 it's a continuation aligned to the margin!
@@ -1051,7 +1032,7 @@ To avoid confusion,
 do not use triple-semicolon comments as headings at all.
 
 Prefer a module docstring over top-level comments where applicable.
-Remember that a `<\<#<QzLT_QzLT_QzHASH_>`
+Remember that a `<# <QzLT_QzHASH_>`
 applied to a comment block compiles to a string literal,
 which can be a docstring.
 
@@ -1214,8 +1195,8 @@ and can strip it out when rendering help.
 If the docstring contains any newlines,
 the closing ``"`` gets its own line.
 
-It is acceptable to use reader macros that resolve to a string literal like `<\<# <QzLT_QzLT_QzHASH_>`
-(which is useful for doctests),
+It is acceptable to use reader macros that resolve to a string literal like
+`<# <QzLT_QzHASH_>` (which is useful for doctests),
 as long as the documentation text is also legible in the source code.
 
 Follow Python style on docstring contents.
@@ -1716,7 +1697,7 @@ because the final character for the line is not a space but a ``"``.
 .. code-block:: REPL
 
    #> '.#
-   #..(.format <<#
+   #..(.format <#
    #.. ;; foobar  {space}
    #.. ;; spameggs{space}
    #.. : space " ")
@@ -1764,7 +1745,7 @@ Wrapped code lines are even worse as they disrupt the indent,
 although an occasional string literal containing a newline is acceptable,
 even in deeply nested code.
 If it's more than occasional, consider alternatives.
-Remember you can use ``\n``, constants, `<\<#<QzLT_QzLT_QzHASH_>`,
+Remember you can use ``\n``, constants, `<# <QzLT_QzHASH_>`,
 or `textwrap.dedent` (even at read time).
 
 In rare instances (e.g., URLs), a constant definition containing a one-line string
