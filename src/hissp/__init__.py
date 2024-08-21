@@ -86,3 +86,40 @@ def alias(abbreviation, qualifier="hissp.macros.._macro_"):
     See `hissp.macros._macro_.alias`.
     """
     return "hissp.macros.._macro_.alias", abbreviation, qualifier
+
+
+def refresh(module):
+    """REPL convenience tag to recompile and reload a module.
+
+    Usage: ``hissp..refresh#foo.`` where ``foo.`` evaluates to a module.
+
+    There must be a corresponding ``.lissp`` file present to recompile.
+    The module must have a ``__name__``.
+
+    ``hissp..refresh#:`` will attempt to recompile the current module.
+
+    Refreshing the main module (which would have side effects) is not
+    supported. Send the REPL updated top-level definitions individually
+    or restart the REPL instead. A corresponding compiled Python file is
+    not required for a ``.lissp`` file run as the main module.
+
+    See also: `subrepl`, `hissp.reader.transpile`, `importlib.reload`.
+    """
+    ns = ("builtins..globals",) if module == ":" else ("builtins..vars", module)
+    return (
+        (('lambda',(':','ns',ns,)
+          ,('hissp.reader..transpile',('.get','ns',('quote','__package__',),)
+                                     ,'ns["__name__"].rpartition(".")[-1]',)
+          ,('importlib..reload',
+            ('importlib..import_module',('.get','ns',('quote','__name__',),),),),),)
+    )  # fmt: skip
+
+
+def subrepl(module):
+    """Convenience tag to start a Lissp subREPL in the given module.
+
+    Usage: ``hissp..subrepl#foo.`` where ``foo.`` evaluates to a module.
+
+    See also: `hissp.repl.interact`.
+    """
+    return "hissp..interact", ("builtins..vars", module)

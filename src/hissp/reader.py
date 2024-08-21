@@ -68,8 +68,8 @@ TOKENS = re.compile(
      (?P<whitespace>[\n ]+)
     |(?P<comment>(?:[ ]*;.*\n)+)
     |(?P<badspace>\s)  # Other whitespace not allowed.
-    |(?P<open>\()
-    |(?P<close>\))
+    |(?P<open>[(])
+    |(?P<close>[)])
     |(?P<macro>
        ,@
       |['`,]
@@ -432,7 +432,7 @@ class Lissp:
         """
         blk = self.blake.copy()
         blk.update((c := self._get_counter()).to_bytes(1 + c.bit_length() // 8, "big"))
-        prefix = f"_Qz{b32encode(blk.digest()).rstrip(b'=').decode()}z_"
+        prefix = f"_Qz{b32encode(blk.digest()).rstrip(b'=').decode()}z___"
         marker = munge("$")
         if marker not in form:
             return f"{prefix}{form}"

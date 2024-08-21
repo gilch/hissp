@@ -1,3 +1,12 @@
+# File adapted from GitHub's public-domain Python .gitignore file.
+# See https://github.com/github/gitignore/blob/main/Python.gitignore
+# for their current version. No copyright is claimed on public-domain
+# portions.
+#
+# This configuration file is part of the Hissp source code repository,
+# copyright  2019, 2020, 2023, 2024 Matthew Egan Odendahl
+# SPDX-License-Identifier: Apache-2.0
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -18,6 +27,7 @@ lib/
 lib64/
 parts/
 sdist/
+setup/
 var/
 wheels/
 *.egg-info/

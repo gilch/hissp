@@ -83,9 +83,10 @@ which are compiled to Python code,
 >>> python_code = readerless(hissp_code)
 >>> print(python_code)
 (lambda name:
-  print(
-    'Hello',
-    name))
+    print(
+      'Hello',
+      name)
+)
 
 ```
 and evaluated by Python.
@@ -134,13 +135,14 @@ Strings also have a few special cases:
 ... )
 ...
 >>> print(readerless(adv_hissp_code))
-(lambda name='world':(
-  print(
-    'Hello,'),
-  print(
-    *name.upper(),
-    sep=':',
-    file=__import__('sys').stdout))[-1])
+(lambda name='world':
+   (print(
+      'Hello,'),
+    print(
+      *name.upper(),
+      sep=':',
+      file=__import__('sys').stdout))  [-1]
+)
 >>> greetier = eval(readerless(adv_hissp_code))
 >>> greetier()
 Hello,
@@ -195,12 +197,14 @@ branch(
   0==1,
   # thunk
   (lambda :
-    print(
-      'yes')),
+      print(
+        'yes')
+  ),
   # thunk
   (lambda :
-    print(
-      'no')))
+      print(
+        'no')
+  ))
 >>> eval(expansion)
 no
 
@@ -405,7 +409,7 @@ which includes Clojure-like persistent data structures.
 
 ```EDN
 0 ; from garden_of_edn import _this_file_as_main_; """#"
-(hissp/_macro_.prelude)
+#hissp/prelude .
 
 (defmacro #hissp/$"m#" t (tuple (.extend [(quote pyrsistent/m) (quote .)] t)))
 (defmacro #hissp/$"j#" j (complex 0 j))

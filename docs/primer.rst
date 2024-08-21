@@ -92,9 +92,10 @@ and returns its Python translation as a string.
 >>> python_translation = readerless(hissp_program)
 >>> print(python_translation)
 (lambda name:
-  print(
-    'Hello',
-    name))
+    print(
+      'Hello',
+      name)
+)
 
 Python can then run this program as normal.
 
@@ -147,12 +148,13 @@ Let's use it.
 ...     ('lambda',('name')
 ...      ,('print',q('Hello'),'name',),)
 ... )
-"(lambda n,a,m,e:\n  print(\n    'Hello',\n    name))"
+"(lambda n, a, m, e:\n    print(\n      'Hello',\n      name)\n)"
 >>> print(_)  # Remember, _ is the last result that wasn't None.
-(lambda n,a,m,e:
-  print(
-    'Hello',
-    name))
+(lambda n, a, m, e:
+    print(
+      'Hello',
+      name)
+)
 >>> eval(_)('World')
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -187,12 +189,13 @@ with the comma this time.
 ...     ('lambda',('name',)
 ...      ,('print',q('Hello'),'name',),)
 ... )
-"(lambda name:\n  print(\n    'Hello',\n    name))"
+"(lambda name:\n    print(\n      'Hello',\n      name)\n)"
 >>> print(_)
 (lambda name:
-  print(
-    'Hello',
-    name))
+    print(
+      'Hello',
+      name)
+)
 
 That's better.
 
@@ -310,9 +313,10 @@ Here's our first Hissp program again written that way:
    #> (|lambda| (|name|)
    #..  (|print| (|quote| |Hello|) |name|))
    >>> (lambda name:
-   ...   print(
-   ...     'Hello',
-   ...     name))
+   ...     print(
+   ...       'Hello',
+   ...       name)
+   ... )
    <function <lambda> at 0x...>
 
    #> (|_| (|quote| |World|))
@@ -436,7 +440,7 @@ If you've got a fragment surrounded by double quotes (``"``), you can drop the `
 .. code-block:: REPL
 
    #> "Say \"Cheese!\"
-   #..\u263a" ; Notice it includes parentheses.
+   #..\u263a" ; Note the parentheses.
    >>> ('Say "Cheese!"\n☺')
    'Say "Cheese!"\n☺'
 
@@ -502,16 +506,17 @@ The Lissp symbol tokens are read in as strings, just like fragments.
 In other Lisps, symbols are a data type in their own right,
 but symbols only exist as a *reader syntax* in Lissp,
 where they represent the subset of Hissp-level strings that can act as identifiers.
-Python has no built in symbol type
+Python has no built-in symbol type
 and instead uses strings pervasively whenever it has to represent identifiers.
 
-Symbols in Lissp become strings in Hissp which become identifiers in Python,
+In summary,
+symbols in Lissp become strings in Hissp which become identifiers in Python,
 unless they're quoted, in which case they become string literals in Python.
 
 Attributes
 ----------
 
-Symbols can have internal ``.``\ s to access attributes.
+Symbols can have internal ``.``\ s to access attributes, same as Python.
 
 .. code-block:: REPL
 
@@ -744,7 +749,18 @@ Hissp can represent all of Python's parameter types this way.
    #..         j 1 ; another kwonly parameter with a default value
    #..         :** kwargs) ; packs keyword args into a dict
    #..  42)
-   >>> (lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
+   >>> (
+   ...  lambda a,
+   ...         /,
+   ...         b,
+   ...         e=(1),
+   ...         f=(2),
+   ...         *args,
+   ...         h=(4),
+   ...         i,
+   ...         j=(1),
+   ...         **kwargs:
+   ...     (42))
    <function <lambda> at ...>
 
 The parameter name goes on the left of the pairs, and the default goes on the right.
@@ -780,7 +796,18 @@ of a pair with a ``:?``.
    #..         :* args  h 4  i :?  j 1 ; kwonly
    #..         :** kwargs)
    #..  42)
-   >>> (lambda a,/,b,e=(1),f=(2),*args,h=(4),i,j=(1),**kwargs:(42))
+   >>> (
+   ...  lambda a,
+   ...         /,
+   ...         b,
+   ...         e=(1),
+   ...         f=(2),
+   ...         *args,
+   ...         h=(4),
+   ...         i,
+   ...         j=(1),
+   ...         **kwargs:
+   ...     (42))
    <function <lambda> at ...>
 
 Each element before the ``:`` is implicitly paired with
@@ -799,12 +826,13 @@ respectively:
    #..  (print args)
    #..  (print kwargs) ; Body expressions evaluate in order.
    #..  42) ; The last value is returned.
-   >>> (lambda *args,**kwargs:(
-   ...   print(
-   ...     args),
-   ...   print(
-   ...     kwargs),
-   ...   (42))[-1])
+   >>> (lambda *args, **kwargs:
+   ...    (print(
+   ...       args),
+   ...     print(
+   ...       kwargs),
+   ...     (42))  [-1]
+   ... )
    <function <lambda> at ...>
 
    #> (_ 1 : b :c)
@@ -823,7 +851,13 @@ in which case an empty tuple is implied:
 .. code-block:: REPL
 
    #> (lambda (: a 1  :/ :?  :* :?  b :?  c 2))
-   >>> (lambda a=(1),/,*,b,c=(2):())
+   >>> (
+   ...  lambda a=(1),
+   ...         /,
+   ...         *,
+   ...         b,
+   ...         c=(2):
+   ...     ())
    <function <lambda> at ...>
 
 Positional-only parameters with defaults must appear after the ``:``,
@@ -839,23 +873,23 @@ Not having it is the same as putting it last:
 .. code-block:: REPL
 
    #> (lambda (a b c :)) ; No pairs after ':'.
-   >>> (lambda a,b,c:())
+   >>> (lambda a, b, c: ())
    <function <lambda> at ...>
 
    #> (lambda (a b c)) ; The ':' was omitted.
-   >>> (lambda a,b,c:())
+   >>> (lambda a, b, c: ())
    <function <lambda> at ...>
 
    #> (lambda (:)) ; Colon isn't doing anything.
-   >>> (lambda :())
+   >>> (lambda : ())
    <function <lambda> at ...>
 
    #> (lambda ()) ; You can omit it.
-   >>> (lambda :())
+   >>> (lambda : ())
    <function <lambda> at ...>
 
    #> (lambda :) ; This also works (guess why), and is idiomatic in Lissp.
-   >>> (lambda :())
+   >>> (lambda : ())
    <function <lambda> at ...>
 
 The ``:`` is required if there are any explicit pairs,
@@ -864,7 +898,7 @@ even if there are no ``:?`` pairs:
 .. code-block:: REPL
 
    #> (lambda (: :** kwargs))
-   >>> (lambda **kwargs:())
+   >>> (lambda **kwargs: ())
    <function <lambda> at ...>
 
 Calls
@@ -1545,7 +1579,7 @@ The template quote works much like a normal quote:
    (1, 2, 3)
 
    #> `(1 2 3) ; template quote
-   >>> (lambda * _: _)(
+   >>> (lambda * _:  _)(
    ...   (1),
    ...   (2),
    ...   (3))
@@ -1570,7 +1604,7 @@ much like a format string:
    (1, 2, ('operator..add', 1, 2))
 
    #> `(1 2 ,(operator..add 1 2)) ; template and unquote
-   >>> (lambda * _: _)(
+   >>> (lambda * _:  _)(
    ...   (1),
    ...   (2),
    ...   __import__('operator').add(
@@ -1583,7 +1617,7 @@ The splice unquote is similar, but unpacks its result:
 .. code-block:: REPL
 
    #> `(:a ,@"bcd" :e)
-   >>> (lambda * _: _)(
+   >>> (lambda * _:  _)(
    ...   ':a',
    ...   *('bcd'),
    ...   ':e')
@@ -1623,9 +1657,9 @@ then it's easier to read.
 ...      ,':*',"('bcd')"
 ...      ,':?',('operator..mul', 2, 3,),)
 ... )
-"(lambda * _: _)(\n  ':a',\n  *('bcd'),\n  __import__('operator').mul(\n    (2),\n    (3)))"
+"(lambda * _:  _)(\n  ':a',\n  *('bcd'),\n  __import__('operator').mul(\n    (2),\n    (3)))"
 >>> print(_)
-(lambda * _: _)(
+(lambda * _:  _)(
   ':a',
   *('bcd'),
   __import__('operator').mul(
@@ -1656,20 +1690,20 @@ Within a template, the same gensym name always makes the same gensym:
 .. code-block:: REPL
 
    #> `($#hiss $#hiss)
-   >>> (lambda * _: _)(
-   ...   '_QzTAMTDLDRz_hiss',
-   ...   '_QzTAMTDLDRz_hiss')
-   ('_QzTAMTDLDRz_hiss', '_QzTAMTDLDRz_hiss')
+   >>> (lambda * _:  _)(
+   ...   '_QzTAMTDLDRz___hiss',
+   ...   '_QzTAMTDLDRz___hiss')
+   ('_QzTAMTDLDRz___hiss', '_QzTAMTDLDRz___hiss')
 
 But each new template changes the prefix hash.
 
 .. code-block:: REPL
 
    #> `($#hiss $#hiss)
-   >>> (lambda * _: _)(
-   ...   '_QzZSOXD2IOz_hiss',
-   ...   '_QzZSOXD2IOz_hiss')
-   ('_QzZSOXD2IOz_hiss', '_QzZSOXD2IOz_hiss')
+   >>> (lambda * _:  _)(
+   ...   '_QzZSOXD2IOz___hiss',
+   ...   '_QzZSOXD2IOz___hiss')
+   ('_QzZSOXD2IOz___hiss', '_QzZSOXD2IOz___hiss')
 
 Gensyms are mainly used to prevent accidental name collisions in generated code,
 which is very important for reliable compiler macros.
@@ -1713,7 +1747,7 @@ it is expanded as well (this pattern is known as a *recursive macro*),
 which is an ability that the reader macros lack.
 
 The compiler recognizes a callable as a macro if it is invoked directly
-from a ``_macro_`` namespace:
+from a fully-qualified ``_macro_`` namespace:
 
 .. code-block:: REPL
 
@@ -1762,9 +1796,10 @@ Let's try it:
    ...   _macro_,
    ...   'hello',
    ...   (lambda :
-   ...     ('print',
-   ...      ('quote',
-   ...       'hello',),)))
+   ...       ('print',
+   ...        ('quote',
+   ...         'hello',),)
+   ...   ))
 
    #> (hello)
    >>> # hello
@@ -1783,12 +1818,13 @@ Let's give it one. Use a template:
    ...   _macro_,
    ...   'greet',
    ...   (lambda name:
-   ...     (lambda * _: _)(
-   ...       'builtins..print',
-   ...       (lambda * _: _)(
-   ...         'quote',
-   ...         '__main__..Hello'),
-   ...       name)))
+   ...       (lambda * _:  _)(
+   ...         'builtins..print',
+   ...         (lambda * _:  _)(
+   ...           'quote',
+   ...           '__main__..Hello'),
+   ...         name)
+   ...   ))
 
    #> (greet 'Bob)
    >>> # greet
@@ -1810,7 +1846,7 @@ with `builtins` (if applicable) or the current ``__name__``
    'builtins..int'
 
    #> `(int spam)
-   >>> (lambda * _: _)(
+   >>> (lambda * _:  _)(
    ...   'builtins..int',
    ...   '__main__..spam')
    ('builtins..int', '__main__..spam')
@@ -1837,8 +1873,8 @@ If the gensym hash is *not* in prefix position, it doesn't count as local, and g
 .. code-block:: REPL
 
    #> `$#spam.$eggs
-   >>> '__main__..spam._Qz6AE4GUT3z_eggs'
-   '__main__..spam._Qz6AE4GUT3z_eggs'
+   >>> '__main__..spam._Qz6AE4GUT3z___eggs'
+   '__main__..spam._Qz6AE4GUT3z___eggs'
 
 A ``_macro_`` namespace is not the same as its module.
 
@@ -1849,14 +1885,15 @@ A ``_macro_`` namespace is not the same as its module.
    ...   _macro_,
    ...   'p123',
    ...   (lambda :
-   ...     (lambda * _: _)(
-   ...       '__main__..QzMaybe_.p',
-   ...       (1),
-   ...       (2),
-   ...       (3),
-   ...       ':',
-   ...       '__main__..sep',
-   ...       ':')))
+   ...       (lambda * _:  _)(
+   ...         '__main__..QzMaybe_.p',
+   ...         (1),
+   ...         (2),
+   ...         (3),
+   ...         ':',
+   ...         '__main__..sep',
+   ...         ':')
+   ...   ))
 
 Notice the ``QzMaybe_`` qualifying ``p``,
 which means the reader could not determine if ``p`` should be qualified as a global or as a macro,
@@ -1904,9 +1941,10 @@ We can resolve the ``QzMaybe_`` the other way by defining a ``p`` macro.
    ...   _macro_,
    ...   'p',
    ...   (lambda *args:
-   ...     (lambda * _: _)(
-   ...       'builtins..print',
-   ...       *args)))
+   ...       (lambda * _:  _)(
+   ...         'builtins..print',
+   ...         *args)
+   ...   ))
 
    #> (p123)
    >>> # p123
@@ -1929,13 +1967,13 @@ symbol. (Like a quoted symbol):
 .. code-block:: REPL
 
    #> `(float inf)
-   >>> (lambda * _: _)(
+   >>> (lambda * _:  _)(
    ...   'builtins..float',
    ...   '__main__..inf')
    ('builtins..float', '__main__..inf')
 
    #> `(float ,'inf)
-   >>> (lambda * _: _)(
+   >>> (lambda * _:  _)(
    ...   'builtins..float',
    ...   'inf')
    ('builtins..float', 'inf')
@@ -1950,12 +1988,13 @@ Note the three reader macros in a row: ``','``.
    ...   _macro_,
    ...   'greet',
    ...   (lambda name:
-   ...     (lambda * _: _)(
-   ...       'builtins..print',
-   ...       (lambda * _: _)(
-   ...         'quote',
-   ...         'Hello'),
-   ...       name)))
+   ...       (lambda * _:  _)(
+   ...         'builtins..print',
+   ...         (lambda * _:  _)(
+   ...           'quote',
+   ...           'Hello'),
+   ...         name)
+   ...   ))
 
    #> (greet 'Bob)
    >>> # greet
@@ -1975,10 +2014,11 @@ a "" token might have been a better idea:
    ...   _macro_,
    ...   'greet',
    ...   (lambda name:
-   ...     (lambda * _: _)(
-   ...       'builtins..print',
-   ...       "('Hello')",
-   ...       name)))
+   ...       (lambda * _:  _)(
+   ...         'builtins..print',
+   ...         "('Hello')",
+   ...         name)
+   ...   ))
 
    #> (greet 'Bob)
    >>> # greet
@@ -2003,27 +2043,30 @@ But there are times when a function will not do:
    ...   _macro_,
    ...   'QzPCENT_',
    ...   (lambda *body:
-   ...     (lambda * _: _)(
-   ...       'lambda',
-   ...       (lambda * _: _)(
-   ...         'QzPCENT_'),
-   ...       body)))
+   ...       (lambda * _:  _)(
+   ...         'lambda',
+   ...         (lambda * _:  _)(
+   ...           'QzPCENT_'),
+   ...         body)
+   ...   ))
 
    #> ((lambda (%)
    #..   (print (.upper %)))              ;This lambda expression
    #.. "q")
    >>> (lambda QzPCENT_:
-   ...   print(
-   ...     QzPCENT_.upper()))(
+   ...     print(
+   ...       QzPCENT_.upper())
+   ... )(
    ...   ('q'))
    Q
 
    #> ((% print (.upper %))               ; can now be abbreviated.
-   ... "q")
+   #.. "q")
    >>> # QzPCENT_
    ... (lambda QzPCENT_:
-   ...   print(
-   ...     QzPCENT_.upper()))(
+   ...     print(
+   ...       QzPCENT_.upper())
+   ... )(
    ...   ('q'))
    Q
 
@@ -2033,10 +2076,11 @@ But there are times when a function will not do:
    ...   map(
    ...     # QzPCENT_
    ...     (lambda QzPCENT_:
-   ...       print(
-   ...         QzPCENT_.upper(),
-   ...         (':'),
-   ...         QzPCENT_)),
+   ...         print(
+   ...           QzPCENT_.upper(),
+   ...           (':'),
+   ...           QzPCENT_)
+   ...     ),
    ...     ('abc')))
    A : a
    B : b
@@ -2092,9 +2136,9 @@ with the name of each top-level ``.lissp`` file,
 or ``.lissp`` file in the corresponding package,
 respectively::
 
-   from hissp import transpile
+   import hissp
 
-   transpile(__package__, "spam", "eggs", "etc")
+   hissp.transpile(__package__, "spam", "eggs", "etc")
 
 Or equivalently in Lissp, used either at the REPL or if the main module is written in Lissp:
 
@@ -2113,7 +2157,9 @@ which gives you fine-grained control over what gets compiled when.
 
 Before distributing a Lissp project to users who won't be modifying it,
 compilation could be disabled or removed altogether,
-especially when not distributing the .lissp sources.
+especially when not distributing the ``.lissp`` sources.
+If you don't want the ``hissp`` package to be a dependency,
+make sure you remove or disable imports of it as well.
 
 .. Note::
    You normally *do* want to recompile the whole project during development.
@@ -2202,7 +2248,7 @@ and there would be no such attribute.
 
 .. rubric:: Footnotes
 
-.. [#EOF] End Of File. Usually Ctrl-D, but enter Ctrl-Z on Windows.
+.. [#EOF] End Of File. Usually Ctrl+D, but enter Ctrl+Z on Windows.
           This doesn't quit Python if the REPL was launched from Python,
           unlike ``(exit)``.
 
