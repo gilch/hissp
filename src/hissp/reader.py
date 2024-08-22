@@ -1,4 +1,4 @@
-# Copyright 2019, 2020, 2021, 2022, 2023 Matthew Egan Odendahl
+# Copyright 2019, 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 """
 The Lissp language reader and associated helper functions.
@@ -16,7 +16,7 @@ import hashlib
 import re
 from base64 import b32encode
 from collections import namedtuple
-from contextlib import contextmanager, nullcontext, suppress
+from contextlib import contextmanager, suppress
 from functools import reduce
 from importlib import import_module, resources
 from itertools import chain
@@ -68,16 +68,21 @@ TOKENS = re.compile(
      (?P<whitespace>[\n ]+)
     |(?P<comment>(?:[ ]*;.*\n)+)
     |(?P<badspace>\s)  # Other whitespace not allowed.
-    |(?P<open>[(])
+    |(?P<open> [(])
     |(?P<close>[)])
-    |(?P<macro>
-       ,@
-      |['`,]
-      |[.][#]
-      # Any atom that ends in ``#``, but not ``.#`` or ``\#``.
-      |(?:[^\\ \n"|();#]|\\.)*(?:[^.\\ \n"|();#]|\\.)[#]+
-     )
-    |(?P<string>
+    |(?P<template>`)
+    |(?P<unquote>,@?)
+    |(?P<quote>')
+    |(?P<inject>[.][#])
+    |(?P<discard> _[#])
+    |(?P<gensym>[$][#])
+    |(?P<kwarg>(?:\\.|[^\\ \n"|();#])*
+               (?:\\.|[^\\ \n"|();#.])
+               =)
+    |(?P<tag>  (?:\\.|[^\\ \n"|();#])*
+               (?:\\.|[^\\ \n"|();#.])
+               [#]+)
+    |(?P<unicode>
       "  # Open quote.
         (?:[^"\\]  # Any non-magic character.
            |\\(?:.|\n)  # Backslash only if paired, including with newline.
@@ -95,8 +100,8 @@ TOKENS = re.compile(
        "  # String not closed.
       |;.*  # Comment may need another line.
      )
-    |(?P<unclosed>[|])
-    |(?P<atom>(?:[^\\ \n"|();]|\\.)+)  # Let Python deal with it.
+    |(?P<badfrag>[|])  # No multiline fragments.
+    |(?P<literal>(?:\\.|[^\\ \n"|();])+)
     |(?P<error>.)
     """
 )
@@ -198,11 +203,38 @@ class Kwarg:
 
 
 class Lissp:
-    """
+    R"""
     The parser for the Lissp language.
 
     Wraps around a Hissp compiler instance.
     Parses Lissp tokens into Hissp syntax trees.
+
+    The special tags are handled here. They are
+
+    .. list-table::
+
+       * - ``'``
+         - `quote<special>`
+       * - :literal:`\`` (backtick)
+         - template quote (starts a `template`)
+       * - ``_#``
+         - `discard<DROP>`
+       * - ``.#``
+         - inject (evaluate at read time and use resulting object)
+
+    Plus the three built-in template helper tags, which are only
+    valid inside a template.
+
+    .. list-table::
+
+       * - ``,``
+         - unquote
+       * - ``,@``
+         - splice unquote
+       * - ``$#``
+         - `gensym`
+
+    Special tags are reserved by the reader and cannot be reassigned.
     """
 
     def __init__(
@@ -264,12 +296,19 @@ class Lissp:
             elif k == "badspace": raise self._badspace(v)
             elif k == "open":     yield from self._open()
             elif k == "close":    return self._close()
-            elif k == "macro":    yield from self._macro(v)
-            elif k == "string":   yield self._string(v)
+            elif k == "template": yield self._template(v)
+            elif k == "unquote":  yield self._unquote(v)
+            elif k == "quote":    yield "quote", self._pull(v)
+            elif k == "inject":   yield self._inject(v)
+            elif k == "discard":  self._pull(v); yield DROP
+            elif k == "gensym":   yield self.gensym(self._pull(v))
+            elif k == "kwarg":    yield Kwarg(v[:-1], self._pull(v))
+            elif k == "tag":      yield self._tag(self._pull(v), v)
+            elif k == "unicode":  yield self._unicode(v)
             elif k == "fragment": yield self._fragment(v)
             elif k == "continue": raise self._continue()
-            elif k == "unclosed": raise SyntaxError("Unpaired |", self.position())
-            elif k == "atom":     yield self.atom(v)
+            elif k == "badfrag":  raise SyntaxError("Unpaired |", self.position())
+            elif k == "literal":  yield self.atom(v)
             else:                 raise self._error(k)
             # fmt: on
         self._check_depth()
@@ -296,15 +335,6 @@ class Lissp:
             raise SyntaxError("Too many `)`s.", self.position())
         self.depth.pop()
 
-    def _macro(self, v):
-        p = self._pos
-        with {
-            "`": self.gensym_context,
-            ",": self.unquote_context,
-            ",@": self.unquote_context,
-        }.get(v, nullcontext)():
-            yield self.parse_macro(v, self._pull(v, p))
-
     @contextmanager
     def gensym_context(self):
         """Start a new gensym context for the current template."""
@@ -317,6 +347,10 @@ class Lissp:
             self.counters.pop()
             self.context.pop()
 
+    def _unquote(self, v):
+        with self.unquote_context():
+            return _Unquote({",@": ":*", ",": ":?"}[v], self._pull(v, self._pos))
+
     @contextmanager
     def unquote_context(self):
         """Start a new unquote context for the current template."""
@@ -328,75 +362,39 @@ class Lissp:
         finally:
             self.context.pop()
 
-    def _pull(self, v, p):
+    def _inject(self, v):
+        with C.macro_context(self.ns):
+            return eval(readerless(self._pull(v, self._pos), self.ns), self.ns)
+
+    def _pull(self, v, p=None):
+        if p is None:
+            p = self._pos
         depth = len(self.depth)
         nondrop = self._filter_drop()
         try:
             return next(nondrop)
         except StopIteration:
             e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
-            raise e(f"Reader macro {v!r} missing argument.", self.position(p)) from None
+            raise e(f"tag {v!r} missing argument.", self.position(p)) from None
 
-    def parse_macro(self, tag: str, form):
-        # fmt: off
-        R"""Apply a reader macro to a form.
+    def _template(self, v):
+        with self.gensym_context():
+            return self._template_form(self._pull(v))
 
-        The built-in reader macros are handled here. They are
-
-        .. list-table::
-
-           * - ``'``
-             - `quote<special>`
-           * - :literal:`\`` (backtick)
-             - template quote (starts a `template`)
-           * - ``_#``
-             - `discard<DROP>`
-           * - ``.#``
-             - inject (evaluate at read time and use resulting object)
-
-        Plus the three built-in template helper macros, which are only
-        valid inside a template.
-
-        .. list-table::
-
-           * - ``,``
-             - unquote
-           * - ``,@``
-             - splice unquote
-           * - ``$#``
-             - `gensym`
-
-        The built-in macros are reserved by the reader and cannot be
-        reassigned.
-        """
-        if tag == "'":  return "quote", form
-        if tag == "`":  return self.template(form)
-        if tag == ",":  return _Unquote(":?", form)
-        if tag == ",@": return _Unquote(":*", form)
-        if tag == "_#": return DROP
-        if tag == "$#": return self.gensym(form)
-        # fmt: on
-        if tag == ".#":
-            with C.macro_context(self.ns):
-                return eval(readerless(form, self.ns), self.ns)
-        if m := re.fullmatch(r"((?:[^\\]|\\.)+)=#", tag):
-            return Kwarg(m[1], form)
-        return self._custom_macro(form, tag)
-
-    def template(self, form):
+    def _template_form(self, form):
         """Process form as template."""
         case = type(form)
         if is_lissp_string(form):
             return "quote", form
         if case is tuple and form:
-            return (ENTUPLE, ":", *chain(*self._template(form)),)  # fmt: skip
+            return (ENTUPLE, ":", *chain(*self._template_element(form)),)  # fmt: skip
         if case is str and not form.startswith(":"):
             return "quote", self.qualify(form)
         if case is _Unquote and form.target == ":?":
             return form.value
         return form
 
-    def _template(self, forms: Iterable) -> Iterable[Tuple[str, Any]]:
+    def _template_element(self, forms: Iterable) -> Iterable[Tuple[str, Any]]:
         invocation = True
         for form in forms:
             case = type(form)
@@ -405,7 +403,7 @@ class Lissp:
             elif case is _Unquote:
                 yield form
             elif case is tuple:
-                yield ":?", self.template(form)
+                yield ":?", self._template_form(form)
             else:
                 yield ":?", form
             invocation = False
@@ -447,7 +445,7 @@ class Lissp:
             return self.counters[-1]
         return self.counters[index]
 
-    def _custom_macro(self, form, tag: str):
+    def _tag(self, form, tag: str):
         assert tag.endswith("#")
         arity = tag.replace(R"\#", "").count("#")
         tag_pos, tag_depth = self._pos, len(self.depth)
@@ -475,7 +473,7 @@ class Lissp:
             if k == "*":
                 args.extend(v)
             elif k == "**":
-                kwargs.update(v)
+                kwargs.update(dict(v))
             else:
                 kwargs[force_munge(cls.escape(k))] = v
         else:
@@ -507,7 +505,7 @@ class Lissp:
         )
 
     @staticmethod
-    def _string(v):
+    def _unicode(v):
         v = v.replace("\\\n", "").replace("\n", R"\n")
         val = ast.literal_eval(v)
         return v if (v := pformat(val)).startswith("(") else f"({v})"

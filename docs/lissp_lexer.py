@@ -65,17 +65,24 @@ class LisspLexer(RegexLexer):
                 TOKENS.pattern,
                 bygroups(
                     pt.Text,  # whitespace
-                    using(CommentSubLexer),
+                    using(CommentSubLexer),  # comment
                     pt.Error,  # badspace
                     pt.Punctuation,  # open
                     pt.Punctuation,  # close
-                    pt.Operator,  # macro
-                    pt.String,
-                    pt.String.Symbol,
+                    pt.Operator,  # template
+                    pt.Operator,  # unquote
+                    pt.Operator,  # quote
+                    pt.Operator,  # inject
+                    pt.Operator,  # discard
+                    pt.Operator,  # gensym
+                    pt.Operator,  # kwarg
+                    pt.Name.Other,  # tag
+                    pt.String,  # unicode
+                    pt.String.Symbol,  # fragment
                     pt.Error,  # continue
-                    pt.Error,  # unclosed
-                    using(AtomSubLexer),
-                    pt.Error,
+                    pt.Error,  # badfrag
+                    using(AtomSubLexer), # literal
+                    pt.Error,  # error
                 ),
             )
         ]

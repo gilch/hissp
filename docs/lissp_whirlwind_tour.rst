@@ -1917,7 +1917,7 @@ Lissp Whirlwind Tour
    >>> b'bytes'
    b'bytes'
 
-   #> builtins..bytes##encoding=#ascii|moar bytes| ;Convert to a Kwarg via foo=#.
+   #> builtins..bytes##encoding=ascii|moar bytes| ;Convert to a Kwarg via foo=.
    >>> b'moar bytes'
    b'moar bytes'
 
@@ -1925,7 +1925,7 @@ Lissp Whirlwind Tour
    ;; Yes, these are a type of object special-cased in the reader. They're
    ;; only meant for use at read time, but they're allowed to survive to
    ;; run time for debugging purposes.
-   #> spam=#eggs
+   #> spam=eggs
    >>> __import__('pickle').loads(  # Kwarg('spam', 'eggs')
    ...     b'ccopyreg\n'
    ...     b'_reconstructor\n'

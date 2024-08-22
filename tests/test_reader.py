@@ -14,7 +14,7 @@ from hypothesis import given
 from hissp import reader
 from .util import dedented
 
-STRING_ANY_ = [("string", ANY, ANY)]
+UNICODE_ANY_ = [("unicode", ANY, ANY)]
 
 
 class TestReader(TestCase):
@@ -36,7 +36,7 @@ class TestReader(TestCase):
     def test_string(self, lissp):
         lissp = lissp.replace("\\", "\\\\").replace('"', R"\"")
         lissp = f'"{lissp}"'
-        self.assertEqual([*reader.Lexer(lissp)], STRING_ANY_)
+        self.assertEqual([*reader.Lexer(lissp)], UNICODE_ANY_)
 
     def test_examples(self):
         for k, v in EXPECTED.items():

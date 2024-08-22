@@ -1511,7 +1511,7 @@ You indicate how many with the number of trailing ``#``\ s.
    Fraction(2, 3)
 
 Reader tags may also take keyword arguments,
-made with a helper kwarg tag ending in ``=#``,
+made with a kwarg token ending in ``=``,
 which can be helpful quick refinements for functions with optional arguments,
 without the need to create a new reader macro for each specialization.
 
@@ -1521,12 +1521,68 @@ without the need to create a new reader macro for each specialization.
    >>> (21)
    21
 
-   #> builtins..int## base=#6 |21| ; base 6, via base=# kwarg tag
+   #> builtins..int## |21| base=6 ; base 6, via base= kwarg. Note ##.
    >>> (13)
    13
 
-The helper tags ``*=#`` and ``**=#`` unpack the argument at that position,
+   #> builtins..int## base=6 |21| ; kwargs are allowed in any position
+   >>> (13)
+   13
+
+A kwarg token works a lot like a tag, except it ends with a single ``=``
+instead of some number of ``#``\ s, and can only take a single argument.
+These do evaluate to a ``Kwarg`` object,
+which is only meant for use as an argument to a tag,
+but they're allowed to persist after read time for debugging purposes.
+If you see one of these, make sure you used enough ``#``\ s on your tag.
+
+.. code-block:: REPL
+
+   #> base=6
+   >>> __import__('pickle').loads(  # Kwarg('base', 6)
+   ...     b'ccopyreg\n'
+   ...     b'_reconstructor\n'
+   ...     b'(chissp.reader\n'
+   ...     b'Kwarg\n'
+   ...     b'cbuiltins\n'
+   ...     b'object\n'
+   ...     b'NtR(dVk\n'
+   ...     b'Vbase\n'
+   ...     b'sVv\n'
+   ...     b'I6\n'
+   ...     b'sb.'
+   ... )
+   Kwarg('base', 6)
+
+The special kwarg tokens ``*=`` and ``**=`` unpack the argument at that position,
 either as positional arguments or keyword arguments, respectively.
+
+.. code-block:: REPL
+
+   #> builtins..str.format#### "{}a{}b{}c{}:{}" *=AB C *=(1 2)
+   >>> ('AaBbCc1:2')
+   'AaBbCc1:2'
+
+Tags get parsed objects from the reader. But they haven't been evaluated yet.
+Notice the ``.#``\ s required here.
+
+.. code-block:: REPL
+
+   #> builtins..sorted### reverse=True key=.#str.lower (a B c)
+   >>> ['c', 'B', 'a']
+   ['c', 'B', 'a']
+
+   ;; Tags call dict() on a **= Kwarg, so pairs work.
+   ;; Equivalent to the above. Notice the .# is still required.
+   #> builtins..sorted##**=((reverse True) (key .#str.lower)) (a B c)
+   >>> ['c', 'B', 'a']
+   ['c', 'B', 'a']
+
+   ;; A mapping object works as well, of course.
+   ;; The .# makes a read time dict object here.
+   #> builtins..sorted##**=.#(dict : reverse True  key str.lower) (a B c)
+   >>> ['c', 'B', 'a']
+   ['c', 'B', 'a']
 
 Unqualified Tags
 ++++++++++++++++
@@ -1541,7 +1597,7 @@ when it encounters an unqualified tag.
 The ``#`` is only in an attribute name to distinguish them from normal compile-time macros,
 not to indicate arity.
 It is possible to use a tag name containing extra ``#``\ s,
-or ending in ``=#`` if escaped with a ``\``.
+or ending in ``=`` if escaped with a ``\``.
 
 Discard
 +++++++

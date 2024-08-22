@@ -2927,7 +2927,7 @@ vars(_macro_).update(vars(__import__('hissp')._macro_))"
 
   .. code-block:: REPL
 
-     #> (op#add 5 spy##file=#sys..stdout(op#mul 7 3))
+     #> (op#add 5 spy##file=sys..stdout(op#mul 7 3))
      >>> __import__('operator').add(
      ...   (5),
      ...   # hissp.._macro_._spy
@@ -2962,7 +2962,7 @@ vars(_macro_).update(vars(__import__('hissp')._macro_))"
 
   .. code-block:: REPL
 
-     #> time##file=#sys..stdout(time..sleep .05)
+     #> time##file=sys..stdout(time..sleep .05)
      >>> # hissp.macros.._macro_.let
      ... (lambda _QzPMWTVFTZz___time=__import__('time').time_ns:
      ...     # hissp.macros.._macro_.letQz_from
