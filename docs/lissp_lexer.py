@@ -75,6 +75,7 @@ class LisspLexer(RegexLexer):
                     pt.Operator,  # inject
                     pt.Operator,  # discard
                     pt.Operator,  # gensym
+                    pt.Operator,  # stararg
                     pt.Operator,  # kwarg
                     pt.Name.Other,  # tag
                     pt.String,  # unicode

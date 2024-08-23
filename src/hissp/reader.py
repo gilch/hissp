@@ -76,8 +76,9 @@ TOKENS = re.compile(
     |(?P<inject>[.][#])
     |(?P<discard> _[#])
     |(?P<gensym>[$][#])
+    |(?P<stararg>[*]?[*]=)
     |(?P<kwarg>(?:\\.|[^\\ \n"|();#])*
-               (?:\\.|[^\\ \n"|();#.])
+               (?:\\.|\w)  # Character before = must be alnum, or escaped.
                =)
     |(?P<tag>  (?:\\.|[^\\ \n"|();#])*
                (?:\\.|[^\\ \n"|();#.])
@@ -291,14 +292,14 @@ class Lissp:
             elif k == "inject":   yield self._inject(v)
             elif k == "discard":  self._pull(v)
             elif k == "gensym":   yield self.gensym(self._pull(v))
-            elif k == "kwarg":    yield Kwarg(v[:-1], self._pull(v))
             elif k == "tag":      yield self._tag(self._pull(v), v)
             elif k == "unicode":  yield self._unicode(v)
             elif k == "fragment": yield self._fragment(v)
             elif k == "continue": raise self._continue()
             elif k == "badfrag":  raise SyntaxError("Unpaired |", self.position())
             elif k == "literal":  yield self.atom(v)
-            else:                 raise self._error(k)
+            elif k == "error":    raise self._error(k)
+            else:                 yield Kwarg(v[:-1], self._pull(v))
             # fmt: on
         self._check_depth()
 
