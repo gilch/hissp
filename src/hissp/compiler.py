@@ -150,7 +150,7 @@ class Compiler:
         """
         Compile Hissp form to the equivalent Python code in a string.
         `tuple` and `str` have special evaluation rules,
-        otherwise it's an `atom` that represents itself.
+        otherwise it's an :meth:`atom` that represents itself.
         """
         if type(form) is tuple and form:
             return self.tuple(form)
@@ -168,7 +168,7 @@ class Compiler:
 
     @_trace
     def special(self, form: Tuple) -> str:
-        """Try to compile as special form, else `invocation`.
+        """Try to compile as special form, else :meth:`invocation`.
 
         The two special forms are ``quote`` and `lambda<function>`.
 
@@ -326,7 +326,7 @@ class Compiler:
 
     @_trace
     def macro(self, form: Tuple) -> Union[str, Sentinel]:
-        """Macroexpand and start over with `form`, if it's a macro."""
+        """Macroexpand and start over with :meth:`form`, if it's a macro."""
         head, *tail = form
         if (macro := self._get_macro(head, self.ns)) is not None:
             with macro_context(self.ns):
@@ -571,7 +571,7 @@ class Compiler:
 
     @_trace
     def pickle(self, form) -> str:
-        """Compile to `pickle.loads`. The final fallback for `atom`."""
+        """Compile to `pickle.loads`. The final fallback for :meth:`atom`."""
         # 0 is the "human-readable" backwards-compatible text protocol.
         dumps = pickletools.optimize(pickle.dumps(form, 0, fix_imports=False))
         dumps = "\n    ".join(f"{b!r}" for b in dumps.splitlines(keepends=True))
@@ -673,7 +673,7 @@ def _identity(x):
 def macroexpand_all(form, ns=None, *, preprocess=_identity, postprocess=_identity):
     """Recursively macroexpand everything possible from the outside-in.
 
-    Pipes outer form through preprocess, `macroexpand`, and postprocess,
+    Pipes outer form through preprocess, :func:`macroexpand`, and postprocess,
     then recurs into subforms of the resulting expansion, if applicable.
 
     Pre/postprocess are called with `macro_context` so, e.g.,

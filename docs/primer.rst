@@ -236,12 +236,6 @@ Reader macro
   but rather are functions that *expand* to Hissp;
   They run at *read time* and return Hissp code.
 
-.. _read time:
-
-Read time
-  The pre-compile phase that translates Lissp to Hissp:
-  when the reader runs.
-
 Let's see our "Hello World" example in Lissp:
 
 >>> from hissp.reader import Lissp
@@ -576,7 +570,7 @@ Symbol tokens have another important difference from other fragments.
 
 Because symbols may contain special characters,
 but the Python identifiers they represent cannot,
-the reader `munges <munge>` symbols with forbidden characters
+the reader `munges` symbols with forbidden characters
 to valid identifier strings by replacing them with special "Quotez"
 escape sequences, like ``QzFULLxSTOP_``.
 
@@ -597,7 +591,7 @@ and "Q" almost never ends a word (except perhaps in brand names),
 making "Qz" a visually distinct escape sequence,
 easy to read, and very unlikely to appear by accident.
 
-Munging happens at `read time`_, which means you can use a munged symbol both
+Munging happens at `read time`, which means you can use a munged symbol both
 as an identifier and as a string representing that identifier:
 
 .. code-block:: REPL
@@ -1122,7 +1116,7 @@ It compiles and evaluates the next form
 and is replaced with the resulting object in the Hissp.
 These reader macros are unary operators that apply inside-out,
 like functions do,
-at `read time`_.
+at `read time`.
 The ``'.#`` means the inject is applied first,
 then the quote to its result.
 
@@ -1428,7 +1422,7 @@ and the reader embeds the resulting object into the output Hissp:
    ... )
    inf
 
-This inserts an actual `float` object at `read time`_ into the Hissp code.
+This inserts an actual `float` object at `read time` into the Hissp code.
 
 It's the same as using inject like this
 

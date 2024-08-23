@@ -1837,7 +1837,7 @@ We can create numbered X's the same way we created the numbered L's.
    and reload the whole module.
    Comment out anything you don't want loaded.
    You can still push them later.
-   A `_#<parse_macro>` can discard a tuple and everything in it.
+   A `_#<Lissp>` can discard a tuple and everything in it.
    (Although it still gets *read*.)
    You already know how to compile.
    No, you don't have to restart the REPL!

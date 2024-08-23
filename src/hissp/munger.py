@@ -29,7 +29,7 @@ Characters can be encoded in one of three ways:
 Short names, Unicode names, and ordinals.
 
 The `demunge` function will accept any of these encodings,
-while the `munge` function will prioritize short names,
+while the :func:`munge` function will prioritize short names,
 then fall back to Unicode names, then fall back to ordinals.
 
 Short names are given in the `TO_NAME` table in this module.
@@ -65,7 +65,7 @@ def munge(s: str) -> str:
 
 
 def force_munge(s: str) -> str:
-    """As `munge`, but skips the control word check.
+    """As :func:`munge`, but skips the control word check.
 
     Used for reader tags.
     """
@@ -189,11 +189,11 @@ def _qz_decode(match: Match[str]) -> str:
 
 
 def demunge(s: str) -> str:
-    """The inverse of `munge`. Decodes any Quotez into characters.
+    """The inverse of :func:`munge`. Decodes any Quotez into characters.
 
     Characters can be encoded in one of three ways:
     Short names, Unicode names, and ordinals.
-    `demunge` will decode any of these, even though `munge` will
+    ``demunge`` will decode any of these, even though :func:`munge` will
     consistently pick only one of these for any given character.
     `demunge` will also leave the remaining text as-is, along with any
     invalid Quotez.

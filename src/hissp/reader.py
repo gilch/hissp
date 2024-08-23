@@ -43,7 +43,7 @@ from hissp.munger import force_munge, force_qz_encode, munge
 
 GENSYM_BYTES = 5
 """
-The number of bytes gensym `$# <parse_macro>` hashes have.
+The number of bytes gensym `$# <Lissp>` hashes have.
 
 The default 5 bytes (40 bits) should be more than sufficient space to
 eliminate collisions with typical usage, but for unusual applications,
