@@ -108,14 +108,6 @@ TOKENS = re.compile(
 
 Token = NewType("Token", Tuple[str, str, int])
 
-DROP = object()
-"""
-The sentinel value returned by the discard macro ``_#``, which the
-reader skips over when parsing. Reader macros can have read-time side
-effects with no Hissp output by returning this. (Not recommended.)
-"""
-
-
 class SoftSyntaxError(SyntaxError):
     """A syntax error that could be corrected with more lines of input.
 
@@ -218,7 +210,7 @@ class Lissp:
        * - :literal:`\`` (backtick)
          - template quote (starts a `template`)
        * - ``_#``
-         - `discard<DROP>`
+         - discard
        * - ``.#``
          - inject (evaluate at read time and use resulting object)
 
@@ -283,10 +275,7 @@ class Lissp:
     def parse(self, tokens: Lexer) -> Iterator:
         """Build Hissp forms from a `Lexer`."""
         self.tokens = tokens
-        return (x for x in self._filter_drop() if not isinstance(x, Comment))
-
-    def _filter_drop(self):
-        return (x for x in self._parse() if x is not DROP)
+        return (x for x in self._parse() if not isinstance(x, Comment))
 
     def _parse(self) -> Iterator:
         for k, v, self._pos in self.tokens:
@@ -300,7 +289,7 @@ class Lissp:
             elif k == "unquote":  yield self._unquote(v)
             elif k == "quote":    yield "quote", self._pull(v)
             elif k == "inject":   yield self._inject(v)
-            elif k == "discard":  self._pull(v); yield DROP
+            elif k == "discard":  self._pull(v)
             elif k == "gensym":   yield self.gensym(self._pull(v))
             elif k == "kwarg":    yield Kwarg(v[:-1], self._pull(v))
             elif k == "tag":      yield self._tag(self._pull(v), v)
@@ -370,9 +359,8 @@ class Lissp:
         if p is None:
             p = self._pos
         depth = len(self.depth)
-        nondrop = self._filter_drop()
         try:
-            return next(nondrop)
+            return next(self._parse())
         except StopIteration:
             e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
             raise e(f"tag {v!r} missing argument.", self.position(p)) from None
@@ -450,7 +438,7 @@ class Lissp:
         arity = tag.replace(R"\#", "").count("#")
         tag_pos, tag_depth = self._pos, len(self.depth)
         args, kwargs = [], {}
-        for i, x in enumerate(chain([form], self._filter_drop()), 1):
+        for i, x in enumerate(chain([form], self._parse()), 1):
             self._collect(args, kwargs, x)
             if i == arity:
                 break
