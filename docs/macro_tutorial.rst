@@ -2226,7 +2226,6 @@ you must define them in ``_macro_`` with a name ending in a ``#``.
 
    #> (defmacro X\# (expr)
    #..  `(L ,@expr))
-   FULL COMPILATION:
    >>> # defmacro
    ... __import__('builtins').setattr(
    ...   __import__('builtins').globals().get(
@@ -3993,7 +3992,6 @@ we should suppress the qualification with a gensym instead of a symbol interpola
 
    #> (defmacro \[\# e
    #..  `(lambda ($#G) ,(.format "({}[{})" '$#G (hissp..demunge e))))
-   FULL COMPILATION:
    >>> # defmacro
    ... __import__('builtins').setattr(
    ...   __import__('builtins').globals().get(
