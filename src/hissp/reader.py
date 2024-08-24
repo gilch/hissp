@@ -39,7 +39,7 @@ from typing import (
 
 import hissp.compiler as C
 from hissp.compiler import Compiler, readerless
-from hissp.munger import force_munge, force_qz_encode, munge
+from hissp.munger import force_qz_encode, munge
 
 GENSYM_BYTES = 5
 """
@@ -102,12 +102,14 @@ TOKENS = re.compile(
       |;.*  # Comment may need another line.
      )
     |(?P<badfrag>[|])  # No multiline fragments.
-    |(?P<literal>(?:\\.|[^\\ \n"|();])+)
+    |(?P<control>:(?:\\.|[^\\ \n"|();])*)
+    |(?P<bare>    (?:\\.|[^\\ \n"|();])+)
     |(?P<error>.)
     """
 )
 
 Token = NewType("Token", Tuple[str, str, int])
+
 
 class SoftSyntaxError(SyntaxError):
     """A syntax error that could be corrected with more lines of input.
@@ -297,7 +299,8 @@ class Lissp:
             elif k == "fragment": yield self._fragment(v)
             elif k == "continue": raise self._continue()
             elif k == "badfrag":  raise SyntaxError("Unpaired |", self.position())
-            elif k == "literal":  yield self.atom(v)
+            elif k == "control":  yield self.escape(v)
+            elif k == "bare":     yield self.bare(v)
             elif k == "error":    raise self._error(k)
             else:                 yield Kwarg(v[:-1], self._pull(v))
             # fmt: on
@@ -452,7 +455,7 @@ class Lissp:
 
     @classmethod
     def _label(cls, arity, tag):
-        label = force_munge(cls.escape(tag[:-arity]))
+        label = munge(cls.escape(tag[:-arity]))
         return re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), label)
 
     @classmethod
@@ -464,7 +467,7 @@ class Lissp:
             elif k == "**":
                 kwargs.update(dict(v))
             else:
-                kwargs[force_munge(cls.escape(k))] = v
+                kwargs[munge(cls.escape(k))] = v
         else:
             args.append(x)
 
@@ -506,19 +509,13 @@ class Lissp:
         return SoftSyntaxError("Incomplete string token.", self.position())
 
     @staticmethod
-    def atom(v):
-        """Preprocesses atoms. Handles escapes and munging."""
-        is_symbol = "\\" == v[0]
-        v = Lissp.escape(v)
-        if is_symbol:
-            return munge(v)
-        try:
-            val = ast.literal_eval(v)
-            if isinstance(val, (bytes, dict, list, set, tuple)):
-                return munge(v)
-            return val
-        except (ValueError, SyntaxError):
-            return munge(v)
+    def bare(v):
+        """Preprocesses bare tokens. Handles escapes and munging."""
+        if "\\" != v[0]:
+            with suppress(ValueError, SyntaxError):
+                if not hasattr(x := ast.literal_eval(Lissp.escape(v)), "__contains__"):
+                    return x
+        return munge(Lissp.escape(v))
 
     def _error(self, k):
         assert k == "error", f"unknown token: {k!r}"

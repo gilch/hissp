@@ -59,16 +59,6 @@ def munge(s: str) -> str:
     and returned unmodified.
     Full stops are handled separately, as those are meaningful to Hissp.
     """
-    if s.startswith(":"):
-        return s  # control word
-    return force_munge(s)
-
-
-def force_munge(s: str) -> str:
-    """As :func:`munge`, but skips the control word check.
-
-    Used for reader tags.
-    """
     # Always normalize identifiers:
     # >>> 𝐀 = 'MATHEMATICAL BOLD CAPITAL A'
     # >>> 'A' in globals()

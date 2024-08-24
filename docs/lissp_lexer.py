@@ -26,11 +26,11 @@ class LisspLexer(RegexLexer):
             ]
         }
 
-    class AtomSubLexer(RegexLexer):
+    class BareSubLexer(RegexLexer):
         def preprocess_atom(lexer, match, ctx=None):
             value: str = match.group(0)
             index: int = match.start()
-            v = Lissp.atom(value)
+            v = Lissp.bare(value)
             if isinstance(v, (complex, float)):
                 yield index, pt.Number.Float, value
                 return
@@ -82,7 +82,8 @@ class LisspLexer(RegexLexer):
                     pt.String.Symbol,  # fragment
                     pt.Error,  # continue
                     pt.Error,  # badfrag
-                    using(AtomSubLexer), # literal
+                    pt.Keyword.Constant,  # control
+                    using(BareSubLexer),  # bare
                     pt.Error,  # error
                 ),
             )
