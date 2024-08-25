@@ -231,8 +231,7 @@ And push it to the REPL as well:
    #> hissp..prelude#:
    >>> # hissp.macros.._macro_.prelude
    ... __import__('builtins').exec(
-   ...   ('from functools import partial,reduce\n'
-   ...    'from itertools import *;from operator import *\n'
+   ...   ('from itertools import *;from operator import *\n'
    ...    'def engarde(xs,h,f,/,*a,**kw):\n'
    ...    ' try:return f(*a,**kw)\n'
    ...    ' except xs as e:return h(e)\n'

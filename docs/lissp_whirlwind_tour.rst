@@ -1864,7 +1864,7 @@ Lissp Whirlwind Tour
 
    ;;; The prelude copies _macro_ from hissp._macro_ like the REPL, defines
    ;;; some Python interop helper functions, and imports Python's standard-library
-   ;;; functional utilities.
+   ;;; functional programming utilities from operator and itertools.
 
    (help _macro_.prelude)
 

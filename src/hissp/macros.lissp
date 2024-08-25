@@ -1083,6 +1083,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   "``chain#`` Abbreviation for `itertools.chain.from_iterable`."
   `(i#chain.from_iterable ,xss))
 
+(defmacro &\# e
+  "``&#`` Abbreviation for `functools.partial`."
+  `(functools..partial ,@e))
+
 (defmacro get\# e
   <#;``get#`` 'itemgetter-' Makes an `operator.itemgetter` function from ``e``.
   ;;
@@ -2154,6 +2158,38 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
       `(lambda (: :* $#xs)
          (,f $#xs))))
 
+(defmacro /\# f
+  "Wrap a binary function as a variadic via reduce."
+  `(lambda (: :* $#xs)
+     (functools..reduce ,f $#xs)))
+
+(defmacro /XY\# e
+  <#;``/XY#`` Anaphoric. Make ``e`` a reducer with parameters X Y.
+  ;;
+  ;; The resulting function is a partial application of
+  ;; `functools.reduce`.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> /XY#(op#add Y X)
+  ;;    >>> __import__('functools').partial(
+  ;;    ...   __import__('functools').reduce,
+  ;;    ...   (lambda X, Y:
+  ;;    ...       __import__('operator').add(
+  ;;    ...         Y,
+  ;;    ...         X)
+  ;;    ...   ))
+  ;;    functools.partial(<built-in function reduce>, <function <lambda> at 0x...>)
+  ;;
+  ;;    #> (_ 'ABCD)
+  ;;    >>> _(
+  ;;    ...   'ABCD')
+  ;;    'DCBA'
+  ;;
+  ;; See also: `XY#<XYQzHASH_>`, `/#<QzSOL_QzHASH_>`.
+  ;;
+  `(functools..partial functools..reduce (lambda ,'XY ,e)))
+
 ;;;; Collection
 
 (defmacro @ (: :* xs)
@@ -2275,10 +2311,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; The prelude has several effects:
   ;;
-  ;; * Imports `functools.partial` and `functools.reduce`.
-  ;;   Star imports from `itertools` and `operator`::
+  ;; * Star imports from `itertools` and `operator`::
   ;;
-  ;;    from functools import partial,reduce
   ;;    from itertools import *;from operator import *
   ;;
   ;; .. _engarde:
@@ -2352,8 +2386,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    #> (prelude)
   ;;    >>> # prelude
   ;;    ... __import__('builtins').exec(
-  ;;    ...   ('from functools import partial,reduce\n'
-  ;;    ...    'from itertools import *;from operator import *\n'
+  ;;    ...   ('from itertools import *;from operator import *\n'
   ;;    ...    'def engarde(xs,h,f,/,*a,**kw):\n'
   ;;    ...    ' try:return f(*a,**kw)\n'
   ;;    ...    ' except xs as e:return h(e)\n'
@@ -2820,7 +2853,6 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    Exception
   ;;
   `(exec ',"\
-from functools import partial,reduce
 from itertools import *;from operator import *
 def engarde(xs,h,f,/,*a,**kw):
  try:return f(*a,**kw)
