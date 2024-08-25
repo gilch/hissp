@@ -1624,7 +1624,7 @@ Zero or one positional parameters have one obvious answer. Two only has two to c
 These are fine. Three has six. Are you sure you picked the best one?
 Four already has 24 permutations, which, realistically,
 you're not likely to consider exhaustively,
-so you need a good reason to nail at least one of them down.
+so you need a good reason to nail down at least one of them.
 It just gets worse from there. The factorial sequence grows pretty quickly.
 Why not make it easy and use meaningful names instead of meaningless positions?
 Kwonly is there for you.

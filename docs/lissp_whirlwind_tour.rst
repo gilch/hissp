@@ -372,7 +372,7 @@ Lissp Whirlwind Tour
    >>> ':-<>>'
    ':-<>>'
 
-   #> :                                   ;Shortest a control word.
+   #> :                                   ;Shortest control word.
    >>> ':'
    ':'
 

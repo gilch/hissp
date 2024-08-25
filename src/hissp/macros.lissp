@@ -1080,7 +1080,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (alias op operator.)
 
 (defmacro chain\# (xss)
-  "``chain#`` Abbreviation for `itertools.chain.from_iterable`"
+  "``chain#`` Abbreviation for `itertools.chain.from_iterable`."
   `(i#chain.from_iterable ,xss))
 
 (defmacro get\# e
