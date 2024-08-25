@@ -44,7 +44,7 @@ class TestCompileGeneral(TestCase):
 
     @given(literals)
     def test_compile_literal(self, form):
-        self.assertEqual(form, eval(compiler.Compiler().atom(form)))
+        self.assertEqual(form, eval(compiler.Compiler().atomic(form)))
 
     def test_maybe_macro_error(self):
         with self.assertRaises(compiler.CompileError):

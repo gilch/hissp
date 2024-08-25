@@ -293,7 +293,7 @@ class Lissp:
             elif k == "quote":    yield "quote", self._pull(v)
             elif k == "inject":   yield self._inject(v)
             elif k == "discard":  self._pull(v)
-            elif k == "gensym":   yield self.gensym(self._pull(v))
+            elif k == "gensym":   yield self._gensym(self._pull(v))
             elif k == "tag":      yield self._tag(self._pull(v), v)
             elif k == "unicode":  yield self._unicode(v)
             elif k == "fragment": yield self._fragment(v)
@@ -412,7 +412,7 @@ class Lissp:
             return f"{self.qualname}{C.MAYBE}{symbol}"
         return f"{self.qualname}..{symbol}"
 
-    def gensym(self, form: str):
+    def _gensym(self, form: str):
         """Generate a symbol unique to the current template.
         Re-munges any $'s as a gensym hash, or adds it as a prefix if
         there aren't any. Gensym hashes are deterministic for

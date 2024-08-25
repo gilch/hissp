@@ -133,7 +133,7 @@ class Compiler:
         """
         result: List[str] = []
         for i, form in enumerate(forms, 1):
-            form = self.form(form)
+            form = self.compile_form(form)
             if self.error:
                 e = self.error
                 self.error = False
@@ -146,9 +146,9 @@ class Compiler:
         return "\n\n".join(result)
 
     @_trace
-    def form(self, form) -> str:
+    def compile_form(self, form) -> str:
         """
-        Compile Hissp form to the equivalent Python code in a string.
+        Compile Hissp `form` to the equivalent Python code in a string.
         `tuple` and `str` have special evaluation rules,
         otherwise it's an :meth:`atom` that represents itself.
         """
@@ -156,7 +156,7 @@ class Compiler:
             return self.tuple(form)
         if type(form) is str and not form.startswith(":"):
             return self.str(form)
-        return self.atom(form)
+        return self.atomic(form)
 
     @_trace
     def tuple(self, form: Tuple) -> str:
@@ -185,7 +185,7 @@ class Compiler:
 
         """
         if form[0] == "quote":
-            return self.atom(*form[1:])
+            return self.atomic(*form[1:])
         if form[0] == "lambda":
             return self.function(form)
         return self.invocation(form)
@@ -301,14 +301,14 @@ class Compiler:
             elif v == ":?":
                 r.append(k)
             else:
-                r.append(f"{k}={self.form(v)}")
+                r.append(f"{k}={self.compile_form(v)}")
                 sep = ",\n"
         return sep.join(r).replace("\n", _PARAM_INDENT)
 
     @_trace
     def body(self, body: list) -> str:
         """Compile body of `function`."""
-        body = tuple(map(self.form, body))
+        body = tuple(map(self.compile_form, body))
         if len(body) > 1:
             result = ",\n".join(body).replace("\n", _BODY_INDENT)
             return f"({result})  [-1]"
@@ -317,7 +317,7 @@ class Compiler:
     @_trace
     def invocation(self, form: Tuple) -> str:
         """Try to compile as `macro`, else normal `call`."""
-        if (res := self.macro(form)) is not _SENTINEL:
+        if (res := self.expand_macro(form)) is not _SENTINEL:
             if res.startswith("#") and res.lstrip("#").startswith(f" {form[0]}\n"):
                 return f"#{res}"  # Abbreviate direct recursion.
             return f"# {form[0]}\n{res}"
@@ -325,12 +325,12 @@ class Compiler:
         return self.call(form)
 
     @_trace
-    def macro(self, form: Tuple) -> Union[str, Sentinel]:
-        """Macroexpand and start over with :meth:`form`, if it's a macro."""
+    def expand_macro(self, form: Tuple) -> Union[str, Sentinel]:
+        """Macroexpand and start over with `compile_form`, if macro."""
         head, *tail = form
         if (macro := self._get_macro(head, self.ns)) is not None:
             with macro_context(self.ns):
-                return self.form(macro(*tail))
+                return self.compile_form(macro(*tail))
         return _SENTINEL
 
     @classmethod
@@ -446,20 +446,20 @@ class Compiler:
         form = iter(form)
         head = next(form)
         args = chain(
-            (singles := [*map(self.form, takewhile(lambda a: a != ":", form))]),
+            (singles := [*map(self.compile_form, takewhile(lambda a: a != ":", form))]),
             starmap(self._pair_arg, pairs := [*_pairs(form)]),
         )
         if type(head) is str and head.startswith("."):
             if singles or pairs[0][0] == ":?":
                 return "{}.{}({})".format(next(args), head[1:], _join_args(*args))
             raise CompileError("self must be paired with :?")
-        return "{}({})".format(self.form(head), _join_args(*args))
+        return "{}({})".format(self.compile_form(head), _join_args(*args))
 
     def _pair_arg(self, k, v):
         k = PAIR_WORDS.get(k, k + "=")
         if ".." in k:
             k = k.split(".")[-1]
-        return k + self.form(v).replace("\n", "\n" + " " * len(k))
+        return k + self.compile_form(v).replace("\n", "\n" + " " * len(k))
 
     @_trace
     def str(self, code: str) -> str:
@@ -501,7 +501,7 @@ class Compiler:
         return f"""__import__({module !r}{",fromlist='?'" if "." in module else ""})"""
 
     @_trace
-    def atom(self, form) -> str:
+    def atomic(self, form) -> str:
         R"""
         Compile forms that evaluate to themselves.
 
@@ -548,7 +548,7 @@ class Compiler:
         return self.pickle(form)
 
     def _lisp_normal_form(self, form):
-        return "({},)".format(",\n".join(map(self.atom, form)).replace("\n", "\n "))
+        return "({},)".format(",\n".join(map(self.atomic, form)).replace("\n", "\n "))
 
     def _collection(self, form):  # Use literal if it reproduces the object graph.
         pickled = self.pickle(form)

@@ -570,7 +570,7 @@ Symbol tokens have another important difference from other fragments.
 
 Because symbols may contain special characters,
 but the Python identifiers they represent cannot,
-the reader `munges` symbols with forbidden characters
+the reader `munge`\ s symbols with forbidden characters
 to valid identifier strings by replacing them with special "Quotez"
 escape sequences, like ``QzFULLxSTOP_``.
 
