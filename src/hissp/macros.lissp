@@ -790,46 +790,52 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
                 ,(dict)
                 : ,@ibases)))))
 
-(defmacro my\# e
+(defmacro my\# (expr : :** kwargs)
   "``my#`` Anaphoric. `let` ``my`` be a fresh `types.SimpleNamespace`
   in a lexical scope surrounding e.
 
   Creates a local namespace for imperative-style reassignments,
-  typically combined with  `set@<setQzAT_>` for an assignment.
+  typically combined with an assignment function like `setattr`.
 
   .. code-block:: REPL
 
-     #> my#(print (set@ my.x (op#add 1 1))
-     #..           my.x)
+     #> my#(print (setattr my 'x (op#add 1 1))
+     #..           my.x) ; reassignment
      >>> # hissp.macros.._macro_.let
      ... (lambda my=__import__('types').SimpleNamespace():
      ...     print(
-     ...       # setQzAT_
-     ...       # hissp.macros.._macro_.let
-     ...       (
-     ...        lambda _QzRMG5GSSIz___val=__import__('operator').add(
-     ...                 (1),
-     ...                 (1)):
-     ...          (__import__('builtins').setattr(
-     ...             my,
-     ...             'x',
-     ...             _QzRMG5GSSIz___val),
-     ...           _QzRMG5GSSIz___val)  [-1]
-     ...       )(),
+     ...       setattr(
+     ...         my,
+     ...         'x',
+     ...         __import__('operator').add(
+     ...           (1),
+     ...           (1))),
      ...       my.x)
      ... )()
-     2 2
+     None 2
 
-  ``my#my`` is a shorthand for a new empty namespace.
+     #> my#my ; Empty namespace shorthand.
+     >>> # hissp.macros.._macro_.let
+     ... (lambda my=__import__('types').SimpleNamespace(): my)()
+     namespace()
+
+     #> my##foo=2 my ; Initial content from read-time kwarg.
+     >>> # hissp.macros.._macro_.let
+     ... (
+     ...  lambda my=__import__('types').SimpleNamespace(
+     ...           foo=(2)):
+     ...     my)()
+     namespace(foo=2)
 
   Often combined with branching macros to reuse the results of an
   expression, with uses similar to Python's 'walrus' operator ``:=``.
 
-  See also, `attach`, `python-grammar:assignment_expression`.
+  See also:
+  `attach`, `set@ <setQzAT_>`, `python-grammar:assignment_expression`.
   "
-  ;; TODO: consider using kwargs for initial contents.
-  `(let (,'my (types..SimpleNamespace))
-     ,e))
+  `(let (,'my (types..SimpleNamespace : ,@(itertools..chain.from_iterable
+                                           (.items kwargs))))
+     ,expr))
 
 ;;;; Abbreviations
 
