@@ -439,7 +439,8 @@ class Lissp:
 
     def _tag(self, form, tag: str):
         assert tag.endswith("#")
-        arity = tag.replace(R"\#", "").count("#")
+        arity = re.sub(r"\\.", "", tag).count("#")
+        assert arity >= 1
         tag_pos, tag_depth = self._pos, len(self.depth)
         args, kwargs = [], {}
         for i, x in enumerate(chain([form], self._parse()), 1):
