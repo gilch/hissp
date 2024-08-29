@@ -649,7 +649,7 @@ def macroexpand1(form, ns=None):
     Uses the current `NS` (available in a `macro_context`), unless
     an alternative mapping (such as ``globals()``) is provided.
     """
-    if type(form) is not tuple or not form or form[0] in {"quote", "lambda"}:
+    if type(form) is not tuple or not form or form[0] in ["quote", "lambda"]:
         return form
     head, *tail = form
     ns = NS.get() if ns is None else ns
