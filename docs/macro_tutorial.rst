@@ -3219,12 +3219,8 @@ you can already use `decimal.Decimal` as a reader macro:
 
    #> (mul decimal..Decimal#|.2| 3)
    >>> mul(
-   ...   __import__('pickle').loads(  # Decimal('0.2')
-   ...       b'cdecimal\n'
-   ...       b'Decimal\n'
-   ...       b'(V0.2\n'
-   ...       b'tR.'
-   ...   ),
+   ...   # Decimal('0.2')
+   ...   __import__('pickle').loads(b'cdecimal\nDecimal\n(V0.2\ntR.'),
    ...   (3))
    Decimal('0.6')
 
@@ -3261,12 +3257,8 @@ but this isn't always a good idea.
 .. code-block:: REPL
 
    #> decimal..Decimal#.2
-   >>> __import__('pickle').loads(  # Decimal('0.200000000000000011102230246251565404236316680908203125')
-   ...     b'cdecimal\n'
-   ...     b'Decimal\n'
-   ...     b'(V0.200000000000000011102230246251565404236316680908203125\n'
-   ...     b'tR.'
-   ... )
+   >>> # Decimal('0.200000000000000011102230246251565404236316680908203125')
+   ... __import__('pickle').loads(b'cdecimal\nDecimal\n(V0.200000000000000011102230246251565404236316680908203125\ntR.')
    Decimal('0.200000000000000011102230246251565404236316680908203125')
 
 There's no bug in Decimal.

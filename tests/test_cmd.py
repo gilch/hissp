@@ -152,10 +152,8 @@ def test_repl_empty_reader_macro_error():
     call_response(
         "> #> ", "< builtins..float#\n",
         "> #..", "< inf\n",
-        "! >>> __import__('pickle').loads(  # inf\n",
-        "! ...     b'Finf\\n'\n",
-        "! ...     b'.'\n",
-        "! ... )\n",
+        "! >>> # inf\n",
+        "! ... __import__('pickle').loads(b'Finf\\n.')\n",
         "> inf\n",
         "> #> ", "< (builtins..float#)\n",
         '!   File "<console>", line 1\n',

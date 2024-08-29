@@ -1926,19 +1926,8 @@ Lissp Whirlwind Tour
    ;; only meant for use at read time, but they're allowed to survive to
    ;; run time for debugging purposes.
    #> spam=eggs
-   >>> __import__('pickle').loads(  # Kwarg('spam', 'eggs')
-   ...     b'ccopyreg\n'
-   ...     b'_reconstructor\n'
-   ...     b'(chissp.reader\n'
-   ...     b'Kwarg\n'
-   ...     b'cbuiltins\n'
-   ...     b'object\n'
-   ...     b'NtR(dVk\n'
-   ...     b'Vspam\n'
-   ...     b'sVv\n'
-   ...     b'Veggs\n'
-   ...     b'sb.'
-   ... )
+   >>> # Kwarg('spam', 'eggs')
+   ... __import__('pickle').loads(b'ccopy_reg\n_reconstructor\n(chissp.reader\nKwarg\nc__builtin__\nobject\nNtR(dVk\nVspam\nsVv\nVeggs\nsb.')
    Kwarg('spam', 'eggs')
 
 
@@ -1968,10 +1957,8 @@ Lissp Whirlwind Tour
    ;;; the compiler is in a pickle!
 
    #> builtins..float#inf
-   >>> __import__('pickle').loads(  # inf
-   ...     b'Finf\n'
-   ...     b'.'
-   ... )
+   >>> # inf
+   ... __import__('pickle').loads(b'Finf\n.')
    inf
 
 
@@ -2003,12 +1990,8 @@ Lissp Whirlwind Tour
    Fraction(1, 2)
 
    #> .#(fractions..Fraction 1 2)         ;Read time eval. Compiles to equivalent object.
-   >>> __import__('pickle').loads(  # Fraction(1, 2)
-   ...     b'cfractions\n'
-   ...     b'Fraction\n'
-   ...     b'(V1/2\n'
-   ...     b'tR.'
-   ... )
+   >>> # Fraction(1, 2)
+   ... __import__('pickle').loads(b'cfractions\nFraction\n(V1/2\ntR.')
    Fraction(1, 2)
 
 
@@ -2057,11 +2040,6 @@ Lissp Whirlwind Tour
    "(re.compile('[1-9][0-9]*'), inf)"
 
    #> re..compile#.#"[1-9][0-9]*"
-   >>> __import__('pickle').loads(  # re.compile('[1-9][0-9]*')
-   ...     b'cre\n'
-   ...     b'_compile\n'
-   ...     b'(V[1-9][0-9]*\n'
-   ...     b'I32\n'
-   ...     b'tR.'
-   ... )
+   >>> # re.compile('[1-9][0-9]*')
+   ... __import__('pickle').loads(b'cre\n_compile\n(V[1-9][0-9]*\nI32\ntR.')
    re.compile('[1-9][0-9]*')

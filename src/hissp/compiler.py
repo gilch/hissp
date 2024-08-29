@@ -39,6 +39,15 @@ it's available here.
 `readerless` uses this automatically.
 """
 
+MAX_PROTOCOL = pickle.HIGHEST_PROTOCOL
+"""
+When there is no known literal syntax for an `atom`,
+the compiler emits a `pickle.loads` expression as a fallback.
+This is the highest pickle protocol it's allowed to use.
+The compiler may use Protocol 0 instead when it has a shorter repr,
+due to the inefficient escapes required for non-printing bytes.
+"""
+
 
 @contextmanager
 def macro_context(ns):
@@ -518,28 +527,19 @@ class Compiler:
         >>> readerless(-4.2j)
         '((-0-4.2j))'
         >>> print(readerless(float('nan')))
-        __import__('pickle').loads(  # nan
-            b'Fnan\n'
-            b'.'
-        )
+        # nan
+        __import__('pickle').loads(b'Fnan\n.')
         >>> readerless([{'foo':2},(),1j,2.0,{3}])
         "[{'foo': 2}, (), 1j, 2.0, {3}]"
         >>> spam = []
         >>> spam.append(spam)  # ref cycle can't be a literal
         >>> print(readerless(spam))
-        __import__('pickle').loads(  # [[...]]
-            b'(lp0\n'
-            b'g0\n'
-            b'a.'
-        )
+        # [[...]]
+        __import__('pickle').loads(b'(lp0\ng0\na.')
         >>> spam = [[]] * 3  # duplicated refs
         >>> print(readerless(spam))
-        __import__('pickle').loads(  # [[], [], []]
-            b'(l(lp0\n'
-            b'ag0\n'
-            b'ag0\n'
-            b'a.'
-        )
+        # [[], [], []]
+        __import__('pickle').loads(b'(l(lp0\nag0\nag0\na.')
 
         """
         if form is Ellipsis:
@@ -580,12 +580,11 @@ class Compiler:
     @_trace
     def pickle(self, form) -> str:
         """Compile to `pickle.loads`. The final fallback for :meth:`atom`."""
-        # 0 is the "human-readable" backwards-compatible text protocol.
-        dumps = pickletools.optimize(pickle.dumps(form, 0, fix_imports=False))
-        dumps = "\n    ".join(f"{b!r}" for b in dumps.splitlines(keepends=True))
+        protocols = 0, MAX_PROTOCOL
+        pickles = (repr(pickletools.optimize(pickle.dumps(form, p))) for p in protocols)
+        code = min(pickles, key=len)
         r = repr(form).replace("\n", "\n  # ")
-        nl = "\n" if "\n" in r else ""
-        return f"__import__({pickle.__name__!r}).loads({nl}  # {r}\n    {dumps}\n)"
+        return f"# {r}\n__import__({pickle.__name__!r}).loads({code})"
 
     @staticmethod
     def linenos(form):

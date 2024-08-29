@@ -1214,12 +1214,8 @@ How about these?
    [[], [], []]
 
    #> .#.#"[[]]*3" ; Injects a list object.
-   >>> __import__('pickle').loads(  # [[], [], []]
-   ...     b'(l(lp0\n'
-   ...     b'ag0\n'
-   ...     b'ag0\n'
-   ...     b'a.'
-   ... )
+   >>> # [[], [], []]
+   ... __import__('pickle').loads(b'(l(lp0\nag0\nag0\na.')
    [[], [], []]
 
 Surprised?
@@ -1233,7 +1229,7 @@ Let's check.
 >>> eval(_)
 [[], [], []]
 >>> readerless([[]]*3)
-"__import__('pickle').loads(  # [[], [], []]\n    b'(l(lp0\\n'\n    b'ag0\\n'\n    b'ag0\\n'\n    b'a.'\n)"
+"# [[], [], []]\n__import__('pickle').loads(b'(l(lp0\\nag0\\nag0\\na.')"
 >>> eval(_)
 [[], [], []]
 
@@ -1261,12 +1257,8 @@ Well, what *should* it compile to?
    [[7], [], []]
 
    #> .#.#"[[]]*3"
-   >>> __import__('pickle').loads(  # [[], [], []]
-   ...     b'(l(lp0\n'
-   ...     b'ag0\n'
-   ...     b'ag0\n'
-   ...     b'a.'
-   ... )
+   >>> # [[], [], []]
+   ... __import__('pickle').loads(b'(l(lp0\nag0\nag0\na.')
    [[], [], []]
 
    #> (.append (operator..getitem _ 0) 7)
@@ -1331,13 +1323,10 @@ How can the Hissp compiler generate Python code from this tuple?
 Let's see what it's doing.
 
 >>> readerless((print,1,2,3,':','sep',':'))
-"__import__('pickle').loads(  # <built-in function print>\n    b'cbuiltins\\n'\n    b'print\\n'\n    b'.'\n)(\n  (1),\n  (2),\n  (3),\n  sep=':')"
+"# <built-in function print>\n__import__('pickle').loads(b'c__builtin__\\nprint\\n.')(\n  (1),\n  (2),\n  (3),\n  sep=':')"
 >>> print(_)
-__import__('pickle').loads(  # <built-in function print>
-    b'cbuiltins\n'
-    b'print\n'
-    b'.'
-)(
+# <built-in function print>
+__import__('pickle').loads(b'c__builtin__\nprint\n.')(
   (1),
   (2),
   (3),
@@ -1358,11 +1347,8 @@ but if we had injected it instead,
 .. code-block:: REPL
 
    #> (.#print 1 2 3 : sep :)
-   >>> __import__('pickle').loads(  # <built-in function print>
-   ...     b'cbuiltins\n'
-   ...     b'print\n'
-   ...     b'.'
-   ... )(
+   >>> # <built-in function print>
+   ... __import__('pickle').loads(b'c__builtin__\nprint\n.')(
    ...   (1),
    ...   (2),
    ...   (3),
@@ -1376,12 +1362,8 @@ Many other object types work.
 .. code-block:: REPL
 
    #> .#(fractions..Fraction 1 2)
-   >>> __import__('pickle').loads(  # Fraction(1, 2)
-   ...     b'cfractions\n'
-   ...     b'Fraction\n'
-   ...     b'(V1/2\n'
-   ...     b'tR.'
-   ... )
+   >>> # Fraction(1, 2)
+   ... __import__('pickle').loads(b'cfractions\nFraction\n(V1/2\ntR.')
    Fraction(1, 2)
 
 Unfortunately, there are some objects even pickle can't handle.
@@ -1416,10 +1398,8 @@ and the reader embeds the resulting object into the output Hissp:
 .. code-block:: REPL
 
    #> builtins..float#inf
-   >>> __import__('pickle').loads(  # inf
-   ...     b'Finf\n'
-   ...     b'.'
-   ... )
+   >>> # inf
+   ... __import__('pickle').loads(b'Finf\n.')
    inf
 
 This inserts an actual `float` object at `read time` into the Hissp code.
@@ -1429,16 +1409,14 @@ It's the same as using inject like this
 .. code-block:: REPL
 
    #> .#(float 'inf)
-   >>> __import__('pickle').loads(  # inf
-   ...     b'Finf\n'
-   ...     b'.'
-   ... )
+   >>> # inf
+   ... __import__('pickle').loads(b'Finf\n.')
    inf
 
 Or readerless mode like this
 
 >>> readerless(float('inf'))
-"__import__('pickle').loads(  # inf\n    b'Finf\\n'\n    b'.'\n)"
+"# inf\n__import__('pickle').loads(b'Finf\\n.')"
 
 A float is neither a `str` nor a `tuple`,
 so Hissp tries its best to compile this as data representing itself,
@@ -1487,21 +1465,13 @@ You indicate how many with the number of trailing ``#``\ s.
 .. code-block:: REPL
 
    #> fractions..Fraction#|2/3| ; Two thirds.
-   >>> __import__('pickle').loads(  # Fraction(2, 3)
-   ...     b'cfractions\n'
-   ...     b'Fraction\n'
-   ...     b'(V2/3\n'
-   ...     b'tR.'
-   ... )
+   >>> # Fraction(2, 3)
+   ... __import__('pickle').loads(b'cfractions\nFraction\n(V2/3\ntR.')
    Fraction(2, 3)
 
    #> fractions..Fraction## 2 3 ; Notice the extra #.
-   >>> __import__('pickle').loads(  # Fraction(2, 3)
-   ...     b'cfractions\n'
-   ...     b'Fraction\n'
-   ...     b'(V2/3\n'
-   ...     b'tR.'
-   ... )
+   >>> # Fraction(2, 3)
+   ... __import__('pickle').loads(b'cfractions\nFraction\n(V2/3\ntR.')
    Fraction(2, 3)
 
 Reader tags may also take keyword arguments,
@@ -1533,19 +1503,8 @@ If you see one of these, make sure you used enough ``#``\ s on your tag.
 .. code-block:: REPL
 
    #> base=6
-   >>> __import__('pickle').loads(  # Kwarg('base', 6)
-   ...     b'ccopyreg\n'
-   ...     b'_reconstructor\n'
-   ...     b'(chissp.reader\n'
-   ...     b'Kwarg\n'
-   ...     b'cbuiltins\n'
-   ...     b'object\n'
-   ...     b'NtR(dVk\n'
-   ...     b'Vbase\n'
-   ...     b'sVv\n'
-   ...     b'I6\n'
-   ...     b'sb.'
-   ... )
+   >>> # Kwarg('base', 6)
+   ... __import__('pickle').loads(b'ccopy_reg\n_reconstructor\n(chissp.reader\nKwarg\nc__builtin__\nobject\nNtR(dVk\nVbase\nsVv\nI6\nsb.')
    Kwarg('base', 6)
 
 The special kwarg tokens ``*=`` and ``**=`` unpack the argument at that position,
