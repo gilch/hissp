@@ -29,7 +29,6 @@ MACRO = f"..{MACROS}."
 MAYBE = "..QzMaybe_."
 RE_MACRO = re.compile(rf"({re.escape(MACRO)}|{re.escape(MAYBE)})")
 _PARAM_INDENT = f"\n{len('(lambda ')*' '}"
-_BODY_INDENT = f"\n{4*' '}"
 
 NS = ContextVar("NS", default=None)
 """
@@ -162,7 +161,14 @@ class Compiler:
     def tuple(self, form: Tuple) -> str:
         """Compile `call`, `macro`, or `special` forms."""
         head, *tail = form
-        if type(head) is str:
+        if (
+            not tail
+            and type(head) is tuple
+            and head[0] == "lambda"
+            and not self.parameters(head[1])
+        ):  # progn optimization
+            return self.body(head[2:])
+        elif type(head) is str:
             return self.special(form)
         return self.call(form)
 
@@ -276,11 +282,13 @@ class Compiler:
         """
         fn, parameters, *body = form
         assert fn == "lambda"
+        sep = (len(body) <= 1) * " "
         parameters, body = self.parameters(parameters), self.body(body)
         param_has_nl, body_has_nl = "\n" in parameters, "\n" in body
         begin, end = param_has_nl * "\n ", body_has_nl * "\n"
         middle = (body_has_nl or param_has_nl) * f"\n{3*' '}"
-        return f"({begin}lambda {parameters}:{middle}{body}{end})"
+        body = body.replace("\n", f"\n{3*' '}{sep}")
+        return f"({begin}lambda {parameters}:{middle}{sep}{body}{end})"
 
     @_trace
     def parameters(self, parameters: Iterable) -> str:
@@ -310,9 +318,9 @@ class Compiler:
         """Compile body of `function`."""
         body = tuple(map(self.compile_form, body))
         if len(body) > 1:
-            result = ",\n".join(body).replace("\n", _BODY_INDENT)
+            result = ",\n".join(body).replace("\n", "\n ")
             return f"({result})  [-1]"
-        return f" {body and body[0]}".replace("\n", _BODY_INDENT)
+        return f"{body and body[0]}"
 
     @_trace
     def invocation(self, form: Tuple) -> str:
