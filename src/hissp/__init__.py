@@ -107,11 +107,10 @@ def refresh(module):
     """
     ns = ("builtins..globals",) if module == ":" else ("builtins..vars", module)
     return (
-        (('lambda',(':','ns',ns,)
-          ,('hissp.reader..transpile',('.get','ns',('quote','__package__',),)
-                                     ,'ns["__name__"].rpartition(".")[-1]',)
-          ,('importlib..reload',
-            ('importlib..import_module',('.get','ns',('quote','__name__',),),),),),)
+        (('lambda',(':','name',('.get',ns,('quote','__name__',),),)
+          ,('hissp.reader..transpile','name.rpartition(".")[0]'
+                                     ,'name.rpartition(".")[-1]',)
+          ,('importlib..reload',('importlib..import_module','name',),),),)
     )  # fmt: skip
 
 
