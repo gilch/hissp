@@ -1229,21 +1229,20 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    >>> # zapQzBANG_
   ;;    ... # hissp.macros.._macro_.let
   ;;    ... (
-  ;;    ...  lambda _QzRDZYRDXSz___coll=spam,
-  ;;    ...         _QzRDZYRDXSz___key='b':
+  ;;    ...  lambda _QzRGTG6EJZz___coll=spam,
+  ;;    ...         _QzRGTG6EJZz___key='b':
   ;;    ...     # hissp.macros.._macro_.setQzBANG_
   ;;    ...     # hissp.macros.._macro_.let
   ;;    ...     (
-  ;;    ...      lambda _QzE3BPTV2Tz___val=__import__('operator').iadd(
-  ;;    ...               __import__('operator').getitem(
-  ;;    ...                 _QzRDZYRDXSz___coll,
-  ;;    ...                 _QzRDZYRDXSz___key),
+  ;;    ...      lambda _Qz6IHWAPQ3z___val=__import__('operator').iadd(
+  ;;    ...               _QzRGTG6EJZz___coll.__getitem__(
+  ;;    ...                 _QzRGTG6EJZz___key),
   ;;    ...               (1)):
   ;;    ...        (__import__('operator').setitem(
-  ;;    ...           _QzRDZYRDXSz___coll,
-  ;;    ...           _QzRDZYRDXSz___key,
-  ;;    ...           _QzE3BPTV2Tz___val),
-  ;;    ...         _QzE3BPTV2Tz___val)  [-1]
+  ;;    ...           _QzRGTG6EJZz___coll,
+  ;;    ...           _QzRGTG6EJZz___key,
+  ;;    ...           _Qz6IHWAPQ3z___val),
+  ;;    ...         _Qz6IHWAPQ3z___val)  [-1]
   ;;    ...     )()
   ;;    ... )()
   ;;    11
@@ -1256,7 +1255,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   `(let ($#coll ,coll
          $#key ,key)
-     (set! $#coll $#key (,op (op#getitem $#coll $#key)
+     (set! $#coll $#key (,op (.__getitem__ $#coll $#key)
                              ,@args))))
 
 (defmacro set@ (qualname val)
@@ -2895,21 +2894,20 @@ vars(_macro_).update(vars(__import__('hissp')._macro_))"
   ;;    ...   __import__('builtins').map(
   ;;    ...     (lambda x:
   ;;    ...         # case
-  ;;    ...         __import__('operator').getitem(
-  ;;    ...           # hissp.macros.._macro_.QzAT_
-  ;;    ...           (lambda *xs: [*xs])(
-  ;;    ...             (lambda :
-  ;;    ...                 print(
-  ;;    ...                   ('odd'))
-  ;;    ...             ),
-  ;;    ...             (lambda :
-  ;;    ...                 print(
-  ;;    ...                   ('even'))
-  ;;    ...             ),
-  ;;    ...             (lambda :
-  ;;    ...                 print(
-  ;;    ...                   ('default'))
-  ;;    ...             )),
+  ;;    ...         # hissp.macros.._macro_.QzAT_
+  ;;    ...         (lambda *xs: [*xs])(
+  ;;    ...           (lambda :
+  ;;    ...               print(
+  ;;    ...                 ('odd'))
+  ;;    ...           ),
+  ;;    ...           (lambda :
+  ;;    ...               print(
+  ;;    ...                 ('even'))
+  ;;    ...           ),
+  ;;    ...           (lambda :
+  ;;    ...               print(
+  ;;    ...                 ('default'))
+  ;;    ...           )).__getitem__(
   ;;    ...           {1: 0, 3: 0, 'spam': 0, 0: 1, 2: 1, '42': 1}.get(
   ;;    ...             x,
   ;;    ...             (-1)))()
@@ -2932,12 +2930,12 @@ vars(_macro_).update(vars(__import__('hissp')._macro_))"
     (throw (TypeError "Incomplete pair")))
   (let (kss ([#-2::-2] pairs)
         ts ([#::-2] pairs))
-    `((op#getitem (@ ,@(map X#`O#,X ts) O#,default)
-                  (.get ,(dict chain#(i#starmap (lambda (i ks)
-                                                  (map X#(@ X i) ks))
-                                                (enumerate kss)))
-                        ,key
-                        -1)))))
+    `((.__getitem__ (@ ,@(map X#`O#,X ts) O#,default)
+                    (.get ,(dict chain#(i#starmap (lambda (i ks)
+                                                    (map X#(@ X i) ks))
+                                                  (enumerate kss)))
+                          ,key
+                          -1)))))
 
 (defmacro nil\# x
   "``nil#`` evaluates as ``x or ()``. Adapter for 'nil punning'."
