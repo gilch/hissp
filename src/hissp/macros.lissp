@@ -1355,7 +1355,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; See also:
   ;; `set@ <setQzAT_>`, `zap! <zapQzBANG_>`, `operator.iadd`, `augassign`.
   ;;
-  `(set@ ,qualname (,op ,qualname ,@args)))
+  `(set@ ,qualname
+         (,op ,(if-else |'.' in qualname| qualname `(.__getitem__ (globals) ,qualname))
+              ,@args)))
 
 (defmacro attach (target : :* args)
   <#;Attaches the named variables to the target as attributes.
