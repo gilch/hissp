@@ -54,9 +54,15 @@ Glossary
       a Python string literal wrapped in parentheses.
 
    str atom
-      An `atom` of type `str`. Usually represents a fragment of Python code.
+      An `atom` of type `str`. Usually represents a `fragment` of Python code.
       If it starts with a colon (``:``), it is a `control word`.
       May contain a `module handle`.
+
+   string literal fragment
+      A `fragment` which `ast.literal_eval` would evaluate to an object of type `str`.
+      Not all `str atom`\ s are string literal fragments;
+      It must contain a Python string literal expression.
+      `hissp.reader.is_string_literal` tests for string literal fragments.
 
    atom
       A `form` that is not an instance of `tuple`.
@@ -78,10 +84,64 @@ Glossary
       `module handle`\ s also have a processing rule in the compiler,
       but aren't considered special forms.
 
+   injection
+      Either a `Python injection` or a `Hissp injection`, depending on context.
+
+   python injection
+      The technique of writing `Python fragment`\ s
+      rather than allowing the Hissp machinery to do it for you,
+      or the `fragment`\ s themselves or the `fragment atom`\ s
+      containing them.
+      `text macro`\ s work via Python injection.
+      Injection is discouraged because it bypasses a lot of Hissp's machinery,
+      and is opaque to code-walking macros,
+      making them less useful or risking errors.
+      However, the compiler only targets a subset of Python expressions.
+      Injection transcends that limitation.
+      Injection of identifiers is considered standard in Hissp,
+      so is not discourarged.
+      Lissp's `Unicode token`\ s read as `string literal fragment`\ s,
+      rather than as `quote`\ d `str atom`\ s,
+      making them an example of injection as well.
+      This usage is standard in Lissp.
+
+   hissp injection
+      Any `atom` of non-standard type (or the use thereof),
+      i.e., anything the compiler doesn't have a literal notation for,
+      which it would have to attempt to emit as a `pickle expression`.
+      This includes instances of standard types without a literal notation,
+      e.g., `math.nan` or collections containing nonstandard elements or cycles.
+      In readerless mode, this almost always requires the use of non-literal notation,
+      (i.e., notation not accepted by `ast.literal_eval`).
+      In Lissp, this almost always requires the use of a `tagging token`.
+      (a notable exception is a float literal big enough in magnitude to overflow to ``inf`` or ``-inf``,
+      e.g., ``1e999``.
+      The compiler still considers this nonstandard because that's not its `repr`,
+      and would emit a `pickle expression` for it.)
+
+   pickle expression
+      The compiler's final fallback emission when it doesn't have a literal notation for an `atom`.
+      It's an import of `pickle.loads` passed a `bytes` literal containing a serialization of the object.
+      Evaluating it should result in an equivalent object.
+
+   fragment
+   python fragment
+      A piece of Python code, especially one emitted by the compiler.
+      Typically a Python expression, but not necessarily anything complete.
+      The compiler assembles and emits fragments to produce compiled output.
+
+   fragment atom
+      A `str atom` that is not a `control word`,
+      especially if it does not simply contain an identifier or literal.
+      So called because the compiler's usual interpretation is to emit the contents directly,
+      although there is a preprocessing step for `module handle`\ s.
+
    fragment token
       An `object token` that begins and ends with a vertical line (``|``) character.
       Internal vertical lines must be escaped as two vertical lines (``||``).
-      These read directly as `str atom`\ s.
+      These read directly as `str atom`\ s,
+      which typically become a `fragment atom`, hence the name.
+      Can become a `control word` in the case that the fragment token begins with ``|:``.
 
    control token
       An `object token` that begins with a colon ``:`` character.
@@ -214,6 +274,7 @@ Glossary
 
    inject tag
       ``.#``. A `special tag` which evaluates the next `parsed object`.
+      So named because it's typically used to make a `hissp injection`.
 
    discard tag
       ``_#``. A `special tag` that consumes the next `parsed object`,
