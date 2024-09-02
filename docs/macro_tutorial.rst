@@ -3556,11 +3556,11 @@ Macro Time
 ::::::::::
 
 We can remove the `getitem <operator.getitem>` overhead by using the bundled
-`get# <getQzHASH_>` macro to make an `itemgetter <operator.itemgetter>`.
+`!# <QzBANG_QzHASH_>` macro to make an `itemgetter <operator.itemgetter>`.
 
 .. code-block:: REPL
 
-   #> (get#|slicer[-1::-2]| "abcdefg")
+   #> !##|slicer[-1::-2]| "abcdefg"
    >>> __import__('operator').itemgetter(
    ...   slicer[-1::-2])(
    ...   ('abcdefg'))
@@ -3771,13 +3771,6 @@ To within a few characters.
 But our version is more powerful.
 It's a function object even when detached from the lookup context.
 And, as a macro we programmed ourselves, it's entirely customizable.
-It is possible to do a little better with a binary tag
-(like ``S##-1::-2"abcdefg"``) by eliminating the ``()`` and ``[]``.
-That gets us to within one character,
-but it's probably not worth giving up the notational clarity of our current version.
-Although a case could perhaps be made for only dropping the ``()`` like ``[##-1::-2]"abcdefg"``,
-which gets us within two,
-I think our current version is good enough.
 
 Let's review. This section covered a number of advanced techniques:
 
@@ -4040,12 +4033,19 @@ It works.
 Notice the gensym in the expansion (your template hash may be diferent than mine),
 which would prevent the kind of accidental name collision we saw in our `let` ``a`` example.
 
-And *this* is the `bundled version <QzLSQB_QzHASH_>`, sans docstring.
-It has no dependencies; no helpers.
-Now you understand how it works, know its limitations,
-its tricks,
-and how to implement it yourself.
-Superpower stolen.
+It is possible to do a little better with a binary tag
+(like ``S##-1::-2"abcdefg"``) by eliminating the ``()`` and ``[]``.
+That gets us to within one character of Python's notation,
+but it's probably not worth giving up the clarity of our current version.
+Consider what happens if you chain lookups: ``S##1][-1::-2(@ "123" "abcdefg")``.
+That ``][`` doesn't look so good.
+
+On the other hand,
+a case could be made for only dropping the ``()`` like ``[##-1::-2]"abcdefg"``,
+which gets us within two characters.
+That's how the `bundled version <QzLSQB_QzHASH_>` works.
+
+.. TODO: continue explanation up to bundled [#.
 
 .. TODO: fractions
    (defmacro F\# (x)

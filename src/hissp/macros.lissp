@@ -561,7 +561,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; Defines a type (class), unless it exists.
   ;;
   ;; Add class attributes afterward using `define` or `defun`, and class
-  ;; decorators above with `@## <QzAT_QzHASH_>` or afterward using
+  ;; decorators above with `@@## <QzAT_QzAT_QzHASH_>` or afterward using
   ;; `zap@ <zapQzAT_>`. These run again on module reload and patch in
   ;; existing instances.
   ;;
@@ -699,7 +699,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> @##classmethod
+  ;;    #> @@##classmethod
   ;;    #..(defun Point2D.__init_subclass__ (cls :/ : :** kwargs)
   ;;    #..  "Just displays inputs"
   ;;    #..  (print kwargs))
@@ -776,6 +776,44 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
                                                 ibases))
                 ,(dict)
                 : ,@ibases)))))
+
+(defmacro @@\# (decoration definition)
+  "'decorator' applies ``decoration`` to definition & reassigns.
+
+  ``definition`` form must assign an attribute identified by its first
+  arg. Expands to a `define`, meaning decorators can stack.
+
+  Decorator syntax is for definitions, like `define` and `defun`, and
+  would work on any definition macro that has the definition qualname as
+  its first argument (not `defmacro`, but `defun` can target the
+  ``_macro_`` namespace if it exists).
+
+  Use `zap@ <zapQzAT_>` to decorate an attribute after its definition.
+
+  .. code-block:: REPL
+
+     #> @@##.swapcase
+     #..@@##.title
+     #..(define spam 'spam) ; Unlike Python def, not always a function.
+     >>> # hissp.macros.._macro_.define
+     ... __import__('builtins').globals().update(
+     ...   spam=# hissp.macros.._macro_.progn
+     ...        (# hissp.macros.._macro_.define
+     ...         __import__('builtins').globals().update(
+     ...           spam=# hissp.macros.._macro_.progn
+     ...                (# define
+     ...                 __import__('builtins').globals().update(
+     ...                   spam='spam'),
+     ...                 spam.title())  [-1]),
+     ...         spam.swapcase())  [-1])
+
+     #> spam
+     >>> spam
+     'sPAM'
+
+  "
+  (let (qualname (.__getitem__ definition 1))
+    `(define ,qualname (progn ,definition (,decoration ,qualname)))))
 
 (defmacro my\# (expr : :** kwargs)
   "``my#`` Anaphoric. `let` ``my`` be a fresh `types.SimpleNamespace`
@@ -1078,23 +1116,25 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   "``&#`` Abbreviation for `functools.partial`."
   `(functools..partial ,@e))
 
-(defmacro get\# e
-  <#;``get#`` 'itemgetter-' Makes an `operator.itemgetter` function from ``e``.
+(defmacro !\# (key : coll "")
+  <#;``!#`` 'bang' Gets an item from coll.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (define first get#0)                ;Gets an item by key.
+  ;;    #> (define first &#!#0)              ;Gets an item by index.
   ;;    >>> # define
   ;;    ... __import__('builtins').globals().update(
-  ;;    ...   first=__import__('operator').itemgetter(
-  ;;    ...           (0)))
+  ;;    ...   first=__import__('functools').partial(
+  ;;    ...           __import__('operator').itemgetter(
+  ;;    ...             (0)),
+  ;;    ...           ))
   ;;
   ;;    #> (first "abc")
   ;;    >>> first(
   ;;    ...   ('abc'))
   ;;    'a'
   ;;
-  ;;    #> (get#(slice None None -1) "abc")    ;Slicing without injection.
+  ;;    #> !##(slice None None -1) "abc"     ;Slicing without injection.
   ;;    >>> __import__('operator').itemgetter(
   ;;    ...   slice(
   ;;    ...     None,
@@ -1103,7 +1143,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   ('abc'))
   ;;    'cba'
   ;;
-  ;;    #> (get#'+ (dict : foo 2  + 1))        ;These also work on dicts.
+  ;;    #> !##'+ (dict : foo 2  + 1)         ;These also work on dicts.
   ;;    >>> __import__('operator').itemgetter(
   ;;    ...   'QzPLUS_')(
   ;;    ...   dict(
@@ -1111,67 +1151,71 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...     QzPLUS_=(1)))
   ;;    1
   ;;
+  ;;    #> (-> '(foo bar) !#1 .upper !#1)  ;These also work on dicts.
+  ;;    >>> # Qz_QzGT_
+  ;;    ... __import__('operator').itemgetter(
+  ;;    ...   (1))(
+  ;;    ...   __import__('operator').itemgetter(
+  ;;    ...     (1))(
+  ;;    ...     ('foo',
+  ;;    ...      'bar',),
+  ;;    ...     ).upper(),
+  ;;    ...   )
+  ;;    'A'
+  ;;
   ;; See also:
   ;; `operator.getitem`, `[# <QzLSQB_QzHASH_>`, `set! <setQzBANG_>`.
   ;;
-  `(op#itemgetter ,e))
+  `((op#itemgetter ,key) ,coll))
 
-(defmacro @\# (decoration definition)
-  <#;``@#`` 'decorator' applies ``decoration`` to definition & reassigns.
-  ;;
-  ;; ``definition`` form must assign an attribute identified by its first
-  ;; arg. Expands to a `define`, meaning decorators can stack.
-  ;;
-  ;; Decorator syntax is for definitions, like `define` and `defun`, and
-  ;; would work on any definition macro that has the definition qualname as
-  ;; its first argument (not `defmacro`, but `defun` can target the
-  ;; ``_macro_`` namespace if it exists).
-  ;;
-  ;; Use `zap@ <zapQzAT_>` to decorate an attribute after its definition.
-  ;;
-  ;; .. code-block:: REPL
-  ;;
-  ;;    #> @##.swapcase
-  ;;    #..@##.title
-  ;;    #..(define spam 'spam) ; Unlike Python def, not always a function.
-  ;;    >>> # hissp.macros.._macro_.define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   spam=# hissp.macros.._macro_.progn
-  ;;    ...        (# hissp.macros.._macro_.define
-  ;;    ...         __import__('builtins').globals().update(
-  ;;    ...           spam=# hissp.macros.._macro_.progn
-  ;;    ...                (# define
-  ;;    ...                 __import__('builtins').globals().update(
-  ;;    ...                   spam='spam'),
-  ;;    ...                 spam.title())  [-1]),
-  ;;    ...         spam.swapcase())  [-1])
-  ;;
-  ;;    #> spam
-  ;;    >>> spam
-  ;;    'sPAM'
-  ;;
-  ;;
-  (let (qualname (get#1 definition))
-    `(define ,qualname (progn ,definition (,decoration ,qualname)))))
-
-(defmacro \[\# e
+(defmacro \[\# (lookup : coll "")
   <#;``[#`` 'subscript' Injection. Python's subscription operator.
   ;;
-  ;; Creates a function from the Python expression ``e`` prepended with
-  ;; the argument and a ``[``.
+  ;; Interpret the lookup as Python code prepended with a ``[``.
+  ;; Primarily used for Python's slice notation, but unrestricted.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> ([#1][::2] '(foo bar))
-  ;;    >>> (lambda _Qz5GEAOGSQz___G: (_Qz5GEAOGSQz___G[1][::2]))(
+  ;;    #> [##1][::2] '(foo bar)
+  ;;    >>> (lambda _QzNXNVF5Z5z___coll: (_QzNXNVF5Z5z___coll[1][::2]))(
   ;;    ...   ('foo',
   ;;    ...    'bar',))
   ;;    'br'
   ;;
-  ;; See also: `get# <getQzHASH_>`, `-> <Qz_QzGT_>`, `slice`,
+  ;; Unary compatible with `-> <Qz_QzGT_>` and `&# <QzET_QzHASH_>`.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (-> '(foo bar) [#1] .upper [#::2])
+  ;;    >>> # Qz_QzGT_
+  ;;    ... (lambda _QzNXNVF5Z5z___coll: (_QzNXNVF5Z5z___coll[::2]))(
+  ;;    ...   (lambda _QzNXNVF5Z5z___coll: (_QzNXNVF5Z5z___coll[1]))(
+  ;;    ...     ('foo',
+  ;;    ...      'bar',),
+  ;;    ...     ).upper(),
+  ;;    ...   )
+  ;;    'BR'
+  ;;
+  ;;    #> (.join "" (map &#[#1] '(abc xyz |123|)))
+  ;;    >>> ('').join(
+  ;;    ...   map(
+  ;;    ...     __import__('functools').partial(
+  ;;    ...       (lambda _QzNXNVF5Z5z___coll: (_QzNXNVF5Z5z___coll[1])),
+  ;;    ...       ),
+  ;;    ...     ('abc',
+  ;;    ...      'xyz',
+  ;;    ...      '123',)))
+  ;;    'by2'
+  ;;
+  ;; See also: `!# <QzBANG_QzHASH_>`, `-> <Qz_QzGT_>`, `slice`,
   ;; `subscriptions`, `slicings`.
   ;;
-  `(lambda ($#G) ,(.format "({}[{})" '$#G (hissp..demunge e))))
+  `((lambda ($#coll)
+      ,(.format "({}[{})" '$#coll (hissp..demunge lookup)))
+    ,coll))
+
+(defmacro @\# (attribute : ns "")
+  `((op#attrgetter ,attribute) ,ns))
 
 ;;;; Configuration
 
@@ -1257,6 +1301,20 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
          $#key ,key)
      (set! $#coll $#key (,op (.__getitem__ $#coll $#key)
                              ,@args))))
+
+(defmacro del! (key : coll "")
+  `((lambda ($#coll)
+      (op#delitem $#coll ,key))
+    ,coll))
+
+(defmacro set\[\# (lookup coll val)
+  <#;``set[###`` 'setsub' Python subscription operator with assignment.
+  `(let ($#coll ,coll
+         $#val ,val)
+     ,(.format "[{v} for({}[{})in[{v}]][0]"
+               '$#coll
+               (hissp..demunge lookup)
+               : v '$#val)))
 
 (defmacro set@ (qualname val)
   <#;``set@`` 'setat' Assigns an attribute, returns the value.
@@ -1358,6 +1416,11 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
          (,op ,(if-else |'.' in qualname| qualname `(.__getitem__ (globals) ,qualname))
               ,@args)))
 
+(defmacro del@ (attribute : ns "")
+  `((lambda ($#ns)
+      (delattr $#ns ,key))
+    ,ns))
+
 (defmacro attach (target : :* args)
   <#;Attaches the named variables to the target as attributes.
   ;;
@@ -1427,9 +1490,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   (let ($self `$#self)
     `((lambda (: ,$self ,self)
-        ,@(map X#`(,(get#0 X)
+        ,@(map X#`(,!##0 X
                    ,$self
-                   ,@([#1:] X))
+                   ,@[##1:] X)
                (map X# |X if type(X) is tuple else (X,)| invocations))
         ,$self))))
 
@@ -1472,7 +1535,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ([{'a'}, 'bc'], 'de')
   ;;
   ;; See also:
-  ;; `-\<>> <Qz_QzLT_QzGT_QzGT_>`, `X# <XQzHASH_>`, `get# <getQzHASH_>`.
+  ;; `-\<>> <Qz_QzLT_QzGT_QzGT_>`, `X# <XQzHASH_>`, `!# <QzBANG_QzHASH_>`.
   ;;
   (functools..reduce XY# |(Y[0],X,*Y[1:],)|
                      (map X# |X if type(X) is tuple else (X,)| forms)
@@ -1648,8 +1711,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
           (.join "else " `(,"x1()if x0 " ,@(map X# |f'x{X+1}()if x{X}()'|
                                                 (range 2 (len pairs) 2))))
           "else()"))
-      ,([#0] pairs)
-      ,@(map X#`O#,X ([#1:] pairs)))))
+      ,!##0 pairs
+      ,@(map X#`O#,X [##1:] pairs))))
 
 (defmacro any-map (variable xs : :* body)
   <#;``any-map``
@@ -1790,7 +1853,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
        (any*map ,syms (iter $#stack.pop None)
          (op#setitem $#stack 0 (progn ,@body))
          None)
-       (get#0 $#stack))))
+       !##0 $#stack)))
 
 ;; I would have named this 'and, but that's a reserved word.
 (defmacro ands (: :* exprs)
@@ -1839,12 +1902,12 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; See also: `ors`, `and`, `all`, `when`.
   ;;
   (cond (not exprs) True
-        (op#eq (len exprs) 1) (get#0 exprs)
+        (op#eq (len exprs) 1) !##0 exprs
         :else
         `((lambda (,@(map X# |f'x{X}'| (range (len exprs))))
             ,(.join "and " `(,"x0 " ,@(map X# |f'x{X}()'| (range 1 (len exprs))))))
-          ,([#0] exprs)
-          ,@(map X#`O#,X ([#1:] exprs)))))
+          ,!##0 exprs
+          ,@(map X#`O#,X [##1:] exprs))))
 
 ;; 'or is also a reserved word.
 (defmacro ors (: :* exprs)
@@ -1893,12 +1956,12 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; See also: `ands`, `bool`, `or`, `any`.
   ;;
-  (cond (op#eq (len exprs) 1) (get#0 exprs)
+  (cond (op#eq (len exprs) 1) !##0 exprs
         exprs
         `((lambda (,@(map X# |f'x{X}'| (range (len exprs))))
             ,(.join "or " `(,"x0 " ,@(map X# |f'x{X}()'| (range 1 (len exprs))))))
-          ,([#0] exprs)
-          ,@(map X#`O#,X ([#1:] exprs)))))
+          ,!##0 exprs
+          ,@(map X#`O#,X [##1:] exprs))))
 
 (defmacro throw* (: :* exception)
   <#;``throw*`` 'throw star' Creates a closed generator and calls .throw.
@@ -2211,7 +2274,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; See also: `# <QzHASH_>`, `% <QzPCENT_>`.
   ;;
-  (when (ands xs (op#eq :* (get#-1 xs)))
+  (when (ands xs (op#eq :* !##-1 xs))
      (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
     `((lambda (: :* ,'xs) |[*xs]|)
@@ -2242,7 +2305,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; See also: `@ <QzAT_>`, `% <QzPCENT_>`.
   ;;
-  (when (ands xs (op#eq :* (get#-1 xs)))
+  (when (ands xs (op#eq :* !##-1 xs))
      (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
     `((lambda (: :* ,'xs) |{*xs}|)
@@ -2280,7 +2343,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   (cond
    (op#mod (len kvs) 2) (throw (TypeError "extra key without value"))
-   kvs `((lambda (,@(i#starmap XY# |f'x{X}'| (filter X#(op#ne :** (get#1 X))
+   kvs `((lambda (,@(i#starmap XY# |f'x{X}'| (filter X#(op#ne :** !##1 X)
                                                      (enumerate kvs))))
            ,(.format "{{{}}}"
                      (.join "," (i#starmap XY#(if-else (op#eq Y :**)
@@ -2928,8 +2991,8 @@ vars(_macro_).update(vars(__import__('hissp')._macro_))"
   ;;
   (when (op#mod (len pairs) 2)
     (throw (TypeError "Incomplete pair")))
-  (let (kss ([#-2::-2] pairs)
-        ts ([#::-2] pairs))
+  (let (kss [##-2::-2] pairs
+        ts [##::-2] pairs)
     `((.__getitem__ (@ ,@(map X#`O#,X ts) O#,default)
                     (.get ,(dict chain#(i#starmap (lambda (i ks)
                                                     (map X#(@ X i) ks))

@@ -399,7 +399,7 @@ or adding it to a collection may be attached to it.
 However, in many of these cases,
 the groups could be written as a single top-level form instead,
 given the appropriate functions or macros.
-E.g. `dict.update` (on `globals`), `let`, `@##<QzAT_QzHASH_>`, `attach`, `doto`.
+E.g. `dict.update` (on `globals`), `let`, `@@##<QzAT_QzAT_QzHASH_>`, `attach`, `doto`.
 
 Try to avoid blank lines within forms.
 You may need them for separating groups whose elements span lines
@@ -960,7 +960,7 @@ in which case they may be treated as literal values.
 Avoid using inline or margin comments as commentary between a tag and its target,
 as this can cause errors when they are instead treated as arguments.
 (Usually, tags are attached to one argument, so this doesn't come up,
-but e.g. the bundled decorator macro `@##<QzAT_QzHASH_>` typically is not.)
+but e.g. the bundled decorator macro `@##<QzAT_QzAT_QzHASH_>` typically is not.)
 You may use a discarded string instead ``_#"NB foo"``.
 A good syntax highlighter specialized for Lissp may be able
 to indicate when a comment token is not discarded,
@@ -1218,16 +1218,17 @@ should start with the demunged name in doubled backticks
 
 .. code-block:: Lissp
 
-   "``my#`` Anaphoric. Let ``my`` be a fresh `types.SimpleNamespace`
-   in a lexical scope surrounding ``e``.
-   "
+   <#;``my#`` Anaphoric. Let ``my`` be a fresh `types.SimpleNamespace`
+   ;; in a lexical scope surrounding ``e``.
+   ;; ...
 
+For `tag`\ s, use the number of hashes required for its minimum arity.
 The demunged names should be followed by the pronunciation in single quotes,
 if it's not obvious from the identifier.
 
 .. code-block:: Lissp
 
-   "``@#`` 'decorator' applies ``decoration`` to a global and reassigns."
+   "``@@##`` 'decorator' applies ``decoration`` to a definition & reassigns."
 
 This way, all three name versions (munged, demunged, and pronounced)
 will appear in generated docs.
