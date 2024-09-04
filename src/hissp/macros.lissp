@@ -1302,11 +1302,6 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      (set! $#coll $#key (,op (.__getitem__ $#coll $#key)
                              ,@args))))
 
-(defmacro del! (key : coll "")
-  `((lambda ($#coll)
-      (op#delitem $#coll ,key))
-    ,coll))
-
 (defmacro set\[\# (lookup coll val)
   <#;``set[###`` 'setsub' Python subscription operator with assignment.
   `(let ($#coll ,coll
@@ -1415,11 +1410,6 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `(set@ ,qualname
          (,op ,(if-else |'.' in qualname| qualname `(.__getitem__ (globals) ,qualname))
               ,@args)))
-
-(defmacro del@ (attribute : ns "")
-  `((lambda ($#ns)
-      (delattr $#ns ,key))
-    ,ns))
 
 (defmacro attach (target : :* args)
   <#;Attaches the named variables to the target as attributes.
