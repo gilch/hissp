@@ -1253,7 +1253,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      (op#setitem ,coll ,key $#val)
      $#val))
 
-(defmacro zap! (op coll key : :* args)
+(defmacro zap! (coll key op : :* args)
   <#;``zap!`` 'zapbang' Augmented item assignment operator.
   ;;
   ;; The current item value becomes the first argument.
@@ -1268,7 +1268,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   spam=dict(
   ;;    ...          b=(10)))
   ;;
-  ;;    #> (zap! operator..iadd spam 'b 1) ; Augmented item assignment, like +=.
+  ;;    #> (zap! spam 'b operator..iadd 1) ; Augmented item assignment, like +=.
   ;;    #..
   ;;    >>> # zapQzBANG_
   ;;    ... # hissp.macros.._macro_.let
@@ -1383,7 +1383,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
           `(define ,attr ,'$#val))
        $#val)))
 
-(defmacro zap@ (op qualname : :* args)
+(defmacro zap@ (qualname op : :* args)
   <#;``zap@`` 'zapat' Augmented attribute assignment operator.
   ;;
   ;; The current attribute value becomes the first argument.
@@ -1398,7 +1398,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   spam=__import__('types').SimpleNamespace(
   ;;    ...          foo=(10)))
   ;;
-  ;;    #> (zap@ operator..iadd spam.foo 1)
+  ;;    #> (zap@ spam.foo operator..iadd 1)
   ;;    >>> # zapQzAT_
   ;;    ... # hissp.macros.._macro_.setQzAT_
   ;;    ... # hissp.macros.._macro_.let
