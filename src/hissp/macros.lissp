@@ -1311,6 +1311,20 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
                (hissp..demunge lookup)
                : v '$#val)))
 
+(defmacro zap\[\# (lookup coll op_args)
+  <#;``zap[###`` 'setsub' Augmented Python subscription operator.
+  ;; .. CAUTION::
+  ;;    The lookup must be written twice. Once to read and once to write.
+  ;;    If the lookup expression has a side effect, it will happen twice.
+  ;;    Consider using `zap!` and `slice` instead.
+  `(let ($#coll ,coll)
+     (let ($#val (-> ,(.format "({}[{})" '$#coll (hissp..demunge lookup))
+                     ,op_args))
+       ,(.format "[{v} for({}[{})in[{v}]][0]"
+                 '$#coll
+                 (hissp..demunge lookup)
+                 : v '$#val))))
+
 (defmacro set@ (qualname val)
   <#;``set@`` 'setat' Assigns an attribute, returns the value.
   ;; Mnemonic: set @tribute.
