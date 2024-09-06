@@ -815,17 +815,21 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   (let (qualname (.__getitem__ definition 1))
     `(define ,qualname (progn ,definition (,decoration ,qualname)))))
 
-(defmacro my\# (expr : :** kwargs)
-  "``my#`` Anaphoric. `let` ``my`` be a fresh `types.SimpleNamespace`
-  in a lexical scope surrounding e.
+(defmacro my\# (targets_or_expr : coll None  expr ()  :** kwargs)
+  "``my#`` Anaphoric. Injection. `let` ``my`` be a fresh `types.SimpleNamespace`
+  in a lexical scope surrounding ``expr``.
 
   Creates a local namespace for imperative-style reassignments,
   typically combined with an assignment function like `setattr`.
 
+  Often combined with branching macros to reuse the results of an
+  expression, with uses similar to Python's 'walrus' operator ``:=``.
+  See `python-grammar:assignment_expression`.
+
   .. code-block:: REPL
 
      #> my#(print (setattr my 'x (op#add 1 1))
-     #..           my.x) ; reassignment
+     #..          my.x)
      >>> # hissp.macros.._macro_.let
      ... (lambda my=__import__('types').SimpleNamespace():
      ...     print(
@@ -852,130 +856,144 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...     my)()
      namespace(foo=2)
 
-  Often combined with branching macros to reuse the results of an
-  expression, with uses similar to Python's 'walrus' operator ``:=``.
+     #> my##outer=2 my###inner=1 bridge=my (@ my.bridge.outer my.inner)
+     >>> # hissp.macros.._macro_.let
+     ... (
+     ...  lambda my=__import__('types').SimpleNamespace(
+     ...           outer=(2)):
+     ...     # hissp.macros.._macro_.let
+     ...     (
+     ...      lambda my=__import__('types').SimpleNamespace(
+     ...               inner=(1),
+     ...               bridge=my):
+     ...         # QzAT_
+     ...         (lambda *xs: [*xs])(
+     ...           my.bridge.outer,
+     ...           my.inner)
+     ...     )()
+     ... )()
+     [2, 1]
 
-  See also:
-  `attach`, `set@ <setQzAT_>`, `python-grammar:assignment_expression`.
+  The assignment pair uses an injected Python target list:
+
+  .. code-block:: REPL
+
+     #> my### a,b '(1 2) (@ my.b my.a)
+     >>> # hissp.macros.._macro_.let
+     ... (
+     ...  lambda my=__import__('types').SimpleNamespace(
+     ...           **# hissp.macros.._macro_.let
+     ...             (
+     ...              lambda _QzE4JATHEUz___coll=((1),
+     ...                      (2),):
+     ...                 [__import__('builtins').locals()
+     ...                  for (a,b)
+     ...                  in [_QzE4JATHEUz___coll]]  [0]
+     ...             )()):
+     ...    (my.__dict__.pop(
+     ...       '_QzE4JATHEUz___coll',
+     ...       (0)),
+     ...     my.__dict__.pop(
+     ...       ('.0'),
+     ...       (0)),
+     ...     # QzAT_
+     ...     (lambda *xs: [*xs])(
+     ...       my.b,
+     ...       my.a))  [-1]
+     ... )()
+     [2, 1]
+
+     #> my### a,b,[c,*xs] '(1 2 |spam|) my ; Nested unpacking.
+     >>> # hissp.macros.._macro_.let
+     ... (
+     ...  lambda my=__import__('types').SimpleNamespace(
+     ...           **# hissp.macros.._macro_.let
+     ...             (
+     ...              lambda _QzE4JATHEUz___coll=((1),
+     ...                      (2),
+     ...                      'spam',):
+     ...                 [__import__('builtins').locals()
+     ...                  for (a,b,[c,*xs])
+     ...                  in [_QzE4JATHEUz___coll]]  [0]
+     ...             )()):
+     ...    (my.__dict__.pop(
+     ...       '_QzE4JATHEUz___coll',
+     ...       (0)),
+     ...     my.__dict__.pop(
+     ...       ('.0'),
+     ...       (0)),
+     ...     my)  [-1]
+     ... )()
+     namespace(a=1, b=2, c='s', xs=['p', 'a', 'm'])
+
+  Assignment targets need not be locals:
+
+  .. code-block:: REPL
+
+     #> my## |globals()['spam'], spam.eggs| (|| my#my (list 'abcdefg) ||)
+     >>> # hissp.macros.._macro_.let
+     ... (
+     ...  lambda my=__import__('types').SimpleNamespace(
+     ...           **# hissp.macros.._macro_.let
+     ...             (
+     ...              lambda _QzE4JATHEUz___coll=(
+     ...                       # hissp.macros.._macro_.let
+     ...                       (lambda my=__import__('types').SimpleNamespace(): my)(),
+     ...                       list(
+     ...                         'abcdefg'),
+     ...                       ):
+     ...                 [__import__('builtins').locals()
+     ...                  for (globals()['spam'], spam.eggs)
+     ...                  in [_QzE4JATHEUz___coll]]  [0]
+     ...             )()):
+     ...    (my.__dict__.pop(
+     ...       '_QzE4JATHEUz___coll',
+     ...       (0)),
+     ...     my.__dict__.pop(
+     ...       ('.0'),
+     ...       (0)),
+     ...     ())  [-1]
+     ... )()
+     ()
+
+     #> my#### spam.eggs[2::2] 'XYZ tomato=spam my ; Assign a global's slice.
+     >>> # hissp.macros.._macro_.let
+     ... (
+     ...  lambda my=__import__('types').SimpleNamespace(
+     ...           **# hissp.macros.._macro_.let
+     ...             (lambda _QzE4JATHEUz___coll='XYZ':
+     ...                 [__import__('builtins').locals()
+     ...                  for (spam.eggs[2::2])
+     ...                  in [_QzE4JATHEUz___coll]]  [0]
+     ...             )(),
+     ...           tomato=spam):
+     ...    (my.__dict__.pop(
+     ...       '_QzE4JATHEUz___coll',
+     ...       (0)),
+     ...     my.__dict__.pop(
+     ...       ('.0'),
+     ...       (0)),
+     ...     my)  [-1]
+     ... )()
+     namespace(tomato=namespace(eggs=['a', 'b', 'X', 'd', 'Y', 'f', 'Z']))
+
+  See also: `attach`, `set@ <setQzAT_>`, `set[### <setQzLSQB_QzHASH_>`.
   "
-  `(let (,'my (types..SimpleNamespace : ,@(itertools..chain.from_iterable
-                                           (.items kwargs))))
-     ,expr))
-
-(defmacro my\[\# (targets coll : expr ())
-  'hissp.reader..Comment.contents#
-  ;; ``my[##`` 'my-targets' Python unpacking and location assignment.
-  ;;
-  ;; .. code-block:: REPL
-  ;;
-  ;;    ;; Python assignment unpacking.
-  ;;    #> my[###a,b] '(1 2) (@ my.b my.a)
-  ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda my=__import__('types').SimpleNamespace(
-  ;;    ...           **# hissp.macros.._macro_.let
-  ;;    ...             (
-  ;;    ...              lambda _QzE4JATHEUz___coll=((1),
-  ;;    ...                      (2),):
-  ;;    ...                 [__import__('builtins').locals()
-  ;;    ...                  for (a,b)
-  ;;    ...                  in [_QzE4JATHEUz___coll]]  [0]
-  ;;    ...             )()):
-  ;;    ...    (my.__dict__.pop(
-  ;;    ...       '_QzE4JATHEUz___coll',
-  ;;    ...       (0)),
-  ;;    ...     my.__dict__.pop(
-  ;;    ...       ('.0'),
-  ;;    ...       (0)),
-  ;;    ...     # QzAT_
-  ;;    ...     (lambda *xs: [*xs])(
-  ;;    ...       my.b,
-  ;;    ...       my.a))  [-1]
-  ;;    ... )()
-  ;;    [2, 1]
-  ;;
-  ;;    ;; Nested unpacking.
-  ;;    #> my[###a,b,[c,*xs]] '(1 2 |spam|) my
-  ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda my=__import__('types').SimpleNamespace(
-  ;;    ...           **# hissp.macros.._macro_.let
-  ;;    ...             (
-  ;;    ...              lambda _QzE4JATHEUz___coll=((1),
-  ;;    ...                      (2),
-  ;;    ...                      'spam',):
-  ;;    ...                 [__import__('builtins').locals()
-  ;;    ...                  for (a,b,[c,*xs])
-  ;;    ...                  in [_QzE4JATHEUz___coll]]  [0]
-  ;;    ...             )()):
-  ;;    ...    (my.__dict__.pop(
-  ;;    ...       '_QzE4JATHEUz___coll',
-  ;;    ...       (0)),
-  ;;    ...     my.__dict__.pop(
-  ;;    ...       ('.0'),
-  ;;    ...       (0)),
-  ;;    ...     my)  [-1]
-  ;;    ... )()
-  ;;    namespace(a=1, b=2, c='s', xs=['p', 'a', 'm'])
-  ;;
-  ;;    ;; Two non-local targets: item and attribute.
-  ;;    #> my[##|globals()['spam'],spam.eggs]| (|| my#my (list "abcdefg") ||)
-  ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda my=__import__('types').SimpleNamespace(
-  ;;    ...           **# hissp.macros.._macro_.let
-  ;;    ...             (
-  ;;    ...              lambda _QzE4JATHEUz___coll=(
-  ;;    ...                       # hissp.macros.._macro_.let
-  ;;    ...                       (lambda my=__import__('types').SimpleNamespace(): my)(),
-  ;;    ...                       list(
-  ;;    ...                         ('abcdefg')),
-  ;;    ...                       ):
-  ;;    ...                 [__import__('builtins').locals()
-  ;;    ...                  for (globals()['spam'],spam.eggs)
-  ;;    ...                  in [_QzE4JATHEUz___coll]]  [0]
-  ;;    ...             )()):
-  ;;    ...    (my.__dict__.pop(
-  ;;    ...       '_QzE4JATHEUz___coll',
-  ;;    ...       (0)),
-  ;;    ...     my.__dict__.pop(
-  ;;    ...       ('.0'),
-  ;;    ...       (0)),
-  ;;    ...     ())  [-1]
-  ;;    ... )()
-  ;;    ()
-  ;;
-  ;;    ;; Python slice assignment.
-  ;;    #> my[###spam.eggs[2::2]] 'XYZ spam
-  ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda my=__import__('types').SimpleNamespace(
-  ;;    ...           **# hissp.macros.._macro_.let
-  ;;    ...             (lambda _QzE4JATHEUz___coll='XYZ':
-  ;;    ...                 [__import__('builtins').locals()
-  ;;    ...                  for (spam.eggs[2::2])
-  ;;    ...                  in [_QzE4JATHEUz___coll]]  [0]
-  ;;    ...             )()):
-  ;;    ...    (my.__dict__.pop(
-  ;;    ...       '_QzE4JATHEUz___coll',
-  ;;    ...       (0)),
-  ;;    ...     my.__dict__.pop(
-  ;;    ...       ('.0'),
-  ;;    ...       (0)),
-  ;;    ...     spam)  [-1]
-  ;;    ... )()
-  ;;    namespace(eggs=['a', 'b', 'X', 'd', 'Y', 'f', 'Z'])
-  ;;
-  `(let (,'my (types..SimpleNamespace
-               : :** (let ($#coll ,coll)
-                       ,(.format "[{}()\n for ({}\n in [{}]]  [0]"
-                                 (hissp..readerless `locals)
-                                 (re..sub '|]\Z| ")" (hissp..demunge targets))
-                                 '$#coll))))
-     ;; PEP 709. Compatible with both versions.
-     (,'my.__dict__.pop '$#coll 0)
-     (,'my.__dict__.pop ".0" 0)
-     ,expr))
+  (if-else |coll is None|
+    `(let (,'my (types..SimpleNamespace : ,@(itertools..chain.from_iterable
+                                             (.items kwargs))))
+       ,targets_or_expr)
+    `(let (,'my (types..SimpleNamespace
+                 : :** (let ($#coll ,coll)
+                         ,(.format "[{}()\n for ({})\n in [{}]]  [0]"
+                                   (hissp..readerless `locals)
+                                   (hissp..demunge targets_or_expr)
+                                   '$#coll))
+                 ,@(itertools..chain.from_iterable (.items kwargs))))
+       ;; PEP 709. Compatible with both versions.
+       (,'my.__dict__.pop '$#coll 0)
+       (,'my.__dict__.pop ".0" 0)
+       ,expr)))
 
 ;;;; Abbreviations
 
