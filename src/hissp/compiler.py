@@ -543,8 +543,10 @@ class Compiler:
 
         """
         if form is Ellipsis:
-            return "..."
+            return "..."  # "Ellipsis" could be shadowed.
         case = type(form)
+        if case is set and not form:
+            return "{*''}"  # "set()" could be shadowed. "{}" is a dict.
         if case is tuple and form:
             return self._lisp_normal_form(form)
         if case in {dict, list, set}:
