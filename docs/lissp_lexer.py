@@ -82,7 +82,7 @@ class LisspLexer(RegexLexer):
                     pt.String.Symbol,  # fragment
                     pt.Error,  # continue
                     pt.Error,  # badfrag
-                    pt.Keyword.Constant,  # control
+                    pt.String.Symbol,  # control
                     using(BareSubLexer),  # bare
                     pt.Error,  # error
                 ),
