@@ -1206,20 +1206,20 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    >>> 'hissp.._macro_.alias'
   ;;    'hissp.._macro_.alias'
   ;;
-  ;;    #> H:#b\#                              ;b# macro callable
+  ;;    #> H:#b\#                              ;b# tag's callable
   ;;    >>> __import__('hissp')._macro_.bQzHASH_
   ;;    <function _macro_.bQzHASH_ at ...>
   ;;
-  ;;    #> (H:#b\# |b# macro at compile time|)
+  ;;    #> (H:#b\# "b# at compile time")
   ;;    >>> # hissp.._macro_.bQzHASH_
-  ;;    ... b'b# macro at compile time'
-  ;;    b'b# macro at compile time'
+  ;;    ... b'b# at compile time'
+  ;;    b'b# at compile time'
   ;;
-  ;;    #> hissp.._macro_.b#|Fully-qualified b# macro at read time.|
-  ;;    >>> b'Fully-qualified b# macro at read time.'
-  ;;    b'Fully-qualified b# macro at read time.'
+  ;;    #> hissp.._macro_.b#"Fully-qualified b# at read time."
+  ;;    >>> b'Fully-qualified b# at read time.'
+  ;;    b'Fully-qualified b# at read time.'
   ;;
-  ;;    #> H:##b|Read-time b# via alias.|
+  ;;    #> H:##b"Read-time b# via alias."
   ;;    >>> b'Read-time b# via alias.'
   ;;    b'Read-time b# via alias.'
   ;;
@@ -2252,21 +2252,70 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 ;;;; Reader
 
-(defmacro b\# (raw)
-  <#;``b#`` `bytes` literal tag
+(defmacro b\# (string)
+  <#;``b#`` 'bytestring' bytes literal tag
+  ;;
+  ;; Converts a `Hissp string` to `bytes`.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> b#|\xff'\n'||foo|
-  ;;    >>> b"\xff'\n'|foo"
-  ;;    b"\xff'\n'|foo"
-  ;;
-  ;;    #> b#.#"bytes
+  ;;    #> b#"bytes
   ;;    #..with\nnewlines"
   ;;    >>> b'bytes\nwith\nnewlines'
   ;;    b'bytes\nwith\nnewlines'
   ;;
-  (-> raw
+  ;;
+  ;;    #> b#'bytes! ; Note the '. Beware munging.
+  ;;    >>> b'bytesQzBANG_'
+  ;;    b'bytesQzBANG_'
+  ;;
+  ;;    #> b#<#
+  ;;    #..;; Bytes,
+  ;;    #..;; newlines, \46 escapes!
+  ;;    #..
+  ;;    >>> b'Bytes,\nnewlines, & escapes!'
+  ;;    b'Bytes,\nnewlines, & escapes!'
+  ;;
+  ;; See also: `B# <BQzHASH_>`, `hissp.reader.is_hissp_string`.
+  ;;
+  (-> string
+      hissp..readerless
+      ast..literal_eval
+      (.replace "'" '|\'|)
+      (.replace "\n" '|\n|)
+      (-<>> (.format "b'{}'"))
+      ast..literal_eval))
+
+(defmacro B\# (symbol)
+  <#;``B#`` 'bytesymbol'
+  ;;
+  ;; Converts a `parsed object` of type `str` to `bytes`.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> B#|bytes!|
+  ;;    >>> b'bytes!'
+  ;;    b'bytes!'
+  ;;
+  ;;    #> B#oops! ; Works directly on symbols, but beware munging.
+  ;;    >>> b'oopsQzBANG_'
+  ;;    b'oopsQzBANG_'
+  ;;
+  ;;    #> B#"oops!" ; You probably wanted b# instead.
+  ;;    >>> b"('oops!')"
+  ;;    b"('oops!')"
+  ;;
+  ;;    #> B#.#"OK" ; Note the .#.
+  ;;    >>> b'OK'
+  ;;    b'OK'
+  ;;
+  ;;    #> B#|\xff || "\n'" BBQ| ; Escapes allowed, like b#.
+  ;;    >>> b'\xff | "\n\'" BBQ'
+  ;;    b'\xff | "\n\'" BBQ'
+  ;;
+  ;; See also: `b# <bQzHASH_>`.
+  ;;
+  (-> symbol
       (.replace "'" '|\'|)
       (.replace "\n" '|\n|)
       (-<>> (.format "b'{}'"))

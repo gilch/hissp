@@ -64,6 +64,13 @@ Glossary
       It must contain a Python string literal expression.
       `hissp.reader.is_string_literal` tests for string literal fragments.
 
+   hissp string
+      A `form` or `parsed object` which would directly represents a string in Hissp,
+      if evaluated on its own.
+      All `string literal fragment`\ s are Hissp strings.
+      A `quote`\ d `str atom` is also a Hissp string.
+      `hissp.reader.is_hissp_string` tests for Hissp strings.
+
    atom
       A `form` that is not an instance of `tuple`.
       (Exception: the empty tuple ``()`` can be considered an atom for most purposes,

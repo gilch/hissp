@@ -196,16 +196,16 @@ def test_repl_str_continue():
 
         x
         "
-        b#.#""
-        b#.#"foo bar"
-        b#.#"
+        b#""
+        b#"foo bar"
+        b#"
 
 
         "
-        b#.#"
+        b#"
 
         x"
-        (.decode b#.#<#;\\xff
+        (.decode b#<#;\\xff
         ;; foo
                  : errors 'ignore)
         """,
