@@ -382,8 +382,10 @@ class Lissp:
             return (ENTUPLE, ":", *chain(*self._template_element(form)),)  # fmt: skip
         if case is str and not form.startswith(":"):
             return "quote", self.qualify(form)
-        if case is _Unquote and form.target == ":?":
-            return form.value
+        if case is _Unquote:
+            if form.target == ":?":
+                return form.value
+            raise SyntaxError("Splice not in tuple.", self.position())
         return form
 
     def _template_element(self, forms: Iterable) -> Iterable[Tuple[str, Any]]:
