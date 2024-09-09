@@ -7,6 +7,41 @@ Glossary
 .. glossary::
    :sorted:
 
+   top level
+   top-level form
+      A form not nested inside another form,
+      or the location of such a form.
+      "Top" here means the top of the syntax tree rather than the top of the file.
+      Each top-level form is a compilation unit.
+      A macro defined in a top-level form cannot affect other
+      `subform`\ s in the same top-level form,
+      because by the time it exists,
+      the top-level form has already been compiled.
+      `Injection`\ s of Python statements are only valid at the top level.
+
+   doorstop
+      A `discarded item` used to "hold open" a bracket trail.
+      Typically ``_#/`` in Lissp.
+
+   abstract syntax tree
+   ast
+      An intermediate tree data structure used by most compilers after
+      parsing a programming language.
+
+   hissp
+      The project at `<https://github.com/gilch/hissp>`_.
+      The package produced by the project.
+      The language of Python data structures used by the project,
+      which :mod:`hissp.compiler` can transpile into executable Python code.
+      The Python data structures encoding this language:
+      a `form`, or a series of them.
+      This is also the `AST` stage of `Lissp`,
+      a programming language implemented in terms of Hissp.
+
+   repl
+      Read-Evaluate-Print Loop.
+      Lissp's interactive shell.
+
    token
       A lexical unit of Lissp.
       This is how the `reader` chunks Lissp in preparation for parsing.
@@ -80,6 +115,12 @@ Glossary
       An object meant for evaluation;
       a Hissp expression for passing to the Hissp compiler.
 
+   subform
+      A `form` nested inside a tuple form; a Hissp subexpression.
+      An (e.g.) `params tuple` isn't a `form`, so it's not a subform either,
+      but a default argument inside it would be.
+      Similarly, macro arguments don't necessarily count as subforms.
+
    special form
       A `form` special-cased `in the compiler <hissp.compiler.Compiler.special>`.
       These are tuples beginning with either a ``quote`` or ``lambda`` `str atom`.
@@ -91,14 +132,22 @@ Glossary
       `module handle`\ s also have a processing rule in the compiler,
       but aren't considered special forms.
 
+   parameters tuple
+   params tuple
+   parameters symbol
+   params symbol
+   params
+      The first argument to the ``lambda`` `special form`,
+      typically either a tuple or a `str atom`.
+      Also a `macro` argument that becomes one of these.
+
    injection
       Either a `Python injection` or a `Hissp injection`, depending on context.
 
    python injection
       The technique of writing `Python fragment`\ s
       rather than allowing the Hissp machinery to do it for you,
-      or the `fragment`\ s themselves or the `fragment atom`\ s
-      containing them.
+      or the `fragment`\ s so used or the `fragment atom`\ s containing them.
       `text macro`\ s work via Python injection.
       Injection is discouraged because it bypasses a lot of Hissp's machinery,
       and is opaque to code-walking macros,
@@ -118,17 +167,23 @@ Glossary
       which it would have to attempt to emit as a `pickle expression`.
       This includes instances of standard types without a literal notation,
       e.g., `math.nan` or collections containing nonstandard elements or cycles.
-      In readerless mode, this almost always requires the use of non-literal notation,
+      A macroexpansion may be an injection.
+      Besides macroexpansions, in readerless mode,
+      this almost always requires the use of non-literal notation,
       (i.e., notation not accepted by `ast.literal_eval`).
       In Lissp, this almost always requires the use of a `tagging token`.
       (a notable exception is a float literal big enough in magnitude to overflow to ``inf`` or ``-inf``,
       e.g., ``1e999``.
       The compiler still considers this nonstandard because that's not its `repr`,
       and would emit a `pickle expression` for it.)
+      Basic container types containing only standard elements do not count as injections,
+      because the compiler has a notation for them,
+      even though Lissp doesn't.
 
    pickle expression
       The compiler's final fallback emission when it doesn't have a literal notation for an `atom`.
-      It's an import of `pickle.loads` passed a `bytes` literal containing a serialization of the object.
+      It's an import of `pickle.loads` passed a
+      `bytes` literal containing a serialization of the object.
       Evaluating it should result in an equivalent object.
 
    fragment
@@ -148,7 +203,8 @@ Glossary
       Internal vertical lines must be escaped as two vertical lines (``||``).
       These read directly as `str atom`\ s,
       which typically become a `fragment atom`, hence the name.
-      Can become a `control word` in the case that the fragment token begins with ``|:``.
+      In the case that the fragment token begins with ``|:``,
+      it becomes a `control word` instead.
 
    control token
       An `object token` that begins with a colon ``:`` character.
@@ -173,13 +229,18 @@ Glossary
 
    symbol token
       A `bare token` that is not a `literal token`.
-      These are subject to `munging` and read as `str atom`\ s.
+      These are subject to `munging` and read as `symbol`\ s.
+
+   symbol
+      A `module handle` or a `fragment` containing a Python identifier.
+      (Possibly with `qualification`.)
+      Symbols are always `str atom`\ s.
 
    munging
       The process of replacing characters invalid in a Python identifier
       with "Quotez" equivalents.
       Primarily used to make a `symbol token` into a `str atom`
-      containing a valid Python identifier.
+      containing a valid Python identifier (a `symbol`).
       The munging machinery is in :mod:`hissp.munger`.
 
    kwarg token
@@ -281,13 +342,15 @@ Glossary
 
    inject tag
       ``.#``. A `special tag` which evaluates the next `parsed object`.
-      So named because it's typically used to make a `hissp injection`.
+      So named because it's typically used to make an `injection`,
+      although it can result in an object of any type.
 
    discard tag
+   discarded item
       ``_#``. A `special tag` that consumes the next `parsed object`,
       but doesn't return one.
       Used to structurally disable parts of code during development,
-      or for commentary.
+      for commentary, or as a `doorstop`.
 
    gensym tag
       ``$#``. A `special tag` only valid in a `template` for creating a `gensym`.
@@ -296,7 +359,7 @@ Glossary
       This prevents accidental name collisions in `macro expansion`\ s.
 
    gensym
-      A generated symbol, produced by the `gensym tag`.
+      A generated `symbol`. These are produced by the `gensym tag`.
 
    macro expansion
    expansion
@@ -336,5 +399,11 @@ Glossary
       rather than Hissp,
       which makes them opaque to Hissp `metaprogramming`,
       like pre-expanding, code-walking macros.
+
+   anaphor
+   anaphoric macro
+      An anaphoric macro creates one or more lexical (local)
+      variable bindings without explicitly naming them.
+      The bound name is called an anaphor.
 
 ..  LocalWords:  Lissp str Hissp gensym readerless
