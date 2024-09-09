@@ -1770,14 +1770,13 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; See also: `setattr`, `set@ <setQzAT_>`, `vars`.
   ;;
-  (let (iargs (iter args)
-        $target `$#target)
+  (let (iargs (iter args))
     (let (args (i#takewhile X#(op#ne X ':) iargs))
-      `(let (,$target ,target)
-         ,@(map X#`(setattr ,$target ',|X.split('.')[-1]| ,X) args)
-         ,@(map X#`(setattr ,$target ',X ,(next iargs))
+      `(let ($#target ,target)
+         ,@(map X#`(setattr ,'$#target ',|X.split('.')[-1]| ,X) args)
+         ,@(map X#`(setattr ,'$#target ',X ,(next iargs))
                 iargs)
-         ,$target))))
+         $#target))))
 
 (defmacro doto (self : :* invocations)
   <#;Configure an object.
@@ -1806,13 +1805,12 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; See also: `attach`, `progn`, `-> <Qz_QzGT_>`.
   ;;
-  (let ($self `$#self)
-    `((lambda (: ,$self ,self)
-        ,@(map X#`(,!##0 X
-                   ,$self
-                   ,@[##1:] X)
-               (map X# |X if type(X) is tuple else (X,)| invocations))
-        ,$self))))
+  `((lambda (: $#self ,self)
+      ,@(map X#`(,!##0 X
+                 ,'$#self
+                 ,@[##1:] X)
+             (map X# |X if type(X) is tuple else (X,)| invocations))
+      $#self)))
 
 ;;;; Arrange Macros
 
@@ -2142,8 +2140,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...         __import__('builtins').any(
   ;;    ...           __import__('itertools').starmap(
   ;;    ...             (lambda x:
-  ;;    ...                (__import__('operator').setitem(
-  ;;    ...                   _QzJ54T3DHWz___stack,
+  ;;    ...                (_QzJ54T3DHWz___stack.__setitem__(
   ;;    ...                   (0),
   ;;    ...                   # hissp.macros.._macro_.progn
   ;;    ...                   # when
@@ -2179,7 +2176,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `(let ($#stack (@ () None ,inits))
      (let (,'recur-from $#stack.append)
        (any*map ,syms (iter $#stack.pop None)
-         (op#setitem $#stack 0 (progn ,@body))
+         (.__setitem__ $#stack 0 (progn ,@body))
          None)
        !##0 $#stack)))
 
