@@ -1662,24 +1662,26 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    #> (set@ spam.foo (types..SimpleNamespace))
   ;;    >>> # setQzAT_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda _QzHMXBVFRDz___value=__import__('types').SimpleNamespace():
-  ;;    ...    (__import__('builtins').setattr(
+  ;;    ... (lambda _QzQFRECVDXz___value=__import__('types').SimpleNamespace():
+  ;;    ...    (# hissp.macros.._macro_.define
+  ;;    ...     __import__('builtins').setattr(
   ;;    ...       spam,
   ;;    ...       'foo',
-  ;;    ...       _QzHMXBVFRDz___value),
-  ;;    ...     _QzHMXBVFRDz___value)  [-1]
+  ;;    ...       _QzQFRECVDXz___value),
+  ;;    ...     _QzQFRECVDXz___value)  [-1]
   ;;    ... )()
   ;;    namespace()
   ;;
   ;;    #> (set@ spam.foo.bar 4)
   ;;    >>> # setQzAT_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda _QzHMXBVFRDz___value=(4):
-  ;;    ...    (__import__('builtins').setattr(
+  ;;    ... (lambda _QzQFRECVDXz___value=(4):
+  ;;    ...    (# hissp.macros.._macro_.define
+  ;;    ...     __import__('builtins').setattr(
   ;;    ...       spam.foo,
   ;;    ...       'bar',
-  ;;    ...       _QzHMXBVFRDz___value),
-  ;;    ...     _QzHMXBVFRDz___value)  [-1]
+  ;;    ...       _QzQFRECVDXz___value),
+  ;;    ...     _QzQFRECVDXz___value)  [-1]
   ;;    ... )()
   ;;    4
   ;;
@@ -1689,12 +1691,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; See also: `attach`, `delattr`, `zap@ <zapQzAT_>`, `setattr`.
   ;;
-  (let-from (ns _dot attr) (.rpartition qualname ".")
-    `(let ($#value ,value)
-       ,(if-else ns
-          `(setattr ,ns ',attr ,'$#value)
-          `(define ,attr ,'$#value))
-       $#value)))
+  `(let ($#value ,value)
+     (define ,qualname ,'$#value)
+     $#value))
 
 (defmacro zap@ (qualname f : :* args)
   <#;``zap@`` 'zapat' Augmented attribute assignment operator.
@@ -1717,14 +1716,15 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ... # hissp.macros.._macro_.setQzAT_
   ;;    ... # hissp.macros.._macro_.let
   ;;    ... (
-  ;;    ...  lambda _QzRMG5GSSIz___value=__import__('operator').iadd(
+  ;;    ...  lambda _QzQFRECVDXz___value=__import__('operator').iadd(
   ;;    ...           spam.foo,
   ;;    ...           (1)):
-  ;;    ...    (__import__('builtins').setattr(
+  ;;    ...    (# hissp.macros.._macro_.define
+  ;;    ...     __import__('builtins').setattr(
   ;;    ...       spam,
   ;;    ...       'foo',
-  ;;    ...       _QzRMG5GSSIz___value),
-  ;;    ...     _QzRMG5GSSIz___value)  [-1]
+  ;;    ...       _QzQFRECVDXz___value),
+  ;;    ...     _QzQFRECVDXz___value)  [-1]
   ;;    ... )()
   ;;    11
   ;;
@@ -2940,27 +2940,22 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; --------------
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (define fibonacci
+  ;;    #> (.update (globals)
+  ;;    #..  : fibonacci
   ;;    #..  (lambda (: a 1  b 1)
   ;;    #..    (Ensue (lambda (step)
-  ;;    #..             (set@ step.Y a)            ;Y for yield.
+  ;;    #..             (setattr step 'Y a)        ;Y for yield.
   ;;    #..             (fibonacci b (add a b))))))
-  ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
+  ;;    >>> globals().update(
   ;;    ...   fibonacci=(
   ;;    ...              lambda a=(1),
   ;;    ...                     b=(1):
   ;;    ...                 Ensue(
   ;;    ...                   (lambda step:
-  ;;    ...                      (# setQzAT_
-  ;;    ...                       # hissp.macros.._macro_.let
-  ;;    ...                       (lambda _QzRMG5GSSIz___value=a:
-  ;;    ...                          (__import__('builtins').setattr(
-  ;;    ...                             step,
-  ;;    ...                             'Y',
-  ;;    ...                             _QzRMG5GSSIz___value),
-  ;;    ...                           _QzRMG5GSSIz___value)  [-1]
-  ;;    ...                       )(),
+  ;;    ...                      (setattr(
+  ;;    ...                         step,
+  ;;    ...                         'Y',
+  ;;    ...                         a),
   ;;    ...                       fibonacci(
   ;;    ...                         b,
   ;;    ...                         add(
@@ -2976,15 +2971,15 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...     (7)))
   ;;    [1, 1, 2, 3, 5, 8, 13]
   ;;
-  ;;    #> (define my-range ; Terminate by not returning an Ensue.
+  ;;    #> (.update (globals) ; Terminate by not returning an Ensue.
+  ;;    #..  : my-range
   ;;    #..  (lambda in
   ;;    #..    (Ensue (lambda (step)
   ;;    #..             (when (lt i n)             ;Acts like a while loop.
-  ;;    #..               (set@ step.Y i)
+  ;;    #..               (setattr step 'Y i)
   ;;    #..               (my-range (add i 1) n)))))) ;Conditional recursion.
   ;;    #..
-  ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
+  ;;    >>> globals().update(
   ;;    ...   myQz_range=(lambda i, n:
   ;;    ...                  Ensue(
   ;;    ...                    (lambda step:
@@ -2994,15 +2989,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...                            i,
   ;;    ...                            n),
   ;;    ...                          (lambda :
-  ;;    ...                             (# setQzAT_
-  ;;    ...                              # hissp.macros.._macro_.let
-  ;;    ...                              (lambda _QzRMG5GSSIz___value=i:
-  ;;    ...                                 (__import__('builtins').setattr(
-  ;;    ...                                    step,
-  ;;    ...                                    'Y',
-  ;;    ...                                    _QzRMG5GSSIz___value),
-  ;;    ...                                  _QzRMG5GSSIz___value)  [-1]
-  ;;    ...                              )(),
+  ;;    ...                             (setattr(
+  ;;    ...                                step,
+  ;;    ...                                'Y',
+  ;;    ...                                i),
   ;;    ...                              myQz_range(
   ;;    ...                                add(
   ;;    ...                                  i,
@@ -3089,23 +3079,18 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...     (7)))
   ;;    [1, 2, 3, 1, 2, 3, 1]
   ;;
-  ;;    #> (define echo
+  ;;    #> (.update (globals)
+  ;;    #..  : echo
   ;;    #..  (Ensue (lambda (step)
-  ;;    #..           (set@ step.Y step.sent)
+  ;;    #..           (setattr step 'Y step.sent)
   ;;    #..           step)))
-  ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
+  ;;    >>> globals().update(
   ;;    ...   echo=Ensue(
   ;;    ...          (lambda step:
-  ;;    ...             (# setQzAT_
-  ;;    ...              # hissp.macros.._macro_.let
-  ;;    ...              (lambda _QzRMG5GSSIz___value=step.sent:
-  ;;    ...                 (__import__('builtins').setattr(
-  ;;    ...                    step,
-  ;;    ...                    'Y',
-  ;;    ...                    _QzRMG5GSSIz___value),
-  ;;    ...                  _QzRMG5GSSIz___value)  [-1]
-  ;;    ...              )(),
+  ;;    ...             (setattr(
+  ;;    ...                step,
+  ;;    ...                'Y',
+  ;;    ...                step.sent),
   ;;    ...              step)  [-1]
   ;;    ...          )))
   ;;
@@ -3127,40 +3112,57 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; --------------
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (define wrap
-  ;;    #..  (contextlib..contextmanager
-  ;;    #..   (lambda (msg)
-  ;;    #..     (print "enter" msg)
-  ;;    #..     (Ensue (lambda (step)
-  ;;    #..              (set@ step.Y msg)
-  ;;    #..              (Ensue (lambda (step)
-  ;;    #..                       (print "exit" msg))))))))
-  ;;    >>> # define
+  ;;    #> @@##contextlib..contextmanager
+  ;;    #..(defun wrap (msg)
+  ;;    #..  (print "enter" msg)
+  ;;    #..  (Ensue (lambda (step)
+  ;;    #..           (setattr step 'Y msg)
+  ;;    #..           (Ensue (lambda (step)
+  ;;    #..                    (print "exit" msg))))))
+  ;;    >>> # hissp.macros.._macro_.define
   ;;    ... __import__('builtins').globals().update(
-  ;;    ...   wrap=__import__('contextlib').contextmanager(
-  ;;    ...          (lambda msg:
-  ;;    ...             (print(
-  ;;    ...                ('enter'),
-  ;;    ...                msg),
-  ;;    ...              Ensue(
-  ;;    ...                (lambda step:
-  ;;    ...                   (# setQzAT_
-  ;;    ...                    # hissp.macros.._macro_.let
-  ;;    ...                    (lambda _QzRMG5GSSIz___value=msg:
-  ;;    ...                       (__import__('builtins').setattr(
-  ;;    ...                          step,
-  ;;    ...                          'Y',
-  ;;    ...                          _QzRMG5GSSIz___value),
-  ;;    ...                        _QzRMG5GSSIz___value)  [-1]
-  ;;    ...                    )(),
-  ;;    ...                    Ensue(
-  ;;    ...                      (lambda step:
-  ;;    ...                          print(
-  ;;    ...                            ('exit'),
-  ;;    ...                            msg)
-  ;;    ...                      )))  [-1]
-  ;;    ...                )))  [-1]
-  ;;    ...          )))
+  ;;    ...   wrap=# hissp.macros.._macro_.progn
+  ;;    ...        (# defun
+  ;;    ...         # hissp.macros.._macro_.define
+  ;;    ...         __import__('builtins').globals().update(
+  ;;    ...           wrap=# hissp.macros.._macro_.fun
+  ;;    ...                # hissp.macros.._macro_.let
+  ;;    ...                (
+  ;;    ...                 lambda _QzTXNQFMN3z___lambda=(lambda msg:
+  ;;    ...                           (print(
+  ;;    ...                              ('enter'),
+  ;;    ...                              msg),
+  ;;    ...                            Ensue(
+  ;;    ...                              (lambda step:
+  ;;    ...                                 (setattr(
+  ;;    ...                                    step,
+  ;;    ...                                    'Y',
+  ;;    ...                                    msg),
+  ;;    ...                                  Ensue(
+  ;;    ...                                    (lambda step:
+  ;;    ...                                        print(
+  ;;    ...                                          ('exit'),
+  ;;    ...                                          msg)
+  ;;    ...                                    )))  [-1]
+  ;;    ...                              )))  [-1]
+  ;;    ...                        ):
+  ;;    ...                   (__import__('builtins').setattr(
+  ;;    ...                      _QzTXNQFMN3z___lambda,
+  ;;    ...                      ('__code__'),
+  ;;    ...                      _QzTXNQFMN3z___lambda.__code__.replace(
+  ;;    ...                        co_name='wrap')),
+  ;;    ...                    __import__('builtins').setattr(
+  ;;    ...                      _QzTXNQFMN3z___lambda,
+  ;;    ...                      ('__name__'),
+  ;;    ...                      'wrap'),
+  ;;    ...                    __import__('builtins').setattr(
+  ;;    ...                      _QzTXNQFMN3z___lambda,
+  ;;    ...                      ('__qualname__'),
+  ;;    ...                      'wrap'),
+  ;;    ...                    _QzTXNQFMN3z___lambda)  [-1]
+  ;;    ...                )()),
+  ;;    ...         __import__('contextlib').contextmanager(
+  ;;    ...           wrap))  [-1])
   ;;
   ;;    #> (enter (wrap 'A)
   ;;    #..       (lambda a (print a)))
