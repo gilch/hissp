@@ -455,13 +455,15 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `<# <QzLT_QzHASH_>`, `attach`,
   `lambda <hissp.compiler.Compiler.function>`, `defun`.
   "
-  (let (form `(setattr (.get (globals) "_macro_")
-                       ',name
-                       (fun ,(.format "_macro_.{}" name) ,parameters ,@body)))
-    (if-else (operator..contains (.get hissp.compiler..NS) '_macro_)
-      form
-      `(progn (.setdefault (globals) "_macro_" (types..SimpleNamespace))
-              ,form))))
+  (if-else (.startswith name ':)
+    (exec '|raise SyntaxError('name cannot be a control word (try a \:)')|)
+    (let (form `(setattr (.get (globals) "_macro_")
+                         ',name
+                         (fun ,(.format "_macro_.{}" name) ,parameters ,@body)))
+      (if-else (operator..contains (.get hissp.compiler..NS) '_macro_)
+        form
+        `(progn (.setdefault (globals) "_macro_" (types..SimpleNamespace))
+                ,form)))))
 
 (defmacro define (qualname value)
   "Assigns an attribute the value.
@@ -484,17 +486,19 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   See also: `globals`, `dict.update`, `setattr`, `defonce`,
   `assignment`, `global`.
   "
-  (let-from (ns _dot attr) (.rpartition qualname ".")
-    (if-else ns
-      `(setattr ,ns ',attr ,value)
-      `(.update (globals) : ,qualname ,value))))
+  (if-else (.startswith qualname ':)
+    (exec '|raise SyntaxError('qualname cannot be a control word (try a \:)')|)
+    (let-from (ns _dot attr) (.rpartition qualname ".")
+      (if-else ns
+        `(setattr ,ns ',attr ,value)
+        `(.update (globals) : ,qualname ,value)))))
 
 (defmacro defun (qualname params : :* body)
   "`define` a `fun` with the same name.
 
   See `deftypeonce` for defining methods with defun.
 
-  See also: `def`, `define`, `defmacro`, `@@## <QzAT_QzAT_QzHASH_>`.
+  See also: `def`, `define`, `defmacro`, `:@## <QzCOLON_QzAT_QzHASH_>`.
   "
   `(define ,qualname (fun ,qualname ,params ,@body)))
 
@@ -563,9 +567,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; Defines a type (class), unless it exists.
   ;;
   ;; Add class attributes afterward using `define` or `defun`, and class
-  ;; decorators above with `@@## <QzAT_QzAT_QzHASH_>` or afterward using
-  ;; `zap@ <zapQzAT_>`. These run again on module reload and patch in
-  ;; existing instances.
+  ;; decorators above with `:@## <QzCOLON_QzAT_QzHASH_>` or afterward
+  ;; using `zap@ <zapQzAT_>`. These run again on module reload and patch
+  ;; in existing instances.
   ;;
   ;; The ``once-decorators`` apply before any external ones, in the
   ;; order written (first applies first), unless the type exists (not
@@ -701,7 +705,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> @@##classmethod
+  ;;    #> :@##classmethod
   ;;    #..(defun Point2D.__init_subclass__ (cls :/ : :** kwargs)
   ;;    #..  "Just displays inputs"
   ;;    #..  (print kwargs))
@@ -779,8 +783,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
                 ,(dict)
                 : ,@ibases)))))
 
-(defmacro @@\# (decoration definition)
-  "``@@##`` 'decorator' applies ``decoration`` to definition & reassigns.
+(defmacro \:@\# (decoration definition)
+  "``:@##`` 'decorator' applies ``decoration`` to definition & reassigns.
 
   ``definition`` form must assign an attribute identified by its first
   arg. Expands to a `define`, meaning decorators can stack.
@@ -794,8 +798,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   .. code-block:: REPL
 
-     #> @@##.swapcase
-     #..@@##.title
+     #> :@##.swapcase
+     #..:@##.title
      #..(define spam 'spam) ; Unlike Python def, not always a function.
      >>> # hissp.macros.._macro_.define
      ... __import__('builtins').globals().update(
@@ -1733,7 +1737,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    namespace(foo=11)
   ;;
   ;; See also: `set@ <setQzAT_>`, `zap! <zapQzBANG_>`, `operator.iadd`,
-  ;; `augassign`, `@@## <QzAT_QzAT_QzHASH_>`.
+  ;; `augassign`, `:@## <QzCOLON_QzAT_QzHASH_>`.
   ;;
   `(set@ ,qualname
          (,f ,(if-else |'.' in qualname| qualname `(.__getitem__ (globals) ,qualname))
@@ -3112,7 +3116,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; --------------
   ;; .. code-block:: REPL
   ;;
-  ;;    #> @@##contextlib..contextmanager
+  ;;    #> :@##contextlib..contextmanager
   ;;    #..(defun wrap (msg)
   ;;    #..  (print "enter" msg)
   ;;    #..  (Ensue (lambda (step)
