@@ -2402,6 +2402,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 ;;;; Side Effect
 
 ;;; see also from Bootstrap: progn
+;;; Note that any of the bundled macros with a lambda "body" argument
+;;; also sequence expressions for side effects.
 
 (defmacro prog1 (expr1 : :* body)
   <#;Evaluates sequentially (for side effects). Returns value of ``expr1``.
@@ -2452,9 +2454,6 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; See also: `doto`.
   ;;
   `(let ($#value1 ,expr1) ,@body $#value1))
-
-;;; Note that any of the bundled macros with a lambda "body" argument
-;;; also sequence expressions for side effects.
 
 ;;;; Tags
 
