@@ -2526,7 +2526,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
       (-<>> (.format "b'{}'"))
       ast..literal_eval))
 
-(defmacro en\# (f)
+(defmacro en\# f
   <#;``en#`` tag.
   ;; Wrap a function applicable to a tuple as a function of its elements.
   ;;
