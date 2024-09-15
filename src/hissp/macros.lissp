@@ -562,7 +562,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
                 `(operator..contains (globals) ',attr)))
      (define ,qualname ,value)))
 
-(defmacro deftypeonce (qualname bases : :* once-decorators)
+(defmacro deftypeonce (qualname : bases ()  :* once-decorators)
   'hissp.reader..Comment.contents#
   ;; Defines a type (class), unless it exists.
   ;;
