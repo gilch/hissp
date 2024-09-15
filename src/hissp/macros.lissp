@@ -1736,11 +1736,31 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    >>> spam
   ;;    namespace(foo=11)
   ;;
+  ;;    #> (zap@ spam getattr 'foo)
+  ;;    >>> # zapQzAT_
+  ;;    ... # hissp.macros.._macro_.setQzAT_
+  ;;    ... # hissp.macros.._macro_.let
+  ;;    ... (
+  ;;    ...  lambda _QzJ2ZGVJRNz___value=getattr(
+  ;;    ...           __import__('builtins').globals().__getitem__(
+  ;;    ...             'spam'),
+  ;;    ...           'foo'):
+  ;;    ...    (# hissp.macros.._macro_.define
+  ;;    ...     __import__('builtins').globals().update(
+  ;;    ...       spam=_QzJ2ZGVJRNz___value),
+  ;;    ...     _QzJ2ZGVJRNz___value)  [-1]
+  ;;    ... )()
+  ;;    11
+  ;;
+  ;;    #> spam
+  ;;    >>> spam
+  ;;    11
+  ;;
   ;; See also: `set@ <setQzAT_>`, `zap! <zapQzBANG_>`, `operator.iadd`,
   ;; `augassign`, `:@## <QzCOLON_QzAT_QzHASH_>`.
   ;;
   `(set@ ,qualname
-         (,f ,(if-else |'.' in qualname| qualname `(.__getitem__ (globals) ,qualname))
+         (,f ,(if-else |'.' in qualname| qualname `(.__getitem__ (globals) ',qualname))
              ,@args)))
 
 (defmacro attach (target : :* args)
