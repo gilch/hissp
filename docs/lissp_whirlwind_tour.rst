@@ -196,7 +196,7 @@ Lissp Whirlwind Tour
    6.283185307179586
 
    #> collections.abc.                    ;Submodule handle. Has package name.
-   >>> __import__('collections.abc',fromlist='?')
+   >>> __import__('collections.abc',fromlist='*')
    <module 'collections.abc' from '...abc.py'>
 
 
@@ -205,7 +205,7 @@ Lissp Whirlwind Tour
    <class 'type'>
 
    #> collections.abc..Sequence.__class__.__name__ ;Chaining.
-   >>> __import__('collections.abc',fromlist='?').Sequence.__class__.__name__
+   >>> __import__('collections.abc',fromlist='*').Sequence.__class__.__name__
    'ABCMeta'
 
 
@@ -920,7 +920,7 @@ Lissp Whirlwind Tour
    ;; The readerless function runs the Hissp compiler without the Lissp reader.
    ;; (Remember, _ is the last result that wasn't None in the Python REPL.)
    #> (hissp.compiler..readerless _)      ;It compiles to Python
-   >>> __import__('hissp.compiler',fromlist='?').readerless(
+   >>> __import__('hissp.compiler',fromlist='*').readerless(
    ...   _)
    "print(\n  (1),\n  (2),\n  (3),\n  sep=('-'))"
 
@@ -1223,7 +1223,7 @@ Lissp Whirlwind Tour
    ('.update', ('builtins..globals',), ':', 'SPAM', "('eggs')")
 
    #> (hissp.compiler..readerless _)      ;Hissp can compile it,
-   >>> __import__('hissp.compiler',fromlist='?').readerless(
+   >>> __import__('hissp.compiler',fromlist='*').readerless(
    ...   _)
    "__import__('builtins').globals().update(\n  SPAM=('eggs'))"
 
@@ -1783,7 +1783,7 @@ Lissp Whirlwind Tour
    53
 
    #> (hissp.reader..transpile __package__ 'spam 'eggs) ;Side effects on compilation.
-   >>> __import__('hissp.reader',fromlist='?').transpile(
+   >>> __import__('hissp.reader',fromlist='*').transpile(
    ...   __package__,
    ...   'spam',
    ...   'eggs')

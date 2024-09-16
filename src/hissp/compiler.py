@@ -508,14 +508,14 @@ class Compiler:
             chain[0] = f"__import__('builtins').globals()[{pformat(chain[0])}]"
             return ".".join(chain)
         return "__import__({0!r}{fromlist}).{1}".format(
-            parts[0], parts[1], fromlist=",fromlist='?'" if "." in parts[0] else ""
+            parts[0], parts[1], fromlist=",fromlist='*'" if "." in parts[0] else ""
         )
 
     @staticmethod
     def module_identifier(code):
         """Compile module identifier to import."""
         module = code[:-1]
-        return f"""__import__({module !r}{",fromlist='?'" if "." in module else ""})"""
+        return f"""__import__({module !r}{",fromlist='*'" if "." in module else ""})"""
 
     @_trace
     def atomic(self, form) -> str:
