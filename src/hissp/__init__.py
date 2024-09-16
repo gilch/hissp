@@ -93,21 +93,25 @@ def refresh(module):
 
     Usage: ``hissp..refresh#foo.`` where ``foo.`` evaluates to a module.
 
+    An empty argument (``||`` or ``:``) means the current module.
+
     There must be a corresponding ``.lissp`` file present to recompile.
     The module must have a ``__name__``.
 
-    ``hissp..refresh#:`` will attempt to recompile the current module.
-
     Refreshing the main module (which would have side effects) is not
-    supported. Send the REPL updated top-level definitions individually
-    or restart the REPL instead. A corresponding compiled Python file is
-    not required for a ``.lissp`` file run as the main module.
+    supported. Send the REPL updated top-level definitions individually,
+    or restart the REPL instead. (A corresponding compiled Python file is
+    not required for a ``.lissp`` file run as the main module.)
+
+    While potentially confusing, Python can import the .py file used as
+    main again using its name. These are considered separate modules by
+    the runtime.
 
     See also: `subrepl`, `hissp.reader.transpile`, `importlib.reload`.
     """
-    ns = ("builtins..globals",) if module == ":" else ("builtins..vars", module)
     return (
-        (('lambda',(':','name',('.get',ns,('quote','__name__',),),)
+        (('lambda',(':','name',('.get',("builtins..vars", module)
+                                      ,('quote','__name__',),),)
           ,('hissp.reader..transpile','name.rpartition(".")[0]'
                                      ,'name.rpartition(".")[-1]',)
           ,('importlib..reload',('importlib..import_module','name',),),),)
