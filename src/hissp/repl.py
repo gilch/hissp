@@ -22,10 +22,12 @@ ps2 = "#.."
 
 
 class LisspREPL(InteractiveConsole):
-    """Lissp's Read-Evaluate-Print Loop, layered on Python's.
+    """Lissp's `Read-Evaluate-Print Loop`, layered on Python's.
 
     You can initialize the REPL with a locals dict,
     which is useful for debugging other modules.
+    See `hissp.subrepl`.
+
     Call interact() to start.
     """
 
@@ -63,7 +65,7 @@ class LisspREPL(InteractiveConsole):
         return super().raw_input(prompt)
 
     def interact(self, banner=None, exitmsg=None):
-        """Imports readline if available, then super().interact()."""
+        """Imports `readline` if available, then ``super().interact()``."""
         with suppress(ImportError):
             # noinspection PyUnresolvedReferences
             import readline
@@ -98,7 +100,7 @@ def force_main():
 
 
 def main(__main__):
-    """REPL command-line entry point.
+    """`REPL` command-line entry point.
 
     `hissp.macros._macro_` is copied into the module namespace,
     making the bundled macros immediately available unqualified.

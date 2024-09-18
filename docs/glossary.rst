@@ -39,8 +39,15 @@ Glossary
       a programming language implemented in terms of Hissp.
 
    repl
-      Read-Evaluate-Print Loop.
-      Lissp's interactive shell.
+   read-evaluate-print loop
+   read-eval-print loop
+      The `LisspREPL`,
+      Lissp's interactive interpreter shell, layered on Python's.
+      (Or a similar language shell.)
+      Reads Lissp input, compiles it to Python,
+      and passes it to Python's shell for evaluation and printing,
+      then repeats.
+      Used for inspection, online help, interactive development, and debugging.
 
    token
       A lexical unit of Lissp.

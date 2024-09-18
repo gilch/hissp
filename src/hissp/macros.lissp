@@ -22,7 +22,7 @@ presence of ``_macro_`` (at compile time) in its expansion context, and
 inline the initialization code when required.
 
 As a convenience, the bundled macros are automatically made available
-unqualified in the Lissp REPL, but this does not apply to modules. A
+unqualified in the Lissp `REPL`, but this does not apply to modules. A
 Hissp module with better alternatives need not use the bundled macros at
 all.
 
@@ -322,7 +322,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   "A lambda enhanced with a qualname and optionally a docstring.
 
   Hissp's (and Python's) lambda syntax do not have docstrings. Named
-  lambdas improve REPL transparency and error messages, at the cost of
+  lambdas improve `REPL` transparency and error messages, at the cost of
   some configuration overhead to set the name in the three places Python
   requires.
 
@@ -506,7 +506,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   "Defines an attribute, unless it exists.
 
   Like `define`, but won't overwrite an existing attribute.
-  Useful when sending the whole file to the REPL repeatedly or when
+  Useful when sending the whole file to the `REPL` repeatedly or when
   using `importlib.reload`.
 
   .. code-block:: REPL
@@ -2834,8 +2834,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; Prelude Usage
   ;; =============
-  ;; The REPL has the bundled macros loaded by default, but not the prelude.
-  ;; Invoke ``(prelude)`` to get the rest.
+  ;; The `REPL` has the bundled macros loaded by default,
+  ;; but not the prelude. Invoke ``(prelude)`` to get the rest.
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -3497,7 +3497,7 @@ vars(_macro_).update(vars(__import__('hissp')._macro_))"
   ;; code violating one, which can never happen if the code was written
   ;; correctly. Though implemented as exceptions in Python, they should
   ;; almost never be caught, except (perhaps) by a supervising system
-  ;; (such as a REPL) capable of dealing with broken subsystems. They
+  ;; (such as a `REPL`) capable of dealing with broken subsystems. They
   ;; are not to be used like normal exceptions to handle expected cases.
   ;;
   ;; .. code-block:: REPL
