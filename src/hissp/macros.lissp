@@ -451,9 +451,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   sep='::')
      1::2::3
 
-  See also:
-  `<# <QzLT_QzHASH_>`, `attach`,
-  `lambda <hissp.compiler.Compiler.function>`, `defun`.
+  See also: `<# <QzLT_QzHASH_>`, `attach`, `lambda_`, `defun`.
   "
   (if-else (.startswith name ':)
     (exec '|raise SyntaxError('name cannot be a control word (try a \:)')|)

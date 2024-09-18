@@ -18,7 +18,7 @@ from itertools import chain, starmap, takewhile
 from pprint import pformat
 from traceback import format_exc
 from types import MappingProxyType, ModuleType
-from typing import Any, Dict, Iterable, List, NewType, Tuple, TypeVar, Union
+from typing import Any, Dict, Iterable, List, NewType, Optional, Tuple, TypeVar, Union
 from warnings import warn
 
 PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
@@ -30,7 +30,7 @@ MAYBE = "..QzMaybe_."
 RE_MACRO = re.compile(rf"({re.escape(MACRO)}|{re.escape(MAYBE)})")
 _PARAM_INDENT = f"\n{len('(lambda ')*' '}"
 
-NS = ContextVar("NS", default=None)
+NS: ContextVar[Optional[MappingProxyType]] = ContextVar("NS", default=None)
 """
 Sometimes a macro needs the current namespace when expanding,
 instead of its defining namespace.
@@ -44,7 +44,7 @@ MAX_PROTOCOL = pickle.HIGHEST_PROTOCOL
 When there is no known literal syntax for an `atom`,
 the compiler emits a `pickle.loads` expression as a fallback.
 This is the highest pickle protocol it's allowed to use.
-The compiler may use Protocol 0 instead when it has a shorter repr,
+The compiler may use Protocol 0 instead when it has a shorter `repr`,
 due to the inefficient escapes required for non-printing bytes.
 """
 
@@ -53,7 +53,7 @@ due to the inefficient escapes required for non-printing bytes.
 def macro_context(ns):
     """Sets `NS` during macroexpansions.
 
-    Does nothing if ns is None or already the current context.
+    Does nothing if ``ns`` is ``None`` or already the current context.
     """
     if ns is None or NS.get() is ns:
         yield
@@ -96,8 +96,8 @@ def _trace(method):
 class PostCompileWarning(Warning):
     """Form compiled to Python, but its execution failed.
 
-    Only possible when compiling in evaluate mode and not in __main__.
-    Would be a "Hissp Abort!" instead when in __main__, but other
+    Only possible when compiling in evaluate mode and not in ``__main__``.
+    Would be a "Hissp Abort!" instead when in ``__main__``, but other
     modules can be allowed to continue compiling for debugging purposes.
 
     Continuing execution after a failure can be dangerous if non-main
@@ -158,12 +158,12 @@ class Compiler:
         """
         Compile Hissp `form` to the equivalent Python code in a string.
         `tuple` and `str` have special evaluation rules,
-        otherwise it's an :meth:`atom` that represents itself.
+        otherwise it's an `atom` that represents itself.
         """
         if type(form) is tuple and form:
             return self.tuple(form)
         if type(form) is str and not form.startswith(":"):
-            return self.str(form)
+            return self.fragment(form)
         return self.atomic(form)
 
     @_trace
@@ -185,11 +185,11 @@ class Compiler:
     def special(self, form: Tuple) -> str:
         """Try to compile as special form, else :meth:`invocation`.
 
-        The two special forms are ``quote`` and `lambda<function>`.
+        The two special forms are ``quote`` and `lambda <lambda_>`.
 
         A quote form evaluates to its argument, treated as literal data,
         not evaluated. Notice the difference in the `readerless`
-        compiled output.
+        compiled output:
 
         >>> print(readerless(('print',42,)))  # function call
         print(
@@ -202,18 +202,18 @@ class Compiler:
         if form[0] == "quote":
             return self.atomic(*form[1:])
         if form[0] == "lambda":
-            return self.function(form)
+            return self.lambda_(form)
         return self.invocation(form)
 
     @_trace
-    def function(self, form: Tuple) -> str:
+    def lambda_(self, form: Tuple) -> str:
         R"""
         Compile the anonymous function special form.
 
         (lambda (<parameters>)
           <body>)
 
-        The parameters tuple is divided into (<singles> : <pairs>)
+        The ``parameters tuple`` is divided into (<singles> : <pairs>)
 
         Parameter types are the same as Python's.
         For example,
@@ -239,7 +239,7 @@ class Compiler:
             (42))
 
 
-        The special control words ``:*`` and ``:**`` designate the
+        The special `control word`\ s ``:*`` and ``:**`` designate the
         remainder of the positional and keyword parameters, respectively.
         Note this body evaluates expressions in sequence, for side
         effects.
@@ -301,7 +301,7 @@ class Compiler:
 
     @_trace
     def parameters(self, parameters: Iterable) -> str:
-        """Process parameters to compile `function`."""
+        """Process `params` to compile `lambda_`."""
         parameters = iter(parameters)
         r = [
             {":/": "/", ":*": "*"}.get(a, a)
@@ -324,7 +324,7 @@ class Compiler:
 
     @_trace
     def body(self, body: list) -> str:
-        """Compile body of `function`."""
+        """Compile body of `lambda_`."""
         body = tuple(map(self.compile_form, body))
         if len(body) > 1:
             result = ",\n".join(body).replace("\n", "\n ")
@@ -354,7 +354,7 @@ class Compiler:
     def get_macro(cls, symbol, ns):
         """Returns the macro function for a symbol given the namespace.
 
-        Returns None if symbol isn't a macro.
+        Returns ``None`` if symbol isn't a macro.
         """
         if type(symbol) is not str or symbol.startswith(":"):
             return None
@@ -374,7 +374,7 @@ class Compiler:
             qualname = ns.get("__name__", "__main__")
             if parts[0] == qualname:  # Internal?
                 return getattr(ns[MACROS], parts[2])
-            return eval(cls._str(qualname, head))
+            return eval(cls._fragment(qualname, head))
         except (LookupError, AttributeError):
             if parts[1] != MAYBE:
                 raise
@@ -443,12 +443,12 @@ class Compiler:
           **{'sep': ':', 'end': '\n\n'})
 
         Unlike other control words, these can be repeated,
-        but (as in Python) a '*' is not allowed to follow '**'.
+        but (as in Python) a ``*`` is not allowed to follow ``**``.
 
         Method calls are similar to function calls:
-        (.<method name> <self> <args> : <kwargs>)
-        A method on the self argument is assumed if the function name
-        starts with a dot:
+        (.<method name> <self> <args> : <kwargs>).
+        A method on the first (self) argument is assumed if the function
+        name starts with a dot:
 
         >>> readerless(('.conjugate', 1j,),)
         '(1j).conjugate()'
@@ -479,15 +479,16 @@ class Compiler:
         return k + self.compile_form(v).replace("\n", "\n" + " " * len(k))
 
     @_trace
-    def str(self, code: str) -> str:
-        """Compile code strings.
-        Expands qualified identifiers and module handles into imports.
-        Otherwise, injects as raw Python directly into the output.
+    def fragment(self, code: str) -> str:
+        """Compile a `fragment atom`.
+        This preprocessing step converts a `fully-qualified identifier`
+        or `module handle` into an import. No further compilation is
+        necessary. The contents are assumed to be Python code already.
         """
-        return self._str(self.qualname, code)
+        return self._fragment(self.qualname, code)
 
     @classmethod
-    def _str(cls, qualname, code):
+    def _fragment(cls, qualname, code):
         if "..." in code:
             return code
         if not all(s.isidentifier() for s in code.split(".") if s):
@@ -500,7 +501,7 @@ class Compiler:
 
     @staticmethod
     def qualified_identifier(qualname, code):
-        """Compile qualified identifier into import and attribute."""
+        """Compile `fully-qualified identifier` into import and attribute."""
         parts = code.split("..", 1)
         if parts[0] == qualname:  # This module. No import required.
             chain = parts[1].split(".", 1)
@@ -512,8 +513,9 @@ class Compiler:
         )
 
     @staticmethod
-    def module_identifier(code):
-        """Compile module identifier to import."""
+    def module_identifier(code: str) -> str:
+        """Compile a `module handle` to an import."""
+        assert code[-1] == "."
         module = code[:-1]
         return f"""__import__({module !r}{",fromlist='*'" if "." in module else ""})"""
 
@@ -581,9 +583,9 @@ class Compiler:
 
     @_trace
     def pickle(self, form) -> str:
-        """Compile to `pickle.loads`. The final fallback for :meth:`atom`."""
+        """Compile to `pickle.loads`. The final fallback for `atomic`."""
         protocols = 0, MAX_PROTOCOL
-        pickles = (repr(pickletools.optimize(pickle.dumps(form, p))) for p in protocols)
+        pickles = [repr(pickletools.optimize(pickle.dumps(form, p))) for p in protocols]
         code = min(pickles, key=len)
         r = repr(form).replace("\n", "\n  # ")
         return f"# {r}\n__import__({pickle.__name__!r}).loads({code})"
@@ -689,7 +691,7 @@ def macroexpand_all(form, ns=None, *, preprocess=_identity, postprocess=_identit
     `macroexpand1` may be called by preprocess to handle intermediate
     expansions.
 
-    If expansion is not a macro form, returns it.
+    If expansion is not a `macro form`, returns it.
     As in the compiler, lambda parameter names are not considered
     expandable subforms, but default expressions are.
     Uses the current `NS` for context, unless an alternative is provided.
@@ -715,7 +717,7 @@ def _pexpand(params, ns):
 
 
 def parse_params(params):
-    """Parses a lambda form's params into a tuple of singles and a dict of pairs."""
+    """Parses a lambda form's `params` into a tuple of singles and a dict of pairs."""
     iparams = iter(params)
     singles = tuple(takewhile(lambda x: x != ":", iparams))
     pairs = dict(zip(iparams, iparams))
