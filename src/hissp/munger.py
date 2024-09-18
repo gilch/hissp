@@ -1,11 +1,11 @@
 # Copyright 2019, 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 """
-Lissp's symbol munger.
+Lissp's `symbol token` munger.
 
-Encodes Lissp symbols with special characters into valid,
+Encodes Lissp symbol tokens with special characters into valid,
 human-readable (if unpythonic) Python identifiers,
-using NFKC normalization and *Quotez*.
+using NFKC normalization and `Quotez`.
 
 E.g. ``*FOO-BAR*`` becomes ``QzSTAR_FOOQz_BARQzSTAR_``.
 
@@ -28,7 +28,7 @@ __ https://www.python.org/dev/peps/pep-0008/#naming-conventions
 Characters can be encoded in one of three ways:
 Short names, Unicode names, and ordinals.
 
-The `demunge` function will accept any of these encodings,
+The :func:`demunge` function will accept any of these encodings,
 while the :func:`munge` function will prioritize short names,
 then fall back to Unicode names, then fall back to ordinals.
 
@@ -53,10 +53,8 @@ def munge(s: str) -> str:
 
     Encodes Lissp symbols with special characters into valid,
     human-readable (if unpythonic) Python identifiers,
-    using NFKC normalization and *Quotez*.
+    using NFKC normalization and `Quotez`.
 
-    Inputs that begin with ``:`` are assumed to be control words
-    and returned unmodified.
     Full stops are handled separately, as those are meaningful to Hissp.
     """
     # Always normalize identifiers:
@@ -79,10 +77,10 @@ def _munge_part(part):
 
 
 QUOTEZ = "Qz{}_"
-"""Format string for creating Quotez."""
+"""Format string for creating `Quotez`."""
 
 FIND_QUOTEZ = re.compile(QUOTEZ.format("([0-9A-Z][0-9A-Zhx]*?)?"))
-"""Regex pattern to find Quotez. Used by `demunge`."""
+"""Regex pattern to find `Quotez`. Used by `demunge`."""
 
 TO_NAME = {
     k: QUOTEZ.format(v)
@@ -125,14 +123,14 @@ TO_NAME = {
         # TILDE is fine.
     }.items()
 }
-"""Shorter names for Quotez."""
+"""Shorter names for `Quotez`."""
 
-QZ_NAME = {ord(k): ord(v) for k, v in {" ": "x", "-": "h"}.items()}
+_QZ_NAME = {ord(k): ord(v) for k, v in {" ": "x", "-": "h"}.items()}
 
 
 def qz_encode(c: str) -> str:
     """
-    Converts a character to its Quotez encoding,
+    Converts a character to its `Quotez` encoding,
     unless it's already valid in a Python identifier.
     """
     if ("x" + c).isidentifier():
@@ -142,13 +140,13 @@ def qz_encode(c: str) -> str:
 
 def force_qz_encode(c: str) -> str:
     """
-    Converts a character to its Quotez encoding,
+    Converts a character to its `Quotez` encoding,
     even if it's valid in a Python identifier.
     """
     with suppress(LookupError):
         return TO_NAME[c]
     with suppress(ValueError):
-        return QUOTEZ.format(unicodedata.name(c).translate(QZ_NAME))
+        return QUOTEZ.format(unicodedata.name(c).translate(_QZ_NAME))
     return QUOTEZ.format(ord(c))
 
 
@@ -165,27 +163,27 @@ def _inverse_1to1(mapping: Mapping[K, V]) -> Dict[V, K]:
 LOOKUP_NAME = _inverse_1to1(TO_NAME)
 """The inverse of `TO_NAME`."""
 
-UN_QZ_NAME = _inverse_1to1(QZ_NAME)
+_UN_QZ_NAME = _inverse_1to1(_QZ_NAME)
 
 
 def _qz_decode(match: Match[str]) -> str:
     with suppress(KeyError):
         return LOOKUP_NAME[match.group()]
     with suppress(KeyError):
-        return unicodedata.lookup(match.group(1).translate(UN_QZ_NAME))
+        return unicodedata.lookup(match.group(1).translate(_UN_QZ_NAME))
     with suppress(ValueError):
         return chr(int(match.group(1)))
     return match.group()
 
 
 def demunge(s: str) -> str:
-    """The inverse of :func:`munge`. Decodes any Quotez into characters.
+    """The inverse of :func:`munge`. Decodes any `Quotez` into characters.
 
     Characters can be encoded in one of three ways:
     Short names, Unicode names, and ordinals.
     ``demunge`` will decode any of these, even though :func:`munge` will
     consistently pick only one of these for any given character.
-    `demunge` will also leave the remaining text as-is, along with any
+    ``demunge`` will also leave the remaining text as-is, along with any
     invalid Quotez.
 
     >>> demunge("QzFOO_QzGT_QzHYPHENhMINUS_Qz62_bar")

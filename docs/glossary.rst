@@ -27,6 +27,8 @@ Glossary
    ast
       An intermediate tree data structure used by most compilers after
       parsing a programming language.
+      The AST stage of Lissp is Hissp,
+      and Lissp is a pretty direct representation of it.
 
    hissp
       The project at `<https://github.com/gilch/hissp>`_.
@@ -77,7 +79,7 @@ Glossary
 
    special tag
       One of the built-in unary `tagging token`\ s
-      treated as a special case in the reader.
+      treated as a special case in the `reader`.
 
    comment token
       An `object token` consisting of one or more lines,
@@ -96,12 +98,13 @@ Glossary
       a Python string literal wrapped in parentheses.
 
    str atom
-      An `atom` of type `str`. Usually represents a `fragment` of Python code.
+      An `atom` of type `str`. Usually represents a `Python fragment`.
       If it starts with a colon (``:``), it is a `control word`.
       May contain a `module handle`.
 
    string literal fragment
-      A `fragment` which `ast.literal_eval` would evaluate to an object of type `str`.
+      A `Python fragment` which `ast.literal_eval`
+      would evaluate to an object of type `str`.
       Not all `str atom`\ s are string literal fragments;
       It must contain a Python string literal expression.
       `hissp.reader.is_string_literal` tests for string literal fragments.
@@ -154,7 +157,7 @@ Glossary
    python injection
       The technique of writing `Python fragment`\ s
       rather than allowing the Hissp machinery to do it for you,
-      or the `fragment`\ s so used or the `fragment atom`\ s containing them.
+      or the fragments so used or the `fragment atom`\ s containing them.
       `text macro`\ s work via Python injection.
       Injection is discouraged because it bypasses a lot of Hissp's machinery,
       and is opaque to code-walking macros,
@@ -193,7 +196,6 @@ Glossary
       `bytes` literal containing a serialization of the object.
       Evaluating it should result in an equivalent object.
 
-   fragment
    python fragment
       A piece of Python code, especially one emitted by the compiler.
       Typically a Python expression, but not necessarily anything complete.
@@ -224,7 +226,7 @@ Glossary
       but may have special interpretation in some contexts.
 
    bare token
-      An `object token` without the delimiters marking it as a
+      An `object token` without the initial character marking it as a
       `comment token` (``;``), `Unicode token` (``"``), `fragment token` (``|``),
       or `control token` (``:``).
       These are either `literal token`\ s, or failing that, `symbol token`\ s.
@@ -239,7 +241,7 @@ Glossary
       These are subject to `munging` and read as `symbol`\ s.
 
    symbol
-      A `module handle` or a `fragment` containing a Python identifier.
+      A `module handle` or a `Python fragment` containing an identifier.
       (Possibly with `qualification`.)
       Symbols are always `str atom`\ s.
 
@@ -249,6 +251,13 @@ Glossary
       Primarily used to make a `symbol token` into a `str atom`
       containing a valid Python identifier (a `symbol`).
       The munging machinery is in :mod:`hissp.munger`.
+
+   quotez
+      The `munger`'s character replacement format.
+      It's the character's Unicode name wrapped in ``Qz`` and ``_``.
+      (Spaces become ``x`` and hyphens become ``h``.)
+      Characters without names use their base 10 ordinals instead.
+      Some ASCII characters use the short names from `TO_NAME` instead.
 
    kwarg token
       A single-argument `tagging token` ending in an equals sign (``=``)
@@ -264,7 +273,7 @@ Glossary
    module-local tag
    fully-qualified tag
       A `tagging token` that ends in one or more number sign (``#``) characters
-      (also known called "hash" characters,
+      (also known as "hash" characters,
       making these "hash tags" when distinguishing them from other `tagging token`\ s.)
       If it includes a `module handle` part, it's a fully-qualified tag.
       Any callable accessible this way can be applied as a tag.
@@ -273,6 +282,9 @@ Glossary
       If it doesn't,
       it refers to a module-local `metaprogram` stored in the module's
       ``_macro_`` namespace.
+      These usually need to be pure or at least idempotent,
+      as the `REPL` or similar tooling may have to make multiple attempts
+      at applying them.
 
    metaprogram
    metaprogramming
@@ -354,10 +366,21 @@ Glossary
 
    discard tag
    discarded item
-      ``_#``. A `special tag` that consumes the next `parsed object`,
-      but doesn't return one.
-      Used to structurally disable parts of code during development,
-      for commentary, or as a `doorstop`.
+      ``_#``. A `special tag`
+      used to structurally disable parts of code during development,
+      for commentary, or as a `doorstop`,
+      The argument to a discard tag is the discarded item.
+      It is unique among `tagging token`\ s in that it doesn't return a
+      `parsed object` at all.
+      Although a `tag` could achieve a similar effect by returning a
+      (normally discarded) `hissp.reader.Comment` instance
+      or by consuming two `parsed object`\ s and returning the second one unchanged,
+      the discard tag (like all `special tag`\ s) is unary,
+      making it applicable to the last (or only) element in a tuple
+      (such as a `doorstop`),
+      and a discarded item cannot be an argument to another tagging token,
+      unlike a `Comment` instance, which allows its use for commentary
+      between a `tagging token` and one of its arguments.
 
    gensym tag
       ``$#``. A `special tag` only valid in a `template` for creating a `gensym`.
@@ -411,6 +434,6 @@ Glossary
    anaphoric macro
       An anaphoric macro creates one or more lexical (local)
       variable bindings without explicitly naming them.
-      The bound name is called an anaphor.
+      Such a bound name is called an anaphor.
 
 ..  LocalWords:  Lissp str Hissp gensym readerless

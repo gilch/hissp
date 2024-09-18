@@ -109,7 +109,7 @@ In the case of ``('print',('quote','Hello',),'name',)``,
 the first element represents a call to the `print()<print>` function.
 The remaining elements are the arguments.
 
-The interpretation of the `lambda form <hissp.compiler.Compiler.function>` is a special case.
+The interpretation of the `lambda form <lambda_>` is a special case.
 It represents a lambda expression, rather than a function call.
 ``('name',)`` is its parameters tuple.
 The remainder is its body.
