@@ -1700,9 +1700,9 @@ Within a template, the same gensym name always makes the same gensym:
 
    #> `($#hiss $#hiss)
    >>> (lambda * _:  _)(
-   ...   '_QzTAMTDLDRz___hiss',
-   ...   '_QzTAMTDLDRz___hiss')
-   ('_QzTAMTDLDRz___hiss', '_QzTAMTDLDRz___hiss')
+   ...   '_Qztamtdldr__hiss',
+   ...   '_Qztamtdldr__hiss')
+   ('_Qztamtdldr__hiss', '_Qztamtdldr__hiss')
 
 But each new template changes the prefix hash.
 
@@ -1710,9 +1710,9 @@ But each new template changes the prefix hash.
 
    #> `($#hiss $#hiss)
    >>> (lambda * _:  _)(
-   ...   '_QzZSOXD2IOz___hiss',
-   ...   '_QzZSOXD2IOz___hiss')
-   ('_QzZSOXD2IOz___hiss', '_QzZSOXD2IOz___hiss')
+   ...   '_Qzzsoxd2io__hiss',
+   ...   '_Qzzsoxd2io__hiss')
+   ('_Qzzsoxd2io__hiss', '_Qzzsoxd2io__hiss')
 
 Gensyms are mainly used to prevent accidental name collisions in generated code,
 which is very important for reliable compiler macros.
@@ -1882,8 +1882,8 @@ If the gensym hash is *not* in prefix position, it doesn't count as local, and g
 .. code-block:: REPL
 
    #> `$#spam.$eggs
-   >>> '__main__..spam._Qz6AE4GUT3z___eggs'
-   '__main__..spam._Qz6AE4GUT3z___eggs'
+   >>> '__main__..spam._Qz6ae4gut3__eggs'
+   '__main__..spam._Qz6ae4gut3__eggs'
 
 A ``_macro_`` namespace is not the same as its module.
 

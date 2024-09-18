@@ -38,7 +38,7 @@ Any spaces in the Unicode names are replaced with an ``x`` and
 any hyphens are replaced with an ``h``.
 (Unicode names are in all caps and these substitutions are lower-case.)
 
-Ordinals are given in base 10.
+Ordinals are given in a hexadecimal format like ``0XF00``.
 """
 
 import re
@@ -147,7 +147,7 @@ def force_qz_encode(c: str) -> str:
         return TO_NAME[c]
     with suppress(ValueError):
         return QUOTEZ.format(unicodedata.name(c).translate(_QZ_NAME))
-    return QUOTEZ.format(ord(c))
+    return QUOTEZ.format(f"{ord(c):#X}")
 
 
 K = TypeVar("K", bound=Hashable)
@@ -172,7 +172,8 @@ def _qz_decode(match: Match[str]) -> str:
     with suppress(KeyError):
         return unicodedata.lookup(match.group(1).translate(_UN_QZ_NAME))
     with suppress(ValueError):
-        return chr(int(match.group(1)))
+        if match.group(1).startswith("0X"):
+            return chr(int(match.group(1), 16))
     return match.group()
 
 
@@ -186,7 +187,7 @@ def demunge(s: str) -> str:
     ``demunge`` will also leave the remaining text as-is, along with any
     invalid Quotez.
 
-    >>> demunge("QzFOO_QzGT_QzHYPHENhMINUS_Qz62_bar")
+    >>> demunge("QzFOO_QzGT_QzHYPHENhMINUS_Qz0X3E_bar")
     'QzFOO_>->bar'
     """
     return FIND_QUOTEZ.sub(_qz_decode, s)

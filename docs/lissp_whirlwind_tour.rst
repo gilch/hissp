@@ -360,7 +360,7 @@ Lissp Whirlwind Tour
    >>> 'AlsoQz_aQz_symbolQzBANG_'
    'AlsoQz_aQz_symbolQzBANG_'
 
-   #> '𝐀                                  ;Alias for 'A (unicode normal form KC)
+   #> '𝐀                                  ;Alias for 'A (Unicode normal form KC)
    >>> 'A'
    'A'
 
@@ -1103,21 +1103,21 @@ Lissp Whirlwind Tour
 
    #> `($#eggs $#spam $#bacon $#spam)
    >>> (lambda * _:  _)(
-   ...   '_QzIWMX5OB2z___eggs',
-   ...   '_QzIWMX5OB2z___spam',
-   ...   '_QzIWMX5OB2z___bacon',
-   ...   '_QzIWMX5OB2z___spam')
-   ('_QzIWMX5OB2z___eggs', '_QzIWMX5OB2z___spam', '_QzIWMX5OB2z___bacon', '_QzIWMX5OB2z___spam')
+   ...   '_Qziwmx5ob2__eggs',
+   ...   '_Qziwmx5ob2__spam',
+   ...   '_Qziwmx5ob2__bacon',
+   ...   '_Qziwmx5ob2__spam')
+   ('_Qziwmx5ob2__eggs', '_Qziwmx5ob2__spam', '_Qziwmx5ob2__bacon', '_Qziwmx5ob2__spam')
 
    ;; Each new template increases the count, so it results in a new hash,
    #> `$#spam
-   >>> '_QzIOSOZAXYz___spam'
-   '_QzIOSOZAXYz___spam'
+   >>> '_Qziosozaxy__spam'
+   '_Qziosozaxy__spam'
 
    ;; even if the code is identical.
    #> `$#spam
-   >>> '_QzY6OWMZS7z___spam'
-   '_QzY6OWMZS7z___spam'
+   >>> '_Qzy6owmzs7__spam'
+   '_Qzy6owmzs7__spam'
 
    ;;; However, the hashing procedure is fully deterministic, so builds are
    ;;; reproducible even when they contain generated symbols.
@@ -1126,16 +1126,16 @@ Lissp Whirlwind Tour
    ;; but you can put them anywhere in the symbol; $ marks the positions.
    ;; Lacking a gensym prefix, it gets fully qualified by the template.
    #> `$#spam$.$eggs$
-   >>> '__main__..spam_QzA4IBV7J7z___._QzA4IBV7J7z___eggs_QzA4IBV7J7z___'
-   '__main__..spam_QzA4IBV7J7z___._QzA4IBV7J7z___eggs_QzA4IBV7J7z___'
+   >>> '__main__..spam_Qza4ibv7j7__._Qza4ibv7j7__eggs_Qza4ibv7j7__'
+   '__main__..spam_Qza4ibv7j7__._Qza4ibv7j7__eggs_Qza4ibv7j7__'
 
 
    ;; This is typically used for partially-qualified variables,
    ;; i.e., with an explicit namespace that is not a module handle.
    ;; The interpolation suppressed auto-qualification.
    #> `,'$#self.$foo
-   >>> 'self._Qz7UU6WAD6z___foo'
-   'self._Qz7UU6WAD6z___foo'
+   >>> 'self._Qz7uu6wad6__foo'
+   'self._Qz7uu6wad6__foo'
 
 
    ;;; You can use templates to make collections with interpolated values.
@@ -1466,27 +1466,27 @@ Lissp Whirlwind Tour
    ...           'lambda',
    ...           (lambda * _:  _)(
    ...             ':',
-   ...             '_QzIF7WPGTUz___x',
+   ...             '_Qzif7wpgtu__x',
    ...             x),
    ...           (lambda * _:  _)(
    ...             '__main__..QzMaybe_.QzPLUS_',
-   ...             '_QzIF7WPGTUz___x',
+   ...             '_Qzif7wpgtu__x',
    ...             (lambda * _:  _)(
    ...               '__main__..QzMaybe_.QzPLUS_',
-   ...               '_QzIF7WPGTUz___x',
-   ...               '_QzIF7WPGTUz___x'))))
+   ...               '_Qzif7wpgtu__x',
+   ...               '_Qzif7wpgtu__x'))))
    ...   ))
 
    #> (once-triple (loud-number 14))
    >>> # onceQz_triple
    ... (
-   ...  lambda _QzIF7WPGTUz___x=loudQz_number(
+   ...  lambda _Qzif7wpgtu__x=loudQz_number(
    ...           (14)):
    ...     __import__('builtins').globals()['QzPLUS_'](
-   ...       _QzIF7WPGTUz___x,
+   ...       _Qzif7wpgtu__x,
    ...       __import__('builtins').globals()['QzPLUS_'](
-   ...         _QzIF7WPGTUz___x,
-   ...         _QzIF7WPGTUz___x))
+   ...         _Qzif7wpgtu__x,
+   ...         _Qzif7wpgtu__x))
    ... )()
    14
    42

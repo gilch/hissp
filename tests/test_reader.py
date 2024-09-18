@@ -103,11 +103,11 @@ class TestReader(TestCase):
              ("entuple", ":", ":?", ("quote", "quote"), ":?", 1),
              ("entuple", ":", ":?", ("quote", "lambda"), ":?", ":"),
              ("quote", "__import__"),
-             ("quote", "_QzABCDEFGz_"),
+             ("quote", "_Qzabcdefg__"),
              ("quote", "foo..bar"),
              ("quote", "foo.")],
             [*self.parser.reads(
-                "`(.x) `(quote 1) `(lambda :) `__import__ `_QzABCDEFGz_ `foo..bar `foo."
+                "`(.x) `(quote 1) `(lambda :) `__import__ `_Qzabcdefg__ `foo..bar `foo."
             )],
         )  # fmt: skip
 

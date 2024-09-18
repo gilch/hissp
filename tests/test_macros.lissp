@@ -34,7 +34,7 @@ hissp..alias#H
   (self.assertEqual : :* `($#test `,,'$#test)))
 
 (H#defun TestMacros.test_inner_gensym (self)
-  (self.assertRegex `$#self.$foo "self._Qz[A-Z2-7]+z___foo$"))
+  (self.assertRegex `$#self.$foo "self._Qz[a-z2-7]+__foo$"))
 
 (H#defun TestMacros.test_qualified_symbol (self)
   (self.assertEqual (tqs)

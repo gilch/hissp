@@ -4,7 +4,7 @@
 The Lissp language reader and associated helper functions.
 
 The reader is organized as a lexer and parser.
-The parser is extensible with Lissp reader macros.
+The parser is extensible with Lissp `tag`\ s.
 The lexer is not extensible,
 and doesn't do much more than pull tokens from a relatively simple regex
 and track its position for error messages.
@@ -43,15 +43,39 @@ from hissp.munger import force_qz_encode, munge
 
 GENSYM_BYTES = 5
 """
-The number of bytes gensym `$# <Lissp>` hashes have.
+The number of bytes `gensym` (`$# <Lissp>`) hashes have.
 
 The default 5 bytes (40 bits) should be more than sufficient space to
-eliminate collisions with typical usage, but for unusual applications,
-hash length can be increased, up to a maximum of 32 bytes.
-(16 would have more space than a `uuid.uuid4`.)
+eliminate collisions with typical usage: dozens of gensyms in the same
+scope would have a less than a one-in-a-billion chance of collision,
+even assuming they all have the same suffix. (Even 3 bytes gets that
+number down to around one in ten thousand.)
 
-Each hash character encodes 5 bits (base32 encoding), so 40-bit hashes
-typically take 8 characters.
+For unusual applications (if more than dozens of gensyms are expected in
+a shared scope, or one in a billion is still too high), hash length can 
+be increased, up to a maximum of 32 bytes.
+ 
+Even 8 bytes is enough space for a hundred thousand gensyms in the 
+same scope with similar collision probability, or dozens with a 
+one-in-quadrillion chance, which is probably lower than the risk of a 
+hardware failure. It's unlikely you'll ever need more than 16 bytes, 
+which has more space than `uuid.uuid4`.
+
+Each hash character encodes 5 bits (`Base32 <base64.b32encode>`),
+so a multiple of 5 is recommended, although 3, 8, or 13 bytes are also
+fairly efficient for their size:
+
+===== ===== ====== ===================================
+bytes bits  chars  example
+===== ===== ====== ===================================
+3     24    5      ``Qzthink__G``
+5     40    8      ``Qzthinking__G``
+8     64    13     ``Qzinvestigation__G``
+10    80    16     ``Qzincomprehensible__G``
+13    104   21     ``Qzelectroencephalograph__G``
+15    120   24     ``Qzmagneticresonanceimaging__G``
+16    128   26     ``Qzpositronemissiontomography__G``
+===== ===== ====== ===================================
 """
 
 ENTUPLE = ("lambda",(":",":*"," _")," _",)  # fmt: skip
@@ -76,7 +100,7 @@ TOKENS = re.compile(
     |(?P<inject>[.][#])
     |(?P<discard> _[#])
     |(?P<gensym>[$][#])
-    |(?P<stararg>[*]?[*]=)
+    |(?P<stararg>[*][*]?=)
     |(?P<kwarg>(?:\\.|[^\\ \n"|();#])*
                (?:\\.|\w)  # Character before = must be alnum, or escaped.
                =)
@@ -424,7 +448,7 @@ class Lissp:
         """
         blk = self.blake.copy()
         blk.update((c := self._get_counter()).to_bytes(1 + c.bit_length() // 8, "big"))
-        prefix = f"_Qz{b32encode(blk.digest()).rstrip(b'=').decode()}z___"
+        prefix = f"_Qz{b32encode(blk.digest()).rstrip(b'=').lower().decode()}__"
         marker = munge("$")
         if marker not in form:
             return f"{prefix}{form}"
@@ -580,7 +604,7 @@ def is_qualifiable(symbol):
     return (
         symbol not in {"quote", "__import__"}
         and not _iskeyword(symbol)
-        and not re.match(r"_Qz[A-Z2-7]+z_", symbol)
+        and not re.match(r"_Qz[a-z2-7]+__", symbol)
         and all(map(str.isidentifier, symbol.split(".")))
     )
 
