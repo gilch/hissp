@@ -123,6 +123,15 @@ def subrepl(module):
 
     Usage: ``hissp..subrepl#foo.`` where ``foo.`` evaluates to a module.
 
-    See also: `hissp.repl.interact`.
+    Won't re-enter current module. Prints `__name__` on subREPL exit.
+    (Exit a subREPL using EOF.)
+
+    See also: `refresh`, `hissp.repl.interact`.
     """
-    return "hissp..interact", ("builtins..vars", module)
+    return (
+        (('lambda',(':','module',module,)
+          ,('hissp.._macro_.unless','__name__==module.__name__'
+            ,('print',('quote','Entering',),'module.__name__')
+            ,("hissp..interact", ("builtins..vars", 'module',),)
+            ,('print',('quote','back in',),'__name__',),),),)
+    )  # fmt: skip
