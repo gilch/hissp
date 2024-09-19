@@ -182,8 +182,10 @@ def demunge(s: str) -> str:
 
     Characters can be encoded in one of three ways:
     Short names, Unicode names, and ordinals.
-    ``demunge`` will decode any of these, even though :func:`munge` will
-    consistently pick only one of these for any given character.
+    ``demunge`` will decode any of these. Even though :func:`munge` will
+    consistently pick only one of these for any given character,
+    which Unicode characters have names depends on the Python version.
+
     ``demunge`` will also leave the remaining text as-is, along with any
     invalid Quotez.
 

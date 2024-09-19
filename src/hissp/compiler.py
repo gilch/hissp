@@ -18,7 +18,17 @@ from itertools import chain, starmap, takewhile
 from pprint import pformat
 from traceback import format_exc
 from types import MappingProxyType, ModuleType
-from typing import Any, Dict, Iterable, List, NewType, Optional, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    List,
+    NewType,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+)
 from warnings import warn
 
 PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
@@ -38,16 +48,21 @@ Sometimes a macro needs the current environment when expanding,
 instead of its defining environment.
 Rather than pass in an implicit argument to all macros,
 it's available here.
-`readerless` uses this automatically.
+`readerless` and `macroexpand` use this automatically.
 """
 
 MAX_PROTOCOL = pickle.HIGHEST_PROTOCOL
 """
+Compiler pickle protocol limit.
+
 When there is no known literal syntax for an `atom`,
 the compiler emits a `pickle.loads` expression as a fallback.
 This is the highest pickle protocol it's allowed to use.
 The compiler may use Protocol 0 instead when it has a shorter `repr`,
 due to the inefficient escapes required for non-printing bytes.
+
+A lower number may be necessary if the compiled output is expected to
+run on an earlier Python version than the compiler.
 """
 
 
@@ -187,7 +202,7 @@ class Compiler:
 
     @_trace
     def special(self, form: Tuple) -> str:
-        """Try to compile as special form, else :meth:`invocation`.
+        """Try to compile as a `special form`, else :meth:`invocation`.
 
         The two special forms are ``quote`` and `lambda <lambda_>`.
 
@@ -245,8 +260,9 @@ class Compiler:
 
         The special `control word`\ s ``:*`` and ``:**`` designate the
         remainder of the positional and keyword parameters, respectively.
+
         Note this body evaluates expressions in sequence, for side
-        effects.
+        effects:
 
         >>> print(readerless(
         ... ('lambda', (':',':*','args',':**','kwargs',)
@@ -356,9 +372,9 @@ class Compiler:
 
     @classmethod
     def get_macro(cls, symbol, env: Dict[str, Any]):
-        """Returns the macro function for a symbol given the namespace.
+        """Returns the macro function for ``symbol`` given the ``env``.
 
-        Returns ``None`` if symbol isn't a macro.
+        Returns ``None`` if ``symbol`` isn't a macro identifier.
         """
         if type(symbol) is not str or symbol.startswith(":"):
             return None
@@ -396,10 +412,14 @@ class Compiler:
         Compile call form.
 
         Any tuple that is not quoted, ``()``, or a `special` form or
-        `macro` is a run-time call.
+        `macro` is a run-time call form.
+        It has three parts:
 
-        Like Python, it has three parts:
-        (<callable> <args> : <kwargs>).
+        (<callable> <singles> : <pairs>).
+
+        Each argument pairs with a keyword or `control word` target.
+        The ``:?`` target passes positionally (implied for singles).
+
         For example:
 
         >>> print(readerless(
@@ -413,7 +433,7 @@ class Compiler:
           sep=':',
           end='\n\n')
 
-        Either <args> or <kwargs> may be empty:
+        Either <singles> or <pairs> may be empty:
 
         >>> readerless(('foo',':',),)
         'foo()'
@@ -424,7 +444,7 @@ class Compiler:
         foo(
           bar=baz)
 
-        The ``:`` is optional if the <kwargs> part is empty:
+        The ``:`` is optional if the <pairs> part is empty:
 
         >>> readerless(('foo',),)
         'foo()'
@@ -432,10 +452,8 @@ class Compiler:
         foo(
           bar)
 
-        The <kwargs> part has implicit pairs; there must be an even number.
-
-        Use the control words ``:*`` and ``:**`` for iterable and
-        mapping unpacking:
+        Use the ``:*`` and ``:**`` targets for position and
+        keyword unpacking, respectively:
 
         >>> print(readerless(
         ... ('print',':',':*',[1,2], 'a',3, ':*',[4], ':**',{'sep':':','end':'\n\n'},),
@@ -446,11 +464,10 @@ class Compiler:
           *[4],
           **{'sep': ':', 'end': '\n\n'})
 
-        Unlike other control words, these can be repeated,
-        but (as in Python) a ``*`` is not allowed to follow ``**``.
-
         Method calls are similar to function calls:
+
         (.<method name> <self> <args> : <kwargs>).
+
         A method on the first (self) argument is assumed if the function
         name starts with a dot:
 
@@ -528,7 +545,7 @@ class Compiler:
         R"""
         Compile forms that evaluate to themselves.
 
-        Emits a literal if possible, otherwise falls back to `pickle`:
+        Returns a literal if possible, otherwise falls back to `pickle`:
 
         >>> readerless(-4.2j)
         '((-0-4.2j))'
@@ -595,31 +612,32 @@ class Compiler:
         return f"# {r}\n__import__({pickle.__name__!r}).loads({code})"
 
     @staticmethod
-    def linenos(form):
-        lines = form.split("\n")
+    def linenos(code: str):
+        """Adds line numbers to code for error messages."""
+        lines = code.split("\n")
         digits = len(str(len(lines)))
         return "\n".join(f"{i:0{digits}} {line}" for i, line in enumerate(lines, 1))
 
-    def eval(self, form: str, form_number: int) -> Tuple[str, ...]:
-        """Execute compiled form, but only if evaluate mode is enabled."""
+    def eval(self, code: str, form_number: int) -> Tuple[str, ...]:
+        """Execute compiled code, but only if evaluate mode is enabled."""
         try:
             if self.evaluate:
                 filename = (
                     f"<Compiled Hissp #{form_number} of {self.qualname}:\n"
-                    f"{self.linenos(form)}\n"
+                    f"{self.linenos(code)}\n"
                     f">"
                 )
-                exec(compile(form, filename, "exec"), self.env)
+                exec(compile(code, filename, "exec"), self.env)
         except Exception as e:
             exc = format_exc()
             if self.env.get("__name__") == "__main__":
                 self.abort = exc
             else:
                 warn(
-                    f"\n {e} when evaluating form:\n{form}\n\n{exc}", PostCompileWarning
+                    f"\n {e} when evaluating form:\n{code}\n\n{exc}", PostCompileWarning
                 )
-            return form, "# " + exc.replace("\n", "\n# ")
-        return (form,)
+            return code, "# " + exc.replace("\n", "\n# ")
+        return (code,)
 
 
 def _join_args(*args):
@@ -681,16 +699,12 @@ def macroexpand(form, env: Optional[Dict[str, Any]] = None):
         form = expanded
 
 
-def _identity(x):
-    return x
-
-
 def macroexpand_all(
     form,
     env: Optional[Dict[str, Any]] = None,
     *,
-    preprocess=_identity,
-    postprocess=_identity,
+    preprocess=lambda x: x,
+    postprocess=lambda x: x,
 ):
     """Recursively macroexpand everything possible from the outside-in.
 
@@ -715,7 +729,7 @@ def macroexpand_all(
     return "lambda", _pexpand(exp[1], env), *(macroexpand_all(e, env) for e in exp[2:])
 
 
-def _pexpand(params, env: Optional[Dict[str, Any]]):
+def _pexpand(params, env: Optional[Dict[str, Any]]) -> tuple:
     if ":" not in params:
         return params
     singles, pairs = parse_params(params)
@@ -726,7 +740,7 @@ def _pexpand(params, env: Optional[Dict[str, Any]]):
     return *singles, ":", *chain.from_iterable(pairs.items())
 
 
-def parse_params(params):
+def parse_params(params) -> Tuple[tuple, Dict[str, Any]]:
     """Parses a lambda form's `params` into a tuple of singles and a dict of pairs."""
     iparams = iter(params)
     singles = tuple(takewhile(lambda x: x != ":", iparams))

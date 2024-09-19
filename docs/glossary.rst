@@ -13,15 +13,16 @@ Glossary
       or the location of such a form.
       "Top" here means the top of the syntax tree rather than the top of the file.
       Each top-level form is a compilation unit.
-      A macro defined in a top-level form cannot affect other
-      `subform`\ s in the same top-level form,
+      A macro defined in a top-level form cannot affect any other
+      `subform` in the same top-level form,
       because by the time it exists,
       the top-level form has already been compiled.
-      `Injection`\ s of Python statements are only valid at the top level.
+      `Injection` of a Python statement is only valid at the top level.
 
    doorstop
       A `discarded item` used to "hold open" a bracket trail.
-      Typically ``_#/`` in Lissp.
+      Typically ``_#/`` in Lissp,
+      but may be a `Unicode token` with a comment.
 
    abstract syntax tree
    ast
@@ -50,6 +51,8 @@ Glossary
       and passes it to Python's shell for evaluation and printing,
       then repeats.
       Used for inspection, online help, interactive development, and debugging.
+      A subREPL is just a REPL started from within a REPL,
+      analogous to a subshell.
 
    token
       A lexical unit of Lissp.
@@ -61,21 +64,25 @@ Glossary
       A type of `token` which by itself results in a `parsed object`
       when passed to the Lissp parser.
       These are what the reader considers nouns.
-      Typically emitted as `atom`\ s,
+      Typically emitted as an `atom`,
       but may instead be arguments to a `tagging token`.
 
    parsed object
       The result of parsing an `object token`;
-      or a `tagging token` with its arguments;
+      or a `tagging token` with its arguments (except the `discard tag`);
       or a balanced pair of parentheses (open ``(`` and close ``)`` tokens),
       with their contents (if any).
-      Typically emitted as `form`\ s,
+      Typically emitted as a `form`,
       but may instead be arguments to a `tagging token`.
 
    tagging token
       A type of `token` that, when read,
       consumes one or more `parsed object`\ s and results in a `parsed object`.
       These can be thought of as reader adjectives.
+      They serve a function similar to reader macros in other Lisps,
+      but operate on the `parsed object` stream (parser level),
+      not the raw character stream (lexer level).
+      Think Clojure/EDN tags, not Common Lisp reader macros.
 
    special tag
       One of the built-in unary `tagging token`\ s
@@ -87,15 +94,15 @@ Glossary
       each starting with a semicolon (``;``) character.
       Comment tokens read as `hissp.reader.Comment` instances,
       a type that is normally discarded by the reader.
-      However, they can still be arguments for `tagging token`\ s
+      However, they can still be arguments for a `tagging token`.
 
    unicode token
       An `object token` that begins and ends with a quotation mark (``"``) character.
       They may contain newline characters like Python's triple-quoted string literals,
       as is typical of Lisps.
       Internal quotation marks must be escaped with a preceding reverse solidus
-      (``\``) character. These read as `str atom`\ s containing
-      a Python string literal wrapped in parentheses.
+      (``\``) character. It reads as a `string literal fragment`, specifically,
+      a `str atom` containing a Python string literal wrapped in parentheses.
 
    str atom
       An `atom` of type `str`. Usually represents a `Python fragment`.
@@ -106,7 +113,7 @@ Glossary
       A `Python fragment` which `ast.literal_eval`
       would evaluate to an object of type `str`.
       Not all `str atom`\ s are string literal fragments;
-      It must contain a Python string literal expression.
+      it must contain a Python string literal expression.
       `hissp.reader.is_string_literal` tests for string literal fragments.
 
    hissp string
@@ -136,7 +143,7 @@ Glossary
       These are tuples beginning with either a ``quote`` or ``lambda`` `str atom`.
       They look like function calls but act more like macros,
       in that arguments are not all evaluated first.
-      While `control word`\ s are `form`\ s
+      While a `control word` is a `form`
       and can have special interpretations in certain contexts,
       they are not considered special forms.
       `module handle`\ s also have a processing rule in the compiler,
@@ -155,10 +162,10 @@ Glossary
       Either a `Python injection` or a `Hissp injection`, depending on context.
 
    python injection
-      The technique of writing `Python fragment`\ s
+      The technique of writing a `Python fragment`
       rather than allowing the Hissp machinery to do it for you,
-      or the fragments so used or the `fragment atom`\ s containing them.
-      `text macro`\ s work via Python injection.
+      or the fragments so used or the `fragment atom` containing one.
+      A `text macro` works via Python injection.
       Injection is discouraged because it bypasses a lot of Hissp's machinery,
       and is opaque to code-walking macros,
       making them less useful or risking errors.
@@ -166,8 +173,8 @@ Glossary
       Injection transcends that limitation.
       Injection of identifiers is considered standard in Hissp,
       so is not discourarged.
-      Lissp's `Unicode token`\ s read as `string literal fragment`\ s,
-      rather than as `quote`\ d `str atom`\ s,
+      A Lissp `Unicode token` reads as a `string literal fragment`,
+      rather than as a `quote`\ d `str atom`,
       making them an example of injection as well.
       This usage is standard in Lissp.
 
@@ -175,15 +182,16 @@ Glossary
       Any `atom` of non-standard type (or the use thereof),
       i.e., anything the compiler doesn't have a literal notation for,
       which it would have to attempt to emit as a `pickle expression`.
-      This includes instances of standard types without a literal notation,
-      e.g., `math.nan` or collections containing nonstandard elements or cycles.
+      This includes instances of standard types without a literal notation
+      (e.g., `float` is a standard type, but `math.nan` has no literal)
+      or collections containing nonstandard elements or cycles.
       A macroexpansion may be an injection.
       Besides macroexpansions, in readerless mode,
       this almost always requires the use of non-literal notation,
       (i.e., notation not accepted by `ast.literal_eval`).
       In Lissp, this almost always requires the use of a `tagging token`.
-      (a notable exception is a float literal big enough in magnitude to overflow to ``inf`` or ``-inf``,
-      e.g., ``1e999``.
+      (A notable exception is a float literal big enough in magnitude to overflow to
+      ``inf`` or ``-inf``, e.g., ``1e999``.
       The compiler still considers this nonstandard because that's not its `repr`,
       and would emit a `pickle expression` for it.)
       Basic container types containing only standard elements do not count as injections,
@@ -205,49 +213,53 @@ Glossary
       A `str atom` that is not a `control word`,
       especially if it does not simply contain an identifier or literal.
       So called because the compiler's usual interpretation is to emit the contents directly,
-      although there is a preprocessing step for `module handle`\ s.
+      although there is a preprocessing step for imports (see `module handle`).
 
    fragment token
       An `object token` that begins and ends with a vertical line (``|``) character.
       Internal vertical lines must be escaped as two vertical lines (``||``).
-      These read directly as `str atom`\ s,
-      which typically become a `fragment atom`, hence the name.
+      It reads directly as a `str atom`,
+      which typically becomes a `fragment atom`, hence the name.
       In the case that the fragment token begins with ``|:``,
       it becomes a `control word` instead.
 
    control token
       An `object token` that begins with a colon ``:`` character.
-      These read as `control word`\ s.
+      It reads as a `control word`, a type of `str atom`.
 
    control word
       A `str atom` that begins with a colon ``:`` character.
       These normally compile directly to Python string literals
       with the same contents (including the leading colon),
       but may have special interpretation in some contexts.
+      (Both Python and other Lisps use the term "`keyword`",
+      but they mean `different things<tut-keywordargs>`,
+      including Lisp's equivalent concept.)
 
    bare token
       An `object token` without the initial character marking it as a
       `comment token` (``;``), `Unicode token` (``"``), `fragment token` (``|``),
       or `control token` (``:``).
-      These are either `literal token`\ s, or failing that, `symbol token`\ s.
+      It is either a `literal token`, or failing that, a `symbol token`.
 
    literal token
       A `bare token` that is a valid Python literal,
       as determined by `ast.literal_eval`, but not of a container type.
-      These read as `atom`\ s of that type.
+      It reads as an `atom` of that type.
 
    symbol token
       A `bare token` that is not a `literal token`.
-      These are subject to `munging` and read as `symbol`\ s.
+      These are subject to `munging` and read as a `symbol`,
+      a type of `str atom`.
 
    symbol
       A `module handle` or a `Python fragment` containing an identifier.
       (Possibly with `qualification`.)
-      Symbols are always `str atom`\ s.
+      A symbols is always a `str atom`.
 
    munging
       The process of replacing characters invalid in a Python identifier
-      with "Quotez" equivalents.
+      with `Quotez` equivalents.
       Primarily used to make a `symbol token` into a `str atom`
       containing a valid Python identifier (a `symbol`).
       The munging machinery is in :mod:`hissp.munger`.
@@ -256,16 +268,20 @@ Glossary
       The `munger`'s character replacement format.
       It's the character's Unicode name wrapped in ``Qz`` and ``_``.
       (Spaces become ``x`` and hyphens become ``h``.)
-      Characters without names use their base 10 ordinals instead.
+      Characters without names use their hexadecimal ordinals instead.
       Some ASCII characters use the short names from `TO_NAME` instead.
+      The `gensym` hashes and ``hissp.compiler.MAYBE`` use the same
+      ``Qz{}_`` wrapper.
 
    kwarg token
       A single-argument `tagging token` ending in an equals sign (``=``)
       and read as a `hissp.reader.Kwarg` instance.
+      Used as keyword arguments for a `tag`.
 
    stararg token
-      One of ``*=`` or ``**=``. A `special tag` which read as a
-      `hissp.reader.Kwarg` instance.
+      One of ``*=`` or ``**=``. A `special tag` which reads as a
+      `hissp.reader.Kwarg` instance. Used as unpacking positional
+      or keyword arguments (respectively) to a `tag`.
 
    tag
    tag token
@@ -306,7 +322,7 @@ Glossary
 
    template
       A `template quote` and its argument,
-      a domain-specific language (DSL) for creating `form`\ s,
+      a domain-specific language (DSL) for creating a `form`,
       supporting tuple interpolation, `gensym`\ s,
       and automatic `full qualification`.
       Can also be used for data, not just code.
@@ -316,7 +332,7 @@ Glossary
    qualification
    partial qualification
    partially qualified identifier
-      A `str atom` containing a dot-separated identifier path
+      A `str atom` containing a ``.``-separated identifier path
       prepended to an identifier is a qualified identifier.
       Compiles to Python attribute access syntax.
       If this is the path from the containing module, the result is a `qualified name`.
@@ -324,13 +340,22 @@ Glossary
       if qualification is not full, it's partial.
       A `qualified name` is partial qualification,
       but partial qualification is not necessarily a `qualified name`,
-      since the path may start from some namespace other than the module globals.
+      because the path may start from some namespace other than the module globals.
       The qualifier part is everything but the last segment.
       Qualification is the process of adding a qualifier
       or the state of having a qualifier.
+      `hissp.macros._macro_.alias` produces a `tag` to abbreviate a qualifier.
+
+   unqualified
+      An identifier without a `qualifier`. An unqualified `tag` is only
+      valid if it's available as an attribute in the current module's
+      ``_macro_`` namespace, and similarly for an unqualified `macro`.
+      A unqualified variable is valid if it's in the `builtins` module,
+      a global of the current module,
+      or a variable in the current lexical scope.
 
    module handle
-      A `str atom` containing a dot-separated path ending in a dot,
+      A `str atom` containing a ``.``-separated path ending in a ``.``,
       representing an import path for a module.
       Any segments before the module name are package names.
       E.g., ``foo.bar.baz.`` or ``foo.``.
@@ -339,7 +364,7 @@ Glossary
    full qualifier
    full qualification
    fully-qualified identifier
-      A `module handle` prepended to a `qualified name` and separated with a dot
+      A `module handle` prepended to a `qualified name` and separated with a ``.``
       is a fully-qualified identifier;
       it's the path of attribute access from the full import path of the module,
       which is enough to get a reference to the object from anywhere.
@@ -354,13 +379,19 @@ Glossary
       ``,``. A `special tag` only valid in a `template`.
       Its argument is directly interpolated rather than quoted first.
 
+   splice
+   splicing unquote
+      ``,@``. A `special tag` only valid in a `template`.
+      Its argument is interpolated and unpacked rather than quoted first.
+
    quote
    hard quote
       ``'``. A `special tag` abbreviating the ``quote`` `special form`.
       Sometimes called a "hard quote" to distinguish it from the `template quote`.
 
    inject tag
-      ``.#``. A `special tag` which evaluates the next `parsed object`.
+      ``.#``. A `special tag` which evaluates the next
+      `parsed object` and returns its result.
       So named because it's typically used to make an `injection`,
       although it can result in an object of any type.
 
@@ -368,7 +399,7 @@ Glossary
    discarded item
       ``_#``. A `special tag`
       used to structurally disable parts of code during development,
-      for commentary, or as a `doorstop`,
+      for commentary, or as a `doorstop`.
       The argument to a discard tag is the discarded item.
       It is unique among `tagging token`\ s in that it doesn't return a
       `parsed object` at all.
@@ -384,12 +415,15 @@ Glossary
 
    gensym tag
       ``$#``. A `special tag` only valid in a `template` for creating a `gensym`.
-      Prepends a gensym hash to its argument, or replaces ``$`` characters with it.
-      A gensym hash is unique to the template it was created in.
-      This prevents accidental name collisions in `macro expansion`\ s.
+      Prepends a `gensym hash` to its argument, or replaces ``$`` characters with it.
 
    gensym
+   gensym hash
       A generated `symbol`. These are produced by the `gensym tag`.
+      A gensym hash is unique to the template it was created in.
+      This prevents accidental name collisions in `macro expansion`\ s.
+      A gensym hash is mostly used for local variables because
+      they can't be disambiguated with a `full qualifier`.
 
    macro expansion
    expansion
@@ -418,12 +452,12 @@ Glossary
 
    read time
       The phase before compilation proper that translates Lissp to Hissp:
-      when the reader runs and when `tagging token`\ s are activated.
+      when the `reader` runs and when `tagging token`\ s are activated.
 
    text macro
-      A `macro` that `expands <expansion>` to a `str atom`.
+      A `macro` that `expands <expansion>` to a `str atom`
       instead of some other `form`,
-      especially the `str atom` doesn't simply contain a string literal
+      especially if the `str atom` doesn't simply contain a string literal
       or (possibly qualified) identifier.
       Effectively, they return Python code,
       rather than Hissp,

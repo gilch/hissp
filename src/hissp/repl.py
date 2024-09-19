@@ -28,7 +28,7 @@ class LisspREPL(InteractiveConsole):
     which is useful for debugging other modules.
     See `hissp.subrepl`.
 
-    Call interact() to start.
+    Call :func:`interact` to start.
     """
 
     # locals shadows the builtin, but that's the name in the superclass.
@@ -103,7 +103,7 @@ def main(__main__):
     """`REPL` command-line entry point.
 
     `hissp.macros._macro_` is copied into the module namespace,
-    making the bundled macros immediately available unqualified.
+    making the bundled `macros` immediately available `unqualified`.
     """
     repl = LisspREPL(locals=__main__.__dict__)
     import hissp.macros  # Here so repl can import before compilation.

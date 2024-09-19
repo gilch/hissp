@@ -39,7 +39,7 @@ https://github.com/gilch/hissp
 * `hissp.repl.interact`,
 
 as well as the `hissp.macros._macro_` namespace, making all the bundled
-macros available with the shorter ``hissp.._macro_`` qualifier.
+`macros` available with the shorter ``hissp.._macro_`` `qualifier`.
 """
 from hissp.compiler import Compiler, readerless
 from hissp.munger import demunge, munge
@@ -54,7 +54,7 @@ VERSION = "0.5.dev"
 
 
 def prelude(env):
-    """Lissp prelude shorthand tag.
+    """Lissp prelude shorthand `tag`.
 
     Usage: ``hissp..prelude#env``, which expands to
 
@@ -70,7 +70,7 @@ def prelude(env):
 
 
 def alias(abbreviation, qualifier="hissp.macros.._macro_"):
-    """Lissp alias shorthand tag.
+    """Lissp alias shorthand `tag`.
 
     Usage: ``hissp..alias## abbreviation qualifier``,
     which expands to
@@ -80,7 +80,7 @@ def alias(abbreviation, qualifier="hissp.macros.._macro_"):
        (hissp.macros.._macro_.alias abbreviation qualifier)
 
     The single-argument form
-    ``hissp..alias#abbreviation`` aliases the bundled macro qualifier.
+    ``hissp..alias#abbreviation`` aliases the bundled macro `qualifier`.
 
     See `hissp.macros._macro_.alias`.
     """
@@ -88,7 +88,7 @@ def alias(abbreviation, qualifier="hissp.macros.._macro_"):
 
 
 def refresh(module):
-    """REPL convenience tag to recompile and reload a module.
+    """`REPL` convenience `tag` to recompile and reload a module.
 
     Usage: ``hissp..refresh#foo.`` where ``foo.`` evaluates to a module.
 
@@ -118,14 +118,14 @@ def refresh(module):
 
 
 def subrepl(module):
-    """Convenience tag to start a Lissp subREPL in the given module.
+    """Convenience `tag` to start a Lissp subREPL in the given module.
 
     Usage: ``hissp..subrepl#foo.`` where ``foo.`` evaluates to a module.
 
     Won't re-enter current module. Prints `__name__` on subREPL exit.
     (Exit a subREPL using EOF.)
 
-    See also: `refresh`, `hissp.repl.interact`.
+    See also: `refresh`, `hissp.repl.interact`, :term:`repl`.
     """
     return (
         (('lambda',(':','module',module,)

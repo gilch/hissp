@@ -3,17 +3,18 @@
 
 "Hissp's bundled macros.
 
-To help keep macro definitions and expansions manageable in complexity,
-these macros lack some of the extra features their equivalents have in
-Python or in other Lisps. These are not intended to be a standard
-library for general use, but do bring Hissp up to a basic standard of
-utility without adding dependencies, which may suffice in some cases.
+To help keep macro definitions and `expansion`\\ s manageable in
+complexity, these macros lack some of the extra features their
+equivalents have in Python or in other Lisps. These are not intended to
+be a standard library for general use, but do bring Hissp up to a basic
+standard of utility without adding dependencies, which may suffice in
+some cases.
 
 Because of deliberate design restrictions, there are no dependencies in
-their expansions either, meaning compiled Hissp code utilizing the
-bundled macros need not have Hissp installed to work, only the Python
-standard library. All helper code must therefore be inlined, resulting
-in larger expansions than might otherwise be necessary.
+their expansions either, meaning the compiled output of the bundled
+macros need not have Hissp installed to work, only the Python standard
+library. All helper code must therefore be inlined, resulting in larger
+expansions than might otherwise be necessary.
 
 They also have no prerequisite initialization, beyond what is available
 in a standard Python module. For example, a ``_macro_`` namespace need
@@ -22,21 +23,23 @@ presence of ``_macro_`` (at compile time) in its expansion context, and
 inline the initialization code when required.
 
 As a convenience, the bundled macros are automatically made available
-unqualified in the Lissp `REPL`, but this does not apply to modules. A
+`unqualified` in the Lissp `REPL`, but this does not apply to modules. A
 Hissp module with better alternatives need not use the bundled macros at
 all.
 
-They also eschew any expansions of subexpressions to non-atomic Python
-code strings, relying only on the built-in special forms ``quote`` and
-``lambda``, which makes their expansions compatible with advanced
-rewriting macros that process the Hissp expansions of other macros. (The
--``[#`` tags are something of an exception, as one subexpression is
-written in Python to begin with.) Note that this need not apply to
-inlined helper functions that contain no user code, because this is no
-worse than using an opaque name imported from somewhere else. `if-else
-<ifQzH_else>` is one such example, expanding to a lambda containing a
-Python `conditional expression<if_expr>`, immediately called with the
-subexpressions as arguments.
+They also eschew expansions of any subexpression to a `Python injection`
+(except the standard `symbol` or `string literal fragment` cases),
+relying only on the built-in special forms ``quote`` and ``lambda``,
+which makes their expansions compatible with advanced rewriting macros
+that process the Hissp expansions of other macros. (The -``[#`` tags are
+something of an exception, as one subexpression is written in Python to
+begin with.)
+
+This doesn't apply to inlined helper functions that contain no user
+code, because that's no worse than using an opaque name imported from
+somewhere else. `if-else <ifQzH_else>` is one such example, expanding to
+a lambda containing an injected `conditional expression <if_expr>`,
+immediately called with the subexpressions as arguments.
 "
 
 ;;; This module is not necessarily a good example of how you should
@@ -321,15 +324,15 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
     `(progn ,@body)))
 
 (defmacro fun (qualname params : maybe-docstring ()  :* body)
-  "A lambda enhanced with a qualname and optionally a docstring.
+  "A lambda enhanced with a `qualified name` and optionally a docstring.
 
   Hissp's (and Python's) lambda syntax do not have docstrings. Named
   lambdas improve `REPL` transparency and error messages, at the cost of
   some configuration overhead to set the name in the three places Python
   requires.
 
-  Used by `defun`. Not recommended for otherwise anonymous functions due
-  to the additional overhead.
+  Used by `defmacro` and `defun`. Not recommended for otherwise
+  anonymous functions due to the additional overhead.
   "
   (let*from ((name : :* _xs) (reversed (.split qualname '. 1))
              (doc top) (if-else (hissp.reader..is_hissp_string maybe-docstring)
@@ -392,7 +395,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 ;; Define the real defmacro using the bootstrap macros.
 (defmacro defmacro (name parameters : :* body)
-  "Creates a new macro for the current module.
+  "Creates a new `macro function` for the current module.
 
   If there's no local ``_macro_`` namespace (at compile time), adds code
   to create one using `types.SimpleNamespace` (at runtime), if it's
@@ -469,9 +472,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro define (qualname value)
   "Assigns an attribute the value.
 
-  The namespace part of the qualname may be fully qualified or start
-  from a name in scope. An empty namespace part assigns an attribute of
-  the current module.
+  The qualname may be a `fully-qualified identifier` or start from a
+  name in scope. Assigns an attribute of the current module (a global)
+  if there's no `qualifier`.
 
   .. code-block:: REPL
 
@@ -497,7 +500,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro defun (qualname params : :* body)
   "`define` a `fun` with the same name.
 
-  See `deftypeonce` for defining methods with defun.
+  See `deftypeonce` for how to define methods.
 
   See also: `def`, `define`, `defmacro`, `:@## <QzCOLON_QzAT_QzHASH_>`.
   "
@@ -556,6 +559,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      >>> CACHE
      namespace(x=42)
 
+  See also: `deftypeonce`, `hissp.refresh`.
+
   "
   `(unless ,(let-from (ns _dot attr) (.rpartition qualname ".")
               (if-else ns
@@ -563,23 +568,23 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
                 `(operator..contains (globals) ',attr)))
      (define ,qualname ,value)))
 
-(defmacro deftypeonce (qualname : bases ()  :* once-decorators)
+(defmacro deftypeonce (qualname : bases ()  :* once_decorators)
   'hissp.reader..Comment.contents#
-  ;; Defines a type (class), unless it exists.
+  ;; Defines a `type` (`class`), unless it exists.
   ;;
   ;; Add class attributes afterward using `define` or `defun`, and class
   ;; decorators above with `:@## <QzCOLON_QzAT_QzHASH_>` or afterward
   ;; using `zap@ <zapQzAT_>`. These run again on module reload and patch
   ;; in existing instances.
   ;;
-  ;; The ``once-decorators`` apply before any external ones, in the
+  ;; The ``once_decorators`` apply before any external ones, in the
   ;; order written (first applies first), unless the type exists (not
   ;; reapplied on reloads). Beware that type attributes defined
-  ;; afterward will not be available for the ``once-decorators`` to
+  ;; afterward will not be available for the ``once_decorators`` to
   ;; operate upon. A decorator can add attributes for subsequent
   ;; decorators to operate upon, however, and a decorator may be a
   ;; lambda defined in line. It is possible to add arbitrary attributes
-  ;; this way, but remember that ``once-decorators`` don't run again on
+  ;; this way, but remember that ``once_decorators`` don't run again on
   ;; reloads, so changes here cannot simply be reloaded with the module
   ;; the way attributes defined afterward can.
   ;;
@@ -703,7 +708,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   (2))
   ;;    Point2D(1, 2)
   ;;
-  ;; Also supports kwds in the bases tuple for
+  ;; Also supports keyword arguments in the bases tuple for
   ;; `object.__init_subclass__`. Separate with a ``:``.
   ;;
   ;; .. code-block:: REPL
@@ -773,14 +778,14 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   ))
   ;;    {'a': 1, 'b': 2}
   ;;
-  ;; See also: `attach`, `type`, :keyword:`class`, `types.new_class`.
+  ;; See also: `attach`, `types.new_class`, `defonce`.
   ;;
   (let (ibases (iter bases)
         name |qualname.rpartition('.')[-1]|)
     `(defonce ,qualname
        ,(functools..reduce
          (lambda (cls f) `(,f ,cls))
-         once-decorators
+         once_decorators
          `(type ',name (|| ,@(itertools..takewhile (lambda x (operator..ne x ':))
                                                 ibases)
                            ||)
@@ -1160,7 +1165,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `(lambda ,'XYZW ,expr))
 
 (defmacro alias (abbreviation qualifier)
-  <#;Defines a tag abbreviation of a qualifier.
+  <#;Defines a `tag` abbreviation of a `qualifier`.
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -1237,7 +1242,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; The bundled `op# <opQzHASH_>` and `i# <iQzHASH_>` tags are aliases
   ;; for `operator` and `itertools`, respectively.
   ;;
-  ;; See also: `prelude`, `attach`.
+  ;; See also: `prelude`, `attach`, `hissp.alias`.
+  ;;
   ;;
   `(defmacro ,(.format "{}{}" abbreviation '#)
              ($#attr : :* $#args  :** $#kwargs)
@@ -1507,6 +1513,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro set\[\# (lookup items value)
   <#;``set[###`` 'setsub' Injection. Subscription with assignment.
   ;;
+  ;; Returns the value assigned (not the collection updated).
+  ;;
   ;; .. code-block:: REPL
   ;;
   ;;    #> (define spam (list "0000"))
@@ -1515,7 +1523,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   spam=list(
   ;;    ...          ('0000')))
   ;;
-  ;;    #> set[###-1] spam set[###::2] spam "ab"
+  ;;    #> set[###-1] spam set[###::2] spam "ab" ; Chained assignment.
   ;;    >>> (
   ;;    ...  lambda _Qzuwg7puku__items,
   ;;    ...         _Qzuwg7puku__value=(
@@ -1640,9 +1648,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro set@ (qualname value)
   <#;``set@`` 'setat' Assigns an attribute, returns the value.
   ;;
-  ;; The namespace part of the qualname may be fully qualified or start
+  ;; The namespace part of the ``qualname`` may be fully qualified or start
   ;; from a name in scope. An empty namespace part sets an attribute of the
-  ;; current module.
+  ;; current module (a global).
   ;;
   ;; Mnemonic: set @tribute.
   ;;
@@ -1809,7 +1817,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro doto (self : :* invocations)
   <#;Configure an object.
   ;;
-  ;; Calls multiple 'methods' on one 'self'.
+  ;; Calls multiple "methods" on one "self".
   ;;
   ;; Evaluates the given ``self``, then injects it as the first argument to
   ;; a sequence of invocations. Returns ``self``.
@@ -1880,7 +1888,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ([{'a'}, 'bc'], 'de')
   ;;
   ;; See also: `-\<>> <QzH_QzLT_QzGT_QzGT_>`, `X# <XQzHASH_>`,
-  ;; `\!# <QzBANG_QzHASH_>`.
+  ;; `\!# <QzBANG_QzHASH_>`, `en# <enQzHASH_>`.
   ;;
   (functools..reduce XY# |(Y[0],X,*Y[1:],)|
                      (map X# |X if type(X) is tuple else (X,)| forms)
@@ -1927,7 +1935,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   ':<>')
   ;;    ('de', ['bc', {'a'}], 'fg', ':<>')
   ;;
-  ;; See also: `-> <QzH_QzGT_>`.
+  ;; See also: `-> <QzH_QzGT_>`, `en# <enQzHASH_>`.
   ;;
   (functools..reduce XY#(let (i (iter Y))
                           `(,@(i#takewhile X#(op#ne X :<>) i) ,X ,@i))
@@ -1989,8 +1997,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro cond (: :* pairs)
   <#;Multiple condition branching.
   ;;
-  ;; Pairs are implied by position. Default is ``()``, use something always
-  ;; truthy to change it, like ``:else`` or `True`. For example,
+  ;; Pairs are implied by position. Default is ``()``. Use something always
+  ;; truthy to change it, like ``:else`` or `True`. For example:
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -2319,9 +2327,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro throw* (: :* exception)
   <#;``throw*`` 'throw star' Creates a closed generator and calls ``.throw``.
   ;;
-  ;; Despite PEP 3109, .throw still seems to accept multiple arguments.
-  ;; Avoid using this form except when implementing throw method overrides.
-  ;; Prefer `throw` instead.
+  ;; Despite `PEP 3109 <https://peps.python.org/pep-3109/>`_, ``.throw``
+  ;; still seems to accept multiple arguments. Avoid using this form
+  ;; except when implementing throw method overrides. Prefer `throw`
+  ;; instead.
   ;;
   ;; The 3-arg form is deprecated as of Python 3.12.
   ;;
@@ -2761,10 +2770,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; dependencies in the compiled output.
   ;;
   ;; Mainly intended for single-file scripts that can't have dependencies,
-  ;; or similarly constrained environments (e.g. embedded, readerless).
-  ;; There, the first form should be ``(hissp.._macro_.prelude)``,
-  ;; which is also implied in ``$ lissp -c`` commands.
-  ;; (See the `hissp.prelude` shorthand for Lissp.)
+  ;; or similarly constrained environments (e.g., embedded,
+  ;; `readerless mode`). There, the first form should be
+  ;; ``(hissp.._macro_.prelude)``, which is also implied in ``$ lissp -c``
+  ;; commands. (See the `hissp.prelude` shorthand for Lissp.)
   ;;
   ;; Larger projects with access to functional and macro libraries need not
   ;; use this prelude at all.

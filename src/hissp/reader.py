@@ -178,9 +178,9 @@ _Unquote = namedtuple("_Unquote", ["target", "value"])
 
 
 class Comment:
-    """Parsed object for a comment token (line comment block).
+    """`Parsed object` class for a `comment token` (line comment block).
 
-    The reader normally discards these, but reader macros can use them.
+    The reader normally discards these, but they can be `tag` arguments.
     """
 
     def __init__(self, token):
@@ -199,9 +199,9 @@ class Comment:
 
 
 class Kwarg:
-    """Contains a read-time keyword argument for reader macros.
+    """Contains a read-time keyword argument for a `tag`.
 
-    Normally made with kwarg tags, but can be constructed directly.
+    Normally made with a `kwarg token`, but can be constructed directly.
     """
 
     def __init__(self, k, v):
@@ -219,30 +219,30 @@ class Lissp:
     Wraps around a Hissp compiler instance.
     Parses Lissp tokens into Hissp syntax trees.
 
-    The special tags are handled here. They are
+    The `special tag`\ s are handled here. They are
 
     .. list-table::
 
        * - ``'``
          - `quote<special>`
        * - :literal:`\`` (backtick)
-         - template quote (starts a `template`)
+         - `template quote` (starts a `template`)
        * - ``_#``
-         - discard
+         - `discard tag`
        * - ``.#``
-         - inject (evaluate at read time and use resulting object)
+         - `inject tag` (evaluate at read time)
 
-    Plus the three built-in template helper tags, which are only
+    Plus the three built-in template helpers, which are only
     valid inside a template.
 
     .. list-table::
 
        * - ``,``
-         - unquote
+         - `unquote`
        * - ``,@``
-         - splice unquote
+         - `splice`
        * - ``$#``
-         - `gensym`
+         - `gensym tag`
 
     Special tags are reserved by the reader and cannot be reassigned.
     """
@@ -528,7 +528,7 @@ class Lissp:
 
     @staticmethod
     def bare(v):
-        """Preprocesses bare tokens. Handles escapes and munging."""
+        """Preprocesses a `bare token`. Handles escapes and munging."""
         if "\\" != v[0]:
             with suppress(ValueError, SyntaxError):
                 if not hasattr(x := ast.literal_eval(Lissp.escape(v)), "__contains__"):
@@ -548,12 +548,13 @@ class Lissp:
 
 def is_hissp_string(form) -> bool:
     """Determines if form would directly represent a string in Hissp.
+    (A `Hissp string`.)
 
-    Allows "readerless mode"-style strings: ('quote','foo',)
-    and any string literal in a Hissp-level str: '"foo"'
-    (including the "('foo')" form produced by the Lissp reader).
+    Allows `readerless mode`-style strings: ``('quote','foo',)``
+    and any `string literal fragment`: ``'"foo"'``
+    (including the ``"('foo')"`` form produced by the Lissp reader).
 
-    Macros often produce strings in one of these forms, via ``'`` or
+    Macros often produce strings in one of these forms, via `quote` or
     `repr` on a string object.
     """
     return (
@@ -569,17 +570,18 @@ def is_lissp_string(form) -> bool:
     Determines if form could have been read from a Lissp string literal.
 
     It's not enough to check if the form has a string type.
-    Several token types such as control words, symbols, and Python
-    injections, read in as strings. Macros may need to distinguish these
-    cases.
+    Several token types such as a `control token`, `symbol token`, or
+    `fragment token`, read in as a `str atom`. Macros may need to
+    distinguish these cases.
     """
     return type(form) is str and form.startswith("(") and bool(is_string_literal(form))
 
 
 def is_string_literal(form) -> Optional[bool]:
     """Determines if `ast.literal_eval` on form produces a string.
+    (A `string literal fragment`.)
 
-    False if it produces something else or None if it raises Exception.
+    ``False`` if it produces something else or ``None`` if it raises.
     """
     with suppress(Exception):
         return type(ast.literal_eval(form)) is str
@@ -589,8 +591,8 @@ def is_qualifiable(symbol):
     """Determines if symbol can be qualified with a module.
 
     Can't be ``quote``, ``__import__``, any Python reserved word, a
-    prefix auto-gensym, already qualified, method syntax, or a module
-    handle; and must be a valid identifier or attribute identifier.
+    prefix auto-`gensym`, already qualified, method syntax, or a `module
+    handle`; and must be a valid identifier or attribute identifier.
     """
     return (
         symbol not in {"quote", "__import__"}
@@ -603,7 +605,7 @@ def is_qualifiable(symbol):
 def transpile(package: Optional[str], *modules: str):
     """Transpiles the named Python modules from Lissp.
 
-    A .lissp file of the same name must be present in the module's
+    A ``.lissp`` file of the same name must be present in the module's
     location. The Python modules are overwritten. Missing modules are
     created. If the package is "" or ``None``, `transpile` writes non-
     packaged modules to the current working directory instead.
@@ -614,21 +616,21 @@ def transpile(package: Optional[str], *modules: str):
 
 
 def transpile_packaged(resource: str, package: str):
-    """Locates & transpiles a packaged .lissp resource file to .py."""
+    """Locates & transpiles a packaged ``.lissp`` resource file to ``.py``."""
     with resources.path(package, resource) as path:
         transpile_file(path, package)
 
 
 def transpile_file(path: Union[Path, str], package: Optional[str] = None):
-    """Transpiles a single .lissp file to .py in the same location.
+    """Transpiles a single ``.lissp`` file to ``.py`` in the same location.
 
-    Code in .lissp files is executed upon compilation. This is necessary
-    because macro definitions can alter the compilation of subsequent
-    top-level forms. A packaged Lissp file must know its package at
-    compile time to handle templates and macros correctly.
+    Code in ``.lissp`` files is executed upon compilation. This is
+    necessary because macro definitions can alter the compilation of
+    subsequent top-level forms. A packaged Lissp file must know its
+    package at compile time to handle templates and macros correctly.
 
-    After the .py file is written, `__file__` will be set to it, if it
-    doesn't exist already.
+    After the ``.py`` file is written, `__file__` will be set to it, if
+    it doesn't exist already.
     """
     path = Path(path).resolve(strict=True)
     qualname = f"{package or ''}{'.' if package else ''}{PurePath(path.name).stem}"
