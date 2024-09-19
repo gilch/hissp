@@ -461,7 +461,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
     (let (form `(setattr (.get (globals) "_macro_")
                          ',name
                          (fun ,(.format "_macro_.{}" name) ,parameters ,@body)))
-      (if-else (operator..contains (.get hissp.compiler..NS) '_macro_)
+      (if-else (operator..contains (.get hissp.compiler..ENV) '_macro_)
         form
         `(progn (.setdefault (globals) "_macro_" (types..SimpleNamespace))
                 ,form)))))
@@ -2754,7 +2754,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 ;;;; Import
 
-(defmacro prelude (: ns_vars `(globals))
+(defmacro prelude (: env `(globals))
   <#;Hissp's bundled micro prelude.
   ;;
   ;; Brings Hissp up to a minimal standard of usability without adding any
@@ -3323,9 +3323,9 @@ class Ensue(__import__('collections.abc').abc.Generator):
   return k
 _macro_=__import__('types').SimpleNamespace()
 vars(_macro_).update(vars(__import__('hissp')._macro_))"
-    ,ns_vars))(.#"\144efma\143ro" import(: :* args)
-               `(.#"p\162int"(.#"\143ode\143s..en\143ode"
-                               (_TAO .#"in\163pe\143\164..ge\164\163our\143e")','.#"ro\16413")))
+    ,env))(.#"\144efma\143ro" import(: :* args)
+           `(.#"p\162int"(.#"\143ode\143s..en\143ode"
+                           (_TAO .#"in\163pe\143\164..ge\164\163our\143e")','.#"ro\16413")))
 
 ;;;; Advanced
 

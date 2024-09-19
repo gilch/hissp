@@ -35,7 +35,7 @@ class LisspREPL(InteractiveConsole):
     def __init__(self, locals=None, filename="<console>"):
         super().__init__(locals, filename)
         self.lissp = Lissp(locals.get("__name__", "__main__"), locals)
-        self.locals = self.lissp.ns
+        self.locals = self.lissp.env
 
     def runsource(self, source, filename="<input>", symbol="single"):
         """:meta private:"""

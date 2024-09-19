@@ -190,16 +190,16 @@ hissp..alias#H
                     (enlist '(100 0) '(101 4))))
 
 (H#defun TestMacros.test_prelude (self)
-  (H#let (ns (dict))
-    (H#prelude ns)
+  (H#let (env (dict))
+    (H#prelude env)
     (self.assertEqual (set operator..__all__)
                       (.intersection (set operator..__all__)
-                                     (.keys ns)))
-    ;; Asserts everything public in itertools is in ns.
+                                     (.keys env)))
+    ;; Asserts everything public in itertools is in env.
     (H#let (members (set (itertools..filterfalse (lambda x (.startswith x "_"))
                                                  (dir itertools.))))
-      (self.assertEqual members (.intersection members (.keys ns))))
-    (self.assertIn '_macro_ ns)))
+      (self.assertEqual members (.intersection members (.keys env))))
+    (self.assertIn '_macro_ env)))
 
 (H#defun TestMacros.test_string_newline (self)
   (self.assertEqual "\

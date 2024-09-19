@@ -8,6 +8,7 @@ import argparse
 import re
 import sys
 import traceback
+from typing import Any, Dict
 
 import hissp.repl
 from hissp import VERSION
@@ -29,21 +30,21 @@ def main():
         hissp.repl.main(__main__)
 
 
-def _cmd(args, ns):
+def _cmd(args, env: Dict[str, Any]):
     sys.argv = ["-c"]
     sys.argv.extend([args.file, *args.args])
-    args.i("(hissp.._macro_.prelude)\n" + args.c, ns)
+    args.i("(hissp.._macro_.prelude)\n" + args.c, env)
 
 
-def _with_args(args, ns):
+def _with_args(args, env: Dict[str, Any]):
     with argparse.FileType("r", encoding="utf8")(args.file) as file:
         sys.argv = [file.name, *args.args]
         code = file.read()
-    args.i(re.sub("^#!.*\n", "\n", code), ns)
+    args.i(re.sub("^#!.*\n", "\n", code), env)
 
 
-def _interact(code, ns):
-    repl = hissp.repl.LisspREPL(locals=ns)
+def _interact(code: str, env: Dict[str, Any]):
+    repl = hissp.repl.LisspREPL(locals=env)
     repl.lissp.compiler.evaluate = True
     try:
         repl.lissp.compile(code)
@@ -54,8 +55,8 @@ def _interact(code, ns):
         repl.interact()
 
 
-def _no_interact(code, ns):
-    Lissp(ns=ns, evaluate=True).compile(code)
+def _no_interact(code: str, env: Dict[str, Any]):
+    Lissp(env=env, evaluate=True).compile(code)
 
 
 def _arg_parser():

@@ -250,13 +250,13 @@ class Lissp:
     def __init__(
         self,
         qualname="__main__",
-        ns=None,
+        env: Optional[Dict[str, Any]] = None,
         evaluate=False,
         filename="<?>",
     ):
         self.template_count = 0
         self.qualname = qualname
-        self.compiler = Compiler(self.qualname, ns, evaluate)
+        self.compiler = Compiler(self.qualname, env, evaluate)
         self.filename = filename
         self.reinit()
 
@@ -269,13 +269,13 @@ class Lissp:
         self.blake = hashlib.blake2s(digest_size=GENSYM_BYTES)
 
     @property
-    def ns(self) -> Dict[str, Any]:
-        """The wrapped `Compiler`'s ``ns``."""
-        return self.compiler.ns
+    def env(self) -> Dict[str, Any]:
+        """The wrapped `Compiler`'s ``env``."""
+        return self.compiler.env
 
-    @ns.setter
-    def ns(self, ns):
-        self.compiler.ns = ns
+    @env.setter
+    def env(self, env: Dict[str, Any]):
+        self.compiler.env = env
 
     def compile(self, code: str) -> str:
         """Read Lissp code and pass it on to the Hissp compiler."""
@@ -285,7 +285,7 @@ class Lissp:
     def reads(self, code: str) -> Iterable:
         """Read Hissp forms from code string."""
         self.blake.update(code.encode())
-        self.blake.update(self.ns.get("__name__", "__main__").encode())
+        self.blake.update(self.env.get("__name__", "__main__").encode())
         res: Iterable[object] = self.parse(Lexer(code, self.filename))
         self.reinit()
         return res
@@ -371,8 +371,8 @@ class Lissp:
             self.context.pop()
 
     def _inject(self, v):
-        with C.macro_context(self.ns):
-            return eval(readerless(self._pull(v, self._pos), self.ns), self.ns)
+        with C.macro_context(self.env):
+            return eval(readerless(self._pull(v, self._pos), self.env), self.env)
 
     def _pull(self, v, p=None):
         if p is None:
@@ -421,9 +421,9 @@ class Lissp:
         """Qualify symbol based on current context."""
         if not is_qualifiable(symbol):
             return symbol
-        if invocation and C.MACROS in self.ns and hasattr(self.ns[C.MACROS], symbol):
+        if invocation and C.MACROS in self.env and hasattr(self.env[C.MACROS], symbol):
             return f"{self.qualname}..{C.MACROS}.{symbol}"  # Known macro.
-        if symbol in dir(builtins) and symbol.split(".", 1)[0] not in self.ns:
+        if symbol in dir(builtins) and symbol.split(".", 1)[0] not in self.env:
             return f"builtins..{symbol}"  # Known builtin, not shadowed (yet).
         if invocation and "." not in symbol:  # Could still be a recursive macro.
             return f"{self.qualname}{C.MAYBE}{symbol}"
@@ -468,7 +468,7 @@ class Lissp:
             self._tag_error(tag, tag_depth, tag_pos)
         label = self._label(arity, tag)
         fn: Fn[[str], Fn] = self._fully_qualified if ".." in label else self._local
-        with C.macro_context(self.ns):
+        with C.macro_context(self.env):
             return fn(label)(*args, **kwargs)
 
     @classmethod
@@ -503,7 +503,7 @@ class Lissp:
 
     def _local(self, tag: str) -> Fn:
         try:
-            return getattr(self.ns[C.MACROS], tag + munge("#"))
+            return getattr(self.env[C.MACROS], tag + munge("#"))
         except (AttributeError, KeyError):
             raise SyntaxError(f"Unknown reader macro {tag!r}.", self.position())
 
@@ -635,4 +635,4 @@ def transpile_file(path: Union[Path, str], package: Optional[str] = None):
     L = Lissp(qualname=qualname, evaluate=True, filename=str(path))
     python = L.compile(re.sub(r"^#!.*\n", "", path.read_text("utf8")))
     (py := path.with_suffix(".py")).write_text(python, "utf8")
-    L.ns.setdefault("__file__", str(py))
+    L.env.setdefault("__file__", str(py))

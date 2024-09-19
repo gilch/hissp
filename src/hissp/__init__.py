@@ -53,21 +53,20 @@ with __import__("contextlib").suppress(ImportError):
 VERSION = "0.5.dev"
 
 
-def prelude(ns):
+def prelude(env):
     """Lissp prelude shorthand tag.
 
-    Usage: ``hissp..prelude#ns``, which expands to
+    Usage: ``hissp..prelude#env``, which expands to
 
     .. code-block:: Lissp
 
-       (hissp.macros.._macro_.prelude ns)
+       (hissp.macros.._macro_.prelude env)
 
-    ``hissp..prelude#:`` is short for
-    ``hissp..prelude#(builtins..globals)``.
+    (A ``||`` or ``:`` argument causes `exec` to use the global env.)
 
     See `hissp.macros._macro_.prelude`.
     """
-    return "hissp.macros.._macro_.prelude", *([] if ns == ":" else [ns])
+    return "hissp.macros.._macro_.prelude", env
 
 
 def alias(abbreviation, qualifier="hissp.macros.._macro_"):

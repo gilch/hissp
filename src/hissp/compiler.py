@@ -30,10 +30,12 @@ MAYBE = "..QzMaybe_."
 RE_MACRO = re.compile(rf"({re.escape(MACRO)}|{re.escape(MAYBE)})")
 _PARAM_INDENT = f"\n{len('(lambda ')*' '}"
 
-NS: ContextVar[Optional[MappingProxyType]] = ContextVar("NS", default=None)
+ENV: ContextVar[Optional[MappingProxyType]] = ContextVar("ENV", default=None)
 """
-Sometimes a macro needs the current namespace when expanding,
-instead of its defining namespace.
+Expansion environment.
+ 
+Sometimes a macro needs the current environment when expanding,
+instead of its defining environment.
 Rather than pass in an implicit argument to all macros,
 it's available here.
 `readerless` uses this automatically.
@@ -50,19 +52,19 @@ due to the inefficient escapes required for non-printing bytes.
 
 
 @contextmanager
-def macro_context(ns):
-    """Sets `NS` during macroexpansions.
+def macro_context(env: Optional[Dict[str, Any]]):
+    """Sets `ENV` during macroexpansions.
 
-    Does nothing if ``ns`` is ``None`` or already the current context.
+    Does nothing if ``env`` is ``None`` or already the current context.
     """
-    if ns is None or NS.get() is ns:
+    if env is None or ENV.get() is env:
         yield
     else:
-        token = NS.set(MappingProxyType(ns))
+        token = ENV.set(MappingProxyType(env))
         try:
             yield
         finally:
-            NS.reset(token)
+            ENV.reset(token)
 
 
 Sentinel = NewType("Sentinel", object)
@@ -114,15 +116,17 @@ class Compiler:
     subset of Python.
     """
 
-    def __init__(self, qualname="__main__", ns=None, evaluate=True):
+    def __init__(
+        self, qualname="__main__", env: Optional[Dict[str, Any]] = None, evaluate=True
+    ):
         self.qualname = qualname
-        self.ns = self.new_ns(qualname) if ns is None else ns
+        self.env = self.new_env(qualname) if env is None else env
         self.evaluate = evaluate
         self.error = False
         self.abort = None
 
     @staticmethod
-    def new_ns(name, doc=None, package=None) -> Dict[str, Any]:
+    def new_env(name, doc=None, package=None) -> Dict[str, Any]:
         """Imports the named module, creating it if necessary.
 
         Returns the module's ``__dict__``.
@@ -345,44 +349,44 @@ class Compiler:
     def expand_macro(self, form: Tuple) -> Union[str, Sentinel]:
         """Macroexpand and start over with `compile_form`, if macro."""
         head, *tail = form
-        if (macro := self._get_macro(head, self.ns)) is not None:
-            with macro_context(self.ns):
+        if (macro := self._get_macro(head, self.env)) is not None:
+            with macro_context(self.env):
                 return self.compile_form(macro(*tail))
         return _SENTINEL
 
     @classmethod
-    def get_macro(cls, symbol, ns):
+    def get_macro(cls, symbol, env: Dict[str, Any]):
         """Returns the macro function for a symbol given the namespace.
 
         Returns ``None`` if symbol isn't a macro.
         """
         if type(symbol) is not str or symbol.startswith(":"):
             return None
-        return cls._get_macro(symbol, ns)
+        return cls._get_macro(symbol, env)
 
     @classmethod
-    def _get_macro(cls, head, ns):
+    def _get_macro(cls, head, env: Dict[str, Any]):
         parts = RE_MACRO.split(head, 1)
         head = head.replace(MAYBE, MACRO, 1)
         if len(parts) > 1:
-            return cls._qualified_macro(ns, head, parts)
-        return cls._unqualified_macro(ns, head)
+            return cls._qualified_macro(env, head, parts)
+        return cls._unqualified_macro(env, head)
 
     @classmethod
-    def _qualified_macro(cls, ns, head, parts):
+    def _qualified_macro(cls, env: Dict[str, Any], head, parts):
         try:
-            qualname = ns.get("__name__", "__main__")
+            qualname = env.get("__name__", "__main__")
             if parts[0] == qualname:  # Internal?
-                return getattr(ns[MACROS], parts[2])
+                return getattr(env[MACROS], parts[2])
             return eval(cls._fragment(qualname, head))
         except (LookupError, AttributeError):
             if parts[1] != MAYBE:
                 raise
 
     @staticmethod
-    def _unqualified_macro(ns, head):
+    def _unqualified_macro(env: Dict[str, Any], head):
         try:
-            return getattr(ns[MACROS], head)
+            return getattr(env[MACROS], head)
         except (LookupError, AttributeError):
             pass
 
@@ -605,10 +609,10 @@ class Compiler:
                     f"{self.linenos(form)}\n"
                     f">"
                 )
-                exec(compile(form, filename, "exec"), self.ns)
+                exec(compile(form, filename, "exec"), self.env)
         except Exception as e:
             exc = format_exc()
-            if self.ns.get("__name__") == "__main__":
+            if self.env.get("__name__") == "__main__":
                 self.abort = exc
             else:
                 warn(
@@ -634,44 +638,44 @@ def _pairs(it: Iterable[T]) -> Iterable[Tuple[T, T]]:
             raise CompileError("Incomplete pair.") from None
 
 
-def readerless(form, ns=None):
+def readerless(form, env: Optional[Dict[str, Any]] = None):
     """Compile a Hissp form to Python without evaluating it.
-    Uses the current `NS` for context, unless an alternative is provided.
-    (Creates a temporary namespace if neither is available.)
+    Uses the current `ENV` for context, unless an alternative is provided.
+    (Creates a temporary environment if neither is available.)
     Returns the Python in a string.
     """
-    if ns is None and (ns := NS.get()) is None:
-        ns = {"__name__": "__main__"}
-    return Compiler(evaluate=False, ns=ns).compile([form])
+    if env is None and (env := ENV.get()) is None:
+        env = {"__name__": "__main__"}
+    return Compiler(env=env, evaluate=False).compile([form])
 
 
-def macroexpand1(form, ns=None):
+def macroexpand1(form, env: Optional[Dict[str, Any]] = None):
     """Macroexpand outermost form once.
 
     If form is not a macro form, returns it unaltered.
-    Uses the current `NS` (available in a `macro_context`), unless
+    Uses the current `ENV` (available in a `macro_context`), unless
     an alternative mapping (such as ``globals()``) is provided.
     """
     if type(form) is not tuple or not form or form[0] in ["quote", "lambda"]:
         return form
     head, *tail = form
-    ns = NS.get() if ns is None else ns
-    if ns is None:
-        raise TypeError("outside of macro context, ns argument required")
-    if (macro := Compiler.get_macro(form[0], ns)) is None:
+    env = ENV.get() if env is None else env
+    if env is None:
+        raise TypeError("outside of macro context, env argument required")
+    if (macro := Compiler.get_macro(form[0], env)) is None:
         return form
-    with macro_context(ns):
+    with macro_context(env):
         return macro(*tail)
 
 
-def macroexpand(form, ns=None):
+def macroexpand(form, env: Optional[Dict[str, Any]] = None):
     """Repeatedly macroexpand outermost form until not a macro form.
 
     If form is not a macro form, returns it unaltered.
-    Uses the current `NS` for context, unless an alternative is provided.
+    Uses the current `ENV` for context, unless an alternative is provided.
     """
     while True:
-        expanded = macroexpand1(form, ns)
+        expanded = macroexpand1(form, env)
         if expanded is form:
             return form
         form = expanded
@@ -681,7 +685,13 @@ def _identity(x):
     return x
 
 
-def macroexpand_all(form, ns=None, *, preprocess=_identity, postprocess=_identity):
+def macroexpand_all(
+    form,
+    env: Optional[Dict[str, Any]] = None,
+    *,
+    preprocess=_identity,
+    postprocess=_identity,
+):
     """Recursively macroexpand everything possible from the outside-in.
 
     Pipes outer form through preprocess, :func:`macroexpand`, and postprocess,
@@ -694,25 +704,25 @@ def macroexpand_all(form, ns=None, *, preprocess=_identity, postprocess=_identit
     If expansion is not a `macro form`, returns it.
     As in the compiler, lambda parameter names are not considered
     expandable subforms, but default expressions are.
-    Uses the current `NS` for context, unless an alternative is provided.
+    Uses the current `ENV` for context, unless an alternative is provided.
     """
-    with macro_context(ns):
+    with macro_context(env):
         exp = postprocess(macroexpand(preprocess(form)))
     if type(exp) is not tuple or not exp or exp[0] == "quote":
         return exp
     if exp[0] != "lambda":
-        return tuple(macroexpand_all(e, ns) for e in exp)
-    return "lambda", _pexpand(exp[1], ns), *(macroexpand_all(e, ns) for e in exp[2:])
+        return tuple(macroexpand_all(e, env) for e in exp)
+    return "lambda", _pexpand(exp[1], env), *(macroexpand_all(e, env) for e in exp[2:])
 
 
-def _pexpand(params, ns):
+def _pexpand(params, env: Optional[Dict[str, Any]]):
     if ":" not in params:
         return params
     singles, pairs = parse_params(params)
     stars = {":*", ":**"}
     if not pairs.keys() - stars:
         return params
-    pairs = {k: v if k in stars else macroexpand_all(v, ns) for k, v in pairs.items()}
+    pairs = {k: v if k in stars else macroexpand_all(v, env) for k, v in pairs.items()}
     return *singles, ":", *chain.from_iterable(pairs.items())
 
 

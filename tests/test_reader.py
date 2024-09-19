@@ -66,7 +66,7 @@ class TestReader(TestCase):
         )  # fmt: skip
 
     def test_module_qualification(self):
-        self.parser.ns.update(x=1, y=2, z=3)
+        self.parser.env.update(x=1, y=2, z=3)
         self.assertEqual(
             [("",
               ":",":?",("quote","__main__..QzMaybe_.x"),
@@ -83,7 +83,7 @@ class TestReader(TestCase):
         )  # fmt: skip
 
     def test_macro_qualification(self):
-        self.parser.ns.update(_macro_=SimpleNamespace(x=1, y=2, z=3))
+        self.parser.env.update(_macro_=SimpleNamespace(x=1, y=2, z=3))
         self.assertEqual(
             [("",
               ":",":?",("quote","__main__.._macro_.x"),
@@ -114,7 +114,7 @@ class TestReader(TestCase):
         )  # fmt: skip
 
     def test_auto_qualify_attr(self):
-        self.parser.ns.update(x=SimpleNamespace(y=1), int=SimpleNamespace(float=1))
+        self.parser.env.update(x=SimpleNamespace(y=1), int=SimpleNamespace(float=1))
         self.assertEqual(
             [("",":",
               ":?",("quote","__main__..x.y"),
@@ -136,8 +136,8 @@ class TestReader(TestCase):
         )  # fmt: skip
 
     def test_swap_ns(self):
-        self.parser.ns = object()
-        self.assertIs(self.parser.ns, self.parser.compiler.ns)
+        self.parser.env = object()
+        self.assertIs(self.parser.env, self.parser.compiler.env)
 
     def test_badspace(self):
         with self.assertRaises(SyntaxError):

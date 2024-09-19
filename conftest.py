@@ -55,7 +55,7 @@ class ParseLissp(DocTestParser):
         lissp = self.lissp(example.document.text[example.start : example.end])
         if lissp:
             python = example.parsed.source
-            parser.compiler.ns = example.namespace
+            parser.compiler.env = example.namespace
             hissp = parser.reads(lissp)
             compiled = parser.compiler.compile(hissp) + "\n"
             assert norm_gensym_eq(compiled, python), "".join(

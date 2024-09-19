@@ -10,7 +10,7 @@
 Macro Tutorial
 ##############
 
-.. TODO: be sure to demonstrate hissp.compiler..NS and hissp.compiler..readerless somewhere
+.. TODO: be sure to demonstrate hissp.compiler..ENV and hissp.compiler..readerless somewhere
 .. TODO: be sure to demonstrate a recursive macro somewhere
 
 Lisp is a higher-level language than Python,
@@ -246,8 +246,7 @@ And push it to the REPL as well:
    ...    '   except s.X as e:v=e\n'
    ...    '  return k\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
-   ...    "vars(_macro_).update(vars(__import__('hissp')._macro_))"),
-   ...   __import__('builtins').globals())
+   ...    "vars(_macro_).update(vars(__import__('hissp')._macro_))"))
 
 .. caution::
 
