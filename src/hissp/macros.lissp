@@ -287,9 +287,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...           c,
      ...           d)
      ...     )(
-     ...       *(lambda * _:  _)(
+     ...       *(
      ...          *ab,
-     ...          *cd))
+     ...          *cd,
+     ...          ))
      ... )(
      ...   *_.items())
      A B C D
@@ -306,9 +307,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...       c,
      ...       d)
      ... )(
-     ...   *(lambda * _:  _)(
+     ...   *(
      ...      *_.keys(),
-     ...      *_.values()))
+     ...      *_.values(),
+     ...      ))
      A B C D
 
   See also: `my# <myQzHASH_>`.
@@ -413,14 +415,15 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   # hissp.macros.._macro_.let
      ...   (
      ...    lambda _Qztxnqfmn3__lambda=(lambda sep:
-     ...               (lambda * _:  _)(
+     ...               (
      ...                 'builtins..print',
      ...                 (1),
      ...                 (2),
      ...                 (3),
      ...                 ':',
      ...                 '__main__..sep',
-     ...                 sep)
+     ...                 sep,
+     ...                 )
      ...           ):
      ...      (__import__('builtins').setattr(
      ...         _Qztxnqfmn3__lambda,
@@ -608,8 +611,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...                 )(
   ;;    ...                   __import__('builtins').type(
   ;;    ...                     'Point2D',
-  ;;    ...                     (lambda * _:  _)(
-  ;;    ...                       tuple),
+  ;;    ...                     (
+  ;;    ...                       tuple,
+  ;;    ...                       ),
   ;;    ...                     {})))
   ;;    ...   ))
   ;;
@@ -642,9 +646,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...    lambda _Qzec6padpw__lambda=(lambda cls, x, y:
   ;;    ...               tuple.__new__(
   ;;    ...                 cls,
-  ;;    ...                 (lambda * _:  _)(
+  ;;    ...                 (
   ;;    ...                   x,
-  ;;    ...                   y))
+  ;;    ...                   y,
+  ;;    ...                   ))
   ;;    ...           ):
   ;;    ...      (__import__('builtins').setattr(
   ;;    ...         _Qzec6padpw__lambda,
@@ -759,8 +764,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...       __import__('builtins').globals().update(
   ;;    ...         ASubclass=__import__('builtins').type(
   ;;    ...                     'ASubclass',
-  ;;    ...                     (lambda * _:  _)(
-  ;;    ...                       Point2D),
+  ;;    ...                     (
+  ;;    ...                       Point2D,
+  ;;    ...                       ),
   ;;    ...                     {},
   ;;    ...                     a=(1),
   ;;    ...                     b=(2)))
@@ -775,9 +781,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
        ,(functools..reduce
          (lambda (cls f) `(,f ,cls))
          once-decorators
-         `(type ',name (,hissp.reader..ENTUPLE
-                        ,@(itertools..takewhile (lambda x (operator..ne x ':))
-                                                ibases))
+         `(type ',name (|| ,@(itertools..takewhile (lambda x (operator..ne x ':))
+                                                ibases)
+                           ||)
                 ,(dict)
                 : ,@ibases)))))
 
@@ -1016,7 +1022,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    >>> 'You won\'t have to\nescape the "quotes".'
   ;;    'You won\'t have to\nescape the "quotes".'
   ;;
-  ;; See also: `triple-quoted string`.
+  ;; See also: `triple-quoted string`, `hissp.reader.Comment`.
   ;;
   `',(.contents comment))
 
@@ -2868,9 +2874,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    #..         (lambda e (print "Oops!") e)    ;handler (returns exception)
   ;;    #..         truediv 6 0)                    ;calls it on your behalf
   ;;    >>> engarde(
-  ;;    ...   (lambda * _:  _)(
+  ;;    ...   (
   ;;    ...     FloatingPointError,
-  ;;    ...     ZeroDivisionError),
+  ;;    ...     ZeroDivisionError,
+  ;;    ...     ),
   ;;    ...   (lambda e:
   ;;    ...      (print(
   ;;    ...         ('Oops!')),

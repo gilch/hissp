@@ -1588,10 +1588,11 @@ The template quote works much like a normal quote:
    (1, 2, 3)
 
    #> `(1 2 3) ; template quote
-   >>> (lambda * _:  _)(
+   >>> (
    ...   (1),
    ...   (2),
-   ...   (3))
+   ...   (3),
+   ...   )
    (1, 2, 3)
 
 Notice the results are the same,
@@ -1613,12 +1614,13 @@ much like a format string:
    (1, 2, ('operator..add', 1, 2))
 
    #> `(1 2 ,(operator..add 1 2)) ; template and unquote
-   >>> (lambda * _:  _)(
+   >>> (
    ...   (1),
    ...   (2),
    ...   __import__('operator').add(
    ...     (1),
-   ...     (2)))
+   ...     (2)),
+   ...   )
    (1, 2, 3)
 
 The splice unquote is similar, but unpacks its result:
@@ -1626,10 +1628,11 @@ The splice unquote is similar, but unpacks its result:
 .. code-block:: REPL
 
    #> `(:a ,@"bcd" :e)
-   >>> (lambda * _:  _)(
+   >>> (
    ...   ':a',
    ...   *('bcd'),
-   ...   ':e')
+   ...   ':e',
+   ...   )
    (':a', 'b', 'c', 'd', ':e')
 
 Templates are *reader syntax*: because they're reader macros,
@@ -1641,11 +1644,7 @@ If you quote an example, you can see that intermediate step:
 .. code-block:: REPL
 
    #> '`(:a ,@"bcd" ,(operator..mul 2 3))
-   >>> (('lambda',
-   ...   (':',
-   ...    ':*',
-   ...    ' _',),
-   ...   ' _',),
+   >>> ('',
    ...  ':',
    ...  ':?',
    ...  ':a',
@@ -1654,26 +1653,30 @@ If you quote an example, you can see that intermediate step:
    ...  ':?',
    ...  ('operator..mul',
    ...   (2),
-   ...   (3),),)
-   (('lambda', (':', ':*', ' _'), ' _'), ':', ':?', ':a', ':*', "('bcd')", ':?', ('operator..mul', 2, 3))
+   ...   (3),),
+   ...  ':?',
+   ...  '',)
+   ('', ':', ':?', ':a', ':*', "('bcd')", ':?', ('operator..mul', 2, 3), ':?', '')
 
 If we format that a little more nicely,
-then it's easier to read.
+then it's easier to read:
 
 >>> readerless(
-...     (('lambda',(':',':*',' _',),' _')
-...      ,':',':?',':a'
-...      ,':*',"('bcd')"
-...      ,':?',('operator..mul', 2, 3,),)
+...     ('',':',
+...      ':?',':a',
+...      ':*',"('bcd')",
+...      ':?',('operator..mul', 2, 3),
+...      ':?','')
 ... )
-"(lambda * _:  _)(\n  ':a',\n  *('bcd'),\n  __import__('operator').mul(\n    (2),\n    (3)))"
+"(\n  ':a',\n  *('bcd'),\n  __import__('operator').mul(\n    (2),\n    (3)),\n  )"
 >>> print(_)
-(lambda * _:  _)(
+(
   ':a',
   *('bcd'),
   __import__('operator').mul(
     (2),
-    (3)))
+    (3)),
+  )
 
 Templates are Lissp syntactic sugar based on what Hissp already has.
 
@@ -1699,9 +1702,10 @@ Within a template, the same gensym name always makes the same gensym:
 .. code-block:: REPL
 
    #> `($#hiss $#hiss)
-   >>> (lambda * _:  _)(
+   >>> (
    ...   '_Qztamtdldr__hiss',
-   ...   '_Qztamtdldr__hiss')
+   ...   '_Qztamtdldr__hiss',
+   ...   )
    ('_Qztamtdldr__hiss', '_Qztamtdldr__hiss')
 
 But each new template changes the prefix hash.
@@ -1709,9 +1713,10 @@ But each new template changes the prefix hash.
 .. code-block:: REPL
 
    #> `($#hiss $#hiss)
-   >>> (lambda * _:  _)(
+   >>> (
    ...   '_Qzzsoxd2io__hiss',
-   ...   '_Qzzsoxd2io__hiss')
+   ...   '_Qzzsoxd2io__hiss',
+   ...   )
    ('_Qzzsoxd2io__hiss', '_Qzzsoxd2io__hiss')
 
 Gensyms are mainly used to prevent accidental name collisions in generated code,
@@ -1827,12 +1832,14 @@ Let's give it one. Use a template:
    ...   _macro_,
    ...   'greet',
    ...   (lambda name:
-   ...       (lambda * _:  _)(
+   ...       (
    ...         'builtins..print',
-   ...         (lambda * _:  _)(
+   ...         (
    ...           'quote',
-   ...           '__main__..Hello'),
-   ...         name)
+   ...           '__main__..Hello',
+   ...           ),
+   ...         name,
+   ...         )
    ...   ))
 
    #> (greet 'Bob)
@@ -1855,9 +1862,10 @@ with `builtins` (if applicable) or the current ``__name__``
    'builtins..int'
 
    #> `(int spam)
-   >>> (lambda * _:  _)(
+   >>> (
    ...   'builtins..int',
-   ...   '__main__..spam')
+   ...   '__main__..spam',
+   ...   )
    ('builtins..int', '__main__..spam')
 
 Qualified symbols are especially important
@@ -1894,14 +1902,15 @@ A ``_macro_`` namespace is not the same as its module.
    ...   _macro_,
    ...   'p123',
    ...   (lambda :
-   ...       (lambda * _:  _)(
+   ...       (
    ...         '__main__..QzMaybe_.p',
    ...         (1),
    ...         (2),
    ...         (3),
    ...         ':',
    ...         '__main__..sep',
-   ...         ':')
+   ...         ':',
+   ...         )
    ...   ))
 
 Notice the ``QzMaybe_`` qualifying ``p``,
@@ -1950,9 +1959,10 @@ We can resolve the ``QzMaybe_`` the other way by defining a ``p`` macro.
    ...   _macro_,
    ...   'p',
    ...   (lambda *args:
-   ...       (lambda * _:  _)(
+   ...       (
    ...         'builtins..print',
-   ...         *args)
+   ...         *args,
+   ...         )
    ...   ))
 
    #> (p123)
@@ -1976,15 +1986,17 @@ symbol. (Like a quoted symbol):
 .. code-block:: REPL
 
    #> `(float inf)
-   >>> (lambda * _:  _)(
+   >>> (
    ...   'builtins..float',
-   ...   '__main__..inf')
+   ...   '__main__..inf',
+   ...   )
    ('builtins..float', '__main__..inf')
 
    #> `(float ,'inf)
-   >>> (lambda * _:  _)(
+   >>> (
    ...   'builtins..float',
-   ...   'inf')
+   ...   'inf',
+   ...   )
    ('builtins..float', 'inf')
 
 Let's try the greet again with what we've learned about auto-qualification.
@@ -1997,12 +2009,14 @@ Note the three reader macros in a row: ``','``.
    ...   _macro_,
    ...   'greet',
    ...   (lambda name:
-   ...       (lambda * _:  _)(
+   ...       (
    ...         'builtins..print',
-   ...         (lambda * _:  _)(
+   ...         (
    ...           'quote',
-   ...           'Hello'),
-   ...         name)
+   ...           'Hello',
+   ...           ),
+   ...         name,
+   ...         )
    ...   ))
 
    #> (greet 'Bob)
@@ -2023,10 +2037,11 @@ a "" token might have been a better idea:
    ...   _macro_,
    ...   'greet',
    ...   (lambda name:
-   ...       (lambda * _:  _)(
+   ...       (
    ...         'builtins..print',
    ...         "('Hello')",
-   ...         name)
+   ...         name,
+   ...         )
    ...   ))
 
    #> (greet 'Bob)
@@ -2052,11 +2067,13 @@ But there are times when a function will not do:
    ...   _macro_,
    ...   'QzPCENT_',
    ...   (lambda *body:
-   ...       (lambda * _:  _)(
+   ...       (
    ...         'lambda',
-   ...         (lambda * _:  _)(
-   ...           'QzPCENT_'),
-   ...         body)
+   ...         (
+   ...           'QzPCENT_',
+   ...           ),
+   ...         body,
+   ...         )
    ...   ))
 
    #> ((lambda (%)

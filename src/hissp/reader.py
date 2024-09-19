@@ -78,15 +78,6 @@ bytes bits  chars  example
 ===== ===== ====== ===================================
 """
 
-ENTUPLE = ("lambda",(":",":*"," _")," _",)  # fmt: skip
-"""
-Used by the template macro to make tuples.
-
-To avoid creating a dependency on Hissp, by default,
-templates spell out the entuple implementation every time,
-but you can override this by setting some other value here.
-"""
-
 TOKENS = re.compile(
     r"""(?x)
      (?P<whitespace>[\n ]+)
@@ -403,7 +394,7 @@ class Lissp:
         if is_lissp_string(form):
             return "quote", form
         if case is tuple and form:
-            return (ENTUPLE, ":", *chain(*self._template_element(form)),)  # fmt: skip
+            return ("",":",*chain(*self._template_element(form)),":?","")  # fmt: skip
         if case is str and not form.startswith(":"):
             return "quote", self.qualify(form)
         if case is _Unquote:

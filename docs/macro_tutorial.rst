@@ -593,10 +593,11 @@ Try this definition.
    ...   # hissp.macros.._macro_.let
    ...   (
    ...    lambda _Qztxnqfmn3__lambda=(lambda params, *body:
-   ...               (lambda * _:  _)(
+   ...               (
    ...                 'lambda',
    ...                 params,
-   ...                 *body)
+   ...                 *body,
+   ...                 )
    ...           ):
    ...      (__import__('builtins').setattr(
    ...         _Qztxnqfmn3__lambda,
@@ -692,11 +693,13 @@ that `anaphoric macro <anaphoric>` we did in the `primer`.
    ...   # hissp.macros.._macro_.let
    ...   (
    ...    lambda _Qztxnqfmn3__lambda=(lambda *expr:
-   ...               (lambda * _:  _)(
+   ...               (
    ...                 'lambda',
-   ...                 (lambda * _:  _)(
-   ...                   'X'),
-   ...                 expr)
+   ...                 (
+   ...                   'X',
+   ...                   ),
+   ...                 expr,
+   ...                 )
    ...           ):
    ...      (__import__('builtins').setattr(
    ...         _Qztxnqfmn3__lambda,
@@ -802,12 +805,14 @@ Ready?
    ...   # hissp.macros.._macro_.let
    ...   (
    ...    lambda _Qztxnqfmn3__lambda=(lambda *expr:
-   ...               (lambda * _:  _)(
+   ...               (
    ...                 'lambda',
-   ...                 (lambda * _:  _)(
+   ...                 (
    ...                   'X',
-   ...                   'Y'),
-   ...                 expr)
+   ...                   'Y',
+   ...                   ),
+   ...                 expr,
+   ...                 )
    ...           ):
    ...      (__import__('builtins').setattr(
    ...         _Qztxnqfmn3__lambda,
@@ -874,10 +879,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  '',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -903,10 +909,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'A',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -932,10 +939,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'AB',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -961,10 +969,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABC',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -990,10 +999,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCD',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1019,10 +1029,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDE',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1048,10 +1059,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEF',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1077,10 +1089,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFG',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1106,10 +1119,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGH',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1135,10 +1149,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHI',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1164,10 +1179,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJ',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1193,10 +1209,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJK',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1222,10 +1239,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKL',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1251,10 +1269,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLM',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1280,10 +1299,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMN',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1309,10 +1329,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNO',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1338,10 +1359,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOP',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1367,10 +1389,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQ',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1396,10 +1419,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQR',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1425,10 +1449,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRS',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1454,10 +1479,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRST',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1483,10 +1509,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRSTU',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1512,10 +1539,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRSTUV',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1541,10 +1569,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRSTUVW',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1570,10 +1599,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRSTUVWX',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1599,10 +1629,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRSTUVWXY',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1628,10 +1659,11 @@ Don't panic.
    ...    # hissp.macros.._macro_.let
    ...    (
    ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
-   ...                (lambda * _:  _)(
+   ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-   ...                  _Qzwwncolrl__expr)
+   ...                  _Qzwwncolrl__expr,
+   ...                  )
    ...            ):
    ...       (__import__('builtins').setattr(
    ...          _Qztxnqfmn3__lambda,
@@ -1797,7 +1829,7 @@ We can create numbered X's the same way we created the numbered L's.
    ...   # hissp.macros.._macro_.let
    ...   (
    ...    lambda _Qztxnqfmn3__lambda=(lambda number, *expr:
-   ...               (lambda * _:  _)(
+   ...               (
    ...                 'lambda',
    ...                 map(
    ...                   (lambda i:
@@ -1809,7 +1841,8 @@ We can create numbered X's the same way we created the numbered L's.
    ...                     add(
    ...                       (1),
    ...                       number))),
-   ...                 expr)
+   ...                 expr,
+   ...                 )
    ...           ):
    ...      (__import__('builtins').setattr(
    ...         _Qztxnqfmn3__lambda,
@@ -1881,7 +1914,7 @@ Let's make a slight tweak.
    ...   # hissp.macros.._macro_.let
    ...   (
    ...    lambda _Qztxnqfmn3__lambda=(lambda *expr:
-   ...               (lambda * _:  _)(
+   ...               (
    ...                 'lambda',
    ...                 map(
    ...                   (lambda i:
@@ -1894,7 +1927,8 @@ Let's make a slight tweak.
    ...                       (1),
    ...                       maxQzH_X(
    ...                         expr)))),
-   ...                 expr)
+   ...                 expr,
+   ...                 )
    ...           ):
    ...      (__import__('builtins').setattr(
    ...         _Qztxnqfmn3__lambda,
@@ -2045,8 +2079,9 @@ This sounds like a job for recursion.
    ...                               x)
    ...                         ),
    ...                         (lambda :
-   ...                             (lambda * _:  _)(
-   ...                               x)
+   ...                             (
+   ...                               x,
+   ...                               )
    ...                         ))
    ...                   ),
    ...                   form))
@@ -2232,9 +2267,10 @@ you must define them in ``_macro_`` with a name ending in a ``#``.
    ...   # hissp.macros.._macro_.let
    ...   (
    ...    lambda _Qztxnqfmn3__lambda=(lambda expr:
-   ...               (lambda * _:  _)(
+   ...               (
    ...                 '__main__.._macro_.L',
-   ...                 *expr)
+   ...                 *expr,
+   ...                 )
    ...           ):
    ...      (__import__('builtins').setattr(
    ...         _Qztxnqfmn3__lambda,
@@ -2340,9 +2376,9 @@ Catch-All Parameter
    ...   # hissp.macros.._macro_.let
    ...   (
    ...    lambda _Qztxnqfmn3__lambda=(lambda *expr:
-   ...               (lambda * _:  _)(
+   ...               (
    ...                 'lambda',
-   ...                 (lambda * _:  _)(
+   ...                 (
    ...                   *map(
    ...                      (lambda i:
    ...                          ('X{}').format(
@@ -2362,11 +2398,14 @@ Catch-All Parameter
    ...                          expr),
    ...                        'Xi'),
    ...                      (lambda :
-   ...                          (lambda * _:  _)(
+   ...                          (
    ...                            ':*',
-   ...                            'Xi')
-   ...                      ))),
-   ...                 expr)
+   ...                            'Xi',
+   ...                            )
+   ...                      )),
+   ...                   ),
+   ...                 expr,
+   ...                 )
    ...           ):
    ...      (__import__('builtins').setattr(
    ...         _Qztxnqfmn3__lambda,
@@ -2484,9 +2523,9 @@ Here you go:
    ...   # hissp.macros.._macro_.let
    ...   (
    ...    lambda _Qztxnqfmn3__lambda=(lambda *expr:
-   ...               (lambda * _:  _)(
+   ...               (
    ...                 'lambda',
-   ...                 (lambda * _:  _)(
+   ...                 (
    ...                   *map(
    ...                      (lambda i:
    ...                          ('X{}').format(
@@ -2514,10 +2553,12 @@ Here you go:
    ...                          expr),
    ...                        'Xi'),
    ...                      (lambda :
-   ...                          (lambda * _:  _)(
+   ...                          (
    ...                            ':*',
-   ...                            'Xi')
-   ...                      ))),
+   ...                            'Xi',
+   ...                            )
+   ...                      )),
+   ...                   ),
    ...                 # ifQzH_else
    ...                 (lambda b, c, a: c()if b else a())(
    ...                   contains(
@@ -2525,14 +2566,17 @@ Here you go:
    ...                       expr),
    ...                     'X'),
    ...                   (lambda :
-   ...                       (lambda * _:  _)(
+   ...                       (
    ...                         '__main__.._macro_.let',
-   ...                         (lambda * _:  _)(
+   ...                         (
    ...                           'X',
-   ...                           'X1'),
-   ...                         expr)
+   ...                           'X1',
+   ...                           ),
+   ...                         expr,
+   ...                         )
    ...                   ),
-   ...                   (lambda : expr)))
+   ...                   (lambda : expr)),
+   ...                 )
    ...           ):
    ...      (__import__('builtins').setattr(
    ...         _Qztxnqfmn3__lambda,
@@ -3282,12 +3326,14 @@ We can improve this a lot with a custom defmacro.
    ...   # hissp.macros.._macro_.let
    ...   (
    ...    lambda _Qztxnqfmn3__lambda=(lambda x:
-   ...               (lambda * _:  _)(
+   ...               (
    ...                 'decimal..Decimal',
-   ...                 (lambda * _:  _)(
+   ...                 (
    ...                   'quote',
    ...                   str(
-   ...                     x)))
+   ...                     x),
+   ...                   ),
+   ...                 )
    ...           ):
    ...      (__import__('builtins').setattr(
    ...         _Qztxnqfmn3__lambda,
@@ -3370,15 +3416,17 @@ but a ``||`` fragment is not the only alternative available:
    ...   # hissp.macros.._macro_.let
    ...   (
    ...    lambda _Qztxnqfmn3__lambda=(lambda x:
-   ...               (lambda * _:  _)(
+   ...               (
    ...                 'decimal..Decimal',
-   ...                 (lambda * _:  _)(
+   ...                 (
    ...                   'quote',
    ...                   getitem(
    ...                     x,
    ...                     slice(
    ...                       (1),
-   ...                       None))))
+   ...                       None)),
+   ...                   ),
+   ...                 )
    ...           ):
    ...      (__import__('builtins').setattr(
    ...         _Qztxnqfmn3__lambda,
@@ -3586,11 +3634,12 @@ so we could include that and the ``itemgetter`` call in the expansion.
    ...   # hissp.macros.._macro_.let
    ...   (
    ...    lambda _Qztxnqfmn3__lambda=(lambda e:
-   ...               (lambda * _:  _)(
+   ...               (
    ...                 'operator..itemgetter',
    ...                 ('slicer{}').format(
    ...                   __import__('hissp').demunge(
-   ...                     e)))
+   ...                     e)),
+   ...                 )
    ...           ):
    ...      (__import__('builtins').setattr(
    ...         _Qztxnqfmn3__lambda,
@@ -3702,13 +3751,14 @@ Putting that all together we get
    ...   # hissp.macros.._macro_.let
    ...   (
    ...    lambda _Qztxnqfmn3__lambda=(lambda e:
-   ...               (lambda * _:  _)(
+   ...               (
    ...                 'operator..itemgetter',
    ...                 ('({}[{})').format(
    ...                   __import__('hissp').readerless(
    ...                     '__main__..slicer'),
    ...                   __import__('hissp').demunge(
-   ...                     e)))
+   ...                     e)),
+   ...                 )
    ...           ):
    ...      (__import__('builtins').setattr(
    ...         _Qztxnqfmn3__lambda,
@@ -3880,13 +3930,14 @@ Our previous macro was almost there.
    ...   # hissp.macros.._macro_.let
    ...   (
    ...    lambda _Qztxnqfmn3__lambda=(lambda e:
-   ...               (lambda * _:  _)(
+   ...               (
    ...                 'lambda',
    ...                 'a',
    ...                 ('({}[{})').format(
    ...                   'a',
    ...                   __import__('hissp').demunge(
-   ...                     e)))
+   ...                     e)),
+   ...                 )
    ...           ):
    ...      (__import__('builtins').setattr(
    ...         _Qztxnqfmn3__lambda,
@@ -3983,14 +4034,16 @@ we should suppress the qualification with a gensym instead of a symbol interpola
    ...   # hissp.macros.._macro_.let
    ...   (
    ...    lambda _Qztxnqfmn3__lambda=(lambda e:
-   ...               (lambda * _:  _)(
+   ...               (
    ...                 'lambda',
-   ...                 (lambda * _:  _)(
-   ...                   '_Qzec6padpw__G'),
+   ...                 (
+   ...                   '_Qzec6padpw__G',
+   ...                   ),
    ...                 ('({}[{})').format(
    ...                   '_Qzec6padpw__G',
    ...                   __import__('hissp').demunge(
-   ...                     e)))
+   ...                     e)),
+   ...                 )
    ...           ):
    ...      (__import__('builtins').setattr(
    ...         _Qztxnqfmn3__lambda,
