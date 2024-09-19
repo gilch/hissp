@@ -202,9 +202,9 @@ EXPECTED = {
     "'symbol": [("quote", "symbol",)],
 
     "'Also-a-symbol! '+ '-<>>": [
-        ("quote", "AlsoQz_aQz_symbolQzBANG_",),
+        ("quote", "AlsoQzH_aQzH_symbolQzBANG_",),
         ("quote", "QzPLUS_",),
-        ("quote", "Qz_QzLT_QzGT_QzGT_",),
+        ("quote", "QzH_QzLT_QzGT_QzGT_",),
     ],
 
     '''"string" ""''': [
@@ -260,7 +260,7 @@ EXPECTED = {
     R"""'\~\!\@\#\$\%\^\&\*\(\)\_\+\{\}\|\:\"\<\>\?\`\-\=\[\]\\\;\'\,\.\/""": [
         ("quote",
          "QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzHAT_QzET_QzSTAR_QzLPAR_QzRPAR__"
-         "QzPLUS_QzLCUB_QzRCUB_QzVERT_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_QzGRAVE_Qz_QzEQ_"
+         "QzPLUS_QzLCUB_QzRCUB_QzVERT_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_QzGRAVE_QzH_QzEQ_"
          "QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_QzFULLxSTOP_QzSOL_",)
     ],
 

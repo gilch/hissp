@@ -7,7 +7,7 @@ Encodes Lissp symbol tokens with special characters into valid,
 human-readable (if unpythonic) Python identifiers,
 using NFKC normalization and `Quotez`.
 
-E.g. ``*FOO-BAR*`` becomes ``QzSTAR_FOOQz_BARQzSTAR_``.
+E.g. ``*FOO-BAR*`` becomes ``QzSTAR_FOOQzH_BARQzSTAR_``.
 
 Quotez are written in upper case and wrapped in a ``Qz`` and ``_``.
 This format was chosen because it contains an underscore
@@ -79,7 +79,7 @@ def _munge_part(part):
 QUOTEZ = "Qz{}_"
 """Format string for creating `Quotez`."""
 
-FIND_QUOTEZ = re.compile(QUOTEZ.format("([0-9A-Z][0-9A-Zhx]*?)?"))
+FIND_QUOTEZ = re.compile(QUOTEZ.format("([0-9A-Z][0-9A-Zhx]*?)"))
 """Regex pattern to find `Quotez`. Used by `demunge`."""
 
 TO_NAME = {
@@ -98,7 +98,7 @@ TO_NAME = {
         "*": "STAR",
         "+": "PLUS",
         # COMMA is fine.
-        "-": "",  # Hyphen-minus
+        "-": "H",  # Hyphen-minus
         # Full stop reserved for imports and attributes.
         "/": "SOL",
         # Digits only munge if first character.

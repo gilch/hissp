@@ -356,17 +356,17 @@ Lissp Whirlwind Tour
    >>> 'QzPLUS_'
    'QzPLUS_'
 
-   #> 'Also-a-symbol!                     ;Alias for 'AlsoQz_aQz_symbolQzBANG_
-   >>> 'AlsoQz_aQz_symbolQzBANG_'
-   'AlsoQz_aQz_symbolQzBANG_'
+   #> 'Also-a-symbol!                     ;Alias for 'AlsoQzH_aQzH_symbolQzBANG_
+   >>> 'AlsoQzH_aQzH_symbolQzBANG_'
+   'AlsoQzH_aQzH_symbolQzBANG_'
 
    #> '𝐀                                  ;Alias for 'A (Unicode normal form KC)
    >>> 'A'
    'A'
 
    #> '-<>>
-   >>> 'Qz_QzLT_QzGT_QzGT_'
-   'Qz_QzLT_QzGT_QzGT_'
+   >>> 'QzH_QzLT_QzGT_QzGT_'
+   'QzH_QzLT_QzGT_QzGT_'
 
    #> :-<>>                               ;Doesn't represent identifier; doesn't munge.
    >>> ':-<>>'
@@ -428,8 +428,8 @@ Lissp Whirlwind Tour
    'a string'
 
    #> 'not-string'                        ;Symbol
-   >>> 'notQz_stringQzAPOS_'
-   'notQz_stringQzAPOS_'
+   >>> 'notQzH_stringQzAPOS_'
+   'notQzH_stringQzAPOS_'
 
 
    #> '|"a string"|
@@ -675,13 +675,13 @@ Lissp Whirlwind Tour
 
    #> (.update (globals) : bool->caller (dict))
    >>> globals().update(
-   ...   boolQz_QzGT_caller=dict())
+   ...   boolQzH_QzGT_caller=dict())
 
 
    ;; True calls left.
    #> (operator..setitem bool->caller True (lambda (L R) (L)))
    >>> __import__('operator').setitem(
-   ...   boolQz_QzGT_caller,
+   ...   boolQzH_QzGT_caller,
    ...   True,
    ...   (lambda L, R: L()))
 
@@ -689,7 +689,7 @@ Lissp Whirlwind Tour
    ;; False calls right.
    #> (operator..setitem bool->caller False (lambda (L R) (R)))
    >>> __import__('operator').setitem(
-   ...   boolQz_QzGT_caller,
+   ...   boolQzH_QzGT_caller,
    ...   False,
    ...   (lambda L, R: R()))
 
@@ -702,7 +702,7 @@ Lissp Whirlwind Tour
    >>> globals().update(
    ...   ternary=(lambda condition, then_thunk, else_thunk:
    ...               __import__('operator').getitem(
-   ...                 boolQz_QzGT_caller,
+   ...                 boolQzH_QzGT_caller,
    ...                 bool(
    ...                   condition))(
    ...                 then_thunk,
@@ -1352,21 +1352,21 @@ Lissp Whirlwind Tour
    #..    x))
    >>> # define
    ... __import__('builtins').globals().update(
-   ...   loudQz_number=(lambda x:
-   ...                    (print(
-   ...                       x),
-   ...                     x)  [-1]
-   ...                 ))
+   ...   loudQzH_number=(lambda x:
+   ...                     (print(
+   ...                        x),
+   ...                      x)  [-1]
+   ...                  ))
 
    #> (triple (loud-number 14))           ;Triples the *code*, not just the *value*.
    >>> # triple
    ... __import__('builtins').globals()['QzPLUS_'](
-   ...   loudQz_number(
+   ...   loudQzH_number(
    ...     (14)),
    ...   __import__('builtins').globals()['QzPLUS_'](
-   ...     loudQz_number(
+   ...     loudQzH_number(
    ...       (14)),
-   ...     loudQz_number(
+   ...     loudQzH_number(
    ...       (14))))
    14
    14
@@ -1386,7 +1386,7 @@ Lissp Whirlwind Tour
    ...         x,
    ...         x))
    ... )(
-   ...   loudQz_number(
+   ...   loudQzH_number(
    ...     (14)))
    14
    42
@@ -1396,7 +1396,7 @@ Lissp Whirlwind Tour
    #> ((lambda (: x (loud-number 14))
    #..   (+ x (+ x x))))
    >>> (
-   ...  lambda x=loudQz_number(
+   ...  lambda x=loudQzH_number(
    ...           (14)):
    ...     QzPLUS_(
    ...       x,
@@ -1416,7 +1416,7 @@ Lissp Whirlwind Tour
    #..               (+ x (+ x x))))))
    >>> setattr(
    ...   _macro_,
-   ...   'oopsQz_triple',
+   ...   'oopsQzH_triple',
    ...   (lambda expression:
    ...       (lambda * _:  _)(
    ...         (lambda * _:  _)(
@@ -1435,7 +1435,7 @@ Lissp Whirlwind Tour
    ...   ))
 
    #> (oops-triple 14)                    ;Oops. Templates qualify symbols!
-   >>> # oopsQz_triple
+   >>> # oopsQzH_triple
    ... (lambda __main__..x=(14):
    ...     __import__('builtins').globals()['QzPLUS_'](
    ...       __import__('builtins').globals()['x'],
@@ -1459,7 +1459,7 @@ Lissp Whirlwind Tour
    #..               (+ $#x (+ $#x $#x))))))
    >>> setattr(
    ...   _macro_,
-   ...   'onceQz_triple',
+   ...   'onceQzH_triple',
    ...   (lambda x:
    ...       (lambda * _:  _)(
    ...         (lambda * _:  _)(
@@ -1478,9 +1478,9 @@ Lissp Whirlwind Tour
    ...   ))
 
    #> (once-triple (loud-number 14))
-   >>> # onceQz_triple
+   >>> # onceQzH_triple
    ... (
-   ...  lambda _Qzif7wpgtu__x=loudQz_number(
+   ...  lambda _Qzif7wpgtu__x=loudQzH_number(
    ...           (14)):
    ...     __import__('builtins').globals()['QzPLUS_'](
    ...       _Qzif7wpgtu__x,
@@ -1932,7 +1932,7 @@ Lissp Whirlwind Tour
 
 
    ;; Reader macros compose like functions.
-   #> 'hissp.munger..demunge#Qz_QzLT_QzGT_QzGT_   ;Note the starting '.
+   #> 'hissp.munger..demunge#QzH_QzLT_QzGT_QzGT_   ;Note the starting '.
    >>> '-<>>'
    '-<>>'
 

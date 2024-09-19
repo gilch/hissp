@@ -560,9 +560,9 @@ Symbol tokens have another important difference from other fragments.
 
 .. code-block:: REPL
 
-   #> 'foo->bar? ; Qz_ is for "Hyphen", QzGT_ for "Greater Than/riGhT".
-   >>> 'fooQz_QzGT_barQzQUERY_'
-   'fooQz_QzGT_barQzQUERY_'
+   #> 'foo->bar? ; QzH_ is for "Hyphen", QzGT_ for "Greater Than/riGhT".
+   >>> 'fooQzH_QzGT_barQzQUERY_'
+   'fooQzH_QzGT_barQzQUERY_'
 
    #> "foo->bar?"
    >>> ('foo->bar?')

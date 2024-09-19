@@ -1892,7 +1892,7 @@ Let's make a slight tweak.
    ...                     (1),
    ...                     add(
    ...                       (1),
-   ...                       maxQz_X(
+   ...                       maxQzH_X(
    ...                         expr)))),
    ...                 expr)
    ...           ):
@@ -1934,38 +1934,38 @@ Can we just iterate through the expression and check?
    #..              expr))))
    >>> # define
    ... __import__('builtins').globals().update(
-   ...   maxQz_X=(lambda expr:
-   ...               max(
-   ...                 map(
-   ...                   (lambda x:
-   ...                       # ors
-   ...                       (lambda x0, x1: x0 or x1())(
-   ...                         # when
-   ...                         (lambda b, c: c()if b else())(
-   ...                           is_(
-   ...                             str,
-   ...                             type(
-   ...                               x)),
-   ...                           (lambda :
-   ...                               # let
-   ...                               (
-   ...                                lambda match=__import__('re').fullmatch(
-   ...                                         ('X([1-9][0-9]*)'),
-   ...                                         x):
-   ...                                   # when
-   ...                                   (lambda b, c: c()if b else())(
-   ...                                     match,
-   ...                                     (lambda :
-   ...                                         int(
-   ...                                           match.group(
-   ...                                             (1)))
-   ...                                     ))
-   ...                               )()
-   ...                           )),
-   ...                         (lambda : (0)))
-   ...                   ),
-   ...                   expr))
-   ...           ))
+   ...   maxQzH_X=(lambda expr:
+   ...                max(
+   ...                  map(
+   ...                    (lambda x:
+   ...                        # ors
+   ...                        (lambda x0, x1: x0 or x1())(
+   ...                          # when
+   ...                          (lambda b, c: c()if b else())(
+   ...                            is_(
+   ...                              str,
+   ...                              type(
+   ...                                x)),
+   ...                            (lambda :
+   ...                                # let
+   ...                                (
+   ...                                 lambda match=__import__('re').fullmatch(
+   ...                                          ('X([1-9][0-9]*)'),
+   ...                                          x):
+   ...                                    # when
+   ...                                    (lambda b, c: c()if b else())(
+   ...                                      match,
+   ...                                      (lambda :
+   ...                                          int(
+   ...                                            match.group(
+   ...                                              (1)))
+   ...                                      ))
+   ...                                )()
+   ...                            )),
+   ...                          (lambda : (0)))
+   ...                    ),
+   ...                    expr))
+   ...            ))
 
 
 Does that make sense?
@@ -2034,7 +2034,7 @@ This sounds like a job for recursion.
    ...               __import__('itertools').chain.from_iterable(
    ...                 map(
    ...                   (lambda x:
-   ...                       # ifQz_else
+   ...                       # ifQzH_else
    ...                       (lambda b, c, a: c()if b else a())(
    ...                         is_(
    ...                           type(
@@ -2073,39 +2073,39 @@ Now we can fix ``max-X``.
    #..              (flatten expr)))))
    >>> # define
    ... __import__('builtins').globals().update(
-   ...   maxQz_X=(lambda expr:
-   ...               max(
-   ...                 map(
-   ...                   (lambda x:
-   ...                       # ors
-   ...                       (lambda x0, x1: x0 or x1())(
-   ...                         # when
-   ...                         (lambda b, c: c()if b else())(
-   ...                           is_(
-   ...                             str,
-   ...                             type(
-   ...                               x)),
-   ...                           (lambda :
-   ...                               # let
-   ...                               (
-   ...                                lambda match=__import__('re').fullmatch(
-   ...                                         ('X([1-9][0-9]*)'),
-   ...                                         x):
-   ...                                   # when
-   ...                                   (lambda b, c: c()if b else())(
-   ...                                     match,
-   ...                                     (lambda :
-   ...                                         int(
-   ...                                           match.group(
-   ...                                             (1)))
-   ...                                     ))
-   ...                               )()
-   ...                           )),
-   ...                         (lambda : (0)))
-   ...                   ),
-   ...                   flatten(
-   ...                     expr)))
-   ...           ))
+   ...   maxQzH_X=(lambda expr:
+   ...                max(
+   ...                  map(
+   ...                    (lambda x:
+   ...                        # ors
+   ...                        (lambda x0, x1: x0 or x1())(
+   ...                          # when
+   ...                          (lambda b, c: c()if b else())(
+   ...                            is_(
+   ...                              str,
+   ...                              type(
+   ...                                x)),
+   ...                            (lambda :
+   ...                                # let
+   ...                                (
+   ...                                 lambda match=__import__('re').fullmatch(
+   ...                                          ('X([1-9][0-9]*)'),
+   ...                                          x):
+   ...                                    # when
+   ...                                    (lambda b, c: c()if b else())(
+   ...                                      match,
+   ...                                      (lambda :
+   ...                                          int(
+   ...                                            match.group(
+   ...                                              (1)))
+   ...                                      ))
+   ...                                )()
+   ...                            )),
+   ...                          (lambda : (0)))
+   ...                    ),
+   ...                    flatten(
+   ...                      expr)))
+   ...            ))
 
 
 Let's try again.
@@ -2352,7 +2352,7 @@ Catch-All Parameter
    ...                        (1),
    ...                        add(
    ...                          (1),
-   ...                          maxQz_X(
+   ...                          maxQzH_X(
    ...                            expr)))),
    ...                   ':',
    ...                   *# when
@@ -2498,7 +2498,7 @@ Here you go:
    ...                          (1),
    ...                          # ors
    ...                          (lambda x0, x1: x0 or x1())(
-   ...                            maxQz_X(
+   ...                            maxQzH_X(
    ...                              expr),
    ...                            (lambda :
    ...                                contains(
@@ -2518,7 +2518,7 @@ Here you go:
    ...                            ':*',
    ...                            'Xi')
    ...                      ))),
-   ...                 # ifQz_else
+   ...                 # ifQzH_else
    ...                 (lambda b, c, a: c()if b else a())(
    ...                   contains(
    ...                     flatten(
@@ -2961,7 +2961,7 @@ Or does it?
      File "<console>", line 1
        -16#1
            ^
-   SyntaxError: Unknown reader macro Qz_16
+   SyntaxError: Unknown reader macro QzH_16
 
 The minus sign changed the tag!
 If we don't want to define a new ``-16#`` tag
@@ -2981,7 +2981,7 @@ That worked. Not.
    #> 16#-FF
    Traceback (most recent call last):
      ...
-   ValueError: invalid literal for int() with base 16: 'Qz_FF'
+   ValueError: invalid literal for int() with base 16: 'QzH_FF'
 
 But this is fine.
 
@@ -3141,7 +3141,7 @@ Or you can add floating-point. Python's literal notation can't do that.
    ...                lambda x=__import__('hissp').demunge(
    ...                         str(
    ...                           x)):
-   ...                   # ifQz_else
+   ...                   # ifQzH_else
    ...                   (lambda b, c, a: c()if b else a())(
    ...                     __import__('re').search(
    ...                       ('[.Pp]'),
@@ -3747,7 +3747,7 @@ Now look at what we can do.
    'd'
 
    #> (-> (@ "abc") ([#0]) ([#::-1]))
-   >>> # Qz_QzGT_
+   >>> # QzH_QzGT_
    ... __import__('operator').itemgetter(
    ...   (__import__('builtins').globals()['slicer'][::-1]))(
    ...   __import__('operator').itemgetter(
@@ -3910,7 +3910,7 @@ It works.
 
    #> (.\[\# _macro_ '-1::-2]) ; shows Hissp expansion for [#-1::-2]
    >>> _macro_.QzLSQB_QzHASH_(
-   ...   'Qz_1QzCOLON_QzCOLON_Qz_2QzRSQB_')
+   ...   'QzH_1QzCOLON_QzCOLON_QzH_2QzRSQB_')
    ('lambda', 'a', '(a[-1::-2])')
 
    #> ([#-1::-2] "abcdefg")

@@ -234,7 +234,7 @@ This also goes for readerless mode:
            "lambda",
            ("n",),
            (
-               "ifQz_else",
+               "ifQzH_else",
                ("operator..le", "n", 2),
                "n",
                (
@@ -619,7 +619,7 @@ you may have to turn it off in places:
 
    ('define','fib'
     ,('lambda',('n',)
-      ,('ifQz_else',('operator..le','n',2,)
+      ,('ifQzH_else',('operator..le','n',2,)
         ,'n'
         ,('operator..add',('fib',('operator..sub','n',1,),)
                          ,('fib',('operator..sub','n',2,),),),),),)  # fmt: skip
@@ -636,7 +636,7 @@ Be consistent.
 
 Also note that in this example the tuple commas did not end the line,
 but rather started the next one.
-In the case of the ``ifQz_else`` macro,
+In the case of the ``ifQzH_else`` macro,
 this gave the body the proper additional column indent it would have had in Lissp.
 In the case of the ``operator..add`` function,
 this aligned the arguments.
@@ -764,7 +764,7 @@ Remember that `<# <QzLT_QzHASH_>` can also make multiline strings:
    THE FLOW.
 
 Notice the required `doorstop` and identical compilation.
-You can avoid the doorstop in this case by using the `-><Qz_QzGT_>` macro:
+You can avoid the doorstop in this case by using the `-><QzH_QzGT_>` macro:
 
 .. code-block:: REPL
 
@@ -773,7 +773,7 @@ You can avoid the doorstop in this case by using the `-><Qz_QzGT_>` macro:
    #..           ;; the flow.
    #..           .upper))
    >>> print(
-   ...   # Qz_QzGT_
+   ...   # QzH_QzGT_
    ...   "These lines\ndon't interrupt\nthe flow.".upper())
    THESE LINES
    DON'T INTERRUPT
@@ -1281,7 +1281,7 @@ For internal Lissp code,
 Python naming conventions are still acceptable,
 but the munger opens up more characters.
 Something like ``+FOO-BAR+`` is a perfectly valid Lissp identifier,
-but it munges to ``QzPLUS_FOOQz_BARQzPLUS_``,
+but it munges to ``QzPLUS_FOOQzH_BARQzPLUS_``,
 which is awkward to use from the Python side.
 
 Even in private areas,
