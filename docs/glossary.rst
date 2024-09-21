@@ -114,19 +114,18 @@ Glossary
       would evaluate to an object of type `str`.
       Not all `str atom`\ s are string literal fragments;
       it must contain a Python string literal expression.
-      `hissp.reader.is_string_literal` tests for string literal fragments.
+      `is_string_literal` tests for string literal fragments.
 
    hissp string
       A `form` or `parsed object` which would directly represents a string in Hissp,
       if evaluated on its own.
       All `string literal fragment`\ s are Hissp strings.
       A `quote`\ d `str atom` is also a Hissp string.
-      `hissp.reader.is_hissp_string` tests for Hissp strings.
+      `is_hissp_string` tests for Hissp strings.
 
    atom
-      A `form` that is not an instance of `tuple`.
-      (Exception: the empty tuple ``()`` can be considered an atom for most purposes,
-      even though it is an instance of `tuple`.)
+      A `form` that is either the empty tuple ``()`` or not of type `tuple`.
+      `is_atomic` tests for atoms.
 
    form
       An object meant for evaluation;
@@ -235,6 +234,7 @@ Glossary
       (Both Python and other Lisps use the term "`keyword`",
       but they mean `different things<tut-keywordargs>`,
       including Lisp's equivalent concept.)
+      `is_control` tests for control words.
 
    bare token
       An `object token` without the initial character marking it as a
@@ -256,6 +256,7 @@ Glossary
       A `module handle` or a `Python fragment` containing an identifier.
       (Possibly with `qualification`.)
       A symbols is always a `str atom`.
+      `is_symbol` tests for symbols.
 
    munging
       The process of replacing characters invalid in a Python identifier

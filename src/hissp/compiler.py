@@ -686,6 +686,23 @@ def macroexpand1(form, env: Optional[Dict[str, Any]] = None):
         return macro(*tail)
 
 
+def is_atomic(form) -> bool:
+    """Determines if form is an `atom`."""
+    return type(form) is not tuple or form == ()
+
+
+def is_symbol(form) -> bool:
+    """Determines if form is a `symbol`."""
+    return (type(form) is str and form != "") and all(
+        part.isidentifier() for part in f"{form}Q".replace("..", ".", 1).split(".")
+    )
+
+
+def is_control(form) -> bool:
+    """Determines if form is a `control word`."""
+    return type(form) is str and form.startswith(":")
+
+
 def macroexpand(form, env: Optional[Dict[str, Any]] = None):
     """Repeatedly macroexpand outermost form until not a macro form.
 
