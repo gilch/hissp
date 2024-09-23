@@ -148,14 +148,22 @@ Glossary
       `module handle`\ s also have a processing rule in the compiler,
       but aren't considered special forms.
 
-   parameters tuple
-   params tuple
-   parameters symbol
-   params symbol
    params
-      The first argument to the ``lambda`` `special form`,
-      typically either a tuple or a `str atom`.
-      Also a `macro` argument that becomes one of these.
+   params tuple
+   params symbol
+      The first argument to the ``lambda`` `special form`.
+      It represents the lambda parameters.
+      Typically either a tuple or a `str atom`,
+      but other iterables can work.
+      Also a `macro` argument that
+      becomes the whole params argument in a lambda expansion,
+      such as the first argument to `let-from<letQzH_from>`
+      or `any*map<anyQzSTAR_map>`.
+      The equivalent concept is called the “lambda list” in Common Lisp,
+      and the “params vector” in Clojure,
+      but Hissp is made of tuples,
+      not linked-lists or vectors,
+      hence “params tuple” when written with a tuple.
 
    injection
       Either a `Python injection` or a `Hissp injection`, depending on context.
@@ -203,6 +211,9 @@ Glossary
       `bytes` literal containing a serialization of the object.
       Evaluating it should result in an equivalent object.
 
+   fragment
+      A `fragment token`, `fragment atom`, or `python fragment`, depending on context.
+
    python fragment
       A piece of Python code, especially one emitted by the compiler.
       Typically a Python expression, but not necessarily anything complete.
@@ -211,7 +222,9 @@ Glossary
    fragment atom
       A `str atom` that is not a `control word`,
       especially if it does not simply contain an identifier or literal.
-      So called because the compiler's usual interpretation is to emit the contents directly,
+      So called because the compiler's usual interpretation
+      is to emit the contents directly
+      (making the contents a `Python fragment`),
       although there is a preprocessing step for imports (see `module handle`).
 
    fragment token
@@ -250,12 +263,12 @@ Glossary
    symbol token
       A `bare token` that is not a `literal token`.
       These are subject to `munging` and read as a `symbol`,
-      a type of `str atom`.
+      a type of `str atom` used for identifiers.
 
    symbol
       A `module handle` or a `Python fragment` containing an identifier.
       (Possibly with `qualification`.)
-      A symbols is always a `str atom`.
+      A symbol is always a `str atom`.
       `is_symbol` tests for symbols.
 
    munging
@@ -390,6 +403,7 @@ Glossary
       ``'``. A `special tag` abbreviating the ``quote`` `special form`.
       Sometimes called a "hard quote" to distinguish it from the `template quote`.
 
+   inject
    inject tag
       ``.#``. A `special tag` which evaluates the next
       `parsed object` and returns its result.
