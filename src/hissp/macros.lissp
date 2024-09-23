@@ -1169,75 +1169,127 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (hissp.._macro_.alias H: hissp.._macro_)
+  ;;    #> (hissp.._macro_.alias H hissp.)
   ;;    >>> # hissp.._macro_.alias
   ;;    ... # hissp.macros.._macro_.defmacro
   ;;    ... __import__('builtins').setattr(
   ;;    ...   __import__('builtins').globals().get(
   ;;    ...     ('_macro_')),
-  ;;    ...   'HQzCOLON_QzHASH_',
+  ;;    ...   'HQzHASH_',
   ;;    ...   # hissp.macros.._macro_.fun
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
-  ;;    ...    lambda _Qztxnqfmn3__lambda=(lambda _Qzchxbmu2d__attr, *_Qzchxbmu2d__args, **_Qzchxbmu2d__kwargs:
-  ;;    ...               # hissp.macros.._macro_.ifQzH_else
-  ;;    ...               (lambda b, c, a: c()if b else a())(
-  ;;    ...                 _Qzchxbmu2d__args,
-  ;;    ...                 (lambda :
-  ;;    ...                     __import__('builtins').getattr(
-  ;;    ...                       __import__('hissp')._macro_,
-  ;;    ...                       ('{}{}').format(
-  ;;    ...                         _Qzchxbmu2d__attr,
-  ;;    ...                         'QzHASH_'))(
-  ;;    ...                       *_Qzchxbmu2d__args,
-  ;;    ...                       **_Qzchxbmu2d__kwargs)
-  ;;    ...                 ),
-  ;;    ...                 (lambda :
-  ;;    ...                     ('{}.{}').format(
-  ;;    ...                       'hissp.._macro_',
-  ;;    ...                       _Qzchxbmu2d__attr)
-  ;;    ...                 ))
+  ;;    ...    lambda _Qztxnqfmn3__lambda=(lambda _Qzt6sscwjn__attr, /, *_Qzt6sscwjn__args, **_Qzt6sscwjn__kwargs:
+  ;;    ...               # hissp.macros.._macro_.let
+  ;;    ...               (
+  ;;    ...                lambda _Qzt6sscwjn__attr=# hissp.macros.._macro_.ifQzH_else
+  ;;    ...                       (lambda b, c, a: c()if b else a())(
+  ;;    ...                         __import__('hissp').is_control(
+  ;;    ...                           _Qzt6sscwjn__attr),
+  ;;    ...                         (lambda :
+  ;;    ...                             ('_macro_.{}{}').format(
+  ;;    ...                               __import__('hissp').munge(
+  ;;    ...                                 _Qzt6sscwjn__attr.__getitem__(
+  ;;    ...                                   __import__('builtins').slice(
+  ;;    ...                                     (1),
+  ;;    ...                                     None))),
+  ;;    ...                               # hissp.macros.._macro_.ifQzH_else
+  ;;    ...                               (lambda b, c, a: c()if b else a())(
+  ;;    ...                                 # hissp.macros.._macro_.ifQzH_else
+  ;;    ...                                 (lambda b, c, a: c()if b else a())(
+  ;;    ...                                   _Qzt6sscwjn__args,
+  ;;    ...                                   (lambda : ':or'),
+  ;;    ...                                   (lambda : _Qzt6sscwjn__kwargs)),
+  ;;    ...                                 (lambda : 'QzHASH_'),
+  ;;    ...                                 (lambda : (''))))
+  ;;    ...                         ),
+  ;;    ...                         (lambda : _Qzt6sscwjn__attr)):
+  ;;    ...                   # hissp.macros.._macro_.ifQzH_else
+  ;;    ...                   (lambda b, c, a: c()if b else a())(
+  ;;    ...                     # hissp.macros.._macro_.ifQzH_else
+  ;;    ...                     (lambda b, c, a: c()if b else a())(
+  ;;    ...                       _Qzt6sscwjn__args,
+  ;;    ...                       (lambda : ':or'),
+  ;;    ...                       (lambda : _Qzt6sscwjn__kwargs)),
+  ;;    ...                     (lambda :
+  ;;    ...                         __import__('operator').attrgetter(
+  ;;    ...                           _Qzt6sscwjn__attr)(
+  ;;    ...                           __import__('hissp'))(
+  ;;    ...                           *_Qzt6sscwjn__args,
+  ;;    ...                           **_Qzt6sscwjn__kwargs)
+  ;;    ...                     ),
+  ;;    ...                     (lambda :
+  ;;    ...                         ('{}.{}').format(
+  ;;    ...                           'hissp.',
+  ;;    ...                           _Qzt6sscwjn__attr)
+  ;;    ...                     ))
+  ;;    ...               )()
   ;;    ...           ):
   ;;    ...      (__import__('builtins').setattr(
   ;;    ...         _Qztxnqfmn3__lambda,
   ;;    ...         ('__doc__'),
-  ;;    ...         'Aliases ``hissp.._macro_`` as ``HQzCOLON_#``.'),
+  ;;    ...         'Aliases ``hissp.`` as ``H#``.'),
   ;;    ...       __import__('builtins').setattr(
   ;;    ...         _Qztxnqfmn3__lambda,
   ;;    ...         ('__code__'),
   ;;    ...         _Qztxnqfmn3__lambda.__code__.replace(
-  ;;    ...           co_name='HQzCOLON_QzHASH_')),
+  ;;    ...           co_name='HQzHASH_')),
   ;;    ...       __import__('builtins').setattr(
   ;;    ...         _Qztxnqfmn3__lambda,
   ;;    ...         ('__name__'),
-  ;;    ...         'HQzCOLON_QzHASH_'),
+  ;;    ...         'HQzHASH_'),
   ;;    ...       __import__('builtins').setattr(
   ;;    ...         _Qztxnqfmn3__lambda,
   ;;    ...         ('__qualname__'),
-  ;;    ...         '_macro_.HQzCOLON_QzHASH_'),
+  ;;    ...         '_macro_.HQzHASH_'),
   ;;    ...       _Qztxnqfmn3__lambda)  [-1]
   ;;    ...   )())
   ;;
-  ;;    #> 'H:#alias
-  ;;    >>> 'hissp.._macro_.alias'
-  ;;    'hissp.._macro_.alias'
+  ;;    #> 'H#munge ; New tag prepends qualifier.
+  ;;    >>> 'hissp..munge'
+  ;;    'hissp..munge'
   ;;
-  ;;    #> H:#b\#                              ;b# tag's callable
+  ;;    #> (H#munge "*") ; Normal function call.
+  ;;    >>> __import__('hissp').munge(
+  ;;    ...   ('*'))
+  ;;    'QzSTAR_'
+  ;;
+  ;;    #> 'H##munge|*| ; Read-time apply, like a fully-qualified tag.
+  ;;    >>> 'QzSTAR_'
+  ;;    'QzSTAR_'
+  ;;
+  ;;    #> 'H#:let-from ; control word inserts _macro_. Still munges.
+  ;;    >>> 'hissp.._macro_.letQzH_from'
+  ;;    'hissp.._macro_.letQzH_from'
+  ;;
+  ;;    #> (H#:let-from ab "AB" b) ; Macro form.
+  ;;    >>> # hissp.._macro_.letQzH_from
+  ;;    ... (lambda a, b: b)(
+  ;;    ...   *('AB'))
+  ;;    'B'
+  ;;
+  ;;    #> H#|:b#| ;b# tag's callable. Note #.
   ;;    >>> __import__('hissp')._macro_.bQzHASH_
   ;;    <function _macro_.bQzHASH_ at ...>
   ;;
-  ;;    #> (H:#b\# "b# at compile time")
+  ;;    #> (H#:b\#"b# at compile time") ; Macro form. :b\# == |:b#|
   ;;    >>> # hissp.._macro_.bQzHASH_
   ;;    ... b'b# at compile time'
   ;;    b'b# at compile time'
   ;;
-  ;;    #> hissp.._macro_.b#"Fully-qualified b# at read time."
+  ;;    #> hissp.._macro_.b#"Fully-qualified b# at read time." ; \# implied.
   ;;    >>> b'Fully-qualified b# at read time.'
   ;;    b'Fully-qualified b# at read time.'
   ;;
-  ;;    #> H:##b"Read-time b# via alias."
+  ;;    #> H##:b"Read-time b# via alias." ; \# implied.
   ;;    >>> b'Read-time b# via alias.'
   ;;    b'Read-time b# via alias.'
+  ;;
+  ;;    #> H###:@ ns=math. name='tau ; Kwargs also work.
+  ;;    >>> __import__('operator').attrgetter(
+  ;;    ...   'tau')(
+  ;;    ...   __import__('math'))
+  ;;    6.283185307179586
   ;;
   ;; The bundled `op# <opQzHASH_>` and `i# <iQzHASH_>` tags are aliases
   ;; for `operator` and `itertools`, respectively.
@@ -1246,14 +1298,17 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;;
   `(defmacro ,(.format "{}{}" abbreviation '#)
-             ($#attr : :* $#args  :** $#kwargs)
+             ($#attr :/ : :* $#args  :** $#kwargs)
      ',(.format "Aliases ``{}`` as ``{}#``." qualifier abbreviation)
-     (if-else $#args
-       ((getattr ,qualifier ,(if-else (.endswith qualifier '._macro_)
-                               `(.format "{}{}" ,'$#attr ','#)
-                               '$#attr))
-        : :* $#args  :** $#kwargs)
-       (.format "{}.{}" ',qualifier $#attr))))
+     (let ($#attr (if-else (hissp..is_control $#attr)
+                    (.format "_macro_.{}{}"
+                             (hissp..munge (.__getitem__ $#attr (slice 1 None)))
+                             (if-else (if-else $#args :or $#kwargs) ','# ""))
+                    $#attr))
+       (if-else (if-else $#args :or $#kwargs)
+         (((operator..attrgetter $#attr) ,qualifier)
+          : :* $#args  :** $#kwargs)
+         (.format "{}.{}" ',qualifier $#attr)))))
 
 (alias i itertools.)
 (alias op operator.)

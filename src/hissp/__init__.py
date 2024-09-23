@@ -96,7 +96,7 @@ def prelude(env):
     return "hissp.macros.._macro_.prelude", env
 
 
-def alias(abbreviation, qualifier="hissp.macros.._macro_"):
+def alias(abbreviation, qualifier):
     """Lissp alias shorthand `tag`.
 
     Usage: ``hissp..alias## abbreviation qualifier``,
@@ -105,9 +105,6 @@ def alias(abbreviation, qualifier="hissp.macros.._macro_"):
     .. code-block:: Lissp
 
        (hissp.macros.._macro_.alias abbreviation qualifier)
-
-    The single-argument form
-    ``hissp..alias#abbreviation`` aliases the bundled macro `qualifier`.
 
     See `hissp.macros._macro_.alias`.
     """

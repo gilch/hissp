@@ -1504,37 +1504,30 @@ unless there is a shorter well-known name in the community
 (like ``np#`` for NumPy or ``op#`` for operators)
 or for an internal module well-known within your project.
 
-When you want an alias both for a module and its macro namespace,
-use the alias for its macro namespace and define a
-global with the same name for the module:
-
-.. code-block:: Lissp
-
-   (alias baz foo.bar.baz.._macro_.)
-   (define baz foo.bar.baz.)
-
-   ;; Use a macro like
-   (baz#my-macro ...)
-
-   ;; Use a callable like
-   (baz.my-callable ...)
-
-Non-Hissp Python modules don't have a macro namespace and won't have this conflict.
-Aliases may be preferable in that case,
-because they have the advantage of never colliding
-with your module's locals or global function names,
-although they would use up a tag name instead,
-you probably won't have as many of those.
-
-Avoid reassigning non-module attributes from other modules as globals.
-(The usual result of a ``from bar import foo`` statement in Python when ``foo`` is a
-``*`` or is not a module.)
+Avoid reassigning attributes from other modules as globals
+without a very good reason.
+Yes, Python does this all the time.
+It's how `from` works at the :term:`top level`.
 Just access them as attributes from the module they belong to.
 This improves readability,
 and for internal project modules,
 improves reloadability during REPL-driven development.
 Otherwise, instead of just refreshing the module with the updated definition,
 every module reassigning it would have to be reloaded as well.
+
+Aliases are also preferred over assigning modules as globals
+(although this is less of a problem).
+They have the advantage of never colliding
+with your locals or global function names,
+although they would use up a tag name instead,
+you probably won't have as many of those.
+Symbols in templates can only be automatically qualified with the defining module's
+`__name__` or `builtins`.
+Using a name with a fully-qualifying alias in a template is like using
+the fully-qualified name,
+so it will be probably be imported from its canonical location
+(assuming you're aliasing that location),
+rather than from wherever the template happens to be defined.
 
 Sometimes separate packages use the same module name internally.
 Aliases are allowed to contain a dot.
@@ -1549,6 +1542,11 @@ For example, ``foo.bar.baz.`` could be aliased as
 A well-known name is also acceptable,
 e.g., ``numpy.random.`` could be aliased as ``np.random#`` instead of ``random#``,
 which is the same name as the standard library `random` module.
+Of course, there's no need to alias `random` as ``random#`` in the first place:
+``(random..random)`` isn't really worse than ``(random#random)``.
+The fully-qualified names are only one character longer.
+So this case is not really a conflict,
+although ``np.random#`` is potentially less confusing.
 
 Prefer using aliases over attaching a macro or tag from other modules to `_macro_`,
 because that's expecting everyone to have it memorized.
