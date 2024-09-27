@@ -291,7 +291,7 @@ you can use the installed entry point script::
 
 You should see the Lissp prompt ``#>`` appear.
 
-You can quit with ``(exit)`` or EOF [#EOF]_.
+You can quit with ``(exit)`` or `EOF`.
 
 Follow along with the examples by typing them into the Lissp REPL.
 Try variations that occur to you.
@@ -2333,10 +2333,6 @@ but ``spam.𝐀`` would do the same thing as ``spam.A``,
 and there would be no such attribute.
 
 .. rubric:: Footnotes
-
-.. [#EOF] End Of File. Usually Ctrl+D, but enter Ctrl+Z on Windows.
-          This doesn't quit Python if the REPL was launched from Python,
-          unlike ``(exit)``.
 
 .. [#capture] In natural language,
    anaphors are words used to avoid repetition,

@@ -485,4 +485,12 @@ Glossary
       variable bindings without explicitly naming them.
       Such a bound name is called an anaphor.
 
+   eof
+      `End-of-file <https://en.wikipedia.org/wiki/End-of-file>`_.
+      In most Unix terminals, use a :kbd:`Ctrl+D`,
+      or :kbd:`Ctrl+Z Enter` in Windows.
+      Quits a subREPL without also terminating the Python session,
+      unlike ``(exit)``,
+      and works similarly in most shells.
+
 ..  LocalWords:  Lissp str Hissp gensym readerless
