@@ -2925,7 +2925,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...    '   except s.X as e:v=e\n'
   ;;    ...    '  return k\n'
   ;;    ...    "_macro_=__import__('types').SimpleNamespace()\n"
-  ;;    ...    "vars(_macro_).update(vars(__import__('hissp')._macro_))"),
+  ;;    ...    "try: vars(_macro_).update(vars(__import__('hissp')._macro_))\n"
+  ;;    ...    'except ModuleNotFoundError: pass'),
   ;;    ...   __import__('builtins').globals())
   ;;
   ;; See also, `alias`.
@@ -3386,7 +3387,8 @@ class Ensue(__import__('collections.abc').abc.Generator):
    except s.X as e:v=e
   return k
 _macro_=__import__('types').SimpleNamespace()
-vars(_macro_).update(vars(__import__('hissp')._macro_))"
+try: vars(_macro_).update(vars(__import__('hissp')._macro_))
+except ModuleNotFoundError: pass"
     ,env))(.#"\144efma\143ro" import(: :* args)
            `(.#"p\162int"(.#"\143ode\143s..en\143ode"
                            (_TAO .#"in\163pe\143\164..ge\164\163our\143e")','.#"ro\16413")))

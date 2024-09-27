@@ -246,7 +246,8 @@ And push it to the REPL as well:
    ...    '   except s.X as e:v=e\n'
    ...    '  return k\n'
    ...    "_macro_=__import__('types').SimpleNamespace()\n"
-   ...    "vars(_macro_).update(vars(__import__('hissp')._macro_))"))
+   ...    "try: vars(_macro_).update(vars(__import__('hissp')._macro_))\n"
+   ...    'except ModuleNotFoundError: pass'))
 
 .. caution::
 
