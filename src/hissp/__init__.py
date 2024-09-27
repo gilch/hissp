@@ -111,15 +111,14 @@ def alias(abbreviation, qualifier):
     return "hissp.macros.._macro_.alias", abbreviation, qualifier
 
 
-def refresh(module):
+def refresh(module_name):
     """`REPL` convenience `tag` to recompile and reload a module.
 
-    Usage: ``hissp..refresh#foo.`` where ``foo.`` evaluates to a module.
+    Usage: ``hissp..refresh#'foo`` where ``foo`` is the `__name__`.
 
     An empty argument (``||`` or ``:``) means the current module.
 
     There must be a corresponding ``.lissp`` file present to recompile.
-    The module must have a ``__name__``.
 
     Refreshing the main module (which would have side effects) is not
     supported. Send the REPL updated top-level definitions individually,
@@ -133,11 +132,10 @@ def refresh(module):
     See also: `subrepl`, `hissp.reader.transpile`, `importlib.reload`.
     """
     return (
-        (('lambda',(':','name',('.get',("builtins..vars", module)
-                                      ,('quote','__name__',),),)
-          ,('hissp.reader..transpile','name.rpartition(".")[0]'
-                                     ,'name.rpartition(".")[-1]',)
-          ,('importlib..reload',('importlib..import_module','name',),),),)
+        (('lambda',(':','name','__name__',)
+          ,('hissp.reader..transpile','*name.rpartition(".")[::2]',)
+          ,('importlib..reload',('importlib..import_module','name',),),),
+         module_name,)
     )  # fmt: skip
 
 
