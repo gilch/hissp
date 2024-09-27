@@ -227,7 +227,7 @@ class Compiler:
     @_trace
     def lambda_(self, form: Tuple) -> str:
         R"""
-        Compile the anonymous function special form.
+        Compile the anonymous function `special form`.
 
         (lambda (<parameters>)
           <body>)
@@ -694,7 +694,7 @@ def is_atomic(form) -> bool:
 def is_symbol(form) -> bool:
     """Determines if form is a `symbol`."""
     return (type(form) is str and form != "") and all(
-        part.isidentifier() for part in f"{form}Q".replace("..", ".", 1).split(".")
+        part.isidentifier() for part in f"{form}_".replace("..", ".", 1).split(".")
     )
 
 

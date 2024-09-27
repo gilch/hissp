@@ -2243,7 +2243,7 @@ compilation could be disabled or removed altogether,
 especially when not distributing the ``.lissp`` sources.
 If you don't want the ``hissp`` package to be a dependency,
 make sure you remove or disable imports of it as well.
-For example, compilation (and hissp imports)
+For example, compilation (and :mod:`hissp` imports)
 could be conditioned on an environment variable
 or something set with the `site` hook.
 

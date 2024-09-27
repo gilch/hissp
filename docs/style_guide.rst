@@ -1761,7 +1761,7 @@ because functions can be easier to compose and pass as arguments.
 Newlines
 ::::::::
 
-Prefer Unix-style LF over the Dos/Windows CRLF for files in version control
+Prefer Unix-style LF over the DOS/Windows CRLF for files in version control
 that might be used on non-Windows systems.
 (Macintosh CR files are obsolete. Modern MacOS and Linux use LF.)
 Even on Windows, most code editors can handle LF files.

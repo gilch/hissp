@@ -514,9 +514,9 @@ You already know this.
 It's why you don't write assembly language when you can avoid it.
 It's not that assembly isn't powerful enough to do everything Python can.
 Ultimately, the machine only understands machine code.
+
 The best programming languages have some kind of expressive superpower.
 Features that lesser languages lack.
-
 Lisp's superpower is *metaprogramming*,
 and it's the power to copy the others.
 It's not that Python can't do metaprogramming at all.
@@ -555,7 +555,7 @@ Major features that would require a new language version in lower languages
 can be a library in a Lisp.
 It's how Clojure got Goroutines like Go and logic programming like Prolog,
 without changing the core language at all.
-The Lissp reader and Hissp compiler are both extensible with macros.
+The Lissp reader and Hissp compiler are both extensible with metaprograms.
 
 It's not just about getting other superpowers from other languages,
 but all the minor powers you can make yourself along the way.

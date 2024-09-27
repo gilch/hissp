@@ -156,7 +156,7 @@ class TestReader(TestCase):
             next(self.parser.reads("(x#)"))
 
     def test_reader_initial_dot(self):
-        msg = r"Unknown reader macro 'QzFULLxSTOP_foo'."
+        msg = r"Unknown tag 'QzFULLxSTOP_foo'."
         with self.assertRaisesRegex(SyntaxError, msg):
             next(self.parser.reads(".foo# 0"))
 

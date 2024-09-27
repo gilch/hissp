@@ -505,7 +505,7 @@ class Lissp:
         try:
             return getattr(self.env[C.MACROS], tag + munge("#"))
         except (AttributeError, KeyError):
-            raise SyntaxError(f"Unknown reader macro {tag!r}.", self.position())
+            raise SyntaxError(f"Unknown tag {tag!r}.", self.position())
 
     @staticmethod
     def escape(atom):

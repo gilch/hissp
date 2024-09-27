@@ -89,7 +89,7 @@ def prelude(env):
 
        (hissp.macros.._macro_.prelude env)
 
-    (A ``||`` or ``:`` argument causes `exec` to use the global env.)
+    (A ``||`` or ``:`` argument makes `exec` default to the global env.)
 
     See `hissp.macros._macro_.prelude`.
     """
@@ -149,7 +149,7 @@ def subrepl(module):
     Won't re-enter current module. Prints `__name__` on subREPL exit.
     (Exit a subREPL using EOF.)
 
-    See also: `refresh`, `hissp.repl.interact`, :term:`repl`.
+    See also: `refresh`, `hissp.repl.interact`, :term:`REPL`.
     """
     return (
         (('lambda',(':','module',module,)

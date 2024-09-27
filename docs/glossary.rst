@@ -86,7 +86,7 @@ Glossary
 
    special tag
       One of the built-in unary `tagging token`\ s
-      treated as a special case in the `reader`.
+      treated as a `special case<Lissp>` in the `reader`.
 
    comment token
       An `object token` consisting of one or more lines,
