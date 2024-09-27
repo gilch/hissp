@@ -742,7 +742,10 @@ def macroexpand_all(
     if type(exp) is not tuple or not exp or exp[0] == "quote":
         return exp
     if exp[0] != "lambda":
-        return tuple(macroexpand_all(e, env) for e in exp)
+        return tuple(
+            macroexpand_all(e, env, preprocess=preprocess, postprocess=postprocess)
+            for e in exp
+        )
     return "lambda", _pexpand(exp[1], env), *(macroexpand_all(e, env) for e in exp[2:])
 
 
