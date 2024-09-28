@@ -814,6 +814,7 @@ Commentary should create clarity, not confusion.
 
 Avoid adding superfluous "what"-comments that are obvious from looking at the code.
 (Except perhaps when writing language documentation for beginners ;)
+Separator comments used to imply groups are exempt.
 
 Prefer "why"-comments that describe rationale or intent.
 Your code is probably not as "self-documenting" as you think it is.
@@ -1166,14 +1167,15 @@ and into functions run by a `name_equals_main` guard or separate scripts.
 Move the experiments you want to keep running to assertions.
 (See `assure`, `unittest`, and `doctest`.)
 
-A discarded string with code following it in line is acceptable as commentary,
+A discarded :term:`Unicode token`, :term:`control token`,
+or :term:`fragment token` with code following it in line is acceptable as commentary,
 but use this style sparingly.
 Include an arrow or "NB" (*nota bene*) in the string to make it clear this is a comment
 and not just disabled code:
 
 .. code-block:: Lissp
 
-   (print 1 2 _#"<- even number" 3 _#"also even ->" 4
+   (print 1 2 _#:<-even 3 _#|also even ->| 4
           : sep : _#"NB Control words compile to strings!")
 
 An extra space is typically used to imply separation between groups on the same line.
@@ -1184,8 +1186,9 @@ Avoid more than two spaces in a row for implying separation between groups in a 
 or more than one ``;;`` separator line in succession.
 In rare cases where those aren't enough levels,
 or newlines and ``;;`` lines would spread things out too much,
-it is acceptable to additionally use discarded symbols like ``_#,``
-within a line to indicate greater separation than the extra spaces.
+it is acceptable to additionally use discarded punctuation
+(like ``_#:``, ``_#:,``, or ``_#\;``, etc.)
+within a line, to indicate greater separation than the extra spaces.
 
 These are also used in the :term:`doorstop`
 ``_#/`` used to "hold open" a trail of brackets.
@@ -1696,13 +1699,19 @@ even in an implied group:
            :else
            (print "0"))))
 
-   (defun compare (xs ys)                 ;OK. The ;; smells though.
+   (defun compare (xs ys)                 ;OK. Use discard comments sparingly.
      (cond (lt (len xs) (len ys))
            (print "<")
-           ;;                             ;Separator comments can be empty
-           (gt (len xs) (len ys))         ; (unless there's something to say.)
+           _#:elif->(gt (len xs) (len ys)) ;Unambiguous, but unaligned.
            (print ">")
-           ;; No internal ), so 1 line is OK. Still grouped.
+           :else (print "0")))) ; No internal ), so 1 line is OK. Still grouped.
+
+   (defun compare (xs ys)                 ;OK. Better.
+     (cond (lt (len xs) (len ys))
+           (print "<")
+           ;; else if                     ;Comment not optional. Needed for grouping.
+           (gt (len xs) (len ys))         ; Sometimes you need more than one.
+           (print ">")
            :else (print "0"))))
 
    (defun compare (xs ys)                 ;Preferred. Keep cond simple.
@@ -1995,6 +2004,36 @@ You need only modify forms containing long lines (or contained in long lines).
    ;; Very bad! Confusing style. Break on `)` first!
    (function1 arg1 (function2 arg1
                               arg2) arg2 (function3 arg1 arg2))
+
+   ;; OK. Meaningful groups, even though ``)`` not broken first.
+   (cond (test1 x) (function1 arg1 arg2)
+         (test2 x) (function2 arg1
+                              arg2
+                              arg3
+                              arg4)
+         :else (function3 arg1 arg2))
+
+   ;; Bad. Confusing style.
+   (cond (test1 x) (function1 arg1 arg2)
+         (test2 argument1
+                argument2
+                argument3) (function2 arg1
+                                      arg2
+                                      arg3
+                                      arg4)
+         :else (function3 arg1 arg2))
+
+   ;; OK.
+   (cond (test1 x) (function1 arg1 arg2)
+         ;; else if
+         (test2 argument1
+                argument2
+                argument3)
+         (function2 arg1
+                    arg2
+                    arg3
+                    arg4)
+         :else (function3 arg1 arg2))
 
    ;; Bad. Meaningless implied groupings.
    (function1 arg1 arg2 (function2 arg1 arg2)
