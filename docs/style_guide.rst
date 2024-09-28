@@ -396,7 +396,7 @@ The use of the bundled macros is completely optional.
 Tuples
 ::::::
 
-By default, separate `top level` forms from each other with a single blank like.
+By default, separate :term:`top level` forms from each other with a single blank like.
 Don't use multiple blank lines in succession.
 When greater separation is required, use comments.
 
@@ -425,7 +425,7 @@ should be segmented by `let` indentation or similar lambda-body forms
 without resorting to blank lines.
 
 Blank lines are OK in docstrings,
-but comment strings (`<# <QzLT_QzHASH_>`) instead of `Unicode token`\ s
+but comment strings (`<# <QzLT_QzHASH_>`) instead of :term:`Unicode token`\ s
 are preferred for docstrings when they have more than a single paragraph.
 
 Keep the elements in a tuple aligned to start on the same column.
@@ -763,7 +763,7 @@ Remember that `<# <QzLT_QzHASH_>` can also make multiline strings:
    DON'T INTERRUPT
    THE FLOW.
 
-Notice the required `doorstop` and identical compilation.
+Notice the required :term:`doorstop` and identical compilation.
 You can avoid the doorstop in this case by using the `-><QzH_QzGT_>` macro:
 
 .. code-block:: REPL
@@ -780,7 +780,8 @@ You can avoid the doorstop in this case by using the `-><QzH_QzGT_>` macro:
    THE FLOW.
 
 With the principal exception of docstrings,
-long multiline `Unicode token`\ s should be declared at the `top level`
+long multiline :term:`Unicode token`\ s
+should be declared at the :term:`top level`
 and referenced by name:
 
 .. code-block:: Lissp
@@ -979,9 +980,9 @@ typically the reader tag itself.
 In the rare case neither is valid (if the macro is counting the semicolons),
 then it's a margin comment. Indent it to the margin.
 
-Be careful with comments around detached `tagging token`\ s!
-`Comment token`\ s are normally discarded by the reader in Lissp,
-but they are a valid target for `tagging token`\ s,
+Be careful with comments around detached :term:`tagging token`\ s!
+:term:`Comment token`\ s are normally discarded by the reader in Lissp,
+but they are a valid target for :term:`tagging token`\ s,
 in which case they may be treated as literal values.
 Avoid using inline or margin comments as commentary between a tag and its target,
 as this can cause errors when they are instead treated as arguments.
@@ -1001,14 +1002,15 @@ Avoid using either margin or inline comments
 in any situation that would result in a dangling bracket.
 It's not acceptable for the comment to follow the bracket either,
 if the comment isn't about the whole tuple.
-You may instead hold open the bracket with a `doorstop`,
+You may instead hold open the bracket with a :term:`doorstop`,
 convert the comment to a discarded string ``_#"NB foo")``,
 or (if appropriate) use a form/group ``;;`` comment above the item, as described below.
 
 ;; Form/Group Comments
 ++++++++++++++++++++++
 
-Comments about the next `form` (or group) begin with two semicolons and a space ``;; x``,
+Comments about the next :term:`form` (or group)
+begin with two semicolons and a space ``;; x``,
 and are indented to align as if they were forms,
 and are not followed by a blank line.
 These comments can be continued with additional lines with the same indent and beginning,
@@ -1024,7 +1026,7 @@ Prefer class and function docstrings over ``;;`` comments where applicable.
 ;;; Top-Level Comments
 ++++++++++++++++++++++
 
-Top-level commentary lines not attached to any `form` in particular
+Top-level commentary lines not attached to any :term:`form` in particular
 begin with three semicolons and a space ``;;; Foo Bar``.
 Top-level comments are separated from code with a blank line.
 They are never indented.
@@ -1032,7 +1034,7 @@ These comments can be continued with additional lines with the same beginning,
 forming a comment block.
 
 Standard usage for more than two semicolons varies with Lisp dialect,
-but they are consistently ony for the `top level` and have no indent.
+but they are consistently ony for the :term:`top level` and have no indent.
 
 Some Lisp styles use triple and quadruple semicolons for headings and subheadings,
 but differ on which is which.
@@ -1051,7 +1053,8 @@ Headings begin with four semicolons and a space ``;;;; Foo Bar``,
 fit on one line,
 and are written in ``Title Case`` by default.
 
-Headings are for the `top level` only; they aren't nested in `form`\ s;
+Headings are for the :term:`top level` only;
+they aren't nested in :term:`form`\ s;
 they get their own line and start at the beginning of it.
 They have a blank line before (unless it's the first line) and after.
 They should not have additional continuation lines.
@@ -1137,17 +1140,17 @@ Lissp file, where they'd head what would normally be modules in separate files.
 _#_#_#The Discard Macro
 +++++++++++++++++++++++
 
-The discard macro ``_#`` applied to a `Unicode token` is acceptable for long block comments
-at the top level.
+The discard macro ``_#`` applied to a :term:`Unicode token`
+is acceptable for long block comments at the top level.
 
 Several discard macros may be used in a row to comment out that many forms following them.
 
 A discarded tuple may be used to contain scratch code during development.
 But beware that discarded code is still *read*,
-executing any `tag`\ s.
+executing any :term:`tag`\ s.
 
-(This is one of several reasons why `tag`
-`metaprogram`\ s should avoid side effects,
+(This is one of several reasons why :term:`tag`
+:term:`metaprogram`\ s should avoid side effects,
 or at least be idempotent.
 Of course,
 such a metaprogram indented to be well-behaved may
@@ -1184,7 +1187,8 @@ or newlines and ``;;`` lines would spread things out too much,
 it is acceptable to additionally use discarded symbols like ``_#,``
 within a line to indicate greater separation than the extra spaces.
 
-These are also used in the `doorstop` ``_#/`` used to "hold open" a trail of brackets.
+These are also used in the :term:`doorstop`
+``_#/`` used to "hold open" a trail of brackets.
 
 "Docstrings"
 ++++++++++++
@@ -1204,7 +1208,7 @@ but still do not describe their object's implementation details.
 The first expression of a module (if it compiles to a string literal) is its docstring.
 Prefer this form over assigning the ``__doc__`` global directly.
 
-The ``lambda`` `special form` does not create docstrings.
+The ``lambda`` :term:`special form` does not create docstrings.
 However, you can attach a ``.__doc__`` attribute to the lambda object after creating it,
 e.g., using the `attach` macro. The `defun` macro does this for you.
 
@@ -1232,7 +1236,7 @@ and it's done for the entire project.
 E.g., MyST Markdown also has pretty good support now.
 You can automatically generate API documentation with either of these.
 
-`Anaphoric <anaphoric macro>` or `injection` macros are potential gotchas.
+:term:`Anaphoric <anaphoric macro>` or :term:`injection` macros are potential gotchas.
 Docstrings for these should include the word "Anaphoric" or "Injection" up front.
 Anaphoric macro docstrings should also state what the anaphors are,
 named in doubled backticks.
@@ -1304,8 +1308,8 @@ and should be more descriptive in most cases.
 Single-letter names following a strong mathematical or coding convention
 may be clear enough even over wider scopes.
 
-It's idiomatic in Lissp to use a `symbol` as the `params` when they'd each be one
-(non-munging) character:
+It's idiomatic in Lissp to use a :term:`symbol`
+as the :term:`params` when they'd each be one (non-munging) character:
 
 .. code-block:: Lissp
 
@@ -1336,7 +1340,8 @@ but it's a very strong convention.
 
 For very terse code, ``s`` and ``c`` may be acceptable alternatives,
 but the conventional names are preferred.
-Macros or tags may need to use `gensym`\ s or `anaphor`\ s for these,
+Macros or tags may need to use :term:`gensym`\ s or
+:term:`anaphor`\ s for these,
 and that is also acceptable.
 
 Avoid abbreviating local identifiers otherwise.
@@ -1380,7 +1385,7 @@ Conventional short names include, but are not limited to,
   Prefer a more meaningful name, as ``args``.
 
 Prepend an ``i`` to the variable name for once-through iterators,
-especially when you call `iter` on a variable with otherwise the same name:
+especially when you call :func:`iter` on a variable with otherwise the same name:
 
 .. code-block:: Lissp
 
@@ -1734,7 +1739,8 @@ Avoid more than four heterogeneous positional parameters without a very good rea
 and preferably no more than three.
 This limit doesn't apply to homogeneous star args
 (effectively a single tuple arg, positioned last)
-or to `kwonly<keyword-only_parameter>` arguments (effectively a single dict arg),
+or to `kwonly<keyword-only_parameter>` arguments
+(effectively a single dict arg),
 although that isn't license to overcomplicate functions.
 The order of arguments is often meaningless,
 and imposing any particular permutation becomes harder to justify the more there are.
@@ -1790,13 +1796,13 @@ to make trailing whitespace visible,
 although there are many cases you might be viewing code outside your primary editor.
 
 Failing that, automation to automatically strip it is also common practice.
-However, trailing whitespace can be significant in multiline `Unicode token`\ s,
+However, trailing whitespace can be significant in multiline :term:`Unicode token`\ s,
 and similarly in `Comment`\ s that are not discarded.
 
 Trailing spaces are significant in certain languages you may sometimes
 want to embed in your code, such as Markdown.
 
-In the case of `Unicode token`\ s,
+In the case of :term:`Unicode token`\ s,
 it's usually preferable to use explicit escape sequences,
 like ``\N{space}``
 to clearly indicate to humans that those trailing spaces are intentional,
