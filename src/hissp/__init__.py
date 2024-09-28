@@ -32,18 +32,45 @@ https://github.com/gilch/hissp
 
 ``__init__.py`` imports several utilities for convenience, including
 
-* `hissp.compiler.readerless`,
-* `hissp.munger.demunge`,
-* `hissp.munger.munge`,
-* `hissp.reader.transpile`, and
-* `hissp.repl.interact`,
+* from :mod:`hissp.compiler`:
+
+  * `Compiler`
+  * `is_atomic`
+  * `is_control`
+  * `is_symbol`
+  * `readerless`
+  * `macroexpand`
+  * `macroexpand1`
+  * `macroexpand_all`
+
+* from :mod:`hissp.munger`:
+
+  * `demunge`
+  * `munge`
+
+* from :mod:`hissp.reader`:
+
+  * `transpile`
+  * `is_hissp_string`
+  * `is_string_literal`
+
+* and `hissp.repl.interact`
 
 as well as the `hissp.macros._macro_` namespace, making all the bundled
-macros available with the shorter ``hissp.._macro_`` qualifier.
+`macros` available with the shorter ``hissp.._macro_`` `qualifier`.
 """
-from hissp.compiler import Compiler, readerless
+from hissp.compiler import (
+    Compiler,
+    is_atomic,
+    is_control,
+    is_symbol,
+    readerless,
+    macroexpand,
+    macroexpand1,
+    macroexpand_all,
+)
 from hissp.munger import demunge, munge
-from hissp.reader import transpile
+from hissp.reader import transpile, is_hissp_string, is_string_literal
 from hissp.repl import interact
 
 # Hissp must be importable to compile macros.lissp the first time.
@@ -53,25 +80,24 @@ with __import__("contextlib").suppress(ImportError):
 VERSION = "0.5.dev"
 
 
-def prelude(ns):
-    """Lissp prelude shorthand tag.
+def prelude(env):
+    """Lissp prelude shorthand `tag`.
 
-    Usage: ``hissp..prelude#ns``, which expands to
+    Usage: ``hissp..prelude#env``, which expands to
 
     .. code-block:: Lissp
 
-       (hissp.macros.._macro_.prelude ns)
+       (hissp.macros.._macro_.prelude env)
 
-    ``hissp..prelude#:`` is short for
-    ``hissp..prelude#(builtins..globals)``.
+    (A ``||`` or ``:`` argument makes `exec` default to the global env.)
 
     See `hissp.macros._macro_.prelude`.
     """
-    return "hissp.macros.._macro_.prelude", *([] if ns == ":" else [ns])
+    return "hissp.macros.._macro_.prelude", env
 
 
-def alias(abbreviation, qualifier="hissp.macros.._macro_"):
-    """Lissp alias shorthand tag.
+def alias(abbreviation, qualifier):
+    """Lissp alias shorthand `tag`.
 
     Usage: ``hissp..alias## abbreviation qualifier``,
     which expands to
@@ -80,46 +106,53 @@ def alias(abbreviation, qualifier="hissp.macros.._macro_"):
 
        (hissp.macros.._macro_.alias abbreviation qualifier)
 
-    The single-argument form
-    ``hissp..alias#abbreviation`` aliases the bundled macro qualifier.
-
     See `hissp.macros._macro_.alias`.
     """
     return "hissp.macros.._macro_.alias", abbreviation, qualifier
 
 
-def refresh(module):
-    """REPL convenience tag to recompile and reload a module.
+def refresh(module_name):
+    """`REPL` convenience `tag` to recompile and reload a module.
 
-    Usage: ``hissp..refresh#foo.`` where ``foo.`` evaluates to a module.
+    Usage: ``hissp..refresh#'foo`` where ``foo`` is the `__name__`.
+
+    An empty argument (``||`` or ``:``) means the current module.
 
     There must be a corresponding ``.lissp`` file present to recompile.
-    The module must have a ``__name__``.
-
-    ``hissp..refresh#:`` will attempt to recompile the current module.
 
     Refreshing the main module (which would have side effects) is not
-    supported. Send the REPL updated top-level definitions individually
-    or restart the REPL instead. A corresponding compiled Python file is
-    not required for a ``.lissp`` file run as the main module.
+    supported. Send the REPL updated top-level definitions individually,
+    or restart the REPL instead. (A corresponding compiled Python file is
+    not required for a ``.lissp`` file run as the main module.)
+
+    While potentially confusing, Python can import the .py file used as
+    main again using its name. These are considered separate modules by
+    the runtime.
 
     See also: `subrepl`, `hissp.reader.transpile`, `importlib.reload`.
     """
-    ns = ("builtins..globals",) if module == ":" else ("builtins..vars", module)
     return (
-        (('lambda',(':','ns',ns,)
-          ,('hissp.reader..transpile',('.get','ns',('quote','__package__',),)
-                                     ,'ns["__name__"].rpartition(".")[-1]',)
-          ,('importlib..reload',
-            ('importlib..import_module',('.get','ns',('quote','__name__',),),),),),)
+        (('lambda',(':','name','__name__',)
+          ,('hissp.reader..transpile','*name.rpartition(".")[::2]',)
+          ,('importlib..reload',('importlib..import_module','name',),),),
+         module_name,)
     )  # fmt: skip
 
 
 def subrepl(module):
-    """Convenience tag to start a Lissp subREPL in the given module.
+    """Convenience `tag` to start a Lissp subREPL in the given module.
 
     Usage: ``hissp..subrepl#foo.`` where ``foo.`` evaluates to a module.
 
-    See also: `hissp.repl.interact`.
+    Won't re-enter current module. Prints `__name__` on subREPL exit.
+    (Exit a subREPL using EOF.)
+
+    See also: `refresh`, `hissp.repl.interact`, :term:`REPL`.
     """
-    return "hissp..interact", ("builtins..vars", module)
+    return (
+        (('lambda',(':','module',module,)
+          ,('hissp.._macro_.unless','__name__==module.__name__'
+            ,('print',('quote','Entering',),'module.__name__')
+            ,("hissp..interact", ("builtins..vars", 'module',),)
+            ,('print',('quote','back in',),'__name__',),),),)
+    )  # fmt: skip

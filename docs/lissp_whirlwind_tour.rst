@@ -196,7 +196,7 @@ Lissp Whirlwind Tour
    6.283185307179586
 
    #> collections.abc.                    ;Submodule handle. Has package name.
-   >>> __import__('collections.abc',fromlist='?')
+   >>> __import__('collections.abc',fromlist='*')
    <module 'collections.abc' from '...abc.py'>
 
 
@@ -205,7 +205,7 @@ Lissp Whirlwind Tour
    <class 'type'>
 
    #> collections.abc..Sequence.__class__.__name__ ;Chaining.
-   >>> __import__('collections.abc',fromlist='?').Sequence.__class__.__name__
+   >>> __import__('collections.abc',fromlist='*').Sequence.__class__.__name__
    'ABCMeta'
 
 
@@ -356,23 +356,23 @@ Lissp Whirlwind Tour
    >>> 'QzPLUS_'
    'QzPLUS_'
 
-   #> 'Also-a-symbol!                     ;Alias for 'AlsoQz_aQz_symbolQzBANG_
-   >>> 'AlsoQz_aQz_symbolQzBANG_'
-   'AlsoQz_aQz_symbolQzBANG_'
+   #> 'Also-a-symbol!                     ;Alias for 'AlsoQzH_aQzH_symbolQzBANG_
+   >>> 'AlsoQzH_aQzH_symbolQzBANG_'
+   'AlsoQzH_aQzH_symbolQzBANG_'
 
-   #> '𝐀                                  ;Alias for 'A (unicode normal form KC)
+   #> '𝐀                                  ;Alias for 'A (Unicode normal form KC)
    >>> 'A'
    'A'
 
    #> '-<>>
-   >>> 'Qz_QzLT_QzGT_QzGT_'
-   'Qz_QzLT_QzGT_QzGT_'
+   >>> 'QzH_QzLT_QzGT_QzGT_'
+   'QzH_QzLT_QzGT_QzGT_'
 
    #> :-<>>                               ;Doesn't represent identifier; doesn't munge.
    >>> ':-<>>'
    ':-<>>'
 
-   #> :                                   ;Shortest a control word.
+   #> :                                   ;Shortest control word.
    >>> ':'
    ':'
 
@@ -428,8 +428,8 @@ Lissp Whirlwind Tour
    'a string'
 
    #> 'not-string'                        ;Symbol
-   >>> 'notQz_stringQzAPOS_'
-   'notQz_stringQzAPOS_'
+   >>> 'notQzH_stringQzAPOS_'
+   'notQzH_stringQzAPOS_'
 
 
    #> '|"a string"|
@@ -675,13 +675,13 @@ Lissp Whirlwind Tour
 
    #> (.update (globals) : bool->caller (dict))
    >>> globals().update(
-   ...   boolQz_QzGT_caller=dict())
+   ...   boolQzH_QzGT_caller=dict())
 
 
    ;; True calls left.
    #> (operator..setitem bool->caller True (lambda (L R) (L)))
    >>> __import__('operator').setitem(
-   ...   boolQz_QzGT_caller,
+   ...   boolQzH_QzGT_caller,
    ...   True,
    ...   (lambda L, R: L()))
 
@@ -689,7 +689,7 @@ Lissp Whirlwind Tour
    ;; False calls right.
    #> (operator..setitem bool->caller False (lambda (L R) (R)))
    >>> __import__('operator').setitem(
-   ...   boolQz_QzGT_caller,
+   ...   boolQzH_QzGT_caller,
    ...   False,
    ...   (lambda L, R: R()))
 
@@ -702,7 +702,7 @@ Lissp Whirlwind Tour
    >>> globals().update(
    ...   ternary=(lambda condition, then_thunk, else_thunk:
    ...               __import__('operator').getitem(
-   ...                 boolQz_QzGT_caller,
+   ...                 boolQzH_QzGT_caller,
    ...                 bool(
    ...                   condition))(
    ...                 then_thunk,
@@ -920,7 +920,7 @@ Lissp Whirlwind Tour
    ;; The readerless function runs the Hissp compiler without the Lissp reader.
    ;; (Remember, _ is the last result that wasn't None in the Python REPL.)
    #> (hissp.compiler..readerless _)      ;It compiles to Python
-   >>> __import__('hissp.compiler',fromlist='?').readerless(
+   >>> __import__('hissp.compiler',fromlist='*').readerless(
    ...   _)
    "print(\n  (1),\n  (2),\n  (3),\n  sep=('-'))"
 
@@ -1039,57 +1039,62 @@ Lissp Whirlwind Tour
 
 
    #> `(print "Hi")                       ;Code as data. Seems to act like quote.
-   >>> (lambda * _:  _)(
+   >>> (
    ...   'builtins..print',
-   ...   "('Hi')")
+   ...   "('Hi')",
+   ...   )
    ('builtins..print', "('Hi')")
 
    #> '`(print "Hi")                      ;But it's making a program to create the data.
-   >>> (('lambda',
-   ...   (':',
-   ...    ':*',
-   ...    ' _',),
-   ...   ' _',),
+   >>> ('',
    ...  ':',
    ...  ':?',
    ...  ('quote',
    ...   'builtins..print',),
    ...  ':?',
    ...  ('quote',
-   ...   "('Hi')",),)
-   (('lambda', (':', ':*', ' _'), ' _'), ':', ':?', ('quote', 'builtins..print'), ':?', ('quote', "('Hi')"))
+   ...   "('Hi')",),
+   ...  ':?',
+   ...  '',)
+   ('', ':', ':?', ('quote', 'builtins..print'), ':?', ('quote', "('Hi')"), ':?', '')
 
    #> `(print ,(.upper "Hi"))             ;Unquote (,) interpolates.
-   >>> (lambda * _:  _)(
+   >>> (
    ...   'builtins..print',
-   ...   ('Hi').upper())
+   ...   ('Hi').upper(),
+   ...   )
    ('builtins..print', 'HI')
 
 
    #> `(,'foo+2 foo+2)                    ;Interpolations not auto-qualified!
-   >>> (lambda * _:  _)(
+   >>> (
    ...   'fooQzPLUS_2',
-   ...   '__main__..fooQzPLUS_2')
+   ...   '__main__..fooQzPLUS_2',
+   ...   )
    ('fooQzPLUS_2', '__main__..fooQzPLUS_2')
 
    #> `(print ,@"abc")                    ;Splice unquote (,@) interpolates and unpacks.
-   >>> (lambda * _:  _)(
+   >>> (
    ...   'builtins..print',
-   ...   *('abc'))
+   ...   *('abc'),
+   ...   )
    ('builtins..print', 'a', 'b', 'c')
 
    #> `(print (.upper "abc"))             ;Template quoting is recursive
-   >>> (lambda * _:  _)(
+   >>> (
    ...   'builtins..print',
-   ...   (lambda * _:  _)(
+   ...   (
    ...     '.upper',
-   ...     "('abc')"))
+   ...     "('abc')",
+   ...     ),
+   ...   )
    ('builtins..print', ('.upper', "('abc')"))
 
    #> `(print ,@(.upper "abc"))           ; unless suppressed by an unquote.
-   >>> (lambda * _:  _)(
+   >>> (
    ...   'builtins..print',
-   ...   *('abc').upper())
+   ...   *('abc').upper(),
+   ...   )
    ('builtins..print', 'A', 'B', 'C')
 
 
@@ -1102,22 +1107,23 @@ Lissp Whirlwind Tour
    ;;; a count of the templates the reader has seen so far.
 
    #> `($#eggs $#spam $#bacon $#spam)
-   >>> (lambda * _:  _)(
-   ...   '_QzIWMX5OB2z___eggs',
-   ...   '_QzIWMX5OB2z___spam',
-   ...   '_QzIWMX5OB2z___bacon',
-   ...   '_QzIWMX5OB2z___spam')
-   ('_QzIWMX5OB2z___eggs', '_QzIWMX5OB2z___spam', '_QzIWMX5OB2z___bacon', '_QzIWMX5OB2z___spam')
+   >>> (
+   ...   '_Qziwmx5ob2__eggs',
+   ...   '_Qziwmx5ob2__spam',
+   ...   '_Qziwmx5ob2__bacon',
+   ...   '_Qziwmx5ob2__spam',
+   ...   )
+   ('_Qziwmx5ob2__eggs', '_Qziwmx5ob2__spam', '_Qziwmx5ob2__bacon', '_Qziwmx5ob2__spam')
 
    ;; Each new template increases the count, so it results in a new hash,
    #> `$#spam
-   >>> '_QzIOSOZAXYz___spam'
-   '_QzIOSOZAXYz___spam'
+   >>> '_Qziosozaxy__spam'
+   '_Qziosozaxy__spam'
 
    ;; even if the code is identical.
    #> `$#spam
-   >>> '_QzY6OWMZS7z___spam'
-   '_QzY6OWMZS7z___spam'
+   >>> '_Qzy6owmzs7__spam'
+   '_Qzy6owmzs7__spam'
 
    ;;; However, the hashing procedure is fully deterministic, so builds are
    ;;; reproducible even when they contain generated symbols.
@@ -1126,16 +1132,16 @@ Lissp Whirlwind Tour
    ;; but you can put them anywhere in the symbol; $ marks the positions.
    ;; Lacking a gensym prefix, it gets fully qualified by the template.
    #> `$#spam$.$eggs$
-   >>> '__main__..spam_QzA4IBV7J7z___._QzA4IBV7J7z___eggs_QzA4IBV7J7z___'
-   '__main__..spam_QzA4IBV7J7z___._QzA4IBV7J7z___eggs_QzA4IBV7J7z___'
+   >>> '__main__..spam_Qza4ibv7j7__._Qza4ibv7j7__eggs_Qza4ibv7j7__'
+   '__main__..spam_Qza4ibv7j7__._Qza4ibv7j7__eggs_Qza4ibv7j7__'
 
 
    ;; This is typically used for partially-qualified variables,
    ;; i.e., with an explicit namespace that is not a module handle.
    ;; The interpolation suppressed auto-qualification.
    #> `,'$#self.$foo
-   >>> 'self._Qz7UU6WAD6z___foo'
-   'self._Qz7UU6WAD6z___foo'
+   >>> 'self._Qz7uu6wad6__foo'
+   'self._Qz7uu6wad6__foo'
 
 
    ;;; You can use templates to make collections with interpolated values.
@@ -1148,7 +1154,7 @@ Lissp Whirlwind Tour
    #..        ,(+ 1 1)
    #..        ,(+ 1 2)))
    >>> list(
-   ...   (lambda * _:  _)(
+   ...   (
    ...     *('abc'),
    ...     (1),
    ...     QzPLUS_(
@@ -1156,24 +1162,28 @@ Lissp Whirlwind Tour
    ...       (1)),
    ...     QzPLUS_(
    ...       (1),
-   ...       (2))))
+   ...       (2)),
+   ...     ))
    ['a', 'b', 'c', 1, 2, 3]
 
 
    #> `(0 "a" 'b)                         ;Beware of "" tokens and symbols.
-   >>> (lambda * _:  _)(
+   >>> (
    ...   (0),
    ...   "('a')",
-   ...   (lambda * _:  _)(
+   ...   (
    ...     'quote',
-   ...     '__main__..b'))
+   ...     '__main__..b',
+   ...     ),
+   ...   )
    (0, "('a')", ('quote', '__main__..b'))
 
    #> `(,0 ,"a" ,'b)                      ;Just unquote everything in data templates.
-   >>> (lambda * _:  _)(
+   >>> (
    ...   (0),
    ...   ('a'),
-   ...   'b')
+   ...   'b',
+   ...   )
    (0, 'a', 'b')
 
 
@@ -1181,16 +1191,19 @@ Lissp Whirlwind Tour
    #..        ,@(.items (dict : spam "eggs"  foo 2)) ;dict unpacking
    #..        (,3 ,4)))
    >>> dict(
-   ...   (lambda * _:  _)(
-   ...     (lambda * _:  _)(
+   ...   (
+   ...     (
    ...       (0),
-   ...       (1)),
+   ...       (1),
+   ...       ),
    ...     *dict(
    ...        spam=('eggs'),
    ...        foo=(2)).items(),
-   ...     (lambda * _:  _)(
+   ...     (
    ...       (3),
-   ...       (4))))
+   ...       (4),
+   ...       ),
+   ...     ))
    {0: 1, 'spam': 'eggs', 'foo': 2, 3: 4}
 
 
@@ -1205,13 +1218,15 @@ Lissp Whirlwind Tour
    #..           `(.update (globals) : ,key ,value)))
    >>> globals().update(
    ...   assign=(lambda key, value:
-   ...              (lambda * _:  _)(
+   ...              (
    ...                '.update',
-   ...                (lambda * _:  _)(
-   ...                  'builtins..globals'),
+   ...                (
+   ...                  'builtins..globals',
+   ...                  ),
    ...                ':',
    ...                key,
-   ...                value)
+   ...                value,
+   ...                )
    ...          ))
 
 
@@ -1223,7 +1238,7 @@ Lissp Whirlwind Tour
    ('.update', ('builtins..globals',), ':', 'SPAM', "('eggs')")
 
    #> (hissp.compiler..readerless _)      ;Hissp can compile it,
-   >>> __import__('hissp.compiler',fromlist='?').readerless(
+   >>> __import__('hissp.compiler',fromlist='*').readerless(
    ...   _)
    "__import__('builtins').globals().update(\n  SPAM=('eggs'))"
 
@@ -1327,13 +1342,15 @@ Lissp Whirlwind Tour
    ...   _macro_,
    ...   'triple',
    ...   (lambda x:
-   ...       (lambda * _:  _)(
+   ...       (
    ...         '__main__..QzMaybe_.QzPLUS_',
    ...         x,
-   ...         (lambda * _:  _)(
+   ...         (
    ...           '__main__..QzMaybe_.QzPLUS_',
    ...           x,
-   ...           x))
+   ...           x,
+   ...           ),
+   ...         )
    ...   ))
 
    #> (triple 4)                          ;12
@@ -1352,21 +1369,21 @@ Lissp Whirlwind Tour
    #..    x))
    >>> # define
    ... __import__('builtins').globals().update(
-   ...   loudQz_number=(lambda x:
-   ...                    (print(
-   ...                       x),
-   ...                     x)  [-1]
-   ...                 ))
+   ...   loudQzH_number=(lambda x:
+   ...                     (print(
+   ...                        x),
+   ...                      x)  [-1]
+   ...                  ))
 
    #> (triple (loud-number 14))           ;Triples the *code*, not just the *value*.
    >>> # triple
    ... __import__('builtins').globals()['QzPLUS_'](
-   ...   loudQz_number(
+   ...   loudQzH_number(
    ...     (14)),
    ...   __import__('builtins').globals()['QzPLUS_'](
-   ...     loudQz_number(
+   ...     loudQzH_number(
    ...       (14)),
-   ...     loudQz_number(
+   ...     loudQzH_number(
    ...       (14))))
    14
    14
@@ -1386,7 +1403,7 @@ Lissp Whirlwind Tour
    ...         x,
    ...         x))
    ... )(
-   ...   loudQz_number(
+   ...   loudQzH_number(
    ...     (14)))
    14
    42
@@ -1396,7 +1413,7 @@ Lissp Whirlwind Tour
    #> ((lambda (: x (loud-number 14))
    #..   (+ x (+ x x))))
    >>> (
-   ...  lambda x=loudQz_number(
+   ...  lambda x=loudQzH_number(
    ...           (14)):
    ...     QzPLUS_(
    ...       x,
@@ -1416,26 +1433,31 @@ Lissp Whirlwind Tour
    #..               (+ x (+ x x))))))
    >>> setattr(
    ...   _macro_,
-   ...   'oopsQz_triple',
+   ...   'oopsQzH_triple',
    ...   (lambda expression:
-   ...       (lambda * _:  _)(
-   ...         (lambda * _:  _)(
+   ...       (
+   ...         (
    ...           'lambda',
-   ...           (lambda * _:  _)(
+   ...           (
    ...             ':',
    ...             '__main__..x',
-   ...             expression),
-   ...           (lambda * _:  _)(
+   ...             expression,
+   ...             ),
+   ...           (
    ...             '__main__..QzMaybe_.QzPLUS_',
    ...             '__main__..x',
-   ...             (lambda * _:  _)(
+   ...             (
    ...               '__main__..QzMaybe_.QzPLUS_',
    ...               '__main__..x',
-   ...               '__main__..x'))))
+   ...               '__main__..x',
+   ...               ),
+   ...             ),
+   ...           ),
+   ...         )
    ...   ))
 
    #> (oops-triple 14)                    ;Oops. Templates qualify symbols!
-   >>> # oopsQz_triple
+   >>> # oopsQzH_triple
    ... (lambda __main__..x=(14):
    ...     __import__('builtins').globals()['QzPLUS_'](
    ...       __import__('builtins').globals()['x'],
@@ -1459,34 +1481,39 @@ Lissp Whirlwind Tour
    #..               (+ $#x (+ $#x $#x))))))
    >>> setattr(
    ...   _macro_,
-   ...   'onceQz_triple',
+   ...   'onceQzH_triple',
    ...   (lambda x:
-   ...       (lambda * _:  _)(
-   ...         (lambda * _:  _)(
+   ...       (
+   ...         (
    ...           'lambda',
-   ...           (lambda * _:  _)(
+   ...           (
    ...             ':',
-   ...             '_QzIF7WPGTUz___x',
-   ...             x),
-   ...           (lambda * _:  _)(
+   ...             '_Qziingj4sl__x',
+   ...             x,
+   ...             ),
+   ...           (
    ...             '__main__..QzMaybe_.QzPLUS_',
-   ...             '_QzIF7WPGTUz___x',
-   ...             (lambda * _:  _)(
+   ...             '_Qziingj4sl__x',
+   ...             (
    ...               '__main__..QzMaybe_.QzPLUS_',
-   ...               '_QzIF7WPGTUz___x',
-   ...               '_QzIF7WPGTUz___x'))))
+   ...               '_Qziingj4sl__x',
+   ...               '_Qziingj4sl__x',
+   ...               ),
+   ...             ),
+   ...           ),
+   ...         )
    ...   ))
 
    #> (once-triple (loud-number 14))
-   >>> # onceQz_triple
+   >>> # onceQzH_triple
    ... (
-   ...  lambda _QzIF7WPGTUz___x=loudQz_number(
+   ...  lambda _Qzif7wpgtu__x=loudQzH_number(
    ...           (14)):
    ...     __import__('builtins').globals()['QzPLUS_'](
-   ...       _QzIF7WPGTUz___x,
+   ...       _Qzif7wpgtu__x,
    ...       __import__('builtins').globals()['QzPLUS_'](
-   ...         _QzIF7WPGTUz___x,
-   ...         _QzIF7WPGTUz___x))
+   ...         _Qzif7wpgtu__x,
+   ...         _Qzif7wpgtu__x))
    ... )()
    14
    42
@@ -1499,12 +1526,13 @@ Lissp Whirlwind Tour
    ;;; and omits it otherwise.
 
    #> `(+ 1 2 3 4)
-   >>> (lambda * _:  _)(
+   >>> (
    ...   '__main__..QzMaybe_.QzPLUS_',
    ...   (1),
    ...   (2),
    ...   (3),
-   ...   (4))
+   ...   (4),
+   ...   )
    ('__main__..QzMaybe_.QzPLUS_', 1, 2, 3, 4)
 
 
@@ -1524,14 +1552,17 @@ Lissp Whirlwind Tour
    ...   (
    ...    lambda first=(0),
    ...           *args:
-   ...       (lambda * _:  _)(
+   ...       (
    ...         first,
-   ...         (lambda * _:  _)(
+   ...         (
    ...           'operator..add',
    ...           first,
-   ...           (lambda * _:  _)(
+   ...           (
    ...             '__main__..QzMaybe_.QzPLUS_',
-   ...             *args))).__getitem__(
+   ...             *args,
+   ...             ),
+   ...           ),
+   ...         ).__getitem__(
    ...         bool(
    ...           args))
    ...   ))
@@ -1554,12 +1585,13 @@ Lissp Whirlwind Tour
    ;; Notice that a new template doesn't qualify + with QzMaybe_ now that
    ;; it detects a macro with that name.
    #> `(+ 1 2 3 4)
-   >>> (lambda * _:  _)(
+   >>> (
    ...   '__main__.._macro_.QzPLUS_',
    ...   (1),
    ...   (2),
    ...   (3),
-   ...   (4))
+   ...   (4),
+   ...   )
    ('__main__.._macro_.QzPLUS_', 1, 2, 3, 4)
 
 
@@ -1579,18 +1611,22 @@ Lissp Whirlwind Tour
    ...    lambda first=(1),
    ...           second=(1),
    ...           *args:
-   ...       (lambda * _:  _)(
-   ...         (lambda * _:  _)(
+   ...       (
+   ...         (
    ...           'operator..mul',
    ...           first,
-   ...           second),
-   ...         (lambda * _:  _)(
+   ...           second,
+   ...           ),
+   ...         (
    ...           '__main__..QzMaybe_.QzSTAR_',
-   ...           (lambda * _:  _)(
+   ...           (
    ...             'operator..mul',
    ...             first,
-   ...             second),
-   ...           *args)).__getitem__(
+   ...             second,
+   ...             ),
+   ...           *args,
+   ...           ),
+   ...         ).__getitem__(
    ...         bool(
    ...           args))
    ...   ))
@@ -1661,12 +1697,14 @@ Lissp Whirlwind Tour
    ...   _macro_,
    ...   'XY',
    ...   (lambda *body:
-   ...       (lambda * _:  _)(
+   ...       (
    ...         'lambda',
-   ...         (lambda * _:  _)(
+   ...         (
    ...           'X',
-   ...           'Y'),
-   ...         body)
+   ...           'Y',
+   ...           ),
+   ...         body,
+   ...         )
    ...   ))
 
 
@@ -1737,14 +1775,15 @@ Lissp Whirlwind Tour
    ...   _macro_,
    ...   'p123',
    ...   (lambda sep:
-   ...       (lambda * _:  _)(
+   ...       (
    ...         'builtins..print',
    ...         (1),
    ...         (2),
    ...         (3),
    ...         ':',
    ...         '__main__..sep',
-   ...         sep)
+   ...         sep,
+   ...         )
    ...   ))
 
 
@@ -1783,7 +1822,7 @@ Lissp Whirlwind Tour
    53
 
    #> (hissp.reader..transpile __package__ 'spam 'eggs) ;Side effects on compilation.
-   >>> __import__('hissp.reader',fromlist='?').transpile(
+   >>> __import__('hissp.reader',fromlist='*').transpile(
    ...   __package__,
    ...   'spam',
    ...   'eggs')
@@ -1864,7 +1903,7 @@ Lissp Whirlwind Tour
 
    ;;; The prelude copies _macro_ from hissp._macro_ like the REPL, defines
    ;;; some Python interop helper functions, and imports Python's standard-library
-   ;;; functional utilities.
+   ;;; functional programming utilities from operator and itertools.
 
    (help _macro_.prelude)
 
@@ -1917,7 +1956,7 @@ Lissp Whirlwind Tour
    >>> b'bytes'
    b'bytes'
 
-   #> builtins..bytes##encoding=#ascii|moar bytes| ;Convert to a Kwarg via foo=#.
+   #> builtins..bytes##encoding=ascii|moar bytes| ;Convert to a Kwarg via foo=.
    >>> b'moar bytes'
    b'moar bytes'
 
@@ -1925,25 +1964,14 @@ Lissp Whirlwind Tour
    ;; Yes, these are a type of object special-cased in the reader. They're
    ;; only meant for use at read time, but they're allowed to survive to
    ;; run time for debugging purposes.
-   #> spam=#eggs
-   >>> __import__('pickle').loads(  # Kwarg('spam', 'eggs')
-   ...     b'ccopyreg\n'
-   ...     b'_reconstructor\n'
-   ...     b'(chissp.reader\n'
-   ...     b'Kwarg\n'
-   ...     b'cbuiltins\n'
-   ...     b'object\n'
-   ...     b'NtR(dVk\n'
-   ...     b'Vspam\n'
-   ...     b'sVv\n'
-   ...     b'Veggs\n'
-   ...     b'sb.'
-   ... )
+   #> spam=eggs
+   >>> # Kwarg('spam', 'eggs')
+   ... __import__('pickle').loads(b'ccopy_reg\n_reconstructor\n(chissp.reader\nKwarg\nc__builtin__\nobject\nNtR(dVk\nVspam\nsVv\nVeggs\nsb.')
    Kwarg('spam', 'eggs')
 
 
    ;; Reader macros compose like functions.
-   #> 'hissp.munger..demunge#Qz_QzLT_QzGT_QzGT_   ;Note the starting '.
+   #> 'hissp.munger..demunge#QzH_QzLT_QzGT_QzGT_   ;Note the starting '.
    >>> '-<>>'
    '-<>>'
 
@@ -1968,10 +1996,8 @@ Lissp Whirlwind Tour
    ;;; the compiler is in a pickle!
 
    #> builtins..float#inf
-   >>> __import__('pickle').loads(  # inf
-   ...     b'Finf\n'
-   ...     b'.'
-   ... )
+   >>> # inf
+   ... __import__('pickle').loads(b'Finf\n.')
    inf
 
 
@@ -2003,12 +2029,8 @@ Lissp Whirlwind Tour
    Fraction(1, 2)
 
    #> .#(fractions..Fraction 1 2)         ;Read time eval. Compiles to equivalent object.
-   >>> __import__('pickle').loads(  # Fraction(1, 2)
-   ...     b'cfractions\n'
-   ...     b'Fraction\n'
-   ...     b'(V1/2\n'
-   ...     b'tR.'
-   ... )
+   >>> # Fraction(1, 2)
+   ... __import__('pickle').loads(b'cfractions\nFraction\n(V1/2\ntR.')
    Fraction(1, 2)
 
 
@@ -2057,11 +2079,6 @@ Lissp Whirlwind Tour
    "(re.compile('[1-9][0-9]*'), inf)"
 
    #> re..compile#.#"[1-9][0-9]*"
-   >>> __import__('pickle').loads(  # re.compile('[1-9][0-9]*')
-   ...     b'cre\n'
-   ...     b'_compile\n'
-   ...     b'(V[1-9][0-9]*\n'
-   ...     b'I32\n'
-   ...     b'tR.'
-   ... )
+   >>> # re.compile('[1-9][0-9]*')
+   ... __import__('pickle').loads(b'cre\n_compile\n(V[1-9][0-9]*\nI32\ntR.')
    re.compile('[1-9][0-9]*')

@@ -22,18 +22,20 @@ ps2 = "#.."
 
 
 class LisspREPL(InteractiveConsole):
-    """Lissp's Read-Evaluate-Print Loop, layered on Python's.
+    """Lissp's `Read-Evaluate-Print Loop`, layered on Python's.
 
     You can initialize the REPL with a locals dict,
     which is useful for debugging other modules.
-    Call interact() to start.
+    See `hissp.subrepl`.
+
+    Call :func:`interact` to start.
     """
 
     # locals shadows the builtin, but that's the name in the superclass.
     def __init__(self, locals=None, filename="<console>"):
         super().__init__(locals, filename)
         self.lissp = Lissp(locals.get("__name__", "__main__"), locals)
-        self.locals = self.lissp.ns
+        self.locals = self.lissp.env
 
     def runsource(self, source, filename="<input>", symbol="single"):
         """:meta private:"""
@@ -63,7 +65,7 @@ class LisspREPL(InteractiveConsole):
         return super().raw_input(prompt)
 
     def interact(self, banner=None, exitmsg=None):
-        """Imports readline if available, then super().interact()."""
+        """Imports `readline` if available, then ``super().interact()``."""
         with suppress(ImportError):
             # noinspection PyUnresolvedReferences
             import readline
@@ -98,10 +100,10 @@ def force_main():
 
 
 def main(__main__):
-    """REPL command-line entry point.
+    """`REPL` command-line entry point.
 
     `hissp.macros._macro_` is copied into the module namespace,
-    making the bundled macros immediately available unqualified.
+    making the bundled `macros` immediately available `unqualified`.
     """
     repl = LisspREPL(locals=__main__.__dict__)
     import hissp.macros  # Here so repl can import before compilation.

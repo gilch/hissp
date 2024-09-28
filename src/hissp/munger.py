@@ -1,13 +1,13 @@
 # Copyright 2019, 2020, 2021 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 """
-Lissp's symbol munger.
+Lissp's `symbol token` munger.
 
-Encodes Lissp symbols with special characters into valid,
+Encodes Lissp symbol tokens with special characters into valid,
 human-readable (if unpythonic) Python identifiers,
-using NFKC normalization and *Quotez*.
+using NFKC normalization and `Quotez`.
 
-E.g. ``*FOO-BAR*`` becomes ``QzSTAR_FOOQz_BARQzSTAR_``.
+E.g. ``*FOO-BAR*`` becomes ``QzSTAR_FOOQzH_BARQzSTAR_``.
 
 Quotez are written in upper case and wrapped in a ``Qz`` and ``_``.
 This format was chosen because it contains an underscore
@@ -28,8 +28,8 @@ __ https://www.python.org/dev/peps/pep-0008/#naming-conventions
 Characters can be encoded in one of three ways:
 Short names, Unicode names, and ordinals.
 
-The `demunge` function will accept any of these encodings,
-while the `munge` function will prioritize short names,
+The :func:`demunge` function will accept any of these encodings,
+while the :func:`munge` function will prioritize short names,
 then fall back to Unicode names, then fall back to ordinals.
 
 Short names are given in the `TO_NAME` table in this module.
@@ -38,7 +38,7 @@ Any spaces in the Unicode names are replaced with an ``x`` and
 any hyphens are replaced with an ``h``.
 (Unicode names are in all caps and these substitutions are lower-case.)
 
-Ordinals are given in base 10.
+Ordinals are given in a hexadecimal format like ``0XF00``.
 """
 
 import re
@@ -53,21 +53,9 @@ def munge(s: str) -> str:
 
     Encodes Lissp symbols with special characters into valid,
     human-readable (if unpythonic) Python identifiers,
-    using NFKC normalization and *Quotez*.
+    using NFKC normalization and `Quotez`.
 
-    Inputs that begin with ``:`` are assumed to be control words
-    and returned unmodified.
     Full stops are handled separately, as those are meaningful to Hissp.
-    """
-    if s.startswith(":"):
-        return s  # control word
-    return force_munge(s)
-
-
-def force_munge(s: str) -> str:
-    """As `munge`, but skips the control word check.
-
-    Used for reader tags.
     """
     # Always normalize identifiers:
     # >>> 𝐀 = 'MATHEMATICAL BOLD CAPITAL A'
@@ -89,10 +77,10 @@ def _munge_part(part):
 
 
 QUOTEZ = "Qz{}_"
-"""Format string for creating Quotez."""
+"""Format string for creating `Quotez`."""
 
-FIND_QUOTEZ = re.compile(QUOTEZ.format("([0-9A-Z][0-9A-Zhx]*?)?"))
-"""Regex pattern to find Quotez. Used by `demunge`."""
+FIND_QUOTEZ = re.compile(QUOTEZ.format("([0-9A-Z][0-9A-Zhx]*?)"))
+"""Regex pattern to find `Quotez`. Used by `demunge`."""
 
 TO_NAME = {
     k: QUOTEZ.format(v)
@@ -110,7 +98,7 @@ TO_NAME = {
         "*": "STAR",
         "+": "PLUS",
         # COMMA is fine.
-        "-": "",  # Hyphen-minus
+        "-": "H",  # Hyphen-minus
         # Full stop reserved for imports and attributes.
         "/": "SOL",
         # Digits only munge if first character.
@@ -135,14 +123,14 @@ TO_NAME = {
         # TILDE is fine.
     }.items()
 }
-"""Shorter names for Quotez."""
+"""Shorter names for `Quotez`."""
 
-QZ_NAME = {ord(k): ord(v) for k, v in {" ": "x", "-": "h"}.items()}
+_QZ_NAME = {ord(k): ord(v) for k, v in {" ": "x", "-": "h"}.items()}
 
 
 def qz_encode(c: str) -> str:
     """
-    Converts a character to its Quotez encoding,
+    Converts a character to its `Quotez` encoding,
     unless it's already valid in a Python identifier.
     """
     if ("x" + c).isidentifier():
@@ -152,14 +140,14 @@ def qz_encode(c: str) -> str:
 
 def force_qz_encode(c: str) -> str:
     """
-    Converts a character to its Quotez encoding,
+    Converts a character to its `Quotez` encoding,
     even if it's valid in a Python identifier.
     """
     with suppress(LookupError):
         return TO_NAME[c]
     with suppress(ValueError):
-        return QUOTEZ.format(unicodedata.name(c).translate(QZ_NAME))
-    return QUOTEZ.format(ord(c))
+        return QUOTEZ.format(unicodedata.name(c).translate(_QZ_NAME))
+    return QUOTEZ.format(f"{ord(c):#X}")
 
 
 K = TypeVar("K", bound=Hashable)
@@ -175,30 +163,33 @@ def _inverse_1to1(mapping: Mapping[K, V]) -> Dict[V, K]:
 LOOKUP_NAME = _inverse_1to1(TO_NAME)
 """The inverse of `TO_NAME`."""
 
-UN_QZ_NAME = _inverse_1to1(QZ_NAME)
+_UN_QZ_NAME = _inverse_1to1(_QZ_NAME)
 
 
 def _qz_decode(match: Match[str]) -> str:
     with suppress(KeyError):
         return LOOKUP_NAME[match.group()]
     with suppress(KeyError):
-        return unicodedata.lookup(match.group(1).translate(UN_QZ_NAME))
+        return unicodedata.lookup(match.group(1).translate(_UN_QZ_NAME))
     with suppress(ValueError):
-        return chr(int(match.group(1)))
+        if match.group(1).startswith("0X"):
+            return chr(int(match.group(1), 16))
     return match.group()
 
 
 def demunge(s: str) -> str:
-    """The inverse of `munge`. Decodes any Quotez into characters.
+    """The inverse of :func:`munge`. Decodes any `Quotez` into characters.
 
     Characters can be encoded in one of three ways:
     Short names, Unicode names, and ordinals.
-    `demunge` will decode any of these, even though `munge` will
-    consistently pick only one of these for any given character.
-    `demunge` will also leave the remaining text as-is, along with any
+    ``demunge`` will decode any of these. Even though :func:`munge` will
+    consistently pick only one of these for any given character,
+    which Unicode characters have names depends on the Python version.
+
+    ``demunge`` will also leave the remaining text as-is, along with any
     invalid Quotez.
 
-    >>> demunge("QzFOO_QzGT_QzHYPHENhMINUS_Qz62_bar")
+    >>> demunge("QzFOO_QzGT_QzHYPHENhMINUS_Qz0X3E_bar")
     'QzFOO_>->bar'
     """
     return FIND_QUOTEZ.sub(_qz_decode, s)

@@ -6,7 +6,7 @@ from collections import Counter
 from fractions import Fraction
 from types import SimpleNamespace
 from unittest import TestCase
-from unittest.mock import ANY, patch
+from unittest.mock import ANY
 
 import hypothesis.strategies as st
 from hypothesis import given
@@ -14,7 +14,7 @@ from hypothesis import given
 from hissp import reader
 from .util import dedented
 
-STRING_ANY_ = [("string", ANY, ANY)]
+UNICODE_ANY_ = [("unicode", ANY, ANY)]
 
 
 class TestReader(TestCase):
@@ -36,7 +36,7 @@ class TestReader(TestCase):
     def test_string(self, lissp):
         lissp = lissp.replace("\\", "\\\\").replace('"', R"\"")
         lissp = f'"{lissp}"'
-        self.assertEqual([*reader.Lexer(lissp)], STRING_ANY_)
+        self.assertEqual([*reader.Lexer(lissp)], UNICODE_ANY_)
 
     def test_examples(self):
         for k, v in EXPECTED.items():
@@ -49,100 +49,95 @@ class TestReader(TestCase):
                 self.assertEqual(v, parsed)
                 print("OK")
 
-    @patch("hissp.reader.ENTUPLE", "entuple")
     def test_auto_qualification(self):
         self.assertEqual(
-            [("entuple",
-              ":", ":?", ("quote", "__main__..QzMaybe_.x"),
-              ":?", ("quote", "__main__..x"),
-              ":?", ("quote", "__main__..x"),
-              ":?", ("entuple",
-                     ":", ":?", ("quote", "__main__..QzMaybe_.y"),
-                     ":?", ("quote", "__main__..y")),
-              ":?", ("entuple", ":", ":?", 1, ":?", ("quote", "__main__..z")))
+            [("",
+              ":",":?",("quote","__main__..QzMaybe_.x"),
+              ":?",("quote","__main__..x"),
+              ":?",("quote","__main__..x"),
+              ":?",("",
+                    ":",":?",("quote","__main__..QzMaybe_.y"),
+                    ":?",("quote", "__main__..y"),
+                    ":?",""),
+              ":?",("",":",":?",1, ":?",("quote","__main__..z"), ":?",""),
+              ":?","")
              ],
             [*self.parser.reads("`(x x x (y y) (1 z))")],
         )  # fmt: skip
 
-    @patch("hissp.reader.ENTUPLE", "entuple")
     def test_module_qualification(self):
-        self.parser.ns.update(x=1, y=2, z=3)
+        self.parser.env.update(x=1, y=2, z=3)
         self.assertEqual(
-            [("entuple",
-              ":", ":?", ("quote", "__main__..QzMaybe_.x"),
-              ":?", ("quote", "__main__..x"),
-              ":?", ("quote", "__main__..x"),
-              ":?", ("entuple",
-                     ":", ":?", ("quote", "__main__..QzMaybe_.y"),
-                     ":?", ("quote", "__main__..y")),
-              ":?", ("entuple", ":", ":?", 1, ":?", ("quote", "__main__..z")))
+            [("",
+              ":",":?",("quote","__main__..QzMaybe_.x"),
+              ":?",("quote","__main__..x"),
+              ":?",("quote","__main__..x"),
+              ":?",("",
+                    ":",":?",("quote","__main__..QzMaybe_.y"),
+                    ":?",("quote","__main__..y"),
+                    ":?",""),
+              ":?",("",":",":?",1, ":?",("quote","__main__..z"), ":?",""),
+              ":?","")
              ],
             [*self.parser.reads("`(x x x (y y) (1 z))")],
         )  # fmt: skip
 
-    @patch("hissp.reader.ENTUPLE", "entuple")
     def test_macro_qualification(self):
-        self.parser.ns.update(_macro_=SimpleNamespace(x=1, y=2, z=3))
+        self.parser.env.update(_macro_=SimpleNamespace(x=1, y=2, z=3))
         self.assertEqual(
-            [("entuple",
-              ":", ":?", ("quote", "__main__.._macro_.x"),
-              ":?", ("quote", "__main__..x"),
-              ":?", ("quote", "__main__..x"),
-              ":?", ("entuple",
-                     ":", ":?", ("quote", "__main__.._macro_.y"),
-                     ":?", ("quote", "__main__..y")),
-              ":?", ("entuple", ":", ":?", 1, ":?", ("quote", "__main__..z")))
+            [("",
+              ":",":?",("quote","__main__.._macro_.x"),
+              ":?",("quote","__main__..x"),
+              ":?",("quote","__main__..x"),
+              ":?",("",
+                    ":",":?",("quote","__main__.._macro_.y"),
+                    ":?",("quote","__main__..y"),
+                    ":?",""),
+              ":?",("",":",":?",1, ":?",("quote","__main__..z"), ":?",""),
+              ":?","")
              ],
             [*self.parser.reads("`(x x x (y y) (1 z))")],
         )  # fmt: skip
 
-    @patch("hissp.reader.ENTUPLE", "entuple")
     def test_no_qualification(self):
         self.assertEqual(
-            [("entuple", ":", ":?", ("quote", ".x")),
-             ("entuple", ":", ":?", ("quote", "quote"), ":?", 1),
-             ("entuple", ":", ":?", ("quote", "lambda"), ":?", ":"),
-             ("quote", "__import__"),
-             ("quote", "_QzABCDEFGz_"),
-             ("quote", "foo..bar"),
-             ("quote", "foo.")],
+            [("",":",":?",("quote",".x"), ":?",""),
+             ("",":",":?",("quote","quote"), ":?",1, ":?",""),
+             ("",":",":?",("quote","lambda"), ":?",":", ":?",""),
+             ("quote","__import__"),
+             ("quote","_Qzabcdefg__"),
+             ("quote","foo..bar"),
+             ("quote","foo.")],
             [*self.parser.reads(
-                "`(.x) `(quote 1) `(lambda :) `__import__ `_QzABCDEFGz_ `foo..bar `foo."
+                "`(.x) `(quote 1) `(lambda :) `__import__ `_Qzabcdefg__ `foo..bar `foo."
             )],
         )  # fmt: skip
 
-    @patch("hissp.reader.ENTUPLE", "entuple")
     def test_auto_qualify_attr(self):
-        self.parser.ns.update(x=SimpleNamespace(y=1), int=SimpleNamespace(float=1))
+        self.parser.env.update(x=SimpleNamespace(y=1), int=SimpleNamespace(float=1))
         self.assertEqual(
-            [("entuple",
-              ":",
-              ":?",
-              ("quote", "__main__..x.y"),
-              ":?",
-              ("quote", "__main__..x.y")),
-             ("entuple",
-              ":",
-              ":?",
-              ("quote", "__main__..int.x"),
-              ":?",
-              ("quote", "__main__..int.float")),
-             ("entuple", ":", ":?", ("quote", "__main__..QzMaybe_.int"), ":?", 1),
-             ("entuple", ":", ":?", ("quote", "builtins..float"), ":?", 1),
-             ("entuple",
-              ":",
-              ":?",
-              ("quote", "__main__..QzMaybe_.x"),
-              ":?",
-              ("quote", "__main__..x"))],
+            [("",":",
+              ":?",("quote","__main__..x.y"),
+              ":?",("quote","__main__..x.y"),
+              ":?",""),
+             ("",":",
+              ":?",("quote","__main__..int.x"),
+              ":?",("quote","__main__..int.float"),
+              ":?",""),
+             ("",":",":?",("quote","__main__..QzMaybe_.int"), ":?",1, ":?",""),
+             ("",":",":?",("quote","builtins..float"), ":?",1, ":?",""),
+             ("",":",
+              ":?",("quote","__main__..QzMaybe_.x"),
+              ":?",("quote","__main__..x"),
+              ":?","")],
             [*self.parser.reads(
                 "`(x.y x.y) `(int.x int.float) `(int 1) `(float 1) `(x x)"
             )],
         )  # fmt: skip
 
     def test_swap_ns(self):
-        self.parser.ns = object()
-        self.assertIs(self.parser.ns, self.parser.compiler.ns)
+        self.parser.env = object()
+        self.assertIs(self.parser.env, self.parser.compiler.env)
 
     def test_badspace(self):
         with self.assertRaises(SyntaxError):
@@ -161,7 +156,7 @@ class TestReader(TestCase):
             next(self.parser.reads("(x#)"))
 
     def test_reader_initial_dot(self):
-        msg = r"Unknown reader macro 'QzFULLxSTOP_foo'."
+        msg = r"Unknown tag 'QzFULLxSTOP_foo'."
         with self.assertRaisesRegex(SyntaxError, msg):
             next(self.parser.reads(".foo# 0"))
 
@@ -202,9 +197,9 @@ EXPECTED = {
     "'symbol": [("quote", "symbol",)],
 
     "'Also-a-symbol! '+ '-<>>": [
-        ("quote", "AlsoQz_aQz_symbolQzBANG_",),
+        ("quote", "AlsoQzH_aQzH_symbolQzBANG_",),
         ("quote", "QzPLUS_",),
-        ("quote", "Qz_QzLT_QzGT_QzGT_",),
+        ("quote", "QzH_QzLT_QzGT_QzGT_",),
     ],
 
     '''"string" ""''': [
@@ -260,7 +255,7 @@ EXPECTED = {
     R"""'\~\!\@\#\$\%\^\&\*\(\)\_\+\{\}\|\:\"\<\>\?\`\-\=\[\]\\\;\'\,\.\/""": [
         ("quote",
          "QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzHAT_QzET_QzSTAR_QzLPAR_QzRPAR__"
-         "QzPLUS_QzLCUB_QzRCUB_QzVERT_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_QzGRAVE_Qz_QzEQ_"
+         "QzPLUS_QzLCUB_QzRCUB_QzVERT_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_QzGRAVE_QzH_QzEQ_"
          "QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_QzFULLxSTOP_QzSOL_",)
     ],
 

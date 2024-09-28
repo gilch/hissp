@@ -26,11 +26,11 @@ class LisspLexer(RegexLexer):
             ]
         }
 
-    class AtomSubLexer(RegexLexer):
+    class BareSubLexer(RegexLexer):
         def preprocess_atom(lexer, match, ctx=None):
             value: str = match.group(0)
             index: int = match.start()
-            v = Lissp.atom(value)
+            v = Lissp.bare(value)
             if isinstance(v, (complex, float)):
                 yield index, pt.Number.Float, value
                 return
@@ -65,17 +65,26 @@ class LisspLexer(RegexLexer):
                 TOKENS.pattern,
                 bygroups(
                     pt.Text,  # whitespace
-                    using(CommentSubLexer),
+                    using(CommentSubLexer),  # comment
                     pt.Error,  # badspace
                     pt.Punctuation,  # open
                     pt.Punctuation,  # close
-                    pt.Operator,  # macro
-                    pt.String,
-                    pt.String.Symbol,
+                    pt.Operator,  # template
+                    pt.Operator,  # unquote
+                    pt.Operator,  # quote
+                    pt.Operator,  # inject
+                    pt.Operator,  # discard
+                    pt.Operator,  # gensym
+                    pt.Operator,  # stararg
+                    pt.Operator,  # kwarg
+                    pt.Name.Other,  # tag
+                    pt.String,  # unicode
+                    pt.String.Symbol,  # fragment
                     pt.Error,  # continue
-                    pt.Error,  # unclosed
-                    using(AtomSubLexer),
-                    pt.Error,
+                    pt.Error,  # badfrag
+                    pt.String.Symbol,  # control
+                    using(BareSubLexer),  # bare
+                    pt.Error,  # error
                 ),
             )
         ]

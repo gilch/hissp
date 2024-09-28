@@ -31,6 +31,7 @@ Otherwise, start with the easier, but less-comprehensive `primer`.
    :maxdepth: 3
 
    API <hissp>
+   glossary
 
 ****
 

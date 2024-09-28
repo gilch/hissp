@@ -248,9 +248,8 @@ hissp..prelude#:
 
 (define enjoin en#X#(.join "" (map str X)))
 
-(define tag
-  (lambda (tag : :* contents)
-    (enjoin "<"tag">"(enjoin : :* contents)"</"(get#0 (.split tag))">")))
+(defun tag (tag : :* contents)
+  (enjoin "<"tag">"(enjoin : :* contents)"</"!##0(.split tag)">"))
 
 (defmacro script (: :* forms)
   `',(tag "script type='text/python'" "\n"
@@ -263,7 +262,7 @@ hissp..prelude#:
     (tag "body onload='brython()'" ; Browser Python: https://brython.info
      (script
        (define getE X#(.getElementById browser..document X))
-       (define getf@v X#(float (X#X.value (getE X))))
+       (define getf@v X#(float @##'value (getE X)))
        (define set@v XY#(setattr (getE Y) 'value X))
        (attach browser..window
          : Celsius O#(-> (getf@v 'Celsius) (X#|X*1.8+32|) (set@v 'Fahrenheit))
@@ -397,7 +396,7 @@ In [1]: pprint..pp:quote:class: TestOr: TestCase
 ### Garden of EDN
 Extensible Data Notation (EDN) is a subset of Clojure used for data exchange,
 as JSON is to JavaScript, only more extensible.
-Any standard Clojure editor should be able to handle EDN.
+Any Clojure editor should be able to handle EDN.
 
 The separate [Garden of EDN](https://github.com/gilch/garden-of-edn)
 prototype contains a variety of EDN readers in Python,
@@ -411,14 +410,14 @@ which includes Clojure-like persistent data structures.
 0 ; from garden_of_edn import _this_file_as_main_; """#"
 #hissp/prelude .
 
-(defmacro #hissp/$"m#" t (tuple (.extend [(quote pyrsistent/m) (quote .)] t)))
-(defmacro #hissp/$"j#" j (complex 0 j))
-
 (define TICK 100)
 (define WIDTH 40)
 (define HEIGHT 20)
 (define SNAKE (pyrsistent/dq (complex 3 2) (complex 2 2)))
-(define BINDS #m(w [#j -1], a [-1], s [#j 1], d [1]))
+(define BINDS {"w" [(complex  0 -1)]
+               "a" [(complex -1  0)]
+               "s" [(complex  0 +1)]
+               "d" [(complex +1  0)]})
 
 (define arrow (collections/deque))
 
@@ -426,59 +425,65 @@ which includes Clojure-like persistent data structures.
                (.resizable 0 0)
                (.bind "<Key>" #X(.extendleft arrow (.get BINDS X.char ())))))
 
-(define label
-  (doto (tkinter/Label) .pack (.configure . font "TkFixedFont"
-                                            justify "left"
-                                            height (add 1 HEIGHT)
-                                            width WIDTH)))
+(define label (doto (tkinter/Label)
+                .pack
+                (.configure . font "TkFixedFont"
+                              justify "left"
+                              height (add 1 HEIGHT)
+                              width WIDTH)))
 
-(define wall? (lambda z (ors (contains #{WIDTH  -1} z.real)
-                             (contains #{HEIGHT -1} z.imag))))
+(defun wall? z
+  (ors (contains #{WIDTH  -1} z.real)
+       (contains #{HEIGHT -1} z.imag)))
 
-(define food! #O(complex (random/randint 0 (sub WIDTH 1))
-                         (random/randint 0 (sub HEIGHT 1))))
+(defun food! .
+  (complex (random/randint 0 (sub WIDTH 1))
+           (random/randint 0 (sub HEIGHT 1))))
 
-(define frame (lambda (state)
-                (-<>> (product (range HEIGHT) (range WIDTH))
-                      (starmap #XY(complex Y X))
-                      (map (lambda z (concat (cond (contains state.snake z) "O"
-                                                   (eq z state.food) "@"
-                                                   :else " ")
-                                             (if-else (eq 0 z.real) "\n" ""))))
-                      (.join ""))))
+(defun frame (state)
+  (-<>> (product (range HEIGHT) (range WIDTH))
+        (starmap #XY(complex Y X))
+        (map #X(concat (cond (contains state.snake X) "O"
+                             (eq X state.food) "@"
+                             :else " ")
+                       (if-else (eq 0 X.real) "\n" "")))
+        (.join "")))
 
-(define move (lambda (state new-food arrow)
-               (let (direction (if-else (ands arrow (ne arrow (neg state.direction)))
-                                 arrow state.direction))
-                 (let (head (add (#get 0 state.snake) direction))
-                   (-> state
-                       (.update (if-else (eq head state.food)
-                                  #m(score (add 1 state.score)
-                                     food new-food)
-                                  #m(snake (.pop state.snake)))
-                                #m(direction direction))
-                       (.transform [(quote snake)] #X(.appendleft X head)))))))
+(defun move (state new-food arrow)
+  (let (direction (if-else (ands arrow (ne arrow (neg state.direction)))
+                    arrow state.direction))
+    (let (head (add (getitem state.snake 0) direction))
+      (-> state
+          (.update (if-else (eq head state.food)
+                     {"score" (add 1 state.score)
+                      "food" new-food}
+                     {"snake" (.pop state.snake)})
+                   {"direction" direction})
+          (.transform ["snake"] #X(.appendleft X head))))))
 
-(define lost? (lambda (state)
-                (let (head (#get 0 state.snake))
-                  (ors (wall? head)
-                       (contains (#get(slice 1 None) state.snake)
-                                 head)))))
+(defun lost? (state)
+  (let (head (getitem state.snake 0))
+    (ors (wall? head)
+         (contains (getitem state.snake (slice 1 None))
+                   head))))
 
-(define update!
-  (lambda (state)
-    (-<>> (if-else (lost? state)
-            " GAME OVER!"
-            (prog1 "" (.after root TICK update! (move state (food!) (when arrow
-                                                                      (.pop arrow))))))
-          (.format "Score: {}{}{}" state.score :<> (frame state))
-          (.configure label . text))))
+(defun update! (state)
+  (-<>> (if-else (lost? state)
+          " GAME OVER!"
+          (prog1 "" (.after root TICK update! (move state
+                                                    (food!)
+                                                    (when arrow (.pop arrow))))))
+        (.format "Score: {}{}{}" state.score :<> (frame state))
+        (.configure label . text)))
 
 (when (eq __name__ "__main__")
-  (update! #m(score 0, direction 1, snake SNAKE, food (food!)))
+  (update! {"score" 0, "direction" 1, "snake" SNAKE, "food" (food!)})
   (.mainloop root))
+
 ;; """#"
 ```
+
+The first and last lines make this a valid Python file as well as EDN.
 
 # Features and Design
 
@@ -509,9 +514,9 @@ You already know this.
 It's why you don't write assembly language when you can avoid it.
 It's not that assembly isn't powerful enough to do everything Python can.
 Ultimately, the machine only understands machine code.
+
 The best programming languages have some kind of expressive superpower.
 Features that lesser languages lack.
-
 Lisp's superpower is *metaprogramming*,
 and it's the power to copy the others.
 It's not that Python can't do metaprogramming at all.
@@ -550,7 +555,7 @@ Major features that would require a new language version in lower languages
 can be a library in a Lisp.
 It's how Clojure got Goroutines like Go and logic programming like Prolog,
 without changing the core language at all.
-The Lissp reader and Hissp compiler are both extensible with macros.
+The Lissp reader and Hissp compiler are both extensible with metaprograms.
 
 It's not just about getting other superpowers from other languages,
 but all the minor powers you can make yourself along the way.
