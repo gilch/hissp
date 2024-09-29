@@ -649,7 +649,7 @@ def _pairs(it: Iterable[T]) -> Iterable[tuple[T, T]]:
         try:
             yield k, next(it)
         except StopIteration:
-            raise CompileError("Incomplete pair.") from None
+            raise CompileError("incomplete pair") from None
 
 
 def readerless(form: object, env: Env | None = None) -> str:

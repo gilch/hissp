@@ -101,7 +101,7 @@ def test_repl_unqoute_error():
       File "<console>", line 1
         ,
         ^
-    SyntaxError: Unquote outside of template.
+    SyntaxError: unquote outside of template
     """
     repl(",\n", err=err)
 
@@ -111,7 +111,7 @@ def test_repl_splice_error():
       File "<console>", line 1
         ,@
          ^
-    SyntaxError: Unquote outside of template.
+    SyntaxError: unquote outside of template
     """
     repl(",@\n", err=err)
 
@@ -133,7 +133,7 @@ def test_repl_empty_template_error():
         '!   File "<console>", line 1\n',
         "!     (`)\n",
         "!      ^\n",
-        "! SyntaxError: tag '`' missing argument.\n",
+        "! SyntaxError: tag '`' missing argument\n",
         "> #> ",
     )  # fmt: skip
 
@@ -143,7 +143,7 @@ def test_repl_gensym_error():
       File "<console>", line 1
         $#x
           ^
-    SyntaxError: Gensym outside of template.
+    SyntaxError: gensym outside of template
     """
     repl("$#x\n", err=err)
 
@@ -159,7 +159,7 @@ def test_repl_empty_reader_macro_error():
         '!   File "<console>", line 1\n',
         "!     (builtins..float#)\n",
         "!                     ^\n",
-        "! SyntaxError: tag 'builtins..float#' missing argument.\n",
+        "! SyntaxError: tag 'builtins..float#' missing argument\n",
         "> #> ",
     )  # fmt: skip
 
@@ -169,7 +169,7 @@ def test_repl_read_error():
       File "<console>", line 1
         \\
         ^
-    SyntaxError: Can't read this.
+    SyntaxError: can't read this
     """
     repl("\\\n", err=err)
 
@@ -179,7 +179,7 @@ def test_repl_unopened_error():
       File "<console>", line 1
         )
         ^
-    SyntaxError: Too many `)`s.
+    SyntaxError: too many `)`s
     """
     repl(")\n", err=err)
 
@@ -286,7 +286,7 @@ def test_compile_error():
         "! (\n",
         "!  lambda (>   >  > >>':x'<< <  <   <)\n",
         "! # Compiler.parameters() CompileError:\n",
-        "! #  Incomplete pair.\n",
+        "! #  incomplete pair\n",
         "! :\n",
         "!     ())\n",
         "> #> ",

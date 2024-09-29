@@ -27,7 +27,7 @@ class TestReader(TestCase):
         if tally["("] != tally[")"]:
             self.assertRaisesRegex(
                 SyntaxError,
-                r"Too many `\)`s.|This form is missing a `\)`.",
+                r"too many `\)`s|form missing a `\)`",
                 list,
                 self.parser.reads(lissp),
             )
@@ -156,7 +156,7 @@ class TestReader(TestCase):
             next(self.parser.reads("(x#)"))
 
     def test_reader_initial_dot(self):
-        msg = r"Unknown tag 'QzFULLxSTOP_foo'."
+        msg = r"unknown tag 'QzFULLxSTOP_foo'"
         with self.assertRaisesRegex(SyntaxError, msg):
             next(self.parser.reads(".foo# 0"))
 

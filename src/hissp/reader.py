@@ -302,7 +302,7 @@ class Lissp:
             elif k == "unicode":  yield self._unicode(v)
             elif k == "fragment": yield self._fragment(v)
             elif k == "continue": raise self._continue()
-            elif k == "badfrag":  raise SyntaxError("Unpaired |", self.position())
+            elif k == "badfrag":  raise SyntaxError("unpaired |", self.position())
             elif k == "control":  yield self.escape(v)
             elif k == "bare":     yield self.bare(v)
             elif k == "error":    raise self._error(k)
@@ -329,7 +329,7 @@ class Lissp:
 
     def _close(self) -> None:
         if not self.depth:
-            raise SyntaxError("Too many `)`s.", self.position())
+            raise SyntaxError("too many `)`s", self.position())
         self.depth.pop()
 
     @contextmanager
@@ -353,7 +353,7 @@ class Lissp:
         """Start a new unquote context for the current template."""
         self.context.append(",")
         if self.context.count(",") > self.context.count("`"):
-            raise SyntaxError("Unquote outside of template.", self.position()) from None
+            raise SyntaxError("unquote outside of template", self.position()) from None
         try:
             yield
         finally:
@@ -371,7 +371,7 @@ class Lissp:
             return next(self._parse())
         except StopIteration:
             e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
-            raise e(f"tag {v!r} missing argument.", self.position(p)) from None
+            raise e(f"tag {v!r} missing argument", self.position(p)) from None
 
     def _template(self, v: str):
         with self.gensym_context():
@@ -389,7 +389,7 @@ class Lissp:
         if case is _Unquote:
             if form.target == ":?":
                 return form.value
-            raise SyntaxError("Splice not in tuple.", self.position())
+            raise SyntaxError("splice not in tuple", self.position())
         return form
 
     def _template_element(self, forms: Iterable) -> Iterable[tuple[str, Any]]:
@@ -438,7 +438,7 @@ class Lissp:
     def _get_counter(self) -> int:
         index = self.context.count("`") - self.context.count(",")
         if not self.context or index < 0:
-            raise SyntaxError("Gensym outside of template.", self.position()) from None
+            raise SyntaxError("gensym outside of template", self.position()) from None
         if self.context[-1] == "`":
             return self.counters[-1]
         return self.counters[index]
@@ -480,7 +480,7 @@ class Lissp:
 
     def _tag_error(self, tag: str, depth: int, pos: int) -> NoReturn:
         e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
-        msg = f"Reader tag {tag!r} missing argument."
+        msg = f"reader tag {tag!r} missing argument"
         raise e(msg, self.position(pos)) from None
 
     @staticmethod
@@ -494,7 +494,7 @@ class Lissp:
         try:
             return getattr(self.env[C.MACROS], tag + munge("#"))
         except (AttributeError, KeyError):
-            raise SyntaxError(f"Unknown tag {tag!r}.", self.position())
+            raise SyntaxError(f"unknown tag {tag!r}", self.position())
 
     @staticmethod
     def escape(atom: str) -> str:
@@ -526,13 +526,11 @@ class Lissp:
 
     def _error(self, k: str) -> SyntaxError:
         assert k == "error", f"unknown token: {k!r}"
-        return SyntaxError("Can't read this.", self.position())
+        return SyntaxError("can't read this", self.position())
 
     def _check_depth(self) -> None:
         if self.depth:
-            raise SoftSyntaxError(
-                "This form is missing a `)`.", self.position(self.depth.pop())
-            )
+            raise SoftSyntaxError("form missing a `)`", self.position(self.depth.pop()))
 
 
 def is_hissp_string(form: object) -> bool:

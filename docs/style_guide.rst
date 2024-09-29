@@ -1732,7 +1732,7 @@ so the requisite function becomes easily expressible.
 Function definition bodies should be no more than 10 lines,
 and usually no more than 5.
 That's not counting docstrings, comments, or assertions.
-(`Params` aren't in the body.)
+(:term:`Params` aren't in the body.)
 
 This rule doesn't apply to imperative scripts used near the top of the call stack
 (main, or similar entry points)

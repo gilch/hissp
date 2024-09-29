@@ -790,7 +790,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
          (lambda (cls f) `(,f ,cls))
          once_decorators
          `(type ',name (|| ,@(itertools..takewhile (lambda x (operator..ne x ':))
-                                                ibases)
+                                                   ibases)
                            ||)
                 ,(dict)
                 : ,@ibases)))))
@@ -3519,7 +3519,7 @@ except ModuleNotFoundError: pass"
   ;; See also: `cond`.
   ;;
   (when (op#mod (len pairs) 2)
-    (throw (TypeError "Incomplete pair")))
+    (throw (TypeError "incomplete pair")))
   (let (kss [##-2::-2] pairs
         ts [##::-2] pairs)
     `((.__getitem__ (|| ,@(map X#`O#,X ts) O#,default ||)
