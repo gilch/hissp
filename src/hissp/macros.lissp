@@ -2417,6 +2417,18 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
       (-<>> (.format "b'{}'"))
       ast..literal_eval))
 
+(defmacro Q\# Q
+  <#; ``Q#`` 'Rational' Exact fraction tag.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> Q#2/3
+  ;;    >>> # Fraction(2, 3)
+  ;;    ... __import__('pickle').loads(b'cfractions\nFraction\n(I2\nI3\ntR.')
+  ;;    Fraction(2, 3)
+  ;;
+  (fractions..Fraction (hissp..demunge Q)))
+
 (defmacro en\# f
   <#;``en#`` tag.
   ;; Wrap a function applicable to a tuple as a function of its elements.
