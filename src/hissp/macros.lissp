@@ -1,11 +1,11 @@
 ;;; Copyright 2019, 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
 ;;; SPDX-License-Identifier: Apache-2.0
 
-"Hissp's bundled macros.
+"Hissp's bundled `tag` and `macro` metaprograms.
 
-To help keep macro definitions and `expansion`\\ s manageable in
-complexity, these macros lack some of the extra features their
-equivalents have in Python or in other Lisps. These are not intended to
+To help keep definitions and `expansion`\\ s manageable in
+complexity, these metaprograms lack some of the extra features their
+equivalents have in Python or in other Lisps. They are not intended to
 be a standard library for general use, but do bring Hissp up to a basic
 standard of utility without adding dependencies, which may suffice in
 some cases.
@@ -27,19 +27,22 @@ As a convenience, the bundled macros are automatically made available
 Hissp module with better alternatives need not use the bundled macros at
 all.
 
-They also eschew expansions of any subexpression to a `Python injection`
-(except the standard `symbol` or `string literal fragment` cases),
-relying only on the built-in special forms ``quote`` and ``lambda``,
-which makes their expansions compatible with advanced rewriting macros
-that process the Hissp expansions of other macros. (The -``[#`` tags are
-something of an exception, as one subexpression is written in Python to
-begin with.)
+With the exception of `mix`, which is a `text macro` specifically made
+for creating a `Python injection`, the other metaprograms eschew
+expansions of any of their arguments to a `Python injection` (other than
+the standard `symbol` or `string literal fragment` cases), relying only
+on the built-in special forms ``quote`` and ``lambda``, which makes
+their expansions compatible with advanced rewriting macros that process
+the Hissp expansions of other macros.
 
-This doesn't apply to inlined helper functions that contain no user
-code, because that's no worse than using an opaque name imported from
-somewhere else. `if-else <ifQzH_else>` is one such example, expanding to
-a lambda containing an injected `conditional expression <if_expr>`,
-immediately called with the subexpressions as arguments.
+(The -``[#`` and `my# <myQzHASH_>` tags are also something of an
+exception, as one argument is written in Python to begin with.)
+
+That only goes for arguments and doesn't apply to inlined helper
+functions in the expansions that contain no user code, because that's no
+worse than using an opaque name imported from somewhere else. `if-else
+<ifQzH_else>` is one such example, expanding to a lambda containing an
+injected `conditional expression <if_expr>`, that is called immediately.
 "
 
 ;;; This module is not necessarily a good example of how you should
@@ -3214,6 +3217,28 @@ except ModuleNotFoundError: pass"
                            (_TAO .#"in\163pe\143\164..ge\164\163our\143e")','.#"ro\16413")))
 
 ;;;; Advanced
+
+(defmacro mix (: :* args)
+  <#; Injection. Compiles each arg to Python and concatenates the fragments.
+  ;;
+  ;; Lissp features like munging and fully-qualified identifiers can be
+  ;; freely mixed with Python expressions like slicing, infix operators
+  ;; and list comprehensions by using `fragment token`\ s:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (mix |[|%|+|(.lower %)| for |%| in |string..ascii_uppercase|[:10]]|)
+  ;;    >>> # mix
+  ;;    ... [QzPCENT_+QzPCENT_.lower() for QzPCENT_ in __import__('string').ascii_uppercase[:10]]
+  ;;    ['Aa', 'Bb', 'Cc', 'Dd', 'Ee', 'Ff', 'Gg', 'Hh', 'Ii', 'Jj']
+  ;;
+  ;; Beware that a `str atom` like ``|:|`` is still a `control word`,
+  ;; and like ``|foo.|`` is still a `module handle`, even when made with
+  ;; a `fragment token`. However, Python allows whitespace in many areas
+  ;; where it is not conventional to do so, making fragments like
+  ;; ``| :|`` or ``|foo .|`` viable workarounds in such cases.
+  ;;
+  (.join "" (map hissp..readerless args)))
 
 (defmacro my\# (targets_or_scope : expr None  scope ()  :** kwargs)
   <#;``my#`` Anaphoric. Injection. `let` ``my`` be a fresh
