@@ -1680,7 +1680,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...       'Hi'),
   ;;    ...     _Qzwg5wn73w__target)  [-1]
   ;;    ... )()
-  ;;    namespace(a=1, attach=<function _macro_.attach at 0x...>, b='Hi')
+  ;;    namespace(attach=<function _macro_.attach at 0x...>, a=1, b='Hi')
   ;;
   ;; See also: `setattr`, `set@ <setQzAT_>`, `vars`.
   ;;
@@ -2424,7 +2424,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;;    #> Q#2/3
   ;;    >>> # Fraction(2, 3)
-  ;;    ... __import__('pickle').loads(b'cfractions\nFraction\n(I2\nI3\ntR.')
+  ;;    ... __import__('pickle').loads(b'cfractions\nFraction\n(V2/3\ntR.')
   ;;    Fraction(2, 3)
   ;;
   (fractions..Fraction (hissp..demunge Q)))
