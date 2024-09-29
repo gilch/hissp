@@ -16,6 +16,7 @@ import hashlib
 import re
 from base64 import b32encode
 from collections import namedtuple
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager, suppress
 from functools import reduce
 from importlib import import_module, resources
@@ -23,19 +24,7 @@ from itertools import chain
 from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
-from typing import (
-    Any,
-    Callable as Fn,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    NewType,
-    Optional,
-    Tuple,
-    Union,
-    cast,
-)
+from typing import Any, Callable as Fn, NewType, cast
 
 import hissp.compiler as C
 from hissp.compiler import Compiler, readerless
@@ -123,7 +112,7 @@ TOKENS = re.compile(
     """
 )
 
-Token = NewType("Token", Tuple[str, str, int])
+Token = NewType("Token", tuple[str, str, int])
 
 
 class SoftSyntaxError(SyntaxError):
@@ -163,7 +152,7 @@ class Lexer(Iterator):
             pos = match.end()
             yield Token((match.lastgroup, match.group(), pos))
 
-    def position(self, pos: int) -> Tuple[str, int, int, str]:
+    def position(self, pos: int) -> tuple[str, int, int, str]:
         """
         Compute the ``filename``, ``lineno``, ``offset`` and ``text``
         for a `SyntaxError`, using the current character offset in code.
@@ -250,7 +239,7 @@ class Lissp:
     def __init__(
         self,
         qualname="__main__",
-        env: Optional[Dict[str, Any]] = None,
+        env: dict[str, Any] | None = None,
         evaluate=False,
         filename="<?>",
     ):
@@ -262,19 +251,19 @@ class Lissp:
 
     def reinit(self):
         """Reset hasher, position, nesting depth, and gensym stacks."""
-        self.counters: List[int] = []
+        self.counters: list[int] = []
         self.context = []
         self.depth = []
         self._pos = 0
         self.blake = hashlib.blake2s(digest_size=GENSYM_BYTES)
 
     @property
-    def env(self) -> Dict[str, Any]:
+    def env(self) -> dict[str, Any]:
         """The wrapped `Compiler`'s ``env``."""
         return self.compiler.env
 
     @env.setter
-    def env(self, env: Dict[str, Any]):
+    def env(self, env: dict[str, Any]):
         self.compiler.env = env
 
     def compile(self, code: str) -> str:
@@ -403,7 +392,7 @@ class Lissp:
             raise SyntaxError("Splice not in tuple.", self.position())
         return form
 
-    def _template_element(self, forms: Iterable) -> Iterable[Tuple[str, Any]]:
+    def _template_element(self, forms: Iterable) -> Iterable[tuple[str, Any]]:
         invocation = True
         for form in forms:
             case = type(form)
@@ -577,7 +566,7 @@ def is_lissp_string(form) -> bool:
     return type(form) is str and form.startswith("(") and bool(is_string_literal(form))
 
 
-def is_string_literal(form) -> Optional[bool]:
+def is_string_literal(form) -> bool | None:
     """Determines if `ast.literal_eval` on form produces a string.
     (A `string literal fragment`.)
 
@@ -602,7 +591,7 @@ def is_qualifiable(symbol):
     )
 
 
-def transpile(package: Optional[str], *modules: str):
+def transpile(package: str | None, *modules: str):
     """Transpiles the named Python modules from Lissp.
 
     A ``.lissp`` file of the same name must be present in the module's
@@ -621,7 +610,7 @@ def transpile_packaged(resource: str, package: str):
         transpile_file(path, package)
 
 
-def transpile_file(path: Union[Path, str], package: Optional[str] = None):
+def transpile_file(path: Path | str, package: str | None = None):
     """Transpiles a single ``.lissp`` file to ``.py`` in the same location.
 
     Code in ``.lissp`` files is executed upon compilation. This is

@@ -11,6 +11,7 @@ import pickle
 import pickletools
 import re
 import sys
+from collections.abc import Iterable
 from contextlib import contextmanager, suppress
 from contextvars import ContextVar
 from functools import wraps
@@ -18,17 +19,7 @@ from itertools import chain, starmap, takewhile
 from pprint import pformat
 from traceback import format_exc
 from types import MappingProxyType, ModuleType
-from typing import (
-    Any,
-    Dict,
-    Iterable,
-    List,
-    NewType,
-    Optional,
-    Tuple,
-    TypeVar,
-    Union,
-)
+from typing import Any, NewType, TypeVar
 from warnings import warn
 
 PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
@@ -40,7 +31,7 @@ MAYBE = "..QzMaybe_."
 RE_MACRO = re.compile(rf"({re.escape(MACRO)}|{re.escape(MAYBE)})")
 _PARAM_INDENT = f"\n{len('(lambda ')*' '}"
 
-ENV: ContextVar[Optional[MappingProxyType]] = ContextVar("ENV", default=None)
+ENV: ContextVar[MappingProxyType | None] = ContextVar("ENV", default=None)
 """
 Expansion environment.
  
@@ -67,7 +58,7 @@ run on an earlier Python version than the compiler.
 
 
 @contextmanager
-def macro_context(env: Optional[Dict[str, Any]]):
+def macro_context(env: dict[str, Any] | None):
     """Sets `ENV` during macroexpansions.
 
     Does nothing if ``env`` is ``None`` or already the current context.
@@ -132,7 +123,7 @@ class Compiler:
     """
 
     def __init__(
-        self, qualname="__main__", env: Optional[Dict[str, Any]] = None, evaluate=True
+        self, qualname="__main__", env: dict[str, Any] | None = None, evaluate=True
     ):
         self.qualname = qualname
         self.env = self.new_env(qualname) if env is None else env
@@ -141,7 +132,7 @@ class Compiler:
         self.abort = None
 
     @staticmethod
-    def new_env(name, doc=None, package=None) -> Dict[str, Any]:
+    def new_env(name, doc=None, package=None) -> dict[str, Any]:
         """Imports the named module, creating it if necessary.
 
         Returns the module's ``__dict__``.
@@ -158,7 +149,7 @@ class Compiler:
         """
         Compile multiple forms, and execute them if evaluate mode enabled.
         """
-        result: List[str] = []
+        result: list[str] = []
         for i, form in enumerate(forms, 1):
             form = self.compile_form(form)
             if self.error:
@@ -180,13 +171,13 @@ class Compiler:
         otherwise it's an `atom` that represents itself.
         """
         if type(form) is tuple and form:
-            return self.tuple(form)
+            return self.tuple_(form)
         if type(form) is str and not form.startswith(":"):
             return self.fragment(form)
         return self.atomic(form)
 
     @_trace
-    def tuple(self, form: Tuple) -> str:
+    def tuple_(self, form: tuple) -> str:
         """Compile `call`, `macro`, or `special` forms."""
         head, *tail = form
         if (
@@ -201,7 +192,7 @@ class Compiler:
         return self.call(form)
 
     @_trace
-    def special(self, form: Tuple) -> str:
+    def special(self, form: tuple) -> str:
         """Try to compile as a `special form`, else :meth:`invocation`.
 
         The two special forms are ``quote`` and `lambda <lambda_>`.
@@ -225,7 +216,7 @@ class Compiler:
         return self.invocation(form)
 
     @_trace
-    def lambda_(self, form: Tuple) -> str:
+    def lambda_(self, form: tuple) -> str:
         R"""
         Compile the anonymous function `special form`.
 
@@ -352,7 +343,7 @@ class Compiler:
         return f"{body and body[0]}"
 
     @_trace
-    def invocation(self, form: Tuple) -> str:
+    def invocation(self, form: tuple) -> str:
         """Try to compile as `macro`, else normal `call`."""
         if (res := self.expand_macro(form)) is not _SENTINEL:
             if res.startswith("#") and res.lstrip("#").startswith(f" {form[0]}\n"):
@@ -362,7 +353,7 @@ class Compiler:
         return self.call(form)
 
     @_trace
-    def expand_macro(self, form: Tuple) -> Union[str, Sentinel]:
+    def expand_macro(self, form: tuple) -> str | Sentinel:
         """Macroexpand and start over with `compile_form`, if macro."""
         head, *tail = form
         if (macro := self._get_macro(head, self.env)) is not None:
@@ -371,7 +362,7 @@ class Compiler:
         return _SENTINEL
 
     @classmethod
-    def get_macro(cls, symbol, env: Dict[str, Any]):
+    def get_macro(cls, symbol, env: dict[str, Any]):
         """Returns the macro function for ``symbol`` given the ``env``.
 
         Returns ``None`` if ``symbol`` isn't a macro identifier.
@@ -381,7 +372,7 @@ class Compiler:
         return cls._get_macro(symbol, env)
 
     @classmethod
-    def _get_macro(cls, head, env: Dict[str, Any]):
+    def _get_macro(cls, head, env: dict[str, Any]):
         parts = RE_MACRO.split(head, 1)
         head = head.replace(MAYBE, MACRO, 1)
         if len(parts) > 1:
@@ -389,7 +380,7 @@ class Compiler:
         return cls._unqualified_macro(env, head)
 
     @classmethod
-    def _qualified_macro(cls, env: Dict[str, Any], head, parts):
+    def _qualified_macro(cls, env: dict[str, Any], head, parts):
         try:
             qualname = env.get("__name__", "__main__")
             if parts[0] == qualname:  # Internal?
@@ -400,7 +391,7 @@ class Compiler:
                 raise
 
     @staticmethod
-    def _unqualified_macro(env: Dict[str, Any], head):
+    def _unqualified_macro(env: dict[str, Any], head):
         try:
             return getattr(env[MACROS], head)
         except (LookupError, AttributeError):
@@ -618,7 +609,7 @@ class Compiler:
         digits = len(str(len(lines)))
         return "\n".join(f"{i:0{digits}} {line}" for i, line in enumerate(lines, 1))
 
-    def eval(self, code: str, form_number: int) -> Tuple[str, ...]:
+    def eval(self, code: str, form_number: int) -> tuple[str, ...]:
         """Execute compiled code, but only if evaluate mode is enabled."""
         try:
             if self.evaluate:
@@ -647,7 +638,7 @@ def _join_args(*args):
 T = TypeVar("T")
 
 
-def _pairs(it: Iterable[T]) -> Iterable[Tuple[T, T]]:
+def _pairs(it: Iterable[T]) -> Iterable[tuple[T, T]]:
     it = iter(it)
     for k in it:
         try:
@@ -656,7 +647,7 @@ def _pairs(it: Iterable[T]) -> Iterable[Tuple[T, T]]:
             raise CompileError("Incomplete pair.") from None
 
 
-def readerless(form, env: Optional[Dict[str, Any]] = None):
+def readerless(form, env: dict[str, Any] | None = None):
     """Compile a Hissp form to Python without evaluating it.
     Uses the current `ENV` for context, unless an alternative is provided.
     (Creates a temporary environment if neither is available.)
@@ -667,7 +658,7 @@ def readerless(form, env: Optional[Dict[str, Any]] = None):
     return Compiler(env=env, evaluate=False).compile([form])
 
 
-def macroexpand1(form, env: Optional[Dict[str, Any]] = None):
+def macroexpand1(form, env: dict[str, Any] | None = None):
     """Macroexpand outermost form once.
 
     If form is not a macro form, returns it unaltered.
@@ -703,7 +694,7 @@ def is_control(form) -> bool:
     return type(form) is str and form.startswith(":")
 
 
-def macroexpand(form, env: Optional[Dict[str, Any]] = None):
+def macroexpand(form, env: dict[str, Any] | None = None):
     """Repeatedly macroexpand outermost form until not a macro form.
 
     If form is not a macro form, returns it unaltered.
@@ -718,7 +709,7 @@ def macroexpand(form, env: Optional[Dict[str, Any]] = None):
 
 def macroexpand_all(
     form,
-    env: Optional[Dict[str, Any]] = None,
+    env: dict[str, Any] | None = None,
     *,
     preprocess=lambda x: x,
     postprocess=lambda x: x,
@@ -749,7 +740,7 @@ def macroexpand_all(
     return "lambda", _pexpand(exp[1], env), *(macroexpand_all(e, env) for e in exp[2:])
 
 
-def _pexpand(params, env: Optional[Dict[str, Any]]) -> tuple:
+def _pexpand(params, env: dict[str, Any] | None) -> tuple:
     if ":" not in params:
         return params
     singles, pairs = parse_params(params)
@@ -760,11 +751,9 @@ def _pexpand(params, env: Optional[Dict[str, Any]]) -> tuple:
     return *singles, ":", *chain.from_iterable(pairs.items())
 
 
-def parse_params(params) -> Tuple[tuple, Dict[str, Any]]:
+def parse_params(params) -> tuple[tuple, dict[str, Any]]:
     """Parses a lambda form's `params` into a tuple of singles and a dict of pairs."""
     iparams = iter(params)
     singles = tuple(takewhile(lambda x: x != ":", iparams))
-    pairs = dict(zip(iparams, iparams))
-    if len(singles) + len(pairs) * 2 != len(params) - (":" in params):
-        raise ValueError("Incomplete pair.")  # TODO: zip strict.
+    pairs = dict(zip(iparams, iparams, strict=True))
     return singles, pairs
