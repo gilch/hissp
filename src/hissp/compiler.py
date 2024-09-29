@@ -18,7 +18,7 @@ from functools import wraps
 from itertools import chain, starmap, takewhile
 from pprint import pformat
 from traceback import format_exc
-from types import MappingProxyType, ModuleType
+from types import ModuleType
 from typing import Any, NewType, TypeAlias, TypeVar
 from warnings import warn
 
@@ -31,7 +31,8 @@ MAYBE = "..QzMaybe_."
 RE_MACRO = re.compile(rf"({re.escape(MACRO)}|{re.escape(MAYBE)})")
 _PARAM_INDENT = f"\n{len('(lambda ')*' '}"
 
-ENV: ContextVar[MappingProxyType | None] = ContextVar("ENV", default=None)
+Env: TypeAlias = dict[str, Any]
+ENV: ContextVar[Env | None] = ContextVar("ENV", default=None)
 """
 Expansion environment.
  
@@ -56,8 +57,6 @@ A lower number may be necessary if the compiled output is expected to
 run on an earlier Python version than the compiler.
 """
 
-Env: TypeAlias = dict[str, Any]
-
 
 @contextmanager
 def macro_context(env: Env | None):
@@ -68,7 +67,7 @@ def macro_context(env: Env | None):
     if env is None or ENV.get() is env:
         yield
     else:
-        token = ENV.set(MappingProxyType(env))
+        token = ENV.set(env)
         try:
             yield
         finally:
