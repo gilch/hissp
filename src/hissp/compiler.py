@@ -19,7 +19,7 @@ from itertools import chain, starmap, takewhile
 from pprint import pformat
 from traceback import format_exc
 from types import MappingProxyType, ModuleType
-from typing import Any, NewType, TypeVar
+from typing import Any, NewType, TypeAlias, TypeVar
 from warnings import warn
 
 PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
@@ -56,9 +56,11 @@ A lower number may be necessary if the compiled output is expected to
 run on an earlier Python version than the compiler.
 """
 
+Env: TypeAlias = dict[str, Any]
+
 
 @contextmanager
-def macro_context(env: dict[str, Any] | None):
+def macro_context(env: Env | None):
     """Sets `ENV` during macroexpansions.
 
     Does nothing if ``env`` is ``None`` or already the current context.
@@ -122,9 +124,7 @@ class Compiler:
     subset of Python.
     """
 
-    def __init__(
-        self, qualname="__main__", env: dict[str, Any] | None = None, evaluate=True
-    ):
+    def __init__(self, qualname="__main__", env: Env | None = None, evaluate=True):
         self.qualname = qualname
         self.env = self.new_env(qualname) if env is None else env
         self.evaluate = evaluate
@@ -132,7 +132,7 @@ class Compiler:
         self.abort = None
 
     @staticmethod
-    def new_env(name, doc=None, package=None) -> dict[str, Any]:
+    def new_env(name, doc=None, package=None) -> Env:
         """Imports the named module, creating it if necessary.
 
         Returns the module's ``__dict__``.
@@ -362,7 +362,7 @@ class Compiler:
         return _SENTINEL
 
     @classmethod
-    def get_macro(cls, symbol, env: dict[str, Any]):
+    def get_macro(cls, symbol, env: Env):
         """Returns the macro function for ``symbol`` given the ``env``.
 
         Returns ``None`` if ``symbol`` isn't a macro identifier.
@@ -372,7 +372,7 @@ class Compiler:
         return cls._get_macro(symbol, env)
 
     @classmethod
-    def _get_macro(cls, head, env: dict[str, Any]):
+    def _get_macro(cls, head, env: Env):
         parts = RE_MACRO.split(head, 1)
         head = head.replace(MAYBE, MACRO, 1)
         if len(parts) > 1:
@@ -380,7 +380,7 @@ class Compiler:
         return cls._unqualified_macro(env, head)
 
     @classmethod
-    def _qualified_macro(cls, env: dict[str, Any], head, parts):
+    def _qualified_macro(cls, env: Env, head, parts):
         try:
             qualname = env.get("__name__", "__main__")
             if parts[0] == qualname:  # Internal?
@@ -391,7 +391,7 @@ class Compiler:
                 raise
 
     @staticmethod
-    def _unqualified_macro(env: dict[str, Any], head):
+    def _unqualified_macro(env: Env, head):
         try:
             return getattr(env[MACROS], head)
         except (LookupError, AttributeError):
@@ -647,7 +647,7 @@ def _pairs(it: Iterable[T]) -> Iterable[tuple[T, T]]:
             raise CompileError("Incomplete pair.") from None
 
 
-def readerless(form, env: dict[str, Any] | None = None):
+def readerless(form, env: Env | None = None):
     """Compile a Hissp form to Python without evaluating it.
     Uses the current `ENV` for context, unless an alternative is provided.
     (Creates a temporary environment if neither is available.)
@@ -658,7 +658,7 @@ def readerless(form, env: dict[str, Any] | None = None):
     return Compiler(env=env, evaluate=False).compile([form])
 
 
-def macroexpand1(form, env: dict[str, Any] | None = None):
+def macroexpand1(form, env: Env | None = None):
     """Macroexpand outermost form once.
 
     If form is not a macro form, returns it unaltered.
@@ -694,7 +694,7 @@ def is_control(form) -> bool:
     return type(form) is str and form.startswith(":")
 
 
-def macroexpand(form, env: dict[str, Any] | None = None):
+def macroexpand(form, env: Env | None = None):
     """Repeatedly macroexpand outermost form until not a macro form.
 
     If form is not a macro form, returns it unaltered.
@@ -709,7 +709,7 @@ def macroexpand(form, env: dict[str, Any] | None = None):
 
 def macroexpand_all(
     form,
-    env: dict[str, Any] | None = None,
+    env: Env | None = None,
     *,
     preprocess=lambda x: x,
     postprocess=lambda x: x,
@@ -740,7 +740,7 @@ def macroexpand_all(
     return "lambda", _pexpand(exp[1], env), *(macroexpand_all(e, env) for e in exp[2:])
 
 
-def _pexpand(params, env: dict[str, Any] | None) -> tuple:
+def _pexpand(params, env: Env | None) -> tuple:
     if ":" not in params:
         return params
     singles, pairs = parse_params(params)
@@ -751,7 +751,7 @@ def _pexpand(params, env: dict[str, Any] | None) -> tuple:
     return *singles, ":", *chain.from_iterable(pairs.items())
 
 
-def parse_params(params) -> tuple[tuple, dict[str, Any]]:
+def parse_params(params) -> tuple[tuple, Env]:
     """Parses a lambda form's `params` into a tuple of singles and a dict of pairs."""
     iparams = iter(params)
     singles = tuple(takewhile(lambda x: x != ":", iparams))

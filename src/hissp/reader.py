@@ -27,7 +27,7 @@ from pprint import pformat
 from typing import Any, Callable as Fn, NewType, cast
 
 import hissp.compiler as C
-from hissp.compiler import Compiler, readerless
+from hissp.compiler import Compiler, Env, readerless
 from hissp.munger import force_qz_encode, munge
 
 GENSYM_BYTES = 5
@@ -239,7 +239,7 @@ class Lissp:
     def __init__(
         self,
         qualname="__main__",
-        env: dict[str, Any] | None = None,
+        env: Env | None = None,
         evaluate=False,
         filename="<?>",
     ):
@@ -258,12 +258,12 @@ class Lissp:
         self.blake = hashlib.blake2s(digest_size=GENSYM_BYTES)
 
     @property
-    def env(self) -> dict[str, Any]:
+    def env(self) -> Env:
         """The wrapped `Compiler`'s ``env``."""
         return self.compiler.env
 
     @env.setter
-    def env(self, env: dict[str, Any]):
+    def env(self, env: Env):
         self.compiler.env = env
 
     def compile(self, code: str) -> str:
