@@ -178,16 +178,13 @@ class Compiler:
     @_trace
     def tuple_(self, form: tuple) -> str:
         """Compile `call`, `macro`, or `special` forms."""
-        head, *tail = form
-        if (
-            not tail
-            and type(head) is tuple
-            and head[0] == "lambda"
-            and not self.parameters(head[1])
-        ):  # progn optimization
-            return self.body(head[2:])
-        elif type(head) is str:
-            return self.special(form)
+        match form:
+            case [["lambda", params, *body] as head] if type(
+                head
+            ) is tuple and not self.parameters(params):
+                return self.body(body)  # progn optimization
+            case head, *_ if type(head) is str:
+                return self.special(form)
         return self.call(form)
 
     @_trace

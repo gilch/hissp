@@ -546,12 +546,10 @@ def is_hissp_string(form) -> bool:
     Macros often produce strings in one of these forms, via `quote` or
     `repr` on a string object.
     """
-    return (
-        type(form) is tuple
-        and len(form) == 2
-        and form[0] == "quote"
-        and type(form[1]) is str
-    ) or bool(is_string_literal(form))
+    match form:
+        case ["quote", x] if type(form) is tuple and type(x) is str:
+            return True
+    return bool(is_string_literal(form))
 
 
 def is_lissp_string(form) -> bool:
