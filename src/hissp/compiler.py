@@ -11,7 +11,7 @@ import pickle
 import pickletools
 import re
 import sys
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from contextlib import contextmanager, suppress
 from contextvars import ContextVar
 from functools import wraps
@@ -84,7 +84,7 @@ class CompileError(SyntaxError):
 
 def _trace(method):
     @wraps(method)
-    def tracer(self, expr) -> str:
+    def tracer(self: "Compiler", expr) -> str:
         try:
             return method(self, expr)
         except Exception as e:
@@ -123,12 +123,14 @@ class Compiler:
     subset of Python.
     """
 
-    def __init__(self, qualname="__main__", env: Env | None = None, evaluate=True):
-        self.qualname = qualname
-        self.env = self.new_env(qualname) if env is None else env
-        self.evaluate = evaluate
-        self.error = False
-        self.abort = None
+    def __init__(
+        self, qualname: str = "__main__", env: Env | None = None, evaluate: bool = True
+    ):
+        self.qualname: str = qualname
+        self.env: Env = self.new_env(qualname) if env is None else env
+        self.evaluate: bool = evaluate
+        self.error: Exception | None = None
+        self.abort: str | None = None
 
     @staticmethod
     def new_env(name: str, doc: str | None = None) -> Env:
@@ -160,7 +162,7 @@ class Compiler:
             form = self.compile_form(form)
             if self.error:
                 e = self.error
-                self.error = False
+                self.error = None
                 raise CompileError("\n" + form) from e
             result.extend(self.eval(form, i))
             if self.abort:
@@ -337,7 +339,7 @@ class Compiler:
         return sep.join(r).replace("\n", _PARAM_INDENT)
 
     @_trace
-    def body(self, body: list) -> str:
+    def body(self, body: Iterable) -> str:
         """Compile body of `lambda_`."""
         body = tuple(map(self.compile_form, body))
         if len(body) > 1:
@@ -375,7 +377,7 @@ class Compiler:
         return cls._get_macro(symbol, env)
 
     @classmethod
-    def _get_macro(cls, head, env: Env):
+    def _get_macro(cls, head: str, env: Env):
         parts = RE_MACRO.split(head, 1)
         head = head.replace(MAYBE, MACRO, 1)
         if len(parts) > 1:
@@ -383,7 +385,7 @@ class Compiler:
         return cls._unqualified_macro(env, head)
 
     @classmethod
-    def _qualified_macro(cls, env: Env, head, parts):
+    def _qualified_macro(cls, env: Env, head: str, parts: Sequence[str]):
         try:
             qualname = env.get("__name__", "__main__")
             if parts[0] == qualname:  # Internal?
@@ -394,7 +396,7 @@ class Compiler:
                 raise
 
     @staticmethod
-    def _unqualified_macro(env: Env, head):
+    def _unqualified_macro(env: Env, head: str):
         try:
             return getattr(env[MACROS], head)
         except (LookupError, AttributeError):
@@ -487,7 +489,7 @@ class Compiler:
             raise CompileError("self must be paired with :?")
         return "{}({})".format(self.compile_form(head), _join_args(*args))
 
-    def _pair_arg(self, k, v):
+    def _pair_arg(self, k: str, v) -> str:
         k = PAIR_WORDS.get(k, k + "=")
         if ".." in k:
             k = k.split(".")[-1]
@@ -503,7 +505,7 @@ class Compiler:
         return self._fragment(self.qualname, code)
 
     @classmethod
-    def _fragment(cls, qualname, code):
+    def _fragment(cls, qualname: str, code: str) -> str:
         if "..." in code:
             return code
         if not all(s.isidentifier() for s in code.split(".") if s):
@@ -515,7 +517,7 @@ class Compiler:
         return code
 
     @staticmethod
-    def qualified_identifier(qualname, code):
+    def qualified_identifier(qualname: str, code: str) -> str:
         """Compile `fully-qualified identifier` into import and attribute."""
         parts = code.split("..", 1)
         if parts[0] == qualname:  # This module. No import required.
@@ -574,30 +576,30 @@ class Compiler:
         # literal failed to round trip. Fall back to pickle.
         return self.pickle(form)
 
-    def _lisp_normal_form(self, form):
+    def _lisp_normal_form(self, form: tuple) -> str:
         return "({},)".format(",\n".join(map(self.atomic, form)).replace("\n", "\n "))
 
-    def _collection(self, form):  # Use literal if it reproduces the object graph.
+    def _collection(self, form: dict | list | set) -> str:
         pickled = self.pickle(form)
         pretty = pformat(form, sort_dicts=False)
         evaled = self._try_eval(pretty)
         if evaled == form and pickled == self.pickle(evaled):
-            return pretty
+            return pretty  # Literal if it reproduces the object graph.
         return pickled
 
     @staticmethod
-    def _format_repr(case, form):
+    def _format_repr(case: type, form: object) -> str:
         if case in {int, float, complex}:
             return f"({form!r})"  # Number literals may need (). E.g. (1).real
         return pformat(form)  # Pretty print for multiline strings.
 
     @staticmethod
-    def _try_eval(literal):
+    def _try_eval(literal: str):
         with suppress(ValueError, SyntaxError):
             return ast.literal_eval(literal)
 
     @_trace
-    def pickle(self, form) -> str:
+    def pickle(self, form: object) -> str:
         """Compile to `pickle.loads`. The final fallback for `atomic`."""
         protocols = 0, MAX_PROTOCOL
         pickles = [repr(pickletools.optimize(pickle.dumps(form, p))) for p in protocols]
@@ -606,13 +608,13 @@ class Compiler:
         return f"# {r}\n__import__({pickle.__name__!r}).loads({code})"
 
     @staticmethod
-    def linenos(code: str):
+    def linenos(code: str) -> str:
         """Adds line numbers to code for error messages."""
         lines = code.split("\n")
         digits = len(str(len(lines)))
         return "\n".join(f"{i:0{digits}} {line}" for i, line in enumerate(lines, 1))
 
-    def eval(self, code: str, form_number: int) -> tuple[str, ...]:
+    def eval(self, code: str, form_number: int) -> tuple[str] | tuple[str, str]:
         """Execute compiled code, but only if evaluate mode is enabled."""
         try:
             if self.evaluate:
@@ -634,7 +636,7 @@ class Compiler:
         return (code,)
 
 
-def _join_args(*args):
+def _join_args(*args: str) -> str:
     return (("\n" if args else "") + ",\n".join(args)).replace("\n", "\n  ")
 
 
@@ -650,7 +652,7 @@ def _pairs(it: Iterable[T]) -> Iterable[tuple[T, T]]:
             raise CompileError("Incomplete pair.") from None
 
 
-def readerless(form, env: Env | None = None):
+def readerless(form: object, env: Env | None = None) -> str:
     """Compile a Hissp form to Python without evaluating it.
     Uses the current `ENV` for context, unless an alternative is provided.
     (Creates a temporary environment if neither is available.)
@@ -680,12 +682,12 @@ def macroexpand1(form, env: Env | None = None):
         return macro(*tail)
 
 
-def is_atomic(form) -> bool:
+def is_atomic(form: object) -> bool:
     """Determines if form is an `atom`."""
     return type(form) is not tuple or form == ()
 
 
-def is_symbol(form) -> bool:
+def is_symbol(form: object) -> bool:
     """Determines if form is a `symbol`."""
     return (type(form) is str and form != "") and all(
         part.isidentifier() for part in f"{form}_".replace("..", ".", 1).split(".")
@@ -743,7 +745,7 @@ def macroexpand_all(
     return "lambda", _pexpand(exp[1], env), *(macroexpand_all(e, env) for e in exp[2:])
 
 
-def _pexpand(params, env: Env | None) -> tuple:
+def _pexpand(params: Iterable, env: Env | None) -> Iterable:
     if ":" not in params:
         return params
     singles, pairs = parse_params(params)
