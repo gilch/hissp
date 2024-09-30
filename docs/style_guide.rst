@@ -810,19 +810,37 @@ Comment Styles
 ::::::::::::::
 
 Remember, readability counts.
+You are writing for a human audience, not just a compiler.
 Commentary should create clarity, not confusion.
+
+Your code is probably not as "self-documenting" as you think it is.
+Beware the
+`curse of knowledge <https://en.wikipedia.org/wiki/Curse_of_knowledge#Computer_programming>`_.
+Understanding code requires the programmer to maintain a lot of mental context.
+Commentary can reduce that burden considerably.
+Assume your audience is competent, but lacks some of that context.
+That could describe *you* in six months.
+Your audience should be able to understand the language
+and read library documentation.
 
 Avoid adding superfluous "what"-comments that are obvious from looking at the code.
 (Except perhaps when writing language documentation for beginners ;)
-Separator comments used to imply groups are exempt.
+These are the most likely type to suffer from rot and mislead as implementation changes.
+Styling separator comments used to imply groups are exempt.
 
-Prefer "why"-comments that describe rationale or intent.
-Your code is probably not as "self-documenting" as you think it is.
-Assume your reader is competent, not omniscient.
+Prefer "why"-comments that describe rationale or intent at a higher level.
+These are less likely to rot and mislead.
+Even as implementation changes, the reasons for it often do not,
+and when they do, it's easier to tell.
 
 If "what"-comments still seem necessary,
 consider how to make the code itself clearer,
 so the "what"-comments would become obvious by looking at the code.
+This is not a prohibition.
+Sometimes, in cases of difficult mathematics, complicated algorithms,
+or performance-optimized code,
+more thorough commentary is necessary,
+including comments about what the code is doing.
 
 Software development is fundamentally research, not manufacturing or construction.
 URLs citing sources used can be appropriate,
@@ -864,7 +882,9 @@ A few sentences don't take that much time, but can save a lot later.
 
 Documentation is a burden, just as code is a liability.
 Don't accept more of either than delivers value.
+Quality over quantity.
 Remove or fix bad comments, as appropriate.
+Be careful not to remove styling comments that are still required to imply groups.
 Check the version control history for more clues.
 Consider if updating or clarifying a comment is more appropriate than removal.
 
@@ -1193,10 +1213,14 @@ within a line, to indicate greater separation than the extra spaces.
 These are also used in the :term:`doorstop`
 ``_#/`` used to "hold open" a trail of brackets.
 
-"Docstrings"
-++++++++++++
+<#;Docstrings
++++++++++++++
 
 Prefer docstrings over semicolon comments where applicable.
+Quality over quantity,
+but it's OK if a function docstring is longer than the function its documenting,
+especially if it's for doctests.
+A competent editor can fold comments.
 
 Docstrings describe interface and usage;
 they are not for irrelevant implementation details internal to their containing object.
@@ -1219,7 +1243,7 @@ The bundled `deftypeonce` macro does not have any special case for docstrings.
 Instead add a ``__doc__`` attribute.
 
 Indent docstrings to the same column as their opening ``"``
-even when using something like the attach macro.
+even when using something like the `attach` macro.
 This does put the leading whitespace inside the string itself,
 but Python tooling expects this in docstrings,
 and can strip it out when rendering help.
@@ -1228,8 +1252,10 @@ If the docstring contains any newlines,
 the closing ``"`` gets its own line.
 
 It is acceptable to use reader macros that resolve to a string literal like
-`<# <QzLT_QzHASH_>` (which is useful for doctests),
+`<# <QzLT_QzHASH_>` (which is useful for doctests)
 as long as the documentation text is also legible in the source code.
+A comment string is preferred over a :term:`Unicode token` when it would
+contain a blank line.
 
 Follow Python style on docstring contents.
 
@@ -1709,8 +1735,8 @@ even in an implied group:
    (defun compare (xs ys)                 ;OK. Better.
      (cond (lt (len xs) (len ys))
            (print "<")
-           ;; else if                     ;Comment not optional. Needed for grouping.
-           (gt (len xs) (len ys))         ; Sometimes you need more than one.
+           ;; else if                     ;The styling comment is not optional;
+           (gt (len xs) (len ys))         ; it's needed for separating groups.
            (print ">")
            :else (print "0"))))
 
