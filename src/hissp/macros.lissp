@@ -987,6 +987,34 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   `(lambda ,'XYZW ,expr))
 
+(defmacro /XY\# (expr)
+  <#;``/XY#`` 'reduce X Y' Anaphoric.
+  ;;
+  ;; Make ``expr`` a reducing function with parameters X Y.
+  ;; The resulting function is a partial application of
+  ;; `functools.reduce`.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> /XY#(op#add Y X)
+  ;;    >>> __import__('functools').partial(
+  ;;    ...   __import__('functools').reduce,
+  ;;    ...   (lambda X, Y:
+  ;;    ...       __import__('operator').add(
+  ;;    ...         Y,
+  ;;    ...         X)
+  ;;    ...   ))
+  ;;    functools.partial(<built-in function reduce>, <function <lambda> at 0x...>)
+  ;;
+  ;;    #> (_ 'ABCD)
+  ;;    >>> _(
+  ;;    ...   'ABCD')
+  ;;    'DCBA'
+  ;;
+  ;; See also: `XY# <XYQzHASH_>`, `/# <QzSOL_QzHASH_>`.
+  ;;
+  `(functools..partial functools..reduce (lambda ,'XY ,expr)))
+
 (defmacro alias (abbreviation qualifier)
   <#;Defines a `tag` abbreviation of a `qualifier`.
   ;;
@@ -1766,9 +1794,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; See also: `-\<>> <QzH_QzLT_QzGT_QzGT_>`, `X# <XQzHASH_>`,
   ;; `\!# <QzBANG_QzHASH_>`, `en# <enQzHASH_>`.
   ;;
-  (functools..reduce XY# |(Y[0],X,*Y[1:],)|
-                     (map X# |X if type(X) is tuple else (X,)| forms)
-                     expr))
+  (/XY# |(Y[0],X,*Y[1:],)| (map X# |X if type(X) is tuple else (X,)| forms)
+                           expr))
 
 (defmacro -<>> (expr : :* forms)
   <#;``-<>>`` 'Thread-through'.
@@ -1813,10 +1840,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; See also: `-> <QzH_QzGT_>`, `en# <enQzHASH_>`.
   ;;
-  (functools..reduce XY#(let (i (iter Y))
-                          `(,@(i#takewhile X#(op#ne X :<>) i) ,X ,@i))
-                     (map X# |X if type(X) is tuple else (X,)| forms)
-                     expr))
+  (/XY#(let (i (iter Y))
+         `(,@(i#takewhile X#(op#ne X :<>) i) ,X ,@i))
+   (map X# |X if type(X) is tuple else (X,)| forms)
+   expr))
 
 ;;; TODO: implement other arrange macros?
 
@@ -2516,34 +2543,6 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; See also: `/XY# <QzSOL_XYQzHASH_>`, `en# <enQzHASH_>`.
   `(lambda (: :* $#xs)
      (functools..reduce ,f $#xs)))
-
-(defmacro /XY\# (expr)
-  <#;``/XY#`` 'reduce X Y' Anaphoric.
-  ;;
-  ;; Make ``expr`` a reducing function with parameters X Y.
-  ;; The resulting function is a partial application of
-  ;; `functools.reduce`.
-  ;;
-  ;; .. code-block:: REPL
-  ;;
-  ;;    #> /XY#(op#add Y X)
-  ;;    >>> __import__('functools').partial(
-  ;;    ...   __import__('functools').reduce,
-  ;;    ...   (lambda X, Y:
-  ;;    ...       __import__('operator').add(
-  ;;    ...         Y,
-  ;;    ...         X)
-  ;;    ...   ))
-  ;;    functools.partial(<built-in function reduce>, <function <lambda> at 0x...>)
-  ;;
-  ;;    #> (_ 'ABCD)
-  ;;    >>> _(
-  ;;    ...   'ABCD')
-  ;;    'DCBA'
-  ;;
-  ;; See also: `XY# <XYQzHASH_>`, `/# <QzSOL_QzHASH_>`.
-  ;;
-  `(functools..partial functools..reduce (lambda ,'XY ,expr)))
 
 ;;;; Collection
 
