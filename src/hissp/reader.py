@@ -24,7 +24,7 @@ from itertools import chain
 from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
-from typing import Any, Callable as Fn, NewType, cast
+from typing import Any, Callable as Fn, Literal, NewType, NoReturn, cast
 
 import hissp.compiler as C
 from hissp.compiler import Compiler, Env, readerless
@@ -131,7 +131,7 @@ class Lexer(Iterator):
     messages.
     """
 
-    def __init__(self, code: str, file: str = "<?>"):
+    def __init__(self, code: str, file: str = "<?>") -> None:
         self.code = code
         self.file = file
         self.it = self._it()
@@ -139,10 +139,10 @@ class Lexer(Iterator):
     def __iter__(self) -> Iterator[Token]:
         return self
 
-    def __next__(self):
+    def __next__(self) -> Token:
         return next(self.it)
 
-    def _it(self):
+    def _it(self) -> Iterator[Token]:
         pos = 0
         while pos < len(self.code):
             match = TOKENS.match(self.code, pos)
@@ -172,10 +172,10 @@ class Comment:
     The reader normally discards these, but they can be `tag` arguments.
     """
 
-    def __init__(self, token):
+    def __init__(self, token: str):
         self.token = token
 
-    def contents(self):
+    def contents(self) -> str:
         """Gets the comment text inside the comment token.
 
         Strips any leading indent, the ``;`` character(s), and up to one
@@ -183,7 +183,7 @@ class Comment:
         """
         return re.sub(r"(?m)\n$|^ *;+ ?", "", self.token)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Comment({self.token!r})"
 
 
@@ -193,11 +193,11 @@ class Kwarg:
     Normally made with a `kwarg token`, but can be constructed directly.
     """
 
-    def __init__(self, k, v):
+    def __init__(self, k: str, v):
         self.k = k
         self.v = v
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Kwarg({self.k!r}, {self.v!r})"
 
 
@@ -238,10 +238,10 @@ class Lissp:
 
     def __init__(
         self,
-        qualname="__main__",
+        qualname: str = "__main__",
         env: Env | None = None,
-        evaluate=False,
-        filename="<?>",
+        evaluate: bool = False,
+        filename: str = "<?>",
     ):
         self.template_count = 0
         self.qualname = qualname
@@ -249,11 +249,11 @@ class Lissp:
         self.filename = filename
         self.reinit()
 
-    def reinit(self):
+    def reinit(self) -> None:
         """Reset hasher, position, nesting depth, and gensym stacks."""
         self.counters: list[int] = []
-        self.context = []
-        self.depth = []
+        self.context: list[str] = []
+        self.depth: list[int] = []
         self._pos = 0
         self.blake = hashlib.blake2s(digest_size=GENSYM_BYTES)
 
@@ -263,7 +263,7 @@ class Lissp:
         return self.compiler.env
 
     @env.setter
-    def env(self, env: Env):
+    def env(self, env: Env) -> None:
         self.compiler.env = env
 
     def compile(self, code: str) -> str:
@@ -290,7 +290,7 @@ class Lissp:
             if k == "whitespace": continue
             elif k == "comment":  yield Comment(v)
             elif k == "badspace": raise self._badspace(v)
-            elif k == "open":     yield from self._open()
+            elif k == "open":     yield self._open()
             elif k == "close":    return self._close()
             elif k == "template": yield self._template(v)
             elif k == "unquote":  yield self._unquote(v)
@@ -310,24 +310,24 @@ class Lissp:
             # fmt: on
         self._check_depth()
 
-    def _badspace(self, v):
+    def _badspace(self, v: str) -> SyntaxError:
         return SyntaxError(
             f"{v!r} is not whitespace in Lissp. Indent with spaces only.",
             self.position(),
         )
 
-    def position(self, index=None):
+    def position(self, index: int | None = None) -> tuple[str, int, int, str]:
         """
         Get the ``filename``, ``lineno``, ``offset`` and ``text``
         for a `SyntaxError`, from the `Lexer` given to `parse`.
         """
         return self.tokens.position(self._pos if index is None else index)
 
-    def _open(self):
+    def _open(self) -> tuple:
         self.depth.append(self._pos)
-        yield (*self.parse(self.tokens),)
+        return (*self.parse(self.tokens),)
 
-    def _close(self):
+    def _close(self) -> None:
         if not self.depth:
             raise SyntaxError("Too many `)`s.", self.position())
         self.depth.pop()
@@ -344,7 +344,7 @@ class Lissp:
             self.counters.pop()
             self.context.pop()
 
-    def _unquote(self, v):
+    def _unquote(self, v: Literal[",@", ","]) -> _Unquote:
         with self.unquote_context():
             return _Unquote({",@": ":*", ",": ":?"}[v], self._pull(v, self._pos))
 
@@ -359,11 +359,11 @@ class Lissp:
         finally:
             self.context.pop()
 
-    def _inject(self, v):
+    def _inject(self, v: str):
         with C.macro_context(self.env):
             return eval(readerless(self._pull(v, self._pos), self.env), self.env)
 
-    def _pull(self, v, p=None):
+    def _pull(self, v: str, p: int | None = None):
         if p is None:
             p = self._pos
         depth = len(self.depth)
@@ -373,7 +373,7 @@ class Lissp:
             e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
             raise e(f"tag {v!r} missing argument.", self.position(p)) from None
 
-    def _template(self, v):
+    def _template(self, v: str):
         with self.gensym_context():
             return self._template_form(self._pull(v))
 
@@ -418,7 +418,7 @@ class Lissp:
             return f"{self.qualname}{C.MAYBE}{symbol}"
         return f"{self.qualname}..{symbol}"
 
-    def _gensym(self, form: str):
+    def _gensym(self, form: str) -> str:
         """Generate a symbol unique to the current template.
         Re-munges any $'s as a gensym hash, or adds it as a prefix if
         there aren't any. Gensym hashes are deterministic for
@@ -447,26 +447,26 @@ class Lissp:
         assert tag.endswith("#")
         arity = re.sub(r"\\.", "", tag).count("#")
         assert arity >= 1
-        tag_pos, tag_depth = self._pos, len(self.depth)
+        depth_pos = len(self.depth), self._pos
         args, kwargs = [], {}
         for i, x in enumerate(chain([form], self._parse()), 1):
             self._collect(args, kwargs, x)
             if i == arity:
                 break
         else:
-            self._tag_error(tag, tag_depth, tag_pos)
+            self._tag_error(tag, *depth_pos)
         label = self._label(arity, tag)
-        fn: Fn[[str], Fn] = self._fully_qualified if ".." in label else self._local
+        fn = self._fully_qualified if ".." in label else self._local
         with C.macro_context(self.env):
             return fn(label)(*args, **kwargs)
 
     @classmethod
-    def _label(cls, arity, tag):
+    def _label(cls, arity: int, tag: str) -> str:
         label = munge(cls.escape(tag[:-arity]))
         return re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), label)
 
     @classmethod
-    def _collect(cls, args, kwargs, x):
+    def _collect(cls, args: list, kwargs: dict, x) -> None:
         if type(x) is Kwarg:
             k, v = x.k, x.v
             if k == "*":
@@ -478,64 +478,64 @@ class Lissp:
         else:
             args.append(x)
 
-    def _tag_error(self, tag, tag_depth, tag_pos):
-        e = SoftSyntaxError if len(self.depth) == tag_depth else SyntaxError
+    def _tag_error(self, tag: str, depth: int, pos: int) -> NoReturn:
+        e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
         msg = f"Reader tag {tag!r} missing argument."
-        raise e(msg, self.position(tag_pos)) from None
+        raise e(msg, self.position(pos)) from None
 
     @staticmethod
-    def _fully_qualified(tag: str) -> Fn:
+    def _fully_qualified(tag: str):
         module, function = tag.split("..", 1)
         if re.match(rf"{C.MACROS}\.[^.]+$", function):
             function += munge("#")
         return cast(Fn, reduce(getattr, function.split("."), import_module(module)))
 
-    def _local(self, tag: str) -> Fn:
+    def _local(self, tag: str):
         try:
             return getattr(self.env[C.MACROS], tag + munge("#"))
         except (AttributeError, KeyError):
             raise SyntaxError(f"Unknown tag {tag!r}.", self.position())
 
     @staticmethod
-    def escape(atom):
+    def escape(atom: str) -> str:
         """Process the backslashes in a token."""
         return re.sub(
             r"\\(.)", lambda m: force_qz_encode(m[1]) if m[1] in ".:" else m[1], atom
         )
 
     @staticmethod
-    def _unicode(v):
+    def _unicode(v: str) -> str:
         v = v.replace("\\\n", "").replace("\n", R"\n")
         val = ast.literal_eval(v)
         return v if (v := pformat(val)).startswith("(") else f"({v})"
 
-    def _fragment(self, v):
+    def _fragment(self, v: str) -> str:
         return v[1:-1].replace("||", "|")
 
-    def _continue(self):
+    def _continue(self) -> SoftSyntaxError:
         return SoftSyntaxError("Incomplete string token.", self.position())
 
     @staticmethod
-    def bare(v):
+    def bare(v: str):
         """Preprocesses a `bare token`. Handles escapes and munging."""
-        if "\\" != v[0]:
+        if not v.startswith("\\"):
             with suppress(ValueError, SyntaxError):
                 if not hasattr(x := ast.literal_eval(Lissp.escape(v)), "__contains__"):
                     return x
         return munge(Lissp.escape(v))
 
-    def _error(self, k):
+    def _error(self, k: str) -> SyntaxError:
         assert k == "error", f"unknown token: {k!r}"
         return SyntaxError("Can't read this.", self.position())
 
-    def _check_depth(self):
+    def _check_depth(self) -> None:
         if self.depth:
             raise SoftSyntaxError(
                 "This form is missing a `)`.", self.position(self.depth.pop())
             )
 
 
-def is_hissp_string(form) -> bool:
+def is_hissp_string(form: object) -> bool:
     """Determines if form would directly represent a string in Hissp.
     (A `Hissp string`.)
 
@@ -574,11 +574,11 @@ def is_string_literal(form) -> bool | None:
         return type(ast.literal_eval(form)) is str
 
 
-def is_qualifiable(symbol):
+def is_qualifiable(symbol: str) -> bool:
     """Determines if symbol can be qualified with a module.
 
     Can't be ``quote``, ``__import__``, any Python reserved word, a
-    prefix auto-`gensym`, already qualified, method syntax, or a `module
+    prefix auto-`gensym`, fully qualified, method syntax, or a `module
     handle`; and must be a valid identifier or attribute identifier.
     """
     return (
@@ -589,7 +589,7 @@ def is_qualifiable(symbol):
     )
 
 
-def transpile(package: str | None, *modules: str):
+def transpile(package: str | None, *modules: str) -> None:
     """Transpiles the named Python modules from Lissp.
 
     A ``.lissp`` file of the same name must be present in the module's
@@ -602,13 +602,13 @@ def transpile(package: str | None, *modules: str):
         t(f"{m}.lissp", package)
 
 
-def transpile_packaged(resource: str, package: str):
+def transpile_packaged(resource: str, package: str) -> None:
     """Locates & transpiles a packaged ``.lissp`` resource file to ``.py``."""
     with resources.path(package, resource) as path:
         transpile_file(path, package)
 
 
-def transpile_file(path: Path | str, package: str | None = None):
+def transpile_file(path: Path | str, package: str | None = None) -> None:
     """Transpiles a single ``.lissp`` file to ``.py`` in the same location.
 
     Code in ``.lissp`` files is executed upon compilation. This is
