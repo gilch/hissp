@@ -131,14 +131,21 @@ class Compiler:
         self.abort = None
 
     @staticmethod
-    def new_env(name, doc=None, package=None) -> Env:
-        """Imports the named module, creating it if necessary.
+    def new_env(name: str, doc: str | None = None) -> Env:
+        """
+        "Imports" the named module, creating it if necessary.
+
+        Dynamically created modules have a ``None`` ``__spec__``.
+        After creating the `types.ModuleType` using name and doc,
+        it initializes an empty ``__annotations__``,
+        a ``__package__`` based on name (assumes module is not itself
+        a package), and a ``__builtins__``.
 
         Returns the module's ``__dict__``.
         """
         mod = ModuleType(name, doc)
         mod.__annotations__ = {}
-        mod.__package__ = package
+        mod.__package__ = name.rpartition(".")[0]
         mod.__builtins__ = builtins
         if name != "__main__":
             mod = sys.modules.setdefault(name, mod)
