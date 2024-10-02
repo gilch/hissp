@@ -233,6 +233,8 @@ class Lissp:
        * - ``$#``
          - `gensym tag`
 
+    And finally, the `stararg token` special tags ``*=`` and ``**=``.
+
     Special tags are reserved by the reader and cannot be reassigned.
     """
 
@@ -306,7 +308,7 @@ class Lissp:
             elif k == "control":  yield self.escape(v)
             elif k == "bare":     yield self.bare(v)
             elif k == "error":    raise self._error(k)
-            else:                 yield Kwarg(v[:-1], self._pull(v))
+            else:                 yield Kwarg(v[:-1], self._pull(v))  # kwarg, stararg
             # fmt: on
         self._check_depth()
 
