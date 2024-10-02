@@ -7,6 +7,7 @@ The Hissp data-structure language compiler and associated helper functions.
 
 import ast
 import builtins
+import inspect
 import pickle
 import pickletools
 import re
@@ -663,25 +664,6 @@ def readerless(form: object, env: Env | None = None) -> str:
     return Compiler(env=env, evaluate=False).compile([form])
 
 
-def macroexpand1(form, env: Env | None = None):
-    """Macroexpand outermost form once.
-
-    If form is not a macro form, returns it unaltered.
-    Uses the current `ENV` (available in a `macro_context`), unless
-    an alternative mapping (such as ``globals()``) is provided.
-    """
-    if type(form) is not tuple or not form or form[0] in ["quote", "lambda"]:
-        return form
-    head, *tail = form
-    env = ENV.get() if env is None else env
-    if env is None:
-        raise TypeError("outside of macro context, env argument required")
-    if (macro := Compiler.get_macro(form[0], env)) is None:
-        return form
-    with macro_context(env):
-        return macro(*tail)
-
-
 def is_atomic(form: object) -> bool:
     """Determines if form is an `atom`."""
     return type(form) is not tuple or form == ()
@@ -699,12 +681,39 @@ def is_control(form) -> bool:
     return type(form) is str and form.startswith(":")
 
 
+def _resolve_env(e: Env | None = None, _e=ENV.get, _cf=inspect.currentframe) -> Env:
+    return (_cf().f_back.f_back.f_globals if _e() is None else _e()) if e is None else e
+
+
+def macroexpand1(form, env: Env | None = None):
+    """Macroexpand outermost form once.
+
+    If form is not a macro form, returns it unaltered.
+
+    Unless an alternative ``env`` is specified, uses the current `ENV`
+    (available in a `macro_context`) when available, otherwise uses the
+    calling frame's globals.
+    """
+    if type(form) is not tuple or not form or form[0] in ["quote", "lambda"]:
+        return form
+    head, *tail = form
+    env = _resolve_env(env)
+    if (macro := Compiler.get_macro(form[0], env)) is None:
+        return form
+    with macro_context(env):
+        return macro(*tail)
+
+
 def macroexpand(form, env: Env | None = None):
     """Repeatedly macroexpand outermost form until not a macro form.
 
     If form is not a macro form, returns it unaltered.
-    Uses the current `ENV` for context, unless an alternative is provided.
+
+    Unless an alternative ``env`` is specified, uses the current `ENV`
+    (available in a `macro_context`) when available, otherwise uses the
+    calling frame's globals.
     """
+    env = _resolve_env(env)
     while True:
         expanded = macroexpand1(form, env)
         if expanded is form:
@@ -721,8 +730,9 @@ def macroexpand_all(
 ):
     """Recursively macroexpand everything possible from the outside-in.
 
-    Pipes outer form through preprocess, :func:`macroexpand`, and postprocess,
-    then recurs into subforms of the resulting expansion, if applicable.
+    Pipes outer form through preprocess, :func:`macroexpand`, and
+    postprocess, then recurs into `subform`\ s of the resulting
+    expansion, if applicable.
 
     Pre/postprocess are called with `macro_context` so, e.g.,
     `macroexpand1` may be called by preprocess to handle intermediate
@@ -731,10 +741,13 @@ def macroexpand_all(
     If expansion is not a `macro form`, returns it.
     As in the compiler, lambda parameter names are not considered
     expandable subforms, but default expressions are.
-    Uses the current `ENV` for context, unless an alternative is provided.
+
+    Unless an alternative ``env`` is specified, uses the current `ENV`
+    (available in a `macro_context`) when available, otherwise uses the
+    calling frame's globals.
     """
-    with macro_context(env):
-        exp = postprocess(macroexpand(preprocess(form)))
+    env = _resolve_env(env)
+    exp = postprocess(macroexpand(preprocess(form), env))
     if type(exp) is not tuple or not exp or exp[0] == "quote":
         return exp
     if exp[0] != "lambda":
@@ -745,7 +758,7 @@ def macroexpand_all(
     return "lambda", _pexpand(exp[1], env), *(macroexpand_all(e, env) for e in exp[2:])
 
 
-def _pexpand(params: Iterable, env: Env | None) -> Iterable:
+def _pexpand(params: Iterable, env: Env) -> Iterable:
     if ":" not in params:
         return params
     singles, pairs = parse_params(params)
