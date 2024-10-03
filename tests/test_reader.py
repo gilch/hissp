@@ -19,7 +19,7 @@ UNICODE_ANY_ = [("unicode", ANY, ANY)]
 
 class TestReader(TestCase):
     def setUp(self) -> None:
-        self.parser = reader.Lissp()
+        self.reader = reader.Lissp()
 
     @given(st.text("(\n 1)", max_size=20))
     def test_balance(self, lissp):
@@ -29,7 +29,7 @@ class TestReader(TestCase):
                 SyntaxError,
                 r"too many `\)`s|form missing a `\)`",
                 list,
-                self.parser.reads(lissp),
+                self.reader.reads(lissp),
             )
 
     @given(st.text(max_size=5))
@@ -44,7 +44,7 @@ class TestReader(TestCase):
                 print(k)
                 lex_k = [*reader.Lexer(k)]
                 print(lex_k)
-                parsed = [*self.parser.parse(reader.Lexer(k))]
+                parsed = [*self.reader.parse(reader.Lexer(k))]
                 print(parsed)
                 self.assertEqual(v, parsed)
                 print("OK")
@@ -62,11 +62,11 @@ class TestReader(TestCase):
               ":?",("",":",":?",1, ":?",("quote","__main__..z"), ":?",""),
               ":?","")
              ],
-            [*self.parser.reads("`(x x x (y y) (1 z))")],
+            [*self.reader.reads("`(x x x (y y) (1 z))")],
         )  # fmt: skip
 
     def test_module_qualification(self):
-        self.parser.env.update(x=1, y=2, z=3)
+        self.reader.env.update(x=1, y=2, z=3)
         self.assertEqual(
             [("",
               ":",":?",("quote","__main__..QzMaybe_.x"),
@@ -79,11 +79,11 @@ class TestReader(TestCase):
               ":?",("",":",":?",1, ":?",("quote","__main__..z"), ":?",""),
               ":?","")
              ],
-            [*self.parser.reads("`(x x x (y y) (1 z))")],
+            [*self.reader.reads("`(x x x (y y) (1 z))")],
         )  # fmt: skip
 
     def test_macro_qualification(self):
-        self.parser.env.update(_macro_=SimpleNamespace(x=1, y=2, z=3))
+        self.reader.env.update(_macro_=SimpleNamespace(x=1, y=2, z=3))
         self.assertEqual(
             [("",
               ":",":?",("quote","__main__.._macro_.x"),
@@ -96,7 +96,7 @@ class TestReader(TestCase):
               ":?",("",":",":?",1, ":?",("quote","__main__..z"), ":?",""),
               ":?","")
              ],
-            [*self.parser.reads("`(x x x (y y) (1 z))")],
+            [*self.reader.reads("`(x x x (y y) (1 z))")],
         )  # fmt: skip
 
     def test_no_qualification(self):
@@ -108,13 +108,13 @@ class TestReader(TestCase):
              ("quote","_Qzabcdefg__"),
              ("quote","foo..bar"),
              ("quote","foo.")],
-            [*self.parser.reads(
+            [*self.reader.reads(
                 "`(.x) `(quote 1) `(lambda :) `__import__ `_Qzabcdefg__ `foo..bar `foo."
             )],
         )  # fmt: skip
 
     def test_auto_qualify_attr(self):
-        self.parser.env.update(x=SimpleNamespace(y=1), int=SimpleNamespace(float=1))
+        self.reader.env.update(x=SimpleNamespace(y=1), int=SimpleNamespace(float=1))
         self.assertEqual(
             [("",":",
               ":?",("quote","__main__..x.y"),
@@ -130,40 +130,40 @@ class TestReader(TestCase):
               ":?",("quote","__main__..QzMaybe_.x"),
               ":?",("quote","__main__..x"),
               ":?","")],
-            [*self.parser.reads(
+            [*self.reader.reads(
                 "`(x.y x.y) `(int.x int.float) `(int 1) `(float 1) `(x x)"
             )],
         )  # fmt: skip
 
     def test_swap_ns(self):
-        self.parser.env = object()
-        self.assertIs(self.parser.env, self.parser.compiler.env)
+        self.reader.env = object()
+        self.assertIs(self.reader.env, self.reader.compiler.env)
 
     def test_badspace(self):
         with self.assertRaises(SyntaxError):
-            next(self.parser.reads("\t7"))
+            next(self.reader.reads("\t7"))
 
     def test_bad_token(self):
         with self.assertRaises(SyntaxError):
-            next(self.parser.reads("\\"))
+            next(self.reader.reads("\\"))
 
     def test_bad_macro(self):
         with self.assertRaises(SyntaxError):
-            next(self.parser.reads("foo#bar"))
+            next(self.reader.reads("foo#bar"))
 
     def test_reader_missing(self):
         with self.assertRaises(SyntaxError):
-            next(self.parser.reads("(x#)"))
+            next(self.reader.reads("(x#)"))
 
     def test_reader_initial_dot(self):
         msg = r"unknown tag 'QzFULLxSTOP_foo'"
         with self.assertRaisesRegex(SyntaxError, msg):
-            next(self.parser.reads(".foo# 0"))
+            next(self.reader.reads(".foo# 0"))
 
     def test_template(self):
         self.assertEqual(
             [("quote", "('foo')",), 7],
-            [*self.parser.reads('`"foo" `,7')]
+            [*self.reader.reads('`"foo" `,7')]
         )  # fmt: skip
 
     def test_is_string_code(self):

@@ -32,7 +32,7 @@ from hissp.munger import force_qz_encode, munge
 
 GENSYM_BYTES = 5
 """
-The number of bytes `gensym` (`$# <Lissp>`) hashes have.
+The number of bytes `gensym` hashes have.
 
 The default 5 bytes (40 bits) should be more than sufficient space to
 eliminate collisions with typical usage: dozens of gensyms in the same
@@ -202,10 +202,54 @@ class Kwarg:
 
 
 class Lissp:
+    """The Lissp Reader
+
+    Wraps around a Hissp compiler instance and creates a Lissp parser.
+    """
+
+    def __init__(
+        self,
+        qualname: str = "__main__",
+        env: Env | None = None,
+        evaluate: bool = False,
+        filename: str = "<?>",
+    ):
+        self._template_count = 0
+        self.qualname = qualname
+        self.compiler = Compiler(self.qualname, env, evaluate)
+        self.filename = filename
+
+    def template_count(self):
+        self._template_count += 1
+        return self._template_count
+
+    @property
+    def env(self) -> Env:
+        """The wrapped `Compiler`'s ``env``."""
+        return self.compiler.env
+
+    @env.setter
+    def env(self, env: Env) -> None:
+        self.compiler.env = env
+
+    def compile(self, code: str) -> str:
+        """Read Lissp code and pass it on to the Hissp compiler."""
+        hissp = self.reads(code)
+        return self.compiler.compile(hissp)
+
+    def reads(self, code: str) -> "Parser":
+        """Read Hissp forms from code string."""
+        return self.parse(Lexer(code, self.filename))
+
+    def parse(self, tokens: Lexer) -> "Parser":
+        """Read Hissp forms from a Lexer instance."""
+        return Parser(self, tokens)
+
+
+class Parser(Iterator):
     R"""
     The parser for the Lissp language.
 
-    Wraps around a Hissp compiler instance.
     Parses Lissp tokens into Hissp syntax trees.
 
     The `special tag`\ s are handled here. They are
@@ -238,52 +282,22 @@ class Lissp:
     Special tags are reserved by the reader and cannot be reassigned.
     """
 
-    def __init__(
-        self,
-        qualname: str = "__main__",
-        env: Env | None = None,
-        evaluate: bool = False,
-        filename: str = "<?>",
-    ):
-        self.template_count = 0
-        self.qualname = qualname
-        self.compiler = Compiler(self.qualname, env, evaluate)
-        self.filename = filename
-        self.reinit()
-
-    def reinit(self) -> None:
+    def __init__(self, lissp: Lissp, tokens: Lexer) -> None:
         """Reset hasher, position, nesting depth, and gensym stacks."""
+        self.lissp = lissp
+        self.tokens = tokens
         self.counters: list[int] = []
         self.context: list[str] = []
         self.depth: list[int] = []
         self._pos = 0
         self.blake = hashlib.blake2s(digest_size=GENSYM_BYTES)
+        self.blake.update(tokens.code.encode())
+        self.blake.update(self.lissp.env.get("__name__", "__main__").encode())
 
-    @property
-    def env(self) -> Env:
-        """The wrapped `Compiler`'s ``env``."""
-        return self.compiler.env
+    def __next__(self):
+        return next(self._no_comment())
 
-    @env.setter
-    def env(self, env: Env) -> None:
-        self.compiler.env = env
-
-    def compile(self, code: str) -> str:
-        """Read Lissp code and pass it on to the Hissp compiler."""
-        hissp = self.reads(code)
-        return self.compiler.compile(hissp)
-
-    def reads(self, code: str) -> Iterable:
-        """Read Hissp forms from code string."""
-        self.blake.update(code.encode())
-        self.blake.update(self.env.get("__name__", "__main__").encode())
-        res: Iterable[object] = self.parse(Lexer(code, self.filename))
-        self.reinit()
-        return res
-
-    def parse(self, tokens: Lexer) -> Iterator:
-        """Build Hissp forms from a `Lexer`."""
-        self.tokens = tokens
+    def _no_comment(self) -> Iterator:
         return (x for x in self._parse() if not isinstance(x, Comment))
 
     def _parse(self) -> Iterator:
@@ -327,7 +341,7 @@ class Lissp:
 
     def _open(self) -> tuple:
         self.depth.append(self._pos)
-        return (*self.parse(self.tokens),)
+        return (*self._no_comment(),)
 
     def _close(self) -> None:
         if not self.depth:
@@ -337,8 +351,7 @@ class Lissp:
     @contextmanager
     def gensym_context(self):
         """Start a new gensym context for the current template."""
-        self.template_count += 1
-        self.counters.append(self.template_count)
+        self.counters.append(self.lissp.template_count())
         self.context.append("`")
         try:
             yield
@@ -362,8 +375,10 @@ class Lissp:
             self.context.pop()
 
     def _inject(self, v: str):
-        with C.macro_context(self.env):
-            return eval(readerless(self._pull(v, self._pos), self.env), self.env)
+        with C.macro_context(self.lissp.env):
+            return eval(
+                readerless(self._pull(v, self._pos), self.lissp.env), self.lissp.env
+            )
 
     def _pull(self, v: str, p: int | None = None):
         if p is None:
@@ -412,13 +427,14 @@ class Lissp:
         """Qualify symbol based on current context."""
         if not is_qualifiable(symbol):
             return symbol
-        if invocation and C.MACROS in self.env and hasattr(self.env[C.MACROS], symbol):
-            return f"{self.qualname}..{C.MACROS}.{symbol}"  # Known macro.
-        if symbol in dir(builtins) and symbol.split(".", 1)[0] not in self.env:
+        env = self.lissp.env
+        if invocation and C.MACROS in env and hasattr(env[C.MACROS], symbol):
+            return f"{self.lissp.qualname}..{C.MACROS}.{symbol}"  # Known macro.
+        if symbol in dir(builtins) and symbol.split(".", 1)[0] not in env:
             return f"builtins..{symbol}"  # Known builtin, not shadowed (yet).
         if invocation and "." not in symbol:  # Could still be a recursive macro.
-            return f"{self.qualname}{C.MAYBE}{symbol}"
-        return f"{self.qualname}..{symbol}"
+            return f"{self.lissp.qualname}{C.MAYBE}{symbol}"
+        return f"{self.lissp.qualname}..{symbol}"
 
     def _gensym(self, form: str) -> str:
         """Generate a symbol unique to the current template.
@@ -459,7 +475,7 @@ class Lissp:
             self._tag_error(tag, *depth_pos)
         label = self._label(arity, tag)
         fn = self._fully_qualified if ".." in label else self._local
-        with C.macro_context(self.env):
+        with C.macro_context(self.lissp.env):
             return fn(label)(*args, **kwargs)
 
     @classmethod
@@ -494,7 +510,7 @@ class Lissp:
 
     def _local(self, tag: str):
         try:
-            return getattr(self.env[C.MACROS], tag + munge("#"))
+            return getattr(self.lissp.env[C.MACROS], tag + munge("#"))
         except (AttributeError, KeyError):
             raise SyntaxError(f"unknown tag {tag!r}", self.position())
 
@@ -522,9 +538,9 @@ class Lissp:
         """Preprocesses a `bare token`. Handles escapes and munging."""
         if not v.startswith("\\"):
             with suppress(ValueError, SyntaxError):
-                if not hasattr(x := ast.literal_eval(Lissp.escape(v)), "__contains__"):
+                if not hasattr(x := ast.literal_eval(Parser.escape(v)), "__contains__"):
                     return x
-        return munge(Lissp.escape(v))
+        return munge(Parser.escape(v))
 
     def _error(self, k: str) -> SyntaxError:
         assert k == "error", f"unknown token: {k!r}"

@@ -9,7 +9,7 @@ import pygments.token as pt
 from pygments.lexer import RegexLexer, bygroups, using, DelegatingLexer
 from pygments.lexers.python import Python3Lexer, PythonConsoleLexer
 
-from hissp.reader import Lissp, TOKENS
+from hissp.reader import Parser, TOKENS
 
 
 class LisspLexer(RegexLexer):
@@ -30,7 +30,7 @@ class LisspLexer(RegexLexer):
         def preprocess_atom(lexer, match, ctx=None):
             value: str = match.group(0)
             index: int = match.start()
-            v = Lissp.bare(value)
+            v = Parser.bare(value)
             if isinstance(v, (complex, float)):
                 yield index, pt.Number.Float, value
                 return
