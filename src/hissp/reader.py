@@ -1,6 +1,6 @@
 # Copyright 2019, 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
-"""
+R"""
 The Lissp language reader and associated helper functions.
 
 The reader is organized as a lexer and parser.
@@ -41,13 +41,13 @@ even assuming they all have the same suffix. (Even 3 bytes gets that
 number down to around one in ten thousand.)
 
 For unusual applications (if more than dozens of gensyms are expected in
-a shared scope, or one in a billion is still too high), hash length can 
+a shared scope, or one in a billion is still too high), hash length can
 be increased, up to a maximum of 32 bytes.
- 
-Even 8 bytes is enough space for a hundred thousand gensyms in the 
-same scope with similar collision probability, or dozens with a 
-one-in-quadrillion chance, which is probably lower than the risk of a 
-hardware failure. It's unlikely you'll ever need more than 16 bytes, 
+
+Even 8 bytes is enough space for a hundred thousand gensyms in the
+same scope with similar collision probability, or dozens with a
+one-in-quadrillion chance, which is probably lower than the risk of a
+hardware failure. It's unlikely you'll ever need more than 16 bytes,
 which has more space than `uuid.uuid4`.
 
 Each hash character encodes 5 bits (`Base32 <base64.b32encode>`),

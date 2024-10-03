@@ -36,7 +36,7 @@ Env: TypeAlias = dict[str, Any]
 ENV: ContextVar[Env | None] = ContextVar("ENV", default=None)
 """
 Expansion environment.
- 
+
 Sometimes a macro needs the current environment when expanding,
 instead of its defining environment.
 Rather than pass in an implicit argument to all macros,
@@ -728,7 +728,7 @@ def macroexpand_all(
     preprocess=lambda x: x,
     postprocess=lambda x: x,
 ):
-    """Recursively macroexpand everything possible from the outside-in.
+    R"""Recursively macroexpand everything possible from the outside-in.
 
     Pipes outer form through preprocess, :func:`macroexpand`, and
     postprocess, then recurs into `subform`\ s of the resulting

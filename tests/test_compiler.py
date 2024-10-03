@@ -67,7 +67,7 @@ class TestCompileGeneral(TestCase):
             __import__('operator').truediv(
               (0),
               (0))
-            
+
             # Traceback (most recent call last):"""
             // dedented,
             python,
@@ -75,8 +75,8 @@ class TestCompileGeneral(TestCase):
         self.assertIn(
             """\
             # ZeroDivisionError: division by zero
-            # 
-            
+            #\N{space}
+
             print(
               'oops')"""
             // dedented,
