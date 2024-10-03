@@ -328,11 +328,11 @@ Lissp Whirlwind Tour
 
    #> |math.|
    >>> __import__('math')
-   <module 'math' (built-in)>
+   <module 'math' ...>
 
    #> math.                               ;symbol token (module handle)
    >>> __import__('math')
-   <module 'math' (built-in)>
+   <module 'math' ...>
 
    #> math..tau                           ;symbol token (fully-qualified identifier)
    >>> __import__('math').tau
