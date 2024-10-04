@@ -169,6 +169,20 @@ class TestReader(TestCase):
     def test_is_string_code(self):
         self.assertFalse(reader.is_lissp_string("(1+1)"))
 
+    def test_gensym_equal(self):
+        self.assertEqual(*next(self.reader.reads(".#`($#G $#G)")))
+
+    def test_gensym_progression(self):
+        self.assertNotEqual(*self.reader.reads("`,$#G `,$#G"))
+
+    def test_gensym_name(self):
+        code = "`,$#G"
+        main = next(self.reader.reads(code))
+        name_reader = reader.Lissp(__name__, globals())
+        name = next(name_reader.reads(code))
+        self.assertNotEqual(main, name)
+        self.assertRegex(main + name, r"(?:_Qz[a-z0-7]+__G){2}")
+
 
 EXPECTED = {
     # Numeric
