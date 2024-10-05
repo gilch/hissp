@@ -349,8 +349,8 @@ That worked, but can we use it?
    Traceback (most recent call last):
      ...
      squares = map(L x: x * x, range(10))
-                    ^
-   SyntaxError: invalid syntax
+                   ^^^
+   SyntaxError: invalid syntax. Perhaps you forgot a comma?
 
 Another syntax error.
 No surprise.

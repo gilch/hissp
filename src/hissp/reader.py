@@ -1,6 +1,6 @@
 # Copyright 2019, 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
-"""
+R"""
 The Lissp language reader and associated helper functions.
 
 The reader is organized as a lexer and parser.
@@ -16,6 +16,7 @@ import hashlib
 import re
 from base64 import b32encode
 from collections import namedtuple
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager, suppress
 from functools import reduce
 from importlib import import_module, resources
@@ -23,27 +24,15 @@ from itertools import chain
 from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
-from typing import (
-    Any,
-    Callable as Fn,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    NewType,
-    Optional,
-    Tuple,
-    Union,
-    cast,
-)
+from typing import Any, Callable as Fn, Literal, NewType, NoReturn, cast
 
 import hissp.compiler as C
-from hissp.compiler import Compiler, readerless
+from hissp.compiler import Compiler, Env, readerless
 from hissp.munger import force_qz_encode, munge
 
 GENSYM_BYTES = 5
 """
-The number of bytes `gensym` (`$# <Lissp>`) hashes have.
+The number of bytes `gensym` hashes have.
 
 The default 5 bytes (40 bits) should be more than sufficient space to
 eliminate collisions with typical usage: dozens of gensyms in the same
@@ -52,13 +41,13 @@ even assuming they all have the same suffix. (Even 3 bytes gets that
 number down to around one in ten thousand.)
 
 For unusual applications (if more than dozens of gensyms are expected in
-a shared scope, or one in a billion is still too high), hash length can 
+a shared scope, or one in a billion is still too high), hash length can
 be increased, up to a maximum of 32 bytes.
- 
-Even 8 bytes is enough space for a hundred thousand gensyms in the 
-same scope with similar collision probability, or dozens with a 
-one-in-quadrillion chance, which is probably lower than the risk of a 
-hardware failure. It's unlikely you'll ever need more than 16 bytes, 
+
+Even 8 bytes is enough space for a hundred thousand gensyms in the
+same scope with similar collision probability, or dozens with a
+one-in-quadrillion chance, which is probably lower than the risk of a
+hardware failure. It's unlikely you'll ever need more than 16 bytes,
 which has more space than `uuid.uuid4`.
 
 Each hash character encodes 5 bits (`Base32 <base64.b32encode>`),
@@ -123,7 +112,7 @@ TOKENS = re.compile(
     """
 )
 
-Token = NewType("Token", Tuple[str, str, int])
+Token = NewType("Token", tuple[str, str, int])
 
 
 class SoftSyntaxError(SyntaxError):
@@ -142,7 +131,7 @@ class Lexer(Iterator):
     messages.
     """
 
-    def __init__(self, code: str, file: str = "<?>"):
+    def __init__(self, code: str, file: str = "<?>") -> None:
         self.code = code
         self.file = file
         self.it = self._it()
@@ -150,10 +139,10 @@ class Lexer(Iterator):
     def __iter__(self) -> Iterator[Token]:
         return self
 
-    def __next__(self):
+    def __next__(self) -> Token:
         return next(self.it)
 
-    def _it(self):
+    def _it(self) -> Iterator[Token]:
         pos = 0
         while pos < len(self.code):
             match = TOKENS.match(self.code, pos)
@@ -163,7 +152,7 @@ class Lexer(Iterator):
             pos = match.end()
             yield Token((match.lastgroup, match.group(), pos))
 
-    def position(self, pos: int) -> Tuple[str, int, int, str]:
+    def position(self, pos: int) -> tuple[str, int, int, str]:
         """
         Compute the ``filename``, ``lineno``, ``offset`` and ``text``
         for a `SyntaxError`, using the current character offset in code.
@@ -183,10 +172,10 @@ class Comment:
     The reader normally discards these, but they can be `tag` arguments.
     """
 
-    def __init__(self, token):
+    def __init__(self, token: str):
         self.token = token
 
-    def contents(self):
+    def contents(self) -> str:
         """Gets the comment text inside the comment token.
 
         Strips any leading indent, the ``;`` character(s), and up to one
@@ -194,7 +183,7 @@ class Comment:
         """
         return re.sub(r"(?m)\n$|^ *;+ ?", "", self.token)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Comment({self.token!r})"
 
 
@@ -204,19 +193,63 @@ class Kwarg:
     Normally made with a `kwarg token`, but can be constructed directly.
     """
 
-    def __init__(self, k, v):
+    def __init__(self, k: str, v):
         self.k = k
         self.v = v
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Kwarg({self.k!r}, {self.v!r})"
 
 
 class Lissp:
+    """The Lissp Reader
+
+    Wraps around a Hissp compiler instance and creates a Lissp parser.
+    """
+
+    def __init__(
+        self,
+        qualname: str = "__main__",
+        env: Env | None = None,
+        evaluate: bool = False,
+        filename: str = "<?>",
+    ):
+        self._template_count = 0
+        self.qualname = qualname
+        self.compiler = Compiler(self.qualname, env, evaluate)
+        self.filename = filename
+
+    def template_count(self):
+        self._template_count += 1
+        return self._template_count
+
+    @property
+    def env(self) -> Env:
+        """The wrapped `Compiler`'s ``env``."""
+        return self.compiler.env
+
+    @env.setter
+    def env(self, env: Env) -> None:
+        self.compiler.env = env
+
+    def compile(self, code: str) -> str:
+        """Read Lissp code and pass it on to the Hissp compiler."""
+        hissp = self.reads(code)
+        return self.compiler.compile(hissp)
+
+    def reads(self, code: str) -> "Parser":
+        """Read Hissp forms from code string."""
+        return self.parse(Lexer(code, self.filename))
+
+    def parse(self, tokens: Lexer) -> "Parser":
+        """Read Hissp forms from a Lexer instance."""
+        return Parser(self, tokens)
+
+
+class Parser(Iterator):
     R"""
     The parser for the Lissp language.
 
-    Wraps around a Hissp compiler instance.
     Parses Lissp tokens into Hissp syntax trees.
 
     The `special tag`\ s are handled here. They are
@@ -244,55 +277,27 @@ class Lissp:
        * - ``$#``
          - `gensym tag`
 
+    And finally, the `stararg token` special tags ``*=`` and ``**=``.
+
     Special tags are reserved by the reader and cannot be reassigned.
     """
 
-    def __init__(
-        self,
-        qualname="__main__",
-        env: Optional[Dict[str, Any]] = None,
-        evaluate=False,
-        filename="<?>",
-    ):
-        self.template_count = 0
-        self.qualname = qualname
-        self.compiler = Compiler(self.qualname, env, evaluate)
-        self.filename = filename
-        self.reinit()
-
-    def reinit(self):
+    def __init__(self, lissp: Lissp, tokens: Lexer) -> None:
         """Reset hasher, position, nesting depth, and gensym stacks."""
-        self.counters: List[int] = []
-        self.context = []
-        self.depth = []
+        self.lissp = lissp
+        self.tokens = tokens
+        self.counters: list[int] = []
+        self.context: list[str] = []
+        self.depth: list[int] = []
         self._pos = 0
         self.blake = hashlib.blake2s(digest_size=GENSYM_BYTES)
+        self.blake.update(tokens.code.encode())
+        self.blake.update(self.lissp.env.get("__name__", "__main__").encode())
 
-    @property
-    def env(self) -> Dict[str, Any]:
-        """The wrapped `Compiler`'s ``env``."""
-        return self.compiler.env
+    def __next__(self):
+        return next(self._no_comment())
 
-    @env.setter
-    def env(self, env: Dict[str, Any]):
-        self.compiler.env = env
-
-    def compile(self, code: str) -> str:
-        """Read Lissp code and pass it on to the Hissp compiler."""
-        hissp = self.reads(code)
-        return self.compiler.compile(hissp)
-
-    def reads(self, code: str) -> Iterable:
-        """Read Hissp forms from code string."""
-        self.blake.update(code.encode())
-        self.blake.update(self.env.get("__name__", "__main__").encode())
-        res: Iterable[object] = self.parse(Lexer(code, self.filename))
-        self.reinit()
-        return res
-
-    def parse(self, tokens: Lexer) -> Iterator:
-        """Build Hissp forms from a `Lexer`."""
-        self.tokens = tokens
+    def _no_comment(self) -> Iterator:
         return (x for x in self._parse() if not isinstance(x, Comment))
 
     def _parse(self) -> Iterator:
@@ -301,7 +306,7 @@ class Lissp:
             if k == "whitespace": continue
             elif k == "comment":  yield Comment(v)
             elif k == "badspace": raise self._badspace(v)
-            elif k == "open":     yield from self._open()
+            elif k == "open":     yield self._open()
             elif k == "close":    return self._close()
             elif k == "template": yield self._template(v)
             elif k == "unquote":  yield self._unquote(v)
@@ -313,41 +318,40 @@ class Lissp:
             elif k == "unicode":  yield self._unicode(v)
             elif k == "fragment": yield self._fragment(v)
             elif k == "continue": raise self._continue()
-            elif k == "badfrag":  raise SyntaxError("Unpaired |", self.position())
+            elif k == "badfrag":  raise SyntaxError("unpaired |", self.position())
             elif k == "control":  yield self.escape(v)
             elif k == "bare":     yield self.bare(v)
             elif k == "error":    raise self._error(k)
-            else:                 yield Kwarg(v[:-1], self._pull(v))
+            else:                 yield Kwarg(v[:-1], self._pull(v))  # kwarg, stararg
             # fmt: on
         self._check_depth()
 
-    def _badspace(self, v):
+    def _badspace(self, v: str) -> SyntaxError:
         return SyntaxError(
             f"{v!r} is not whitespace in Lissp. Indent with spaces only.",
             self.position(),
         )
 
-    def position(self, index=None):
+    def position(self, index: int | None = None) -> tuple[str, int, int, str]:
         """
         Get the ``filename``, ``lineno``, ``offset`` and ``text``
         for a `SyntaxError`, from the `Lexer` given to `parse`.
         """
         return self.tokens.position(self._pos if index is None else index)
 
-    def _open(self):
+    def _open(self) -> tuple:
         self.depth.append(self._pos)
-        yield (*self.parse(self.tokens),)
+        return (*self._no_comment(),)
 
-    def _close(self):
+    def _close(self) -> None:
         if not self.depth:
-            raise SyntaxError("Too many `)`s.", self.position())
+            raise SyntaxError("too many `)`s", self.position())
         self.depth.pop()
 
     @contextmanager
     def gensym_context(self):
         """Start a new gensym context for the current template."""
-        self.template_count += 1
-        self.counters.append(self.template_count)
+        self.counters.append(self.lissp.template_count())
         self.context.append("`")
         try:
             yield
@@ -355,7 +359,7 @@ class Lissp:
             self.counters.pop()
             self.context.pop()
 
-    def _unquote(self, v):
+    def _unquote(self, v: Literal[",@", ","]) -> _Unquote:
         with self.unquote_context():
             return _Unquote({",@": ":*", ",": ":?"}[v], self._pull(v, self._pos))
 
@@ -364,17 +368,19 @@ class Lissp:
         """Start a new unquote context for the current template."""
         self.context.append(",")
         if self.context.count(",") > self.context.count("`"):
-            raise SyntaxError("Unquote outside of template.", self.position()) from None
+            raise SyntaxError("unquote outside of template", self.position()) from None
         try:
             yield
         finally:
             self.context.pop()
 
-    def _inject(self, v):
-        with C.macro_context(self.env):
-            return eval(readerless(self._pull(v, self._pos), self.env), self.env)
+    def _inject(self, v: str):
+        with C.macro_context(self.lissp.env):
+            return eval(
+                readerless(self._pull(v, self._pos), self.lissp.env), self.lissp.env
+            )
 
-    def _pull(self, v, p=None):
+    def _pull(self, v: str, p: int | None = None):
         if p is None:
             p = self._pos
         depth = len(self.depth)
@@ -382,9 +388,9 @@ class Lissp:
             return next(self._parse())
         except StopIteration:
             e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
-            raise e(f"tag {v!r} missing argument.", self.position(p)) from None
+            raise e(f"tag {v!r} missing argument", self.position(p)) from None
 
-    def _template(self, v):
+    def _template(self, v: str):
         with self.gensym_context():
             return self._template_form(self._pull(v))
 
@@ -400,10 +406,10 @@ class Lissp:
         if case is _Unquote:
             if form.target == ":?":
                 return form.value
-            raise SyntaxError("Splice not in tuple.", self.position())
+            raise SyntaxError("splice not in tuple", self.position())
         return form
 
-    def _template_element(self, forms: Iterable) -> Iterable[Tuple[str, Any]]:
+    def _template_element(self, forms: Iterable) -> Iterable[tuple[str, Any]]:
         invocation = True
         for form in forms:
             case = type(form)
@@ -421,15 +427,16 @@ class Lissp:
         """Qualify symbol based on current context."""
         if not is_qualifiable(symbol):
             return symbol
-        if invocation and C.MACROS in self.env and hasattr(self.env[C.MACROS], symbol):
-            return f"{self.qualname}..{C.MACROS}.{symbol}"  # Known macro.
-        if symbol in dir(builtins) and symbol.split(".", 1)[0] not in self.env:
+        env = self.lissp.env
+        if invocation and C.MACROS in env and hasattr(env[C.MACROS], symbol):
+            return f"{self.lissp.qualname}..{C.MACROS}.{symbol}"  # Known macro.
+        if symbol in dir(builtins) and symbol.split(".", 1)[0] not in env:
             return f"builtins..{symbol}"  # Known builtin, not shadowed (yet).
         if invocation and "." not in symbol:  # Could still be a recursive macro.
-            return f"{self.qualname}{C.MAYBE}{symbol}"
-        return f"{self.qualname}..{symbol}"
+            return f"{self.lissp.qualname}{C.MAYBE}{symbol}"
+        return f"{self.lissp.qualname}..{symbol}"
 
-    def _gensym(self, form: str):
+    def _gensym(self, form: str) -> str:
         """Generate a symbol unique to the current template.
         Re-munges any $'s as a gensym hash, or adds it as a prefix if
         there aren't any. Gensym hashes are deterministic for
@@ -449,7 +456,7 @@ class Lissp:
     def _get_counter(self) -> int:
         index = self.context.count("`") - self.context.count(",")
         if not self.context or index < 0:
-            raise SyntaxError("Gensym outside of template.", self.position()) from None
+            raise SyntaxError("gensym outside of template", self.position()) from None
         if self.context[-1] == "`":
             return self.counters[-1]
         return self.counters[index]
@@ -458,26 +465,26 @@ class Lissp:
         assert tag.endswith("#")
         arity = re.sub(r"\\.", "", tag).count("#")
         assert arity >= 1
-        tag_pos, tag_depth = self._pos, len(self.depth)
+        depth_pos = len(self.depth), self._pos
         args, kwargs = [], {}
         for i, x in enumerate(chain([form], self._parse()), 1):
             self._collect(args, kwargs, x)
             if i == arity:
                 break
         else:
-            self._tag_error(tag, tag_depth, tag_pos)
+            self._tag_error(tag, *depth_pos)
         label = self._label(arity, tag)
-        fn: Fn[[str], Fn] = self._fully_qualified if ".." in label else self._local
-        with C.macro_context(self.env):
+        fn = self._fully_qualified if ".." in label else self._local
+        with C.macro_context(self.lissp.env):
             return fn(label)(*args, **kwargs)
 
     @classmethod
-    def _label(cls, arity, tag):
+    def _label(cls, arity: int, tag: str) -> str:
         label = munge(cls.escape(tag[:-arity]))
         return re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), label)
 
     @classmethod
-    def _collect(cls, args, kwargs, x):
+    def _collect(cls, args: list, kwargs: dict, x) -> None:
         if type(x) is Kwarg:
             k, v = x.k, x.v
             if k == "*":
@@ -489,64 +496,62 @@ class Lissp:
         else:
             args.append(x)
 
-    def _tag_error(self, tag, tag_depth, tag_pos):
-        e = SoftSyntaxError if len(self.depth) == tag_depth else SyntaxError
-        msg = f"Reader tag {tag!r} missing argument."
-        raise e(msg, self.position(tag_pos)) from None
+    def _tag_error(self, tag: str, depth: int, pos: int) -> NoReturn:
+        e = SoftSyntaxError if len(self.depth) == depth else SyntaxError
+        msg = f"reader tag {tag!r} missing argument"
+        raise e(msg, self.position(pos)) from None
 
     @staticmethod
-    def _fully_qualified(tag: str) -> Fn:
+    def _fully_qualified(tag: str):
         module, function = tag.split("..", 1)
         if re.match(rf"{C.MACROS}\.[^.]+$", function):
             function += munge("#")
         return cast(Fn, reduce(getattr, function.split("."), import_module(module)))
 
-    def _local(self, tag: str) -> Fn:
+    def _local(self, tag: str):
         try:
-            return getattr(self.env[C.MACROS], tag + munge("#"))
+            return getattr(self.lissp.env[C.MACROS], tag + munge("#"))
         except (AttributeError, KeyError):
-            raise SyntaxError(f"Unknown tag {tag!r}.", self.position())
+            raise SyntaxError(f"unknown tag {tag!r}", self.position())
 
     @staticmethod
-    def escape(atom):
+    def escape(atom: str) -> str:
         """Process the backslashes in a token."""
         return re.sub(
             r"\\(.)", lambda m: force_qz_encode(m[1]) if m[1] in ".:" else m[1], atom
         )
 
     @staticmethod
-    def _unicode(v):
+    def _unicode(v: str) -> str:
         v = v.replace("\\\n", "").replace("\n", R"\n")
         val = ast.literal_eval(v)
         return v if (v := pformat(val)).startswith("(") else f"({v})"
 
-    def _fragment(self, v):
+    def _fragment(self, v: str) -> str:
         return v[1:-1].replace("||", "|")
 
-    def _continue(self):
+    def _continue(self) -> SoftSyntaxError:
         return SoftSyntaxError("Incomplete string token.", self.position())
 
     @staticmethod
-    def bare(v):
+    def bare(v: str):
         """Preprocesses a `bare token`. Handles escapes and munging."""
-        if "\\" != v[0]:
+        if not v.startswith("\\"):
             with suppress(ValueError, SyntaxError):
-                if not hasattr(x := ast.literal_eval(Lissp.escape(v)), "__contains__"):
+                if not hasattr(x := ast.literal_eval(Parser.escape(v)), "__contains__"):
                     return x
-        return munge(Lissp.escape(v))
+        return munge(Parser.escape(v))
 
-    def _error(self, k):
+    def _error(self, k: str) -> SyntaxError:
         assert k == "error", f"unknown token: {k!r}"
-        return SyntaxError("Can't read this.", self.position())
+        return SyntaxError("can't read this", self.position())
 
-    def _check_depth(self):
+    def _check_depth(self) -> None:
         if self.depth:
-            raise SoftSyntaxError(
-                "This form is missing a `)`.", self.position(self.depth.pop())
-            )
+            raise SoftSyntaxError("form missing a `)`", self.position(self.depth.pop()))
 
 
-def is_hissp_string(form) -> bool:
+def is_hissp_string(form: object) -> bool:
     """Determines if form would directly represent a string in Hissp.
     (A `Hissp string`.)
 
@@ -557,12 +562,10 @@ def is_hissp_string(form) -> bool:
     Macros often produce strings in one of these forms, via `quote` or
     `repr` on a string object.
     """
-    return (
-        type(form) is tuple
-        and len(form) == 2
-        and form[0] == "quote"
-        and type(form[1]) is str
-    ) or bool(is_string_literal(form))
+    match form:
+        case ["quote", x] if type(form) is tuple and type(x) is str:
+            return True
+    return bool(is_string_literal(form))
 
 
 def is_lissp_string(form) -> bool:
@@ -577,7 +580,7 @@ def is_lissp_string(form) -> bool:
     return type(form) is str and form.startswith("(") and bool(is_string_literal(form))
 
 
-def is_string_literal(form) -> Optional[bool]:
+def is_string_literal(form) -> bool | None:
     """Determines if `ast.literal_eval` on form produces a string.
     (A `string literal fragment`.)
 
@@ -587,11 +590,11 @@ def is_string_literal(form) -> Optional[bool]:
         return type(ast.literal_eval(form)) is str
 
 
-def is_qualifiable(symbol):
+def is_qualifiable(symbol: str) -> bool:
     """Determines if symbol can be qualified with a module.
 
     Can't be ``quote``, ``__import__``, any Python reserved word, a
-    prefix auto-`gensym`, already qualified, method syntax, or a `module
+    prefix auto-`gensym`, fully qualified, method syntax, or a `module
     handle`; and must be a valid identifier or attribute identifier.
     """
     return (
@@ -602,7 +605,7 @@ def is_qualifiable(symbol):
     )
 
 
-def transpile(package: Optional[str], *modules: str):
+def transpile(package: str | None, *modules: str) -> None:
     """Transpiles the named Python modules from Lissp.
 
     A ``.lissp`` file of the same name must be present in the module's
@@ -615,13 +618,13 @@ def transpile(package: Optional[str], *modules: str):
         t(f"{m}.lissp", package)
 
 
-def transpile_packaged(resource: str, package: str):
+def transpile_packaged(resource: str, package: str) -> None:
     """Locates & transpiles a packaged ``.lissp`` resource file to ``.py``."""
     with resources.path(package, resource) as path:
         transpile_file(path, package)
 
 
-def transpile_file(path: Union[Path, str], package: Optional[str] = None):
+def transpile_file(path: Path | str, package: str | None = None) -> None:
     """Transpiles a single ``.lissp`` file to ``.py`` in the same location.
 
     Code in ``.lissp`` files is executed upon compilation. This is

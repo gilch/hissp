@@ -43,8 +43,9 @@ Ordinals are given in a hexadecimal format like ``0XF00``.
 
 import re
 import unicodedata
+from collections.abc import Hashable, Mapping
 from contextlib import suppress
-from typing import Dict, Hashable, Mapping, Match, TypeVar
+from typing import TypeVar
 
 
 def munge(s: str) -> str:
@@ -154,7 +155,7 @@ K = TypeVar("K", bound=Hashable)
 V = TypeVar("V")
 
 
-def _inverse_1to1(mapping: Mapping[K, V]) -> Dict[V, K]:
+def _inverse_1to1(mapping: Mapping[K, V]) -> dict[V, K]:
     result = {v: k for k, v in mapping.items()}
     assert len(mapping) == len(result)
     return result
@@ -166,7 +167,7 @@ LOOKUP_NAME = _inverse_1to1(TO_NAME)
 _UN_QZ_NAME = _inverse_1to1(_QZ_NAME)
 
 
-def _qz_decode(match: Match[str]) -> str:
+def _qz_decode(match: re.Match[str]) -> str:
     with suppress(KeyError):
         return LOOKUP_NAME[match.group()]
     with suppress(KeyError):

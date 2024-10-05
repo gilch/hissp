@@ -2,22 +2,44 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import subprocess as sp
+from sys import executable as python
 from textwrap import dedent
 
 
-def cmd(cmd, input=""):
+def cmd(cmd, input="", shell=True):
     return sp.Popen(
-        cmd, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE, text=True, shell=True
+        cmd, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE, text=True, shell=shell
     ).communicate(input=input)
 
 
 EXIT_MSG = "\nnow exiting LisspREPL...\n"
 BANNER = cmd("lissp")[1][: -len(EXIT_MSG)]
+HISSP_C = (python, "-m", "hissp", "-c")
 
 
 def test_c_args():
     out, err = cmd('python -m hissp -c "(print sys..argv)" 1 2 3')
     assert [out, err] == ["['-c', '1', '2', '3']\n", ""]
+
+
+def test_reproducible_gensym():
+    args = HISSP_C + ("(print `$#G `($#G $#G))",)
+    out, err = once = cmd(args, shell=False)
+    again = cmd(args, shell=False)
+    assert once == again
+    assert err == ""
+    assert "_Qz" in out
+
+
+def test_unique_gensyms():
+    err = [None] * 2
+    arg = "(print `$#G `($#G $#G))"
+    once, err[0] = cmd(HISSP_C + (arg,), shell=False)
+    again, err[1] = cmd(HISSP_C + ("0 " + arg,), shell=False)
+    assert err == ["", ""]
+    assert once != again
+    assert "_Qz" in once
+    assert "_Qz" in again
 
 
 def test_ic_args():
@@ -101,7 +123,7 @@ def test_repl_unqoute_error():
       File "<console>", line 1
         ,
         ^
-    SyntaxError: Unquote outside of template.
+    SyntaxError: unquote outside of template
     """
     repl(",\n", err=err)
 
@@ -111,7 +133,7 @@ def test_repl_splice_error():
       File "<console>", line 1
         ,@
          ^
-    SyntaxError: Unquote outside of template.
+    SyntaxError: unquote outside of template
     """
     repl(",@\n", err=err)
 
@@ -133,7 +155,7 @@ def test_repl_empty_template_error():
         '!   File "<console>", line 1\n',
         "!     (`)\n",
         "!      ^\n",
-        "! SyntaxError: tag '`' missing argument.\n",
+        "! SyntaxError: tag '`' missing argument\n",
         "> #> ",
     )  # fmt: skip
 
@@ -143,7 +165,7 @@ def test_repl_gensym_error():
       File "<console>", line 1
         $#x
           ^
-    SyntaxError: Gensym outside of template.
+    SyntaxError: gensym outside of template
     """
     repl("$#x\n", err=err)
 
@@ -159,7 +181,7 @@ def test_repl_empty_reader_macro_error():
         '!   File "<console>", line 1\n',
         "!     (builtins..float#)\n",
         "!                     ^\n",
-        "! SyntaxError: tag 'builtins..float#' missing argument.\n",
+        "! SyntaxError: tag 'builtins..float#' missing argument\n",
         "> #> ",
     )  # fmt: skip
 
@@ -169,7 +191,7 @@ def test_repl_read_error():
       File "<console>", line 1
         \\
         ^
-    SyntaxError: Can't read this.
+    SyntaxError: can't read this
     """
     repl("\\\n", err=err)
 
@@ -179,7 +201,7 @@ def test_repl_unopened_error():
       File "<console>", line 1
         )
         ^
-    SyntaxError: Too many `)`s.
+    SyntaxError: too many `)`s
     """
     repl(")\n", err=err)
 
@@ -286,7 +308,7 @@ def test_compile_error():
         "! (\n",
         "!  lambda (>   >  > >>':x'<< <  <   <)\n",
         "! # Compiler.parameters() CompileError:\n",
-        "! #  Incomplete pair.\n",
+        "! #  incomplete pair\n",
         "! :\n",
         "!     ())\n",
         "> #> ",
@@ -327,5 +349,39 @@ def test_interact_locals():
         "> 7\n",
         "> #> ",  # EOF
         f"! {EXIT_MSG}",
+        "> #> ",
+    )  # fmt: skip
+
+
+def test_subrepl():
+    call_response(
+        "> #> ", "< hissp..subrepl#sys.\n",
+        "! >>> (lambda module=__import__('sys'):\n",
+        "! ...     # hissp.._macro_.unless\n",
+        "! ...     (lambda b, a: ()if b else a())(\n",
+        "! ...       __name__==module.__name__,\n",
+        "! ...       (lambda :\n",
+        "! ...          (print(\n",
+        "! ...             'Entering',\n",
+        "! ...             module.__name__),\n",
+        "! ...           __import__('hissp').interact(\n",
+        "! ...             __import__('builtins').vars(\n",
+        "! ...               module)),\n",
+        "! ...           print(\n",
+        "! ...             'back in',\n",
+        "! ...             __name__))  [-1]\n",
+        "! ...       ))\n",
+        "! ... )()\n",
+        "> Entering sys\n",
+        f"! {BANNER}",
+        "> #> ", "< (operator..is_ (vars) (vars sys.))\n",
+        "! >>> __import__('operator').is_(\n",
+        "! ...   vars(),\n",
+        "! ...   vars(\n",
+        "! ...     __import__('sys')))\n",
+        "> True\n",
+        "> #> ",
+        f"! {EXIT_MSG}",
+        "> back in __main__\n",
         "> #> ",
     )  # fmt: skip

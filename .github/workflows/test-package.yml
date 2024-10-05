@@ -1,5 +1,5 @@
 # This configuration file is part of the Hissp source code repository,
-# copyright 2019, 2021, 2022 Matthew Egan Odendahl
+# copyright 2019, 2021, 2022, 2024 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 name: Test package
 
@@ -15,10 +15,10 @@ jobs:
       uses: actions/checkout@v2
     - name: Lint with black
       uses: psf/black@stable
-    - name: Set up Python 3.8
+    - name: Set up Python 3.10.15
       uses: actions/setup-python@v1
       with:
-        python-version: 3.8
+        python-version: 3.10.15
     - name: Cache pip
       uses: actions/cache@v1
       with:
@@ -32,7 +32,7 @@ jobs:
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        flake8 . --extend-ignore=E231,E203,E701,E272 --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Install Node.js
       uses: actions/setup-node@v1
     - name: Lint with parlinter
@@ -55,7 +55,11 @@ jobs:
         pip install -r requirements-dev.txt
     - name: Test install with pytest (including doctests)
       env:
-        PYTHONWARNINGS: error
+        # Upgrades warnings to errors, so they get noticed.
+        # Currently turns off some in libraries due to Python 3.10 upgrade.
+        # These are not due to issues in Hissp itself, which has no dependencies.
+        # TODO: try upgrading libraries affected by deprecations.
+        PYTHONWARNINGS: error,default:SelectableGroups:DeprecationWarning:hypothesis.entry_points,default:A private pytest:DeprecationWarning:sybil.integration.pytest
       run: |
         python -c "import tests"  # Compiles hissp.basic on package import.
         pytest -p no:cacheprovider -v --cov=hissp --cov-report=xml --doctest-modules --doctest-glob *.md src/hissp/*.lissp tests/ docs/ $(python -c "import hissp; print(hissp.__path__[0])")

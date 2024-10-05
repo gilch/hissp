@@ -41,7 +41,7 @@ setuptools.setup(
         "Operating System :: POSIX",
         "Operating System :: Unix",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.10",
         "Programming Language :: Lisp",
         "Topic :: Software Development",
         "Topic :: Software Development :: Code Generators",

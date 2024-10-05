@@ -810,18 +810,37 @@ Comment Styles
 ::::::::::::::
 
 Remember, readability counts.
+You are writing for a human audience, not just a compiler.
 Commentary should create clarity, not confusion.
+
+Your code is probably not as "self-documenting" as you think it is.
+Beware the
+`curse of knowledge <https://en.wikipedia.org/wiki/Curse_of_knowledge#Computer_programming>`_.
+Understanding code requires the programmer to maintain a lot of mental context.
+Commentary can reduce that burden considerably.
+Assume your audience is competent, but lacks some of that context.
+That could describe *you* in six months.
+Your audience should be able to understand the language
+and read library documentation.
 
 Avoid adding superfluous "what"-comments that are obvious from looking at the code.
 (Except perhaps when writing language documentation for beginners ;)
+These are the most likely type to suffer from rot and mislead as implementation changes.
+Styling separator comments used to imply groups are exempt.
 
-Prefer "why"-comments that describe rationale or intent.
-Your code is probably not as "self-documenting" as you think it is.
-Assume your reader is competent, not omniscient.
+Prefer "why"-comments that describe rationale or intent at a higher level.
+These are less likely to rot and mislead.
+Even as implementation changes, the reasons for it often do not,
+and when they do, it's easier to tell.
 
 If "what"-comments still seem necessary,
 consider how to make the code itself clearer,
 so the "what"-comments would become obvious by looking at the code.
+This is not a prohibition.
+Sometimes, in cases of difficult mathematics, complicated algorithms,
+or performance-optimized code,
+more thorough commentary is necessary,
+including comments about what the code is doing.
 
 Software development is fundamentally research, not manufacturing or construction.
 URLs citing sources used can be appropriate,
@@ -863,7 +882,9 @@ A few sentences don't take that much time, but can save a lot later.
 
 Documentation is a burden, just as code is a liability.
 Don't accept more of either than delivers value.
+Quality over quantity.
 Remove or fix bad comments, as appropriate.
+Be careful not to remove styling comments that are still required to imply groups.
 Check the version control history for more clues.
 Consider if updating or clarifying a comment is more appropriate than removal.
 
@@ -1166,14 +1187,15 @@ and into functions run by a `name_equals_main` guard or separate scripts.
 Move the experiments you want to keep running to assertions.
 (See `assure`, `unittest`, and `doctest`.)
 
-A discarded string with code following it in line is acceptable as commentary,
+A discarded :term:`Unicode token`, :term:`control token`,
+or :term:`fragment token` with code following it in line is acceptable as commentary,
 but use this style sparingly.
 Include an arrow or "NB" (*nota bene*) in the string to make it clear this is a comment
 and not just disabled code:
 
 .. code-block:: Lissp
 
-   (print 1 2 _#"<- even number" 3 _#"also even ->" 4
+   (print 1 2 _#:<-even 3 _#|also even ->| 4
           : sep : _#"NB Control words compile to strings!")
 
 An extra space is typically used to imply separation between groups on the same line.
@@ -1184,16 +1206,21 @@ Avoid more than two spaces in a row for implying separation between groups in a 
 or more than one ``;;`` separator line in succession.
 In rare cases where those aren't enough levels,
 or newlines and ``;;`` lines would spread things out too much,
-it is acceptable to additionally use discarded symbols like ``_#,``
-within a line to indicate greater separation than the extra spaces.
+it is acceptable to additionally use discarded punctuation
+(like ``_#:``, ``_#:,``, or ``_#\;``, etc.)
+within a line, to indicate greater separation than the extra spaces.
 
 These are also used in the :term:`doorstop`
 ``_#/`` used to "hold open" a trail of brackets.
 
-"Docstrings"
-++++++++++++
+<#;Docstrings
++++++++++++++
 
 Prefer docstrings over semicolon comments where applicable.
+Quality over quantity,
+but it's OK if a function docstring is longer than the function its documenting,
+especially if it's for doctests.
+A competent editor can fold comments.
 
 Docstrings describe interface and usage;
 they are not for irrelevant implementation details internal to their containing object.
@@ -1216,7 +1243,7 @@ The bundled `deftypeonce` macro does not have any special case for docstrings.
 Instead add a ``__doc__`` attribute.
 
 Indent docstrings to the same column as their opening ``"``
-even when using something like the attach macro.
+even when using something like the `attach` macro.
 This does put the leading whitespace inside the string itself,
 but Python tooling expects this in docstrings,
 and can strip it out when rendering help.
@@ -1225,8 +1252,10 @@ If the docstring contains any newlines,
 the closing ``"`` gets its own line.
 
 It is acceptable to use reader macros that resolve to a string literal like
-`<# <QzLT_QzHASH_>` (which is useful for doctests),
+`<# <QzLT_QzHASH_>` (which is useful for doctests)
 as long as the documentation text is also legible in the source code.
+A comment string is preferred over a :term:`Unicode token` when it would
+contain a blank line.
 
 Follow Python style on docstring contents.
 
@@ -1696,13 +1725,19 @@ even in an implied group:
            :else
            (print "0"))))
 
-   (defun compare (xs ys)                 ;OK. The ;; smells though.
+   (defun compare (xs ys)                 ;OK. Use discard comments sparingly.
      (cond (lt (len xs) (len ys))
            (print "<")
-           ;;                             ;Separator comments can be empty
-           (gt (len xs) (len ys))         ; (unless there's something to say.)
+           _#:elif->(gt (len xs) (len ys)) ;Unambiguous, but unaligned.
            (print ">")
-           ;; No internal ), so 1 line is OK. Still grouped.
+           :else (print "0")))) ; No internal ), so 1 line is OK. Still grouped.
+
+   (defun compare (xs ys)                 ;OK. Better.
+     (cond (lt (len xs) (len ys))
+           (print "<")
+           ;; else if                     ;The styling comment is not optional;
+           (gt (len xs) (len ys))         ; it's needed for separating groups.
+           (print ">")
            :else (print "0"))))
 
    (defun compare (xs ys)                 ;Preferred. Keep cond simple.
@@ -1723,7 +1758,7 @@ so the requisite function becomes easily expressible.
 Function definition bodies should be no more than 10 lines,
 and usually no more than 5.
 That's not counting docstrings, comments, or assertions.
-(`Params` aren't in the body.)
+(:term:`Params` aren't in the body.)
 
 This rule doesn't apply to imperative scripts used near the top of the call stack
 (main, or similar entry points)
@@ -1995,6 +2030,36 @@ You need only modify forms containing long lines (or contained in long lines).
    ;; Very bad! Confusing style. Break on `)` first!
    (function1 arg1 (function2 arg1
                               arg2) arg2 (function3 arg1 arg2))
+
+   ;; OK. Meaningful groups, even though ``)`` not broken first.
+   (cond (test1 x) (function1 arg1 arg2)
+         (test2 x) (function2 arg1
+                              arg2
+                              arg3
+                              arg4)
+         :else (function3 arg1 arg2))
+
+   ;; Bad. Confusing style.
+   (cond (test1 x) (function1 arg1 arg2)
+         (test2 argument1
+                argument2
+                argument3) (function2 arg1
+                                      arg2
+                                      arg3
+                                      arg4)
+         :else (function3 arg1 arg2))
+
+   ;; OK.
+   (cond (test1 x) (function1 arg1 arg2)
+         ;; else if
+         (test2 argument1
+                argument2
+                argument3)
+         (function2 arg1
+                    arg2
+                    arg3
+                    arg4)
+         :else (function3 arg1 arg2))
 
    ;; Bad. Meaningless implied groupings.
    (function1 arg1 arg2 (function2 arg1 arg2)

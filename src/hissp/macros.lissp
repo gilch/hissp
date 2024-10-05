@@ -1,11 +1,11 @@
 ;;; Copyright 2019, 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
 ;;; SPDX-License-Identifier: Apache-2.0
 
-"Hissp's bundled macros.
+"Hissp's bundled `tag` and `macro` metaprograms.
 
-To help keep macro definitions and `expansion`\\ s manageable in
-complexity, these macros lack some of the extra features their
-equivalents have in Python or in other Lisps. These are not intended to
+To help keep definitions and `expansion`\\ s manageable in
+complexity, these metaprograms lack some of the extra features their
+equivalents have in Python or in other Lisps. They are not intended to
 be a standard library for general use, but do bring Hissp up to a basic
 standard of utility without adding dependencies, which may suffice in
 some cases.
@@ -27,19 +27,22 @@ As a convenience, the bundled macros are automatically made available
 Hissp module with better alternatives need not use the bundled macros at
 all.
 
-They also eschew expansions of any subexpression to a `Python injection`
-(except the standard `symbol` or `string literal fragment` cases),
-relying only on the built-in special forms ``quote`` and ``lambda``,
-which makes their expansions compatible with advanced rewriting macros
-that process the Hissp expansions of other macros. (The -``[#`` tags are
-something of an exception, as one subexpression is written in Python to
-begin with.)
+With the exception of `mix`, which is a `text macro` specifically made
+for creating a `Python injection`, the other metaprograms eschew
+expansions of any of their arguments to a `Python injection` (other than
+the standard `symbol` or `string literal fragment` cases), relying only
+on the built-in special forms ``quote`` and ``lambda``, which makes
+their expansions compatible with advanced rewriting macros that process
+the Hissp expansions of other macros.
 
-This doesn't apply to inlined helper functions that contain no user
-code, because that's no worse than using an opaque name imported from
-somewhere else. `if-else <ifQzH_else>` is one such example, expanding to
-a lambda containing an injected `conditional expression <if_expr>`,
-immediately called with the subexpressions as arguments.
+(The -``[#`` and `my# <myQzHASH_>` tags are also something of an
+exception, as one argument is written in Python to begin with.)
+
+That only goes for arguments and doesn't apply to inlined helper
+functions in the expansions that contain no user code, because that's no
+worse than using an opaque name imported from somewhere else. `if-else
+<ifQzH_else>` is one such example, expanding to a lambda containing an
+injected `conditional expression <if_expr>`, that is called immediately.
 "
 
 ;;; This module is not necessarily a good example of how you should
@@ -787,7 +790,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
          (lambda (cls f) `(,f ,cls))
          once_decorators
          `(type ',name (|| ,@(itertools..takewhile (lambda x (operator..ne x ':))
-                                                ibases)
+                                                   ibases)
                            ||)
                 ,(dict)
                 : ,@ibases)))))
@@ -829,186 +832,6 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   "
   (let (qualname (.__getitem__ definition 1))
     `(define ,qualname (progn ,definition (,decoration ,qualname)))))
-
-(defmacro my\# (targets_or_expr : xs None  expr ()  :** kwargs)
-  "``my#`` Anaphoric. Injection. `let` ``my`` be a fresh `types.SimpleNamespace`
-  in a lexical scope surrounding ``expr``.
-
-  Creates a local namespace for imperative-style reassignments,
-  typically combined with an assignment function like `setattr`.
-
-  Often combined with branching macros to reuse the results of an
-  expression, with uses similar to Python's 'walrus' operator ``:=``.
-  See `python-grammar:assignment_expression`.
-
-  .. code-block:: REPL
-
-     #> my#(print (setattr my 'x (op#add 1 1))
-     #..          my.x)
-     >>> # hissp.macros.._macro_.let
-     ... (lambda my=__import__('types').SimpleNamespace():
-     ...     print(
-     ...       setattr(
-     ...         my,
-     ...         'x',
-     ...         __import__('operator').add(
-     ...           (1),
-     ...           (1))),
-     ...       my.x)
-     ... )()
-     None 2
-
-     #> my#my ; Empty namespace shorthand.
-     >>> # hissp.macros.._macro_.let
-     ... (lambda my=__import__('types').SimpleNamespace(): my)()
-     namespace()
-
-     #> my##foo=2 my ; Initial content from read-time kwarg.
-     >>> # hissp.macros.._macro_.let
-     ... (
-     ...  lambda my=__import__('types').SimpleNamespace(
-     ...           foo=(2)):
-     ...     my)()
-     namespace(foo=2)
-
-     #> my##outer=2 my###inner=1 bridge=my (@ my.bridge.outer my.inner)
-     >>> # hissp.macros.._macro_.let
-     ... (
-     ...  lambda my=__import__('types').SimpleNamespace(
-     ...           outer=(2)):
-     ...     # hissp.macros.._macro_.let
-     ...     (
-     ...      lambda my=__import__('types').SimpleNamespace(
-     ...               inner=(1),
-     ...               bridge=my):
-     ...         # QzAT_
-     ...         (lambda *xs: [*xs])(
-     ...           my.bridge.outer,
-     ...           my.inner)
-     ...     )()
-     ... )()
-     [2, 1]
-
-  The assignment pair uses an injected Python target list:
-
-  .. code-block:: REPL
-
-     #> my### a,b '(1 2) (@ my.b my.a)
-     >>> # hissp.macros.._macro_.let
-     ... (
-     ...  lambda my=__import__('types').SimpleNamespace(
-     ...           **# hissp.macros.._macro_.let
-     ...             (
-     ...              lambda _Qze4jatheu__xs=((1),
-     ...                      (2),):
-     ...                 [__import__('builtins').locals()
-     ...                  for (a,b)
-     ...                  in [_Qze4jatheu__xs]]  [0]
-     ...             )()):
-     ...    (my.__dict__.pop(
-     ...       '_Qze4jatheu__xs',
-     ...       (0)),
-     ...     my.__dict__.pop(
-     ...       ('.0'),
-     ...       (0)),
-     ...     # QzAT_
-     ...     (lambda *xs: [*xs])(
-     ...       my.b,
-     ...       my.a))  [-1]
-     ... )()
-     [2, 1]
-
-     #> my### a,b,[c,*xs] '(1 2 |spam|) my ; Nested unpacking.
-     >>> # hissp.macros.._macro_.let
-     ... (
-     ...  lambda my=__import__('types').SimpleNamespace(
-     ...           **# hissp.macros.._macro_.let
-     ...             (
-     ...              lambda _Qze4jatheu__xs=((1),
-     ...                      (2),
-     ...                      'spam',):
-     ...                 [__import__('builtins').locals()
-     ...                  for (a,b,[c,*xs])
-     ...                  in [_Qze4jatheu__xs]]  [0]
-     ...             )()):
-     ...    (my.__dict__.pop(
-     ...       '_Qze4jatheu__xs',
-     ...       (0)),
-     ...     my.__dict__.pop(
-     ...       ('.0'),
-     ...       (0)),
-     ...     my)  [-1]
-     ... )()
-     namespace(a=1, b=2, c='s', xs=['p', 'a', 'm'])
-
-  Assignment targets need not be locals:
-
-  .. code-block:: REPL
-
-     #> my## |globals()['spam'], spam.eggs| (|| my#my (list 'abcdefg) ||)
-     >>> # hissp.macros.._macro_.let
-     ... (
-     ...  lambda my=__import__('types').SimpleNamespace(
-     ...           **# hissp.macros.._macro_.let
-     ...             (
-     ...              lambda _Qze4jatheu__xs=(
-     ...                       # hissp.macros.._macro_.let
-     ...                       (lambda my=__import__('types').SimpleNamespace(): my)(),
-     ...                       list(
-     ...                         'abcdefg'),
-     ...                       ):
-     ...                 [__import__('builtins').locals()
-     ...                  for (globals()['spam'], spam.eggs)
-     ...                  in [_Qze4jatheu__xs]]  [0]
-     ...             )()):
-     ...    (my.__dict__.pop(
-     ...       '_Qze4jatheu__xs',
-     ...       (0)),
-     ...     my.__dict__.pop(
-     ...       ('.0'),
-     ...       (0)),
-     ...     ())  [-1]
-     ... )()
-     ()
-
-     #> my#### spam.eggs[2::2] 'XYZ tomato=spam my ; Assign a global's slice.
-     >>> # hissp.macros.._macro_.let
-     ... (
-     ...  lambda my=__import__('types').SimpleNamespace(
-     ...           **# hissp.macros.._macro_.let
-     ...             (lambda _Qze4jatheu__xs='XYZ':
-     ...                 [__import__('builtins').locals()
-     ...                  for (spam.eggs[2::2])
-     ...                  in [_Qze4jatheu__xs]]  [0]
-     ...             )(),
-     ...           tomato=spam):
-     ...    (my.__dict__.pop(
-     ...       '_Qze4jatheu__xs',
-     ...       (0)),
-     ...     my.__dict__.pop(
-     ...       ('.0'),
-     ...       (0)),
-     ...     my)  [-1]
-     ... )()
-     namespace(tomato=namespace(eggs=['a', 'b', 'X', 'd', 'Y', 'f', 'Z']))
-
-  See also: `attach`, `set@ <setQzAT_>`, `set[### <setQzLSQB_QzHASH_>`.
-  "
-  (if-else |xs is None and expr == ()|
-    `(let (,'my (types..SimpleNamespace : ,@(itertools..chain.from_iterable
-                                             (.items kwargs))))
-       ,targets_or_expr)
-    `(let (,'my (types..SimpleNamespace
-                 : :** (let ($#xs ,xs)
-                         ,(.format "[{}()\n for ({})\n in [{}]]  [0]"
-                                   (hissp..readerless `locals)
-                                   (hissp..demunge targets_or_expr)
-                                   '$#xs))
-                 ,@(itertools..chain.from_iterable (.items kwargs))))
-       ;; PEP 709. Compatible with both versions.
-       (,'my.__dict__.pop '$#xs 0)
-       (,'my.__dict__.pop ".0" 0)
-       ,expr)))
 
 ;;;; Abbreviations
 
@@ -1164,6 +987,34 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   `(lambda ,'XYZW ,expr))
 
+(defmacro /XY\# (expr)
+  <#;``/XY#`` 'reduce X Y' Anaphoric.
+  ;;
+  ;; Make ``expr`` a reducing function with parameters X Y.
+  ;; The resulting function is a partial application of
+  ;; `functools.reduce`.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> /XY#(op#add Y X)
+  ;;    >>> __import__('functools').partial(
+  ;;    ...   __import__('functools').reduce,
+  ;;    ...   (lambda X, Y:
+  ;;    ...       __import__('operator').add(
+  ;;    ...         Y,
+  ;;    ...         X)
+  ;;    ...   ))
+  ;;    functools.partial(<built-in function reduce>, <function <lambda> at 0x...>)
+  ;;
+  ;;    #> (_ 'ABCD)
+  ;;    >>> _(
+  ;;    ...   'ABCD')
+  ;;    'DCBA'
+  ;;
+  ;; See also: `XY# <XYQzHASH_>`, `/# <QzSOL_QzHASH_>`.
+  ;;
+  `(functools..partial functools..reduce (lambda ,'XY ,expr)))
+
 (defmacro alias (abbreviation qualifier)
   <#;Defines a `tag` abbreviation of a `qualifier`.
   ;;
@@ -1189,10 +1040,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...                         (lambda :
   ;;    ...                             ('_macro_.{}{}').format(
   ;;    ...                               __import__('hissp').munge(
-  ;;    ...                                 _Qzt6sscwjn__attr.__getitem__(
-  ;;    ...                                   __import__('builtins').slice(
-  ;;    ...                                     (1),
-  ;;    ...                                     None))),
+  ;;    ...                                 _Qzt6sscwjn__attr.removeprefix(
+  ;;    ...                                   ':')),
   ;;    ...                               # hissp.macros.._macro_.ifQzH_else
   ;;    ...                               (lambda b, c, a: c()if b else a())(
   ;;    ...                                 # hissp.macros.._macro_.ifQzH_else
@@ -1302,7 +1151,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ',(.format "Aliases ``{}`` as ``{}#``." qualifier abbreviation)
      (let ($#attr (if-else (hissp..is_control $#attr)
                     (.format "_macro_.{}{}"
-                             (hissp..munge (.__getitem__ $#attr (slice 1 None)))
+                             (hissp..munge (.removeprefix $#attr ':))
                              (if-else (if-else $#args :or $#kwargs) ','# ""))
                     $#attr))
        (if-else (if-else $#args :or $#kwargs)
@@ -1857,7 +1706,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...       'Hi'),
   ;;    ...     _Qzwg5wn73w__target)  [-1]
   ;;    ... )()
-  ;;    namespace(a=1, attach=<function _macro_.attach at 0x...>, b='Hi')
+  ;;    namespace(attach=<function _macro_.attach at 0x...>, a=1, b='Hi')
   ;;
   ;; See also: `setattr`, `set@ <setQzAT_>`, `vars`.
   ;;
@@ -1945,9 +1794,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; See also: `-\<>> <QzH_QzLT_QzGT_QzGT_>`, `X# <XQzHASH_>`,
   ;; `\!# <QzBANG_QzHASH_>`, `en# <enQzHASH_>`.
   ;;
-  (functools..reduce XY# |(Y[0],X,*Y[1:],)|
-                     (map X# |X if type(X) is tuple else (X,)| forms)
-                     expr))
+  (/XY# |(Y[0],X,*Y[1:],)| (map X# |X if type(X) is tuple else (X,)| forms)
+                           expr))
 
 (defmacro -<>> (expr : :* forms)
   <#;``-<>>`` 'Thread-through'.
@@ -1992,10 +1840,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; See also: `-> <QzH_QzGT_>`, `en# <enQzHASH_>`.
   ;;
-  (functools..reduce XY#(let (i (iter Y))
-                          `(,@(i#takewhile X#(op#ne X :<>) i) ,X ,@i))
-                     (map X# |X if type(X) is tuple else (X,)| forms)
-                     expr))
+  (/XY#(let (i (iter Y))
+         `(,@(i#takewhile X#(op#ne X :<>) i) ,X ,@i))
+   (map X# |X if type(X) is tuple else (X,)| forms)
+   expr))
 
 ;;; TODO: implement other arrange macros?
 
@@ -2594,6 +2442,18 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
       (-<>> (.format "b'{}'"))
       ast..literal_eval))
 
+(defmacro Q\# Q
+  <#; ``Q#`` 'Rational' Exact fraction tag.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> Q#2/3
+  ;;    >>> # Fraction(2, 3)
+  ;;    ... __import__('pickle').loads(b'cfractions\nFraction\n(V2/3\ntR.')
+  ;;    Fraction(2, 3)
+  ;;
+  (fractions..Fraction (hissp..demunge Q)))
+
 (defmacro en\# f
   <#;``en#`` tag.
   ;; Wrap a function applicable to a tuple as a function of its elements.
@@ -2683,34 +2543,6 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; See also: `/XY# <QzSOL_XYQzHASH_>`, `en# <enQzHASH_>`.
   `(lambda (: :* $#xs)
      (functools..reduce ,f $#xs)))
-
-(defmacro /XY\# (expr)
-  <#;``/XY#`` 'reduce X Y' Anaphoric.
-  ;;
-  ;; Make ``expr`` a reducing function with parameters X Y.
-  ;; The resulting function is a partial application of
-  ;; `functools.reduce`.
-  ;;
-  ;; .. code-block:: REPL
-  ;;
-  ;;    #> /XY#(op#add Y X)
-  ;;    >>> __import__('functools').partial(
-  ;;    ...   __import__('functools').reduce,
-  ;;    ...   (lambda X, Y:
-  ;;    ...       __import__('operator').add(
-  ;;    ...         Y,
-  ;;    ...         X)
-  ;;    ...   ))
-  ;;    functools.partial(<built-in function reduce>, <function <lambda> at 0x...>)
-  ;;
-  ;;    #> (_ 'ABCD)
-  ;;    >>> _(
-  ;;    ...   'ABCD')
-  ;;    'DCBA'
-  ;;
-  ;; See also: `XY# <XYQzHASH_>`, `/# <QzSOL_QzHASH_>`.
-  ;;
-  `(functools..partial functools..reduce (lambda ,'XY ,expr)))
 
 ;;;; Collection
 
@@ -3395,6 +3227,244 @@ except ModuleNotFoundError: pass"
 
 ;;;; Advanced
 
+(defmacro mix (: :* args)
+  <#; Injection. Compiles each arg to Python and concatenates the fragments.
+  ;;
+  ;; Lissp features like munging and fully-qualified identifiers can be
+  ;; freely mixed with Python expressions like slicing, infix operators
+  ;; and list comprehensions by using `fragment token`\ s:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (mix |[|%|+|(.lower %)| for |%| in |string..ascii_uppercase|[:10]]|)
+  ;;    >>> # mix
+  ;;    ... [QzPCENT_+QzPCENT_.lower() for QzPCENT_ in __import__('string').ascii_uppercase[:10]]
+  ;;    ['Aa', 'Bb', 'Cc', 'Dd', 'Ee', 'Ff', 'Gg', 'Hh', 'Ii', 'Jj']
+  ;;
+  ;; Beware that a `str atom` like ``|:|`` is still a `control word`,
+  ;; and like ``|foo.|`` is still a `module handle`, even when made with
+  ;; a `fragment token`. However, Python allows whitespace in many areas
+  ;; where it is not conventional to do so, making fragments like
+  ;; ``| :|`` or ``|foo .|`` viable workarounds in such cases.
+  ;;
+  (.join "" (map hissp..readerless args)))
+
+(defmacro my\# (targets_or_scope : expr None  scope ()  :** kwargs)
+  <#;``my#`` Anaphoric. Injection. `let` ``my`` be a fresh
+  ;; `types.SimpleNamespace` in a lexical scope.
+  ;;
+  ;; Creates a local namespace for imperative-style (re)assignments.
+  ;; `Kwarg token`\ s in scope translate to `set@ <setQzAT_>`.
+  ;;
+  ;; Often combined with branching macros to reuse the results of an
+  ;; expression, with uses similar to Python's 'walrus' operator ``:=``.
+  ;; See `python-grammar:assignment_expression`.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> my#(print x=(op#add 1 1) my.x)
+  ;;    >>> # hissp.macros.._macro_.let
+  ;;    ... (lambda my=__import__('types').SimpleNamespace():
+  ;;    ...     print(
+  ;;    ...       # hissp.macros.._macro_.setQzAT_
+  ;;    ...       # hissp.macros.._macro_.let
+  ;;    ...       (
+  ;;    ...        lambda _Qzwk5j5q64__value=__import__('operator').add(
+  ;;    ...                 (1),
+  ;;    ...                 (1)):
+  ;;    ...          (# hissp.macros.._macro_.define
+  ;;    ...           __import__('builtins').setattr(
+  ;;    ...             my,
+  ;;    ...             'x',
+  ;;    ...             _Qzwk5j5q64__value),
+  ;;    ...           _Qzwk5j5q64__value)  [-1]
+  ;;    ...       )(),
+  ;;    ...       my.x)
+  ;;    ... )()
+  ;;    2 2
+  ;;
+  ;;    #> my#my ; Empty namespace shorthand.
+  ;;    >>> # hissp.macros.._macro_.let
+  ;;    ... (lambda my=__import__('types').SimpleNamespace(): my)()
+  ;;    namespace()
+  ;;
+  ;;    #> my##foo=2 my ; Initial content from read-time kwarg.
+  ;;    >>> # hissp.macros.._macro_.let
+  ;;    ... (
+  ;;    ...  lambda my=__import__('types').SimpleNamespace(
+  ;;    ...           foo=(2)):
+  ;;    ...     my)()
+  ;;    namespace(foo=2)
+  ;;
+  ;;    #> my##outer=2 my###inner=1 bridge=my (@ my.bridge.outer my.inner)
+  ;;    >>> # hissp.macros.._macro_.let
+  ;;    ... (
+  ;;    ...  lambda my=__import__('types').SimpleNamespace(
+  ;;    ...           outer=(2)):
+  ;;    ...     # hissp.macros.._macro_.let
+  ;;    ...     (
+  ;;    ...      lambda my=__import__('types').SimpleNamespace(
+  ;;    ...               inner=(1),
+  ;;    ...               bridge=my):
+  ;;    ...         # QzAT_
+  ;;    ...         (lambda *xs: [*xs])(
+  ;;    ...           my.bridge.outer,
+  ;;    ...           my.inner)
+  ;;    ...     )()
+  ;;    ... )()
+  ;;    [2, 1]
+  ;;
+  ;; With at least two positional arguments, the first is an injected
+  ;; Python assignment target, and the second its value:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> my### a,b,[c,*xs] '(1 2 |spam|) my ; Nested unpacking.
+  ;;    >>> # hissp.macros.._macro_.let
+  ;;    ... (
+  ;;    ...  lambda my=__import__('types').SimpleNamespace(
+  ;;    ...           **# hissp.macros.._macro_.let
+  ;;    ...             (
+  ;;    ...              lambda _Qze4jatheu__expr=((1),
+  ;;    ...                      (2),
+  ;;    ...                      'spam',):
+  ;;    ...                 [__import__('builtins').locals()
+  ;;    ...                  for (a,b,[c,*xs])
+  ;;    ...                  in [_Qze4jatheu__expr]]  [0]
+  ;;    ...             )()):
+  ;;    ...    (my.__dict__.pop(
+  ;;    ...       '_Qze4jatheu__expr',
+  ;;    ...       (0)),
+  ;;    ...     my.__dict__.pop(
+  ;;    ...       ('.0'),
+  ;;    ...       (0)),
+  ;;    ...     my)  [-1]
+  ;;    ... )()
+  ;;    namespace(a=1, b=2, c='s', xs=['p', 'a', 'm'])
+  ;;
+  ;; Use `zap@ <zapQzAT_>` for augmented assignments:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> my###a,b 'AB (@ (zap@ my.a iadd c='C) my)
+  ;;    >>> # hissp.macros.._macro_.let
+  ;;    ... (
+  ;;    ...  lambda my=__import__('types').SimpleNamespace(
+  ;;    ...           **# hissp.macros.._macro_.let
+  ;;    ...             (lambda _Qzec6padpw__expr='AB':
+  ;;    ...                 [__import__('builtins').locals()
+  ;;    ...                  for (a,b)
+  ;;    ...                  in [_Qzec6padpw__expr]]  [0]
+  ;;    ...             )()):
+  ;;    ...    (my.__dict__.pop(
+  ;;    ...       '_Qzec6padpw__expr',
+  ;;    ...       (0)),
+  ;;    ...     my.__dict__.pop(
+  ;;    ...       ('.0'),
+  ;;    ...       (0)),
+  ;;    ...     # QzAT_
+  ;;    ...     (lambda *xs: [*xs])(
+  ;;    ...       # zapQzAT_
+  ;;    ...       # hissp.macros.._macro_.setQzAT_
+  ;;    ...       # hissp.macros.._macro_.let
+  ;;    ...       (
+  ;;    ...        lambda _Qzqfrecvdx__value=iadd(
+  ;;    ...                 my.a,
+  ;;    ...                 # hissp.macros.._macro_.setQzAT_
+  ;;    ...                 # hissp.macros.._macro_.let
+  ;;    ...                 (lambda _Qzqfrecvdx__value='C':
+  ;;    ...                    (# hissp.macros.._macro_.define
+  ;;    ...                     __import__('builtins').setattr(
+  ;;    ...                       my,
+  ;;    ...                       'c',
+  ;;    ...                       _Qzqfrecvdx__value),
+  ;;    ...                     _Qzqfrecvdx__value)  [-1]
+  ;;    ...                 )()):
+  ;;    ...          (# hissp.macros.._macro_.define
+  ;;    ...           __import__('builtins').setattr(
+  ;;    ...             my,
+  ;;    ...             'a',
+  ;;    ...             _Qzqfrecvdx__value),
+  ;;    ...           _Qzqfrecvdx__value)  [-1]
+  ;;    ...       )(),
+  ;;    ...       my))  [-1]
+  ;;    ... )()
+  ;;    ['AC', namespace(a='AC', b='B', c='C')]
+  ;;
+  ;; Assignment targets need not be locals, so a scope argument is optional:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> my## |globals()['spam'], spam.eggs| (|| my#my (list 'abcdefg) ||)
+  ;;    >>> # hissp.macros.._macro_.let
+  ;;    ... (
+  ;;    ...  lambda my=__import__('types').SimpleNamespace(
+  ;;    ...           **# hissp.macros.._macro_.let
+  ;;    ...             (
+  ;;    ...              lambda _Qze4jatheu__expr=(
+  ;;    ...                       # hissp.macros.._macro_.let
+  ;;    ...                       (lambda my=__import__('types').SimpleNamespace(): my)(),
+  ;;    ...                       list(
+  ;;    ...                         'abcdefg'),
+  ;;    ...                       ):
+  ;;    ...                 [__import__('builtins').locals()
+  ;;    ...                  for (globals()['spam'], spam.eggs)
+  ;;    ...                  in [_Qze4jatheu__expr]]  [0]
+  ;;    ...             )()):
+  ;;    ...    (my.__dict__.pop(
+  ;;    ...       '_Qze4jatheu__expr',
+  ;;    ...       (0)),
+  ;;    ...     my.__dict__.pop(
+  ;;    ...       ('.0'),
+  ;;    ...       (0)),
+  ;;    ...     ())  [-1]
+  ;;    ... )()
+  ;;    ()
+  ;;
+  ;;    #> my#### spam.eggs[2::2] 'XYZ tomato=spam my ; Assign a global's slice.
+  ;;    >>> # hissp.macros.._macro_.let
+  ;;    ... (
+  ;;    ...  lambda my=__import__('types').SimpleNamespace(
+  ;;    ...           **# hissp.macros.._macro_.let
+  ;;    ...             (lambda _Qze4jatheu__expr='XYZ':
+  ;;    ...                 [__import__('builtins').locals()
+  ;;    ...                  for (spam.eggs[2::2])
+  ;;    ...                  in [_Qze4jatheu__expr]]  [0]
+  ;;    ...             )(),
+  ;;    ...           tomato=spam):
+  ;;    ...    (my.__dict__.pop(
+  ;;    ...       '_Qze4jatheu__expr',
+  ;;    ...       (0)),
+  ;;    ...     my.__dict__.pop(
+  ;;    ...       ('.0'),
+  ;;    ...       (0)),
+  ;;    ...     my)  [-1]
+  ;;    ... )()
+  ;;    namespace(tomato=namespace(eggs=['a', 'b', 'X', 'd', 'Y', 'f', 'Z']))
+  ;;
+  ;; See also: `attach`, `set[### <setQzLSQB_QzHASH_>`.
+  ;;
+  (let (ns (types..SimpleNamespace))
+    (setattr ns
+             'form
+             X#(cond (isinstance X hissp.reader..Kwarg) `(set@ ,|f"my.{X.k}"| ,X.v)
+                     (hissp..is_atomic X) X
+                     :else (tuple (map ns.form X))))
+    (if-else |expr is None and scope == ()|
+      `(let (,'my (types..SimpleNamespace : ,@chain#(.items kwargs)))
+         ,(ns.form targets_or_scope))
+      `(let (,'my (types..SimpleNamespace
+                   : :** (let ($#expr ,expr)
+                           ,(.format "[{}()\n for ({})\n in [{}]]  [0]"
+                                     (hissp..readerless `locals)
+                                     (hissp..demunge targets_or_scope)
+                                     '$#expr))
+                   ,@(itertools..chain.from_iterable (.items kwargs))))
+         ;; PEP 709. Compatible with both versions.
+         (,'my.__dict__.pop '$#expr 0)
+         (,'my.__dict__.pop ".0" 0)
+         ,(ns.form scope)))))
+
 (defmacro case (key default : :* pairs)
   <#;Switch case macro.
   ;;
@@ -3449,7 +3519,7 @@ except ModuleNotFoundError: pass"
   ;; See also: `cond`.
   ;;
   (when (op#mod (len pairs) 2)
-    (throw (TypeError "Incomplete pair")))
+    (throw (TypeError "incomplete pair")))
   (let (kss [##-2::-2] pairs
         ts [##::-2] pairs)
     `((.__getitem__ (|| ,@(map X#`O#,X ts) O#,default ||)

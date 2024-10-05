@@ -2241,7 +2241,8 @@ which gives you fine-grained control over what gets compiled when.
 Before distributing a Lissp project to users who won't be modifying it,
 compilation could be disabled or removed altogether,
 especially when not distributing the ``.lissp`` sources.
-If you don't want the ``hissp`` package to be a dependency,
+If you don't want the ``hissp`` package to be a dependency
+(the :term:`standalone property`),
 make sure you remove or disable imports of it as well.
 For example, compilation (and :mod:`hissp` imports)
 could be conditioned on an environment variable
