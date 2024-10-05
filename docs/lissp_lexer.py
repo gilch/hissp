@@ -30,7 +30,13 @@ class LisspLexer(RegexLexer):
         def preprocess_atom(lexer, match, ctx=None):
             value: str = match.group(0)
             index: int = match.start()
+            if value == "...":
+                yield index, pt.Keyword.Constant, value
+                return
             v = Parser.bare(value)
+            if v in {"quote", "lambda"}:
+                yield index, pt.Keyword, value
+                return
             if isinstance(v, (complex, float)):
                 yield index, pt.Number.Float, value
                 return
@@ -51,10 +57,6 @@ class LisspLexer(RegexLexer):
 
         tokens = {
             "root": [
-                (r"\.\.\.", pt.Keyword.Constant),  # Ellipsis
-                (r"quote", pt.Keyword),
-                (r"_macro_", pt.Name.Variable.Magic),
-                (r"(?::|\\:).*", pt.String.Symbol),  # :control-words
                 (r".+", preprocess_atom),
             ]
         }
