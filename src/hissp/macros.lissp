@@ -111,7 +111,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   .. code-block:: REPL
 
      #> (any-map c 'ab
-     #..  (if-else (op#eq c 'b)            ;ternary conditional
+     #..  (if-else (op#eq c 'b)                 ;ternary conditional
      #..    (print 'Yes)
      #..    (print 'No)))
      >>> # anyQzH_map
@@ -150,7 +150,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   .. code-block:: REPL
 
-     #> (print (progn (print 1)             ;Sequence for side effects, eval to last.
+     #> (print (progn (print 1)                 ;Sequence for side effects, eval to last.
      #..              (print 2)
      #..              3))
      >>> print(
@@ -175,13 +175,13 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
   .. code-block:: REPL
 
-     #> (let (x 'a                          ;Create locals.
-     #..      y 'b)                         ;Any number of pairs.
+     #> (let (x 'a                              ;Create locals.
+     #..      y 'b)                             ;Any number of pairs.
      #..  (print x y)
      #..  (let (x 'x
-     #..        y (op#concat x x))          ;Not in scope until body.
-     #..    (print x y))                    ;Outer variables shadowed.
-     #..  (print x y))                      ;Inner went out of scope.
+     #..        y (op#concat x x))              ;Not in scope until body.
+     #..    (print x y))                        ;Outer variables shadowed.
+     #..  (print x y))                          ;Inner went out of scope.
      >>> # let
      ... (
      ...  lambda x='a',
@@ -247,9 +247,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   C='D')
      {'A': 'B', 'C': 'D'}
 
-     #> (let*from ((ab cd) (.items _)    ;Nested let-froms.
-     #..           (a b) ab              ;Unpacks first item ('A', 'B')
-     #..           (c d) cd)             ;Unpacks second item ('C', 'D')
+     #> (let*from ((ab cd) (.items _)           ;Nested let-froms.
+     #..           (a b) ab                     ;Unpacks first item ('A', 'B')
+     #..           (c d) cd)                    ;Unpacks second item ('C', 'D')
      #..  (print a b c d))
      >>> # letQzSTAR_from
      ... # hissp.macros.._macro_.letQzH_from
@@ -276,8 +276,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      A B C D
 
 
-     #> (let*from ((ab cd) (.items _)    ;Fewer stack frames.
-     #..           (a b c d) `(,@ab ,@cd)) ;Leveraging ,@ splicing.
+     #> (let*from ((ab cd) (.items _)           ;Fewer stack frames.
+     #..           (a b c d) `(,@ab ,@cd))      ;Leveraging ,@ splicing.
      #..  (print a b c d))
      >>> # letQzSTAR_from
      ... # hissp.macros.._macro_.letQzH_from
@@ -1177,7 +1177,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (define first &#!#0)              ;Gets an item by index.
+  ;;    #> (define first &#!#0)                    ;Gets an item by index.
   ;;    >>> # define
   ;;    ... __import__('builtins').globals().update(
   ;;    ...   first=__import__('functools').partial(
@@ -1190,7 +1190,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   ('abc'))
   ;;    'a'
   ;;
-  ;;    #> !##(slice None None -1) "abc"     ;Slicing without injection.
+  ;;    #> !##(slice None None -1) "abc"           ;Slicing without injection.
   ;;    >>> __import__('operator').itemgetter(
   ;;    ...   slice(
   ;;    ...     None,
@@ -1199,7 +1199,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   ('abc'))
   ;;    'cba'
   ;;
-  ;;    #> !##'+ (dict : foo 2  + 1)         ;These also work on dicts.
+  ;;    #> !##'+ (dict : foo 2  + 1)               ;These also work on dicts.
   ;;    >>> __import__('operator').itemgetter(
   ;;    ...   'QzPLUS_')(
   ;;    ...   dict(
@@ -1207,7 +1207,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...     QzPLUS_=(1)))
   ;;    1
   ;;
-  ;;    #> (-> '(foo bar) !#1 .upper !#1)    ;Unary compatible with ->.
+  ;;    #> (-> '(foo bar) !#1 .upper !#1)          ;Unary compatible with ->.
   ;;    >>> # QzH_QzGT_
   ;;    ... __import__('operator').itemgetter(
   ;;    ...   (1))(
@@ -1906,7 +1906,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (any-map x (@ -0.6 -0.0 42.0 math..nan)
-  ;;    #..  (cond (op#lt x 0) (print :Negative) ;if-else cascade
+  ;;    #..  (cond (op#lt x 0) (print :Negative)   ;if-else cascade
   ;;    #..        (op#eq x 0) (print :Zero)
   ;;    #..        (op#gt x 0) (print :Positive)
   ;;    #..        :else (print :Not-a-Number)))
@@ -1985,7 +1985,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (any-map index (range 1 11)         ;Imperative loop with break.
+  ;;    #> (any-map index (range 1 11)             ;Imperative loop with break.
   ;;    #..  (print index : end :)
   ;;    #..  (not (op#mod index 7)))
   ;;    >>> # anyQzH_map
@@ -2021,7 +2021,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (any*map (i c) (enumerate 'abc 1)  ;As any-map, but with starmap.
+  ;;    #> (any*map (i c) (enumerate 'abc 1)  ; As any-map, but with starmap.
   ;;    #..  (print (op#mul i c)))
   ;;    >>> # anyQzSTAR_map
   ;;    ... __import__('builtins').any(
@@ -2061,7 +2061,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (loop-from x '(3)                   ;Unpacks as let-from.
+  ;;    #> (loop-from x '(3)                       ;Unpacks as let-from.
   ;;    #..  (when x
   ;;    #..    (print x)
   ;;    #..    (recur-from (@ (op#sub x 1)))))
@@ -2244,7 +2244,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (throw Exception)                   ;Raise exception objects or classes.
+  ;;    #> (throw Exception)                       ;Raise exception objects or classes.
   ;;    >>> # throw
   ;;    ... # hissp.macros.._macro_.throwQzSTAR_
   ;;    ... (lambda g:g.close()or g.throw)(c for c in'')(
@@ -2276,7 +2276,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (throw-from Exception (Exception 'message)) ;Explicit chaining.
+  ;;    #> (throw-from Exception (Exception 'message)) ; Explicit chaining.
   ;;    #..
   ;;    >>> # throwQzH_from
   ;;    ... # hissp.macros.._macro_.throwQzSTAR_
@@ -2327,7 +2327,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (print (prog1 0                     ;Side effects in sequence. Eval to first.
+  ;;    #> (print (prog1 0                         ;Side effects in sequence. Eval to first.
   ;;    #..         (print 1)
   ;;    #..         (print 2)))
   ;;    >>> print(
@@ -2348,8 +2348,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (prog1                              ;Side effects in sequence. Eval to first.
-  ;;    #..  (progn (print 1)                  ;Side effects in sequence. Eval to last.
+  ;;    #> (prog1                                  ;Side effects in sequence. Eval to first.
+  ;;    #..  (progn (print 1)                      ;Side effects in sequence. Eval to last.
   ;;    #..         3)
   ;;    #..  (print 2))
   ;;    >>> # prog1
@@ -2586,7 +2586,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (# 1 :* (@ 1 2 3) 4)                ;Set, with unpacking.
+  ;;    #> (# 1 :* (@ 1 2 3) 4)                    ;Set, with unpacking.
   ;;    >>> # QzHASH_
   ;;    ... (lambda *xs: {*xs})(
   ;;    ...   (1),
@@ -2617,7 +2617,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (% 1 2  :** (dict : x 3  y 4)  5 6) ;Dict, with mapping unpacking.
+  ;;    #> (% 1 2  :** (dict : x 3  y 4)  5 6) ; Dict, with mapping unpacking.
   ;;    >>> # QzPCENT_
   ;;    ... (lambda x0, x1, x3, x4, x5: {x0:x1,**x3,x4:x5})(
   ;;    ...   (1),
@@ -2768,8 +2768,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (engarde `(,FloatingPointError ,ZeroDivisionError) ;two targets
-  ;;    #..         (lambda e (print "Oops!") e)    ;handler (returns exception)
-  ;;    #..         truediv 6 0)                    ;calls it on your behalf
+  ;;    #..         (lambda e (print "Oops!") e)   ;handler (returns exception)
+  ;;    #..         truediv 6 0)                   ;calls it on your behalf
   ;;    >>> engarde(
   ;;    ...   (
   ;;    ...     FloatingPointError,
@@ -2804,11 +2804,11 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   (2))
   ;;    3.0
   ;;
-  ;;    #> (engarde Exception                       ;The stacked outer engarde
+  ;;    #> (engarde Exception                      ;The stacked outer engarde
   ;;    #.. print
-  ;;    #.. engarde ZeroDivisionError               ; calls the inner.
+  ;;    #.. engarde ZeroDivisionError              ; calls the inner.
   ;;    #.. (lambda e (print "It means what you want it to mean."))
-  ;;    #.. truediv "6" 0)                          ;Try variations.
+  ;;    #.. truediv "6" 0)                         ;Try variations.
   ;;    >>> engarde(
   ;;    ...   Exception,
   ;;    ...   print,
@@ -3135,7 +3135,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    #..     (Ensue (lambda (step)
   ;;    #..              (attach step :
   ;;    #..                Y None
-  ;;    #..                X ZeroDivisionError) ;X for eXcept (can be a tuple).
+  ;;    #..                X ZeroDivisionError) ; X for eXcept (can be a tuple).
   ;;    #..              (Ensue (lambda (step)
   ;;    #..                       (print "Caught a" step.sent))))))))
   ;;    >>> # define

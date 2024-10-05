@@ -255,13 +255,13 @@ Go past the parent's opening bracket, not the sibling's:
 .. code-block:: Lissp
 
    (a (b c))
-   x                                      ;(a (b c)) is sibling
+   x                                       ;(a (b c)) is sibling
 
    (a (b c)
-      x)                                  ;(a is parent, (b c) is sibling
+      x)                                   ;(a is parent, (b c) is sibling
 
    (a (b c
-         x))                              ;(b is parent, c is sibling
+         x))                               ;(b is parent, c is sibling
 
 Even after deleting the trails, you can tell where the ``x`` belongs. ::
 
@@ -298,10 +298,10 @@ You might not pass the head *atom* in some alignment styles:
 .. code-block:: Lissp
 
    (foo (bar x)
-     body)                                ;(foo is parent, (bar x) is special sibling
+     body)                                 ;(foo is parent, (bar x) is special sibling
 
    (foo (bar x
-          body))                          ;(bar is parent, x is special sibling
+          body))                           ;(bar is parent, x is special sibling
 
 We can still unambiguously reconstruct the trails from the indent. ::
 
@@ -441,62 +441,62 @@ Your code should look like these examples, recursively applied to subforms:
 
 .. code-block:: Lissp
 
-   '(data1 data2 data3)                   ;Treat all data items the same.
+   '(data1 data2 data3)                    ;Treat all data items the same.
 
-   '(data1                                ;Line break for one, break for all.
-     data2                                ;Items start on the same column.
-     data3)                               ;Could've all fit on 1 line. (Just an example.)
+   '(data1                                 ;Line break for one, break for all.
+     data2                                 ;Items start on the same column.
+     data3)                                ;Could've all fit on 1 line. (Just an example.)
 
-   '(                                     ;This is better for linewise version control.
-     data1                                ; Probably only worth it for a lot more than 3,
-     data2                                ; or if it changes frequently.
-     data3                                ; Use this style sparingly.
-     _#/)                                 ;Trails NEVER get their own line.
-                                          ; But you can hold it open with a discarded item.
-                                          ; This XML-style / doorstop is the norm in Lissp.
+   '(                                      ;This is better for linewise version control.
+     data1                                 ; Probably only worth it for a lot more than 3,
+     data2                                 ; or if it changes frequently.
+     data3                                 ; Use this style sparingly.
+     _#/)                                  ;Trails NEVER get their own line.
+                                           ; But you can hold it open with a discarded item.
+                                           ; This XML-style / doorstop is the norm in Lissp.
 
-   (function arg1 arg2 arg3)              ;Typical for calls that fit on one line.
+   (function arg1 arg2 arg3)               ;Typical for calls that fit on one line.
 
    ;; Also common. The function name is separate from the arguments in this style.
-   (function arg1                         ;Break for one, break for all.
-             arg2                         ;Args start on the same column.
+   (function arg1                          ;Break for one, break for all.
+             arg2                          ;Args start on the same column.
              arg3)
 
    ;; The previous alignment is preferred, but this is OK if a line would be too long.
    (function
-    arg1                                  ;Just like data.
+    arg1                                   ;Just like data.
     arg2
     arg3)
 
    ((lambda (a b c)
       (reticulate a)
       (frobnicate a b c))
-    arg1                                  ;The "not past the sibling" rule is absolute.
-    arg2                                  ; Not even one space past the (lambda.
+    arg1                                   ;The "not past the sibling" rule is absolute.
+    arg2                                   ; Not even one space past the (lambda.
     arg3)
 
-   (function                              ;Acceptable, but unusual.
+   (function                               ;Acceptable, but unusual.
     arg1 arg2 arg3)
 
    ((lambda (a b c)
       (print c b a))
-    arg1 arg2 arg3)                       ;Break for all args or for none.
+    arg1 arg2 arg3)                        ;Break for all args or for none.
 
    ;; One extra space between pairs.
    (function arg1 arg2 : kw1 kwarg1  kw2 kwarg2  kw3 kwarg3)
 
    ;; This might make the reason a bit more obvious:
-   (% 1 0 2 9 3 8 4 7 5 6)                ;Bad. Can't tell keys from values.
+   (% 1 0 2 9 3 8 4 7 5 6)                 ;Bad. Can't tell keys from values.
 
-   (% 1 0  2 9  3 8  4 7  5 6)            ;Preferred. Group implied pairs.
+   (% 1 0  2 9  3 8  4 7  5 6)             ;Preferred. Group implied pairs.
 
-   (% 1 0                                 ;OK, but could have fit on one line.
+   (% 1 0                                  ;OK, but could have fit on one line.
       2 9
       3 8
       4 7
       5 6)
 
-   (%                                     ;Also OK.
+   (%                                      ;Also OK.
     1 0
     2 9
     3 8
@@ -504,14 +504,14 @@ Your code should look like these examples, recursively applied to subforms:
     5 6)
 
    (function arg1 arg2
-             : kw1 kwarg1  kw2 kwarg2)    ;Breaking groups, not args.
+             : kw1 kwarg1  kw2 kwarg2)     ;Breaking groups, not args.
 
    (function arg1
              arg2
-             : kw1 kwarg1                 ;The : starts the line.
-             kw2 kwarg2)                  ;Break for args, but pairs stay together.
+             : kw1 kwarg1                  ;The : starts the line.
+             kw2 kwarg2)                   ;Break for args, but pairs stay together.
 
-   (function : kw1 kwarg1                 ;The : starts the "line". Sort of.
+   (function : kw1 kwarg1                  ;The : starts the "line". Sort of.
              kw2 kwarg2)
 
    ;; The previous alignment is preferred, but this is OK if the line would be too long.
@@ -521,39 +521,39 @@ Your code should look like these examples, recursively applied to subforms:
     :
     kw1
     kwarg1
-    ;;                                    ;Break for everything, and ;; line to separate pairs.
+    ;;                                     ;Break for everything, and ;; line to separate pairs.
     kw2
     kwarg2)
 
-   (dict : a 1  b 2  c 3)                 ;Preferred
+   (dict : a 1  b 2  c 3)                  ;Preferred
 
-   (dict : a 1                            ;Standard, but could have fit on one line.
+   (dict : a 1                             ;Standard, but could have fit on one line.
          b 2
          c 3)
 
-   (dict : a 1                            ;Acceptable if : is first, but be consistent.
-           b 2                            ;Note the alignment with the previous line.
+   (dict : a 1                             ;Acceptable if : is first, but be consistent.
+           b 2                             ;Note the alignment with the previous line.
            c 3)
 
-   (dict :                                ;Acceptable, especially for data.
-    a 1                                   ; May be better for linewise version control.
-    b 2                                   ; Use this style sparingly.
+   (dict :                                 ;Acceptable, especially for data.
+    a 1                                    ; May be better for linewise version control.
+    b 2                                    ; Use this style sparingly.
     c 3
     _#/)
 
-   (function arg1                         ;Bad. : not first. Weird extra levels.
+   (function arg1                          ;Bad. : not first. Weird extra levels.
              arg2
              : kw1 kwarg1
                kw2 kwarg2
 
-   (function arg1 arg2                    ;Bad. : not first. Weird extra levels.
+   (function arg1 arg2                     ;Bad. : not first. Weird extra levels.
              : kw1 kwarg1
                kw2 kwarg2
 
-   (macro special1 special2 special3      ;Macros can have their own alignment rules.
-     body1                                ; Simpler macros may look the same as functions.
-     body2                                ; Special/body is common. Lambda is also like this.
-     body3)                               ; Body is indented 1 extra space.
+   (macro special1 special2 special3       ;Macros can have their own alignment rules.
+     body1                                 ; Simpler macros may look the same as functions.
+     body2                                 ; Special/body is common. Lambda is also like this.
+     body3)                                ; Body is indented 1 extra space.
 
    (macro special1 body1)
 
@@ -595,11 +595,11 @@ Your code should look like these examples, recursively applied to subforms:
      body)
 
    ;; Parameter groups are separated by lines. Pairs are separated by an extra space.
-   (lambda (a b :/                        ;positional-only group
-            c d                           ;normal group
-            : e 1  f 2                    ;colon group
-            :* args  h 4  i :?  j 1       ;star group
-            :** kwargs)                   ;kwargs
+   (lambda (a b :/                         ;positional-only group
+            c d                            ;normal group
+            : e 1  f 2                     ;colon group
+            :* args  h 4  i :?  j 1        ;star group
+            :** kwargs)                    ;kwargs
      body)
 
 Readerless style is similar:
@@ -673,18 +673,18 @@ because the string's structure is more important for legibility than the tuple's
 
 .. code-block:: Lissp
 
-   (enjoin                                ;Preferred.
+   (enjoin                                 ;Preferred.
      "Weather in "location" for "date" will be "weather"
     with a "percent"% chance of rain.")
 
-   (enjoin "Weather in "                  ;OK.
+   (enjoin "Weather in "                   ;OK.
            location
            " for "
            date
            " will be "
            weather
            "
-     with a "                             ;OK, but would look better with \n.
+     with a "                              ;OK, but would look better with \n.
            percent
            "% chance of rain.")
 
@@ -693,23 +693,23 @@ not just the fact that it's a call:
 
 .. code-block:: Lissp
 
-   (enter (wrap 'A)                       ;Stacked context managers.
-    enter (wrap 'B)                       ; Note pairs.
-    enter (wrap 'C)                       ; `enter` is from the prelude.
+   (enter (wrap 'A)                        ;Stacked context managers.
+    enter (wrap 'B)                        ; Note pairs.
+    enter (wrap 'C)                        ; `enter` is from the prelude.
     (lambda abc (print a b c)))
 
    (engarde `(,FloatingPointError ,ZeroDivisionError) ; engarde from prelude
             print
-            truediv 6 0)                  ;(truediv 6 0) is a deferred call, so groups.
+            truediv 6 0)                   ;(truediv 6 0) is a deferred call, so groups.
 
-   (.update (globals) :                   ;OK. : on wrong side, but easier
-    + operator..add                       ; for linewise version control.
-    - operator..sub                       ; Sometimes worth it, but
-    * operator..mul                       ; use this style sparingly.
+   (.update (globals) :                    ;OK. : on wrong side, but easier
+    + operator..add                        ; for linewise version control.
+    - operator..sub                        ; Sometimes worth it, but
+    * operator..mul                        ; use this style sparingly.
     / operator..truediv
-    _#/)                                  ;Doorstop holding ) on this line.
+    _#/)                                   ;Doorstop holding ) on this line.
 
-   (.update (globals)                     ;Preferred. Standard style.
+   (.update (globals)                      ;Preferred. Standard style.
             : + operator..add
             - operator..sub
             * operator..mul
@@ -938,17 +938,17 @@ Functional tests make good debugging entry points.
           special4 ; entirely separate comment about special4 line
      body1
      ;; comment about body2
-     body2                                ;Margin comment
-     body3)                               ; continuation thereof,
-                                          ; and more continuation on its own line.
+     body2                                 ;Margin comment
+     body3)                                ; continuation thereof,
+                                           ; and more continuation on its own line.
 
 Complete sentences should start with a capital letter and end with
 a punctuation mark (typically a full stop or question mark).
 Separate sentences with a single space.
 Short comments need not be complete sentences.
 
-Inline Comments ; X
-+++++++++++++++++++
+``Inline ; comments``
++++++++++++++++++++++
 
 Comments about a line begin with one semicolon and a space ``; x``,
 starting **one** space after the code.
@@ -967,8 +967,8 @@ Avoid obtuse abbreviations just to make a comment fit in line.
 When a comment needs to be longer to be clear,
 use a different comment style instead.
 
-Margin Comments ;X
-++++++++++++++++++
+``Margin          ;comments``
++++++++++++++++++++++++++++++
 
 Margin comments begin with one semicolon ``;x``.
 The semicolon must be aligned with spaces to rest on column 40,
@@ -1027,8 +1027,8 @@ You may instead hold open the bracket with a :term:`doorstop`,
 convert the comment to a discarded string ``_#"NB foo")``,
 or (if appropriate) use a form/group ``;;`` comment above the item, as described below.
 
-;; Form/Group Comments
-++++++++++++++++++++++
+``;; form/group comments``
+++++++++++++++++++++++++++
 
 Comments about the next :term:`form` (or group)
 begin with two semicolons and a space ``;; x``,
@@ -1044,8 +1044,8 @@ or use the discard macro ``_#`` to comment out code structurally.
 
 Prefer class and function docstrings over ``;;`` comments where applicable.
 
-;;; Top-Level Comments
-++++++++++++++++++++++
+*;;; top-level comments*
+++++++++++++++++++++++++
 
 Top-level commentary lines not attached to any :term:`form` in particular
 begin with three semicolons and a space ``;;; Foo Bar``.
@@ -1067,8 +1067,8 @@ Remember that a `<# <QzLT_QzHASH_>`
 applied to a comment block compiles to a string literal,
 which can be a docstring.
 
-;;;; Headings
-+++++++++++++
+**;;;; Headings**
++++++++++++++++++
 
 Headings begin with four semicolons and a space ``;;;; Foo Bar``,
 fit on one line,
@@ -1158,8 +1158,8 @@ you will not have any undecorated H6's at all.)
 Multiple H1s might be acceptable for large projects distributed as a single concatenated
 Lissp file, where they'd head what would normally be modules in separate files.
 
-_#_#_#The Discard Macro
-+++++++++++++++++++++++
+``_#_#_#The Discard Macro``
++++++++++++++++++++++++++++
 
 The discard macro ``_#`` applied to a :term:`Unicode token`
 is acceptable for long block comments at the top level.
@@ -1213,8 +1213,8 @@ within a line, to indicate greater separation than the extra spaces.
 These are also used in the :term:`doorstop`
 ``_#/`` used to "hold open" a trail of brackets.
 
-<#;Docstrings
-+++++++++++++
+``<#;Docstrings``
++++++++++++++++++
 
 Prefer docstrings over semicolon comments where applicable.
 Quality over quantity,
@@ -1342,23 +1342,23 @@ as the :term:`params` when they'd each be one (non-munging) character:
 
 .. code-block:: Lissp
 
-   (lambda abc (print c b a))             ;Preferred
+   (lambda abc (print c b a))              ;Preferred
 
-   (lambda (a b c)                        ;OK
+   (lambda (a b c)                         ;OK
      (print c b a))
 
    ;;; This goes for macro arguments directly used as params too.
 
-   (let-from abc 'XYZ (print c b a))      ;Preferred
+   (let-from abc 'XYZ (print c b a))       ;Preferred
 
-   (let-from (a b c)                      ;OK
+   (let-from (a b c)                       ;OK
              'XYZ
      (print c b a))
 
-   (any*map kv (.items (dict : a 1  b 2)) ;Preferred
+   (any*map kv (.items (dict : a 1  b 2))  ;Preferred
      (print k v))
 
-   (any*map (k v)                         ;OK
+   (any*map (k v)                          ;OK
             (.items (dict : a 1  b 2))
      (print k v))
 
@@ -1616,36 +1616,36 @@ For an argument, i.e., other method calls, prefer ``.foo bar``:
 
 .. code-block:: Lissp
 
-   (hissp.._macro_.define greeting "hi")  ;Compile-time macroexpansion
+   (hissp.._macro_.define greeting "hi")   ;Compile-time macroexpansion
    (.define hissp.._macro_ 'greeting '"hi") ;Run-time expansion.
 
    ;;;; Arguments
 
-   (.upper "hi")                          ;Preferred.
-   ("hi".upper)                           ;SyntaxError.
-   (-> "hi".upper)                        ;Works, but overcomplicating it.
+   (.upper "hi")                           ;Preferred.
+   ("hi".upper)                            ;SyntaxError.
+   (-> "hi".upper)                         ;Works, but overcomplicating it.
 
-   (.upper greeting)                      ;Preferred.
-   (greeting.upper)                       ;Usually bad. Hides first argument from macros,
-                                          ; but you may want that sometimes.
+   (.upper greeting)                       ;Preferred.
+   (greeting.upper)                        ;Usually bad. Hides first argument from macros,
+                                           ; but you may want that sometimes.
 
    ;;;; Namespaces
 
-   (tkinter..Tk)                          ;Preferred. Fully-qualified name.
-   (.Tk tkinter.)                         ;Bad. Not really a method call.
+   (tkinter..Tk)                           ;Preferred. Fully-qualified name.
+   (.Tk tkinter.)                          ;Bad. Not really a method call.
 
    ;;;; Kind of Both
 
-   (self.foo spam eggs)                   ;Preferred.
-   (.foo self spam eggs)                  ;OK. Consider for doto, ->, etc.
+   (self.foo spam eggs)                    ;Preferred.
+   (.foo self spam eggs)                   ;OK. Consider for doto, ->, etc.
 
-   (cls.foo spam eggs)                    ;Preferred.
-   (.foo cls spam eggs)                   ;OK.
+   (cls.foo spam eggs)                     ;Preferred.
+   (.foo cls spam eggs)                    ;OK.
 
    ;; `self` as namespace, `self.accumulator` as first argument.
-   (.append self.accumulator x)           ;Preferred. Good use of both.
+   (.append self.accumulator x)            ;Preferred. Good use of both.
 
-   (self.accumulator.append x)            ;Usually bad. Hides first argument.
+   (self.accumulator.append x)             ;Usually bad. Hides first argument.
 
    ;; Bad. This does happen to be valid syntactically, but is probably
    ;; confusing in most cases. The namespace is `self`, but that looks
@@ -1668,7 +1668,7 @@ but don't overdo it:
 
    (lambda (x) (print "Hi" x) (print "Bye" x)) ;OK.
 
-   (lambda (x)                            ;Preferred.
+   (lambda (x)                             ;Preferred.
      (print "Hi" x)
      (print "Bye" x))
 
@@ -1682,10 +1682,10 @@ then the tree structure is clear from the indents:
 
    (print (/ (sum xs) (len xs)) "on average.") ;Bad. Internal ))'s.
 
-   (print (/ (sum xs) (len xs))           ;OK. One internal ) though.
+   (print (/ (sum xs) (len xs))            ;OK. One internal ) though.
           "on average.")
 
-   (print (/ (sum xs)                     ;Preferred. )'s end the line.
+   (print (/ (sum xs)                      ;Preferred. )'s end the line.
              (len xs))
           "on average.")
 
@@ -1701,7 +1701,7 @@ for example:
 
 .. code-block:: Lissp
 
-   (lambda (x)                            ;Preferred.
+   (lambda (x)                             ;Preferred.
      (cond (lt x 0) (print "negative")
            (eq x 0) (print "zero")
            (gt x 0) (print "positive")
@@ -1712,12 +1712,12 @@ even in an implied group:
 
 .. code-block:: Lissp
 
-   (defun compare (xs ys)                 ;Bad. Internal ))'s are hard to read.
+   (defun compare (xs ys)                  ;Bad. Internal ))'s are hard to read.
      (cond (lt (len xs) (len ys)) (print "<")
            (gt (len xs) (len ys)) (print ">")
            :else (print "0"))))
 
-   (defun compare (xs ys)                 ;Bad. No groups. Can't tell if from then.
+   (defun compare (xs ys)                  ;Bad. No groups. Can't tell if from then.
      (cond (lt (len xs) (len ys))
            (print "<")
            (gt (len xs) (len ys))
@@ -1725,22 +1725,22 @@ even in an implied group:
            :else
            (print "0"))))
 
-   (defun compare (xs ys)                 ;OK. Use discard comments sparingly.
+   (defun compare (xs ys)                  ;OK. Use discard comments sparingly.
      (cond (lt (len xs) (len ys))
            (print "<")
            _#:elif->(gt (len xs) (len ys)) ;Unambiguous, but unaligned.
            (print ">")
            :else (print "0")))) ; No internal ), so 1 line is OK. Still grouped.
 
-   (defun compare (xs ys)                 ;OK. Better.
+   (defun compare (xs ys)                  ;OK. Better.
      (cond (lt (len xs) (len ys))
            (print "<")
-           ;; else if                     ;The styling comment is not optional;
-           (gt (len xs) (len ys))         ; it's needed for separating groups.
+           ;; else if                      ;The styling comment is not optional;
+           (gt (len xs) (len ys))          ; it's needed for separating groups.
            (print ">")
            :else (print "0"))))
 
-   (defun compare (xs ys)                 ;Preferred. Keep cond simple.
+   (defun compare (xs ys)                  ;Preferred. Keep cond simple.
      (let (lxs (len xs)
            lys (len ys))
        (cond (lt lxs lys) (print "<")

@@ -2133,7 +2133,7 @@ But there are times when a function will not do:
    ...   ))
 
    #> ((lambda (%)
-   #..   (print (.upper %)))              ;This lambda expression
+   #..   (print (.upper %)))                  ;This lambda expression
    #.. "q")
    >>> (lambda QzPCENT_:
    ...     print(
@@ -2142,7 +2142,7 @@ But there are times when a function will not do:
    ...   ('q'))
    Q
 
-   #> ((% print (.upper %))               ; can now be abbreviated.
+   #> ((% print (.upper %))                   ; can now be abbreviated.
    #.. "q")
    >>> # QzPCENT_
    ... (lambda QzPCENT_:
