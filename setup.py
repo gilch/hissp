@@ -62,7 +62,7 @@ setuptools.setup(
         "": ["*.lissp"]
     },  # If any package contains *.lissp files, include them.
     package_dir={"": "../src"},
-    python_requires=">=3.8",
+    python_requires=">=3.10",
     entry_points={"console_scripts": ["lissp=hissp.__main__:main"]},
 )
 # Build dist and install:

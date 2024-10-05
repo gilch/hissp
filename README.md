@@ -49,7 +49,7 @@ Python—Syntactic macro metaprogramming with full access to the Python ecosyste
 <!-- markdown-toc end -->
 
 # Installation
-Hissp requires Python 3.8+.
+Hissp requires Python 3.10+.
 
 Install the latest PyPI release with
 ```
@@ -619,8 +619,8 @@ This gives Hissp a massive advantage over other Lisps with less selection.
 If you don't care to work with the Python ecosystem,
 perhaps Hissp is not the Lisp for you.
 
-Note that the Hissp compiler is written in Python 3.8,
-and the bundled macros assume at least that level.
+Note that the Hissp compiler is currently written for Python 3.10,
+and the bundled macros may assume at least that level.
 (Supporting older versions is not a goal,
 because that would complicate the compiler.
 This may limit the available libraries.)

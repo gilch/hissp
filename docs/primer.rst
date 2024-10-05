@@ -45,7 +45,7 @@ or the `Hissp community chat <https://gitter.im/hissp-lang/community>`_.
 Installation
 ============
 
-Hissp requires Python 3.8+ and has no other dependencies.
+Hissp requires Python 3.10+ and has no other dependencies.
 
 Confirm your Python version with
 
