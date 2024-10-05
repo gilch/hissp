@@ -1488,7 +1488,7 @@ Lissp Whirlwind Tour
 
    ;;; Hissp comes with some helper functions meant only for use
    ;;; interactively or in metaprograms. The compiled output isn't
-   ;;; dependent on Hissp when these are used correctly.
+   ;;; dependent on Hissp (STANDALONE PROPERTY) when used correctly.
 
    ;; Three of the helpers expand macros.
    #> (hissp..macroexpand1 '(print 1 2 3)) ;not a macro form (no change)
@@ -1735,7 +1735,10 @@ Lissp Whirlwind Tour
    ;;;; Compiling and Running Files
 
    ;;; The ``lissp`` shell command can run a .lissp file as __main__.
-   ;;; You cannot import .lissp directly. Compile it to .py first.
+   ;;; Python cannot import .lissp directly. Compile it to .py first.
+   ;;; Hissp could theoretically import .lissp via import hooks,
+   ;;; but that would break the compiled Hissp standalone property,
+   ;;; by adding a dependency on the ``hissp`` package for imports.
 
    ;; Finds spam.lissp & eggs.lissp in the current package & compile to spam.py & eggs.py
    #> (.write_text (pathlib..Path "eggs.lissp")

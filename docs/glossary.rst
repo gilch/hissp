@@ -485,6 +485,19 @@ Glossary
       variable bindings without explicitly naming them.
       Such a bound name is called an anaphor.
 
+   standalone property
+      When the compiled Python output of Hissp doesn't depend on the ``hissp`` package,
+      it can run in a Python environment that doesn't have ``hissp`` installed.
+      Hissp was designed for this,
+      but it can be lost by adding a ``hissp`` import explicitly.
+      Using Hissp's `metaprogramming` helpers only in metaprograms
+      (or in metaprogramming helper functions only called by metaprograms)
+      is fine because metaprograms only run at compile time (or `read time`),
+      so they won't crash at run time even when ``hissp`` cannot be imported.
+      Forgetting to remove or disable import of `transpile`
+      used in main or a package ``__init__``
+      is another way the standalone property can be lost.
+
    eof
       `End-of-file <https://en.wikipedia.org/wiki/End-of-file>`_.
       In most Unix terminals, use a :kbd:`Ctrl+D`,
