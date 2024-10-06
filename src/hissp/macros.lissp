@@ -2729,8 +2729,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;   (This replaces ``_macro_`` if you already had one.)::
   ;;
   ;;    _macro_=__import__('types').SimpleNamespace()
-  ;;    try:exec('from {}._macro_ import *',vars(_macro_))
-  ;;    except ModuleNotFoundError:pass
+  ;;    try: vars(_macro_).update(vars(__import__('hissp')._macro_))
+  ;;    except ModuleNotFoundError: pass
   ;;
   ;; Prelude Usage
   ;; =============
