@@ -20,7 +20,7 @@ from itertools import chain, starmap, takewhile
 from pprint import pformat
 from traceback import format_exc
 from types import ModuleType
-from typing import Any, NewType, TypeAlias, TypeVar
+from typing import Any, NewType, TypeAlias, TypeGuard, TypeVar
 from warnings import warn
 
 PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
@@ -179,9 +179,9 @@ class Compiler:
         `tuple` and `str` have special evaluation rules,
         otherwise it's an `atom` that represents itself.
         """
-        if type(form) is tuple and form:
+        if is_node(form):
             return self.tuple_(form)
-        if type(form) is str and not form.startswith(":"):
+        if is_str(form) and not form.startswith(":"):
             return self.fragment(form)
         return self.atomic(form)
 
@@ -189,11 +189,11 @@ class Compiler:
     def tuple_(self, form: tuple) -> str:
         """Compile `call`, `macro`, or `special` forms."""
         match form:
-            case [["lambda", params, *body] as head] if type(
-                head
-            ) is tuple and not self.parameters(params):
+            case [["lambda", params, *body] as head] if (
+                is_node(head) and not self.parameters(params)
+            ):
                 return self.body(body)  # progn optimization
-            case head, *_ if type(head) is str:
+            case head, *_ if is_str(head):
                 return self.special(form)
         return self.call(form)
 
@@ -368,12 +368,12 @@ class Compiler:
         return _SENTINEL
 
     @classmethod
-    def get_macro(cls, symbol, env: Env):
+    def get_macro(cls, symbol: object, env: Env):
         """Returns the macro function for ``symbol`` given the ``env``.
 
         Returns ``None`` if ``symbol`` isn't a macro identifier.
         """
-        if type(symbol) is not str or symbol.startswith(":"):
+        if not is_str(symbol) or symbol.startswith(":"):
             return None
         return cls._get_macro(symbol, env)
 
@@ -484,7 +484,7 @@ class Compiler:
             (singles := [*map(self.compile_form, takewhile(lambda a: a != ":", form))]),
             starmap(self._pair_arg, pairs := [*_pairs(form)]),
         )
-        if type(head) is str and head.startswith("."):
+        if is_str(head) and head.startswith("."):
             if singles or pairs[0][0] == ":?":
                 return "{}.{}({})".format(next(args), head[1:], _join_args(*args))
             raise CompileError("self must be paired with :?")
@@ -567,7 +567,7 @@ class Compiler:
         case = type(form)
         if case is set and not form:
             return "{*''}"  # "set()" could be shadowed. "{}" is a dict.
-        if case is tuple and form:
+        if is_node(form):
             return self._lisp_normal_form(form)
         if case in {dict, list, set}:
             return self._collection(form)
@@ -664,21 +664,31 @@ def readerless(form: object, env: Env | None = None) -> str:
     return Compiler(env=env, evaluate=False).compile([form])
 
 
-def is_atomic(form: object) -> bool:
-    """Determines if form is an `atom`."""
-    return type(form) is not tuple or form == ()
+def is_str(form: object) -> TypeGuard[str]:
+    """Determines if form is a `str atom`. (Not a `str` subtype.)"""
+    return type(form) is str
 
 
-def is_symbol(form: object) -> bool:
+def is_node(form: object) -> TypeGuard[tuple]:
+    """Determines if form is a nonempty tuple (not an `atom`)."""
+    return type(form) is tuple and form != ()
+
+
+def is_symbol(form: object) -> TypeGuard[str]:
     """Determines if form is a `symbol`."""
-    return (type(form) is str and form != "") and all(
+    return (is_str(form) and form != "") and all(
         part.isidentifier() for part in f"{form}_".replace("..", ".", 1).split(".")
     )
 
 
-def is_control(form) -> bool:
+def is_import(form: object) -> TypeGuard[str]:
+    """Determines if form is a `module handle` or has `full qualification`."""
+    return is_symbol(form) and (".." in form or form.endswith("."))
+
+
+def is_control(form: object) -> TypeGuard[str]:
     """Determines if form is a `control word`."""
-    return type(form) is str and form.startswith(":")
+    return is_str(form) and form.startswith(":")
 
 
 def _resolve_env(e: Env | None = None, _e=ENV.get, _cf=inspect.currentframe) -> Env:
@@ -694,7 +704,7 @@ def macroexpand1(form, env: Env | None = None):
     (available in a `macro_context`) when available, otherwise uses the
     calling frame's globals.
     """
-    if type(form) is not tuple or not form or form[0] in ["quote", "lambda"]:
+    if not is_node(form) or form[0] in ["quote", "lambda"]:
         return form
     head, *tail = form
     env = _resolve_env(env)
@@ -748,7 +758,7 @@ def macroexpand_all(
     """
     env = _resolve_env(env)
     exp = postprocess(macroexpand(preprocess(form), env))
-    if type(exp) is not tuple or not exp or exp[0] == "quote":
+    if not is_node(exp) or exp[0] == "quote":
         return exp
     if exp[0] != "lambda":
         return tuple(

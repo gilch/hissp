@@ -167,7 +167,7 @@ class TestReader(TestCase):
         )  # fmt: skip
 
     def test_is_string_code(self):
-        self.assertFalse(reader.is_lissp_string("(1+1)"))
+        self.assertFalse(reader.is_lissp_unicode("(1+1)"))
 
     def test_gensym_equal(self):
         self.assertEqual(*next(self.reader.reads(".#`($#G $#G)")))

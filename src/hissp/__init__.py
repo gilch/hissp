@@ -24,24 +24,28 @@
 # / znxrf tbbq cenpgvpr / orfg cenpgvpr vg orgenlf.:Pnfgyrf ohvyg / va gur nve / juvgure gurl qb orybat?:  Ryrtnapr /~
 # gura rkprcgvba:  Sbez / orsber qrgnvy:  jurapr haqre gurz,:Sbhaqngvbaf nccrne.:Znxr gur evtug jnl boivbhf,:zrqvgngr~
 # ba guvf.:  --Mn Mra bs Uvffc:~
-"""It's Python with a `Lissp`.
+R"""It's Python with a `Lissp`.
 
 See the GitHub project for complete documentation and tests.
 
 https://github.com/gilch/hissp
 
-``__init__.py`` imports several utilities for convenience, including
+``__init__.py`` defines a few functions meant for use as
+:term:`fully-qualified tag`\ s and imports several utilities for
+convenience, including,
 
 * from :mod:`hissp.compiler`:
 
   * `Compiler`
-  * `is_atomic`
   * `is_control`
+  * `is_import`
+  * `is_node`
+  * `is_str`
   * `is_symbol`
-  * `readerless`
   * `macroexpand`
   * `macroexpand1`
   * `macroexpand_all`
+  * `readerless`
 
 * from :mod:`hissp.munger`:
 
@@ -52,6 +56,7 @@ https://github.com/gilch/hissp
 
   * `transpile`
   * `is_hissp_string`
+  * `is_lissp_unicode`
   * `is_string_literal`
 
 * and `hissp.repl.interact`
@@ -61,16 +66,18 @@ as well as the `hissp.macros._macro_` namespace, making all the bundled
 """
 from hissp.compiler import (
     Compiler,
-    is_atomic,
     is_control,
+    is_import,
+    is_node,
+    is_str,
     is_symbol,
-    readerless,
     macroexpand,
     macroexpand1,
     macroexpand_all,
+    readerless,
 )
 from hissp.munger import demunge, munge
-from hissp.reader import transpile, is_hissp_string, is_string_literal
+from hissp.reader import transpile, is_hissp_string, is_lissp_unicode, is_string_literal
 from hissp.repl import interact
 
 # Hissp must be importable to compile macros.lissp the first time.
