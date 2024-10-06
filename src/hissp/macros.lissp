@@ -3334,10 +3334,10 @@ except ModuleNotFoundError: pass"
   ;;    ...             )()):
   ;;    ...    (my.__dict__.pop(
   ;;    ...       '_Qze4jatheu__expr',
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     my.__dict__.pop(
   ;;    ...       ('.0'),
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     my)  [-1]
   ;;    ... )()
   ;;    namespace(a=1, b=2, c='s', xs=['p', 'a', 'm'])
@@ -3358,10 +3358,10 @@ except ModuleNotFoundError: pass"
   ;;    ...             )()):
   ;;    ...    (my.__dict__.pop(
   ;;    ...       '_Qzec6padpw__expr',
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     my.__dict__.pop(
   ;;    ...       ('.0'),
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     # QzAT_
   ;;    ...     (lambda *xs: [*xs])(
   ;;    ...       # zapQzAT_
@@ -3413,10 +3413,10 @@ except ModuleNotFoundError: pass"
   ;;    ...             )()):
   ;;    ...    (my.__dict__.pop(
   ;;    ...       '_Qze4jatheu__expr',
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     my.__dict__.pop(
   ;;    ...       ('.0'),
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     ())  [-1]
   ;;    ... )()
   ;;    ()
@@ -3434,10 +3434,10 @@ except ModuleNotFoundError: pass"
   ;;    ...           tomato=spam):
   ;;    ...    (my.__dict__.pop(
   ;;    ...       '_Qze4jatheu__expr',
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     my.__dict__.pop(
   ;;    ...       ('.0'),
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     my)  [-1]
   ;;    ... )()
   ;;    namespace(tomato=namespace(eggs=['a', 'b', 'X', 'd', 'Y', 'f', 'Z']))
@@ -3461,8 +3461,8 @@ except ModuleNotFoundError: pass"
                                      '$#expr))
                    ,@(itertools..chain.from_iterable (.items kwargs))))
          ;; PEP 709. Compatible with both versions.
-         (,'my.__dict__.pop '$#expr 0)
-         (,'my.__dict__.pop ".0" 0)
+         (,'my.__dict__.pop '$#expr None)
+         (,'my.__dict__.pop ".0" None)
          ,(ns.form scope)))))
 
 (defmacro case (key default : :* pairs)
