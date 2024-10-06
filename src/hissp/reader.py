@@ -24,10 +24,10 @@ from itertools import chain
 from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
-from typing import Any, Callable as Fn, Literal, NewType, NoReturn, cast
+from typing import Any, Callable as Fn, Literal, NewType, NoReturn, TypeGuard, cast
 
 import hissp.compiler as C
-from hissp.compiler import Compiler, Env, readerless
+from hissp.compiler import Env
 from hissp.munger import force_qz_encode, munge
 
 GENSYM_BYTES = 5
@@ -216,7 +216,7 @@ class Lissp:
     ):
         self._template_count = 0
         self.qualname = qualname
-        self.compiler = Compiler(self.qualname, env, evaluate)
+        self.compiler = C.Compiler(self.qualname, env, evaluate)
         self.filename = filename
 
     def template_count(self):
@@ -377,7 +377,7 @@ class Parser(Iterator):
     def _inject(self, v: str):
         with C.macro_context(self.lissp.env):
             return eval(
-                readerless(self._pull(v, self._pos), self.lissp.env), self.lissp.env
+                C.readerless(self._pull(v, self._pos), self.lissp.env), self.lissp.env
             )
 
     def _pull(self, v: str, p: int | None = None):
@@ -397,11 +397,11 @@ class Parser(Iterator):
     def _template_form(self, form):
         """Process form as template."""
         case = type(form)
-        if is_lissp_string(form):
+        if is_lissp_unicode(form):
             return "quote", form
-        if case is tuple and form:
-            return ("",":",*chain(*self._template_element(form)),":?","")  # fmt: skip
-        if case is str and not form.startswith(":"):
+        if C.is_node(form):
+            return ("",":", *chain(*self._template_forms(form)), ":?", "")  # fmt: skip
+        if C.is_str(form) and not form.startswith(":"):
             return "quote", self.qualify(form)
         if case is _Unquote:
             if form.target == ":?":
@@ -409,15 +409,15 @@ class Parser(Iterator):
             raise SyntaxError("splice not in tuple", self.position())
         return form
 
-    def _template_element(self, forms: Iterable) -> Iterable[tuple[str, Any]]:
+    def _template_forms(self, forms: Iterable) -> Iterable[tuple[str, Any]]:
         invocation = True
         for form in forms:
             case = type(form)
-            if case is str and not form.startswith(":"):
+            if C.is_str(form) and not form.startswith(":"):
                 yield ":?", ("quote", self.qualify(form, invocation))
             elif case is _Unquote:
                 yield form
-            elif case is tuple:
+            elif C.is_node(form):
                 yield ":?", self._template_form(form)
             else:
                 yield ":?", form
@@ -551,7 +551,7 @@ class Parser(Iterator):
             raise SoftSyntaxError("form missing a `)`", self.position(self.depth.pop()))
 
 
-def is_hissp_string(form: object) -> bool:
+def is_hissp_string(form: object) -> TypeGuard[str | tuple[Literal["quote"], str]]:
     """Determines if form would directly represent a string in Hissp.
     (A `Hissp string`.)
 
@@ -563,31 +563,30 @@ def is_hissp_string(form: object) -> bool:
     `repr` on a string object.
     """
     match form:
-        case ["quote", x] if type(form) is tuple and type(x) is str:
+        case ["quote", x] if C.is_node(form) and C.is_str(x):
             return True
     return bool(is_string_literal(form))
 
 
-def is_lissp_string(form) -> bool:
+def is_lissp_unicode(form: object) -> TypeGuard[str]:
     """
-    Determines if form could have been read from a Lissp string literal.
+    Determines if form could have been read from a Lissp `Unicode token`.
 
     It's not enough to check if the form has a string type.
     Several token types such as a `control token`, `symbol token`, or
     `fragment token`, read in as a `str atom`. Macros may need to
     distinguish these cases.
     """
-    return type(form) is str and form.startswith("(") and bool(is_string_literal(form))
+    return C.is_str(form) and form.startswith("(") and bool(is_string_literal(form))
 
 
-def is_string_literal(form) -> bool | None:
+def is_string_literal(form: object) -> TypeGuard[str]:
     """Determines if `ast.literal_eval` on form produces a string.
     (A `string literal fragment`.)
-
-    ``False`` if it produces something else or ``None`` if it raises.
     """
     with suppress(Exception):
-        return type(ast.literal_eval(form)) is str
+        return C.is_str(ast.literal_eval(form))
+    return False
 
 
 def is_qualifiable(symbol: str) -> bool:

@@ -3448,8 +3448,8 @@ except ModuleNotFoundError: pass"
     (setattr ns
              'form
              X#(cond (isinstance X hissp.reader..Kwarg) `(set@ ,|f"my.{X.k}"| ,X.v)
-                     (hissp..is_atomic X) X
-                     :else (tuple (map ns.form X))))
+                     (hissp..is_node X) `(,@(map ns.form X))
+                     :else X))
     (if-else |expr is None and scope == ()|
       `(let (,'my (types..SimpleNamespace : ,@chain#(.items kwargs)))
          ,(ns.form targets_or_scope))

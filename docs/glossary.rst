@@ -125,7 +125,9 @@ Glossary
 
    atom
       A `form` that is either the empty tuple ``()`` or not of type `tuple`.
-      `is_atomic` tests for atoms.
+      Atoms are the leaf elements of Hissp's syntax trees,
+      while non-empty tuples are the nodes.
+      `is_node` tests for the non-leaves, so its negation tests for atoms.
 
    form
       An object meant for evaluation;
