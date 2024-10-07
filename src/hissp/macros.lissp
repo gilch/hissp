@@ -795,6 +795,96 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
                 ,(dict)
                 : ,@ibases)))))
 
+(defmacro deftupleonce (typename : :* args)
+  "Defines a `collections.namedtuple` unless it exists.
+
+  .. code-block:: REPL
+
+     #> (deftupleonce Vec3D '(x y z) : defaults '(0 0 0))
+     >>> # deftupleonce
+     ... # hissp.macros.._macro_.defonce
+     ... # hissp.macros.._macro_.unless
+     ... (lambda b, a: ()if b else a())(
+     ...   __import__('operator').contains(
+     ...     __import__('builtins').globals(),
+     ...     'Vec3D'),
+     ...   (lambda :
+     ...       # hissp.macros.._macro_.define
+     ...       __import__('builtins').globals().update(
+     ...         Vec3D=__import__('collections').namedtuple(
+     ...                 'Vec3D',
+     ...                 ('x',
+     ...                  'y',
+     ...                  'z',),
+     ...                 defaults=((0),
+     ...                           (0),
+     ...                           (0),)))
+     ...   ))
+
+  Like `deftypeonce`, methods can be attached afterward. On reload, the
+  existing class is modified, affecting all of its instances, including
+  those created before the reload.
+
+  .. code-block:: REPL
+
+     #> (define offset (Vec3D : z 1  x 2))
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   offset=Vec3D(
+     ...            z=(1),
+     ...            x=(2)))
+
+     #> (defun Vec3D.__add__ (self other)
+     #..  (._make Vec3D (map op#add self other)))
+     >>> # defun
+     ... # hissp.macros.._macro_.define
+     ... __import__('builtins').setattr(
+     ...   Vec3D,
+     ...   '__add__',
+     ...   # hissp.macros.._macro_.fun
+     ...   # hissp.macros.._macro_.let
+     ...   (
+     ...    lambda _Qzvy4otfjn__lambda=(lambda self, other:
+     ...               Vec3D._make(
+     ...                 map(
+     ...                   __import__('operator').add,
+     ...                   self,
+     ...                   other))
+     ...           ):
+     ...      (__import__('builtins').setattr(
+     ...         _Qzvy4otfjn__lambda,
+     ...         ('__code__'),
+     ...         _Qzvy4otfjn__lambda.__code__.replace(
+     ...           co_name='__add__')),
+     ...       __import__('builtins').setattr(
+     ...         _Qzvy4otfjn__lambda,
+     ...         ('__name__'),
+     ...         '__add__'),
+     ...       __import__('builtins').setattr(
+     ...         _Qzvy4otfjn__lambda,
+     ...         ('__qualname__'),
+     ...         'Vec3D.__add__'),
+     ...       _Qzvy4otfjn__lambda)  [-1]
+     ...   )())
+
+     #> (op#add offset offset)
+     >>> __import__('operator').add(
+     ...   offset,
+     ...   offset)
+     Vec3D(x=4, y=0, z=2)
+
+     #> (op#add _ (Vec3D 10 20 30))
+     >>> __import__('operator').add(
+     ...   _,
+     ...   Vec3D(
+     ...     (10),
+     ...     (20),
+     ...     (30)))
+     Vec3D(x=14, y=20, z=32)
+
+  "
+  `(defonce ,typename (collections..namedtuple ',typename ,@args)))
+
 (defmacro \:@\# (decoration definition)
   "``:@##`` 'decorator' applies ``decoration`` to definition & reassigns.
 
