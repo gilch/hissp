@@ -2443,7 +2443,11 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
       ast..literal_eval))
 
 (defmacro Q\# Q
-  <#; ``Q#`` 'Rational' Exact fraction tag.
+  <#;``Q#`` 'Rational' Exact fraction tag.
+  ;;
+  ;; Abbreviation for `fractions.Fraction`, with a `demunge` for symbols.
+  ;;
+  ;; Mnemonic: 𝐐uotient.
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -2452,7 +2456,42 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ... __import__('pickle').loads(b'cfractions\nFraction\n(V2/3\ntR.')
   ;;    Fraction(2, 3)
   ;;
+  ;; See also: `M# <MQzHASH_>`.
+  ;;
   (fractions..Fraction (hissp..demunge Q)))
+
+(defmacro M\# M
+  <#;``M#`` 'Decimal' Exact decimal tag.
+  ;;
+  ;; Abbreviation for `decimal.Decimal`, with a `demunge` for symbols.
+  ;;
+  ;; Mnemonic: "Money". Chosen to resemble Clojure's ``BigDecimal``
+  ;; literal, likely inspired by C♯ where "D" was taken for
+  ;; double-precision floats, leaving "M" as the next best letter in
+  ;; "deciMal".
+  ;;
+  ;; The usual construction has a trailing underscore to avoid going
+  ;; through a float literal, which would have limited precision:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> M#1.23e6_
+  ;;    >>> # Decimal('1.23E+6')
+  ;;    ... __import__('pickle').loads(b'cdecimal\nDecimal\n(V1.23E+6\ntR.')
+  ;;    Decimal('1.23E+6')
+  ;;
+  ;; When converting a read-time constant float, go through `str` first:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> M#.#(repr math..tau)
+  ;;    >>> # Decimal('6.283185307179586')
+  ;;    ... __import__('pickle').loads(b'cdecimal\nDecimal\n(V6.283185307179586\ntR.')
+  ;;    Decimal('6.283185307179586')
+  ;;
+  ;; See also: `Q# <QQzHASH_>`.
+  ;;
+  (decimal..Decimal (hissp..demunge M)))
 
 (defmacro en\# f
   <#;``en#`` tag.
