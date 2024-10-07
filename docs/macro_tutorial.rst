@@ -81,7 +81,7 @@ not a reference,
 and I'll be explaining not just how to write macros,
 but why you need them.
 
-----
+####
 
 If you're new to Lisp,
 go back and read the `style guide <style_guide>` if you haven't already.
