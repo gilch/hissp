@@ -2493,6 +2493,21 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   (decimal..Decimal (hissp..demunge M)))
 
+(defmacro inst\# (date_string)
+  <#;``inst#`` instant tag.
+  ;;
+  ;; Abbreviation for `datetime.datetime.fromisoformat`,
+  ;; with a `demunge` for symbols.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> inst#2024-10-07T11:30:07+00:00
+  ;;    >>> # datetime.datetime(2024, 10, 7, 11, 30, 7, tzinfo=datetime.timezone.utc)
+  ;;    ... __import__('pickle').loads(b'cdatetime\ndatetime\n(c_codecs\nencode\n(V\x07\xe8\\u000a\x07\x0b\x1e\x07\\u0000\\u0000\\u0000\nVlatin1\ntRcdatetime\ntimezone\n(cdatetime\ntimedelta\n(I0\nI0\nI0\ntRtRtR.')
+  ;;    datetime.datetime(2024, 10, 7, 11, 30, 7, tzinfo=datetime.timezone.utc)
+  ;;
+  (datetime..datetime.fromisoformat (hissp..demunge date_string)))
+
 (defmacro en\# f
   <#;``en#`` tag.
   ;; Wrap a function applicable to a tuple as a function of its elements.
