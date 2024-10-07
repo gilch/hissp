@@ -2447,7 +2447,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; Abbreviation for `fractions.Fraction`, with a `demunge` for symbols.
   ;;
-  ;; Mnemonic: 𝐐uotient.
+  ;; Mnemonic: ℚuotient.
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -3267,7 +3267,7 @@ except ModuleNotFoundError: pass"
 ;;;; Advanced
 
 (defmacro mix (: :* args)
-  <#; Injection. Compiles each arg to Python and concatenates the fragments.
+  <#;Injection. Compiles each arg to Python and concatenates the fragments.
   ;;
   ;; Lissp features like munging and fully-qualified identifiers can be
   ;; freely mixed with Python expressions like slicing, infix operators
