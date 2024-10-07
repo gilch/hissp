@@ -2506,7 +2506,28 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ... __import__('pickle').loads(b'cdatetime\ndatetime\n(c_codecs\nencode\n(V\x07\xe8\\u000a\x07\x0b\x1e\x07\\u0000\\u0000\\u0000\nVlatin1\ntRcdatetime\ntimezone\n(cdatetime\ntimedelta\n(I0\nI0\nI0\ntRtRtR.')
   ;;    datetime.datetime(2024, 10, 7, 11, 30, 7, tzinfo=datetime.timezone.utc)
   ;;
+  ;;
+  ;; See also: `uuid# <uuidQzHASH_>`.
+  ;;
   (datetime..datetime.fromisoformat (hissp..demunge date_string)))
+
+(defmacro uuid\# (hex)
+  <#;``uuid#`` Universally Unique Identifier tag.
+  ;;
+  ;; Abbreviation for `uuid.UUID`, with a `demunge` for symbols.
+  ;; Curly braces, hyphens, and a URN prefix are optional,
+  ;; but the argument must be a read-time `str`, not an `int`.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> uuid#{urn:uuid:12345678-1234-5678-1234-567812345678}
+  ;;    >>> # UUID('12345678-1234-5678-1234-567812345678')
+  ;;    ... __import__('pickle').loads(b'ccopy_reg\n_reconstructor\n(cuuid\nUUID\nc__builtin__\nobject\nNtR(dVint\nL24197857161011715162171839636988778104L\nsb.')
+  ;;    UUID('12345678-1234-5678-1234-567812345678')
+  ;;
+  ;; See also: `inst# <instQzHASH_>`.
+  ;;
+  (uuid..UUID (hissp..demunge hex)))
 
 (defmacro en\# f
   <#;``en#`` tag.
