@@ -577,8 +577,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; Add class attributes afterward using `define` or `defun`, and class
   ;; decorators above with `:@## <QzCOLON_QzAT_QzHASH_>` or afterward
-  ;; using `zap@ <zapQzAT_>`. These run again on module reload and patch
-  ;; in existing instances.
+  ;; using `zap@ <zapQzAT_>`. These run again on module reload, updating
+  ;; the existing class object, which can affect the behavior its
+  ;; instances defined before the reload.
   ;;
   ;; The ``once_decorators`` apply before any external ones, in the
   ;; order written (first applies first), unless the type exists (not
