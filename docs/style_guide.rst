@@ -539,7 +539,9 @@ Your code should look like these examples, recursively applied to subforms:
     a 1                                    ; May be better for linewise version control.
     b 2                                    ; Use this style sparingly.
     c 3
-    _#/)
+    _#/dict)                               ;Doorstops are allowed to label what they're
+                                           ; closing, like XML tags. Not needed for a
+                                           ; form this short; a _#/ would have sufficed.
 
    (function arg1                          ;Bad. : not first. Weird extra levels.
              arg2
@@ -707,7 +709,7 @@ not just the fact that it's a call:
     - operator..sub                        ; Sometimes worth it, but
     * operator..mul                        ; use this style sparingly.
     / operator..truediv
-    _#/)                                   ;Doorstop holding ) on this line.
+    _#/.update)                            ;Doorstop holding ) on this line.
 
    (.update (globals)                      ;Preferred. Standard style.
             : + operator..add
@@ -1671,8 +1673,10 @@ The End of the Line
 
 Ending brackets should also end the line.
 That's what lets us indent and see the tree structure clearly.
+Readability is mainly laid out on the page.
 It's OK to have single ``)``'s inside the line,
-but don't overdo it:
+but don't overdo it.
+Nesting more than a few levels in a single line can get confusing.
 
 .. code-block:: Lissp
 
@@ -1727,6 +1731,12 @@ even in an implied group:
            (gt (len xs) (len ys)) (print ">")
            :else (print "0"))))
 
+   (defun compare (xs ys)                  ;OK. But use doorstops sparingly.
+     (cond (lt (len xs) (len ys) _#/lt) (print "<") ; 3 nesting levels in line is pushing it.
+           (gt (len xs) (len ys) _#/gt) (print ">")
+           :else (print "0"))))
+
+
    (defun compare (xs ys)                  ;Bad. No groups. Can't tell if from then.
      (cond (lt (len xs) (len ys))
            (print "<")
@@ -1735,20 +1745,13 @@ even in an implied group:
            :else
            (print "0"))))
 
-   (defun compare (xs ys)                  ;OK. Use discard comments sparingly.
+   (defun compare (xs ys)                  ;OK.
      (cond (lt (len xs) (len ys))
            (print "<")
-           _#:elif->(gt (len xs) (len ys)) ;Unambiguous, but unaligned.
+           ;; else if                      ;A styling comment isn't optional here;
+           (gt (len xs) (len ys))          ; it's required to separate groups.
            (print ">")
-           :else (print "0")))) ; No internal ), so 1 line is OK. Still grouped.
-
-   (defun compare (xs ys)                  ;OK. Better.
-     (cond (lt (len xs) (len ys))
-           (print "<")
-           ;; else if                      ;The styling comment is not optional;
-           (gt (len xs) (len ys))          ; it's needed for separating groups.
-           (print ">")
-           :else (print "0"))))
+           :else (print "0"))))            ;Still grouped. 1 line OK--no internal ).
 
    (defun compare (xs ys)                  ;Preferred. Keep cond simple.
      (let (lxs (len xs)
@@ -1892,8 +1895,6 @@ or it may be possible to configure it to ignore violations in strings or comment
 
 The Limits of Length
 ::::::::::::::::::::
-
-Readability is mainly laid out on the page.
 
 The optimal length for a line in a block of English text is thought to be around
 50-75 characters, given the limitations of the human eye.

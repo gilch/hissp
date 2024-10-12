@@ -20,9 +20,12 @@ Glossary
       `Injection` of a Python statement is only valid at the top level.
 
    doorstop
-      A `discarded item` used to "hold open" a bracket trail.
-      Typically ``_#/`` in Lissp,
-      but may be a `Unicode token` with a comment.
+      A `discarded item` used to "hold open" a bracket trail
+      or avoid a ``))`` in line.
+      Any discarded item used this way is functionally a doorstop,
+      but, in Lissp, the typical style starts with ``_#/``
+      and may continue with a label of what form the next ``)`` is closing,
+      like ``_#/foo``, similar to XML tags.
 
    abstract syntax tree
    ast
