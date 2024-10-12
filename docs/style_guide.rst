@@ -1074,6 +1074,16 @@ Headings begin with four semicolons and a space ``;;;; Foo Bar``,
 fit on one line,
 and are written in ``Title Case`` by default.
 
+Other Lisp dialects may use quadruple-semicolon comments for module-level comments,
+as a category distinct from top-level commentary.
+In Lissp,
+module-level commentary should instead appear in the module's docstring,
+or, in the case of implementation details,
+in triple-semicolon comments near the top of the file,
+usually immediately before or after the module docstring.
+(E.g., license boilerplate.)
+Quadruple semicolon comments are exclusively for headings.
+
 Headings are for the :term:`top level` only;
 they aren't nested in :term:`form`\ s;
 they get their own line and start at the beginning of it.
