@@ -1292,7 +1292,7 @@ should start with the `demunge`\ d name in doubled backticks
    ;; in a lexical scope surrounding ``e``.
    ;; ...
 
-For `tag`\ s, use the number of hashes required for its minimum arity.
+For :term:`tag`\ s, use the number of hashes required for its minimum arity.
 The demunged names should be followed by the pronunciation in single quotes,
 if it's not obvious from the identifier:
 
@@ -1800,7 +1800,7 @@ you're not likely to consider exhaustively,
 so you need a good reason to nail down at least one of them.
 It just gets worse from there. The factorial sequence grows pretty quickly.
 Why not make it easy and use meaningful names instead of meaningless positions?
-Sort the kwonly parameters and (argument pairs) lexicographically by default.
+Sort the kwonly parameters (and argument pairs) lexicographically by default.
 You may have a good reason for some other order. E.g.,
 if arguments or defaults need to be evaluated in a certain order due to side effects.
 Document this kind of thing with a comment when it's not obvious,
@@ -2038,7 +2038,7 @@ You need only modify forms containing long lines (or contained in long lines).
    (function1 arg1 arg2 (function2 arg1
                                    arg2))
 
-   ;; Very bad! Confusing style. Break on `)` first!
+   ;; Very bad! Confusing stair-step style. Break on `)` first!
    (function1 arg1 (function2 arg1
                               arg2) arg2 (function3 arg1 arg2))
 
@@ -2050,7 +2050,7 @@ You need only modify forms containing long lines (or contained in long lines).
                               arg4)
          :else (function3 arg1 arg2))
 
-   ;; Bad. Confusing style.
+   ;; Bad. Confusing stair-step style.
    (cond (test1 x) (function1 arg1 arg2)
          (test2 argument1
                 argument2
