@@ -1252,8 +1252,37 @@ See `hissp.macros`.
           : :* $#args  :** $#kwargs)
          (.format "{}.{}" ',qualifier $#attr)))))
 
+;; Long-named standard-library modules commonly used in Python code.
+(alias col collections.)
+(alias dt datetime.)
+(alias ft functools.)
+(alias hsh hashlib.)
 (alias i itertools.)
+(alias mp multiprocessing.)
+(alias mp.sm multiprocessing.shared_memory.)
 (alias op operator.)
+(alias sp subprocess.)
+(alias tf tempfile.)
+(alias thr threading.)
+(alias tb traceback.)
+(alias ut unittest.)
+(alias mk unittest.mock.)
+(alias wrn warnings.)
+
+;;; Common short names (os, re, sys, math, etc.) don't need abbreviation.
+
+;; Less commonly used in Python, but especially useful in Lissp.
+(alias bn builtins.)
+(alias cxv contextvars.)
+(alias fi fileinput.)
+(alias imp importlib.)
+(alias imp.r importlib.resources.)
+(alias nsp inspect.)
+(alias pl pathlib.)
+(alias tw textwrap.)
+
+(alias H hissp.)
+
 
 (defmacro chain\# (xss)
   "``chain#`` Abbreviation for `itertools.chain.from_iterable`."
@@ -1261,7 +1290,7 @@ See `hissp.macros`.
 
 (defmacro &\# (callable+args)
   "``&#`` Abbreviation for `functools.partial`."
-  `(functools..partial ,@callable+args))
+  `(ft#partial ,@callable+args))
 
 (defmacro !\# (key : items "")
   <#;``!#`` 'look up in' Gets an item from items.
@@ -1361,7 +1390,7 @@ See `hissp.macros`.
   ;; `subscriptions`, `slicings`.
   ;;
   `((lambda ($#items)
-      ,(.format "({}[{})" '$#items (hissp..demunge lookup)))
+      ,(.format "({}[{})" '$#items (H#demunge lookup)))
     ,items))
 
 (defmacro @\# (name : ns "")
@@ -1565,7 +1594,7 @@ See `hissp.macros`.
   `((lambda ($#items : $#value ,value)
       ,(.format "[{v}\n for({}[{})in[{v}]][0]"
                 '$#items
-                (hissp..demunge lookup)
+                (H#demunge lookup)
                 : v '$#value))
     ,items))
 
@@ -1634,11 +1663,11 @@ See `hissp.macros`.
   ;;
   ;;
   `((lambda ($#items)
-      (let ($#value (-> ,(.format "({}[{})" '$#items (hissp..demunge lookup))
+      (let ($#value (-> ,(.format "({}[{})" '$#items (H#demunge lookup))
                         ,callable+args))
         ,(.format "[{v}\n for({}[{})in[{v}]][0]"
                   '$#items
-                  (hissp..demunge lookup)
+                  (H#demunge lookup)
                   : v '$#value)))
     ,items))
 
@@ -2493,7 +2522,7 @@ See `hissp.macros`.
   ;; See also: `B# <BQzHASH_>`, `hissp.reader.is_hissp_string`.
   ;;
   (-> string
-      hissp..readerless
+      H#readerless
       ast..literal_eval
       (.replace "'" '|\'|)
       (.replace "\n" '|\n|)
@@ -2551,7 +2580,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `M# <MQzHASH_>`.
   ;;
-  (fractions..Fraction (hissp..demunge Q)))
+  (fractions..Fraction (H#demunge Q)))
 
 (defmacro M\# M
   <#;``M#`` 'Decimal' Exact decimal tag.
@@ -2584,7 +2613,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `Q# <QQzHASH_>`.
   ;;
-  (decimal..Decimal (hissp..demunge M)))
+  (decimal..Decimal (H#demunge M)))
 
 (defmacro inst\# (date_string)
   <#;``inst#`` instant tag.
@@ -2602,7 +2631,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `uuid# <uuidQzHASH_>`.
   ;;
-  (datetime..datetime.fromisoformat (hissp..demunge date_string)))
+  (dt#datetime.fromisoformat (H#demunge date_string)))
 
 (defmacro uuid\# (hex)
   <#;``uuid#`` Universally Unique Identifier tag.
@@ -2620,7 +2649,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `inst# <instQzHASH_>`.
   ;;
-  (uuid..UUID (hissp..demunge hex)))
+  (uuid..UUID (H#demunge hex)))
 
 (defmacro en\# f
   <#;``en#`` tag.
@@ -2710,7 +2739,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `/XY# <QzSOL_XYQzHASH_>`, `en# <enQzHASH_>`.
   `(lambda (: :* $#xs)
-     (functools..reduce ,f $#xs)))
+     (ft#reduce ,f $#xs)))
 
 ;;;; Collection
 
@@ -3415,7 +3444,7 @@ except ModuleNotFoundError: pass"
   ;; where it is not conventional to do so, making fragments like
   ;; ``| :|`` or ``|foo .|`` viable workarounds in such cases.
   ;;
-  (.join "" (map hissp..readerless args)))
+  (.join "" (map H#readerless args)))
 
 (defmacro my\# (targets_or_scope : expr None  scope ()  :** kwargs)
   <#;``my#`` Anaphoric. Injection. `let` ``my`` be a fresh
@@ -3615,8 +3644,8 @@ except ModuleNotFoundError: pass"
   (let (ns (types..SimpleNamespace))
     (setattr ns
              'form
-             X#(cond (isinstance X hissp.reader..Kwarg) `(set@ ,|f"my.{X.k}"| ,X.v)
-                     (hissp..is_node X) `(,@(map ns.form X))
+             X#(cond (isinstance X H#reader.Kwarg) `(set@ ,|f"my.{X.k}"| ,X.v)
+                     (H#is_node X) `(,@(map ns.form X))
                      :else X))
     (if-else |expr is None and scope == ()|
       `(let (,'my (types..SimpleNamespace : ,@chain#(.items kwargs)))
@@ -3624,10 +3653,10 @@ except ModuleNotFoundError: pass"
       `(let (,'my (types..SimpleNamespace
                    : :** (let ($#expr ,expr)
                            ,(.format "[{}()\n for ({})\n in [{}]]  [0]"
-                                     (hissp..readerless `locals)
-                                     (hissp..demunge targets_or_scope)
+                                     (H#readerless `locals)
+                                     (H#demunge targets_or_scope)
                                      '$#expr))
-                   ,@(itertools..chain.from_iterable (.items kwargs))))
+                   ,@chain#(.items kwargs)))
          ;; PEP 709. Compatible with both versions.
          (,'my.__dict__.pop '$#expr None)
          (,'my.__dict__.pop ".0" None)
@@ -3788,8 +3817,7 @@ except ModuleNotFoundError: pass"
        (print "time# ran"
               (pprint..pformat ',expr : sort_dicts 0)
               "in"
-              (op#truediv (op#sub $#end $#start)
-                          (decimal..Decimal 1e6))
+              (op#truediv (op#sub $#end $#start) M#1e6_)
               "ms"
               : file ,file)
        $#val)))
