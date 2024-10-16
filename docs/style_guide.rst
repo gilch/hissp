@@ -1539,9 +1539,6 @@ especially for small functions.
 Aliasing and Imports
 ::::::::::::::::::::
 
-Avoid repeating the name of the containing module or package when writing definitions,
-because they may be accessed through an alias or as a module attribute.
-
 The programmer should not have to guess
 what an `alias<_macro_.alias>` means when jumping into an unfamiliar file.
 Use consistent aliases within a project.
@@ -1549,19 +1546,37 @@ Usually, this means the alias is the module name, but not its containing package
 unless there is a shorter well-known name in the community
 (like ``np#`` for NumPy or ``op#`` for operators)
 or for an internal module well-known within your project.
+The bundled aliases can be considered well-known in Lissp.
 
-Avoid reassigning attributes from other modules as globals
-without a very good reason.
-Yes, Python does this all the time.
+Avoid assigning globals attributes of other modules
+without a good reason.
+(A good reason might be to present a clean public interface in
+``__init__.py``.)
+Yes, Python code does this all the time.
 It's how `from` works at the :term:`top level`.
-Just access them as attributes from the module they belong to.
+Just access them as attributes directly from the module they belong to.
 This improves readability,
 and for internal project modules,
 improves reloadability during REPL-driven development.
 Otherwise, instead of just refreshing the module with the updated definition,
 every module reassigning it would have to be reloaded as well.
 
-Aliases are also preferred over assigning modules as globals
+Avoid using the same name for a module and one of its definitions.
+This is an anti-pattern.
+Yes, the standard library does this a lot,
+with `datetime.datetime` being a notorious example.
+In Python code, ``import datetime`` vs. ``from datetime import datetime``
+is a common source of confusion.
+And the module and class can't both be used as globals without renaming one of them,
+which unfortunately discourages the use of the module object at all.
+
+A set of variables with a common prefix (or suffix) is a code smell,
+suggesting they should be members of a namespace (or other data structure)
+with the prefix name.
+If they're already members of a common namespace, the prefix is redundant
+and should be removed.
+
+Aliases are also preferred over assigning globals modules
 (although this is less of a problem).
 They have the advantage of never colliding
 with your locals or global function names,
