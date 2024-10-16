@@ -79,8 +79,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 ;;;  ---
 
 ;; Bootstrap macro namespace using builtins.
-(.update (globals) : _macro_ (types..SimpleNamespace))
-(setattr _macro_ '__doc__ "Hissp's bundled macro namespace.")
+(.update (globals) : _macro_ (types..SimpleNamespace : __doc__ "\
+Hissp's bundled tag and macro namespace.
+See `hissp.macros`.
+"))
 
 ;;; YO DAWG, I HERD YOU LIKE MACROS
 ;;; SO I PUT A BOOTSTRAP defmacro IN YOUR _macro_ SO YOU CAN defmacro A
