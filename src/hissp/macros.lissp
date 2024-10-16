@@ -340,19 +340,18 @@ See `hissp.macros`.
   anonymous functions due to the additional overhead.
   "
   (let*from ((name : :* _xs) (reversed (.split qualname '. 1))
-             (doc top) (if-else (hissp.reader..is_hissp_string maybe-docstring)
-                         `(,(lambda x `((setattr ,x "__doc__" ,maybe-docstring)))
-                           ())
-                         `(,(lambda x)
-                           (,maybe-docstring))))
+             (top doc) (if-else (hissp..is_hissp_string maybe-docstring)
+                         `(() (__doc__ ,maybe-docstring))
+                         `((,maybe-docstring) ())))
     `(let ($#lambda (lambda ,params ,@top ,@body))
-       ,@(doc '$#lambda) ; Used by help().
-       ;; Used by tracebacks.
-       (setattr $#lambda "__code__" (.replace $#lambda.__code__ : co_name ',name))
-       ;; Used by help().
-       (setattr $#lambda "__name__" ',name)
-       ;; Used by repr().
-       (setattr $#lambda "__qualname__" ',qualname)
+       `(,@(itertools..starmap
+            ,'$#lambda.__setattr__
+            (.items (dict : ,@doc ; Used by help().
+                          __name__ ',name ; Used by help().
+                          __qualname__ ',qualname ; Used by repr().
+                          ;; Used by tracebacks.
+                          __code__ (.replace ,'$#lambda.__code__
+                                             : co_name ',name)))))
        $#lambda)))
 
 (defmacro unless (condition : :* body)
@@ -422,7 +421,7 @@ See `hissp.macros`.
      ...   # hissp.macros.._macro_.fun
      ...   # hissp.macros.._macro_.let
      ...   (
-     ...    lambda _Qztxnqfmn3__lambda=(lambda sep:
+     ...    lambda _Qzwin5lyqx__lambda=(lambda sep:
      ...               (
      ...                 'builtins..print',
      ...                 (1),
@@ -433,24 +432,17 @@ See `hissp.macros`.
      ...                 sep,
      ...                 )
      ...           ):
-     ...      (__import__('builtins').setattr(
-     ...         _Qztxnqfmn3__lambda,
-     ...         ('__doc__'),
-     ...         'Prints 1 2 3 with the given separator'),
-     ...       __import__('builtins').setattr(
-     ...         _Qztxnqfmn3__lambda,
-     ...         ('__code__'),
-     ...         _Qztxnqfmn3__lambda.__code__.replace(
-     ...           co_name='p123')),
-     ...       __import__('builtins').setattr(
-     ...         _Qztxnqfmn3__lambda,
-     ...         ('__name__'),
-     ...         'p123'),
-     ...       __import__('builtins').setattr(
-     ...         _Qztxnqfmn3__lambda,
-     ...         ('__qualname__'),
-     ...         '_macro_.p123'),
-     ...       _Qztxnqfmn3__lambda)  [-1]
+     ...      ((
+     ...         *__import__('itertools').starmap(
+     ...            _Qzwin5lyqx__lambda.__setattr__,
+     ...            __import__('builtins').dict(
+     ...              __doc__='Prints 1 2 3 with the given separator',
+     ...              __name__='p123',
+     ...              __qualname__='_macro_.p123',
+     ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+     ...                         co_name='p123')).items()),
+     ...         ),
+     ...       _Qzwin5lyqx__lambda)  [-1]
      ...   )())
 
      #> (p123 ::)
@@ -654,7 +646,7 @@ See `hissp.macros`.
   ;;    ...   # hissp.macros.._macro_.fun
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
-  ;;    ...    lambda _Qzec6padpw__lambda=(lambda cls, x, y:
+  ;;    ...    lambda _Qzzygff6yw__lambda=(lambda cls, x, y:
   ;;    ...               tuple.__new__(
   ;;    ...                 cls,
   ;;    ...                 (
@@ -662,20 +654,16 @@ See `hissp.macros`.
   ;;    ...                   y,
   ;;    ...                   ))
   ;;    ...           ):
-  ;;    ...      (__import__('builtins').setattr(
-  ;;    ...         _Qzec6padpw__lambda,
-  ;;    ...         ('__code__'),
-  ;;    ...         _Qzec6padpw__lambda.__code__.replace(
-  ;;    ...           co_name='__new__')),
-  ;;    ...       __import__('builtins').setattr(
-  ;;    ...         _Qzec6padpw__lambda,
-  ;;    ...         ('__name__'),
-  ;;    ...         '__new__'),
-  ;;    ...       __import__('builtins').setattr(
-  ;;    ...         _Qzec6padpw__lambda,
-  ;;    ...         ('__qualname__'),
-  ;;    ...         'Point2D.__new__'),
-  ;;    ...       _Qzec6padpw__lambda)  [-1]
+  ;;    ...      ((
+  ;;    ...         *__import__('itertools').starmap(
+  ;;    ...            _Qzzygff6yw__lambda.__setattr__,
+  ;;    ...            __import__('builtins').dict(
+  ;;    ...              __name__='__new__',
+  ;;    ...              __qualname__='Point2D.__new__',
+  ;;    ...              __code__=_Qzzygff6yw__lambda.__code__.replace(
+  ;;    ...                         co_name='__new__')).items()),
+  ;;    ...         ),
+  ;;    ...       _Qzzygff6yw__lambda)  [-1]
   ;;    ...   )())
   ;;
   ;;    #> (defun Point2D.__repr__ (self)
@@ -688,24 +676,20 @@ See `hissp.macros`.
   ;;    ...   # hissp.macros.._macro_.fun
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
-  ;;    ...    lambda _Qzec6padpw__lambda=(lambda self:
+  ;;    ...    lambda _Qzhdg2exzl__lambda=(lambda self:
   ;;    ...               ('Point2D({!r}, {!r})').format(
   ;;    ...                 *self)
   ;;    ...           ):
-  ;;    ...      (__import__('builtins').setattr(
-  ;;    ...         _Qzec6padpw__lambda,
-  ;;    ...         ('__code__'),
-  ;;    ...         _Qzec6padpw__lambda.__code__.replace(
-  ;;    ...           co_name='__repr__')),
-  ;;    ...       __import__('builtins').setattr(
-  ;;    ...         _Qzec6padpw__lambda,
-  ;;    ...         ('__name__'),
-  ;;    ...         '__repr__'),
-  ;;    ...       __import__('builtins').setattr(
-  ;;    ...         _Qzec6padpw__lambda,
-  ;;    ...         ('__qualname__'),
-  ;;    ...         'Point2D.__repr__'),
-  ;;    ...       _Qzec6padpw__lambda)  [-1]
+  ;;    ...      ((
+  ;;    ...         *__import__('itertools').starmap(
+  ;;    ...            _Qzhdg2exzl__lambda.__setattr__,
+  ;;    ...            __import__('builtins').dict(
+  ;;    ...              __name__='__repr__',
+  ;;    ...              __qualname__='Point2D.__repr__',
+  ;;    ...              __code__=_Qzhdg2exzl__lambda.__code__.replace(
+  ;;    ...                         co_name='__repr__')).items()),
+  ;;    ...         ),
+  ;;    ...       _Qzhdg2exzl__lambda)  [-1]
   ;;    ...   )())
   ;;
   ;;    #> (Point2D 1 2)
@@ -736,28 +720,21 @@ See `hissp.macros`.
   ;;    ...      # hissp.macros.._macro_.fun
   ;;    ...      # hissp.macros.._macro_.let
   ;;    ...      (
-  ;;    ...       lambda _Qztxnqfmn3__lambda=(lambda cls, /, **kwargs:
+  ;;    ...       lambda _Qzujblvbnr__lambda=(lambda cls, /, **kwargs:
   ;;    ...                  print(
   ;;    ...                    kwargs)
   ;;    ...              ):
-  ;;    ...         (__import__('builtins').setattr(
-  ;;    ...            _Qztxnqfmn3__lambda,
-  ;;    ...            ('__doc__'),
-  ;;    ...            ('Just displays inputs')),
-  ;;    ...          __import__('builtins').setattr(
-  ;;    ...            _Qztxnqfmn3__lambda,
-  ;;    ...            ('__code__'),
-  ;;    ...            _Qztxnqfmn3__lambda.__code__.replace(
-  ;;    ...              co_name='__init_subclass__')),
-  ;;    ...          __import__('builtins').setattr(
-  ;;    ...            _Qztxnqfmn3__lambda,
-  ;;    ...            ('__name__'),
-  ;;    ...            '__init_subclass__'),
-  ;;    ...          __import__('builtins').setattr(
-  ;;    ...            _Qztxnqfmn3__lambda,
-  ;;    ...            ('__qualname__'),
-  ;;    ...            'Point2D.__init_subclass__'),
-  ;;    ...          _Qztxnqfmn3__lambda)  [-1]
+  ;;    ...         ((
+  ;;    ...            *__import__('itertools').starmap(
+  ;;    ...               _Qzujblvbnr__lambda.__setattr__,
+  ;;    ...               __import__('builtins').dict(
+  ;;    ...                 __doc__=('Just displays inputs'),
+  ;;    ...                 __name__='__init_subclass__',
+  ;;    ...                 __qualname__='Point2D.__init_subclass__',
+  ;;    ...                 __code__=_Qzujblvbnr__lambda.__code__.replace(
+  ;;    ...                            co_name='__init_subclass__')).items()),
+  ;;    ...            ),
+  ;;    ...          _Qzujblvbnr__lambda)  [-1]
   ;;    ...      )()),
   ;;    ...    classmethod(
   ;;    ...      Point2D.__init_subclass__))  [-1])
@@ -847,27 +824,23 @@ See `hissp.macros`.
      ...   # hissp.macros.._macro_.fun
      ...   # hissp.macros.._macro_.let
      ...   (
-     ...    lambda _Qzvy4otfjn__lambda=(lambda self, other:
+     ...    lambda _Qzz7drxadm__lambda=(lambda self, other:
      ...               Vec3D._make(
      ...                 map(
      ...                   __import__('operator').add,
      ...                   self,
      ...                   other))
      ...           ):
-     ...      (__import__('builtins').setattr(
-     ...         _Qzvy4otfjn__lambda,
-     ...         ('__code__'),
-     ...         _Qzvy4otfjn__lambda.__code__.replace(
-     ...           co_name='__add__')),
-     ...       __import__('builtins').setattr(
-     ...         _Qzvy4otfjn__lambda,
-     ...         ('__name__'),
-     ...         '__add__'),
-     ...       __import__('builtins').setattr(
-     ...         _Qzvy4otfjn__lambda,
-     ...         ('__qualname__'),
-     ...         'Vec3D.__add__'),
-     ...       _Qzvy4otfjn__lambda)  [-1]
+     ...      ((
+     ...         *__import__('itertools').starmap(
+     ...            _Qzz7drxadm__lambda.__setattr__,
+     ...            __import__('builtins').dict(
+     ...              __name__='__add__',
+     ...              __qualname__='Vec3D.__add__',
+     ...              __code__=_Qzz7drxadm__lambda.__code__.replace(
+     ...                         co_name='__add__')).items()),
+     ...         ),
+     ...       _Qzz7drxadm__lambda)  [-1]
      ...   )())
 
      #> (op#add offset offset)
@@ -1123,68 +1096,61 @@ See `hissp.macros`.
   ;;    ...   # hissp.macros.._macro_.fun
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
-  ;;    ...    lambda _Qztxnqfmn3__lambda=(lambda _Qzt6sscwjn__attr, /, *_Qzt6sscwjn__args, **_Qzt6sscwjn__kwargs:
+  ;;    ...    lambda _Qzwxh432ki__lambda=(lambda _Qzrtjqfxk2__attr, /, *_Qzrtjqfxk2__args, **_Qzrtjqfxk2__kwargs:
   ;;    ...               # hissp.macros.._macro_.let
   ;;    ...               (
-  ;;    ...                lambda _Qzt6sscwjn__attr=# hissp.macros.._macro_.ifQzH_else
+  ;;    ...                lambda _Qzrtjqfxk2__attr=# hissp.macros.._macro_.ifQzH_else
   ;;    ...                       (lambda b, c, a: c()if b else a())(
   ;;    ...                         __import__('hissp').is_control(
-  ;;    ...                           _Qzt6sscwjn__attr),
+  ;;    ...                           _Qzrtjqfxk2__attr),
   ;;    ...                         (lambda :
   ;;    ...                             ('_macro_.{}{}').format(
   ;;    ...                               __import__('hissp').munge(
-  ;;    ...                                 _Qzt6sscwjn__attr.removeprefix(
+  ;;    ...                                 _Qzrtjqfxk2__attr.removeprefix(
   ;;    ...                                   ':')),
   ;;    ...                               # hissp.macros.._macro_.ifQzH_else
   ;;    ...                               (lambda b, c, a: c()if b else a())(
   ;;    ...                                 # hissp.macros.._macro_.ifQzH_else
   ;;    ...                                 (lambda b, c, a: c()if b else a())(
-  ;;    ...                                   _Qzt6sscwjn__args,
+  ;;    ...                                   _Qzrtjqfxk2__args,
   ;;    ...                                   (lambda : ':or'),
-  ;;    ...                                   (lambda : _Qzt6sscwjn__kwargs)),
+  ;;    ...                                   (lambda : _Qzrtjqfxk2__kwargs)),
   ;;    ...                                 (lambda : 'QzHASH_'),
   ;;    ...                                 (lambda : (''))))
   ;;    ...                         ),
-  ;;    ...                         (lambda : _Qzt6sscwjn__attr)):
+  ;;    ...                         (lambda : _Qzrtjqfxk2__attr)):
   ;;    ...                   # hissp.macros.._macro_.ifQzH_else
   ;;    ...                   (lambda b, c, a: c()if b else a())(
   ;;    ...                     # hissp.macros.._macro_.ifQzH_else
   ;;    ...                     (lambda b, c, a: c()if b else a())(
-  ;;    ...                       _Qzt6sscwjn__args,
+  ;;    ...                       _Qzrtjqfxk2__args,
   ;;    ...                       (lambda : ':or'),
-  ;;    ...                       (lambda : _Qzt6sscwjn__kwargs)),
+  ;;    ...                       (lambda : _Qzrtjqfxk2__kwargs)),
   ;;    ...                     (lambda :
   ;;    ...                         __import__('operator').attrgetter(
-  ;;    ...                           _Qzt6sscwjn__attr)(
+  ;;    ...                           _Qzrtjqfxk2__attr)(
   ;;    ...                           __import__('hissp'))(
-  ;;    ...                           *_Qzt6sscwjn__args,
-  ;;    ...                           **_Qzt6sscwjn__kwargs)
+  ;;    ...                           *_Qzrtjqfxk2__args,
+  ;;    ...                           **_Qzrtjqfxk2__kwargs)
   ;;    ...                     ),
   ;;    ...                     (lambda :
   ;;    ...                         ('{}.{}').format(
   ;;    ...                           'hissp.',
-  ;;    ...                           _Qzt6sscwjn__attr)
+  ;;    ...                           _Qzrtjqfxk2__attr)
   ;;    ...                     ))
   ;;    ...               )()
   ;;    ...           ):
-  ;;    ...      (__import__('builtins').setattr(
-  ;;    ...         _Qztxnqfmn3__lambda,
-  ;;    ...         ('__doc__'),
-  ;;    ...         'Aliases ``hissp.`` as ``H#``.'),
-  ;;    ...       __import__('builtins').setattr(
-  ;;    ...         _Qztxnqfmn3__lambda,
-  ;;    ...         ('__code__'),
-  ;;    ...         _Qztxnqfmn3__lambda.__code__.replace(
-  ;;    ...           co_name='HQzHASH_')),
-  ;;    ...       __import__('builtins').setattr(
-  ;;    ...         _Qztxnqfmn3__lambda,
-  ;;    ...         ('__name__'),
-  ;;    ...         'HQzHASH_'),
-  ;;    ...       __import__('builtins').setattr(
-  ;;    ...         _Qztxnqfmn3__lambda,
-  ;;    ...         ('__qualname__'),
-  ;;    ...         '_macro_.HQzHASH_'),
-  ;;    ...       _Qztxnqfmn3__lambda)  [-1]
+  ;;    ...      ((
+  ;;    ...         *__import__('itertools').starmap(
+  ;;    ...            _Qzwxh432ki__lambda.__setattr__,
+  ;;    ...            __import__('builtins').dict(
+  ;;    ...              __doc__='Aliases ``hissp.`` as ``H#``.',
+  ;;    ...              __name__='HQzHASH_',
+  ;;    ...              __qualname__='_macro_.HQzHASH_',
+  ;;    ...              __code__=_Qzwxh432ki__lambda.__code__.replace(
+  ;;    ...                         co_name='HQzHASH_')).items()),
+  ;;    ...         ),
+  ;;    ...       _Qzwxh432ki__lambda)  [-1]
   ;;    ...   )())
   ;;
   ;;    #> 'H#munge ; New tag prepends qualifier.
@@ -3250,7 +3216,7 @@ See `hissp.macros`.
   ;;    ...           wrap=# hissp.macros.._macro_.fun
   ;;    ...                # hissp.macros.._macro_.let
   ;;    ...                (
-  ;;    ...                 lambda _Qztxnqfmn3__lambda=(lambda msg:
+  ;;    ...                 lambda _Qztl624wbs__lambda=(lambda msg:
   ;;    ...                           (print(
   ;;    ...                              ('enter'),
   ;;    ...                              msg),
@@ -3268,20 +3234,16 @@ See `hissp.macros`.
   ;;    ...                                    )))  [-1]
   ;;    ...                              )))  [-1]
   ;;    ...                        ):
-  ;;    ...                   (__import__('builtins').setattr(
-  ;;    ...                      _Qztxnqfmn3__lambda,
-  ;;    ...                      ('__code__'),
-  ;;    ...                      _Qztxnqfmn3__lambda.__code__.replace(
-  ;;    ...                        co_name='wrap')),
-  ;;    ...                    __import__('builtins').setattr(
-  ;;    ...                      _Qztxnqfmn3__lambda,
-  ;;    ...                      ('__name__'),
-  ;;    ...                      'wrap'),
-  ;;    ...                    __import__('builtins').setattr(
-  ;;    ...                      _Qztxnqfmn3__lambda,
-  ;;    ...                      ('__qualname__'),
-  ;;    ...                      'wrap'),
-  ;;    ...                    _Qztxnqfmn3__lambda)  [-1]
+  ;;    ...                   ((
+  ;;    ...                      *__import__('itertools').starmap(
+  ;;    ...                         _Qztl624wbs__lambda.__setattr__,
+  ;;    ...                         __import__('builtins').dict(
+  ;;    ...                           __name__='wrap',
+  ;;    ...                           __qualname__='wrap',
+  ;;    ...                           __code__=_Qztl624wbs__lambda.__code__.replace(
+  ;;    ...                                      co_name='wrap')).items()),
+  ;;    ...                      ),
+  ;;    ...                    _Qztl624wbs__lambda)  [-1]
   ;;    ...                )()),
   ;;    ...         __import__('contextlib').contextmanager(
   ;;    ...           wrap))  [-1])
@@ -3782,9 +3744,9 @@ except ModuleNotFoundError: pass"
   ;;
   ;;    #> time##file=sys..stdout(time..sleep .05)
   ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (lambda _Qzpmwtvftz__time=__import__('time').time_ns:
+  ;;    ... (lambda _Qz2dtk7y5j__time=__import__('time').time_ns:
   ;;    ...     # hissp.macros.._macro_.letQzH_from
-  ;;    ...     (lambda _Qzpmwtvftz__start, _Qzpmwtvftz__val, _Qzpmwtvftz__end:
+  ;;    ...     (lambda _Qz2dtk7y5j__start, _Qz2dtk7y5j__val, _Qz2dtk7y5j__end:
   ;;    ...        (__import__('builtins').print(
   ;;    ...           ('time# ran'),
   ;;    ...           __import__('pprint').pformat(
@@ -3794,19 +3756,19 @@ except ModuleNotFoundError: pass"
   ;;    ...           ('in'),
   ;;    ...           __import__('operator').truediv(
   ;;    ...             __import__('operator').sub(
-  ;;    ...               _Qzpmwtvftz__end,
-  ;;    ...               _Qzpmwtvftz__start),
-  ;;    ...             __import__('decimal').Decimal(
-  ;;    ...               (1000000.0))),
+  ;;    ...               _Qz2dtk7y5j__end,
+  ;;    ...               _Qz2dtk7y5j__start),
+  ;;    ...             # Decimal('1E+6')
+  ;;    ...             __import__('pickle').loads(b'cdecimal\nDecimal\n(V1E+6\ntR.')),
   ;;    ...           ('ms'),
   ;;    ...           file=__import__('sys').stdout),
-  ;;    ...         _Qzpmwtvftz__val)  [-1]
+  ;;    ...         _Qz2dtk7y5j__val)  [-1]
   ;;    ...     )(
   ;;    ...       *(
-  ;;    ...          _Qzpmwtvftz__time(),
+  ;;    ...          _Qz2dtk7y5j__time(),
   ;;    ...          __import__('time').sleep(
   ;;    ...            (0.05)),
-  ;;    ...          _Qzpmwtvftz__time()))
+  ;;    ...          _Qz2dtk7y5j__time()))
   ;;    ... )()
   ;;    time# ran ('time..sleep', 0.05) in ... ms
   ;;
