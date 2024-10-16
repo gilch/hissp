@@ -265,7 +265,7 @@ And push it to the REPL as well:
    The ``:`` directs it to dump into the module's global namespace.
    The `prelude<hissp.macros._macro_.prelude>`
    macro overwrites your ``_macro_`` namespace (if any) with a copy of the bundled one.
-   Any macros you've defined in there are lost.
+   Any references you've defined in there will be lost.
    In Lissp files, the prelude is meant to be used before any definitions,
    when it is used at all.
    Likewise, in the REPL, enter it first, or be prepared to re-enter your definitions.
@@ -283,7 +283,7 @@ Compile to Python using
 
 .. code-block:: Lissp
 
-   #> hissp..refresh#'foo
+   #> H##refresh 'foo
 
 where ``'foo`` is the name of your module
 (so, ``'tutorial`` if your Lissp file was named that).
@@ -292,7 +292,19 @@ Start a subREPL in the new Python module it returned:
 
 .. code-block:: Lissp
 
+   #> H##subrepl _
+
+By the way, we have the `H#<HQzHASH_>` alias because of the prelude.
+It's one of the bundled tags.
+It's equivalent to
+
+.. code-block:: Lissp
+
    #> hissp..subrepl#_
+
+The :term:`fully-qualified tag` will work anywhere,
+but the alias only works in modules that have it in their ``_macro_`` namespace.
+That's why the prelude had to use the fully-qualified version.
 
 Confirm that `__name__` resolves to your foo
 (think of it like a ``pwd`` in Bash).
@@ -1780,7 +1792,7 @@ We can create numbered X's the same way we created the numbered L's.
 
    .. code-block:: Lissp
 
-      #> hissp..refresh#:
+      #> H##refresh :
 
    Refreshing is appropriate after updating definitions.
    Pushing smaller selections can be better for causing side effects,
@@ -1789,7 +1801,8 @@ We can create numbered X's the same way we created the numbered L's.
    The caveats described in `importlib.reload` still apply.
    The environment is not discarded on a reload.
    Definitions with the same name get overwritten,
-   but beware that removed (or renamed) definitions persist.
+   but beware that bindings from removed (or renamed) definitions persist
+   until explicitly deleted.
 
    See also: `hissp.reader.transpile`, `defonce`, `del`.
 
@@ -2164,7 +2177,7 @@ you can start a subREPL with these already loaded using the shell command
 
 .. code-block:: console
 
-   $ lissp -ic "hissp..subrepl#tutorial."
+   $ lissp -ic "H##subrepl tutorial."
 
 rather than pasting them all in again.
 
@@ -3004,7 +3017,7 @@ because munging is (mostly) reversible.
 
    #> (defmacro \16\# (x)
    #..  "hexadecimal"
-   #..  (int (hissp..demunge (str x))
+   #..  (int (H#demunge (str x))
    #..       16))
    >>> # defmacro
    ... __import__('builtins').setattr(
@@ -3094,7 +3107,7 @@ Or you can add floating-point. Python's literal notation can't do that.
 .. Lissp::
 
    #> (defmacro \16\# (x)
-   #..  (let (x (hissp..demunge (str x)))
+   #..  (let (x (H#demunge (str x)))
    #..    (if-else (re..search "[.Pp]" x)
    #..      (float.fromhex x)
    #..      (int x 16))))
@@ -3354,7 +3367,7 @@ but a fragment token is not the only alternative available:
 
 .. Lissp::
 
-   #> (defmacro \10\# d (decimal..Decimal (hissp..demunge (str d))))
+   #> (defmacro \10\# d (decimal..Decimal (H#demunge (str d))))
    >>> # defmacro
    ... __import__('builtins').setattr(
    ...   __import__('builtins').globals().get(
@@ -3710,7 +3723,7 @@ We can do this using `macroexpand1`:
 .. code-block:: REPL
 
    #> (pprint..pp
-   #.. (hissp..macroexpand1
+   #.. (H#macroexpand1
    #..  '(let-when (match (re..search '|\b\w*z\w*\b| text))
    #..     (print "found:" (.group match 0)))))
    >>> __import__('pprint').pp(
@@ -3745,7 +3758,7 @@ so the `let` would get expanded as well:
 .. code-block:: REPL
 
    #> (pprint..pp
-   #.. (hissp..macroexpand
+   #.. (H#macroexpand
    #..  '(let-when (match (re..search '|\b\w*z\w*\b| text))
    #..     (print "found:" (.group match 0)))))
    >>> __import__('pprint').pp(
@@ -3774,7 +3787,7 @@ but it does contain one as a subform.
 .. code-block:: REPL
 
    #> (pprint..pp
-   #.. (hissp..macroexpand_all
+   #.. (H#macroexpand_all
    #..  '(let-when (match (re..search '|\b\w*z\w*\b| text))
    #..     (print "found:" (.group match 0)))))
    >>> __import__('pprint').pp(
@@ -3953,7 +3966,7 @@ Wishful thinking again.
 
 (defun kwarg->set@ (expr)
   (cond (isinstance expr hissp.reader..Kwarg) `(set@ ,|f"my.{expr.k}"| ,expr.v)
-        (hissp..is_node expr) `(,@(map kwarg->set@ expr))
+        (H#is_node expr) `(,@(map kwarg->set@ expr))
         :else expr))
 
 We saw this kind of recursive approach before with ``flatten``.
@@ -4014,7 +4027,7 @@ This is a recursive find-and-replace task again
 by using macroexpand
 
 (defmacro smacrolet (name expansion : :* body)
-  (hissp..macroexpand_all
+  (H#macroexpand_all
    `(progn ,@body)
    : postprocess X#(if-else (op#eq X name)
                      expansion
@@ -4033,13 +4046,13 @@ even if it's unreasonable to expect it to handle Python expressions in general.
 We can check for exactly that case, and rewrite it to a let expression.
 
 (defmacro smacrolet (name expansion : :* body)
-  (hissp..macroexpand_all
+  (H#macroexpand_all
    `(progn ,@body)
    : postprocess X#(cond (eq X name) expansion
                          ;; else if
-                         (ands (hissp..is_symbol X)
+                         (ands (H#is_symbol X)
                                (.startswith X (concat name "."))
-                               (not (hissp..is_import X)))
+                               (not (H#is_import X)))
                          `(let ($#name ,expansion)
                             ,(.format "{}.{}" '$#name !##-1(.partition name ".")))
                          :else X)))
