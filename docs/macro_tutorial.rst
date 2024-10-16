@@ -2793,7 +2793,7 @@ with an overhead of just a few characters for a tag to disambiguate from the bui
 (and each other).
 You only have to learn a new notation when it's worth your while.
 
-.. TODO: mix macro?
+.. TODO: mix macro? *#
 
 Hexadecimal
 :::::::::::
@@ -3421,6 +3421,1048 @@ If you're worried about accidentally using a float
 when you need more precision,
 you could skip the `str` conversion,
 and then a float wouldn't be a valid argument anymore.
+That's how the bundled `M#<MQzHASH_>` works.
+
+Binding Conditions
+==================
+
+Say you want to find the first word containing a lowercase "z" in some strings:
+
+.. Lissp::
+
+   #> (defun find-z-word (text)
+   #..  (print "found:" (-> '|\b\w*z\w*\b| (re..search text) (.group 0))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 print(
+   ...                                   ('found:'),
+   ...                                   # QzH_QzGT_
+   ...                                   __import__('re').search(
+   ...                                     '\\b\\w*z\\w*\\b',
+   ...                                     text).group(
+   ...                                     (0)))
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (find-z-word "The quick brown fox jumps over the lazy dog!")
+   >>> findQzH_zQzH_word(
+   ...   ('The quick brown fox jumps over the lazy dog!'))
+   found: lazy
+
+A simple regex worked. Not.
+
+.. code-block:: REPL
+
+   #> (find-z-word "The quick brown fox jumps over the sleeping dog!")
+   >>> findQzH_zQzH_word(
+   ...   ('The quick brown fox jumps over the sleeping dog!'))
+   Traceback (most recent call last):
+     ...
+   AttributeError: 'NoneType' object has no attribute 'group'
+
+We've already found a problem.
+Python's regex functions return ``None`` instead of a useful empty match object when no match was found,
+and the ``NoneType`` has no such method.
+Some questionable design decisions there.
+On several levels.
+We need to check if a match exists before we know it's safe to print what it found.
+Let's fix that:
+
+.. Lissp::
+
+   #> (defun find-z-word (text)
+   #..  (when (re..search '|\b\w*z\w*\b| text)
+   #..    (print "found:" (-> '|\b\w*z\w*\b| (re..search text) (.group 0)))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # when
+   ...                                 (lambda b, c: c()if b else())(
+   ...                                   __import__('re').search(
+   ...                                     '\\b\\w*z\\w*\\b',
+   ...                                     text),
+   ...                                   (lambda :
+   ...                                       print(
+   ...                                         ('found:'),
+   ...                                         # QzH_QzGT_
+   ...                                         __import__('re').search(
+   ...                                           '\\b\\w*z\\w*\\b',
+   ...                                           text).group(
+   ...                                           (0)))
+   ...                                   ))
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (find-z-word "The quick brown fox jumps over the lazy dog!")
+   >>> findQzH_zQzH_word(
+   ...   ('The quick brown fox jumps over the lazy dog!'))
+   found: lazy
+
+   #> (find-z-word "The quick brown fox jumps over the sleeping dog!")
+   >>> findQzH_zQzH_word(
+   ...   ('The quick brown fox jumps over the sleeping dog!'))
+   ()
+
+Well, at least it's not an error this time.
+But this definition duplicates the code for the search; it's not DRY.
+It's also duplicating the work of searching when run.
+If the search function was pure and memoized
+calling it again would actually be OK, performance-wise.
+That would be the norm in Haskell,
+but in Python you'd have to ask for memoization explicitly
+(using `functools.cache`, say).
+
+Performance often isn't that big of a deal.
+Unless you're being really egregiously wasteful,
+it usually only matters in bottlenecks,
+which usually means inside nested loops.
+One can get a sense for these things,
+but it's easy to waste a lot of programmer time on pointless micro-optimizations not on the critical path.
+Programmer time is a lot more expensive than CPU time.
+This wasn't always the case, but modern computers are pretty fast.
+When it matters, profile first.
+
+The more important consideration here is *readability*.
+Sometimes a terse implementation is the clearest name,
+but in this case, it's hard to tell if both expressions really are the same.
+It's easy to gloss over the regex pattern.
+These are fairly short and
+it's not too bad when they're on adjacent lines like this,
+but if you extract it to a local, you won't have to check:
+
+.. Lissp::
+
+   #> (defun find-z-word (text)
+   #..  (let (match (re..search '|\b\w*z\w*\b| text))
+   #..    (when match (print "found:" (.group match 0)))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # let
+   ...                                 (
+   ...                                  lambda match=__import__('re').search(
+   ...                                           '\\b\\w*z\\w*\\b',
+   ...                                           text):
+   ...                                     # when
+   ...                                     (lambda b, c: c()if b else())(
+   ...                                       match,
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('found:'),
+   ...                                             match.group(
+   ...                                               (0)))
+   ...                                       ))
+   ...                                 )()
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (progn (find-z-word "The lazy dog.") (find-z-word "The sleeping dog."))
+   >>> # progn
+   ... (findQzH_zQzH_word(
+   ...    ('The lazy dog.')),
+   ...  findQzH_zQzH_word(
+   ...    ('The sleeping dog.')))  [-1]
+   found: lazy
+   ()
+
+Sometimes you want to check if something exists,
+and only act in that case.
+Short examples like these may feel contrived,
+but this pattern does come up enough that languages have special ways of dealing with it.
+
+Hissp, of course, can copy such ways with metaprogramming.
+
+``let-when``
+::::::::::::
+
+Let's try one of Clojure's ways.
+We want a macro to expand to the previous code.
+
+.. Lissp::
+
+   #> (defmacro let-when (binding : :* body)
+   #..  `(let ,binding (when ,!##0 binding ,@body)))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'letQzH_when',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qztbhvvkna__lambda=(lambda binding, *body:
+   ...               (
+   ...                 '__main__.._macro_.let',
+   ...                 binding,
+   ...                 (
+   ...                   '__main__.._macro_.when',
+   ...                   __import__('operator').itemgetter(
+   ...                     (0))(
+   ...                     binding),
+   ...                   *body,
+   ...                   ),
+   ...                 )
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qztbhvvkna__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='letQzH_when',
+   ...              __qualname__='_macro_.letQzH_when',
+   ...              __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                         co_name='letQzH_when')).items()),
+   ...         ),
+   ...       _Qztbhvvkna__lambda)  [-1]
+   ...   )())
+
+The Lissp definition of ``find-z-word`` will be a bit nicer this way than before, but just a bit.
+Clojure's equivalent is called ``when-let``,
+which is, of course, obviously backwards now that we've seen the implementation.
+But it does perhaps roll of the tongue a little better,
+and may be more consistent with the names of other macros that aren't so simple.
+
+We can confirm the expansion is as expected by examining the Python compilation,
+but this macro was defined in terms of two others: `let` and `when`,
+and they have expanded too.
+The compiler includes comments when it expands a macro so you can tell where this is happening:
+
+.. code-block:: REPL
+
+   #> (defun find-z-word (text)
+   #..  (let-when (match (re..search '|\b\w*z\w*\b| text))
+   #..    (print "found:" (.group match 0))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # letQzH_when
+   ...                                 # __main__.._macro_.let
+   ...                                 (
+   ...                                  lambda match=__import__('re').search(
+   ...                                           '\\b\\w*z\\w*\\b',
+   ...                                           text):
+   ...                                     # __main__.._macro_.when
+   ...                                     (lambda b, c: c()if b else())(
+   ...                                       match,
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('found:'),
+   ...                                             match.group(
+   ...                                               (0)))
+   ...                                       ))
+   ...                                 )()
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+But the verbosity of the compiled output means there is a lot of code to sort through.
+When examining expansions of macros defined in terms of other macros,
+it can be helpful to expand only one step.
+We can do this using `macroexpand1`:
+
+.. code-block:: REPL
+
+   #> (pprint..pp
+   #.. (H#macroexpand1
+   #..  '(let-when (match (re..search '|\b\w*z\w*\b| text))
+   #..     (print "found:" (.group match 0)))))
+   >>> __import__('pprint').pp(
+   ...   __import__('hissp').macroexpand1(
+   ...     ('letQzH_when',
+   ...      ('match',
+   ...       ('re..search',
+   ...        ('quote',
+   ...         '\\b\\w*z\\w*\\b',),
+   ...        'text',),),
+   ...      ('print',
+   ...       "('found:')",
+   ...       ('.group',
+   ...        'match',
+   ...        (0),),),)))
+   ('__main__.._macro_.let',
+    ('match', ('re..search', ('quote', '\\b\\w*z\\w*\\b'), 'text')),
+    ('__main__.._macro_.when',
+     'match',
+     ('print', "('found:')", ('.group', 'match', 0))))
+
+The pretty-printing makes it a lot easier to read.
+This is what we want: a `let` containing a `when`.
+It's close to what we wrote ourselves,
+plus the :term:`fully-qualified identifier`\ s for extra robustness.
+If you're still in a subREPL of some other module,
+its `__name__` will appear as the qualifier here instead of ``__main__``.
+
+A `macroexpand` would continue expanding the form as long as it is a macro form,
+so the `let` would get expanded as well:
+
+.. code-block:: REPL
+
+   #> (pprint..pp
+   #.. (H#macroexpand
+   #..  '(let-when (match (re..search '|\b\w*z\w*\b| text))
+   #..     (print "found:" (.group match 0)))))
+   >>> __import__('pprint').pp(
+   ...   __import__('hissp').macroexpand(
+   ...     ('letQzH_when',
+   ...      ('match',
+   ...       ('re..search',
+   ...        ('quote',
+   ...         '\\b\\w*z\\w*\\b',),
+   ...        'text',),),
+   ...      ('print',
+   ...       "('found:')",
+   ...       ('.group',
+   ...        'match',
+   ...        (0),),),)))
+   (('lambda',
+     (':', 'match', ('re..search', ('quote', '\\b\\w*z\\w*\\b'), 'text')),
+     ('__main__.._macro_.when',
+      'match',
+      ('print', "('found:')", ('.group', 'match', 0)))),)
+
+The resulting form is no longer a :term:`macro form`,
+but it does contain one (the `when`) as a subform.
+`macroexpand_all` will expand subforms as well:
+
+.. code-block:: REPL
+
+   #> (pprint..pp
+   #.. (H#macroexpand_all
+   #..  '(let-when (match (re..search '|\b\w*z\w*\b| text))
+   #..     (print "found:" (.group match 0)))))
+   >>> __import__('pprint').pp(
+   ...   __import__('hissp').macroexpand_all(
+   ...     ('letQzH_when',
+   ...      ('match',
+   ...       ('re..search',
+   ...        ('quote',
+   ...         '\\b\\w*z\\w*\\b',),
+   ...        'text',),),
+   ...      ('print',
+   ...       "('found:')",
+   ...       ('.group',
+   ...        'match',
+   ...        (0),),),)))
+   (('lambda',
+     (':', 'match', ('re..search', ('quote', '\\b\\w*z\\w*\\b'), 'text')),
+     (('lambda', 'bc', 'c()if b else()'),
+      'match',
+      ('lambda', ':', ('print', "('found:')", ('.group', 'match', 0))))),)
+
+And now we see the inner `when` has been expanded too.
+The resulting Hissp is now defined entirely in terms of `quote` and `lambda` :term:`special form`\ s,
+plus ordinary function calls,
+and closely corresponds to the compiled Python output we saw before.
+
+We can confirm the new function behaves as before:
+
+.. code-block:: REPL
+
+   #> (progn (find-z-word "The lazy dog.") (find-z-word "The sleeping dog."))
+   >>> # progn
+   ... (findQzH_zQzH_word(
+   ...    ('The lazy dog.')),
+   ...  findQzH_zQzH_word(
+   ...    ('The sleeping dog.')))  [-1]
+   found: lazy
+   ()
+
+Anaphors
+::::::::
+
+An anaphoric macro can make this even more concise:
+
+.. Lissp::
+
+   #> (defmacro awhen (condition : :* body)
+   #..  `(let (,'it ,condition)
+   #..     (when ,'it ,@body)))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'awhen',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qztbhvvkna__lambda=(lambda condition, *body:
+   ...               (
+   ...                 '__main__.._macro_.let',
+   ...                 (
+   ...                   'it',
+   ...                   condition,
+   ...                   ),
+   ...                 (
+   ...                   '__main__.._macro_.when',
+   ...                   'it',
+   ...                   *body,
+   ...                   ),
+   ...                 )
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qztbhvvkna__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='awhen',
+   ...              __qualname__='_macro_.awhen',
+   ...              __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                         co_name='awhen')).items()),
+   ...         ),
+   ...       _Qztbhvvkna__lambda)  [-1]
+   ...   )())
+
+
+   #> (defun find-z-word (text)
+   #..  (awhen (re..search '|\b\w*z\w*\b| text)
+   #..    (print "found:" (.group it 0))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # awhen
+   ...                                 # __main__.._macro_.let
+   ...                                 (
+   ...                                  lambda it=__import__('re').search(
+   ...                                           '\\b\\w*z\\w*\\b',
+   ...                                           text):
+   ...                                     # __main__.._macro_.when
+   ...                                     (lambda b, c: c()if b else())(
+   ...                                       it,
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('found:'),
+   ...                                             it.group(
+   ...                                               (0)))
+   ...                                       ))
+   ...                                 )()
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (progn (find-z-word "The lazy dog.") (find-z-word "The sleeping dog."))
+   >>> # progn
+   ... (findQzH_zQzH_word(
+   ...    ('The lazy dog.')),
+   ...  findQzH_zQzH_word(
+   ...    ('The sleeping dog.')))  [-1]
+   found: lazy
+   ()
+
+But now you have no choice about the name.
+What if you already had an ``it`` in scope?
+The way lexical scoping works, the innermost one will shadow the outer,
+making the outer one inaccessible.
+
+Can we rename the outer ``it``?
+If the outer ``it`` came from another anaphoric macro (like another ``awhen``),
+then it's not as simple as changing a symbol.
+Being insulated from the details isn't always a good thing!
+You'd have to use a ``let`` or something like that to rename the outer ``it`` and avoid the conflict,
+but at that point, you might as well use ``let-when`` instead.
+
+Explicit Scoping
+::::::::::::::::
+
+Suppose we want to do something else if a match isn't found.
+We'd want to use `if-else<ifQzH_else>` instead of `when`.
+But we don't have a ``let-if-else`` or an ``aif-else``.
+They're not too hard to implement,
+but there are many other macros that could use a ``let-`` or anaphoric variant.
+Python has a more general solution: the "walrus" operator `:= <python-grammar:assignment_expression>`.
+
+While it's possible to use that in Hissp (like any Python expression),
+it would require a :term:`Python injection`,
+which is not recommended.
+In :term:`standard` Hissp, locals can be considered single assignment;
+you can shadow them, but can't reassign.
+A walrus operator used inside a lambda creates a local lexically scoped to that lambda.
+Nonlocal reads can work, but not nonlocal assignments.
+Lambdas are common in macroexpansions,
+which makes the walrus hard to use in Hissp.
+
+No matter.
+Python didn't have `nonlocal` until version 3.0,
+and didn't have the walrus until 3.8.
+If you needed nonlocal semantics in Python 2,
+the usual workaround would be to use an explicit scope.
+We can do the same thing in Hissp:
+
+.. Lissp::
+
+   #> (defun find-z-word (text)
+   #..  (let (scope (types..SimpleNamespace))
+   #..    (if-else (set@ scope.match (re..search '|\b\w*z\w*\b| text))
+   #..      (print "found:" (.group scope.match 0))
+   #..      (print "not found"))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # let
+   ...                                 (lambda scope=__import__('types').SimpleNamespace():
+   ...                                     # ifQzH_else
+   ...                                     (lambda b, c, a: c()if b else a())(
+   ...                                       # setQzAT_
+   ...                                       # hissp.macros.._macro_.let
+   ...                                       (
+   ...                                        lambda _Qzald6dagb__value=__import__('re').search(
+   ...                                                 '\\b\\w*z\\w*\\b',
+   ...                                                 text):
+   ...                                          (# hissp.macros.._macro_.define
+   ...                                           __import__('builtins').setattr(
+   ...                                             scope,
+   ...                                             'match',
+   ...                                             _Qzald6dagb__value),
+   ...                                           _Qzald6dagb__value)  [-1]
+   ...                                       )(),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('found:'),
+   ...                                             scope.match.group(
+   ...                                               (0)))
+   ...                                       ),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('not found'))
+   ...                                       ))
+   ...                                 )()
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (progn (find-z-word "The lazy dog.") (find-z-word "The sleeping dog."))
+   >>> # progn
+   ... (findQzH_zQzH_word(
+   ...    ('The lazy dog.')),
+   ...  findQzH_zQzH_word(
+   ...    ('The sleeping dog.')))  [-1]
+   found: lazy
+   not found
+
+The ``scope`` variable is a normal local with lexical scope,
+but its ``.match`` attribute lives in a `types.SimpleNamespace` object,
+which is an explicit scope.
+Assignments can be written anywhere that has access to that namespace
+(including any nested lexical scopes that might appear in a macroexpansion)
+and reassignment is possible, unlike locals in standard Hissp.
+This is more powerful,
+but also potentially more confusing.
+Even the Python community discourages the overuse of its walrus operator.
+The explicit scope isn't really better than using a local directly here,
+but it gives us a more general pattern which we can expand to.
+
+For example:
+
+.. Lissp::
+
+   #> (defmacro it-is\# x `(set@ ,'scope.it ,x))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'itQzH_isQzHASH_',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qztbhvvkna__lambda=(lambda x:
+   ...               (
+   ...                 '__main__.._macro_.setQzAT_',
+   ...                 'scope.it',
+   ...                 x,
+   ...                 )
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qztbhvvkna__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='itQzH_isQzHASH_',
+   ...              __qualname__='_macro_.itQzH_isQzHASH_',
+   ...              __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                         co_name='itQzH_isQzHASH_')).items()),
+   ...         ),
+   ...       _Qztbhvvkna__lambda)  [-1]
+   ...   )())
+
+
+   #> (defun find-z-word (text)
+   #..  (let (scope (types..SimpleNamespace))
+   #..    (if-else it-is#(re..search '|\b\w*z\w*\b| text)
+   #..      (print "found:" (.group scope.it 0))
+   #..      (print "not found"))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # let
+   ...                                 (lambda scope=__import__('types').SimpleNamespace():
+   ...                                     # ifQzH_else
+   ...                                     (lambda b, c, a: c()if b else a())(
+   ...                                       # __main__.._macro_.setQzAT_
+   ...                                       # hissp.macros.._macro_.let
+   ...                                       (
+   ...                                        lambda _Qzald6dagb__value=__import__('re').search(
+   ...                                                 '\\b\\w*z\\w*\\b',
+   ...                                                 text):
+   ...                                          (# hissp.macros.._macro_.define
+   ...                                           __import__('builtins').setattr(
+   ...                                             scope,
+   ...                                             'it',
+   ...                                             _Qzald6dagb__value),
+   ...                                           _Qzald6dagb__value)  [-1]
+   ...                                       )(),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('found:'),
+   ...                                             scope.it.group(
+   ...                                               (0)))
+   ...                                       ),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('not found'))
+   ...                                       ))
+   ...                                 )()
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (progn (find-z-word "The lazy dog.") (find-z-word "The sleeping dog."))
+   >>> # progn
+   ... (findQzH_zQzH_word(
+   ...    ('The lazy dog.')),
+   ...  findQzH_zQzH_word(
+   ...    ('The sleeping dog.')))  [-1]
+   found: lazy
+   not found
+
+We hardcoded the ``scope`` anaphor in the ``it-is#`` definition above.
+
+
+Because the name ``scope`` is always the same,
+we could also reduce the `let` form to a tag with a single argument (its body):
+
+.. Lissp::
+
+   #> (defmacro scope\# (expr)
+   #..  `(let (,'scope (types..SimpleNamespace))
+   #..     ,expr))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'scopeQzHASH_',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qztbhvvkna__lambda=(lambda expr:
+   ...               (
+   ...                 '__main__.._macro_.let',
+   ...                 (
+   ...                   'scope',
+   ...                   (
+   ...                     'types..SimpleNamespace',
+   ...                     ),
+   ...                   ),
+   ...                 expr,
+   ...                 )
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qztbhvvkna__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='scopeQzHASH_',
+   ...              __qualname__='_macro_.scopeQzHASH_',
+   ...              __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                         co_name='scopeQzHASH_')).items()),
+   ...         ),
+   ...       _Qztbhvvkna__lambda)  [-1]
+   ...   )())
+
+
+   #> (defun find-z-word (text)
+   #..  scope#(if-else it-is#(re..search '|\b\w*z\w*\b| text)
+   #..          (print "found:" (.group scope.it 0))
+   #..          (print "not found")))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # __main__.._macro_.let
+   ...                                 (lambda scope=__import__('types').SimpleNamespace():
+   ...                                     # ifQzH_else
+   ...                                     (lambda b, c, a: c()if b else a())(
+   ...                                       # __main__.._macro_.setQzAT_
+   ...                                       # hissp.macros.._macro_.let
+   ...                                       (
+   ...                                        lambda _Qzald6dagb__value=__import__('re').search(
+   ...                                                 '\\b\\w*z\\w*\\b',
+   ...                                                 text):
+   ...                                          (# hissp.macros.._macro_.define
+   ...                                           __import__('builtins').setattr(
+   ...                                             scope,
+   ...                                             'it',
+   ...                                             _Qzald6dagb__value),
+   ...                                           _Qzald6dagb__value)  [-1]
+   ...                                       )(),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('found:'),
+   ...                                             scope.it.group(
+   ...                                               (0)))
+   ...                                       ),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('not found'))
+   ...                                       ))
+   ...                                 )()
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (progn (find-z-word "The lazy dog.") (find-z-word "The sleeping dog."))
+   >>> # progn
+   ... (findQzH_zQzH_word(
+   ...    ('The lazy dog.')),
+   ...  findQzH_zQzH_word(
+   ...    ('The sleeping dog.')))  [-1]
+   found: lazy
+   not found
+
+This pair of tags can function as many common anaphoric-variant macros
+that only need a single anaphor,
+including ``awhen``, ``acond``, ``aand``, etc.
+
+``the#``
+::::::::
+
+The ``it-is#`` tag above only assigns to ``scope.it``,
+which is still not as general as Python's walrus.
+Rather than creating a new tag for each name we might want,
+we could generalize this to any name with a binary tag that takes the identifier as its first argument.
+
+But we have an even better option.
+``it-is#`` only makes sense inside of ``scope#``'s first argument,
+which means we can use a code-walking metaprogram to rewrite the expression.
+We could use control words instead of tags, for example.
+Many other other macros use control words (not to mention lambdas and normal call syntax),
+and so we'd want to avoid interfering with those uses.
+Perhaps by using a naming convention
+(ending in an ``=`` character, say).
+
+This suggests an even better alternative,
+at least in Lissp: :term:`kwarg token`\ s.
+They're already paired with an argument,
+so we won't have to figure that part out while code walking.
+They have a name we can use for the assignment.
+They won't interfere with control words.
+`Kwarg` objects are really only meant for use at :term:`read time`,
+but we can write tag metaprograms, which run at read time.
+Nested tags using them directly will be evaluated first,
+so those won't interfere either.
+Let's try that.
+
+.. Lissp::
+
+   #> (defmacro the\# (expr)
+   #..  `(let (,'the (types..SimpleNamespace))
+   #..     ,(kwarg->set@ expr)))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'theQzHASH_',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qztbhvvkna__lambda=(lambda expr:
+   ...               (
+   ...                 '__main__.._macro_.let',
+   ...                 (
+   ...                   'the',
+   ...                   (
+   ...                     'types..SimpleNamespace',
+   ...                     ),
+   ...                   ),
+   ...                 kwargQzH_QzGT_setQzAT_(
+   ...                   expr),
+   ...                 )
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qztbhvvkna__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='theQzHASH_',
+   ...              __qualname__='_macro_.theQzHASH_',
+   ...              __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                         co_name='theQzHASH_')).items()),
+   ...         ),
+   ...       _Qztbhvvkna__lambda)  [-1]
+   ...   )())
+
+This is basically our ``scope#`` tag,
+plus some design by wishful thinking again.
+We still need to define the helper function to do the actual rewrite:
+
+.. Lissp::
+
+   #> (defun kwarg->set@ (expr)
+   #..  (cond (isinstance expr hissp.reader..Kwarg) `(set@ ,(.format "the.{}" (H#munge expr.k))
+   #..                                                     ,expr.v)
+   #..        (H#is_node expr) `(,@(map kwarg->set@ expr))
+   #..        :else expr))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   kwargQzH_QzGT_setQzAT_=# hissp.macros.._macro_.fun
+   ...                          # hissp.macros.._macro_.let
+   ...                          (
+   ...                           lambda _Qztbhvvkna__lambda=(lambda expr:
+   ...                                      # cond
+   ...                                      (lambda x0, x1, x2, x3, x4, x5:
+   ...                                               x1() if x0
+   ...                                          else x3() if x2()
+   ...                                          else x5() if x4()
+   ...                                          else ()
+   ...                                      )(
+   ...                                        isinstance(
+   ...                                          expr,
+   ...                                          __import__('hissp.reader',fromlist='*').Kwarg),
+   ...                                        (lambda :
+   ...                                            (
+   ...                                              '__main__.._macro_.setQzAT_',
+   ...                                              ('the.{}').format(
+   ...                                                __import__('hissp').munge(
+   ...                                                  expr.k)),
+   ...                                              expr.v,
+   ...                                              )
+   ...                                        ),
+   ...                                        (lambda :
+   ...                                            __import__('hissp').is_node(
+   ...                                              expr)
+   ...                                        ),
+   ...                                        (lambda :
+   ...                                            (
+   ...                                              *map(
+   ...                                                 kwargQzH_QzGT_setQzAT_,
+   ...                                                 expr),
+   ...                                              )
+   ...                                        ),
+   ...                                        (lambda : ':else'),
+   ...                                        (lambda : expr))
+   ...                                  ):
+   ...                             ((
+   ...                                *__import__('itertools').starmap(
+   ...                                   _Qztbhvvkna__lambda.__setattr__,
+   ...                                   __import__('builtins').dict(
+   ...                                     __name__='kwargQzH_QzGT_setQzAT_',
+   ...                                     __qualname__='kwargQzH_QzGT_setQzAT_',
+   ...                                     __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                                co_name='kwargQzH_QzGT_setQzAT_')).items()),
+   ...                                ),
+   ...                              _Qztbhvvkna__lambda)  [-1]
+   ...                          )())
+
+Syntax trees are recursive data structures.
+We saw this kind of recursive approach before with ``flatten``.
+But this isn't just for reading the tree. It rebuilds it.
+There are only three cases to worry about:
+if it's a `Kwarg` object, we substitute the `set@<setQzAT_>` expression;
+if it `is_node`, we recurse and reconstruct the tuple;
+else it's just an atom and we give it back.
+
+.. Lissp::
+
+   #> (defun find-z-word (text)
+   #..  the#(if-else match=(re..search '|\b\w*z\w*\b| text)
+   #..        (print "found:" (.group the.match 0))
+   #..        (print "not found")))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # __main__.._macro_.let
+   ...                                 (lambda the=__import__('types').SimpleNamespace():
+   ...                                     # ifQzH_else
+   ...                                     (lambda b, c, a: c()if b else a())(
+   ...                                       # __main__.._macro_.setQzAT_
+   ...                                       # hissp.macros.._macro_.let
+   ...                                       (
+   ...                                        lambda _Qzald6dagb__value=__import__('re').search(
+   ...                                                 '\\b\\w*z\\w*\\b',
+   ...                                                 text):
+   ...                                          (# hissp.macros.._macro_.define
+   ...                                           __import__('builtins').setattr(
+   ...                                             the,
+   ...                                             'match',
+   ...                                             _Qzald6dagb__value),
+   ...                                           _Qzald6dagb__value)  [-1]
+   ...                                       )(),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('found:'),
+   ...                                             the.match.group(
+   ...                                               (0)))
+   ...                                       ),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('not found'))
+   ...                                       ))
+   ...                                 )()
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (progn (find-z-word "The lazy dog.") (find-z-word "The sleeping dog."))
+   >>> # progn
+   ... (findQzH_zQzH_word(
+   ...    ('The lazy dog.')),
+   ...  findQzH_zQzH_word(
+   ...    ('The sleeping dog.')))  [-1]
+   found: lazy
+   not found
+
+Very powerful.
+Also easy to (ab)use.
+You can save the result of any subexpression to the namespace.
+You can reassign names you've already used.
+It's a lot like the walrus, but the tag (``the#``) explicitly delimits the scope.
+
+There was some reluctance around adding the walrus to Python.
+But it obviates the need for many anaphoric macros by itself.
+And now Hissp has that capability too.
+
+Actually, the bundled `my#<myQzHASH_>` tag does what ``the#`` can and more,
+but the implementation is a bit more involved because of the additional features.
 
 .. TODO: and that's how the bundled d# version works.
 
