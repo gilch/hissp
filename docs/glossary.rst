@@ -170,6 +170,33 @@ Glossary
       not linked-lists or vectors,
       hence “params tuple” when written with a tuple.
 
+   standard
+   nonstandard
+      The standard language is a disciplined subset with full generality.
+      Standard (`readerless mode`) Hissp uses `str atom`\ s only for
+      `control word`\ s and `symbol`\ s
+      (which include imports and attribute access)
+      and avoids other `Python injection`\ s.
+      Standard Lissp also uses `str atom`\ s for `string literal fragment`\ s.
+      (Standard readerless mode instead compiles string literals exclusively
+      via the quote `special form`, or nested in `set`, `dict`, or `list` `atom`\ s.)
+      Other Python injections are considered nonstandard.
+      Nonstandard constructions should be used sparingly and with care.
+      Metaprograms are not necessarily expected to handle nonstandard Python injections,
+      because that would require processing the much more complicated language
+      of Python expressions, but not all nonstandard injections are problematic.
+      The bundled tags and macros mostly avoid nonstandard injections in expansions,
+      but (with the notable exception of `mix`)
+      allow them where they would be no worse than an opaque
+      `fully-qualified identifier`,
+      or in a few cases where the user writes part of the injection.
+      Standard Hissp also avoids importing the ``hissp`` package outside of
+      metaprograms (and direct helpers not otherwise called) to preserve the
+      `standalone property`.
+      Standard atom types are those the compiler has a literal notation for.
+      Use of nonstandard types can result in a `pickle expression` or a crash
+      during compilation (if the atom is unpickleable).
+
    injection
       Either a `Python injection` or a `Hissp injection`, depending on context.
 
@@ -183,22 +210,22 @@ Glossary
       making them less useful or risking errors.
       However, the compiler only targets a subset of Python expressions.
       Injection transcends that limitation.
-      Injection of identifiers is considered standard in Hissp,
+      Injection of identifiers is considered `standard` in Hissp,
       so is not discourarged.
       A Lissp `Unicode token` reads as a `string literal fragment`,
       rather than as a `quote`\ d `str atom`,
       making them an example of injection as well.
-      This usage is standard in Lissp.
+      This usage is `standard` in Lissp.
 
    hissp injection
-      Any `atom` of non-standard type (or the use thereof),
+      Any `atom` of `nonstandard` type (or the use thereof),
       i.e., anything the compiler doesn't have a literal notation for,
       which it would have to attempt to emit as a `pickle expression`.
       This includes instances of standard types without a literal notation
       (e.g., `float` is a standard type, but `math.nan` has no literal)
       or collections containing nonstandard elements or cycles.
-      A macroexpansion may be an injection.
-      Besides macroexpansions, in readerless mode,
+      A `macro expansion` may be an injection.
+      Besides macro expansions, in readerless mode,
       this almost always requires the use of non-literal notation,
       (i.e., notation not accepted by `ast.literal_eval`).
       In Lissp, this almost always requires the use of a `tagging token`.
