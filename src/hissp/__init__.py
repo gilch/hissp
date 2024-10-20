@@ -37,6 +37,8 @@ convenience, including,
 * from :mod:`hissp.compiler`:
 
   * `Compiler`
+  * `evaluate`
+  * `execute`
   * `is_control`
   * `is_import`
   * `is_node`
@@ -66,6 +68,8 @@ as well as the `hissp.macros._macro_` namespace, making all the bundled
 """
 from hissp.compiler import (
     Compiler,
+    evaluate,
+    execute,
     is_control,
     is_import,
     is_node,
