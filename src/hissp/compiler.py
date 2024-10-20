@@ -664,6 +664,35 @@ def readerless(form: object, env: Env | None = None) -> str:
     return Compiler(env=env, evaluate=False).compile([form])
 
 
+def _resolve_env(env: Env | None = None) -> Env:
+    if env is not None or (env := ENV.get()) is not None:
+        return env
+    return inspect.currentframe().f_back.f_back.f_globals
+
+
+def evaluate(form: object, env: Env | None = None):
+    """Convenience function to evaluate a Hissp form.
+
+    Unless an alternative ``env`` is specified, uses the current `ENV`
+    (available in a `macro_context`) when available, otherwise uses the
+    calling frame's globals.
+    """
+    env = _resolve_env(env)
+    return eval(readerless(form, env), env)
+
+
+def execute(forms: Iterable[object], env: Env | None = None) -> str:
+    """Convenience function to compile and execute Hissp forms.
+
+    Returns the compiled Python code.
+
+    Unless an alternative ``env`` is specified, uses the current `ENV`
+    (available in a `macro_context`) when available, otherwise uses the
+    calling frame's globals.
+    """
+    return Compiler(env=(_resolve_env(env))).compile(forms)
+
+
 def is_str(form: object) -> TypeGuard[str]:
     """Determines if form is a `str atom`. (Not a `str` subtype.)"""
     return type(form) is str
@@ -689,10 +718,6 @@ def is_import(form: object) -> TypeGuard[str]:
 def is_control(form: object) -> TypeGuard[str]:
     """Determines if form is a `control word`."""
     return is_str(form) and form.startswith(":")
-
-
-def _resolve_env(e: Env | None = None, _e=ENV.get, _cf=inspect.currentframe) -> Env:
-    return (_cf().f_back.f_back.f_globals if _e() is None else _e()) if e is None else e
 
 
 def macroexpand1(form, env: Env | None = None):
