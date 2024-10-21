@@ -2,7 +2,7 @@
 # Copyright 2019, 2021, 2022, 2024 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 hypothesis==5.43.3
-coverage==5.3
+coverage==7.6.4
 pytest==6.2.5
 pytest-cov==2.10.1
 sybil==2.0.1
