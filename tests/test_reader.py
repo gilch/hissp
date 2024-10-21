@@ -9,6 +9,7 @@ from unittest import TestCase
 from unittest.mock import ANY
 
 import hypothesis.strategies as st
+from hissp.reader import SoftSyntaxError
 from hypothesis import given
 
 from hissp import reader
@@ -182,6 +183,24 @@ class TestReader(TestCase):
         name = next(name_reader.reads(code))
         self.assertNotEqual(main, name)
         self.assertRegex(main + name, r"(?:_Qz[a-z0-7]+__G){2}")
+
+    def test_unwrapped_splice(self):
+        with self.assertRaisesRegex(SyntaxError, "splice not in tuple"):
+            next(self.reader.reads("`,@()"))
+
+    def test_bad_fragment(self):
+        with self.assertRaisesRegex(SyntaxError, "unpaired |"):
+            next(self.reader.reads("|foo"))
+
+    def test_trivial_template(self):
+        self.assertEqual(":foo", next(self.reader.reads("`:foo")))
+
+    def test_tag_under_arity(self):
+        msg = "reader tag 'foo##' missing argument"
+        with self.assertRaisesRegex(SoftSyntaxError, msg):
+            next(self.reader.reads("foo##2\n"))
+        with self.assertRaisesRegex(SyntaxError, msg):
+            next(self.reader.reads("(foo##2)"))
 
 
 EXPECTED = {
