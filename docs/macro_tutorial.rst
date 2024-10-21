@@ -4680,6 +4680,469 @@ And now Hissp has that capability too.
 Actually, the bundled `my#<myQzHASH_>` tag does what ``the#`` can and more,
 but the implementation is a bit more involved because of the additional features.
 
+lazy polar
+::::::::::
+
+Yeah a separate function could work (or a `classmethod` constructor) but that's no fun.
+but there is a fairly straightforward approach that can work in general and that's laziness.
+
+.. Lissp::
+
+   #> (deftupleonce polar '(x y r θ))
+   >>> # deftupleonce
+   ... # hissp.macros.._macro_.defonce
+   ... # hissp.macros.._macro_.unless
+   ... (lambda b, a: ()if b else a())(
+   ...   __import__('operator').contains(
+   ...     __import__('builtins').globals(),
+   ...     'polar'),
+   ...   (lambda :
+   ...       # hissp.macros.._macro_.define
+   ...       __import__('builtins').globals().update(
+   ...         polar=__import__('collections').namedtuple(
+   ...                 'polar',
+   ...                 ('x',
+   ...                  'y',
+   ...                  'r',
+   ...                  'θ',)))
+   ...   ))
+
+
+   #> (defun C (: x None  y None  :* :?  r None  theta None)
+   #..  my#(progn
+   #..      x=(if-else (is_not None x) O#x O#(mul r (math..cos theta)))
+   #..      y=(if-else (is_not None y) O#y O#(mul r (math..sin theta)))
+   #..      (complex (my.x) (my.y))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   C=# hissp.macros.._macro_.fun
+   ...     # hissp.macros.._macro_.let
+   ...     (
+   ...      lambda _Qztbhvvkna__lambda=(
+   ...              lambda x=None,
+   ...                     y=None,
+   ...                     *,
+   ...                     r=None,
+   ...                     theta=None:
+   ...                 # hissp.macros.._macro_.let
+   ...                 (lambda my=__import__('types').SimpleNamespace():
+   ...                     # progn
+   ...                     (# hissp.macros.._macro_.setQzAT_
+   ...                      # hissp.macros.._macro_.let
+   ...                      (
+   ...                       lambda _Qzald6dagb__value=# ifQzH_else
+   ...                              (lambda b, c, a: c()if b else a())(
+   ...                                is_not(
+   ...                                  None,
+   ...                                  x),
+   ...                                (lambda : (lambda : x)),
+   ...                                (lambda :
+   ...                                    (lambda :
+   ...                                        mul(
+   ...                                          r,
+   ...                                          __import__('math').cos(
+   ...                                            theta))
+   ...                                    )
+   ...                                )):
+   ...                         (# hissp.macros.._macro_.define
+   ...                          __import__('builtins').setattr(
+   ...                            my,
+   ...                            'x',
+   ...                            _Qzald6dagb__value),
+   ...                          _Qzald6dagb__value)  [-1]
+   ...                      )(),
+   ...                      # hissp.macros.._macro_.setQzAT_
+   ...                      # hissp.macros.._macro_.let
+   ...                      (
+   ...                       lambda _Qzald6dagb__value=# ifQzH_else
+   ...                              (lambda b, c, a: c()if b else a())(
+   ...                                is_not(
+   ...                                  None,
+   ...                                  y),
+   ...                                (lambda : (lambda : y)),
+   ...                                (lambda :
+   ...                                    (lambda :
+   ...                                        mul(
+   ...                                          r,
+   ...                                          __import__('math').sin(
+   ...                                            theta))
+   ...                                    )
+   ...                                )):
+   ...                         (# hissp.macros.._macro_.define
+   ...                          __import__('builtins').setattr(
+   ...                            my,
+   ...                            'y',
+   ...                            _Qzald6dagb__value),
+   ...                          _Qzald6dagb__value)  [-1]
+   ...                      )(),
+   ...                      complex(
+   ...                        my.x(),
+   ...                        my.y()))  [-1]
+   ...                 )()
+   ...             ):
+   ...        ((
+   ...           *__import__('itertools').starmap(
+   ...              _Qztbhvvkna__lambda.__setattr__,
+   ...              __import__('builtins').dict(
+   ...                __name__='C',
+   ...                __qualname__='C',
+   ...                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                           co_name='C')).items()),
+   ...           ),
+   ...         _Qztbhvvkna__lambda)  [-1]
+   ...     )())
+
+We can generalize this approach to all the arguments.
+Notice that ``θ`` and ``theta`` refer to the same thing.
+You can pass it in either way.
+
+.. Lissp::
+
+   #> (defun C (:* : x None  y None  r None  θ None  theta None)
+   #..  my#(progn
+   #..      x=(if-else (is_not None x) O#x O#(mul (my.r) (math..cos (my.theta))))
+   #..      y=(if-else (is_not None y) O#y O#(mul (my.r) (math..sin (my.theta))))
+   #..      r=(if-else (is_not None r) O#r O#|(my.x()**2 + my.y()**2)**.5|)
+   #..      θ=(if-else (is_not None θ) O#θ O#(math..atan2 (my.y) (my.x)))
+   #..      theta=(if-else (is_not None theta) O#theta O#(my.θ))
+   #..      (polar (my.x) (my.y) (my.r) (my.theta))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   C=# hissp.macros.._macro_.fun
+   ...     # hissp.macros.._macro_.let
+   ...     (
+   ...      lambda _Qztbhvvkna__lambda=(
+   ...              lambda *,
+   ...                     x=None,
+   ...                     y=None,
+   ...                     r=None,
+   ...                     θ=None,
+   ...                     theta=None:
+   ...                 # hissp.macros.._macro_.let
+   ...                 (lambda my=__import__('types').SimpleNamespace():
+   ...                     # progn
+   ...                     (# hissp.macros.._macro_.setQzAT_
+   ...                      # hissp.macros.._macro_.let
+   ...                      (
+   ...                       lambda _Qzald6dagb__value=# ifQzH_else
+   ...                              (lambda b, c, a: c()if b else a())(
+   ...                                is_not(
+   ...                                  None,
+   ...                                  x),
+   ...                                (lambda : (lambda : x)),
+   ...                                (lambda :
+   ...                                    (lambda :
+   ...                                        mul(
+   ...                                          my.r(),
+   ...                                          __import__('math').cos(
+   ...                                            my.theta()))
+   ...                                    )
+   ...                                )):
+   ...                         (# hissp.macros.._macro_.define
+   ...                          __import__('builtins').setattr(
+   ...                            my,
+   ...                            'x',
+   ...                            _Qzald6dagb__value),
+   ...                          _Qzald6dagb__value)  [-1]
+   ...                      )(),
+   ...                      # hissp.macros.._macro_.setQzAT_
+   ...                      # hissp.macros.._macro_.let
+   ...                      (
+   ...                       lambda _Qzald6dagb__value=# ifQzH_else
+   ...                              (lambda b, c, a: c()if b else a())(
+   ...                                is_not(
+   ...                                  None,
+   ...                                  y),
+   ...                                (lambda : (lambda : y)),
+   ...                                (lambda :
+   ...                                    (lambda :
+   ...                                        mul(
+   ...                                          my.r(),
+   ...                                          __import__('math').sin(
+   ...                                            my.theta()))
+   ...                                    )
+   ...                                )):
+   ...                         (# hissp.macros.._macro_.define
+   ...                          __import__('builtins').setattr(
+   ...                            my,
+   ...                            'y',
+   ...                            _Qzald6dagb__value),
+   ...                          _Qzald6dagb__value)  [-1]
+   ...                      )(),
+   ...                      # hissp.macros.._macro_.setQzAT_
+   ...                      # hissp.macros.._macro_.let
+   ...                      (
+   ...                       lambda _Qzald6dagb__value=# ifQzH_else
+   ...                              (lambda b, c, a: c()if b else a())(
+   ...                                is_not(
+   ...                                  None,
+   ...                                  r),
+   ...                                (lambda : (lambda : r)),
+   ...                                (lambda : (lambda : (my.x()**2 + my.y()**2)**.5))):
+   ...                         (# hissp.macros.._macro_.define
+   ...                          __import__('builtins').setattr(
+   ...                            my,
+   ...                            'r',
+   ...                            _Qzald6dagb__value),
+   ...                          _Qzald6dagb__value)  [-1]
+   ...                      )(),
+   ...                      # hissp.macros.._macro_.setQzAT_
+   ...                      # hissp.macros.._macro_.let
+   ...                      (
+   ...                       lambda _Qzald6dagb__value=# ifQzH_else
+   ...                              (lambda b, c, a: c()if b else a())(
+   ...                                is_not(
+   ...                                  None,
+   ...                                  θ),
+   ...                                (lambda : (lambda : θ)),
+   ...                                (lambda :
+   ...                                    (lambda :
+   ...                                        __import__('math').atan2(
+   ...                                          my.y(),
+   ...                                          my.x())
+   ...                                    )
+   ...                                )):
+   ...                         (# hissp.macros.._macro_.define
+   ...                          __import__('builtins').setattr(
+   ...                            my,
+   ...                            'θ',
+   ...                            _Qzald6dagb__value),
+   ...                          _Qzald6dagb__value)  [-1]
+   ...                      )(),
+   ...                      # hissp.macros.._macro_.setQzAT_
+   ...                      # hissp.macros.._macro_.let
+   ...                      (
+   ...                       lambda _Qzald6dagb__value=# ifQzH_else
+   ...                              (lambda b, c, a: c()if b else a())(
+   ...                                is_not(
+   ...                                  None,
+   ...                                  theta),
+   ...                                (lambda : (lambda : theta)),
+   ...                                (lambda : (lambda : my.θ()))):
+   ...                         (# hissp.macros.._macro_.define
+   ...                          __import__('builtins').setattr(
+   ...                            my,
+   ...                            'theta',
+   ...                            _Qzald6dagb__value),
+   ...                          _Qzald6dagb__value)  [-1]
+   ...                      )(),
+   ...                      polar(
+   ...                        my.x(),
+   ...                        my.y(),
+   ...                        my.r(),
+   ...                        my.theta()))  [-1]
+   ...                 )()
+   ...             ):
+   ...        ((
+   ...           *__import__('itertools').starmap(
+   ...              _Qztbhvvkna__lambda.__setattr__,
+   ...              __import__('builtins').dict(
+   ...                __name__='C',
+   ...                __qualname__='C',
+   ...                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                           co_name='C')).items()),
+   ...           ),
+   ...         _Qztbhvvkna__lambda)  [-1]
+   ...     )())
+
+Adding laziness like that to a language that's not built for it gets pretty verbose, doesn't it?
+It would be even worse in Python where we don't even have the
+`O#<OQzHASH_>` tag for thunks.
+
+Keyboard interrupt, right?
+
+In Lissp, we'd naturally want to write a macro for this kind of pattern.
+
+[write macro]
+
+smacrolet
+:::::::::
+
+It might be nice
+
+This is a recursive find-and-replace task again
+by using macroexpand
+
+.. Lissp::
+
+   #> (defmacro smacrolet (name expansion : :* body)
+   #..  (H#macroexpand_all
+   #..   `(progn ,@body)
+   #..   : postprocess X#(if-else (op#eq X name)
+   #..                     expansion
+   #..                     X)))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'smacrolet',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qztbhvvkna__lambda=(lambda name, expansion, *body:
+   ...               __import__('hissp').macroexpand_all(
+   ...                 (
+   ...                   '__main__.._macro_.progn',
+   ...                   *body,
+   ...                   ),
+   ...                 postprocess=(lambda X:
+   ...                                 # ifQzH_else
+   ...                                 (lambda b, c, a: c()if b else a())(
+   ...                                   __import__('operator').eq(
+   ...                                     X,
+   ...                                     name),
+   ...                                   (lambda : expansion),
+   ...                                   (lambda : X))
+   ...                             ))
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qztbhvvkna__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='smacrolet',
+   ...              __qualname__='_macro_.smacrolet',
+   ...              __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                         co_name='smacrolet')).items()),
+   ...         ),
+   ...       _Qztbhvvkna__lambda)  [-1]
+   ...   )())
+
+The problem is attribute access.
+That's the problem with injecting Python.
+Had we spelled out the getattr calls, it would be fine.
+We can even use macros to help write that for us,
+since we're pre-expanding.
+
+But attribute access is a standard usage of symbols.
+A macro ought to be able to handle that case,
+even if it's unreasonable to expect it to handle Python expressions in general.
+
+We can check for exactly that case, and rewrite it to a let expression.
+
+.. Lissp::
+
+   #> (defmacro smacrolet (name expansion : :* body)
+   #..  (H#macroexpand_all
+   #..   `(progn ,@body)
+   #..   : postprocess X#(cond (eq X name) expansion
+   #..                         ;; else if
+   #..                         (ands (H#is_symbol X)
+   #..                               (.startswith X (concat name "."))
+   #..                               (not (H#is_import X)))
+   #..                         `(let ($#name ,expansion)
+   #..                            ,(.format "{}.{}" '$#name !##-1(.partition name ".")))
+   #..                         :else X)))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'smacrolet',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qztbhvvkna__lambda=(lambda name, expansion, *body:
+   ...               __import__('hissp').macroexpand_all(
+   ...                 (
+   ...                   '__main__.._macro_.progn',
+   ...                   *body,
+   ...                   ),
+   ...                 postprocess=(lambda X:
+   ...                                 # cond
+   ...                                 (lambda x0, x1, x2, x3, x4, x5:
+   ...                                          x1() if x0
+   ...                                     else x3() if x2()
+   ...                                     else x5() if x4()
+   ...                                     else ()
+   ...                                 )(
+   ...                                   eq(
+   ...                                     X,
+   ...                                     name),
+   ...                                   (lambda : expansion),
+   ...                                   (lambda :
+   ...                                       # ands
+   ...                                       (lambda x0, x1, x2: x0 and x1()and x2())(
+   ...                                         __import__('hissp').is_symbol(
+   ...                                           X),
+   ...                                         (lambda :
+   ...                                             X.startswith(
+   ...                                               concat(
+   ...                                                 name,
+   ...                                                 ('.')))
+   ...                                         ),
+   ...                                         (lambda :
+   ...                                             not(
+   ...                                               __import__('hissp').is_import(
+   ...                                                 X))
+   ...                                         ))
+   ...                                   ),
+   ...                                   (lambda :
+   ...                                       (
+   ...                                         '__main__.._macro_.let',
+   ...                                         (
+   ...                                           '_Qzapo453kp__name',
+   ...                                           expansion,
+   ...                                           ),
+   ...                                         ('{}.{}').format(
+   ...                                           '_Qzapo453kp__name',
+   ...                                           __import__('operator').itemgetter(
+   ...                                             (-1))(
+   ...                                             name.partition(
+   ...                                               ('.')))),
+   ...                                         )
+   ...                                   ),
+   ...                                   (lambda : ':else'),
+   ...                                   (lambda : X))
+   ...                             ))
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qztbhvvkna__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='smacrolet',
+   ...              __qualname__='_macro_.smacrolet',
+   ...              __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                         co_name='smacrolet')).items()),
+   ...         ),
+   ...       _Qztbhvvkna__lambda)  [-1]
+   ...   )())
+
+
+deflazyfun
+::::::::::
+
+Now we can add a smacrolet to our deflazyfun.
+Isn't that cool?
+Yes that is awesome.
+How close can we get to that in Python?
+Yeah, Python is powerful. But not as powerful as a Lisp.
+If we're willing to use eval? But it's frowned upon for good reason.
+If we're willing to rewrite AST? It's possible, but so much harder than in Lissp that it rarely seems worth the effort.
+It'll also confuse that heavyweight IDE you're so reliant upon.
+Static analysis can be really confining, especially when the tooling is not readily extensible.
+
+let-destruct
+::::::::::::
+
+Python can unpack assignments.
+And actually, the my# tag gives Lissp access to that capability.
+But we're restricted to Python identifiers.
+
+destfun
+:::::::
+
+Python used to allow destructuring of arguments, back in version 2.?.
+
+Sadly, this was removed in Python 3.
+But macros are powerful enough to replace it.
+
+defun+
+::::::
+
+And here's why it's better to use helper functions.
+Macros are not as easily composable, but sometimes we want both features at once.
+
 .. TODO: and that's how the bundled d# version works.
 
 .. TODO: advanced techniques from A Slice o Python?
