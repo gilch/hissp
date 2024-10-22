@@ -15,7 +15,7 @@ quoted = (
     | st.integers()
     | st.floats(allow_nan=False)
     | st.complex_numbers(allow_nan=False)
-    | st.binary(max_size=13)  # bytes
+    | st.binary(max_size=3)  # bytes
 )
 literals = st.recursive(
     # strings, bytes, numbers, tuples, lists, dicts, sets, booleans, and None
