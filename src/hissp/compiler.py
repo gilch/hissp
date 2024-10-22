@@ -653,21 +653,22 @@ def _pairs(it: Iterable[T]) -> Iterable[tuple[T, T]]:
             raise CompileError("incomplete pair") from None
 
 
-def readerless(form: object, env: Env | None = None) -> str:
-    """Compile a Hissp form to Python without evaluating it.
-    Uses the current `ENV` for context, unless an alternative is provided.
-    (Creates a temporary environment if neither is available.)
-    Returns the Python in a string.
-    """
-    if env is None and (env := ENV.get()) is None:
-        env = {"__name__": "__main__"}
-    return Compiler(env=env, evaluate=False).compile([form])
-
-
 def _resolve_env(env: Env | None = None) -> Env:
     if env is not None or (env := ENV.get()) is not None:
         return env
     return inspect.currentframe().f_back.f_back.f_globals
+
+
+def readerless(form: object, env: Env | None = None) -> str:
+    """Compile a Hissp form to Python without evaluating it.
+
+    Returns the compiled Python in a string.
+
+    Unless an alternative ``env`` is specified, uses the current `ENV`
+    (available in a `macro_context`) when available, otherwise uses the
+    calling frame's globals.
+    """
+    return Compiler(env=_resolve_env(env), evaluate=False).compile([form])
 
 
 def evaluate(form: object, env: Env | None = None):
