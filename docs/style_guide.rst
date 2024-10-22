@@ -1718,11 +1718,38 @@ then the tree structure is clear from the indents:
              (len xs))
           "on average.")
 
-A train of ``)``'s within a line is almost never acceptable.
+A train of closing ``)`` tokens within a line is almost never acceptable.
 A rare exception might be in something like an `enjoin`_,
 because the structure of the string is more important for readability
 than the structure of the tree,
 but even then, limit it to three ``)))``.
+
+Remember,
+this rule is so we can indent to clearly see the tree structure of the code,
+so it only applies to *closing tokens*,
+not to the ``)`` character *per se*.
+Brackets within an object token don't count.
+E.g., whatever bracket structure you like within a :term:`Unicode token` is fine.
+Symbols can also have ``)`` characters as long as they're escaped.
+
+The empty tuple ``()`` is *technically* not an object token,
+because it's made of an open and close token,
+but this is an implementation detail
+and it easily could have been a token in its own right.
+Regardless, it *is* considered an :term:`atom`, which doesn't count as a node
+(because atoms are leaves in the syntax tree).
+A ``())`` is OK even if it's not at the end of the line,
+but putting it there is usually preferred:
+
+.. code-block:: Lissp
+
+   (print (.get items "key 1" ()) (.get items ())) ;OK. Only one node ) inside.
+
+   (print (.get items "key 1" ())          ;Preferred. )'s end the line.
+          (.get items ()))
+
+   (print "))) is 3 right parentheses")    ;No problem. No closing tokens inside.
+
 
 Semantic groups should be kept together.
 Closing brackets inside a pair can happen in `cond`,
