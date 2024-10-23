@@ -321,7 +321,7 @@ See `hissp.macros`.
      ...      ))
      A B C D
 
-  See also: `my# <myQzHASH_>`.
+  See also: `my# <myQzHASH_>`, `destruct-> <destructQzH_QzGT_>`.
   "
   (if-else pairs
     `(let-from ,|pairs[0]| ,|pairs[1]|
@@ -3601,7 +3601,8 @@ except ModuleNotFoundError: pass"
   ;;    ... )()
   ;;    namespace(tomato=namespace(eggs=['a', 'b', 'X', 'd', 'Y', 'f', 'Z']))
   ;;
-  ;; See also: `attach`, `set[### <setQzLSQB_QzHASH_>`.
+  ;; See also:
+  ;; `attach`, `set[### <setQzLSQB_QzHASH_>`, `destruct-> <destructQzH_QzGT_>`.
   ;;
   (let (ns (types..SimpleNamespace))
     (setattr ns
@@ -3623,6 +3624,250 @@ except ModuleNotFoundError: pass"
          (,'my.__dict__.pop '$#expr None)
          (,'my.__dict__.pop ".0" None)
          ,(ns.form scope)))))
+
+(defmacro destruct-> (data bindings : :* body)
+  <#;``destruct->`` 'destruct arrow' Destructuring bindings.
+  ;;
+  ;; Bindings are pairs of a transform expression with either a name or
+  ;; (recursively) another bindings expression. Each transformation
+  ;; expression is applied to the data via a thread-first
+  ;; (`-> <QzH_QzGT_>`). This setup allows a bindings form to mirror the
+  ;; data it's destructuring:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (% 10 1  'ns (types..SimpleNamespace : a-tuple '(a b c)  spam 'eggs))
+  ;;    >>> # QzPCENT_
+  ;;    ... (lambda x0, x1, x2, x3: {x0:x1,x2:x3})(
+  ;;    ...   (10),
+  ;;    ...   (1),
+  ;;    ...   'ns',
+  ;;    ...   __import__('types').SimpleNamespace(
+  ;;    ...     aQzH_tuple=('a',
+  ;;    ...                 'b',
+  ;;    ...                 'c',),
+  ;;    ...     spam='eggs'))
+  ;;    {10: 1, 'ns': namespace(aQzH_tuple=('a', 'b', 'c'), spam='eggs')}
+  ;;
+  ;;    #> (define nested-data _)
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   nestedQzH_data=_)
+  ;;
+  ;;    #> (destruct-> nested-data
+  ;;    #..            (!#10 num  !#'ns (@#'a-tuple (!#0 a  !#1 b  !#2 c)  @#'spam spam))
+  ;;    #..  (locals))
+  ;;    >>> # destructQzH_QzGT_
+  ;;    ... # hissp.macros.._macro_.letQzH_from
+  ;;    ... (lambda num, a, b, c, spam: locals())(
+  ;;    ...   *# hissp.macros.._macro_.let
+  ;;    ...    (lambda _Qzcti67hlh__data=nestedQzH_data:
+  ;;    ...        (
+  ;;    ...          # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...          __import__('operator').itemgetter(
+  ;;    ...            (10))(
+  ;;    ...            _Qzcti67hlh__data,
+  ;;    ...            ),
+  ;;    ...          *# hissp.macros.._macro_.let
+  ;;    ...           (
+  ;;    ...            lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                   __import__('operator').itemgetter(
+  ;;    ...                     'ns')(
+  ;;    ...                     _Qzcti67hlh__data,
+  ;;    ...                     ):
+  ;;    ...               (
+  ;;    ...                 *# hissp.macros.._macro_.let
+  ;;    ...                  (
+  ;;    ...                   lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                          __import__('operator').attrgetter(
+  ;;    ...                            'aQzH_tuple')(
+  ;;    ...                            _Qzcti67hlh__data,
+  ;;    ...                            ):
+  ;;    ...                      (
+  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        __import__('operator').itemgetter(
+  ;;    ...                          (0))(
+  ;;    ...                          _Qzcti67hlh__data,
+  ;;    ...                          ),
+  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        __import__('operator').itemgetter(
+  ;;    ...                          (1))(
+  ;;    ...                          _Qzcti67hlh__data,
+  ;;    ...                          ),
+  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        __import__('operator').itemgetter(
+  ;;    ...                          (2))(
+  ;;    ...                          _Qzcti67hlh__data,
+  ;;    ...                          ),
+  ;;    ...                        )
+  ;;    ...                  )(),
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 __import__('operator').attrgetter(
+  ;;    ...                   'spam')(
+  ;;    ...                   _Qzcti67hlh__data,
+  ;;    ...                   ),
+  ;;    ...                 )
+  ;;    ...           )(),
+  ;;    ...          )
+  ;;    ...    )())
+  ;;    {'num': 1, 'a': 'a', 'b': 'b', 'c': 'c', 'spam': 'eggs'}
+  ;;
+  ;; But it doesn't have to. Transforms need not be simple lookups:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (destruct-> nested-data
+  ;;    #..            (!#'ns (ors ns ; The whole SimpleNamespace (progn works too).
+  ;;    #..                    (getattr 'missing "a default for missing") missing
+  ;;    #..                    @#'spam inner ; attribute lookup
+  ;;    #..                    @#'a-tuple ([#:-1] ab  [#:] abc ; slices with overlaps
+  ;;    #..                                iter (next A  list rest) ; iterator destructuring
+  ;;    #..                                ;; Composed transform, method calls, defaults.
+  ;;    #..                                (-> enumerate dict) ((.get 2 ()) two
+  ;;    #..                                                     (.get 3 ()) three)
+  ;;    #..                                ;; Throwaway names must be unique. (`$#_ always works).
+  ;;    #..                                iter (next _0  (next :b) B  next _1  (next :d) D)))
+  ;;    #..             (.get 'quux "default for quux") myquux)
+  ;;    #..  (pprint..pp (locals)))
+  ;;    >>> # destructQzH_QzGT_
+  ;;    ... # hissp.macros.._macro_.letQzH_from
+  ;;    ... (lambda ns, missing, inner, ab, abc, A, rest, two, three, _0, B, _1, D, myquux:
+  ;;    ...     __import__('pprint').pp(
+  ;;    ...       locals())
+  ;;    ... )(
+  ;;    ...   *# hissp.macros.._macro_.let
+  ;;    ...    (lambda _Qzcti67hlh__data=nestedQzH_data:
+  ;;    ...        (
+  ;;    ...          *# hissp.macros.._macro_.let
+  ;;    ...           (
+  ;;    ...            lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                   __import__('operator').itemgetter(
+  ;;    ...                     'ns')(
+  ;;    ...                     _Qzcti67hlh__data,
+  ;;    ...                     ):
+  ;;    ...               (
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 # ors
+  ;;    ...                 _Qzcti67hlh__data,
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 getattr(
+  ;;    ...                   _Qzcti67hlh__data,
+  ;;    ...                   'missing',
+  ;;    ...                   ('a default for missing')),
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 __import__('operator').attrgetter(
+  ;;    ...                   'spam')(
+  ;;    ...                   _Qzcti67hlh__data,
+  ;;    ...                   ),
+  ;;    ...                 *# hissp.macros.._macro_.let
+  ;;    ...                  (
+  ;;    ...                   lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                          __import__('operator').attrgetter(
+  ;;    ...                            'aQzH_tuple')(
+  ;;    ...                            _Qzcti67hlh__data,
+  ;;    ...                            ):
+  ;;    ...                      (
+  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        (lambda _Qzuah3zizj__items: (_Qzuah3zizj__items[:-1]))(
+  ;;    ...                          _Qzcti67hlh__data,
+  ;;    ...                          ),
+  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        (lambda _Qzuah3zizj__items: (_Qzuah3zizj__items[:]))(
+  ;;    ...                          _Qzcti67hlh__data,
+  ;;    ...                          ),
+  ;;    ...                        *# hissp.macros.._macro_.let
+  ;;    ...                         (
+  ;;    ...                          lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                                 iter(
+  ;;    ...                                   _Qzcti67hlh__data):
+  ;;    ...                             (
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               next(
+  ;;    ...                                 _Qzcti67hlh__data),
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               list(
+  ;;    ...                                 _Qzcti67hlh__data),
+  ;;    ...                               )
+  ;;    ...                         )(),
+  ;;    ...                        *# hissp.macros.._macro_.let
+  ;;    ...                         (
+  ;;    ...                          lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                                 # QzH_QzGT_
+  ;;    ...                                 dict(
+  ;;    ...                                   enumerate(
+  ;;    ...                                     _Qzcti67hlh__data)):
+  ;;    ...                             (
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               _Qzcti67hlh__data.get(
+  ;;    ...                                 (2),
+  ;;    ...                                 ()),
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               _Qzcti67hlh__data.get(
+  ;;    ...                                 (3),
+  ;;    ...                                 ()),
+  ;;    ...                               )
+  ;;    ...                         )(),
+  ;;    ...                        *# hissp.macros.._macro_.let
+  ;;    ...                         (
+  ;;    ...                          lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                                 iter(
+  ;;    ...                                   _Qzcti67hlh__data):
+  ;;    ...                             (
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               next(
+  ;;    ...                                 _Qzcti67hlh__data),
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               next(
+  ;;    ...                                 _Qzcti67hlh__data,
+  ;;    ...                                 ':b'),
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               next(
+  ;;    ...                                 _Qzcti67hlh__data),
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               next(
+  ;;    ...                                 _Qzcti67hlh__data,
+  ;;    ...                                 ':d'),
+  ;;    ...                               )
+  ;;    ...                         )(),
+  ;;    ...                        )
+  ;;    ...                  )(),
+  ;;    ...                 )
+  ;;    ...           )(),
+  ;;    ...          # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...          _Qzcti67hlh__data.get(
+  ;;    ...            'quux',
+  ;;    ...            ('default for quux')),
+  ;;    ...          )
+  ;;    ...    )())
+  ;;    {'ns': namespace(aQzH_tuple=('a', 'b', 'c'), spam='eggs'),
+  ;;     'missing': 'a default for missing',
+  ;;     'inner': 'eggs',
+  ;;     'ab': ('a', 'b'),
+  ;;     'abc': ('a', 'b', 'c'),
+  ;;     'A': 'a',
+  ;;     'rest': ['b', 'c'],
+  ;;     'two': 'c',
+  ;;     'three': (),
+  ;;     '_0': 'a',
+  ;;     'B': 'b',
+  ;;     '_1': 'c',
+  ;;     'D': ':d',
+  ;;     'myquux': 'default for quux'}
+  ;;
+  ;; See also: `let*from <letQzSTAR_from>`, `my# <myQzHASH_>`.
+  ;;
+  my### names=(list) $data=`$#data
+  (progn walk=(lambda (bindings)
+                (let (pairs (X#(zip X X : strict True) (iter bindings)))
+                  `(|| : ,@chain#(i#starmap XY#(if-else (H#is_node Y)
+                                                 `(:* (let (,my.$data (-> ,my.$data ,X))
+                                                        ,(my.walk Y)))
+                                                 (progn (.append my.names Y)
+                                                        `(:? (-> ,my.$data ,X))))
+                                            pairs)
+                       :? ||)))
+         values=`(let (,my.$data ,data) ,(my.walk bindings))
+         `(let-from (,@my.names) ,my.values ,@body)))
 
 (defmacro case (key default : :* pairs)
   <#;Switch case macro.
