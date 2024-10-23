@@ -3606,7 +3606,7 @@ except ModuleNotFoundError: pass"
   (let (ns (types..SimpleNamespace))
     (setattr ns
              'form
-             X#(cond (isinstance X H#reader.Kwarg) `(set@ ,|f"my.{X.k}"| ,X.v)
+             X#(cond (isinstance X H#reader.Kwarg) `(set@ ,(H#munge |f"my.{X.k}"|) ,X.v)
                      (H#is_node X) `(,@(map ns.form X))
                      :else X))
     (if-else |expr is None and scope == ()|
