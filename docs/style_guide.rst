@@ -1810,8 +1810,9 @@ implementing a single easily-testable concept
 or perhaps a few very closely related ones.
 Build up a vocabulary of definitions
 so the requisite function becomes easily expressible.
-Function definition bodies should be no more than 10 lines,
-and usually no more than 5.
+Function definition bodies should
+usually be no more than 5 lines,
+but may occasionally be several times that.
 That's not counting docstrings, comments, or assertions.
 (:term:`Params` aren't in the body.)
 
@@ -1820,6 +1821,11 @@ This rule doesn't apply to imperative scripts used near the top of the call stac
 once the pure functional bits have been factored out.
 At that point, lexical locality is more important for readability,
 so it's better to leave them long than to break them up.
+
+The bodies of nested lexical closures are also counted separately,
+but any lines in their :term:`params` do count as part of their enclosing body.
+This pattern behaves more like a class with methods,
+and refactoring to that form may make it more easily testable.
 
 Don't break up a single concept just to get under the line quota,
 but consider if it could be refactored into a data structure,
