@@ -298,10 +298,14 @@ Glossary
       a type of `str atom` used for identifiers.
 
    symbol
-      A `module handle` or a `Python fragment` containing an identifier.
+      A `module handle` or a `Python fragment` containing an
+      `identifier<str.isidentifier>`.
       (Possibly with `qualification`.)
       A symbol is always a `str atom`.
       `is_symbol` tests for symbols.
+      Some identifiers are `reserved<keyword.iskeyword>` in Python and
+      can't be used as variable/attribute names
+      (`not`, `None`, `class`, etc.) These still count as symbols.
 
    munging
       The process of replacing characters invalid in a Python identifier
