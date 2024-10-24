@@ -2752,7 +2752,230 @@ They're mainly useful as performance optimizations
 In principle,
 you should be able to do everything else without them.
 
+Python Injection is Really Powerful Though
+------------------------------------------
+
+:term:`Standard` Hissp compiles to a restricted subset of Python.
+Python expressions have a lot of features that standard Hissp lacks.
+(The infix operators we just saw, for example.)
+These are all still available via injection.
+On the other hand, Hissp has module handles and macros;
+and Lissp has munging and tags,
+none of which can simply be injected.
+
+What if you want both?
+You could write the whole expression in Python.
+Hissp's and Lissp's features do ultimately have to compile to Python,
+so you could write out the compilation yourself,
+but this can be quite verbose in some cases:
+
+.. code-block:: REPL
+
+   #> |__import__('string').ascii_uppercase[::2]|
+   >>> __import__('string').ascii_uppercase[::2]
+   'ACEGIKMOQSUWY'
+
+On the other hand, you could write the whole thing in Lissp,
+since it has alternatives to everything Python can do:
+
+.. code-block:: REPL
+
+   #> (operator..getitem string..ascii_uppercase (slice None None 2))
+   >>> __import__('operator').getitem(
+   ...   __import__('string').ascii_uppercase,
+   ...   slice(
+   ...     None,
+   ...     None,
+   ...     (2)))
+   'ACEGIKMOQSUWY'
+
+This is *usually* the right answer,
+and it works better with metaprograms,
+but sometimes the Python expression is a lot more concise.
+
+Mixing a Python subexpression in Lissp code is usually pretty easy with a fragment token,
+but there are a few things to watch out for.
+You can usually avoid writing munged names
+or `__import__` in the injection yourself
+by using `let` to rename things
+or by using names invariant under munging in the first place:
+
+.. code-block:: REPL
+
+   #> (let (ABCs string..ascii_uppercase) |ABCs[::2]|)
+   >>> # let
+   ... (lambda ABCs=__import__('string').ascii_uppercase: ABCs[::2])()
+   'ACEGIKMOQSUWY'
+
+In more difficult cases,
+you could make a lambda in the `let` and call it inside the fragment.
+
+Mixing a Lissp subexpression in a fragment token doesn't work.
+But that doesn't mean you need to compile it by hand.
+Use a :term:`text macro`:
+
+.. Lissp::
+
+   #> (defmacro mix (: :* args)
+   #..  (.join "" (map hissp..readerless args)))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'mix',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qzdoxkbke4__lambda=(lambda *args:
+   ...               ('').join(
+   ...                 map(
+   ...                   __import__('hissp').readerless,
+   ...                   args))
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzdoxkbke4__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='mix',
+   ...              __qualname__='_macro_.mix',
+   ...              __code__=_Qzdoxkbke4__lambda.__code__.replace(
+   ...                         co_name='mix')).items()),
+   ...         ),
+   ...       _Qzdoxkbke4__lambda)  [-1]
+   ...   )())
+
+.. code-block:: REPL
+
+   #> (mix string..ascii_uppercase|[::2]|)
+   >>> # mix
+   ... __import__('string').ascii_uppercase[::2]
+   'ACEGIKMOQSUWY'
+
+You usually want to run Hissp objects through `readerless`
+before embedding them in a code string.
+This lets the compiler do the conversion to Python.
+When run in a macro, the compiler will use the appropriate namespace:
+its expansion context, not (necessarily) its definition context.
+
+Text macros are almost like defining a new :term:`special form`.
+Rather than transforming AST to AST (the Hissp forms),
+you're playing the role of the compiler and transforming AST to Python.
+Don't expect other macros to handle your :term:`nonstandard` special forms.
+But, in principle, you could write macros that can handle your own.
+At least if you don't have too many.
+
 .. TODO: optimize macro
+
+`mix` is a bundled macro.
+You don't need it for slices.
+We have the `[#<QzLSQB_QzHASH_>` tag for that,
+and it does use injection.
+But ``mix`` is a lot more general.
+
+----
+
+Tags can similarly return Python fragments.
+
+A single star parameter using control words
+is noticeably more verbose in Lissp than in Python:
+
+.. code-block:: REPL
+
+   #> ((lambda (: :* a-tuple) a-tuple) 1 2)
+   >>> (lambda *aQzH_tuple: aQzH_tuple)(
+   ...   (1),
+   ...   (2))
+   (1, 2)
+
+You have to say ``: :* foo`` instead of just ``*foo``.
+Of course, we don't have to write the commas in Hissp,
+but that doesn't help when there's only one parameter.
+
+Injection can help us in this case.
+Remember from the `lissp_whirlwind_tour` that we can use a fragment instead,
+but notice we've lost munging and have to use an underscore:
+
+.. code-block:: REPL
+
+   #> ((lambda (|*a_tuple|) a_tuple) 1 2)
+   >>> (lambda *a_tuple: a_tuple)(
+   ...   (1),
+   ...   (2))
+   (1, 2)
+
+We do have `en#<enQzHASH_>` for this case,
+but it can't handle any other argument types.
+
+.. code-block:: REPL
+
+   #> (en#(lambda (a-tuple) a-tuple) 1 2)
+   >>> (lambda *_Qz73ccdf3e__xs:
+   ...     (lambda aQzH_tuple: aQzH_tuple)(
+   ...       _Qz73ccdf3e__xs)
+   ... )(
+   ...   (1),
+   ...   (2))
+   (1, 2)
+
+This sounds like a job for `mix` again,
+but it doesn't work.
+``lambda`` is a :term:`special form`,
+and the compiler won't expand macros where it expects a parameter name.
+The macro would have to expand to the lambda instead.
+
+But that doesn't prevent us from using a tag that reads as a Python fragment.
+Remember, read time happens before compile time.
+
+.. Lissp::
+
+   #> (defmacro *\# a (.format "*{}" a))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'QzSTAR_QzHASH_',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qzdoxkbke4__lambda=(lambda a:
+   ...               ('*{}').format(
+   ...                 a)
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzdoxkbke4__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='QzSTAR_QzHASH_',
+   ...              __qualname__='_macro_.QzSTAR_QzHASH_',
+   ...              __code__=_Qzdoxkbke4__lambda.__code__.replace(
+   ...                         co_name='QzSTAR_QzHASH_')).items()),
+   ...         ),
+   ...       _Qzdoxkbke4__lambda)  [-1]
+   ...   )())
+
+.. code-block:: REPL
+
+   #> ((lambda (*#a-tuple *#*#a-dict)
+   #..   (print a-tuple a-dict))
+   #.. 1 2 : foo 2)
+   >>> (lambda *aQzH_tuple, **aQzH_dict:
+   ...     print(
+   ...       aQzH_tuple,
+   ...       aQzH_dict)
+   ... )(
+   ...   (1),
+   ...   (2),
+   ...   foo=(2))
+   (1, 2) {'foo': 2}
+
+We didn't bother running the symbol through `readerless` in this case.
+:term:`Unqualified` symbols are already valid :term:`Python fragment`\ s,
+so it wouldn't do anything, but wouldn't hurt either.
+The munging happens regardless, since that's done by the reader.
+
+``*#`` isn't bundled.
+It's not buying us much.
+But the implementation is trivial if you want it.
 
 More Literals
 =============
@@ -2792,8 +3015,6 @@ In Lissp, we can create new notation as-needed,
 with an overhead of just a few characters for a tag to disambiguate from the built-ins
 (and each other).
 You only have to learn a new notation when it's worth your while.
-
-.. TODO: mix macro? *#
 
 Hexadecimal
 :::::::::::
