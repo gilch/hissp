@@ -33,7 +33,7 @@ RE_MACRO = re.compile(rf"({re.escape(MACRO)}|{re.escape(MAYBE)})")
 _PARAM_INDENT = f"\n{len('(lambda ')*' '}"
 
 Env: TypeAlias = dict[str, Any]
-ENV: ContextVar[Env | None] = ContextVar("ENV", default=None)
+ENV: ContextVar[Env] = ContextVar("ENV")
 """
 Expansion environment.
 
@@ -60,12 +60,12 @@ run on an earlier Python version than the compiler.
 
 
 @contextmanager
-def macro_context(env: Env | None):
+def macro_context(env: Env):
     """Sets `ENV` during macroexpansions.
 
-    Does nothing if ``env`` is ``None`` or already the current context.
+    Does nothing if ``env`` is already the current context.
     """
-    if env is None or ENV.get() is env:
+    if ENV.get(None) is env:
         yield
     else:
         token = ENV.set(env)
@@ -654,7 +654,7 @@ def _pairs(it: Iterable[T]) -> Iterable[tuple[T, T]]:
 
 
 def _resolve_env(env: Env | None = None) -> Env:
-    if env is not None or (env := ENV.get()) is not None:
+    if env is not None or (env := ENV.get(None)) is not None:
         return env
     return inspect.currentframe().f_back.f_back.f_globals
 
