@@ -157,7 +157,7 @@ class TestReader(TestCase):
             next(self.reader.reads("(x#)"))
 
     def test_reader_initial_dot(self):
-        msg = r"unknown tag 'QzFULLxSTOP_foo'"
+        msg = r"unknown tag 'QzDOT_foo'"
         with self.assertRaisesRegex(SyntaxError, msg):
             next(self.reader.reads(".foo# 0"))
 
@@ -289,7 +289,7 @@ EXPECTED = {
         ("quote",
          "QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzHAT_QzET_QzSTAR_QzLPAR_QzRPAR__"
          "QzPLUS_QzLCUB_QzRCUB_QzVERT_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_QzGRAVE_QzH_QzEQ_"
-         "QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_QzFULLxSTOP_QzSOL_",)
+         "QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_QzDOT_QzSOL_",)
     ],
 
     R"""\1 \12 \[] \(\) \{} \[] \: \; \# \` \, \' \" \\ \\. \. \ """: [
@@ -308,7 +308,7 @@ EXPECTED = {
         "QzQUOT_",
         "QzBSOL_",
         'QzBSOL_.',
-        'QzFULLxSTOP_',
+        'QzDOT_',
         "QzSPACE_",
     ],
 

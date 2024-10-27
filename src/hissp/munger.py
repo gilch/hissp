@@ -100,7 +100,7 @@ TO_NAME = {
         "+": "PLUS",
         # COMMA is fine.
         "-": "H",  # Hyphen-minus
-        # Full stop reserved for imports and attributes.
+        ".": "DOT",  # Doesn't munge by default.
         "/": "SOL",
         # Digits only munge if first character.
         # COLON is fine.

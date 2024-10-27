@@ -531,8 +531,8 @@ Lissp Whirlwind Tour
    'QzDIGITxFOUR_2'
 
    #> '\.
-   >>> 'QzFULLxSTOP_'
-   'QzFULLxSTOP_'
+   >>> 'QzDOT_'
+   'QzDOT_'
 
    #> '\\
    >>> 'QzBSOL_'
