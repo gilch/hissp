@@ -509,6 +509,7 @@ class Parser(Iterator):
         return cast(Fn, reduce(getattr, function.split("."), import_module(module)))
 
     def _local(self, tag: str):
+        tag = tag.replace(".", force_qz_encode("."))
         try:
             return getattr(self.lissp.env[C.MACROS], tag + munge("#"))
         except (AttributeError, KeyError):

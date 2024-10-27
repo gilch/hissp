@@ -1205,7 +1205,7 @@ See `hissp.macros`.
   ;; See also: `prelude`, `attach`, `hissp.alias`.
   ;;
   ;;
-  `(defmacro ,(.format "{}{}" abbreviation '#)
+  `(defmacro ,(.format "{}{}" (.replace abbreviation '. '\.) '#)
              ($#attr :/ : :* $#args  :** $#kwargs)
      ',(.format "Aliases ``{}`` as ``{}#``." qualifier abbreviation)
      (let ($#attr (if-else (hissp..is_control $#attr)
