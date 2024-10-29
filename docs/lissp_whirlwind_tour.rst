@@ -393,9 +393,9 @@ Lissp Whirlwind Tour
    ;; only meant for use at read time, but they're allowed to survive to
    ;; run time for debugging purposes.
    #> spam=eggs
-   >>> # Kwarg('spam', 'eggs')
-   ... __import__('pickle').loads(b'ccopy_reg\n_reconstructor\n(chissp.reader\nKwarg\nc__builtin__\nobject\nNtR(dVk\nVspam\nsVv\nVeggs\nsb.')
-   Kwarg('spam', 'eggs')
+   >>> # Kwarg(k='spam', v='eggs')
+   ... __import__('pickle').loads(b'ccopy_reg\n_reconstructor\n(chissp.reader\nKwarg\nc__builtin__\ntuple\n(Vspam\nVeggs\nttR.')
+   Kwarg(k='spam', v='eggs')
 
 
    ;; use ; for a COMMENT TOKEN (like this one)

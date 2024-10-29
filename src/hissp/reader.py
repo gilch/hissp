@@ -24,7 +24,16 @@ from itertools import chain
 from keyword import iskeyword as _iskeyword
 from pathlib import Path, PurePath
 from pprint import pformat
-from typing import Any, Callable as Fn, Literal, NewType, NoReturn, TypeGuard, cast
+from typing import (
+    Any,
+    Callable as Fn,
+    Literal,
+    NamedTuple,
+    NewType,
+    NoReturn,
+    TypeGuard,
+    cast,
+)
 
 import hissp.compiler as C
 from hissp.compiler import Env
@@ -187,18 +196,14 @@ class Comment:
         return f"Comment({self.token!r})"
 
 
-class Kwarg:
+class Kwarg(NamedTuple):
     """Contains a read-time keyword argument for a `tag`.
 
     Normally made with a `kwarg token`, but can be constructed directly.
     """
 
-    def __init__(self, k: str, v):
-        self.k = k
-        self.v = v
-
-    def __repr__(self) -> str:
-        return f"Kwarg({self.k!r}, {self.v!r})"
+    k: str
+    v: Any
 
 
 class Lissp:
@@ -486,7 +491,7 @@ class Parser(Iterator):
     @classmethod
     def _collect(cls, args: list, kwargs: dict, x) -> None:
         if type(x) is Kwarg:
-            k, v = x.k, x.v
+            k, v = x
             if k == "*":
                 args.extend(v)
             elif k == "**":
