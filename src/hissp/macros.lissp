@@ -2707,6 +2707,99 @@ See `hissp.macros`.
   `(lambda (: :* $#xs)
      (ft#reduce ,f $#xs)))
 
+(defmacro proxy\# f
+  <#;``proxy#`` wrapper to make a stored callable reloadable.
+  ;;
+  ;; For this to work, it should be applied to a lookup expression
+  ;; such as a global variable name or module attribute.
+  ;; This will be written into the wrapper body.
+  ;;
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (defun greet ()
+  ;;    #..  (print "Hello, World!"))
+  ;;    >>> # defun
+  ;;    ... # hissp.macros.._macro_.define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   greet=# hissp.macros.._macro_.fun
+  ;;    ...         # hissp.macros.._macro_.let
+  ;;    ...         (
+  ;;    ...          lambda _Qzan3nwcb3__lambda=(lambda :
+  ;;    ...                     print(
+  ;;    ...                       ('Hello, World!'))
+  ;;    ...                 ):
+  ;;    ...            ((
+  ;;    ...               *__import__('itertools').starmap(
+  ;;    ...                  _Qzan3nwcb3__lambda.__setattr__,
+  ;;    ...                  __import__('builtins').dict(
+  ;;    ...                    __name__='greet',
+  ;;    ...                    __qualname__='greet',
+  ;;    ...                    __code__=_Qzan3nwcb3__lambda.__code__.replace(
+  ;;    ...                               co_name='greet')).items()),
+  ;;    ...               ),
+  ;;    ...             _Qzan3nwcb3__lambda)  [-1]
+  ;;    ...         )())
+  ;;
+  ;;    #> proxy#greet
+  ;;    >>> __import__('functools').update_wrapper(
+  ;;    ...   (lambda *_Qzxd2las5y__args, **_Qzxd2las5y__kwargs:
+  ;;    ...       greet(
+  ;;    ...         *_Qzxd2las5y__args,
+  ;;    ...         **_Qzxd2las5y__kwargs)
+  ;;    ...   ),
+  ;;    ...   greet)
+  ;;    <function greet at 0x...>
+  ;;
+  ;;    #> (define greet-handlers (types..SimpleNamespace : direct greet  proxied _))
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   greetQzH_handlers=__import__('types').SimpleNamespace(
+  ;;    ...                       direct=greet,
+  ;;    ...                       proxied=_))
+  ;;
+  ;; Now suppose ``greet`` is reloaded with a new definition, but
+  ;; ``greet-handlers`` is not (perhaps due to being in separate modules
+  ;; or if ``greet-handlers`` had used `defonce`):
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (defun greet ()
+  ;;    #..  (print "Wassup?"))
+  ;;    >>> # defun
+  ;;    ... # hissp.macros.._macro_.define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   greet=# hissp.macros.._macro_.fun
+  ;;    ...         # hissp.macros.._macro_.let
+  ;;    ...         (
+  ;;    ...          lambda _Qzan3nwcb3__lambda=(lambda :
+  ;;    ...                     print(
+  ;;    ...                       ('Wassup?'))
+  ;;    ...                 ):
+  ;;    ...            ((
+  ;;    ...               *__import__('itertools').starmap(
+  ;;    ...                  _Qzan3nwcb3__lambda.__setattr__,
+  ;;    ...                  __import__('builtins').dict(
+  ;;    ...                    __name__='greet',
+  ;;    ...                    __qualname__='greet',
+  ;;    ...                    __code__=_Qzan3nwcb3__lambda.__code__.replace(
+  ;;    ...                               co_name='greet')).items()),
+  ;;    ...               ),
+  ;;    ...             _Qzan3nwcb3__lambda)  [-1]
+  ;;    ...         )())
+  ;;
+  ;;    #> (greet-handlers.direct) ; Still the original function object.
+  ;;    >>> greetQzH_handlers.direct()
+  ;;    Hello, World!
+  ;;
+  ;;    #> (greet-handlers.proxied) ; Proxy does the lookup again.
+  ;;    >>> greetQzH_handlers.proxied()
+  ;;    Wassup?
+  ;;
+  `(ft#update_wrapper (lambda (: :* $#args  :** $#kwargs)
+                        (,f : :* $#args  :** $#kwargs))
+                      ,f))
+
 ;;;; Collection
 
 (defmacro @ (: :* xs)
