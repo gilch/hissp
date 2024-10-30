@@ -2800,6 +2800,15 @@ See `hissp.macros`.
                         (,f : :* $#args  :** $#kwargs))
                       ,f))
 
+(defmacro sentinel\# f
+  <#;``sentinel#`` Anaphoric.
+  ;;
+  ;; Let ``_sentinel`` be a unique sentinel object in a lexical scope
+  ;; surrounding ``f``.
+  ;;
+  `(let (,'_sentinel (object))
+     ,f))
+
 ;;;; Collection
 
 (defmacro @ (: :* xs)
@@ -3500,6 +3509,125 @@ except ModuleNotFoundError: pass"
   ;; ``| :|`` or ``|foo .|`` viable workarounds in such cases.
   ;;
   (.join "" (map H#readerless args)))
+
+sentinel#
+(defmacro defvar (name : default _sentinel)
+  <#;Creates a `contextvars.ContextVar`, unless it exists.
+  ;;
+  ;; The default is optional, but cannot be altered once set, however, a
+  ;; new binding may be set for a `contextvars.Context`.
+  ;;
+  ;; Intended for use at the top level only, because Python currently
+  ;; has no way of deleting a ``ContextVar`` once it has been added to
+  ;; the current ``Context``. (Although a ``ContextVar`` could be
+  ;; deleted from the globals and replaced with a new one with the same
+  ;; name and a different default value, the old ``ContextVar`` will
+  ;; also be in the ``Context``.)
+  ;;
+  ;; See `binding` for usage examples.
+  ;;
+  ;; See also: `defonce`.
+  `(unless (op#contains (globals) ',name)
+     (define ,name (cxv#ContextVar ',(hissp..demunge name)
+                                   : ,@(unless (op#is_ default _sentinel)
+                                         `(default ,default))))))
+
+(defmacro binding (pairs : :* body)
+  <#;Runs body in a new `contextvars.Context`, with additional bindings.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (defvar *greeting*)
+  ;;    >>> # defvar
+  ;;    ... # hissp.macros.._macro_.unless
+  ;;    ... (lambda b, a: ()if b else a())(
+  ;;    ...   __import__('operator').contains(
+  ;;    ...     __import__('builtins').globals(),
+  ;;    ...     'QzSTAR_greetingQzSTAR_'),
+  ;;    ...   (lambda :
+  ;;    ...       # hissp.macros.._macro_.define
+  ;;    ...       __import__('builtins').globals().update(
+  ;;    ...         QzSTAR_greetingQzSTAR_=__import__('contextvars').ContextVar(
+  ;;    ...                                  '*greeting*'))
+  ;;    ...   ))
+  ;;
+  ;;    #> *greeting*
+  ;;    >>> QzSTAR_greetingQzSTAR_
+  ;;    <ContextVar name='*greeting*' at 0x...>
+  ;;
+  ;;    #> (defvar *greeted* "World!")
+  ;;    >>> # defvar
+  ;;    ... # hissp.macros.._macro_.unless
+  ;;    ... (lambda b, a: ()if b else a())(
+  ;;    ...   __import__('operator').contains(
+  ;;    ...     __import__('builtins').globals(),
+  ;;    ...     'QzSTAR_greetedQzSTAR_'),
+  ;;    ...   (lambda :
+  ;;    ...       # hissp.macros.._macro_.define
+  ;;    ...       __import__('builtins').globals().update(
+  ;;    ...         QzSTAR_greetedQzSTAR_=__import__('contextvars').ContextVar(
+  ;;    ...                                 '*greeted*',
+  ;;    ...                                 default=('World!')))
+  ;;    ...   ))
+  ;;
+  ;;    #> *greeted*
+  ;;    >>> QzSTAR_greetedQzSTAR_
+  ;;    <ContextVar name='*greeted*' default='World!' at 0x...>
+  ;;
+  ;;    #> (defun greet : (print (.get *greeting* "Hello,") (.get *greeted*)))
+  ;;    >>> # defun
+  ;;    ... # hissp.macros.._macro_.define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   greet=# hissp.macros.._macro_.fun
+  ;;    ...         # hissp.macros.._macro_.let
+  ;;    ...         (
+  ;;    ...          lambda _Qzan3nwcb3__lambda=(lambda :
+  ;;    ...                     print(
+  ;;    ...                       QzSTAR_greetingQzSTAR_.get(
+  ;;    ...                         ('Hello,')),
+  ;;    ...                       QzSTAR_greetedQzSTAR_.get())
+  ;;    ...                 ):
+  ;;    ...            ((
+  ;;    ...               *__import__('itertools').starmap(
+  ;;    ...                  _Qzan3nwcb3__lambda.__setattr__,
+  ;;    ...                  __import__('builtins').dict(
+  ;;    ...                    __name__='greet',
+  ;;    ...                    __qualname__='greet',
+  ;;    ...                    __code__=_Qzan3nwcb3__lambda.__code__.replace(
+  ;;    ...                               co_name='greet')).items()),
+  ;;    ...               ),
+  ;;    ...             _Qzan3nwcb3__lambda)  [-1]
+  ;;    ...         )())
+  ;;
+  ;;    #> (greet)
+  ;;    >>> greet()
+  ;;    Hello, World!
+  ;;
+  ;;    #> (binding (*greeting* "Goodbye,"
+  ;;    #..          *greeted* "all!")
+  ;;    #..  (greet))
+  ;;    >>> # binding
+  ;;    ... __import__('contextvars').copy_context().run(
+  ;;    ...   (lambda :
+  ;;    ...      (QzSTAR_greetingQzSTAR_.set(
+  ;;    ...         ('Goodbye,')),
+  ;;    ...       QzSTAR_greetedQzSTAR_.set(
+  ;;    ...         ('all!')),
+  ;;    ...       greet())  [-1]
+  ;;    ...   ))
+  ;;    Goodbye, all!
+  ;;
+  ;;    #> (greet)
+  ;;    >>> greet()
+  ;;    Hello, World!
+  ;;
+  ;; See also: `defvar`.
+  ;;
+  `(.run (cxv#copy_context)
+         (lambda :
+           ,@(i#starmap (lambda kv `(.set ,k ,v))
+                        (X#(zip X X : strict True) (iter pairs)))
+           ,@body)))
 
 (defmacro my\# (targets_or_scope : expr None  scope ()  :** kwargs)
   <#;``my#`` Anaphoric. Injection. `let` ``my`` be a fresh
