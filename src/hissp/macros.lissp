@@ -1401,8 +1401,9 @@ See `hissp.macros`.
   ;;    ... )()
   ;;    'builtin_function_or_method'
   ;;
-  ;; See also: `getattr`, `operator.attrgetter`, `X# <XQzHASH_>`
-  ;; `\!# <QzBANG_QzHASH_>`, `&# <QzET_QzHASH_>`.
+  ;; See also: `getattr`, `operator.attrgetter`, `X# <XQzHASH_>`,
+  ;; `\!# <QzBANG_QzHASH_>`, `&# <QzET_QzHASH_>`,
+  ;; `:@## <QzCOLON_QzAT_QzHASH_>`.
   ;;
   `((op#attrgetter ,name) ,ns))
 
@@ -2677,7 +2678,8 @@ See `hissp.macros`.
   ;; There are no bundled tags for a quinary, senary, etc. but
   ;; the ``en#X#`` variadic or a normal lambda form can be used instead.
   ;;
-  ;; See also: `X# <XQzHASH_>`, `&# <QzET_QzHASH_>`, `/# <QzSOL_QzHASH_>`.
+  ;; See also:
+  ;; `X# <XQzHASH_>`, `&# <QzET_QzHASH_>`, `/# <QzSOL_QzHASH_>`, `@ <QzAT_>`.
   ;;
   (if-else (ands (op#is_ str (type f))
                  (.startswith f "."))
@@ -2832,7 +2834,8 @@ See `hissp.macros`.
   ;;    ...   (1))
   ;;    ['A', 'B', 3.0, 'X', 'Y', 2, 1]
   ;;
-  ;; See also: `# <QzHASH_>`, `% <QzPCENT_>`.
+  ;; See also:
+  ;; `# <QzHASH_>`, `% <QzPCENT_>`, `en# <enQzHASH_>`, `operator.matmul`.
   ;;
   (when (ands xs (op#eq :* !##-1 xs))
      (throw (SyntaxError "trailing :*")))
@@ -2899,7 +2902,7 @@ See `hissp.macros`.
   ;;    ... {}
   ;;    {}
   ;;
-  ;; See also: `@ <QzAT_>`, `# <QzHASH_>`.
+  ;; See also: `@ <QzAT_>`, `# <QzHASH_>`, `operator.mod`.
   ;;
   (cond
    (op#mod (len kvs) 2) (throw (TypeError "extra key without value"))
