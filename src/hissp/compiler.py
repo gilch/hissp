@@ -15,7 +15,7 @@ import sys
 from collections.abc import Iterable, Sequence
 from contextlib import contextmanager, suppress
 from contextvars import ContextVar
-from functools import wraps
+from functools import partial, wraps
 from itertools import chain, starmap, takewhile
 from pprint import pformat
 from traceback import format_exc
@@ -805,22 +805,20 @@ def macroexpand_all(
     exp = postprocess(macroexpand(preprocess(form), env))
     if not is_node(exp) or exp[0] == "quote":
         return exp
+    mx_a = partial(macroexpand_all, preprocess=preprocess, postprocess=postprocess)
     if exp[0] != "lambda":
-        return tuple(
-            macroexpand_all(e, env, preprocess=preprocess, postprocess=postprocess)
-            for e in exp
-        )
-    return "lambda", _pexpand(exp[1], env), *(macroexpand_all(e, env) for e in exp[2:])
+        return tuple(mx_a(e, env) for e in exp)
+    return "lambda", _pexpand(exp[1], env, mx_a), *(mx_a(e, env) for e in exp[2:])
 
 
-def _pexpand(params: Iterable, env: Env) -> Iterable:
+def _pexpand(params: Iterable, env: Env, mx_a: partial) -> Iterable:
     if ":" not in params:
         return params
     singles, pairs = parse_params(params)
     stars = {":*", ":**"}
     if not pairs.keys() - stars:
         return params
-    pairs = {k: v if k in stars else macroexpand_all(v, env) for k, v in pairs.items()}
+    pairs = {k: v if k in stars else mx_a(v, env) for k, v in pairs.items()}
     return *singles, ":", *chain.from_iterable(pairs.items())
 
 
