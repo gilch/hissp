@@ -759,7 +759,7 @@ def macroexpand1(form, env: Env | None = None):
         return macro(*tail)
 
 
-def macroexpand(form, env: Env | None = None):
+def macroexpand(form, env: Env | None = None, *, preprocess=lambda x: x):
     """Repeatedly macroexpand outermost form until not a macro form.
 
     If form is not a macro form, returns it unaltered.
@@ -767,9 +767,13 @@ def macroexpand(form, env: Env | None = None):
     Unless an alternative ``env`` is specified, uses the current `ENV`
     (available in a `macro_context`) when available, otherwise uses the
     calling frame's globals.
+
+    ``preprocess`` (which defaults to identity function) is called on
+    the form before each expansion step.
     """
     env = _resolve_env(env)
     while True:
+        form = preprocess(form)
         expanded = macroexpand1(form, env)
         if expanded is form:
             return form
@@ -802,7 +806,7 @@ def macroexpand_all(
     calling frame's globals.
     """
     env = _resolve_env(env)
-    exp = postprocess(macroexpand(preprocess(form), env))
+    exp = postprocess(macroexpand(form, env, preprocess=preprocess))
     if not is_node(exp) or exp[0] == "quote":
         return exp
     mx_a = partial(macroexpand_all, preprocess=preprocess, postprocess=postprocess)
