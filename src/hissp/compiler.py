@@ -771,13 +771,13 @@ def macroexpand(form, env: Env | None = None, *, preprocess=lambda x: x):
     ``preprocess`` (which defaults to identity function) is called on
     the form before each expansion step.
     """
-    env = _resolve_env(env)
-    while True:
-        form = preprocess(form)
-        expanded = macroexpand1(form, env)
-        if expanded is form:
-            return form
-        form = expanded
+    with macro_context(_resolve_env(env)):
+        while True:
+            form = preprocess(form)
+            expanded = macroexpand1(form)
+            if expanded is form:
+                return form
+            form = expanded
 
 
 def macroexpand_all(
@@ -805,24 +805,23 @@ def macroexpand_all(
     (available in a `macro_context`) when available, otherwise uses the
     calling frame's globals.
     """
-    env = _resolve_env(env)
-    exp = postprocess(macroexpand(form, env, preprocess=preprocess))
-    if not is_node(exp) or exp[0] == "quote":
-        return exp
-    mx_a = partial(macroexpand_all, preprocess=preprocess, postprocess=postprocess)
-    if exp[0] != "lambda":
-        return tuple(mx_a(e, env) for e in exp)
-    return "lambda", _pexpand(exp[1], env, mx_a), *(mx_a(e, env) for e in exp[2:])
+    with macro_context(_resolve_env(env)):
+        exp = postprocess(macroexpand(form, preprocess=preprocess))
+        if not is_node(exp) or exp[0] == "quote":
+            return exp
+        mx_a = partial(macroexpand_all, preprocess=preprocess, postprocess=postprocess)
+        if exp[0] != "lambda":
+            return (*map(mx_a, exp),)
+        return "lambda", _pexpand(exp[1], mx_a), *map(mx_a, exp[2:])
 
 
-def _pexpand(params: Iterable, env: Env, mx_a: partial) -> Iterable:
+def _pexpand(params: Iterable, mx_a: partial) -> Iterable:
     if ":" not in params:
         return params
     singles, pairs = parse_params(params)
-    stars = {":*", ":**"}
-    if not pairs.keys() - stars:
+    if not pairs.keys() - (":*", ":**"):
         return params
-    pairs = {k: v if k in stars else mx_a(v, env) for k, v in pairs.items()}
+    pairs = {k: v if k in (":*", ":**") else mx_a(v) for k, v in pairs.items()}
     return *singles, ":", *chain.from_iterable(pairs.items())
 
 
