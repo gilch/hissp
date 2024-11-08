@@ -996,7 +996,7 @@ See `hissp.macros`.
   ;;
   ;; See also:
   ;; `en# <enQzHASH_>`, `O# <OQzHASH_>`, `XY# <XYQzHASH_>`,
-  ;; `@## <QzAT_QzHASH_>`, `operator.attrgetter`, `lambda`.
+  ;; `@# <QzAT_QzHASH_>`, `operator.attrgetter`, `lambda`.
   ;;
   `(lambda ,'X ,expr))
 
@@ -1309,7 +1309,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `operator.getitem`, `operator.itemgetter`,
   ;; `[# <QzLSQB_QzHASH_>`, `set! <setQzBANG_>`, `&# <QzET_QzHASH_>`,
-  ;; `@## <QzAT_QzHASH_>`.
+  ;; `@# <QzAT_QzHASH_>`.
   ;;
   `((op#itemgetter ,key) ,items))
 
@@ -1360,7 +1360,7 @@ See `hissp.macros`.
     ,items))
 
 (defmacro @\# (name : ns "")
-  <#;``@##`` 'attribute of' Looks up attribute in a namespace.
+  <#;``@#`` 'attribute of' Looks up attribute in a namespace.
   ;;
   ;; Mnemonic: @tribute.
   ;;
