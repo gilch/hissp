@@ -2250,6 +2250,9 @@ you must define them in ``_macro_`` with a name ending in a ``#``.
 We have to escape the ``#`` with a backslash
 or the reader will parse the name as a tag rather than a symbol
 and immediately try to apply it to ``(expr)``, which is not what we want.
+(Similarly, use ``(help _macro_.foo\#)``
+with a ``\#`` to get help for a tag ``foo#``.)
+
 Notice that we still used a `defmacro`,
 like we do for :term:`macro function` definitions,
 because this will attach a callable to the ``_macro_`` namespace,
