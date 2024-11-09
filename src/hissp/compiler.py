@@ -806,13 +806,13 @@ def macroexpand_all(
     calling frame's globals.
     """
     with macro_context(_resolve_env(env)):
-        exp = postprocess(macroexpand(form, preprocess=preprocess))
+        exp = macroexpand(form, preprocess=preprocess)
         if not is_node(exp) or exp[0] == "quote":
-            return exp
+            return postprocess(exp)
         mx_a = partial(macroexpand_all, preprocess=preprocess, postprocess=postprocess)
         if exp[0] != "lambda":
-            return (*map(mx_a, exp),)
-        return "lambda", _pexpand(exp[1], mx_a), *map(mx_a, exp[2:])
+            return postprocess((*map(mx_a, exp),))
+        return postprocess(("lambda", _pexpand(exp[1], mx_a), *map(mx_a, exp[2:])))
 
 
 def _pexpand(params: Iterable, mx_a: partial) -> Iterable:
