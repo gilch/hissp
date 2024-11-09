@@ -4078,7 +4078,8 @@ sentinel#
   ;;     'D': ':d',
   ;;     'myquux': 'default for quux'}
   ;;
-  ;; See also: `let*from <letQzSTAR_from>`, `my# <myQzHASH_>`.
+  ;; See also: `let*from <letQzSTAR_from>`, `my# <myQzHASH_>`,
+  ;; `!s# <QzBANG_sQzHASH_>`, `@s# <QzAT_sQzHASH_>`, `pos# <posQzHASH_>`.
   ;;
   my### names=(list) $data=`$#data
   (progn walk=(lambda (bindings)
@@ -4092,6 +4093,180 @@ sentinel#
                        :? ||)))
          values=`(let (,my.$data ,data) ,(my.walk bindings))
          `(let-from (,@my.names) ,my.values ,@body)))
+
+(defmacro !s\# (names)
+  <#;``!s\#`` 'item names'
+  ;;
+  ;; `destruct-> <destructQzH_QzGT_>` helper shorthand.
+  ;; Destructures a mapping using the binding names as the keys.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (destruct-> (dict : spam 1  foo 2)
+  ;;    #..            (ors whole
+  ;;    #..             ors !s#(spam foo))
+  ;;    #..  (print whole spam foo))
+  ;;    >>> # destructQzH_QzGT_
+  ;;    ... # hissp.macros.._macro_.letQzH_from
+  ;;    ... (lambda whole, spam, foo:
+  ;;    ...     print(
+  ;;    ...       whole,
+  ;;    ...       spam,
+  ;;    ...       foo)
+  ;;    ... )(
+  ;;    ...   *# hissp.macros.._macro_.let
+  ;;    ...    (
+  ;;    ...     lambda _Qzxlqqwo2w__data=dict(
+  ;;    ...              spam=(1),
+  ;;    ...              foo=(2)):
+  ;;    ...        (
+  ;;    ...          # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...          # ors
+  ;;    ...          _Qzxlqqwo2w__data,
+  ;;    ...          *# hissp.macros.._macro_.let
+  ;;    ...           (
+  ;;    ...            lambda _Qzxlqqwo2w__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                   # ors
+  ;;    ...                   _Qzxlqqwo2w__data:
+  ;;    ...               (
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 __import__('operator').itemgetter(
+  ;;    ...                   'spam')(
+  ;;    ...                   _Qzxlqqwo2w__data,
+  ;;    ...                   ),
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 __import__('operator').itemgetter(
+  ;;    ...                   'foo')(
+  ;;    ...                   _Qzxlqqwo2w__data,
+  ;;    ...                   ),
+  ;;    ...                 )
+  ;;    ...           )(),
+  ;;    ...          )
+  ;;    ...    )())
+  ;;    {'spam': 1, 'foo': 2} 1 2
+  ;;
+  `(,@chain#(zip (map X#`!#',X names) names)))
+
+(defmacro @s\# (names)
+  <#;``@s\#`` 'attribute names'
+  ;;
+  ;; `destruct-> <destructQzH_QzGT_>` helper shorthand.
+  ;; Destructures a namespace using the binding names as the attributes.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (destruct-> (types..SimpleNamespace : spam 1  foo 2)
+  ;;    #..            (ors whole
+  ;;    #..             ors @s#(spam foo))
+  ;;    #..  (print whole spam foo))
+  ;;    >>> # destructQzH_QzGT_
+  ;;    ... # hissp.macros.._macro_.letQzH_from
+  ;;    ... (lambda whole, spam, foo:
+  ;;    ...     print(
+  ;;    ...       whole,
+  ;;    ...       spam,
+  ;;    ...       foo)
+  ;;    ... )(
+  ;;    ...   *# hissp.macros.._macro_.let
+  ;;    ...    (
+  ;;    ...     lambda _Qzxlqqwo2w__data=__import__('types').SimpleNamespace(
+  ;;    ...              spam=(1),
+  ;;    ...              foo=(2)):
+  ;;    ...        (
+  ;;    ...          # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...          # ors
+  ;;    ...          _Qzxlqqwo2w__data,
+  ;;    ...          *# hissp.macros.._macro_.let
+  ;;    ...           (
+  ;;    ...            lambda _Qzxlqqwo2w__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                   # ors
+  ;;    ...                   _Qzxlqqwo2w__data:
+  ;;    ...               (
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 __import__('operator').attrgetter(
+  ;;    ...                   'spam')(
+  ;;    ...                   _Qzxlqqwo2w__data,
+  ;;    ...                   ),
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 __import__('operator').attrgetter(
+  ;;    ...                   'foo')(
+  ;;    ...                   _Qzxlqqwo2w__data,
+  ;;    ...                   ),
+  ;;    ...                 )
+  ;;    ...           )(),
+  ;;    ...          )
+  ;;    ...    )())
+  ;;    namespace(spam=1, foo=2) 1 2
+  ;;
+  `(,@chain#(zip (map X#`@#',X names) names)))
+
+(defmacro pos\# (bindings)
+  <#;``pos\#`` 'position bindings'
+  ;;
+  ;; `destruct-> <destructQzH_QzGT_>` helper shorthand.
+  ;; Destructures a sequence using each binding form's position index.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (destruct-> '(ABC XYZ)
+  ;;    #..            (ors whole  ors pos#(abc pos#(x y)))
+  ;;    #..  (print whole abc x y))
+  ;;    >>> # destructQzH_QzGT_
+  ;;    ... # hissp.macros.._macro_.letQzH_from
+  ;;    ... (lambda whole, abc, x, y:
+  ;;    ...     print(
+  ;;    ...       whole,
+  ;;    ...       abc,
+  ;;    ...       x,
+  ;;    ...       y)
+  ;;    ... )(
+  ;;    ...   *# hissp.macros.._macro_.let
+  ;;    ...    (
+  ;;    ...     lambda _Qzzqguiyyn__data=('ABC',
+  ;;    ...             'XYZ',):
+  ;;    ...        (
+  ;;    ...          # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...          # ors
+  ;;    ...          _Qzzqguiyyn__data,
+  ;;    ...          *# hissp.macros.._macro_.let
+  ;;    ...           (
+  ;;    ...            lambda _Qzzqguiyyn__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                   # ors
+  ;;    ...                   _Qzzqguiyyn__data:
+  ;;    ...               (
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 __import__('operator').itemgetter(
+  ;;    ...                   (0))(
+  ;;    ...                   _Qzzqguiyyn__data,
+  ;;    ...                   ),
+  ;;    ...                 *# hissp.macros.._macro_.let
+  ;;    ...                  (
+  ;;    ...                   lambda _Qzzqguiyyn__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                          __import__('operator').itemgetter(
+  ;;    ...                            (1))(
+  ;;    ...                            _Qzzqguiyyn__data,
+  ;;    ...                            ):
+  ;;    ...                      (
+  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        __import__('operator').itemgetter(
+  ;;    ...                          (0))(
+  ;;    ...                          _Qzzqguiyyn__data,
+  ;;    ...                          ),
+  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        __import__('operator').itemgetter(
+  ;;    ...                          (1))(
+  ;;    ...                          _Qzzqguiyyn__data,
+  ;;    ...                          ),
+  ;;    ...                        )
+  ;;    ...                  )(),
+  ;;    ...                 )
+  ;;    ...           )(),
+  ;;    ...          )
+  ;;    ...    )())
+  ;;    ('ABC', 'XYZ') ABC X Y
+  ;;
+  `(,@chain#(zip (map X#`!#,X (-> bindings len range))
+                 bindings)))
 
 (defmacro case (key default : :* pairs)
   <#;Switch case macro.
