@@ -55,6 +55,8 @@ Confirm your Python version with
 
 (Re-)install the Hissp version matching this document with
 
+.. RELEASE: Rewrite to install from PyPI.
+
 .. code-block:: console
 
    $ python -m pip install --upgrade --force-reinstall git+https://github.com/gilch/hissp

@@ -14,6 +14,8 @@ also install the ``lissp`` command-line tool for running Lissp code.
 This is a convenience executable for starting ``python -m hissp``,
 whose minimal options were modeled after Python's most commonly used:
 
+.. RELEASE: Update (Hissp X.X.X) line.
+
 .. code-block:: Text
 
    usage: lissp [-h] [-i] [-c cmd] [file] [args [args ...]]
