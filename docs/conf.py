@@ -99,3 +99,5 @@ pygments_dark_style = "monokai"
 html_static_path = ["_static"]
 
 intersphinx_mapping = {"python": ("https://docs.python.org/3.10", None)}
+
+# RELEASE: Make sure to clean build docs and check for errors.

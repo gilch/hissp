@@ -99,3 +99,5 @@ pytest_collect_file = Sybil(
     parsers=[ParseLissp(optionflags=ELLIPSIS)],
     filenames=Globs("*.md", "*.rst", "*.lissp"),
 ).pytest()
+
+# RELEASE: Run all tests.

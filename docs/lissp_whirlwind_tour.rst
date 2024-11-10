@@ -9,6 +9,7 @@
    ...                 __import__('hissp')._macro_)))
 
 .. TODO: Interactive via web repl?
+.. RELEASE: Update the ;;;; Installation section.
 
 Lissp Whirlwind Tour
 ====================

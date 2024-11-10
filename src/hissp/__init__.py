@@ -88,7 +88,7 @@ from hissp.repl import interact
 with __import__("contextlib").suppress(ImportError):
     from hissp.macros import _macro_
 
-VERSION = "0.5.dev"
+VERSION = "0.5.dev"  # RELEASE
 
 
 def prelude(env):
