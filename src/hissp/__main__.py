@@ -1,4 +1,4 @@
-# Copyright 2020, 2021 Matthew Egan Odendahl
+# Copyright 2020, 2021, 2024 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
 """
 Hissp's command-line interface.
