@@ -4718,6 +4718,7 @@ one could similarly make an alternate constructor using `classmethod`.)
 
 There's some unavoidable imprecision in the float calculations approximating irrational numbers,
 but notice the noisy-looking numbers are close to zero.
+I'll be using `round` liberally to make the remaining examples easier to read.
 
 But kwarg alone names should be enough to disambiguate the cases;
 we don't need separate functions.
@@ -4752,13 +4753,14 @@ Pull. Don't push:
 ...     # The v=v is a workaround for Python's late-binding closures.
 ...     # Remember, defaults are computed at definition time.
 ...     vars(args).update({k: lambda v=v: v for k, v in kwargs.items()})
-...     return builtins.complex(args.real(), args.imag())
+...     # Rounding to 4 so your eyes don't glaze over.
+...     return builtins.complex(round(args.real(), 4), round(args.imag(), 4))
 >>> complex(real=3, imag=4)
 (3+4j)
 >>> complex(r=2**.5, theta=math.radians(45))
-(1.0000000000000002+1.0000000000000002j)
+(1+1j)
 >>> complex(r=1, theta=math.radians(60))
-(0.5000000000000001+0.8660254037844386j)
+(0.5+0.866j)
 
 Not a single `if <if>`! It just works.
 It's not a drop-in replacement though,
@@ -4772,6 +4774,7 @@ A name like ``**real_imag_r_theta`` instead of ``**kwargs`` is also a possibilit
 This pattern generalizes.
 We could compute both directions given either coordinate pair in basically the same way:
 
+>>> def r4(x): return round(x(), 4)  # Note the x() call.
 >>> class CoordinatesArgs:
 ...     def x(self):
 ...         return self.r() * math.cos(self.theta())
@@ -4784,19 +4787,19 @@ We could compute both directions given either coordinate pair in basically the s
 >>> def coordinates(**kwargs):
 ...     args = CoordinatesArgs()
 ...     vars(args).update({k: lambda v=v: v for k, v in kwargs.items()})
-...     return dict(Cartesian=(args.x(), args.y()), polar=(args.r(), args.theta()))
+...     return dict(Cartesian=(r4(args.x), r4(args.y)), polar=(r4(args.r), r4(args.theta)))
 >>> coordinates(x=3, y=4)  # 3-4-5 Pythagorean triple.
-{'Cartesian': (3, 4), 'polar': (5.0, 0.9272952180016122)}
->>> coordinates(r=5, theta=0.9272952180016122)  # Other direction.
-{'Cartesian': (3.0000000000000004, 3.9999999999999996), 'polar': (5, 0.9272952180016122)}
+{'Cartesian': (3, 4), 'polar': (5.0, 0.9273)}
+>>> coordinates(r=5, theta=0.9273)  # Other direction.
+{'Cartesian': (3.0, 4.0), 'polar': (5, 0.9273)}
 >>> coordinates(x=1, y=1)
-{'Cartesian': (1, 1), 'polar': (1.4142135623730951, 0.7853981633974483)}
+{'Cartesian': (1, 1), 'polar': (1.4142, 0.7854)}
 >>> coordinates(r=2**.5, theta=math.radians(45))  # Right isosceles.
-{'Cartesian': (1.0000000000000002, 1.0000000000000002), 'polar': (1.4142135623730951, 0.7853981633974483)}
+{'Cartesian': (1.0, 1.0), 'polar': (1.4142, 0.7854)}
 >>> coordinates(x=.5, y=3**.5/2)
-{'Cartesian': (0.5, 0.8660254037844386), 'polar': (1.0, 1.0471975511965976)}
+{'Cartesian': (0.5, 0.866), 'polar': (1.0, 1.0472)}
 >>> coordinates(r=1, theta=math.radians(60))  # 30-60-90 triangle.
-{'Cartesian': (0.5000000000000001, 0.8660254037844386), 'polar': (1, 1.0471975511965976)}
+{'Cartesian': (0.5, 0.866), 'polar': (1, 1.0472)}
 
 In Python, one might be inclined to put the ``.update`` line in a ``def __init__(**kwargs):``
 method in a common ``Args`` base class.
@@ -4835,22 +4838,22 @@ The lookup chain means you can pass it in with either name and it will still wor
    #..      theta=O#(my.θ)
    #..      (-> my vars (.update (i#starmap XY#(@ X (lambda (: v Y) v))
    #..                                      (.items kwargs))))
-   #..      (dict : cartesian `(,(my.x) ,(my.y))
-   #..              polar `(,(my.r) ,(my.theta)))))
+   #..      (dict : cartesian `(,(r4 my.x) ,(r4 my.y))
+   #..              polar `(,(r4 my.r) ,(r4 my.theta)))))
    >>> # defun
    ... # hissp.macros.._macro_.define
    ... __import__('builtins').globals().update(
    ...   coordinates=# hissp.macros.._macro_.fun
    ...               # hissp.macros.._macro_.let
    ...               (
-   ...                lambda _Qzgibeefhr__lambda=(lambda **kwargs:
+   ...                lambda _Qzg4t3gdjc__lambda=(lambda **kwargs:
    ...                           # hissp.macros.._macro_.let
    ...                           (lambda my=__import__('types').SimpleNamespace():
    ...                               # progn
    ...                               (# hissp.macros.._macro_.setQzAT_
    ...                                # hissp.macros.._macro_.let
    ...                                (
-   ...                                 lambda _Qzvgpsjdhv__value=(lambda :
+   ...                                 lambda _Qzfww2t2f4__value=(lambda :
    ...                                            mul(
    ...                                              my.r(),
    ...                                              __import__('math').cos(
@@ -4860,13 +4863,13 @@ The lookup chain means you can pass it in with either name and it will still wor
    ...                                    __import__('builtins').setattr(
    ...                                      my,
    ...                                      'x',
-   ...                                      _Qzvgpsjdhv__value),
-   ...                                    _Qzvgpsjdhv__value)  [-1]
+   ...                                      _Qzfww2t2f4__value),
+   ...                                    _Qzfww2t2f4__value)  [-1]
    ...                                )(),
    ...                                # hissp.macros.._macro_.setQzAT_
    ...                                # hissp.macros.._macro_.let
    ...                                (
-   ...                                 lambda _Qzvgpsjdhv__value=(lambda :
+   ...                                 lambda _Qzfww2t2f4__value=(lambda :
    ...                                            mul(
    ...                                              my.r(),
    ...                                              __import__('math').sin(
@@ -4876,23 +4879,23 @@ The lookup chain means you can pass it in with either name and it will still wor
    ...                                    __import__('builtins').setattr(
    ...                                      my,
    ...                                      'y',
-   ...                                      _Qzvgpsjdhv__value),
-   ...                                    _Qzvgpsjdhv__value)  [-1]
+   ...                                      _Qzfww2t2f4__value),
+   ...                                    _Qzfww2t2f4__value)  [-1]
    ...                                )(),
    ...                                # hissp.macros.._macro_.setQzAT_
    ...                                # hissp.macros.._macro_.let
-   ...                                (lambda _Qzvgpsjdhv__value=(lambda : (my.x()**2 + my.y()**2)**.5):
+   ...                                (lambda _Qzfww2t2f4__value=(lambda : (my.x()**2 + my.y()**2)**.5):
    ...                                   (# hissp.macros.._macro_.define
    ...                                    __import__('builtins').setattr(
    ...                                      my,
    ...                                      'r',
-   ...                                      _Qzvgpsjdhv__value),
-   ...                                    _Qzvgpsjdhv__value)  [-1]
+   ...                                      _Qzfww2t2f4__value),
+   ...                                    _Qzfww2t2f4__value)  [-1]
    ...                                )(),
    ...                                # hissp.macros.._macro_.setQzAT_
    ...                                # hissp.macros.._macro_.let
    ...                                (
-   ...                                 lambda _Qzvgpsjdhv__value=(lambda :
+   ...                                 lambda _Qzfww2t2f4__value=(lambda :
    ...                                            __import__('math').atan2(
    ...                                              my.y(),
    ...                                              my.x())
@@ -4901,18 +4904,18 @@ The lookup chain means you can pass it in with either name and it will still wor
    ...                                    __import__('builtins').setattr(
    ...                                      my,
    ...                                      'θ',
-   ...                                      _Qzvgpsjdhv__value),
-   ...                                    _Qzvgpsjdhv__value)  [-1]
+   ...                                      _Qzfww2t2f4__value),
+   ...                                    _Qzfww2t2f4__value)  [-1]
    ...                                )(),
    ...                                # hissp.macros.._macro_.setQzAT_
    ...                                # hissp.macros.._macro_.let
-   ...                                (lambda _Qzvgpsjdhv__value=(lambda : my.θ()):
+   ...                                (lambda _Qzfww2t2f4__value=(lambda : my.θ()):
    ...                                   (# hissp.macros.._macro_.define
    ...                                    __import__('builtins').setattr(
    ...                                      my,
    ...                                      'theta',
-   ...                                      _Qzvgpsjdhv__value),
-   ...                                    _Qzvgpsjdhv__value)  [-1]
+   ...                                      _Qzfww2t2f4__value),
+   ...                                    _Qzfww2t2f4__value)  [-1]
    ...                                )(),
    ...                                # QzH_QzGT_
    ...                                vars(
@@ -4927,26 +4930,36 @@ The lookup chain means you can pass it in with either name and it will still wor
    ...                                    kwargs.items())),
    ...                                dict(
    ...                                  cartesian=(
-   ...                                              my.x(),
-   ...                                              my.y(),
+   ...                                              r4(
+   ...                                                my.x),
+   ...                                              r4(
+   ...                                                my.y),
    ...                                              ),
    ...                                  polar=(
-   ...                                          my.r(),
-   ...                                          my.theta(),
+   ...                                          r4(
+   ...                                            my.r),
+   ...                                          r4(
+   ...                                            my.theta),
    ...                                          )))  [-1]
    ...                           )()
    ...                       ):
    ...                  ((
    ...                     *__import__('itertools').starmap(
-   ...                        _Qzgibeefhr__lambda.__setattr__,
+   ...                        _Qzg4t3gdjc__lambda.__setattr__,
    ...                        __import__('builtins').dict(
    ...                          __name__='coordinates',
    ...                          __qualname__='coordinates',
-   ...                          __code__=_Qzgibeefhr__lambda.__code__.replace(
+   ...                          __code__=_Qzg4t3gdjc__lambda.__code__.replace(
    ...                                     co_name='coordinates')).items()),
    ...                     ),
-   ...                   _Qzgibeefhr__lambda)  [-1]
+   ...                   _Qzg4t3gdjc__lambda)  [-1]
    ...               )())
+
+Notice we're using ``r4`` again.
+Remember, it's possible to inject Python in a Lissp REPL,
+not that this one is hard to translate.
+But you don't need to round at all to follow along.
+Don't forget to call the thunks though.
 
 .. code-block:: REPL
 
@@ -4954,26 +4967,27 @@ The lookup chain means you can pass it in with either name and it will still wor
    >>> coordinates(
    ...   r=2**.5,
    ...   θ=(0.7853981633974483))
-   {'cartesian': (1.0000000000000002, 1.0000000000000002), 'polar': (1.4142135623730951, 0.7853981633974483)}
+   {'cartesian': (1.0, 1.0), 'polar': (1.4142, 0.7854)}
 
    #> (coordinates : x 1  y 1)
    >>> coordinates(
    ...   x=(1),
    ...   y=(1))
-   {'cartesian': (1, 1), 'polar': (1.4142135623730951, 0.7853981633974483)}
+   {'cartesian': (1, 1), 'polar': (1.4142, 0.7854)}
 
    #> (coordinates : r 1  theta math..radians#60)
    >>> coordinates(
    ...   r=(1),
    ...   theta=(1.0471975511965976))
-   {'cartesian': (0.5000000000000001, 0.8660254037844386), 'polar': (1, 1.0471975511965976)}
+   {'cartesian': (0.5, 0.866), 'polar': (1, 1.0472)}
 
 Now that we have a design pattern,
 we should be able to make it a macro.
 There's a lot of tag magic here,
 but remember those run at :term:`read time`,
 so macros can't have tags in their expansions,
-but they can expand to the same results.
+but they can expand to the same results
+(which you can sometimes produce using tags).
 
 The syntax we're going for would be something like this:
 
@@ -5203,8 +5217,8 @@ Wrapping it in an `ors` so it isn't recognized as a string literal would also wo
    #..                         r |(lazy.x()**2 + lazy.y()**2)**.5|
    #..                         θ (math..atan2 (lazy.y) (lazy.x))
    #..                         theta (lazy.θ))
-   #..  (dict : cartesian `(,(lazy.x) ,(lazy.y))
-   #..        polar `(,(lazy.r) ,(lazy.theta))))
+   #..  (dict : cartesian `(,(r4 lazy.x) ,(r4 lazy.y))
+   #..        polar `(,(r4 lazy.r) ,(r4 lazy.theta))))
    >>> # defunQzH_lazy
    ... # __main__.._macro_.defun
    ... # hissp.macros.._macro_.define
@@ -5212,14 +5226,14 @@ Wrapping it in an `ors` so it isn't recognized as a string literal would also wo
    ...   coordinates=# hissp.macros.._macro_.fun
    ...               # hissp.macros.._macro_.let
    ...               (
-   ...                lambda _Qzgibeefhr__lambda=(lambda **kwargs:
+   ...                lambda _Qzg4t3gdjc__lambda=(lambda **kwargs:
    ...                           # __main__.._macro_.let
    ...                           (lambda lazy=__import__('types').SimpleNamespace():
    ...                              (# __main__.._macro_.doto
    ...                               (
-   ...                                lambda _Qzwshebadt__self=__import__('builtins').vars(
+   ...                                lambda _Qzqinvrqwa__self=__import__('builtins').vars(
    ...                                         lazy):
-   ...                                  (_Qzwshebadt__self.update(
+   ...                                  (_Qzqinvrqwa__self.update(
    ...                                     x=(lambda :
    ...                                           mul(
    ...                                             lazy.r(),
@@ -5239,7 +5253,7 @@ Wrapping it in an `ors` so it isn't recognized as a string literal would also wo
    ...                                             lazy.x())
    ...                                       ),
    ...                                     theta=(lambda : lazy.θ())),
-   ...                                   _Qzwshebadt__self.update(
+   ...                                   _Qzqinvrqwa__self.update(
    ...                                     __import__('itertools').starmap(
    ...                                       (lambda _Qz6xuvarhd__k, _Qz6xuvarhd__v:
    ...                                           # __main__.._macro_.QzAT_
@@ -5248,29 +5262,33 @@ Wrapping it in an `ors` so it isn't recognized as a string literal would also wo
    ...                                             (lambda _Qz6xuvarhd__v=_Qz6xuvarhd__v: _Qz6xuvarhd__v))
    ...                                       ),
    ...                                       kwargs.items())),
-   ...                                   _Qzwshebadt__self)  [-1]
+   ...                                   _Qzqinvrqwa__self)  [-1]
    ...                               )(),
    ...                               dict(
    ...                                 cartesian=(
-   ...                                             lazy.x(),
-   ...                                             lazy.y(),
+   ...                                             r4(
+   ...                                               lazy.x),
+   ...                                             r4(
+   ...                                               lazy.y),
    ...                                             ),
    ...                                 polar=(
-   ...                                         lazy.r(),
-   ...                                         lazy.theta(),
+   ...                                         r4(
+   ...                                           lazy.r),
+   ...                                         r4(
+   ...                                           lazy.theta),
    ...                                         )))  [-1]
    ...                           )()
    ...                       ):
    ...                  ((
    ...                     *__import__('itertools').starmap(
-   ...                        _Qzgibeefhr__lambda.__setattr__,
+   ...                        _Qzg4t3gdjc__lambda.__setattr__,
    ...                        __import__('builtins').dict(
    ...                          __name__='coordinates',
    ...                          __qualname__='coordinates',
-   ...                          __code__=_Qzgibeefhr__lambda.__code__.replace(
+   ...                          __code__=_Qzg4t3gdjc__lambda.__code__.replace(
    ...                                     co_name='coordinates')).items()),
    ...                     ),
-   ...                   _Qzgibeefhr__lambda)  [-1]
+   ...                   _Qzg4t3gdjc__lambda)  [-1]
    ...               )())
 
 .. code-block:: REPL
@@ -5279,19 +5297,19 @@ Wrapping it in an `ors` so it isn't recognized as a string literal would also wo
    >>> coordinates(
    ...   r=2**.5,
    ...   θ=(0.7853981633974483))
-   {'cartesian': (1.0000000000000002, 1.0000000000000002), 'polar': (1.4142135623730951, 0.7853981633974483)}
+   {'cartesian': (1.0, 1.0), 'polar': (1.4142, 0.7854)}
 
    #> (coordinates : x 1  y 1)
    >>> coordinates(
    ...   x=(1),
    ...   y=(1))
-   {'cartesian': (1, 1), 'polar': (1.4142135623730951, 0.7853981633974483)}
+   {'cartesian': (1, 1), 'polar': (1.4142, 0.7854)}
 
    #> (coordinates : r 1  theta math..radians#60)
    >>> coordinates(
    ...   r=(1),
    ...   theta=(1.0471975511965976))
-   {'cartesian': (0.5000000000000001, 0.8660254037844386), 'polar': (1, 1.0471975511965976)}
+   {'cartesian': (0.5, 0.866), 'polar': (1, 1.0472)}
 
 Our examples work the same as before,
 but the definition is so much simpler.
@@ -6069,12 +6087,22 @@ Let's try it!
 
 .. Lissp::
 
+   #> (define r4 &#(round : ndigits 4)) ; Just a partial now.
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   r4=__import__('functools').partial(
+   ...        round,
+   ...        ndigits=(4)))
+
    #> (defun-lazy coordinates (x (mul r (math..cos theta))
    #..                         y (mul r (math..sin theta))
    #..                         r (XY#|(X**2 + Y**2)**.5| x y)
    #..                         θ (math..atan2 y x)
    #..                         theta θ)
-   #..   (dict : cartesian `(,x ,y)  polar `(,r ,theta)))
+   #..   ;; If you're not rounding, it's just
+   #..   ;; (dict : cartesian `(,x ,y)  polar `(,r ,theta)))
+   #..   (dict : cartesian `(,(r4 x) ,(r4 y))
+   #..         polar `(,(r4 r) ,(r4 theta))))
    >>> # defunQzH_lazy
    ... # __main__.._macro_.defun
    ... # hissp.macros.._macro_.define
@@ -6082,14 +6110,14 @@ Let's try it!
    ...   coordinates=# hissp.macros.._macro_.fun
    ...               # hissp.macros.._macro_.let
    ...               (
-   ...                lambda _Qz3murjnbw__lambda=(lambda **kwargs:
+   ...                lambda _Qzg4t3gdjc__lambda=(lambda **kwargs:
    ...                           # __main__.._macro_.QzH_QzLT_QzGT_QzGT_
    ...                           # __main__.._macro_.smacrolet
    ...                           (lambda _Qzgqgc4a3y__lazy=__import__('types').SimpleNamespace():
    ...                              ((
-   ...                                lambda _Qzkn5utg5s__self=__import__('builtins').vars(
+   ...                                lambda _Qzqinvrqwa__self=__import__('builtins').vars(
    ...                                         _Qzgqgc4a3y__lazy):
-   ...                                  (_Qzkn5utg5s__self.update(
+   ...                                  (_Qzqinvrqwa__self.update(
    ...                                     __import__('builtins').zip(
    ...                                       ['x', 'y', 'r', 'θ', 'theta'],
    ...                                       (
@@ -6118,7 +6146,7 @@ Let's try it!
    ...                                         (lambda : _Qzgqgc4a3y__lazy.θ()),
    ...                                         ),
    ...                                       strict=(1))),
-   ...                                   _Qzkn5utg5s__self.update(
+   ...                                   _Qzqinvrqwa__self.update(
    ...                                     __import__('itertools').starmap(
    ...                                       (lambda _Qzgqgc4a3y__k, _Qzgqgc4a3y__v:
    ...                                           (lambda *xs: [*xs])(
@@ -6126,29 +6154,33 @@ Let's try it!
    ...                                             (lambda _Qzgqgc4a3y__v=_Qzgqgc4a3y__v: _Qzgqgc4a3y__v))
    ...                                       ),
    ...                                       kwargs.items())),
-   ...                                   _Qzkn5utg5s__self)  [-1]
+   ...                                   _Qzqinvrqwa__self)  [-1]
    ...                               )(),
    ...                               dict(
    ...                                 cartesian=(
-   ...                                             _Qzgqgc4a3y__lazy.x(),
-   ...                                             _Qzgqgc4a3y__lazy.y(),
+   ...                                             r4(
+   ...                                               _Qzgqgc4a3y__lazy.x()),
+   ...                                             r4(
+   ...                                               _Qzgqgc4a3y__lazy.y()),
    ...                                             ),
    ...                                 polar=(
-   ...                                         _Qzgqgc4a3y__lazy.r(),
-   ...                                         _Qzgqgc4a3y__lazy.theta(),
+   ...                                         r4(
+   ...                                           _Qzgqgc4a3y__lazy.r()),
+   ...                                         r4(
+   ...                                           _Qzgqgc4a3y__lazy.theta()),
    ...                                         )))  [-1]
    ...                           )()
    ...                       ):
    ...                  ((
    ...                     *__import__('itertools').starmap(
-   ...                        _Qz3murjnbw__lambda.__setattr__,
+   ...                        _Qzg4t3gdjc__lambda.__setattr__,
    ...                        __import__('builtins').dict(
    ...                          __name__='coordinates',
    ...                          __qualname__='coordinates',
-   ...                          __code__=_Qz3murjnbw__lambda.__code__.replace(
+   ...                          __code__=_Qzg4t3gdjc__lambda.__code__.replace(
    ...                                     co_name='coordinates')).items()),
    ...                     ),
-   ...                   _Qz3murjnbw__lambda)  [-1]
+   ...                   _Qzg4t3gdjc__lambda)  [-1]
    ...               )())
 
 Notice the ``r`` default injection can't use ``x`` and ``y`` directly,
@@ -6168,19 +6200,19 @@ Our examples work just like before:
    >>> coordinates(
    ...   r=2**.5,
    ...   θ=(0.7853981633974483))
-   {'cartesian': (1.0000000000000002, 1.0000000000000002), 'polar': (1.4142135623730951, 0.7853981633974483)}
+   {'cartesian': (1.0, 1.0), 'polar': (1.4142, 0.7854)}
 
    #> (coordinates : x 1  y 1)
    >>> coordinates(
    ...   x=(1),
    ...   y=(1))
-   {'cartesian': (1, 1), 'polar': (1.4142135623730951, 0.7853981633974483)}
+   {'cartesian': (1, 1), 'polar': (1.4142, 0.7854)}
 
    #> (coordinates : r 1  theta math..radians#60)
    >>> coordinates(
    ...   r=(1),
    ...   theta=(1.0471975511965976))
-   {'cartesian': (0.5000000000000001, 0.8660254037844386), 'polar': (1, 1.0471975511965976)}
+   {'cartesian': (0.5, 0.866), 'polar': (1, 1.0472)}
 
 
 Isn't that cool?
@@ -6642,16 +6674,16 @@ in addition to replicating Python's capabilities:
 
 .. code-block:: REPL
 
-   #> (coordinates : r 1.4142135623730951  theta 0.7853981633974483)
+   #> (coordinates : r 1.4142  theta 0.7854)
    >>> coordinates(
-   ...   r=(1.4142135623730951),
-   ...   theta=(0.7853981633974483))
-   {'cartesian': (1.0000000000000002, 1.0000000000000002), 'polar': (1.4142135623730951, 0.7853981633974483)}
+   ...   r=(1.4142),
+   ...   theta=(0.7854))
+   {'cartesian': (1.0, 1.0), 'polar': (1.4142, 0.7854)}
 
    #> (coordinates->complex _)
    >>> coordinatesQzH_QzGT_complex(
    ...   _)
-   (1.0000000000000002+1.0000000000000002j)
+   (1+1j)
 
 A lot of programming comes down to restructuring data like this.
 
