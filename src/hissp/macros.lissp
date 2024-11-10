@@ -4539,6 +4539,5 @@ sentinel#
     `(avow ,expr ,predicate ,@args)
     expr))
 
-;;; Don't let the size of this file intimidate you. Most of the lines
-;;; are documentation. After you remove the comments, docstrings, and
-;;; blank lines, only about 300 lines of actual code remain.
+;;; Don't let the size of this file intimidate you!
+;;; Only about 10% of the lines are actual source code.

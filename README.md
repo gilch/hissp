@@ -589,7 +589,7 @@ rarely needed.
 Feature creep belongs in external libraries,
 not in the compiler proper.
 If you strip out the documentation and blank lines,
-The `hissp` package only has around 1100 lines of actual code left over.
+the entire `hissp` package only has around 1350 lines of source code left over.
 
 Hissp compiles to an unpythonic *functional subset* of Python.
 This subset has a direct and easy-to-understand correspondence to the Hissp code,
