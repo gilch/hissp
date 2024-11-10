@@ -9,6 +9,7 @@ from unittest import TestCase
 from unittest.mock import ANY
 
 import hypothesis.strategies as st
+from hissp.reader import SoftSyntaxError
 from hypothesis import given
 
 from hissp import reader
@@ -156,7 +157,7 @@ class TestReader(TestCase):
             next(self.reader.reads("(x#)"))
 
     def test_reader_initial_dot(self):
-        msg = r"unknown tag 'QzFULLxSTOP_foo'"
+        msg = r"unknown tag 'QzDOT_foo'"
         with self.assertRaisesRegex(SyntaxError, msg):
             next(self.reader.reads(".foo# 0"))
 
@@ -167,7 +168,7 @@ class TestReader(TestCase):
         )  # fmt: skip
 
     def test_is_string_code(self):
-        self.assertFalse(reader.is_lissp_string("(1+1)"))
+        self.assertFalse(reader.is_lissp_unicode("(1+1)"))
 
     def test_gensym_equal(self):
         self.assertEqual(*next(self.reader.reads(".#`($#G $#G)")))
@@ -182,6 +183,24 @@ class TestReader(TestCase):
         name = next(name_reader.reads(code))
         self.assertNotEqual(main, name)
         self.assertRegex(main + name, r"(?:_Qz[a-z0-7]+__G){2}")
+
+    def test_unwrapped_splice(self):
+        with self.assertRaisesRegex(SyntaxError, "splice not in tuple"):
+            next(self.reader.reads("`,@()"))
+
+    def test_bad_fragment(self):
+        with self.assertRaisesRegex(SyntaxError, "unpaired |"):
+            next(self.reader.reads("|foo"))
+
+    def test_trivial_template(self):
+        self.assertEqual(":foo", next(self.reader.reads("`:foo")))
+
+    def test_tag_under_arity(self):
+        msg = "reader tag 'foo##' missing argument"
+        with self.assertRaisesRegex(SoftSyntaxError, msg):
+            next(self.reader.reads("foo##2\n"))
+        with self.assertRaisesRegex(SyntaxError, msg):
+            next(self.reader.reads("(foo##2)"))
 
 
 EXPECTED = {
@@ -270,7 +289,7 @@ EXPECTED = {
         ("quote",
          "QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzHAT_QzET_QzSTAR_QzLPAR_QzRPAR__"
          "QzPLUS_QzLCUB_QzRCUB_QzVERT_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_QzGRAVE_QzH_QzEQ_"
-         "QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_QzFULLxSTOP_QzSOL_",)
+         "QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_QzDOT_QzSOL_",)
     ],
 
     R"""\1 \12 \[] \(\) \{} \[] \: \; \# \` \, \' \" \\ \\. \. \ """: [
@@ -289,7 +308,7 @@ EXPECTED = {
         "QzQUOT_",
         "QzBSOL_",
         'QzBSOL_.',
-        'QzFULLxSTOP_',
+        'QzDOT_',
         "QzSPACE_",
     ],
 

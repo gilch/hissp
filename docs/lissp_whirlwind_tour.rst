@@ -393,9 +393,9 @@ Lissp Whirlwind Tour
    ;; only meant for use at read time, but they're allowed to survive to
    ;; run time for debugging purposes.
    #> spam=eggs
-   >>> # Kwarg('spam', 'eggs')
-   ... __import__('pickle').loads(b'ccopy_reg\n_reconstructor\n(chissp.reader\nKwarg\nc__builtin__\nobject\nNtR(dVk\nVspam\nsVv\nVeggs\nsb.')
-   Kwarg('spam', 'eggs')
+   >>> # Kwarg(k='spam', v='eggs')
+   ... __import__('pickle').loads(b'ccopy_reg\n_reconstructor\n(chissp.reader\nKwarg\nc__builtin__\ntuple\n(Vspam\nVeggs\nttR.')
+   Kwarg(k='spam', v='eggs')
 
 
    ;; use ; for a COMMENT TOKEN (like this one)
@@ -531,8 +531,8 @@ Lissp Whirlwind Tour
    'QzDIGITxFOUR_2'
 
    #> '\.
-   >>> 'QzFULLxSTOP_'
-   'QzFULLxSTOP_'
+   >>> 'QzDOT_'
+   'QzDOT_'
 
    #> '\\
    >>> 'QzBSOL_'
@@ -1532,17 +1532,20 @@ Lissp Whirlwind Tour
    ('operator..add', 1, ('operator..add', 2, 3))
 
 
-   ;; Five of the helpers are predicates for inspecting code.
+   ;; Some of the helpers are predicates for inspecting code.
    #> (pprint..pp
    #.. (list
    #..  (itertools..starmap
    #..   (lambda xy (|| x y.__name__))
    #..   (filter (lambda x (|x[1]| |x[0]|))
-   #..           (itertools..product '(:control symbol "string" 'quoted () 1 '2)
-   #..                               (|| hissp..is_atomic
-   #..                                   hissp..is_control
+   #..           (itertools..product '(:control re. "string" 'quoted () 1 '2)
+   #..                               (|| hissp..is_control
+   #..                                   hissp..is_import
+   #..                                   hissp..is_node
+   #..                                   hissp..is_str
    #..                                   hissp..is_symbol
    #..                                   hissp..is_hissp_string
+   #..                                   hissp..is_lissp_unicode
    #..                                   hissp..is_string_literal))))))
    >>> __import__('pprint').pp(
    ...   list(
@@ -1559,7 +1562,7 @@ Lissp Whirlwind Tour
    ...         ),
    ...         __import__('itertools').product(
    ...           (':control',
-   ...            'symbol',
+   ...            're.',
    ...            "('string')",
    ...            ('quote',
    ...             'quoted',),
@@ -1568,21 +1571,26 @@ Lissp Whirlwind Tour
    ...            ('quote',
    ...             (2),),),
    ...           (
-   ...             __import__('hissp').is_atomic,
    ...             __import__('hissp').is_control,
+   ...             __import__('hissp').is_import,
+   ...             __import__('hissp').is_node,
+   ...             __import__('hissp').is_str,
    ...             __import__('hissp').is_symbol,
    ...             __import__('hissp').is_hissp_string,
+   ...             __import__('hissp').is_lissp_unicode,
    ...             __import__('hissp').is_string_literal))))))
-   [(':control', 'is_atomic'),
-    (':control', 'is_control'),
-    ('symbol', 'is_atomic'),
-    ('symbol', 'is_symbol'),
-    ("('string')", 'is_atomic'),
+   [(':control', 'is_control'),
+    (':control', 'is_str'),
+    ('re.', 'is_import'),
+    ('re.', 'is_str'),
+    ('re.', 'is_symbol'),
+    ("('string')", 'is_str'),
     ("('string')", 'is_hissp_string'),
+    ("('string')", 'is_lissp_unicode'),
     ("('string')", 'is_string_literal'),
+    (('quote', 'quoted'), 'is_node'),
     (('quote', 'quoted'), 'is_hissp_string'),
-    ((), 'is_atomic'),
-    (1, 'is_atomic')]
+    (('quote', 2), 'is_node')]
 
 
    ;; Macros only work as invocations, not arguments!

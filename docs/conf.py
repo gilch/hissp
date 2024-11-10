@@ -98,4 +98,4 @@ pygments_dark_style = "monokai"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
+intersphinx_mapping = {"python": ("https://docs.python.org/3.10", None)}

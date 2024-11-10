@@ -81,7 +81,7 @@ not a reference,
 and I'll be explaining not just how to write macros,
 but why you need them.
 
-----
+####
 
 If you're new to Lisp,
 go back and read the `style guide <style_guide>` if you haven't already.
@@ -265,7 +265,7 @@ And push it to the REPL as well:
    The ``:`` directs it to dump into the module's global namespace.
    The `prelude<hissp.macros._macro_.prelude>`
    macro overwrites your ``_macro_`` namespace (if any) with a copy of the bundled one.
-   Any macros you've defined in there are lost.
+   Any references you've defined in there will be lost.
    In Lissp files, the prelude is meant to be used before any definitions,
    when it is used at all.
    Likewise, in the REPL, enter it first, or be prepared to re-enter your definitions.
@@ -283,7 +283,7 @@ Compile to Python using
 
 .. code-block:: Lissp
 
-   #> hissp..refresh#'foo
+   #> H##refresh 'foo
 
 where ``'foo`` is the name of your module
 (so, ``'tutorial`` if your Lissp file was named that).
@@ -292,7 +292,19 @@ Start a subREPL in the new Python module it returned:
 
 .. code-block:: Lissp
 
+   #> H##subrepl _
+
+By the way, we have the `H#<HQzHASH_>` alias because of the prelude.
+It's one of the bundled tags.
+The above is equivalent to
+
+.. code-block:: Lissp
+
    #> hissp..subrepl#_
+
+The :term:`fully-qualified tag` will work anywhere,
+but the alias only works in modules that have it in their ``_macro_`` namespace.
+That's why the prelude had to use the fully-qualified version.
 
 Confirm that `__name__` resolves to your foo
 (think of it like a ``pwd`` in Bash).
@@ -592,27 +604,23 @@ Try this definition.
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _Qztxnqfmn3__lambda=(lambda params, *body:
+   ...    lambda _Qzwin5lyqx__lambda=(lambda params, *body:
    ...               (
    ...                 'lambda',
    ...                 params,
    ...                 *body,
    ...                 )
    ...           ):
-   ...      (__import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__code__'),
-   ...         _Qztxnqfmn3__lambda.__code__.replace(
-   ...           co_name='L')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__name__'),
-   ...         'L'),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__qualname__'),
-   ...         '_macro_.L'),
-   ...       _Qztxnqfmn3__lambda)  [-1]
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzwin5lyqx__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='L',
+   ...              __qualname__='_macro_.L',
+   ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                         co_name='L')).items()),
+   ...         ),
+   ...       _Qzwin5lyqx__lambda)  [-1]
    ...   )())
 
 
@@ -692,7 +700,7 @@ that `anaphoric macro <anaphoric>` we did in the `primer`.
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _Qztxnqfmn3__lambda=(lambda *expr:
+   ...    lambda _Qzwin5lyqx__lambda=(lambda *expr:
    ...               (
    ...                 'lambda',
    ...                 (
@@ -701,20 +709,16 @@ that `anaphoric macro <anaphoric>` we did in the `primer`.
    ...                 expr,
    ...                 )
    ...           ):
-   ...      (__import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__code__'),
-   ...         _Qztxnqfmn3__lambda.__code__.replace(
-   ...           co_name='L')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__name__'),
-   ...         'L'),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__qualname__'),
-   ...         '_macro_.L'),
-   ...       _Qztxnqfmn3__lambda)  [-1]
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzwin5lyqx__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='L',
+   ...              __qualname__='_macro_.L',
+   ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                         co_name='L')).items()),
+   ...         ),
+   ...       _Qzwin5lyqx__lambda)  [-1]
    ...   )())
 
 
@@ -810,7 +814,7 @@ Ready?
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _Qztxnqfmn3__lambda=(lambda *expr:
+   ...    lambda _Qzwin5lyqx__lambda=(lambda *expr:
    ...               (
    ...                 'lambda',
    ...                 (
@@ -820,20 +824,16 @@ Ready?
    ...                 expr,
    ...                 )
    ...           ):
-   ...      (__import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__code__'),
-   ...         _Qztxnqfmn3__lambda.__code__.replace(
-   ...           co_name='L2')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__name__'),
-   ...         'L2'),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__qualname__'),
-   ...         '_macro_.L2'),
-   ...       _Qztxnqfmn3__lambda)  [-1]
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzwin5lyqx__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='L2',
+   ...              __qualname__='_macro_.L2',
+   ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                         co_name='L2')).items()),
+   ...         ),
+   ...       _Qzwin5lyqx__lambda)  [-1]
    ...   )())
 
 
@@ -883,27 +883,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  '',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L0')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L0'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L0'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L0',
+   ...               __qualname__='_macro_.L0',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L0')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -913,27 +909,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'A',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L1')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L1'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L1'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L1',
+   ...               __qualname__='_macro_.L1',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L1')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -943,27 +935,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'AB',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L2')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L2'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L2'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L2',
+   ...               __qualname__='_macro_.L2',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L2')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -973,27 +961,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABC',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L3')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L3'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L3'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L3',
+   ...               __qualname__='_macro_.L3',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L3')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1003,27 +987,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCD',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L4')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L4'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L4'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L4',
+   ...               __qualname__='_macro_.L4',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L4')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1033,27 +1013,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDE',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L5')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L5'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L5'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L5',
+   ...               __qualname__='_macro_.L5',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L5')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1063,27 +1039,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEF',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L6')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L6'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L6'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L6',
+   ...               __qualname__='_macro_.L6',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L6')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1093,27 +1065,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFG',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L7')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L7'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L7'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L7',
+   ...               __qualname__='_macro_.L7',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L7')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1123,27 +1091,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGH',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L8')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L8'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L8'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L8',
+   ...               __qualname__='_macro_.L8',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L8')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1153,27 +1117,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHI',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L9')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L9'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L9'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L9',
+   ...               __qualname__='_macro_.L9',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L9')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1183,27 +1143,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJ',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L10')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L10'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L10'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L10',
+   ...               __qualname__='_macro_.L10',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L10')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1213,27 +1169,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJK',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L11')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L11'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L11'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L11',
+   ...               __qualname__='_macro_.L11',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L11')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1243,27 +1195,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKL',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L12')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L12'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L12'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L12',
+   ...               __qualname__='_macro_.L12',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L12')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1273,27 +1221,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLM',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L13')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L13'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L13'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L13',
+   ...               __qualname__='_macro_.L13',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L13')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1303,27 +1247,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMN',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L14')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L14'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L14'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L14',
+   ...               __qualname__='_macro_.L14',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L14')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1333,27 +1273,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNO',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L15')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L15'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L15'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L15',
+   ...               __qualname__='_macro_.L15',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L15')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1363,27 +1299,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOP',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L16')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L16'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L16'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L16',
+   ...               __qualname__='_macro_.L16',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L16')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1393,27 +1325,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQ',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L17')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L17'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L17'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L17',
+   ...               __qualname__='_macro_.L17',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L17')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1423,27 +1351,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQR',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L18')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L18'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L18'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L18',
+   ...               __qualname__='_macro_.L18',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L18')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1453,27 +1377,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRS',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L19')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L19'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L19'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L19',
+   ...               __qualname__='_macro_.L19',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L19')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1483,27 +1403,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRST',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L20')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L20'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L20'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L20',
+   ...               __qualname__='_macro_.L20',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L20')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1513,27 +1429,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRSTU',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L21')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L21'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L21'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L21',
+   ...               __qualname__='_macro_.L21',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L21')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1543,27 +1455,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRSTUV',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L22')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L22'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L22'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L22',
+   ...               __qualname__='_macro_.L22',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L22')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1573,27 +1481,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRSTUVW',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L23')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L23'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L23'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L23',
+   ...               __qualname__='_macro_.L23',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L23')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1603,27 +1507,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRSTUVWX',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L24')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L24'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L24'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L24',
+   ...               __qualname__='_macro_.L24',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L24')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1633,27 +1533,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRSTUVWXY',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L25')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L25'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L25'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L25',
+   ...               __qualname__='_macro_.L25',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L25')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()),
    ...  # __main__.._macro_.defmacro
    ...  __import__('builtins').setattr(
@@ -1663,27 +1559,23 @@ Don't panic.
    ...    # hissp.macros.._macro_.fun
    ...    # hissp.macros.._macro_.let
    ...    (
-   ...     lambda _Qztxnqfmn3__lambda=(lambda *_Qzwwncolrl__expr:
+   ...     lambda _Qzwin5lyqx__lambda=(lambda *_Qzbhcx5hhq__expr:
    ...                (
    ...                  'lambda',
    ...                  'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-   ...                  _Qzwwncolrl__expr,
+   ...                  _Qzbhcx5hhq__expr,
    ...                  )
    ...            ):
-   ...       (__import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__code__'),
-   ...          _Qztxnqfmn3__lambda.__code__.replace(
-   ...            co_name='L26')),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__name__'),
-   ...          'L26'),
-   ...        __import__('builtins').setattr(
-   ...          _Qztxnqfmn3__lambda,
-   ...          ('__qualname__'),
-   ...          '_macro_.L26'),
-   ...        _Qztxnqfmn3__lambda)  [-1]
+   ...       ((
+   ...          *__import__('itertools').starmap(
+   ...             _Qzwin5lyqx__lambda.__setattr__,
+   ...             __import__('builtins').dict(
+   ...               __name__='L26',
+   ...               __qualname__='_macro_.L26',
+   ...               __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                          co_name='L26')).items()),
+   ...          ),
+   ...        _Qzwin5lyqx__lambda)  [-1]
    ...    )()))  [-1]
 
 Whoa.
@@ -1800,8 +1692,8 @@ Finally, we slice the string to the appropriate number of characters for a
 Take a breath.
 We're not done.
 
-Macros Can Read Code Too.
-:::::::::::::::::::::::::
+Macros Can Read Code Too
+::::::::::::::::::::::::
 
 We're still providing more information than is required.
 You have to change the name of your macro based on the number of arguments you expect.
@@ -1854,7 +1746,7 @@ We can create numbered X's the same way we created the numbered L's.
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _Qztxnqfmn3__lambda=(lambda number, *expr:
+   ...    lambda _Qzwin5lyqx__lambda=(lambda number, *expr:
    ...               (
    ...                 'lambda',
    ...                 map(
@@ -1870,20 +1762,16 @@ We can create numbered X's the same way we created the numbered L's.
    ...                 expr,
    ...                 )
    ...           ):
-   ...      (__import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__code__'),
-   ...         _Qztxnqfmn3__lambda.__code__.replace(
-   ...           co_name='L')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__name__'),
-   ...         'L'),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__qualname__'),
-   ...         '_macro_.L'),
-   ...       _Qztxnqfmn3__lambda)  [-1]
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzwin5lyqx__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='L',
+   ...              __qualname__='_macro_.L',
+   ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                         co_name='L')).items()),
+   ...         ),
+   ...       _Qzwin5lyqx__lambda)  [-1]
    ...   )())
 
 .. tip::
@@ -1904,7 +1792,7 @@ We can create numbered X's the same way we created the numbered L's.
 
    .. code-block:: Lissp
 
-      #> hissp..refresh#:
+      #> H##refresh :
 
    Refreshing is appropriate after updating definitions.
    Pushing smaller selections can be better for causing side effects,
@@ -1913,7 +1801,8 @@ We can create numbered X's the same way we created the numbered L's.
    The caveats described in `importlib.reload` still apply.
    The environment is not discarded on a reload.
    Definitions with the same name get overwritten,
-   but beware that removed (or renamed) definitions persist.
+   but beware that bindings from removed (or renamed) definitions persist
+   until explicitly deleted.
 
    See also: `hissp.reader.transpile`, `defonce`, `del`.
 
@@ -1956,7 +1845,7 @@ Let's make a slight tweak.
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _Qztxnqfmn3__lambda=(lambda *expr:
+   ...    lambda _Qzwin5lyqx__lambda=(lambda *expr:
    ...               (
    ...                 'lambda',
    ...                 map(
@@ -1973,20 +1862,16 @@ Let's make a slight tweak.
    ...                 expr,
    ...                 )
    ...           ):
-   ...      (__import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__code__'),
-   ...         _Qztxnqfmn3__lambda.__code__.replace(
-   ...           co_name='L')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__name__'),
-   ...         'L'),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__qualname__'),
-   ...         '_macro_.L'),
-   ...       _Qztxnqfmn3__lambda)  [-1]
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzwin5lyqx__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='L',
+   ...              __qualname__='_macro_.L',
+   ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                         co_name='L')).items()),
+   ...         ),
+   ...       _Qzwin5lyqx__lambda)  [-1]
    ...   )())
 
 
@@ -2012,7 +1897,7 @@ Can we just iterate through the expression and check?
    ...   maxQzH_X=# hissp.macros.._macro_.fun
    ...            # hissp.macros.._macro_.let
    ...            (
-   ...             lambda _Qztxnqfmn3__lambda=(lambda expr:
+   ...             lambda _Qzwin5lyqx__lambda=(lambda expr:
    ...                        max(
    ...                          map(
    ...                            (lambda x:
@@ -2044,20 +1929,16 @@ Can we just iterate through the expression and check?
    ...                            ),
    ...                            expr))
    ...                    ):
-   ...               (__import__('builtins').setattr(
-   ...                  _Qztxnqfmn3__lambda,
-   ...                  ('__code__'),
-   ...                  _Qztxnqfmn3__lambda.__code__.replace(
-   ...                    co_name='maxQzH_X')),
-   ...                __import__('builtins').setattr(
-   ...                  _Qztxnqfmn3__lambda,
-   ...                  ('__name__'),
-   ...                  'maxQzH_X'),
-   ...                __import__('builtins').setattr(
-   ...                  _Qztxnqfmn3__lambda,
-   ...                  ('__qualname__'),
-   ...                  'maxQzH_X'),
-   ...                _Qztxnqfmn3__lambda)  [-1]
+   ...               ((
+   ...                  *__import__('itertools').starmap(
+   ...                     _Qzwin5lyqx__lambda.__setattr__,
+   ...                     __import__('builtins').dict(
+   ...                       __name__='maxQzH_X',
+   ...                       __qualname__='maxQzH_X',
+   ...                       __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                                  co_name='maxQzH_X')).items()),
+   ...                  ),
+   ...                _Qzwin5lyqx__lambda)  [-1]
    ...            )())
 
 
@@ -2125,7 +2006,7 @@ This sounds like a job for recursion.
    ...   flatten=# hissp.macros.._macro_.fun
    ...           # hissp.macros.._macro_.let
    ...           (
-   ...            lambda _Qztxnqfmn3__lambda=(lambda form:
+   ...            lambda _Qzwin5lyqx__lambda=(lambda form:
    ...                       __import__('itertools').chain.from_iterable(
    ...                         map(
    ...                           (lambda x:
@@ -2147,20 +2028,16 @@ This sounds like a job for recursion.
    ...                           ),
    ...                           form))
    ...                   ):
-   ...              (__import__('builtins').setattr(
-   ...                 _Qztxnqfmn3__lambda,
-   ...                 ('__code__'),
-   ...                 _Qztxnqfmn3__lambda.__code__.replace(
-   ...                   co_name='flatten')),
-   ...               __import__('builtins').setattr(
-   ...                 _Qztxnqfmn3__lambda,
-   ...                 ('__name__'),
-   ...                 'flatten'),
-   ...               __import__('builtins').setattr(
-   ...                 _Qztxnqfmn3__lambda,
-   ...                 ('__qualname__'),
-   ...                 'flatten'),
-   ...               _Qztxnqfmn3__lambda)  [-1]
+   ...              ((
+   ...                 *__import__('itertools').starmap(
+   ...                    _Qzwin5lyqx__lambda.__setattr__,
+   ...                    __import__('builtins').dict(
+   ...                      __name__='flatten',
+   ...                      __qualname__='flatten',
+   ...                      __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                                 co_name='flatten')).items()),
+   ...                 ),
+   ...               _Qzwin5lyqx__lambda)  [-1]
    ...           )())
 
 
@@ -2185,7 +2062,7 @@ Now we can fix ``max-X``.
    ...   maxQzH_X=# hissp.macros.._macro_.fun
    ...            # hissp.macros.._macro_.let
    ...            (
-   ...             lambda _Qztxnqfmn3__lambda=(lambda expr:
+   ...             lambda _Qzwin5lyqx__lambda=(lambda expr:
    ...                        max(
    ...                          map(
    ...                            (lambda x:
@@ -2218,20 +2095,16 @@ Now we can fix ``max-X``.
    ...                            flatten(
    ...                              expr)))
    ...                    ):
-   ...               (__import__('builtins').setattr(
-   ...                  _Qztxnqfmn3__lambda,
-   ...                  ('__code__'),
-   ...                  _Qztxnqfmn3__lambda.__code__.replace(
-   ...                    co_name='maxQzH_X')),
-   ...                __import__('builtins').setattr(
-   ...                  _Qztxnqfmn3__lambda,
-   ...                  ('__name__'),
-   ...                  'maxQzH_X'),
-   ...                __import__('builtins').setattr(
-   ...                  _Qztxnqfmn3__lambda,
-   ...                  ('__qualname__'),
-   ...                  'maxQzH_X'),
-   ...                _Qztxnqfmn3__lambda)  [-1]
+   ...               ((
+   ...                  *__import__('itertools').starmap(
+   ...                     _Qzwin5lyqx__lambda.__setattr__,
+   ...                     __import__('builtins').dict(
+   ...                       __name__='maxQzH_X',
+   ...                       __qualname__='maxQzH_X',
+   ...                       __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                                  co_name='maxQzH_X')).items()),
+   ...                  ),
+   ...                _Qzwin5lyqx__lambda)  [-1]
    ...            )())
 
 
@@ -2304,7 +2177,7 @@ you can start a subREPL with these already loaded using the shell command
 
 .. code-block:: console
 
-   $ lissp -ic "hissp..subrepl#tutorial."
+   $ lissp -ic "H##subrepl tutorial."
 
 rather than pasting them all in again.
 
@@ -2356,31 +2229,30 @@ you must define them in ``_macro_`` with a name ending in a ``#``.
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _Qztxnqfmn3__lambda=(lambda expr:
+   ...    lambda _Qzwin5lyqx__lambda=(lambda expr:
    ...               (
    ...                 '__main__.._macro_.L',
    ...                 *expr,
    ...                 )
    ...           ):
-   ...      (__import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__code__'),
-   ...         _Qztxnqfmn3__lambda.__code__.replace(
-   ...           co_name='XiQzHASH_')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__name__'),
-   ...         'XiQzHASH_'),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__qualname__'),
-   ...         '_macro_.XiQzHASH_'),
-   ...       _Qztxnqfmn3__lambda)  [-1]
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzwin5lyqx__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='XiQzHASH_',
+   ...              __qualname__='_macro_.XiQzHASH_',
+   ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                         co_name='XiQzHASH_')).items()),
+   ...         ),
+   ...       _Qzwin5lyqx__lambda)  [-1]
    ...   )())
 
 We have to escape the ``#`` with a backslash
 or the reader will parse the name as a tag rather than a symbol
 and immediately try to apply it to ``(expr)``, which is not what we want.
+(Similarly, use ``(help _macro_.foo\#)``
+with a ``\#`` to get help for a tag ``foo#``.)
+
 Notice that we still used a `defmacro`,
 like we do for :term:`macro function` definitions,
 because this will attach a callable to the ``_macro_`` namespace,
@@ -2468,7 +2340,7 @@ Catch-All Parameter
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _Qztxnqfmn3__lambda=(lambda *expr:
+   ...    lambda _Qzwin5lyqx__lambda=(lambda *expr:
    ...               (
    ...                 'lambda',
    ...                 (
@@ -2500,20 +2372,16 @@ Catch-All Parameter
    ...                 expr,
    ...                 )
    ...           ):
-   ...      (__import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__code__'),
-   ...         _Qztxnqfmn3__lambda.__code__.replace(
-   ...           co_name='L')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__name__'),
-   ...         'L'),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__qualname__'),
-   ...         '_macro_.L'),
-   ...       _Qztxnqfmn3__lambda)  [-1]
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzwin5lyqx__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='L',
+   ...              __qualname__='_macro_.L',
+   ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                         co_name='L')).items()),
+   ...         ),
+   ...       _Qzwin5lyqx__lambda)  [-1]
    ...   )())
 
 .. code-block:: REPL
@@ -2616,7 +2484,7 @@ Here you go:
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _Qztxnqfmn3__lambda=(lambda *expr:
+   ...    lambda _Qzwin5lyqx__lambda=(lambda *expr:
    ...               (
    ...                 'lambda',
    ...                 (
@@ -2672,20 +2540,16 @@ Here you go:
    ...                   (lambda : expr)),
    ...                 )
    ...           ):
-   ...      (__import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__code__'),
-   ...         _Qztxnqfmn3__lambda.__code__.replace(
-   ...           co_name='L')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__name__'),
-   ...         'L'),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__qualname__'),
-   ...         '_macro_.L'),
-   ...       _Qztxnqfmn3__lambda)  [-1]
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzwin5lyqx__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='L',
+   ...              __qualname__='_macro_.L',
+   ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                         co_name='L')).items()),
+   ...         ),
+   ...       _Qzwin5lyqx__lambda)  [-1]
    ...   )())
 
 .. code-block:: REPL
@@ -2891,7 +2755,230 @@ They're mainly useful as performance optimizations
 In principle,
 you should be able to do everything else without them.
 
+Python Injection is Really Powerful Though
+------------------------------------------
+
+:term:`Standard` Hissp compiles to a restricted subset of Python.
+Python expressions have a lot of features that standard Hissp lacks.
+(The infix operators we just saw, for example.)
+These are all still available via injection.
+On the other hand, Hissp has module handles and macros;
+and Lissp has munging and tags,
+none of which can simply be injected.
+
+What if you want both?
+You could write the whole expression in Python.
+Hissp's and Lissp's features do ultimately have to compile to Python,
+so you could write out the compilation yourself,
+but this can be quite verbose in some cases:
+
+.. code-block:: REPL
+
+   #> |__import__('string').ascii_uppercase[::2]|
+   >>> __import__('string').ascii_uppercase[::2]
+   'ACEGIKMOQSUWY'
+
+On the other hand, you could write the whole thing in Lissp,
+since it has alternatives to everything Python can do:
+
+.. code-block:: REPL
+
+   #> (operator..getitem string..ascii_uppercase (slice None None 2))
+   >>> __import__('operator').getitem(
+   ...   __import__('string').ascii_uppercase,
+   ...   slice(
+   ...     None,
+   ...     None,
+   ...     (2)))
+   'ACEGIKMOQSUWY'
+
+This is *usually* the right answer,
+and it works better with metaprograms,
+but sometimes the Python expression is a lot more concise.
+
+Mixing a Python subexpression in Lissp code is usually pretty easy with a fragment token,
+but there are a few things to watch out for.
+You can usually avoid writing munged names
+or `__import__` in the injection yourself
+by using `let` to rename things
+or by using names invariant under munging in the first place:
+
+.. code-block:: REPL
+
+   #> (let (ABCs string..ascii_uppercase) |ABCs[::2]|)
+   >>> # let
+   ... (lambda ABCs=__import__('string').ascii_uppercase: ABCs[::2])()
+   'ACEGIKMOQSUWY'
+
+In more difficult cases,
+you could make a lambda in the `let` and call it inside the fragment.
+
+Mixing a Lissp subexpression in a fragment token doesn't work.
+But that doesn't mean you need to compile it by hand.
+Use a :term:`text macro`:
+
+.. Lissp::
+
+   #> (defmacro mix (: :* args)
+   #..  (.join "" (map hissp..readerless args)))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'mix',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qzdoxkbke4__lambda=(lambda *args:
+   ...               ('').join(
+   ...                 map(
+   ...                   __import__('hissp').readerless,
+   ...                   args))
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzdoxkbke4__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='mix',
+   ...              __qualname__='_macro_.mix',
+   ...              __code__=_Qzdoxkbke4__lambda.__code__.replace(
+   ...                         co_name='mix')).items()),
+   ...         ),
+   ...       _Qzdoxkbke4__lambda)  [-1]
+   ...   )())
+
+.. code-block:: REPL
+
+   #> (mix string..ascii_uppercase|[::2]|)
+   >>> # mix
+   ... __import__('string').ascii_uppercase[::2]
+   'ACEGIKMOQSUWY'
+
+You usually want to run Hissp objects through `readerless`
+before embedding them in a code string.
+This lets the compiler do the conversion to Python.
+When run in a macro, the compiler will use the appropriate namespace:
+its expansion context, not (necessarily) its definition context.
+
+Text macros are almost like defining a new :term:`special form`.
+Rather than transforming AST to AST (the Hissp forms),
+you're playing the role of the compiler and transforming AST to Python.
+Don't expect other macros to handle your :term:`nonstandard` special forms.
+But, in principle, you could write macros that can handle your own.
+At least if you don't have too many.
+
 .. TODO: optimize macro
+
+`mix` is a bundled macro.
+You don't need it for slices.
+We have the `[#<QzLSQB_QzHASH_>` tag for that,
+and it does use injection.
+But ``mix`` is a lot more general.
+
+----
+
+Tags can similarly return Python fragments.
+
+A single star parameter using control words
+is noticeably more verbose in Lissp than in Python:
+
+.. code-block:: REPL
+
+   #> ((lambda (: :* a-tuple) a-tuple) 1 2)
+   >>> (lambda *aQzH_tuple: aQzH_tuple)(
+   ...   (1),
+   ...   (2))
+   (1, 2)
+
+You have to say ``: :* foo`` instead of just ``*foo``.
+Of course, we don't have to write the commas in Hissp,
+but that doesn't help when there's only one parameter.
+
+Injection can help us in this case.
+Remember from the `lissp_whirlwind_tour` that we can use a fragment instead,
+but notice we've lost munging and have to use an underscore:
+
+.. code-block:: REPL
+
+   #> ((lambda (|*a_tuple|) a_tuple) 1 2)
+   >>> (lambda *a_tuple: a_tuple)(
+   ...   (1),
+   ...   (2))
+   (1, 2)
+
+We do have `en#<enQzHASH_>` for this case,
+but it can't handle any other argument types.
+
+.. code-block:: REPL
+
+   #> (en#(lambda (a-tuple) a-tuple) 1 2)
+   >>> (lambda *_Qz73ccdf3e__xs:
+   ...     (lambda aQzH_tuple: aQzH_tuple)(
+   ...       _Qz73ccdf3e__xs)
+   ... )(
+   ...   (1),
+   ...   (2))
+   (1, 2)
+
+This sounds like a job for `mix` again,
+but it doesn't work.
+``lambda`` is a :term:`special form`,
+and the compiler won't expand macros where it expects a parameter name.
+The macro would have to expand to the lambda instead.
+
+But that doesn't prevent us from using a tag that reads as a Python fragment.
+Remember, read time happens before compile time.
+
+.. Lissp::
+
+   #> (defmacro *\# a (.format "*{}" a))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'QzSTAR_QzHASH_',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qzdoxkbke4__lambda=(lambda a:
+   ...               ('*{}').format(
+   ...                 a)
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzdoxkbke4__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='QzSTAR_QzHASH_',
+   ...              __qualname__='_macro_.QzSTAR_QzHASH_',
+   ...              __code__=_Qzdoxkbke4__lambda.__code__.replace(
+   ...                         co_name='QzSTAR_QzHASH_')).items()),
+   ...         ),
+   ...       _Qzdoxkbke4__lambda)  [-1]
+   ...   )())
+
+.. code-block:: REPL
+
+   #> ((lambda (*#a-tuple *#*#a-dict)
+   #..   (print a-tuple a-dict))
+   #.. 1 2 : foo 2)
+   >>> (lambda *aQzH_tuple, **aQzH_dict:
+   ...     print(
+   ...       aQzH_tuple,
+   ...       aQzH_dict)
+   ... )(
+   ...   (1),
+   ...   (2),
+   ...   foo=(2))
+   (1, 2) {'foo': 2}
+
+We didn't bother running the symbol through `readerless` in this case.
+:term:`Unqualified` symbols are already valid :term:`Python fragment`\ s,
+so it wouldn't do anything, but wouldn't hurt either.
+The munging happens regardless, since that's done by the reader.
+
+``*#`` isn't bundled.
+It's not buying us much.
+But the implementation is trivial if you want it.
 
 More Literals
 =============
@@ -2931,8 +3018,6 @@ In Lissp, we can create new notation as-needed,
 with an overhead of just a few characters for a tag to disambiguate from the built-ins
 (and each other).
 You only have to learn a new notation when it's worth your while.
-
-.. TODO: mix macro?
 
 Hexadecimal
 :::::::::::
@@ -2979,25 +3064,21 @@ Lissp gives us a better option.
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _Qztxnqfmn3__lambda=(lambda x:
+   ...    lambda _Qzwin5lyqx__lambda=(lambda x:
    ...               int(
    ...                 x,
    ...                 (16))
    ...           ):
-   ...      (__import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__code__'),
-   ...         _Qztxnqfmn3__lambda.__code__.replace(
-   ...           co_name='QzDIGITxONE_6QzHASH_')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__name__'),
-   ...         'QzDIGITxONE_6QzHASH_'),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__qualname__'),
-   ...         '_macro_.QzDIGITxONE_6QzHASH_'),
-   ...       _Qztxnqfmn3__lambda)  [-1]
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzwin5lyqx__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='QzDIGITxONE_6QzHASH_',
+   ...              __qualname__='_macro_.QzDIGITxONE_6QzHASH_',
+   ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                         co_name='QzDIGITxONE_6QzHASH_')).items()),
+   ...         ),
+   ...       _Qzwin5lyqx__lambda)  [-1]
    ...   )())
 
 We've defined a tag that turns hexadecimal strings into ints.
@@ -3061,26 +3142,22 @@ New version.
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _Qztxnqfmn3__lambda=(lambda x:
+   ...    lambda _Qzwin5lyqx__lambda=(lambda x:
    ...               int(
    ...                 str(
    ...                   x),
    ...                 (16))
    ...           ):
-   ...      (__import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__code__'),
-   ...         _Qztxnqfmn3__lambda.__code__.replace(
-   ...           co_name='QzDIGITxONE_6QzHASH_')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__name__'),
-   ...         'QzDIGITxONE_6QzHASH_'),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__qualname__'),
-   ...         '_macro_.QzDIGITxONE_6QzHASH_'),
-   ...       _Qztxnqfmn3__lambda)  [-1]
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzwin5lyqx__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='QzDIGITxONE_6QzHASH_',
+   ...              __qualname__='_macro_.QzDIGITxONE_6QzHASH_',
+   ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                         co_name='QzDIGITxONE_6QzHASH_')).items()),
+   ...         ),
+   ...       _Qzwin5lyqx__lambda)  [-1]
    ...   )())
 
 And now it works as well as the built-in notation.
@@ -3164,7 +3241,7 @@ because munging is (mostly) reversible.
 
    #> (defmacro \16\# (x)
    #..  "hexadecimal"
-   #..  (int (hissp..demunge (str x))
+   #..  (int (H#demunge (str x))
    #..       16))
    >>> # defmacro
    ... __import__('builtins').setattr(
@@ -3174,31 +3251,24 @@ because munging is (mostly) reversible.
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _Qztxnqfmn3__lambda=(lambda x:
+   ...    lambda _Qzwin5lyqx__lambda=(lambda x:
    ...               int(
    ...                 __import__('hissp').demunge(
    ...                   str(
    ...                     x)),
    ...                 (16))
    ...           ):
-   ...      (__import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__doc__'),
-   ...         ('hexadecimal')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__code__'),
-   ...         _Qztxnqfmn3__lambda.__code__.replace(
-   ...           co_name='QzDIGITxONE_6QzHASH_')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__name__'),
-   ...         'QzDIGITxONE_6QzHASH_'),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__qualname__'),
-   ...         '_macro_.QzDIGITxONE_6QzHASH_'),
-   ...       _Qztxnqfmn3__lambda)  [-1]
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzwin5lyqx__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __doc__=('hexadecimal'),
+   ...              __name__='QzDIGITxONE_6QzHASH_',
+   ...              __qualname__='_macro_.QzDIGITxONE_6QzHASH_',
+   ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                         co_name='QzDIGITxONE_6QzHASH_')).items()),
+   ...         ),
+   ...       _Qzwin5lyqx__lambda)  [-1]
    ...   )())
 
 .. code-block:: REPL
@@ -3224,30 +3294,23 @@ Well, with tags, you can implement any base you want.
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _Qztxnqfmn3__lambda=(lambda x:
+   ...    lambda _Qzwin5lyqx__lambda=(lambda x:
    ...               int(
    ...                 str(
    ...                   x),
    ...                 (6))
    ...           ):
-   ...      (__import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__doc__'),
-   ...         ('seximal')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__code__'),
-   ...         _Qztxnqfmn3__lambda.__code__.replace(
-   ...           co_name='QzDIGITxSIX_QzHASH_')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__name__'),
-   ...         'QzDIGITxSIX_QzHASH_'),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__qualname__'),
-   ...         '_macro_.QzDIGITxSIX_QzHASH_'),
-   ...       _Qztxnqfmn3__lambda)  [-1]
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzwin5lyqx__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __doc__=('seximal'),
+   ...              __name__='QzDIGITxSIX_QzHASH_',
+   ...              __qualname__='_macro_.QzDIGITxSIX_QzHASH_',
+   ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                         co_name='QzDIGITxSIX_QzHASH_')).items()),
+   ...         ),
+   ...       _Qzwin5lyqx__lambda)  [-1]
    ...   )())
 
 .. code-block:: REPL
@@ -3268,7 +3331,7 @@ Or you can add floating-point. Python's literal notation can't do that.
 .. Lissp::
 
    #> (defmacro \16\# (x)
-   #..  (let (x (hissp..demunge (str x)))
+   #..  (let (x (H#demunge (str x)))
    #..    (if-else (re..search "[.Pp]" x)
    #..      (float.fromhex x)
    #..      (int x 16))))
@@ -3280,7 +3343,7 @@ Or you can add floating-point. Python's literal notation can't do that.
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _Qztxnqfmn3__lambda=(lambda x:
+   ...    lambda _Qzwin5lyqx__lambda=(lambda x:
    ...               # let
    ...               (
    ...                lambda x=__import__('hissp').demunge(
@@ -3302,20 +3365,16 @@ Or you can add floating-point. Python's literal notation can't do that.
    ...                     ))
    ...               )()
    ...           ):
-   ...      (__import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__code__'),
-   ...         _Qztxnqfmn3__lambda.__code__.replace(
-   ...           co_name='QzDIGITxONE_6QzHASH_')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__name__'),
-   ...         'QzDIGITxONE_6QzHASH_'),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__qualname__'),
-   ...         '_macro_.QzDIGITxONE_6QzHASH_'),
-   ...       _Qztxnqfmn3__lambda)  [-1]
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzwin5lyqx__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='QzDIGITxONE_6QzHASH_',
+   ...              __qualname__='_macro_.QzDIGITxONE_6QzHASH_',
+   ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                         co_name='QzDIGITxONE_6QzHASH_')).items()),
+   ...         ),
+   ...       _Qzwin5lyqx__lambda)  [-1]
    ...   )())
 
 .. code-block:: REPL
@@ -3450,7 +3509,7 @@ We can improve this a lot with a custom defmacro.
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _Qztxnqfmn3__lambda=(lambda x:
+   ...    lambda _Qzwin5lyqx__lambda=(lambda x:
    ...               (
    ...                 'decimal..Decimal',
    ...                 (
@@ -3460,20 +3519,16 @@ We can improve this a lot with a custom defmacro.
    ...                   ),
    ...                 )
    ...           ):
-   ...      (__import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__code__'),
-   ...         _Qztxnqfmn3__lambda.__code__.replace(
-   ...           co_name='QzDIGITxONE_0QzHASH_')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__name__'),
-   ...         'QzDIGITxONE_0QzHASH_'),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__qualname__'),
-   ...         '_macro_.QzDIGITxONE_0QzHASH_'),
-   ...       _Qztxnqfmn3__lambda)  [-1]
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzwin5lyqx__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='QzDIGITxONE_0QzHASH_',
+   ...              __qualname__='_macro_.QzDIGITxONE_0QzHASH_',
+   ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                         co_name='QzDIGITxONE_0QzHASH_')).items()),
+   ...         ),
+   ...       _Qzwin5lyqx__lambda)  [-1]
    ...   )())
 
 .. code-block:: REPL
@@ -3536,7 +3591,7 @@ but a fragment token is not the only alternative available:
 
 .. Lissp::
 
-   #> (defmacro \10\# d (decimal..Decimal (hissp..demunge (str d))))
+   #> (defmacro \10\# d (decimal..Decimal (H#demunge (str d))))
    >>> # defmacro
    ... __import__('builtins').setattr(
    ...   __import__('builtins').globals().get(
@@ -3545,26 +3600,22 @@ but a fragment token is not the only alternative available:
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _Qztxnqfmn3__lambda=(lambda d:
+   ...    lambda _Qzwin5lyqx__lambda=(lambda d:
    ...               __import__('decimal').Decimal(
    ...                 __import__('hissp').demunge(
    ...                   str(
    ...                     d)))
    ...           ):
-   ...      (__import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__code__'),
-   ...         _Qztxnqfmn3__lambda.__code__.replace(
-   ...           co_name='QzDIGITxONE_0QzHASH_')),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__name__'),
-   ...         'QzDIGITxONE_0QzHASH_'),
-   ...       __import__('builtins').setattr(
-   ...         _Qztxnqfmn3__lambda,
-   ...         ('__qualname__'),
-   ...         '_macro_.QzDIGITxONE_0QzHASH_'),
-   ...       _Qztxnqfmn3__lambda)  [-1]
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzwin5lyqx__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='QzDIGITxONE_0QzHASH_',
+   ...              __qualname__='_macro_.QzDIGITxONE_0QzHASH_',
+   ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+   ...                         co_name='QzDIGITxONE_0QzHASH_')).items()),
+   ...         ),
+   ...       _Qzwin5lyqx__lambda)  [-1]
    ...   )())
 
 .. code-block:: REPL
@@ -3594,6 +3645,3077 @@ If you're worried about accidentally using a float
 when you need more precision,
 you could skip the `str` conversion,
 and then a float wouldn't be a valid argument anymore.
+That's how the bundled `M#<MQzHASH_>` works.
+
+Binding Conditions
+==================
+
+Say you want to find the first word containing a lowercase "z" in some strings:
+
+.. Lissp::
+
+   #> (defun find-z-word (text)
+   #..  (print "found:" (-> '|\b\w*z\w*\b| (re..search text) (.group 0))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 print(
+   ...                                   ('found:'),
+   ...                                   # QzH_QzGT_
+   ...                                   __import__('re').search(
+   ...                                     '\\b\\w*z\\w*\\b',
+   ...                                     text).group(
+   ...                                     (0)))
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (find-z-word "The quick brown fox jumps over the lazy dog!")
+   >>> findQzH_zQzH_word(
+   ...   ('The quick brown fox jumps over the lazy dog!'))
+   found: lazy
+
+A simple regex worked. Not.
+
+.. code-block:: REPL
+
+   #> (find-z-word "The quick brown fox jumps over the sleeping dog!")
+   >>> findQzH_zQzH_word(
+   ...   ('The quick brown fox jumps over the sleeping dog!'))
+   Traceback (most recent call last):
+     ...
+   AttributeError: 'NoneType' object has no attribute 'group'
+
+We've already found a problem.
+Python's regex functions return ``None`` instead of a useful empty match object when no match was found,
+and the ``NoneType`` has no such method.
+Some questionable design decisions there.
+On several levels.
+We need to check if a match exists before we know it's safe to print what it found.
+Let's fix that:
+
+.. Lissp::
+
+   #> (defun find-z-word (text)
+   #..  (when (re..search '|\b\w*z\w*\b| text)
+   #..    (print "found:" (-> '|\b\w*z\w*\b| (re..search text) (.group 0)))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # when
+   ...                                 (lambda b, c: c()if b else())(
+   ...                                   __import__('re').search(
+   ...                                     '\\b\\w*z\\w*\\b',
+   ...                                     text),
+   ...                                   (lambda :
+   ...                                       print(
+   ...                                         ('found:'),
+   ...                                         # QzH_QzGT_
+   ...                                         __import__('re').search(
+   ...                                           '\\b\\w*z\\w*\\b',
+   ...                                           text).group(
+   ...                                           (0)))
+   ...                                   ))
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (find-z-word "The quick brown fox jumps over the lazy dog!")
+   >>> findQzH_zQzH_word(
+   ...   ('The quick brown fox jumps over the lazy dog!'))
+   found: lazy
+
+   #> (find-z-word "The quick brown fox jumps over the sleeping dog!")
+   >>> findQzH_zQzH_word(
+   ...   ('The quick brown fox jumps over the sleeping dog!'))
+   ()
+
+Well, at least it's not an error this time.
+But this definition duplicates the code for the search; it's not DRY.
+It's also duplicating the work of searching when run.
+If the search function was pure and memoized
+calling it again would actually be OK, performance-wise.
+That would be the norm in Haskell,
+but in Python you'd have to ask for memoization explicitly
+(using `functools.cache`, say).
+
+Performance often isn't that big of a deal.
+Unless you're being really egregiously wasteful,
+it usually only matters in bottlenecks,
+which usually means inside nested loops.
+One can get a sense for these things,
+but it's easy to waste a lot of programmer time on pointless micro-optimizations not on the critical path.
+Programmer time is a lot more expensive than CPU time.
+This wasn't always the case, but modern computers are pretty fast.
+When it matters, profile first.
+
+The more important consideration here is *readability*.
+Sometimes a terse implementation is the clearest name,
+but in this case, it's hard to tell if both expressions really are the same.
+It's easy to gloss over the regex pattern.
+These are fairly short and
+it's not too bad when they're on adjacent lines like this,
+but if you extract it to a local, you won't have to check:
+
+.. Lissp::
+
+   #> (defun find-z-word (text)
+   #..  (let (match (re..search '|\b\w*z\w*\b| text))
+   #..    (when match (print "found:" (.group match 0)))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # let
+   ...                                 (
+   ...                                  lambda match=__import__('re').search(
+   ...                                           '\\b\\w*z\\w*\\b',
+   ...                                           text):
+   ...                                     # when
+   ...                                     (lambda b, c: c()if b else())(
+   ...                                       match,
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('found:'),
+   ...                                             match.group(
+   ...                                               (0)))
+   ...                                       ))
+   ...                                 )()
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (progn (find-z-word "The lazy dog.") (find-z-word "The sleeping dog."))
+   >>> # progn
+   ... (findQzH_zQzH_word(
+   ...    ('The lazy dog.')),
+   ...  findQzH_zQzH_word(
+   ...    ('The sleeping dog.')))  [-1]
+   found: lazy
+   ()
+
+Sometimes you want to check if something exists,
+and only act in that case.
+Short examples like these may feel contrived,
+but this pattern does come up enough that languages have special ways of dealing with it.
+
+Hissp, of course, can copy such ways with metaprogramming.
+
+``let-when``
+::::::::::::
+
+Let's try one of Clojure's ways.
+We want a macro to expand to the previous code.
+
+.. Lissp::
+
+   #> (defmacro let-when (binding : :* body)
+   #..  `(let ,binding (when ,!##0 binding ,@body)))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'letQzH_when',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qztbhvvkna__lambda=(lambda binding, *body:
+   ...               (
+   ...                 '__main__.._macro_.let',
+   ...                 binding,
+   ...                 (
+   ...                   '__main__.._macro_.when',
+   ...                   __import__('operator').itemgetter(
+   ...                     (0))(
+   ...                     binding),
+   ...                   *body,
+   ...                   ),
+   ...                 )
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qztbhvvkna__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='letQzH_when',
+   ...              __qualname__='_macro_.letQzH_when',
+   ...              __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                         co_name='letQzH_when')).items()),
+   ...         ),
+   ...       _Qztbhvvkna__lambda)  [-1]
+   ...   )())
+
+The Lissp definition of ``find-z-word`` will be a bit nicer this way than before, but just a bit.
+Clojure's equivalent is called ``when-let``,
+which is, of course, obviously backwards now that we've seen the implementation.
+But it does perhaps roll of the tongue a little better,
+and may be more consistent with the names of other macros that aren't so simple.
+
+We can confirm the expansion is as expected by examining the Python compilation,
+but this macro was defined in terms of two others: `let` and `when`,
+and they have expanded too.
+The compiler includes comments when it expands a macro so you can tell where this is happening:
+
+.. code-block:: REPL
+
+   #> (defun find-z-word (text)
+   #..  (let-when (match (re..search '|\b\w*z\w*\b| text))
+   #..    (print "found:" (.group match 0))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # letQzH_when
+   ...                                 # __main__.._macro_.let
+   ...                                 (
+   ...                                  lambda match=__import__('re').search(
+   ...                                           '\\b\\w*z\\w*\\b',
+   ...                                           text):
+   ...                                     # __main__.._macro_.when
+   ...                                     (lambda b, c: c()if b else())(
+   ...                                       match,
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('found:'),
+   ...                                             match.group(
+   ...                                               (0)))
+   ...                                       ))
+   ...                                 )()
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+But the verbosity of the compiled output means there is a lot of code to sort through.
+When examining expansions of macros defined in terms of other macros,
+it can be helpful to expand only one step.
+We can do this using `macroexpand1`:
+
+.. code-block:: REPL
+
+   #> (pprint..pp
+   #.. (H#macroexpand1
+   #..  '(let-when (match (re..search '|\b\w*z\w*\b| text))
+   #..     (print "found:" (.group match 0)))))
+   >>> __import__('pprint').pp(
+   ...   __import__('hissp').macroexpand1(
+   ...     ('letQzH_when',
+   ...      ('match',
+   ...       ('re..search',
+   ...        ('quote',
+   ...         '\\b\\w*z\\w*\\b',),
+   ...        'text',),),
+   ...      ('print',
+   ...       "('found:')",
+   ...       ('.group',
+   ...        'match',
+   ...        (0),),),)))
+   ('__main__.._macro_.let',
+    ('match', ('re..search', ('quote', '\\b\\w*z\\w*\\b'), 'text')),
+    ('__main__.._macro_.when',
+     'match',
+     ('print', "('found:')", ('.group', 'match', 0))))
+
+The pretty-printing makes it a lot easier to read.
+This is what we want: a `let` containing a `when`.
+It's close to what we wrote ourselves,
+plus the :term:`fully-qualified identifier`\ s for extra robustness.
+If you're still in a subREPL of some other module,
+its `__name__` will appear as the qualifier here instead of ``__main__``.
+
+A `macroexpand` would continue expanding the form as long as it is a macro form,
+so the `let` would get expanded as well:
+
+.. code-block:: REPL
+
+   #> (pprint..pp
+   #.. (H#macroexpand
+   #..  '(let-when (match (re..search '|\b\w*z\w*\b| text))
+   #..     (print "found:" (.group match 0)))))
+   >>> __import__('pprint').pp(
+   ...   __import__('hissp').macroexpand(
+   ...     ('letQzH_when',
+   ...      ('match',
+   ...       ('re..search',
+   ...        ('quote',
+   ...         '\\b\\w*z\\w*\\b',),
+   ...        'text',),),
+   ...      ('print',
+   ...       "('found:')",
+   ...       ('.group',
+   ...        'match',
+   ...        (0),),),)))
+   (('lambda',
+     (':', 'match', ('re..search', ('quote', '\\b\\w*z\\w*\\b'), 'text')),
+     ('__main__.._macro_.when',
+      'match',
+      ('print', "('found:')", ('.group', 'match', 0)))),)
+
+The resulting form is no longer a :term:`macro form`,
+but it does contain one (the `when`) as a subform.
+`macroexpand_all` will expand subforms as well:
+
+.. code-block:: REPL
+
+   #> (pprint..pp
+   #.. (H#macroexpand_all
+   #..  '(let-when (match (re..search '|\b\w*z\w*\b| text))
+   #..     (print "found:" (.group match 0)))))
+   >>> __import__('pprint').pp(
+   ...   __import__('hissp').macroexpand_all(
+   ...     ('letQzH_when',
+   ...      ('match',
+   ...       ('re..search',
+   ...        ('quote',
+   ...         '\\b\\w*z\\w*\\b',),
+   ...        'text',),),
+   ...      ('print',
+   ...       "('found:')",
+   ...       ('.group',
+   ...        'match',
+   ...        (0),),),)))
+   (('lambda',
+     (':', 'match', ('re..search', ('quote', '\\b\\w*z\\w*\\b'), 'text')),
+     (('lambda', 'bc', 'c()if b else()'),
+      'match',
+      ('lambda', ':', ('print', "('found:')", ('.group', 'match', 0))))),)
+
+And now we see the inner `when` has been expanded too.
+The resulting Hissp is now defined entirely in terms of `quote` and `lambda` :term:`special form`\ s,
+plus ordinary function calls,
+and closely corresponds to the compiled Python output we saw before.
+
+We can confirm the new function behaves as before:
+
+.. code-block:: REPL
+
+   #> (progn (find-z-word "The lazy dog.") (find-z-word "The sleeping dog."))
+   >>> # progn
+   ... (findQzH_zQzH_word(
+   ...    ('The lazy dog.')),
+   ...  findQzH_zQzH_word(
+   ...    ('The sleeping dog.')))  [-1]
+   found: lazy
+   ()
+
+Anaphors
+::::::::
+
+An anaphoric macro can make this even more concise:
+
+.. Lissp::
+
+   #> (defmacro awhen (condition : :* body)
+   #..  `(let (,'it ,condition)
+   #..     (when ,'it ,@body)))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'awhen',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qztbhvvkna__lambda=(lambda condition, *body:
+   ...               (
+   ...                 '__main__.._macro_.let',
+   ...                 (
+   ...                   'it',
+   ...                   condition,
+   ...                   ),
+   ...                 (
+   ...                   '__main__.._macro_.when',
+   ...                   'it',
+   ...                   *body,
+   ...                   ),
+   ...                 )
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qztbhvvkna__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='awhen',
+   ...              __qualname__='_macro_.awhen',
+   ...              __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                         co_name='awhen')).items()),
+   ...         ),
+   ...       _Qztbhvvkna__lambda)  [-1]
+   ...   )())
+
+
+   #> (defun find-z-word (text)
+   #..  (awhen (re..search '|\b\w*z\w*\b| text)
+   #..    (print "found:" (.group it 0))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # awhen
+   ...                                 # __main__.._macro_.let
+   ...                                 (
+   ...                                  lambda it=__import__('re').search(
+   ...                                           '\\b\\w*z\\w*\\b',
+   ...                                           text):
+   ...                                     # __main__.._macro_.when
+   ...                                     (lambda b, c: c()if b else())(
+   ...                                       it,
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('found:'),
+   ...                                             it.group(
+   ...                                               (0)))
+   ...                                       ))
+   ...                                 )()
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (progn (find-z-word "The lazy dog.") (find-z-word "The sleeping dog."))
+   >>> # progn
+   ... (findQzH_zQzH_word(
+   ...    ('The lazy dog.')),
+   ...  findQzH_zQzH_word(
+   ...    ('The sleeping dog.')))  [-1]
+   found: lazy
+   ()
+
+But now you have no choice about the name.
+What if you already had an ``it`` in scope?
+The way lexical scoping works, the innermost one will shadow the outer,
+making the outer one inaccessible.
+
+Can we rename the outer ``it``?
+If the outer ``it`` came from another anaphoric macro (like another ``awhen``),
+then it's not as simple as changing a symbol.
+Being insulated from the details isn't always a good thing!
+You'd have to use a ``let`` or something like that to rename the outer ``it`` and avoid the conflict,
+but at that point, you might as well use ``let-when`` instead.
+
+Explicit Scoping
+::::::::::::::::
+
+Suppose we want to do something else if a match isn't found.
+We'd want to use `if-else<ifQzH_else>` instead of `when`.
+But we don't have a ``let-if-else`` or an ``aif-else``.
+They're not too hard to implement,
+but there are many other macros that could use a ``let-`` or anaphoric variant.
+Python has a more general solution: the "walrus" operator `:= <python-grammar:assignment_expression>`.
+
+While it's possible to use that in Hissp (like any Python expression),
+it would require a :term:`Python injection`,
+which is not recommended.
+In :term:`standard` Hissp, locals can be considered single assignment;
+you can shadow them, but can't reassign.
+A walrus operator used inside a lambda creates a local lexically scoped to that lambda.
+Nonlocal reads can work, but not nonlocal assignments.
+Lambdas are common in macroexpansions,
+which makes the walrus hard to use in Hissp.
+
+No matter.
+Python didn't have `nonlocal` until version 3.0,
+and didn't have the walrus until 3.8.
+If you needed nonlocal semantics in Python 2,
+the usual workaround would be to use an explicit scope.
+We can do the same thing in Hissp:
+
+.. Lissp::
+
+   #> (defun find-z-word (text)
+   #..  (let (scope (types..SimpleNamespace))
+   #..    (if-else (set@ scope.match (re..search '|\b\w*z\w*\b| text))
+   #..      (print "found:" (.group scope.match 0))
+   #..      (print "not found"))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # let
+   ...                                 (lambda scope=__import__('types').SimpleNamespace():
+   ...                                     # ifQzH_else
+   ...                                     (lambda b, c, a: c()if b else a())(
+   ...                                       # setQzAT_
+   ...                                       # hissp.macros.._macro_.let
+   ...                                       (
+   ...                                        lambda _Qzald6dagb__value=__import__('re').search(
+   ...                                                 '\\b\\w*z\\w*\\b',
+   ...                                                 text):
+   ...                                          (# hissp.macros.._macro_.define
+   ...                                           __import__('builtins').setattr(
+   ...                                             scope,
+   ...                                             'match',
+   ...                                             _Qzald6dagb__value),
+   ...                                           _Qzald6dagb__value)  [-1]
+   ...                                       )(),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('found:'),
+   ...                                             scope.match.group(
+   ...                                               (0)))
+   ...                                       ),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('not found'))
+   ...                                       ))
+   ...                                 )()
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (progn (find-z-word "The lazy dog.") (find-z-word "The sleeping dog."))
+   >>> # progn
+   ... (findQzH_zQzH_word(
+   ...    ('The lazy dog.')),
+   ...  findQzH_zQzH_word(
+   ...    ('The sleeping dog.')))  [-1]
+   found: lazy
+   not found
+
+The ``scope`` variable is a normal local with lexical scope,
+but its ``.match`` attribute lives in a `types.SimpleNamespace` object,
+which is an explicit scope.
+Assignments can be written anywhere that has access to that namespace
+(including any nested lexical scopes that might appear in a macroexpansion)
+and reassignment is possible, unlike locals in standard Hissp.
+This is more powerful,
+but also potentially more confusing.
+Even the Python community discourages the overuse of its walrus operator.
+The explicit scope isn't really better than using a local directly here,
+but it gives us a more general pattern which we can expand to.
+
+For example:
+
+.. Lissp::
+
+   #> (defmacro it-is\# x `(set@ ,'scope.it ,x))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'itQzH_isQzHASH_',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qztbhvvkna__lambda=(lambda x:
+   ...               (
+   ...                 '__main__.._macro_.setQzAT_',
+   ...                 'scope.it',
+   ...                 x,
+   ...                 )
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qztbhvvkna__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='itQzH_isQzHASH_',
+   ...              __qualname__='_macro_.itQzH_isQzHASH_',
+   ...              __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                         co_name='itQzH_isQzHASH_')).items()),
+   ...         ),
+   ...       _Qztbhvvkna__lambda)  [-1]
+   ...   )())
+
+
+   #> (defun find-z-word (text)
+   #..  (let (scope (types..SimpleNamespace))
+   #..    (if-else it-is#(re..search '|\b\w*z\w*\b| text)
+   #..      (print "found:" (.group scope.it 0))
+   #..      (print "not found"))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # let
+   ...                                 (lambda scope=__import__('types').SimpleNamespace():
+   ...                                     # ifQzH_else
+   ...                                     (lambda b, c, a: c()if b else a())(
+   ...                                       # __main__.._macro_.setQzAT_
+   ...                                       # hissp.macros.._macro_.let
+   ...                                       (
+   ...                                        lambda _Qzald6dagb__value=__import__('re').search(
+   ...                                                 '\\b\\w*z\\w*\\b',
+   ...                                                 text):
+   ...                                          (# hissp.macros.._macro_.define
+   ...                                           __import__('builtins').setattr(
+   ...                                             scope,
+   ...                                             'it',
+   ...                                             _Qzald6dagb__value),
+   ...                                           _Qzald6dagb__value)  [-1]
+   ...                                       )(),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('found:'),
+   ...                                             scope.it.group(
+   ...                                               (0)))
+   ...                                       ),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('not found'))
+   ...                                       ))
+   ...                                 )()
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (progn (find-z-word "The lazy dog.") (find-z-word "The sleeping dog."))
+   >>> # progn
+   ... (findQzH_zQzH_word(
+   ...    ('The lazy dog.')),
+   ...  findQzH_zQzH_word(
+   ...    ('The sleeping dog.')))  [-1]
+   found: lazy
+   not found
+
+We hardcoded the ``scope`` anaphor in the ``it-is#`` definition above.
+
+
+Because the name ``scope`` is always the same,
+we could also reduce the `let` form to a tag with a single argument (its body):
+
+.. Lissp::
+
+   #> (defmacro scope\# (expr)
+   #..  `(let (,'scope (types..SimpleNamespace))
+   #..     ,expr))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'scopeQzHASH_',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qztbhvvkna__lambda=(lambda expr:
+   ...               (
+   ...                 '__main__.._macro_.let',
+   ...                 (
+   ...                   'scope',
+   ...                   (
+   ...                     'types..SimpleNamespace',
+   ...                     ),
+   ...                   ),
+   ...                 expr,
+   ...                 )
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qztbhvvkna__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='scopeQzHASH_',
+   ...              __qualname__='_macro_.scopeQzHASH_',
+   ...              __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                         co_name='scopeQzHASH_')).items()),
+   ...         ),
+   ...       _Qztbhvvkna__lambda)  [-1]
+   ...   )())
+
+
+   #> (defun find-z-word (text)
+   #..  scope#(if-else it-is#(re..search '|\b\w*z\w*\b| text)
+   #..          (print "found:" (.group scope.it 0))
+   #..          (print "not found")))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # __main__.._macro_.let
+   ...                                 (lambda scope=__import__('types').SimpleNamespace():
+   ...                                     # ifQzH_else
+   ...                                     (lambda b, c, a: c()if b else a())(
+   ...                                       # __main__.._macro_.setQzAT_
+   ...                                       # hissp.macros.._macro_.let
+   ...                                       (
+   ...                                        lambda _Qzald6dagb__value=__import__('re').search(
+   ...                                                 '\\b\\w*z\\w*\\b',
+   ...                                                 text):
+   ...                                          (# hissp.macros.._macro_.define
+   ...                                           __import__('builtins').setattr(
+   ...                                             scope,
+   ...                                             'it',
+   ...                                             _Qzald6dagb__value),
+   ...                                           _Qzald6dagb__value)  [-1]
+   ...                                       )(),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('found:'),
+   ...                                             scope.it.group(
+   ...                                               (0)))
+   ...                                       ),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('not found'))
+   ...                                       ))
+   ...                                 )()
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (progn (find-z-word "The lazy dog.") (find-z-word "The sleeping dog."))
+   >>> # progn
+   ... (findQzH_zQzH_word(
+   ...    ('The lazy dog.')),
+   ...  findQzH_zQzH_word(
+   ...    ('The sleeping dog.')))  [-1]
+   found: lazy
+   not found
+
+This pair of tags can function as many common anaphoric-variant macros
+that only need a single anaphor,
+including ``awhen``, ``acond``, ``aand``, etc.
+
+``the#``
+::::::::
+
+The ``it-is#`` tag above only assigns to ``scope.it``,
+which is still not as general as Python's walrus.
+Rather than creating a new tag for each name we might want,
+we could generalize this to any name with a binary tag that takes the identifier as its first argument.
+
+But we have an even better option.
+``it-is#`` only makes sense inside of ``scope#``'s first argument,
+which means we can use a code-walking metaprogram to rewrite the expression.
+We could use control words instead of tags, for example.
+Many other other macros use control words (not to mention lambdas and normal call syntax),
+and so we'd want to avoid interfering with those uses.
+Perhaps by using a naming convention
+(ending in an ``=`` character, say).
+
+This suggests an even better alternative,
+at least in Lissp: :term:`kwarg token`\ s.
+They're already paired with an argument,
+so we won't have to figure that part out while code walking.
+They have a name we can use for the assignment.
+They won't interfere with control words.
+`Kwarg` objects are really only meant for use at :term:`read time`,
+but we can write tag metaprograms, which run at read time.
+Nested tags using them directly will be evaluated first,
+so those won't interfere either.
+Let's try that.
+
+.. Lissp::
+
+   #> (defmacro the\# (expr)
+   #..  `(let (,'the (types..SimpleNamespace))
+   #..     ,(kwarg->set@ expr)))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'theQzHASH_',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qztbhvvkna__lambda=(lambda expr:
+   ...               (
+   ...                 '__main__.._macro_.let',
+   ...                 (
+   ...                   'the',
+   ...                   (
+   ...                     'types..SimpleNamespace',
+   ...                     ),
+   ...                   ),
+   ...                 kwargQzH_QzGT_setQzAT_(
+   ...                   expr),
+   ...                 )
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qztbhvvkna__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='theQzHASH_',
+   ...              __qualname__='_macro_.theQzHASH_',
+   ...              __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                         co_name='theQzHASH_')).items()),
+   ...         ),
+   ...       _Qztbhvvkna__lambda)  [-1]
+   ...   )())
+
+This is basically our ``scope#`` tag,
+plus some design by wishful thinking again.
+We still need to define the helper function to do the actual rewrite:
+
+.. Lissp::
+
+   #> (defun kwarg->set@ (expr)
+   #..  (cond (isinstance expr hissp.reader..Kwarg) `(set@ ,(.format "the.{}" (H#munge expr.k))
+   #..                                                     ,expr.v)
+   #..        (H#is_node expr) `(,@(map kwarg->set@ expr))
+   #..        :else expr))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   kwargQzH_QzGT_setQzAT_=# hissp.macros.._macro_.fun
+   ...                          # hissp.macros.._macro_.let
+   ...                          (
+   ...                           lambda _Qztbhvvkna__lambda=(lambda expr:
+   ...                                      # cond
+   ...                                      (lambda x0, x1, x2, x3, x4, x5:
+   ...                                               x1() if x0
+   ...                                          else x3() if x2()
+   ...                                          else x5() if x4()
+   ...                                          else ()
+   ...                                      )(
+   ...                                        isinstance(
+   ...                                          expr,
+   ...                                          __import__('hissp.reader',fromlist='*').Kwarg),
+   ...                                        (lambda :
+   ...                                            (
+   ...                                              '__main__.._macro_.setQzAT_',
+   ...                                              ('the.{}').format(
+   ...                                                __import__('hissp').munge(
+   ...                                                  expr.k)),
+   ...                                              expr.v,
+   ...                                              )
+   ...                                        ),
+   ...                                        (lambda :
+   ...                                            __import__('hissp').is_node(
+   ...                                              expr)
+   ...                                        ),
+   ...                                        (lambda :
+   ...                                            (
+   ...                                              *map(
+   ...                                                 kwargQzH_QzGT_setQzAT_,
+   ...                                                 expr),
+   ...                                              )
+   ...                                        ),
+   ...                                        (lambda : ':else'),
+   ...                                        (lambda : expr))
+   ...                                  ):
+   ...                             ((
+   ...                                *__import__('itertools').starmap(
+   ...                                   _Qztbhvvkna__lambda.__setattr__,
+   ...                                   __import__('builtins').dict(
+   ...                                     __name__='kwargQzH_QzGT_setQzAT_',
+   ...                                     __qualname__='kwargQzH_QzGT_setQzAT_',
+   ...                                     __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                                co_name='kwargQzH_QzGT_setQzAT_')).items()),
+   ...                                ),
+   ...                              _Qztbhvvkna__lambda)  [-1]
+   ...                          )())
+
+Syntax trees are recursive data structures.
+We saw this kind of recursive approach before with ``flatten``.
+But this isn't just for reading the tree. It rebuilds it.
+There are only three cases to worry about:
+if it's a `Kwarg` object, we substitute the `set@<setQzAT_>` expression;
+if it `is_node`, we recurse and reconstruct the tuple;
+else it's just an atom and we give it back.
+
+.. Lissp::
+
+   #> (defun find-z-word (text)
+   #..  the#(if-else match=(re..search '|\b\w*z\w*\b| text)
+   #..        (print "found:" (.group the.match 0))
+   #..        (print "not found")))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   findQzH_zQzH_word=# hissp.macros.._macro_.fun
+   ...                     # hissp.macros.._macro_.let
+   ...                     (
+   ...                      lambda _Qztbhvvkna__lambda=(lambda text:
+   ...                                 # __main__.._macro_.let
+   ...                                 (lambda the=__import__('types').SimpleNamespace():
+   ...                                     # ifQzH_else
+   ...                                     (lambda b, c, a: c()if b else a())(
+   ...                                       # __main__.._macro_.setQzAT_
+   ...                                       # hissp.macros.._macro_.let
+   ...                                       (
+   ...                                        lambda _Qzald6dagb__value=__import__('re').search(
+   ...                                                 '\\b\\w*z\\w*\\b',
+   ...                                                 text):
+   ...                                          (# hissp.macros.._macro_.define
+   ...                                           __import__('builtins').setattr(
+   ...                                             the,
+   ...                                             'match',
+   ...                                             _Qzald6dagb__value),
+   ...                                           _Qzald6dagb__value)  [-1]
+   ...                                       )(),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('found:'),
+   ...                                             the.match.group(
+   ...                                               (0)))
+   ...                                       ),
+   ...                                       (lambda :
+   ...                                           print(
+   ...                                             ('not found'))
+   ...                                       ))
+   ...                                 )()
+   ...                             ):
+   ...                        ((
+   ...                           *__import__('itertools').starmap(
+   ...                              _Qztbhvvkna__lambda.__setattr__,
+   ...                              __import__('builtins').dict(
+   ...                                __name__='findQzH_zQzH_word',
+   ...                                __qualname__='findQzH_zQzH_word',
+   ...                                __code__=_Qztbhvvkna__lambda.__code__.replace(
+   ...                                           co_name='findQzH_zQzH_word')).items()),
+   ...                           ),
+   ...                         _Qztbhvvkna__lambda)  [-1]
+   ...                     )())
+
+.. code-block:: REPL
+
+   #> (progn (find-z-word "The lazy dog.") (find-z-word "The sleeping dog."))
+   >>> # progn
+   ... (findQzH_zQzH_word(
+   ...    ('The lazy dog.')),
+   ...  findQzH_zQzH_word(
+   ...    ('The sleeping dog.')))  [-1]
+   found: lazy
+   not found
+
+Very powerful.
+Also easy to (ab)use.
+You can save the result of any subexpression to the namespace.
+You can reassign names you've already used.
+It's a lot like the walrus, but the tag (``the#``) explicitly delimits the scope.
+
+There was some reluctance around adding the walrus to Python.
+But it obviates the need for many anaphoric macros by itself.
+And now Hissp has that capability too.
+
+Actually, the bundled `my#<myQzHASH_>` tag does what ``the#`` can and more,
+but the implementation is a bit more involved because of the additional features.
+
+Pre-Expansion
+=============
+
+We saw a simple example of recursive code walking in `Macros Can Read Code Too`_,
+using ``flatten``,
+which ignores the tree structure and only looks for a particular kind of atom.
+We saw a less simple example in `the#`_,
+which replaced a kind of atom with something else,
+while keeping the tree structure.
+
+More advanced code-walking macros pre-expand macros in their body
+in order to operate on the resulting :term:`special form`\ s.
+This works even when the macros in the body are not known beforehand.
+
+Lazy Polar Coordinates
+::::::::::::::::::::::
+
+Suppose we want to express a complex number in polar form.
+We could easily make a separate function that computes the cartesian form from polar inputs.
+(For custom classes,
+one could similarly make an alternate constructor using `classmethod`.)
+
+>>> import math
+>>> def polar(r, theta):
+...    return complex(r * math.cos(theta), r * math.sin(theta))
+>>> print(*[polar(1, math.tau/4 * quarters) for quarters in range(4)])
+(1+0j) (6.123233995736766e-17+1j) (-1+1.2246467991473532e-16j) (-1.8369701987210297e-16-1j)
+
+There's some unavoidable imprecision in the float calculations approximating irrational numbers,
+but notice the noisy-looking numbers are close to zero.
+I'll be using `round` liberally to make the remaining examples easier to read.
+
+But kwarg alone names should be enough to disambiguate the cases;
+we don't need separate functions.
+Suppose we want a Python signature like ::
+
+   >>> import builtins
+   >>> def complex(real=r*math.cos(theta), imag=r*math.sin(theta), *, r, theta):
+   ...     return builtins.complex(real, imag)
+   Traceback (most recent call last):
+      ...
+   NameError: name 'r' is not defined
+
+Alas, this doesn't work.
+Function parameters can have default values in Python,
+but they are computed at *definition time*, not call time.
+Although it would be useful in cases where there is more than one way to express a value,
+default expressions cannot depend on the values of the other arguments.
+One would instead have to use some other default value (`None` being a common choice)
+and figure out what to do in the function body.
+
+Doing this kind of thing imperatively can be pretty tricky (Try it!),
+but there is a fairly straightforward approach that can work in general and that's *laziness*.
+Pull. Don't push:
+
+>>> class ComplexArgs:
+...     def real(self):
+...         return self.r() * math.cos(self.theta())
+...     def imag(self):
+...         return self.r() * math.sin(self.theta())
+>>> def complex(**kwargs):
+...     args = ComplexArgs()
+...     # The v=v is a workaround for Python's late-binding closures.
+...     # Remember, defaults are computed at definition time.
+...     vars(args).update({k: lambda v=v: v for k, v in kwargs.items()})
+...     # Rounding to 4 so your eyes don't glaze over.
+...     return builtins.complex(round(args.real(), 4), round(args.imag(), 4))
+>>> complex(real=3, imag=4)
+(3+4j)
+>>> complex(r=2**.5, theta=math.radians(45))
+(1+1j)
+>>> complex(r=1, theta=math.radians(60))
+(0.5+0.866j)
+
+Not a single `if <if>`! It just works.
+It's not a drop-in replacement though,
+which makes shadowing the builtin name like this inadvisable.
+Unlike the builtin,
+args here can only be passed in by name,
+and the valid ones don't even show up in the signature.
+We could put that in the docstring.
+A name like ``**real_imag_r_theta`` instead of ``**kwargs`` is also a possibility.
+
+This pattern generalizes.
+We could compute both directions given either coordinate pair in basically the same way:
+
+>>> def r4(x): return round(x(), 4)  # Note the x() call.
+>>> class CoordinatesArgs:
+...     def x(self):
+...         return self.r() * math.cos(self.theta())
+...     def y(self):
+...         return self.r() * math.sin(self.theta())
+...     def r(self):
+...         return (self.x()**2 + self.y()**2)**.5
+...     def theta(self):
+...         return math.atan2(self.y(), self.x())
+>>> def coordinates(**kwargs):
+...     args = CoordinatesArgs()
+...     vars(args).update({k: lambda v=v: v for k, v in kwargs.items()})
+...     return dict(Cartesian=(r4(args.x), r4(args.y)), polar=(r4(args.r), r4(args.theta)))
+>>> coordinates(x=3, y=4)  # 3-4-5 Pythagorean triple.
+{'Cartesian': (3, 4), 'polar': (5.0, 0.9273)}
+>>> coordinates(r=5, theta=0.9273)  # Other direction.
+{'Cartesian': (3.0, 4.0), 'polar': (5, 0.9273)}
+>>> coordinates(x=1, y=1)
+{'Cartesian': (1, 1), 'polar': (1.4142, 0.7854)}
+>>> coordinates(r=2**.5, theta=math.radians(45))  # Right isosceles.
+{'Cartesian': (1.0, 1.0), 'polar': (1.4142, 0.7854)}
+>>> coordinates(x=.5, y=3**.5/2)
+{'Cartesian': (0.5, 0.866), 'polar': (1.0, 1.0472)}
+>>> coordinates(r=1, theta=math.radians(60))  # 30-60-90 triangle.
+{'Cartesian': (0.5, 0.866), 'polar': (1, 1.0472)}
+
+In Python, one might be inclined to put the ``.update`` line in a ``def __init__(**kwargs):``
+method in a common ``Args`` base class.
+
+One potential issue with lazy arguments like this is (for example)
+what happens if you accidentally pass in ``r`` and ``y`` instead of ``x`` and ``y``?
+You know how to keyboard interrupt, right?
+
+>>> coordinates(r=1, y=1)
+Traceback (most recent call last):
+   ...
+RecursionError: maximum recursion depth exceeded
+
+Never mind. We blew the stack.
+
+Using an arguments class was convenient in Python,
+and it's not a *bad* design when using mutable namespaces,
+but a single namespace only populated inside the body would suffice,
+and this allows us to use a lexical closure rather than an explicit
+``self`` argument.
+In the next example,
+notice how ``self`` is replaced with the ``my`` anaphor.
+
+There's an additional name this time:
+``theta`` is defined in terms of ``θ``, so they refer to the same thing.
+The lookup chain means you can pass it in with either name and it will still work.
+
+.. Lissp::
+
+   #> (defun coordinates (: :** kwargs)
+   #..  my#(progn
+   #..      x=O#(mul (my.r) (math..cos (my.theta)))
+   #..      y=O#(mul (my.r) (math..sin (my.theta)))
+   #..      r=O#|(my.x()**2 + my.y()**2)**.5|
+   #..      θ=O#(math..atan2 (my.y) (my.x))
+   #..      theta=O#(my.θ)
+   #..      (-> my vars (.update (i#starmap XY#(@ X (lambda (: v Y) v))
+   #..                                      (.items kwargs))))
+   #..      (dict : cartesian `(,(r4 my.x) ,(r4 my.y))
+   #..              polar `(,(r4 my.r) ,(r4 my.theta)))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   coordinates=# hissp.macros.._macro_.fun
+   ...               # hissp.macros.._macro_.let
+   ...               (
+   ...                lambda _Qzg4t3gdjc__lambda=(lambda **kwargs:
+   ...                           # hissp.macros.._macro_.let
+   ...                           (lambda my=__import__('types').SimpleNamespace():
+   ...                               # progn
+   ...                               (# hissp.macros.._macro_.setQzAT_
+   ...                                # hissp.macros.._macro_.let
+   ...                                (
+   ...                                 lambda _Qzfww2t2f4__value=(lambda :
+   ...                                            mul(
+   ...                                              my.r(),
+   ...                                              __import__('math').cos(
+   ...                                                my.theta()))
+   ...                                        ):
+   ...                                   (# hissp.macros.._macro_.define
+   ...                                    __import__('builtins').setattr(
+   ...                                      my,
+   ...                                      'x',
+   ...                                      _Qzfww2t2f4__value),
+   ...                                    _Qzfww2t2f4__value)  [-1]
+   ...                                )(),
+   ...                                # hissp.macros.._macro_.setQzAT_
+   ...                                # hissp.macros.._macro_.let
+   ...                                (
+   ...                                 lambda _Qzfww2t2f4__value=(lambda :
+   ...                                            mul(
+   ...                                              my.r(),
+   ...                                              __import__('math').sin(
+   ...                                                my.theta()))
+   ...                                        ):
+   ...                                   (# hissp.macros.._macro_.define
+   ...                                    __import__('builtins').setattr(
+   ...                                      my,
+   ...                                      'y',
+   ...                                      _Qzfww2t2f4__value),
+   ...                                    _Qzfww2t2f4__value)  [-1]
+   ...                                )(),
+   ...                                # hissp.macros.._macro_.setQzAT_
+   ...                                # hissp.macros.._macro_.let
+   ...                                (lambda _Qzfww2t2f4__value=(lambda : (my.x()**2 + my.y()**2)**.5):
+   ...                                   (# hissp.macros.._macro_.define
+   ...                                    __import__('builtins').setattr(
+   ...                                      my,
+   ...                                      'r',
+   ...                                      _Qzfww2t2f4__value),
+   ...                                    _Qzfww2t2f4__value)  [-1]
+   ...                                )(),
+   ...                                # hissp.macros.._macro_.setQzAT_
+   ...                                # hissp.macros.._macro_.let
+   ...                                (
+   ...                                 lambda _Qzfww2t2f4__value=(lambda :
+   ...                                            __import__('math').atan2(
+   ...                                              my.y(),
+   ...                                              my.x())
+   ...                                        ):
+   ...                                   (# hissp.macros.._macro_.define
+   ...                                    __import__('builtins').setattr(
+   ...                                      my,
+   ...                                      'θ',
+   ...                                      _Qzfww2t2f4__value),
+   ...                                    _Qzfww2t2f4__value)  [-1]
+   ...                                )(),
+   ...                                # hissp.macros.._macro_.setQzAT_
+   ...                                # hissp.macros.._macro_.let
+   ...                                (lambda _Qzfww2t2f4__value=(lambda : my.θ()):
+   ...                                   (# hissp.macros.._macro_.define
+   ...                                    __import__('builtins').setattr(
+   ...                                      my,
+   ...                                      'theta',
+   ...                                      _Qzfww2t2f4__value),
+   ...                                    _Qzfww2t2f4__value)  [-1]
+   ...                                )(),
+   ...                                # QzH_QzGT_
+   ...                                vars(
+   ...                                  my).update(
+   ...                                  __import__('itertools').starmap(
+   ...                                    (lambda X, Y:
+   ...                                        # QzAT_
+   ...                                        (lambda *xs: [*xs])(
+   ...                                          X,
+   ...                                          (lambda v=Y: v))
+   ...                                    ),
+   ...                                    kwargs.items())),
+   ...                                dict(
+   ...                                  cartesian=(
+   ...                                              r4(
+   ...                                                my.x),
+   ...                                              r4(
+   ...                                                my.y),
+   ...                                              ),
+   ...                                  polar=(
+   ...                                          r4(
+   ...                                            my.r),
+   ...                                          r4(
+   ...                                            my.theta),
+   ...                                          )))  [-1]
+   ...                           )()
+   ...                       ):
+   ...                  ((
+   ...                     *__import__('itertools').starmap(
+   ...                        _Qzg4t3gdjc__lambda.__setattr__,
+   ...                        __import__('builtins').dict(
+   ...                          __name__='coordinates',
+   ...                          __qualname__='coordinates',
+   ...                          __code__=_Qzg4t3gdjc__lambda.__code__.replace(
+   ...                                     co_name='coordinates')).items()),
+   ...                     ),
+   ...                   _Qzg4t3gdjc__lambda)  [-1]
+   ...               )())
+
+Notice we're using ``r4`` again.
+Remember, it's possible to inject Python in a Lissp REPL,
+not that this one is hard to translate.
+But you don't need to round at all to follow along.
+Don't forget to call the thunks though.
+
+.. code-block:: REPL
+
+   #> (coordinates : r |2**.5|  θ math..radians#45)
+   >>> coordinates(
+   ...   r=2**.5,
+   ...   θ=(0.7853981633974483))
+   {'cartesian': (1.0, 1.0), 'polar': (1.4142, 0.7854)}
+
+   #> (coordinates : x 1  y 1)
+   >>> coordinates(
+   ...   x=(1),
+   ...   y=(1))
+   {'cartesian': (1, 1), 'polar': (1.4142, 0.7854)}
+
+   #> (coordinates : r 1  theta math..radians#60)
+   >>> coordinates(
+   ...   r=(1),
+   ...   theta=(1.0471975511965976))
+   {'cartesian': (0.5, 0.866), 'polar': (1, 1.0472)}
+
+Now that we have a design pattern,
+we should be able to make it a macro.
+There's a lot of tag magic here,
+but remember those run at :term:`read time`,
+so macros can't have tags in their expansions,
+but they can expand to the same results
+(which you can sometimes produce using tags).
+
+The syntax we're going for would be something like this:
+
+.. Lissp::
+
+   (defun-lazy complex (real (mul (lazy.r) (math..cos (lazy.theta))
+                        imag (mul (lazy.r) (math..sin (lazy.theta))))
+     (builtins..complex real imag)
+
+We can implement the macro for it like this:
+
+.. Lissp::
+
+   (defmacro defun-lazy (qualname params : :* body)
+     `(defun ,qualname (: :** ,'kwargs)
+        (let (,'lazy (types..SimpleNamespace))
+          (doto (vars ,'lazy)
+            (.update : ,@chain#(let (iparams (iter params))
+                                 (zip iparams (map X#`O#,X iparams) : strict 1)))
+            (.update (i#starmap (lambda ($#k $#v)
+                                  (@ $#k (lambda (: $#v $#v) $#v)))
+                                (.items ,'kwargs))))
+          ,@body)))
+
+That's a relatively long one.
+Let's break it down.
+The new ``defun-lazy`` macro will write a `defun`.
+The ``qualname`` arg passes through unchanged.
+``defun``'s params are hardcoded to just ``**kwargs``,
+which is an :term:`anaphor`.
+(We haven't seen the ``params`` argument used yet.)
+
+Next is our second anaphor: the ``lazy`` namespace.
+With ``lazy`` in the lexical scope (of the `let` body)
+we ``.update`` the namespace, first with the ``params`` argument.
+Its defaults need to be wrapped in a `lambda` :term:`special form` to delay evaluation
+(but not their names).
+That's the laziness.
+
+The second ``.update`` is with the ``kwargs``,
+so keyword arguments can override the defaults.
+These also need to be wrapped in lambdas so we can call them regardless
+of overrides in the body,
+but because the wrapping happens at run time,
+it has to be written differently.
+Notice the late-binding closure workaround again.
+
+For simplicity,
+I didn't include docstring handling.
+Let's add that now.
+
+.. Lissp::
+
+   #> (defmacro defun-lazy (qualname params : maybe_docstring ()  :* body)
+   #..  `(defun ,qualname (: :** ,'kwargs)
+   #..     ,@(when (H#is_hissp_string maybe_docstring)
+   #..         `(,maybe_docstring))
+   #..     (let (,'lazy (types..SimpleNamespace))
+   #..       (doto (vars ,'lazy)
+   #..         (.update : ,@chain#(let (iparams (iter params))
+   #..                              (zip iparams (map X#`O#,X iparams) : strict 1)))
+   #..         (.update (i#starmap (lambda ($#k $#v)
+   #..                               (@ $#k (lambda (: $#v $#v) $#v)))
+   #..                             (.items ,'kwargs))))
+   #..       ,@(unless (H#is_hissp_string maybe_docstring)
+   #..           `(,maybe_docstring))
+   #..       ,@body)))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'defunQzH_lazy',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qzgibeefhr__lambda=(
+   ...            lambda qualname,
+   ...                   params,
+   ...                   maybe_docstring=(),
+   ...                   *body:
+   ...               (
+   ...                 '__main__.._macro_.defun',
+   ...                 qualname,
+   ...                 (
+   ...                   ':',
+   ...                   ':**',
+   ...                   'kwargs',
+   ...                   ),
+   ...                 *# when
+   ...                  (lambda b, c: c()if b else())(
+   ...                    __import__('hissp').is_hissp_string(
+   ...                      maybe_docstring),
+   ...                    (lambda :
+   ...                        (
+   ...                          maybe_docstring,
+   ...                          )
+   ...                    )),
+   ...                 (
+   ...                   '__main__.._macro_.let',
+   ...                   (
+   ...                     'lazy',
+   ...                     (
+   ...                       'types..SimpleNamespace',
+   ...                       ),
+   ...                     ),
+   ...                   (
+   ...                     '__main__.._macro_.doto',
+   ...                     (
+   ...                       'builtins..vars',
+   ...                       'lazy',
+   ...                       ),
+   ...                     (
+   ...                       '.update',
+   ...                       ':',
+   ...                       *__import__('itertools').chain.from_iterable(
+   ...                          # let
+   ...                          (
+   ...                           lambda iparams=iter(
+   ...                                    params):
+   ...                              zip(
+   ...                                iparams,
+   ...                                map(
+   ...                                  (lambda X:
+   ...                                      (
+   ...                                        'lambda',
+   ...                                        ':',
+   ...                                        X,
+   ...                                        )
+   ...                                  ),
+   ...                                  iparams),
+   ...                                strict=(1))
+   ...                          )()),
+   ...                       ),
+   ...                     (
+   ...                       '.update',
+   ...                       (
+   ...                         'itertools..starmap',
+   ...                         (
+   ...                           'lambda',
+   ...                           (
+   ...                             '_Qz6xuvarhd__k',
+   ...                             '_Qz6xuvarhd__v',
+   ...                             ),
+   ...                           (
+   ...                             '__main__.._macro_.QzAT_',
+   ...                             '_Qz6xuvarhd__k',
+   ...                             (
+   ...                               'lambda',
+   ...                               (
+   ...                                 ':',
+   ...                                 '_Qz6xuvarhd__v',
+   ...                                 '_Qz6xuvarhd__v',
+   ...                                 ),
+   ...                               '_Qz6xuvarhd__v',
+   ...                               ),
+   ...                             ),
+   ...                           ),
+   ...                         (
+   ...                           '.items',
+   ...                           'kwargs',
+   ...                           ),
+   ...                         ),
+   ...                       ),
+   ...                     ),
+   ...                   *# unless
+   ...                    (lambda b, a: ()if b else a())(
+   ...                      __import__('hissp').is_hissp_string(
+   ...                        maybe_docstring),
+   ...                      (lambda :
+   ...                          (
+   ...                            maybe_docstring,
+   ...                            )
+   ...                      )),
+   ...                   *body,
+   ...                   ),
+   ...                 )
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qzgibeefhr__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='defunQzH_lazy',
+   ...              __qualname__='_macro_.defunQzH_lazy',
+   ...              __code__=_Qzgibeefhr__lambda.__code__.replace(
+   ...                         co_name='defunQzH_lazy')).items()),
+   ...         ),
+   ...       _Qzgibeefhr__lambda)  [-1]
+   ...   )())
+
+``maybe-docstring`` is our first optional argument.
+It could be the docstring,
+in which case, ``defun`` expects it immediately after its params.
+`is_hissp_string` is a metaprogramming helper function.
+Using it in a macro definition doesn't violate the :term:`standalone property`,
+because it will only be used at compile time.
+``maybe-docstring`` appears once again before ``,@body``.
+The remaining ``,@body`` could be empty,
+so ``maybe-docstring`` could be the whole thing.
+If nothing optional was provided,
+the `defun` return value will default to ``()``,
+which is consistent with the ``lambda`` :term:`special form`.
+If ``maybe-docstring`` was provided and it's not a :term:`Hissp string`,
+then it's treated as the first body form.
+
+Lisps differ on what to do if the only body form is a string literal.
+In Emacs Lisp, it's both the docstring and the return value.
+(We'd get that behavior without the `unless`,
+but the expansion would have the string written twice.)
+In Common Lisp, it's the return value, and there is no docstring.
+Clojure puts the docstring before the params
+(which makes more sense in Clojure because of arity overloads)
+so it would have to be the return value.
+Python must disambiguate with `return`.
+The way we've written it here,
+the string would be the docstring and
+the return value would be the default ``()``,
+which is the same way `fun` and its derivatives work.
+If you want to return a string literal for some reason,
+you could add a single body form before it,
+and it need not be the docstring (could be `None` or `... <Ellipsis>` etc.)
+Wrapping it in an `ors` so it isn't recognized as a string literal would also work.
+
+.. Lissp::
+
+   #> (defun-lazy coordinates (x (mul (lazy.r) (math..cos (lazy.theta)))
+   #..                         y (mul (lazy.r) (math..sin (lazy.theta)))
+   #..                         r |(lazy.x()**2 + lazy.y()**2)**.5|
+   #..                         θ (math..atan2 (lazy.y) (lazy.x))
+   #..                         theta (lazy.θ))
+   #..  (dict : cartesian `(,(r4 lazy.x) ,(r4 lazy.y))
+   #..        polar `(,(r4 lazy.r) ,(r4 lazy.theta))))
+   >>> # defunQzH_lazy
+   ... # __main__.._macro_.defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   coordinates=# hissp.macros.._macro_.fun
+   ...               # hissp.macros.._macro_.let
+   ...               (
+   ...                lambda _Qzg4t3gdjc__lambda=(lambda **kwargs:
+   ...                           # __main__.._macro_.let
+   ...                           (lambda lazy=__import__('types').SimpleNamespace():
+   ...                              (# __main__.._macro_.doto
+   ...                               (
+   ...                                lambda _Qzqinvrqwa__self=__import__('builtins').vars(
+   ...                                         lazy):
+   ...                                  (_Qzqinvrqwa__self.update(
+   ...                                     x=(lambda :
+   ...                                           mul(
+   ...                                             lazy.r(),
+   ...                                             __import__('math').cos(
+   ...                                               lazy.theta()))
+   ...                                       ),
+   ...                                     y=(lambda :
+   ...                                           mul(
+   ...                                             lazy.r(),
+   ...                                             __import__('math').sin(
+   ...                                               lazy.theta()))
+   ...                                       ),
+   ...                                     r=(lambda : (lazy.x()**2 + lazy.y()**2)**.5),
+   ...                                     θ=(lambda :
+   ...                                           __import__('math').atan2(
+   ...                                             lazy.y(),
+   ...                                             lazy.x())
+   ...                                       ),
+   ...                                     theta=(lambda : lazy.θ())),
+   ...                                   _Qzqinvrqwa__self.update(
+   ...                                     __import__('itertools').starmap(
+   ...                                       (lambda _Qz6xuvarhd__k, _Qz6xuvarhd__v:
+   ...                                           # __main__.._macro_.QzAT_
+   ...                                           (lambda *xs: [*xs])(
+   ...                                             _Qz6xuvarhd__k,
+   ...                                             (lambda _Qz6xuvarhd__v=_Qz6xuvarhd__v: _Qz6xuvarhd__v))
+   ...                                       ),
+   ...                                       kwargs.items())),
+   ...                                   _Qzqinvrqwa__self)  [-1]
+   ...                               )(),
+   ...                               dict(
+   ...                                 cartesian=(
+   ...                                             r4(
+   ...                                               lazy.x),
+   ...                                             r4(
+   ...                                               lazy.y),
+   ...                                             ),
+   ...                                 polar=(
+   ...                                         r4(
+   ...                                           lazy.r),
+   ...                                         r4(
+   ...                                           lazy.theta),
+   ...                                         )))  [-1]
+   ...                           )()
+   ...                       ):
+   ...                  ((
+   ...                     *__import__('itertools').starmap(
+   ...                        _Qzg4t3gdjc__lambda.__setattr__,
+   ...                        __import__('builtins').dict(
+   ...                          __name__='coordinates',
+   ...                          __qualname__='coordinates',
+   ...                          __code__=_Qzg4t3gdjc__lambda.__code__.replace(
+   ...                                     co_name='coordinates')).items()),
+   ...                     ),
+   ...                   _Qzg4t3gdjc__lambda)  [-1]
+   ...               )())
+
+.. code-block:: REPL
+
+   #> (coordinates : r |2**.5|  θ math..radians#45)
+   >>> coordinates(
+   ...   r=2**.5,
+   ...   θ=(0.7853981633974483))
+   {'cartesian': (1.0, 1.0), 'polar': (1.4142, 0.7854)}
+
+   #> (coordinates : x 1  y 1)
+   >>> coordinates(
+   ...   x=(1),
+   ...   y=(1))
+   {'cartesian': (1, 1), 'polar': (1.4142, 0.7854)}
+
+   #> (coordinates : r 1  theta math..radians#60)
+   >>> coordinates(
+   ...   r=(1),
+   ...   theta=(1.0471975511965976))
+   {'cartesian': (0.5, 0.866), 'polar': (1, 1.0472)}
+
+Our examples work the same as before,
+but the definition is so much simpler.
+
+Symbol Macros
+:::::::::::::
+
+It might be nice if we didn't need the ``lazy.`` prefix and anaphor,
+and the parentheses to call the thunk.
+Something like this:
+
+.. Lissp::
+
+   (defun-lazy complex (real (mul r (math..cos theta))
+                        imag (mul r (math..sin theta)))
+     (builtins..complex real imag))
+
+However, a local variable read in Python doesn't have any hooks we can
+exploit to add new behaviors.
+This was a sensible design decision, since locals are supposed to be fast.
+
+But in Lissp, a symbol is just another kind of data.
+Want to "expand" a symbol like a macro?
+We can do that.
+We can rewrite anything, to any form.
+This is a recursive find-and-replace task again.
+We just have to be careful to allow local shadowing,
+and our symbol macros will behave a lot like local variables.
+By using pre-expansion,
+we only have to worry about lambdas introducing them,
+because in :term:`standard` Hissp,
+that's the only way it can happen.
+
+`macroexpand_all` will expand all macros in a form,
+recursively (including its subforms).
+The ``preprocess`` and ``postprocess`` callbacks
+run before it attempts to expand a form,
+and after it's done expanding,
+respectively.
+
+Let's try a small example.
+
+.. code-block:: REPL
+
+   #> (H#macroexpand_all
+   #.. '(let (a (add '(ands) '(b)))
+   #..    (ors a))
+   #.. : preprocess X#(progn (print " in:" X) X)
+   #..   postprocess X#(progn (print "out:" X) X))
+   >>> __import__('hissp').macroexpand_all(
+   ...   ('let',
+   ...    ('a',
+   ...     ('add',
+   ...      ('quote',
+   ...       ('ands',),),
+   ...      ('quote',
+   ...       ('b',),),),),
+   ...    ('ors',
+   ...     'a',),),
+   ...   preprocess=(lambda X:
+   ...                  # progn
+   ...                  (print(
+   ...                     (' in:'),
+   ...                     X),
+   ...                   X)  [-1]
+   ...              ),
+   ...   postprocess=(lambda X:
+   ...                   # progn
+   ...                   (print(
+   ...                      ('out:'),
+   ...                      X),
+   ...                    X)  [-1]
+   ...               ))
+    in: ('let', ('a', ('add', ('quote', ('ands',)), ('quote', ('b',)))), ('ors', 'a'))
+    in: (('lambda', (':', 'a', ('add', ('quote', ('ands',)), ('quote', ('b',)))), ('ors', 'a')),)
+    in: ('lambda', (':', 'a', ('add', ('quote', ('ands',)), ('quote', ('b',)))), ('ors', 'a'))
+    in: ('add', ('quote', ('ands',)), ('quote', ('b',)))
+    in: add
+   out: add
+    in: ('quote', ('ands',))
+   out: ('quote', ('ands',))
+    in: ('quote', ('b',))
+   out: ('quote', ('b',))
+   out: ('add', ('quote', ('ands',)), ('quote', ('b',)))
+    in: ('ors', 'a')
+    in: a
+   out: a
+   out: ('lambda', (':', 'a', ('add', ('quote', ('ands',)), ('quote', ('b',)))), 'a')
+   out: (('lambda', (':', 'a', ('add', ('quote', ('ands',)), ('quote', ('b',)))), 'a'),)
+   (('lambda', (':', 'a', ('add', ('quote', ('ands',)), ('quote', ('b',)))), 'a'),)
+
+Traversal is basically depth-first,
+the same order the compiler would process code.
+Notice that ``preprocess`` can get called more than once in the same "location" in the code tree.
+This happens whenever an expansion replaces that node.
+The :term:`special form`\ s are special cased.
+We don't process the ``lambda`` atom or the parts of the :term:`params` that can't expand,
+like ``:`` or parameter names.
+We don't recurse into ``quote`` forms at all,
+even if one contains what would otherwise be a :term:`macro form`.
+When we hit maximum depth,
+right before popping the call stack,
+``postprocess`` gets called.
+Notice the final ``out:`` line and the first two ``in:`` lines are the same "location"
+in the code tree,
+but with all the expansions done by the end.
+
+The result is the fully-expanded code.
+Try more examples in the REPL if you're unsure about the process.
+
+We can use this to implement "symbol macros":
+
+.. Lissp::
+
+   #> (let (Sentinel (type "Sentinel" () (dict)))
+   #..  (defmacro smacrolet (name expansion : :* body)
+   #..    (H#macroexpand_all `(progn ,@body)
+   #..                       : preprocess X#(if-else (_shadows? X name)
+   #..                                        `(lambda ,!##1 X ,@(map X#(attach (Sentinel) X)
+   #..                                                                [##2:] X))
+   #..                                        X)
+   #..                       postprocess X#(cond (eq X name) expansion
+   #..                                           (isinstance X Sentinel) X.X
+   #..                                           :else X))))
+   >>> # let
+   ... (
+   ...  lambda Sentinel=type(
+   ...           ('Sentinel'),
+   ...           (),
+   ...           dict()):
+   ...     # defmacro
+   ...     __import__('builtins').setattr(
+   ...       __import__('builtins').globals().get(
+   ...         ('_macro_')),
+   ...       'smacrolet',
+   ...       # hissp.macros.._macro_.fun
+   ...       # hissp.macros.._macro_.let
+   ...       (
+   ...        lambda _Qz3murjnbw__lambda=(lambda name, expansion, *body:
+   ...                   __import__('hissp').macroexpand_all(
+   ...                     (
+   ...                       '__main__.._macro_.progn',
+   ...                       *body,
+   ...                       ),
+   ...                     preprocess=(lambda X:
+   ...                                    # ifQzH_else
+   ...                                    (lambda b, c, a: c()if b else a())(
+   ...                                      _shadowsQzQUERY_(
+   ...                                        X,
+   ...                                        name),
+   ...                                      (lambda :
+   ...                                          (
+   ...                                            'lambda',
+   ...                                            __import__('operator').itemgetter(
+   ...                                              (1))(
+   ...                                              X),
+   ...                                            *map(
+   ...                                               (lambda X:
+   ...                                                   # attach
+   ...                                                   # hissp.macros.._macro_.let
+   ...                                                   (lambda _Qzxfyq2daa__target=Sentinel():
+   ...                                                      (__import__('builtins').setattr(
+   ...                                                         _Qzxfyq2daa__target,
+   ...                                                         'X',
+   ...                                                         X),
+   ...                                                       _Qzxfyq2daa__target)  [-1]
+   ...                                                   )()
+   ...                                               ),
+   ...                                               (lambda _Qzskdzewct__items: (_Qzskdzewct__items[2:]))(
+   ...                                                 X)),
+   ...                                            )
+   ...                                      ),
+   ...                                      (lambda : X))
+   ...                                ),
+   ...                     postprocess=(lambda X:
+   ...                                     # cond
+   ...                                     (lambda x0, x1, x2, x3, x4, x5:
+   ...                                              x1() if x0
+   ...                                         else x3() if x2()
+   ...                                         else x5() if x4()
+   ...                                         else ()
+   ...                                     )(
+   ...                                       eq(
+   ...                                         X,
+   ...                                         name),
+   ...                                       (lambda : expansion),
+   ...                                       (lambda :
+   ...                                           isinstance(
+   ...                                             X,
+   ...                                             Sentinel)
+   ...                                       ),
+   ...                                       (lambda : X.X),
+   ...                                       (lambda : ':else'),
+   ...                                       (lambda : X))
+   ...                                 ))
+   ...               ):
+   ...          ((
+   ...             *__import__('itertools').starmap(
+   ...                _Qz3murjnbw__lambda.__setattr__,
+   ...                __import__('builtins').dict(
+   ...                  __name__='smacrolet',
+   ...                  __qualname__='_macro_.smacrolet',
+   ...                  __code__=_Qz3murjnbw__lambda.__code__.replace(
+   ...                             co_name='smacrolet')).items()),
+   ...             ),
+   ...           _Qz3murjnbw__lambda)  [-1]
+   ...       )())
+   ... )()
+
+Our ``postprocess`` is doing the replacement:
+when the form is the ``name``, return the ``expansion``.
+(Otherwise give the form back.)
+This much almost does what we want.
+The rest is to implement the shadowing.
+
+Now what's a ``Sentinel``?
+It's a new (empty) type unique to this macro,
+so we don't ever have to worry about one appearing in the body unless ``smacrolet`` put it there.
+The ``preprocess`` function is using it to stop further processing in any lambda bodies that shadow our ``name``.
+(No pre-expansion will happen,
+but the compiler will still get around to expanding any macros left over.)
+See how it reconstructs the lambda form?
+Importantly, it allows the :term:`params` to have further processing,
+because any appearances of the ``name`` in a default expression haven't been shadowed yet.
+But each body form is replaced with a ``Sentinel`` instance with the form attached.
+As far as `macroexpand_all` (or ``preprocess``) is concerned,
+a ``Sentinel`` instance is just an atom.
+But ``postprocess`` will retrieve the attached code from it afterward.
+
+What's ``_shadows?``
+It's wishful thinking again.
+We haven't implemented it yet,
+but we *wish* it would return true only when given a ``lambda``
+form which shadows our ``name``.
+Let's implement that as well.
+
+.. Lissp::
+
+   #> (defun _shadows? (form name)
+   #..  (ands (H#is_node form)
+   #..        (eq !##0 form 'lambda)
+   #..        (let-from (singles pairs)
+   #..                  (H#compiler.parse_params !##1 form)
+   #..          (ors (contains singles name)
+   #..               (contains (.keys pairs) name)))))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   _shadowsQzQUERY_=# hissp.macros.._macro_.fun
+   ...                    # hissp.macros.._macro_.let
+   ...                    (
+   ...                     lambda _Qz3murjnbw__lambda=(lambda form, name:
+   ...                                # ands
+   ...                                (lambda x0, x1, x2: x0 and x1()and x2())(
+   ...                                  __import__('hissp').is_node(
+   ...                                    form),
+   ...                                  (lambda :
+   ...                                      eq(
+   ...                                        __import__('operator').itemgetter(
+   ...                                          (0))(
+   ...                                          form),
+   ...                                        'lambda')
+   ...                                  ),
+   ...                                  (lambda :
+   ...                                      # letQzH_from
+   ...                                      (lambda singles, pairs:
+   ...                                          # ors
+   ...                                          (lambda x0, x1: x0 or x1())(
+   ...                                            contains(
+   ...                                              singles,
+   ...                                              name),
+   ...                                            (lambda :
+   ...                                                contains(
+   ...                                                  pairs.keys(),
+   ...                                                  name)
+   ...                                            ))
+   ...                                      )(
+   ...                                        *__import__('hissp').compiler.parse_params(
+   ...                                           __import__('operator').itemgetter(
+   ...                                             (1))(
+   ...                                             form)))
+   ...                                  ))
+   ...                            ):
+   ...                       ((
+   ...                          *__import__('itertools').starmap(
+   ...                             _Qz3murjnbw__lambda.__setattr__,
+   ...                             __import__('builtins').dict(
+   ...                               __name__='_shadowsQzQUERY_',
+   ...                               __qualname__='_shadowsQzQUERY_',
+   ...                               __code__=_Qz3murjnbw__lambda.__code__.replace(
+   ...                                          co_name='_shadowsQzQUERY_')).items()),
+   ...                          ),
+   ...                        _Qz3murjnbw__lambda)  [-1]
+   ...                    )())
+
+Check if it's a node, so we can safely check if it's a lambda.
+If so, check the parameter names.
+`parse_params` makes it a little easier to get those.
+This function uses metaprogramming helpers from the ``hissp`` package.
+Importing anything from ``hissp``
+at run time violates the :term:`standalone property`,
+but this will only be called inside of a macro,
+which runs at compile time.
+The underscore prefix emphasizes that it isn't meant to be used outside its module.
+(Except perhaps by unit tests.)
+Definition time doesn't create problems even if ``hissp`` is not installed.
+Unlike Python's convention of almost always importing at the top of the file,
+imports in Lissp are usually just in time, and this is why.
+If you don't call the function, the imports never happen.
+
+Let's try it.
+
+.. code-block:: REPL
+
+   #> (smacrolet a 'A
+   #..  (let () (print a))
+   #..  (let (a (add a a))
+   #..    (ors (print a a.__class__)))
+   #..  (print a)
+   #..  (print (type a)))
+   >>> # smacrolet
+   ... (print(
+   ...    'A'),
+   ...  (
+   ...   lambda a=add(
+   ...            'A',
+   ...            'A'):
+   ...      # ors
+   ...      print(
+   ...        a,
+   ...        a.__class__)
+   ...  )(),
+   ...  print(
+   ...    'A'),
+   ...  print(
+   ...    type(
+   ...      'A')))  [-1]
+   A
+   AA <class 'str'>
+   A
+   <class 'str'>
+
+We can see ``smacrolet`` works a lot like a `let` (hence the name),
+but, as you can see from the compiled Python output,
+it does a compile-time substitution instead of an assignment.
+The compiler adds a comment whenever it expands a macro,
+but `macroexpand_all` does not.
+The first `let` disappears without a trace,
+and the ``a`` in its body was replaced.
+The second `let` expands to a lambda with a default argument,
+and the name in the default expression gets substituted as well,
+but the body isn't processed,
+because it introduces a local with the target name,
+which "shadows" our symbol macro.
+Note from the comment that the compiler expanded the `ors`,
+not the pre-expansion from the ``smacrolet``.
+
+Just one problem:
+
+.. code-block:: REPL
+
+   #> (smacrolet a 'A
+   #..  (print a.__class__))
+   >>> # smacrolet
+   ... print(
+   ...   a.__class__)
+   Traceback (most recent call last):
+     ...
+   NameError: name 'a' is not defined
+
+Attribute access.
+This was a little contrived to demonstrate an issue.
+Normally one would use `type` instead of getting the ``.__class__`` attribute,
+which I also demonstrated doesn't show the problem.
+The symbols don't match, so the substitution didn't happen.
+
+That's the problem with *injecting Python*.
+Had we spelled out the attribute access using a `getattr` call,
+it would have been fine.
+
+But attribute access is a :term:`standard` usage of symbols.
+A macro ought to be able to handle that case,
+even if it's unreasonable to expect it to handle Python expressions in general.
+
+We can check for exactly that, and rewrite it to a let expression.
+
+.. Lissp::
+
+   #> (let (Sentinel (type "Sentinel" () (dict)))
+   #..  (defmacro smacrolet (name expansion : :* body)
+   #..    (H#macroexpand_all
+   #..     `(progn ,@body)
+   #..     : preprocess X#(if-else (_shadows? X name)
+   #..                      `(lambda ,!##1 X ,@(map X#(attach (Sentinel) X)
+   #..                                              [##2:] X))
+   #..                      X)
+   #..     postprocess X#(cond (eq X name) expansion
+   #..                         (isinstance X Sentinel) X.X
+   #..                         (eq (_root-name X) name) `(let ($#name ,expansion)
+   #..                                                     ,(.format "{}.{}"
+   #..                                                               '$#name
+   #..                                                               !##-1(.partition X ".")))
+   #..                         :else X))))
+   >>> # let
+   ... (
+   ...  lambda Sentinel=type(
+   ...           ('Sentinel'),
+   ...           (),
+   ...           dict()):
+   ...     # defmacro
+   ...     __import__('builtins').setattr(
+   ...       __import__('builtins').globals().get(
+   ...         ('_macro_')),
+   ...       'smacrolet',
+   ...       # hissp.macros.._macro_.fun
+   ...       # hissp.macros.._macro_.let
+   ...       (
+   ...        lambda _Qz3murjnbw__lambda=(lambda name, expansion, *body:
+   ...                   __import__('hissp').macroexpand_all(
+   ...                     (
+   ...                       '__main__.._macro_.progn',
+   ...                       *body,
+   ...                       ),
+   ...                     preprocess=(lambda X:
+   ...                                    # ifQzH_else
+   ...                                    (lambda b, c, a: c()if b else a())(
+   ...                                      _shadowsQzQUERY_(
+   ...                                        X,
+   ...                                        name),
+   ...                                      (lambda :
+   ...                                          (
+   ...                                            'lambda',
+   ...                                            __import__('operator').itemgetter(
+   ...                                              (1))(
+   ...                                              X),
+   ...                                            *map(
+   ...                                               (lambda X:
+   ...                                                   # attach
+   ...                                                   # hissp.macros.._macro_.let
+   ...                                                   (lambda _Qzxfyq2daa__target=Sentinel():
+   ...                                                      (__import__('builtins').setattr(
+   ...                                                         _Qzxfyq2daa__target,
+   ...                                                         'X',
+   ...                                                         X),
+   ...                                                       _Qzxfyq2daa__target)  [-1]
+   ...                                                   )()
+   ...                                               ),
+   ...                                               (lambda _Qzskdzewct__items: (_Qzskdzewct__items[2:]))(
+   ...                                                 X)),
+   ...                                            )
+   ...                                      ),
+   ...                                      (lambda : X))
+   ...                                ),
+   ...                     postprocess=(lambda X:
+   ...                                     # cond
+   ...                                     (lambda x0, x1, x2, x3, x4, x5, x6, x7:
+   ...                                              x1() if x0
+   ...                                         else x3() if x2()
+   ...                                         else x5() if x4()
+   ...                                         else x7() if x6()
+   ...                                         else ()
+   ...                                     )(
+   ...                                       eq(
+   ...                                         X,
+   ...                                         name),
+   ...                                       (lambda : expansion),
+   ...                                       (lambda :
+   ...                                           isinstance(
+   ...                                             X,
+   ...                                             Sentinel)
+   ...                                       ),
+   ...                                       (lambda : X.X),
+   ...                                       (lambda :
+   ...                                           eq(
+   ...                                             _rootQzH_name(
+   ...                                               X),
+   ...                                             name)
+   ...                                       ),
+   ...                                       (lambda :
+   ...                                           (
+   ...                                             '__main__.._macro_.let',
+   ...                                             (
+   ...                                               '_Qz6feg5spl__name',
+   ...                                               expansion,
+   ...                                               ),
+   ...                                             ('{}.{}').format(
+   ...                                               '_Qz6feg5spl__name',
+   ...                                               __import__('operator').itemgetter(
+   ...                                                 (-1))(
+   ...                                                 X.partition(
+   ...                                                   ('.')))),
+   ...                                             )
+   ...                                       ),
+   ...                                       (lambda : ':else'),
+   ...                                       (lambda : X))
+   ...                                 ))
+   ...               ):
+   ...          ((
+   ...             *__import__('itertools').starmap(
+   ...                _Qz3murjnbw__lambda.__setattr__,
+   ...                __import__('builtins').dict(
+   ...                  __name__='smacrolet',
+   ...                  __qualname__='_macro_.smacrolet',
+   ...                  __code__=_Qz3murjnbw__lambda.__code__.replace(
+   ...                             co_name='smacrolet')).items()),
+   ...             ),
+   ...           _Qz3murjnbw__lambda)  [-1]
+   ...       )())
+   ... )()
+
+Here we're wishful thinking a helper function again.
+This one gets the name we're accessing the attribute from,
+using a short regex.
+(If the symbol were fully qualified, it would get the module handle part.)
+This should work even for a chain of attributes.
+
+.. Lissp::
+
+   #> (defun _root-name (form)
+   #..  my#(ands (H#is_symbol form)
+   #..           match=(re..match '|(.+?\.||[^.]+)\.| form)
+   #..           !##1 my.match))
+   >>> # defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   _rootQzH_name=# hissp.macros.._macro_.fun
+   ...                 # hissp.macros.._macro_.let
+   ...                 (
+   ...                  lambda _Qz3murjnbw__lambda=(lambda form:
+   ...                             # hissp.macros.._macro_.let
+   ...                             (lambda my=__import__('types').SimpleNamespace():
+   ...                                 # ands
+   ...                                 (lambda x0, x1, x2: x0 and x1()and x2())(
+   ...                                   __import__('hissp').is_symbol(
+   ...                                     form),
+   ...                                   (lambda :
+   ...                                       # hissp.macros.._macro_.setQzAT_
+   ...                                       # hissp.macros.._macro_.let
+   ...                                       (
+   ...                                        lambda _Qz56kt2vyy__value=__import__('re').match(
+   ...                                                 '(.+?\\.|[^.]+)\\.',
+   ...                                                 form):
+   ...                                          (# hissp.macros.._macro_.define
+   ...                                           __import__('builtins').setattr(
+   ...                                             my,
+   ...                                             'match',
+   ...                                             _Qz56kt2vyy__value),
+   ...                                           _Qz56kt2vyy__value)  [-1]
+   ...                                       )()
+   ...                                   ),
+   ...                                   (lambda :
+   ...                                       __import__('operator').itemgetter(
+   ...                                         (1))(
+   ...                                         my.match)
+   ...                                   ))
+   ...                             )()
+   ...                         ):
+   ...                    ((
+   ...                       *__import__('itertools').starmap(
+   ...                          _Qz3murjnbw__lambda.__setattr__,
+   ...                          __import__('builtins').dict(
+   ...                            __name__='_rootQzH_name',
+   ...                            __qualname__='_rootQzH_name',
+   ...                            __code__=_Qz3murjnbw__lambda.__code__.replace(
+   ...                                       co_name='_rootQzH_name')).items()),
+   ...                       ),
+   ...                     _Qz3murjnbw__lambda)  [-1]
+   ...                 )())
+
+And now we don't get an error from attribute access:
+
+.. code-block:: REPL
+
+   #> (smacrolet a 'A
+   #..  (let () (print a))
+   #..  (let (a (add a a))
+   #..    (ors (print a a.__class__)))
+   #..  (print a a.__class__ a.__class__.__mro__))
+   >>> # smacrolet
+   ... (print(
+   ...    'A'),
+   ...  (
+   ...   lambda a=add(
+   ...            'A',
+   ...            'A'):
+   ...      # ors
+   ...      print(
+   ...        a,
+   ...        a.__class__)
+   ...  )(),
+   ...  print(
+   ...    'A',
+   ...    # __main__.._macro_.let
+   ...    (lambda _Qz6feg5spl__name='A': _Qz6feg5spl__name.__class__)(),
+   ...    # __main__.._macro_.let
+   ...    (lambda _Qz6feg5spl__name='A': _Qz6feg5spl__name.__class__.__mro__)()))  [-1]
+   A
+   AA <class 'str'>
+   A <class 'str'> (<class 'str'>, <class 'object'>)
+
+There's more room for improvement.
+A more advanced ``smacrolet`` could perhaps handle multiple replacements,
+but then we run into the issue of what to do when the replacements themselves contain symbol macros.
+This complicates what is otherwise a simple find and replace operation.
+To enable mutually-recursive symbol macros,
+any replacement must be processed as well,
+and the search process should check if any symbol macro matches before moving on.
+Hissp's compiler does something similar for normal macros,
+as does `macroexpand`.
+
+We won't be needing this kind of recursion for lazy functions.
+Application of single-symbol replacements will do.
+
+``defun-lazy``
+::::::::::::::
+
+Now we can add a ``smacrolet`` to our ``defun-lazy``.
+I will again omit the docstring handling for simplicity.
+
+.. Lissp::
+
+   #> (defmacro defun-lazy (qualname params : :* body)
+   #..  `(defun ,qualname (: :** ,'kwargs)
+   #..     (-<>>
+   #..      (let ($#lazy (types..SimpleNamespace))
+   #..        (doto (vars $#lazy)
+   #..          (.update (zip ,(list [##::2] params)
+   #..                        (|| ,@(map X#`O#,X [##1::2] params) ||)
+   #..                        : strict 1))
+   #..          (.update (i#starmap (lambda ($#k $#v)
+   #..                                (@ $#k (lambda (: $#v $#v) $#v)))
+   #..                              (.items ,'kwargs))))
+   #..        ,@body)
+   #..      ,@(map X#`(smacrolet ,X (,(.format "{}.{}" '$#lazy X)))
+   #..             [##::2] params))))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'defunQzH_lazy',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qz3murjnbw__lambda=(lambda qualname, params, *body:
+   ...               (
+   ...                 '__main__.._macro_.defun',
+   ...                 qualname,
+   ...                 (
+   ...                   ':',
+   ...                   ':**',
+   ...                   'kwargs',
+   ...                   ),
+   ...                 (
+   ...                   '__main__.._macro_.QzH_QzLT_QzGT_QzGT_',
+   ...                   (
+   ...                     '__main__.._macro_.let',
+   ...                     (
+   ...                       '_Qzgqgc4a3y__lazy',
+   ...                       (
+   ...                         'types..SimpleNamespace',
+   ...                         ),
+   ...                       ),
+   ...                     (
+   ...                       '__main__.._macro_.doto',
+   ...                       (
+   ...                         'builtins..vars',
+   ...                         '_Qzgqgc4a3y__lazy',
+   ...                         ),
+   ...                       (
+   ...                         '.update',
+   ...                         (
+   ...                           'builtins..zip',
+   ...                           list(
+   ...                             (lambda _Qzskdzewct__items: (_Qzskdzewct__items[::2]))(
+   ...                               params)),
+   ...                           (
+   ...                             '',
+   ...                             *map(
+   ...                                (lambda X:
+   ...                                    (
+   ...                                      'lambda',
+   ...                                      ':',
+   ...                                      X,
+   ...                                      )
+   ...                                ),
+   ...                                (lambda _Qzskdzewct__items: (_Qzskdzewct__items[1::2]))(
+   ...                                  params)),
+   ...                             '',
+   ...                             ),
+   ...                           ':',
+   ...                           '__main__..strict',
+   ...                           (1),
+   ...                           ),
+   ...                         ),
+   ...                       (
+   ...                         '.update',
+   ...                         (
+   ...                           'itertools..starmap',
+   ...                           (
+   ...                             'lambda',
+   ...                             (
+   ...                               '_Qzgqgc4a3y__k',
+   ...                               '_Qzgqgc4a3y__v',
+   ...                               ),
+   ...                             (
+   ...                               '__main__.._macro_.QzAT_',
+   ...                               '_Qzgqgc4a3y__k',
+   ...                               (
+   ...                                 'lambda',
+   ...                                 (
+   ...                                   ':',
+   ...                                   '_Qzgqgc4a3y__v',
+   ...                                   '_Qzgqgc4a3y__v',
+   ...                                   ),
+   ...                                 '_Qzgqgc4a3y__v',
+   ...                                 ),
+   ...                               ),
+   ...                             ),
+   ...                           (
+   ...                             '.items',
+   ...                             'kwargs',
+   ...                             ),
+   ...                           ),
+   ...                         ),
+   ...                       ),
+   ...                     *body,
+   ...                     ),
+   ...                   *map(
+   ...                      (lambda X:
+   ...                          (
+   ...                            '__main__.._macro_.smacrolet',
+   ...                            X,
+   ...                            (
+   ...                              ('{}.{}').format(
+   ...                                '_Qzgqgc4a3y__lazy',
+   ...                                X),
+   ...                              ),
+   ...                            )
+   ...                      ),
+   ...                      (lambda _Qzskdzewct__items: (_Qzskdzewct__items[::2]))(
+   ...                        params)),
+   ...                   ),
+   ...                 )
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qz3murjnbw__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='defunQzH_lazy',
+   ...              __qualname__='_macro_.defunQzH_lazy',
+   ...              __code__=_Qz3murjnbw__lambda.__code__.replace(
+   ...                         co_name='defunQzH_lazy')).items()),
+   ...         ),
+   ...       _Qz3murjnbw__lambda)  [-1]
+   ...   )())
+
+Because they can only handle one name each,
+we need one ``smacrolet`` per lazy default parameter.
+We're leveraging `-\<>> <QzH_QzLT_QzGT_QzGT_>` to do the nesting for us.
+The replacements follow a simple pattern we're computing from the keyword.
+``lazy`` is now a gensym, not an anaphor.
+
+Notice the first ``.update`` form has changed.
+It's important that symbol macros in the lazy default expressions get expanded,
+but the parameter names themselves must not be.
+While `zip` will accept either,
+``smacrolet`` treats a `list` as single atom,
+but will recurse into tuples.
+A ``list`` of `str` doesn't even pickle.
+It has a literal notation so the compiler can emit it.
+
+You've seen the rest before.
+
+Let's try it!
+
+.. Lissp::
+
+   #> (define r4 &#(round : ndigits 4)) ; Just a partial now.
+   >>> # define
+   ... __import__('builtins').globals().update(
+   ...   r4=__import__('functools').partial(
+   ...        round,
+   ...        ndigits=(4)))
+
+   #> (defun-lazy coordinates (x (mul r (math..cos theta))
+   #..                         y (mul r (math..sin theta))
+   #..                         r (XY#|(X**2 + Y**2)**.5| x y)
+   #..                         θ (math..atan2 y x)
+   #..                         theta θ)
+   #..   ;; If you're not rounding, it's just
+   #..   ;; (dict : cartesian `(,x ,y)  polar `(,r ,theta)))
+   #..   (dict : cartesian `(,(r4 x) ,(r4 y))
+   #..         polar `(,(r4 r) ,(r4 theta))))
+   >>> # defunQzH_lazy
+   ... # __main__.._macro_.defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   coordinates=# hissp.macros.._macro_.fun
+   ...               # hissp.macros.._macro_.let
+   ...               (
+   ...                lambda _Qzg4t3gdjc__lambda=(lambda **kwargs:
+   ...                           # __main__.._macro_.QzH_QzLT_QzGT_QzGT_
+   ...                           # __main__.._macro_.smacrolet
+   ...                           (lambda _Qzgqgc4a3y__lazy=__import__('types').SimpleNamespace():
+   ...                              ((
+   ...                                lambda _Qzqinvrqwa__self=__import__('builtins').vars(
+   ...                                         _Qzgqgc4a3y__lazy):
+   ...                                  (_Qzqinvrqwa__self.update(
+   ...                                     __import__('builtins').zip(
+   ...                                       ['x', 'y', 'r', 'θ', 'theta'],
+   ...                                       (
+   ...                                         (lambda :
+   ...                                             mul(
+   ...                                               _Qzgqgc4a3y__lazy.r(),
+   ...                                               __import__('math').cos(
+   ...                                                 _Qzgqgc4a3y__lazy.theta()))
+   ...                                         ),
+   ...                                         (lambda :
+   ...                                             mul(
+   ...                                               _Qzgqgc4a3y__lazy.r(),
+   ...                                               __import__('math').sin(
+   ...                                                 _Qzgqgc4a3y__lazy.theta()))
+   ...                                         ),
+   ...                                         (lambda :
+   ...                                             (lambda X, Y: (X**2 + Y**2)**.5)(
+   ...                                               _Qzgqgc4a3y__lazy.x(),
+   ...                                               _Qzgqgc4a3y__lazy.y())
+   ...                                         ),
+   ...                                         (lambda :
+   ...                                             __import__('math').atan2(
+   ...                                               _Qzgqgc4a3y__lazy.y(),
+   ...                                               _Qzgqgc4a3y__lazy.x())
+   ...                                         ),
+   ...                                         (lambda : _Qzgqgc4a3y__lazy.θ()),
+   ...                                         ),
+   ...                                       strict=(1))),
+   ...                                   _Qzqinvrqwa__self.update(
+   ...                                     __import__('itertools').starmap(
+   ...                                       (lambda _Qzgqgc4a3y__k, _Qzgqgc4a3y__v:
+   ...                                           (lambda *xs: [*xs])(
+   ...                                             _Qzgqgc4a3y__k,
+   ...                                             (lambda _Qzgqgc4a3y__v=_Qzgqgc4a3y__v: _Qzgqgc4a3y__v))
+   ...                                       ),
+   ...                                       kwargs.items())),
+   ...                                   _Qzqinvrqwa__self)  [-1]
+   ...                               )(),
+   ...                               dict(
+   ...                                 cartesian=(
+   ...                                             r4(
+   ...                                               _Qzgqgc4a3y__lazy.x()),
+   ...                                             r4(
+   ...                                               _Qzgqgc4a3y__lazy.y()),
+   ...                                             ),
+   ...                                 polar=(
+   ...                                         r4(
+   ...                                           _Qzgqgc4a3y__lazy.r()),
+   ...                                         r4(
+   ...                                           _Qzgqgc4a3y__lazy.theta()),
+   ...                                         )))  [-1]
+   ...                           )()
+   ...                       ):
+   ...                  ((
+   ...                     *__import__('itertools').starmap(
+   ...                        _Qzg4t3gdjc__lambda.__setattr__,
+   ...                        __import__('builtins').dict(
+   ...                          __name__='coordinates',
+   ...                          __qualname__='coordinates',
+   ...                          __code__=_Qzg4t3gdjc__lambda.__code__.replace(
+   ...                                     co_name='coordinates')).items()),
+   ...                     ),
+   ...                   _Qzg4t3gdjc__lambda)  [-1]
+   ...               )())
+
+Notice the ``r`` default injection can't use ``x`` and ``y`` directly,
+because symbol macros don't work in Python fragments,
+which are single atoms as far as ``smacrolet`` is concerned.
+We used `XY# <XYQzHASH_>` here (and the names happen to line up)
+but a `let` would work as well.
+We don't *need* to inject a Python fragment here.
+Were the formula expressed in standard Lissp like the other defaults,
+the symbol macros would work fine.
+
+Our examples work just like before:
+
+.. code-block:: REPL
+
+   #> (coordinates : r |2**.5|  θ math..radians#45)
+   >>> coordinates(
+   ...   r=2**.5,
+   ...   θ=(0.7853981633974483))
+   {'cartesian': (1.0, 1.0), 'polar': (1.4142, 0.7854)}
+
+   #> (coordinates : x 1  y 1)
+   >>> coordinates(
+   ...   x=(1),
+   ...   y=(1))
+   {'cartesian': (1, 1), 'polar': (1.4142, 0.7854)}
+
+   #> (coordinates : r 1  theta math..radians#60)
+   >>> coordinates(
+   ...   r=(1),
+   ...   theta=(1.0471975511965976))
+   {'cartesian': (0.5, 0.866), 'polar': (1, 1.0472)}
+
+
+Isn't that cool?
+Yes that is awesome.
+How close can we get to that in Python?
+Yeah, Python is powerful. But not as powerful as a Lisp.
+If we're willing to use eval we could pass in the formulas as strings.
+But it's frowned upon for good reasons.
+If we're willing to rewrite AST?
+It's possible, but so much harder than in Lissp that it rarely seems worth the effort.
+It'll also confuse that heavyweight IDE you're so reliant upon.
+Static analysis can be really confining, especially when the tooling is not readily extensible.
+
+.. topic:: Exercise: special-casing non-special forms
+
+   Modify ``smacrolet`` to avoid pre-expanding `mix`
+   and use ``mix`` to interpolate symbol macros in the formula for ``r``.
+   Are you pre-expanding its arguments? Should you?
+
+``destruct->``
+::::::::::::::
+
+Python can unpack in assignment statements.
+And actually, the `my#<myQzHASH_>` tag gives Lissp access to that capability.
+But we're restricted to Python identifiers that way.
+
+We have a more powerful bundled `destruct-> <destructQzH_QzGT_>`.
+Read through its usage examples.
+
+Here it is, sans docstring:
+
+.. Lissp::
+
+   (defmacro destruct-> (data bindings : :* body)
+     my### names=(list) $data=`$#data
+     (progn walk=(lambda (bindings)
+                   (let (pairs (X#(zip X X : strict True) (iter bindings)))
+                     `(|| : ,@chain#(i#starmap XY#(if-else (H#is_node Y)
+                                                    `(:* (let (,my.$data (-> ,my.$data ,X))
+                                                           ,(my.walk Y)))
+                                                    (progn (.append my.names Y)
+                                                           `(:? (-> ,my.$data ,X))))
+                                               pairs)
+                          :? ||)))
+            values=`(let (,my.$data ,data) ,(my.walk bindings))
+            `(let-from (,@my.names) ,my.values ,@body)))
+
+Starting from the bottom,
+the basic idea is to produce a single tuple of values
+that can be bound to a tuple of local names all at once using a `let-from<letQzH_from>`.
+
+To do that, it needs to remember each target name it finds (``my.names``).
+The tuple of values (``my.values``)
+is made using ``my.walk`` for (internal) recursion.
+
+That idea is similar to ``flatten``.
+It works via :term:`splicing unquote` of nested `let` forms for each layer.
+Each transform is applied via `-> <QzH_QzGT_>`.
+
+``my.$data`` is just a gensym.
+The reason to save it in advance like this is
+so we can use the same one in multiple templates that aren't nested in a parent template
+(which would be another way to do it).
+This is bending the rules a little bit,
+because gensyms are supposed to be scoped to their template,
+but this is internal to a single macro function,
+and all uses of it end up inside one template in the end.
+
+This construction doesn't work without shadowing the gensym name.
+Some styles (and some compilers, internally) avoid shadowing names at all,
+but it's an important capability for metaprogramming.
+
+Try examples until you get it.
+You can use `macroexpand` to see the Hissp code it produces.
+`pprint.pp` may make it easier to read.
+You can see the Python compilation in the REPL.
+You can run that through your favorite Python formatter if it helps.
+
+``defun->``
+:::::::::::
+
+Python used to allow destructuring of arguments, back in version 2.
+
+Sadly, this was removed in Python 3 (`PEP 3113 <https://peps.python.org/pep-3113/>`_),
+and the suggested replacement (`assignment`)
+don't really work in lambdas,
+which is what Hissp needs.
+But macros are powerful enough to make a replacement.
+Combine `destruct-> <destructQzH_QzGT_>` and `defun`:
+
+.. Lissp::
+
+   #> (defmacro defun-> (qualname bindings : :* body)
+   #..  `(defun ,qualname (: :* $#args  :** $#kwargs)
+   #..     (destruct-> (dict (enumerate $#args) : :** $#kwargs) ,bindings
+   #..       ,@body)))
+   >>> # defmacro
+   ... __import__('builtins').setattr(
+   ...   __import__('builtins').globals().get(
+   ...     ('_macro_')),
+   ...   'defunQzH_QzGT_',
+   ...   # hissp.macros.._macro_.fun
+   ...   # hissp.macros.._macro_.let
+   ...   (
+   ...    lambda _Qz3murjnbw__lambda=(lambda qualname, bindings, *body:
+   ...               (
+   ...                 '__main__.._macro_.defun',
+   ...                 qualname,
+   ...                 (
+   ...                   ':',
+   ...                   ':*',
+   ...                   '_Qzdrlaw3u7__args',
+   ...                   ':**',
+   ...                   '_Qzdrlaw3u7__kwargs',
+   ...                   ),
+   ...                 (
+   ...                   '__main__.._macro_.destructQzH_QzGT_',
+   ...                   (
+   ...                     'builtins..dict',
+   ...                     (
+   ...                       'builtins..enumerate',
+   ...                       '_Qzdrlaw3u7__args',
+   ...                       ),
+   ...                     ':',
+   ...                     ':**',
+   ...                     '_Qzdrlaw3u7__kwargs',
+   ...                     ),
+   ...                   bindings,
+   ...                   *body,
+   ...                   ),
+   ...                 )
+   ...           ):
+   ...      ((
+   ...         *__import__('itertools').starmap(
+   ...            _Qz3murjnbw__lambda.__setattr__,
+   ...            __import__('builtins').dict(
+   ...              __name__='defunQzH_QzGT_',
+   ...              __qualname__='_macro_.defunQzH_QzGT_',
+   ...              __code__=_Qz3murjnbw__lambda.__code__.replace(
+   ...                         co_name='defunQzH_QzGT_')).items()),
+   ...         ),
+   ...       _Qz3murjnbw__lambda)  [-1]
+   ...   )())
+
+That's all.
+
+`destruct-> <destructQzH_QzGT_>`
+is already powerful enough to bind multiple names,
+do lookups via keyword or position index,
+and have defaults.
+The ``bindings`` can use any transforms you want:
+`itertools`, constructors, slicing, methods, custom helper functions, etc.
+They can also have side effects,
+like `next` or `dict.pop`.
+
+It just needs a data structure to work on.
+Rather than writing a single-parameter `defun` (which would also be an option),
+we accept any arguments
+and combine all the ``*args`` and ``**kwargs`` into one dict.
+Positional args will be keyed by number (from `enumerate`).
+This makes destructuring via direct lookup just work.
+It's also possible to get positional args with `next`.
+Recall that dicts remember their insertion order,
+and that includes iterating `dict.values`.
+
+Although somewhat awkward,
+it is possible to reconstruct an args tuple and kwargs dict because
+their keys have different types.
+But in that situation,
+it may be a better idea to write the `defun` yourself,
+possibly with some internal use of
+`destruct-> <destructQzH_QzGT_>`.
+
+To prove it's possible, here's how you could implement the signature of `print`:
+
+.. Lissp::
+
+   #> (defun-> my-print ((.pop 'sep " ") sep
+   #..                   (.pop 'end "\n") end
+   #..                   (.pop 'file sys..stdout) file
+   #..                   (.pop 'flush False) flush
+   #..                   (.values) values)
+   #..  (print : :* values  sep sep  end end  file file  flush flush))
+   >>> # defunQzH_QzGT_
+   ... # __main__.._macro_.defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   myQzH_print=# hissp.macros.._macro_.fun
+   ...               # hissp.macros.._macro_.let
+   ...               (
+   ...                lambda _Qz3murjnbw__lambda=(lambda *_Qzdrlaw3u7__args, **_Qzdrlaw3u7__kwargs:
+   ...                           # __main__.._macro_.destructQzH_QzGT_
+   ...                           # hissp.macros.._macro_.letQzH_from
+   ...                           (lambda sep, end, file, flush, values:
+   ...                               print(
+   ...                                 *values,
+   ...                                 sep=sep,
+   ...                                 end=end,
+   ...                                 file=file,
+   ...                                 flush=flush)
+   ...                           )(
+   ...                             *# hissp.macros.._macro_.let
+   ...                              (
+   ...                               lambda _Qzduavqad3__data=__import__('builtins').dict(
+   ...                                        __import__('builtins').enumerate(
+   ...                                          _Qzdrlaw3u7__args),
+   ...                                        **_Qzdrlaw3u7__kwargs):
+   ...                                  (
+   ...                                    # hissp.macros.._macro_.QzH_QzGT_
+   ...                                    _Qzduavqad3__data.pop(
+   ...                                      'sep',
+   ...                                      (' ')),
+   ...                                    # hissp.macros.._macro_.QzH_QzGT_
+   ...                                    _Qzduavqad3__data.pop(
+   ...                                      'end',
+   ...                                      ('\n')),
+   ...                                    # hissp.macros.._macro_.QzH_QzGT_
+   ...                                    _Qzduavqad3__data.pop(
+   ...                                      'file',
+   ...                                      __import__('sys').stdout),
+   ...                                    # hissp.macros.._macro_.QzH_QzGT_
+   ...                                    _Qzduavqad3__data.pop(
+   ...                                      'flush',
+   ...                                      False),
+   ...                                    # hissp.macros.._macro_.QzH_QzGT_
+   ...                                    _Qzduavqad3__data.values(),
+   ...                                    )
+   ...                              )())
+   ...                       ):
+   ...                  ((
+   ...                     *__import__('itertools').starmap(
+   ...                        _Qz3murjnbw__lambda.__setattr__,
+   ...                        __import__('builtins').dict(
+   ...                          __name__='myQzH_print',
+   ...                          __qualname__='myQzH_print',
+   ...                          __code__=_Qz3murjnbw__lambda.__code__.replace(
+   ...                                     co_name='myQzH_print')).items()),
+   ...                     ),
+   ...                   _Qz3murjnbw__lambda)  [-1]
+   ...               )())
+
+This demonstrates keyword defaults and a variable number of positional arguments.
+
+.. code-block:: REPL
+
+   #> (my-print 1 2 3 : sep :)
+   >>> myQzH_print(
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   sep=':')
+   1:2:3
+
+There's one notable difference though:
+
+.. code-block:: REPL
+
+   #> (my-print 1 2 3 : sep :  foo 4)
+   >>> myQzH_print(
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   sep=':',
+   ...   foo=(4))
+   1:2:3:4
+
+We assumed everything left over after popping off the keywords was positional.
+But what if one of the keywords was accidentally misspelled?
+There are various ways to check for errors if you want to be strict about it:
+
+.. Lissp::
+
+   #> (defun-> my-print ((.pop 'sep " ") sep
+   #..                   (.pop 'end "\n") end
+   #..                   (.pop 'file sys..stdout) file
+   #..                   (.pop 'flush False) flush
+   #..                   (.values) values
+   #..                   (-> .keys list !#-1) (ors last-key
+   #..                                         type last-key-type))
+   #..  (unless (is_ last-key-type int)
+   #..    (throw (TypeError (.format "{!r} is an invalid keyword argument" last-key))))
+   #..  (print : :* values  sep sep  end end  file file  flush flush))
+   >>> # defunQzH_QzGT_
+   ... # __main__.._macro_.defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   myQzH_print=# hissp.macros.._macro_.fun
+   ...               # hissp.macros.._macro_.let
+   ...               (
+   ...                lambda _Qz3murjnbw__lambda=(lambda *_Qzdrlaw3u7__args, **_Qzdrlaw3u7__kwargs:
+   ...                           # __main__.._macro_.destructQzH_QzGT_
+   ...                           # hissp.macros.._macro_.letQzH_from
+   ...                           (lambda sep, end, file, flush, values, lastQzH_key, lastQzH_keyQzH_type:
+   ...                              (# unless
+   ...                               (lambda b, a: ()if b else a())(
+   ...                                 is_(
+   ...                                   lastQzH_keyQzH_type,
+   ...                                   int),
+   ...                                 (lambda :
+   ...                                     # throw
+   ...                                     # hissp.macros.._macro_.throwQzSTAR_
+   ...                                     (lambda g:g.close()or g.throw)(c for c in'')(
+   ...                                       TypeError(
+   ...                                         ('{!r} is an invalid keyword argument').format(
+   ...                                           lastQzH_key)))
+   ...                                 )),
+   ...                               print(
+   ...                                 *values,
+   ...                                 sep=sep,
+   ...                                 end=end,
+   ...                                 file=file,
+   ...                                 flush=flush))  [-1]
+   ...                           )(
+   ...                             *# hissp.macros.._macro_.let
+   ...                              (
+   ...                               lambda _Qzduavqad3__data=__import__('builtins').dict(
+   ...                                        __import__('builtins').enumerate(
+   ...                                          _Qzdrlaw3u7__args),
+   ...                                        **_Qzdrlaw3u7__kwargs):
+   ...                                  (
+   ...                                    # hissp.macros.._macro_.QzH_QzGT_
+   ...                                    _Qzduavqad3__data.pop(
+   ...                                      'sep',
+   ...                                      (' ')),
+   ...                                    # hissp.macros.._macro_.QzH_QzGT_
+   ...                                    _Qzduavqad3__data.pop(
+   ...                                      'end',
+   ...                                      ('\n')),
+   ...                                    # hissp.macros.._macro_.QzH_QzGT_
+   ...                                    _Qzduavqad3__data.pop(
+   ...                                      'file',
+   ...                                      __import__('sys').stdout),
+   ...                                    # hissp.macros.._macro_.QzH_QzGT_
+   ...                                    _Qzduavqad3__data.pop(
+   ...                                      'flush',
+   ...                                      False),
+   ...                                    # hissp.macros.._macro_.QzH_QzGT_
+   ...                                    _Qzduavqad3__data.values(),
+   ...                                    *# hissp.macros.._macro_.let
+   ...                                     (
+   ...                                      lambda _Qzduavqad3__data=# hissp.macros.._macro_.QzH_QzGT_
+   ...                                             # QzH_QzGT_
+   ...                                             __import__('operator').itemgetter(
+   ...                                               (-1))(
+   ...                                               list(
+   ...                                                 _Qzduavqad3__data.keys()),
+   ...                                               ):
+   ...                                         (
+   ...                                           # hissp.macros.._macro_.QzH_QzGT_
+   ...                                           # ors
+   ...                                           _Qzduavqad3__data,
+   ...                                           # hissp.macros.._macro_.QzH_QzGT_
+   ...                                           type(
+   ...                                             _Qzduavqad3__data),
+   ...                                           )
+   ...                                     )(),
+   ...                                    )
+   ...                              )())
+   ...                       ):
+   ...                  ((
+   ...                     *__import__('itertools').starmap(
+   ...                        _Qz3murjnbw__lambda.__setattr__,
+   ...                        __import__('builtins').dict(
+   ...                          __name__='myQzH_print',
+   ...                          __qualname__='myQzH_print',
+   ...                          __code__=_Qz3murjnbw__lambda.__code__.replace(
+   ...                                     co_name='myQzH_print')).items()),
+   ...                     ),
+   ...                   _Qz3murjnbw__lambda)  [-1]
+   ...               )())
+
+.. code-block:: REPL
+
+   #> (my-print 1 2 3 : zep :)
+   >>> myQzH_print(
+   ...   (1),
+   ...   (2),
+   ...   (3),
+   ...   zep=':')
+   Traceback (most recent call last):
+     ...
+   TypeError: 'zep' is an invalid keyword argument
+
+Of course, in a simple case like this,
+it would be *much easier* to use a normal `defun`.
+But ``defun->`` can destructure complicated data
+in addition to replicating Python's capabilities:
+
+.. Lissp::
+
+   #> (defun-> coordinates->complex pos#((!#'cartesian pos#(x y)))
+   #..  (builtins..complex x y))
+   >>> # defunQzH_QzGT_
+   ... # __main__.._macro_.defun
+   ... # hissp.macros.._macro_.define
+   ... __import__('builtins').globals().update(
+   ...   coordinatesQzH_QzGT_complex=# hissp.macros.._macro_.fun
+   ...                               # hissp.macros.._macro_.let
+   ...                               (
+   ...                                lambda _Qzg4t3gdjc__lambda=(lambda *_Qzdrlaw3u7__args, **_Qzdrlaw3u7__kwargs:
+   ...                                           # __main__.._macro_.destructQzH_QzGT_
+   ...                                           # hissp.macros.._macro_.letQzH_from
+   ...                                           (lambda x, y:
+   ...                                               __import__('builtins').complex(
+   ...                                                 x,
+   ...                                                 y)
+   ...                                           )(
+   ...                                             *# hissp.macros.._macro_.let
+   ...                                              (
+   ...                                               lambda _Qz4d7tjywl__data=__import__('builtins').dict(
+   ...                                                        __import__('builtins').enumerate(
+   ...                                                          _Qzdrlaw3u7__args),
+   ...                                                        **_Qzdrlaw3u7__kwargs):
+   ...                                                  (
+   ...                                                    *# hissp.macros.._macro_.let
+   ...                                                     (
+   ...                                                      lambda _Qz4d7tjywl__data=# hissp.macros.._macro_.QzH_QzGT_
+   ...                                                             __import__('operator').itemgetter(
+   ...                                                               (0))(
+   ...                                                               _Qz4d7tjywl__data,
+   ...                                                               ):
+   ...                                                         (
+   ...                                                           *# hissp.macros.._macro_.let
+   ...                                                            (
+   ...                                                             lambda _Qz4d7tjywl__data=# hissp.macros.._macro_.QzH_QzGT_
+   ...                                                                    __import__('operator').itemgetter(
+   ...                                                                      'cartesian')(
+   ...                                                                      _Qz4d7tjywl__data,
+   ...                                                                      ):
+   ...                                                                (
+   ...                                                                  # hissp.macros.._macro_.QzH_QzGT_
+   ...                                                                  __import__('operator').itemgetter(
+   ...                                                                    (0))(
+   ...                                                                    _Qz4d7tjywl__data,
+   ...                                                                    ),
+   ...                                                                  # hissp.macros.._macro_.QzH_QzGT_
+   ...                                                                  __import__('operator').itemgetter(
+   ...                                                                    (1))(
+   ...                                                                    _Qz4d7tjywl__data,
+   ...                                                                    ),
+   ...                                                                  )
+   ...                                                            )(),
+   ...                                                           )
+   ...                                                     )(),
+   ...                                                    )
+   ...                                              )())
+   ...                                       ):
+   ...                                  ((
+   ...                                     *__import__('itertools').starmap(
+   ...                                        _Qzg4t3gdjc__lambda.__setattr__,
+   ...                                        __import__('builtins').dict(
+   ...                                          __name__='coordinatesQzH_QzGT_complex',
+   ...                                          __qualname__='coordinatesQzH_QzGT_complex',
+   ...                                          __code__=_Qzg4t3gdjc__lambda.__code__.replace(
+   ...                                                     co_name='coordinatesQzH_QzGT_complex')).items()),
+   ...                                     ),
+   ...                                   _Qzg4t3gdjc__lambda)  [-1]
+   ...                               )())
+
+.. code-block:: REPL
+
+   #> (coordinates : r 1.4142  theta 0.7854)
+   >>> coordinates(
+   ...   r=(1.4142),
+   ...   theta=(0.7854))
+   {'cartesian': (1.0, 1.0), 'polar': (1.4142, 0.7854)}
+
+   #> (coordinates->complex _)
+   >>> coordinatesQzH_QzGT_complex(
+   ...   _)
+   (1+1j)
+
+A lot of programming comes down to restructuring data like this.
+
+.. topic:: Exercise: Add doctring handling to ``defun-lazy`` and ``defun->``.
+
+   We've done this before. Generalize what you've seen.
+
+.. topic:: Exercise: make a ``fun->``
+
+   ``fun->`` is to ``defun->`` as ``fun`` is to ``defun``.
+   It should work the same as ``defun->``, but without the `define`.
+
+   Can you rewrite ``defun->`` in terms of your ``fun->`` and `define`
+   without duplicating code?
+
+.. topic:: Exercise: Your Final Exam
+
+   Make a function definition macro that can have both
+
+   * destructuring binding forms on the left of the pair,
+   * and lazy defaults on the right.
+
+   For bonus points,
+   support all of Python's parameter types as well:
+   positional only,
+   normal,
+   ``*arg``,
+   keyword only,
+   and ``**kwarg``.
+
+If you've made it this far,
+show off your solutions in the Hissp Community Chat!
 
 .. TODO: and that's how the bundled d# version works.
 

@@ -1559,9 +1559,9 @@ If you see one of these, make sure you used enough ``#``\ s on your tag.
 .. code-block:: REPL
 
    #> base=6
-   >>> # Kwarg('base', 6)
-   ... __import__('pickle').loads(b'ccopy_reg\n_reconstructor\n(chissp.reader\nKwarg\nc__builtin__\nobject\nNtR(dVk\nVbase\nsVv\nI6\nsb.')
-   Kwarg('base', 6)
+   >>> # Kwarg(k='base', v=6)
+   ... __import__('pickle').loads(b'ccopy_reg\n_reconstructor\n(chissp.reader\nKwarg\nc__builtin__\ntuple\n(Vbase\nI6\nttR.')
+   Kwarg(k='base', v=6)
 
 The :term:`stararg token`\ s ``*=`` and ``**=`` also evaluate to a `Kwarg` object
 and unpack the argument at that position,
@@ -1585,6 +1585,12 @@ Notice the ``.#``\ s required here.
    ;; Tags call dict() on a **= Kwarg, so pairs work.
    ;; Equivalent to the above. Notice the .# is still required.
    #> builtins..sorted##**=((reverse True) (key .#str.lower)) (a B c)
+   >>> ['c', 'B', 'a']
+   ['c', 'B', 'a']
+
+   ;; Kwarg is a NamedTuple subclass, so they also count as pairs.
+   ;; We used them directly before, but they each needed a #.
+   #> builtins..sorted##**=(reverse=True key=.#str.lower) (a B c)
    >>> ['c', 'B', 'a']
    ['c', 'B', 'a']
 

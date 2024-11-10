@@ -1,6 +1,7 @@
 # Copyright 2020, 2021, 2022, 2024 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
-
+import os
+import pathlib
 import subprocess as sp
 from sys import executable as python
 from textwrap import dedent
@@ -385,3 +386,59 @@ def test_subrepl():
         "> back in __main__\n",
         "> #> ",
     )  # fmt: skip
+
+
+def test_refresh():
+    try:
+        pathlib.Path("__refresh.lissp").write_text("")
+        pathlib.Path("__refresh.py").write_text("foo=1\n")
+        import __refresh
+
+        call_response(
+            "> #> ", "< hissp..subrepl#__refresh.\n",
+            "! >>> (lambda module=__import__('__refresh'):\n",
+            "! ...     # hissp.._macro_.unless\n",
+            "! ...     (lambda b, a: ()if b else a())(\n",
+            "! ...       __name__==module.__name__,\n",
+            "! ...       (lambda :\n",
+            "! ...          (print(\n",
+            "! ...             'Entering',\n",
+            "! ...             module.__name__),\n",
+            "! ...           __import__('hissp').interact(\n",
+            "! ...             __import__('builtins').vars(\n",
+            "! ...               module)),\n",
+            "! ...           print(\n",
+            "! ...             'back in',\n",
+            "! ...             __name__))  [-1]\n",
+            "! ...       ))\n",
+            "! ... )()\n",
+            "> Entering __refresh\n",
+            f"! {BANNER}",
+            "> #> ", "< foo\n",
+            "! >>> foo\n",
+            "> 1\n",
+            "> #> ", """< (.write_text (pathlib..Path '__refresh.lissp) "|foo=2|")\n""",
+            "! >>> __import__('pathlib').Path(\n",
+            "! ...   '__refresh.lissp').write_text(\n",
+            "! ...   ('|foo=2|'))\n",
+            "> 7\n",
+            "> #> ", "< hissp..refresh#:\n",
+            "! >>> (lambda name=__name__:\n",
+            "! ...    (__import__('hissp.reader',fromlist='*').transpile(\n",
+            '! ...       *name.rpartition(".")[::2]),\n',
+            "! ...     __import__('importlib').reload(\n",
+            "! ...       __import__('importlib').import_module(\n",
+            "! ...         name)))  [-1]\n",
+            "! ... )()\n",
+            f"> {__refresh!r}\n",
+            "> #> ", "< foo\n",
+            "! >>> foo\n",
+            "> 2\n",
+            "> #> ",
+            f"! {EXIT_MSG}",
+            "> back in __main__\n",
+            "> #> ",
+        )  # fmt: skip
+    finally:
+        os.remove("__refresh.py")
+        os.remove("__refresh.lissp")

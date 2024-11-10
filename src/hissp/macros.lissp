@@ -79,8 +79,10 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 ;;;  ---
 
 ;; Bootstrap macro namespace using builtins.
-(.update (globals) : _macro_ (types..SimpleNamespace))
-(setattr _macro_ '__doc__ "Hissp's bundled macro namespace.")
+(.update (globals) : _macro_ (types..SimpleNamespace : __doc__ "\
+Hissp's bundled tag and macro namespace.
+See `hissp.macros`.
+"))
 
 ;;; YO DAWG, I HERD YOU LIKE MACROS
 ;;; SO I PUT A BOOTSTRAP defmacro IN YOUR _macro_ SO YOU CAN defmacro A
@@ -319,7 +321,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...      ))
      A B C D
 
-  See also: `my# <myQzHASH_>`.
+  See also: `my# <myQzHASH_>`, `destruct-> <destructQzH_QzGT_>`.
   "
   (if-else pairs
     `(let-from ,|pairs[0]| ,|pairs[1]|
@@ -338,19 +340,18 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   anonymous functions due to the additional overhead.
   "
   (let*from ((name : :* _xs) (reversed (.split qualname '. 1))
-             (doc top) (if-else (hissp.reader..is_hissp_string maybe-docstring)
-                         `(,(lambda x `((setattr ,x "__doc__" ,maybe-docstring)))
-                           ())
-                         `(,(lambda x)
-                           (,maybe-docstring))))
+             (top doc) (if-else (hissp..is_hissp_string maybe-docstring)
+                         `(() (__doc__ ,maybe-docstring))
+                         `((,maybe-docstring) ())))
     `(let ($#lambda (lambda ,params ,@top ,@body))
-       ,@(doc '$#lambda) ; Used by help().
-       ;; Used by tracebacks.
-       (setattr $#lambda "__code__" (.replace $#lambda.__code__ : co_name ',name))
-       ;; Used by help().
-       (setattr $#lambda "__name__" ',name)
-       ;; Used by repr().
-       (setattr $#lambda "__qualname__" ',qualname)
+       `(,@(itertools..starmap
+            ,'$#lambda.__setattr__
+            (.items (dict : ,@doc ; Used by help().
+                          __name__ ',name ; Used by help().
+                          __qualname__ ',qualname ; Used by repr().
+                          ;; Used by tracebacks.
+                          __code__ (.replace ,'$#lambda.__code__
+                                             : co_name ',name)))))
        $#lambda)))
 
 (defmacro unless (condition : :* body)
@@ -420,7 +421,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...   # hissp.macros.._macro_.fun
      ...   # hissp.macros.._macro_.let
      ...   (
-     ...    lambda _Qztxnqfmn3__lambda=(lambda sep:
+     ...    lambda _Qzwin5lyqx__lambda=(lambda sep:
      ...               (
      ...                 'builtins..print',
      ...                 (1),
@@ -431,24 +432,17 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
      ...                 sep,
      ...                 )
      ...           ):
-     ...      (__import__('builtins').setattr(
-     ...         _Qztxnqfmn3__lambda,
-     ...         ('__doc__'),
-     ...         'Prints 1 2 3 with the given separator'),
-     ...       __import__('builtins').setattr(
-     ...         _Qztxnqfmn3__lambda,
-     ...         ('__code__'),
-     ...         _Qztxnqfmn3__lambda.__code__.replace(
-     ...           co_name='p123')),
-     ...       __import__('builtins').setattr(
-     ...         _Qztxnqfmn3__lambda,
-     ...         ('__name__'),
-     ...         'p123'),
-     ...       __import__('builtins').setattr(
-     ...         _Qztxnqfmn3__lambda,
-     ...         ('__qualname__'),
-     ...         '_macro_.p123'),
-     ...       _Qztxnqfmn3__lambda)  [-1]
+     ...      ((
+     ...         *__import__('itertools').starmap(
+     ...            _Qzwin5lyqx__lambda.__setattr__,
+     ...            __import__('builtins').dict(
+     ...              __doc__='Prints 1 2 3 with the given separator',
+     ...              __name__='p123',
+     ...              __qualname__='_macro_.p123',
+     ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+     ...                         co_name='p123')).items()),
+     ...         ),
+     ...       _Qzwin5lyqx__lambda)  [-1]
      ...   )())
 
      #> (p123 ::)
@@ -577,8 +571,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; Add class attributes afterward using `define` or `defun`, and class
   ;; decorators above with `:@## <QzCOLON_QzAT_QzHASH_>` or afterward
-  ;; using `zap@ <zapQzAT_>`. These run again on module reload and patch
-  ;; in existing instances.
+  ;; using `zap@ <zapQzAT_>`. These run again on module reload, updating
+  ;; the existing class object, which can affect the behavior its
+  ;; instances defined before the reload.
   ;;
   ;; The ``once_decorators`` apply before any external ones, in the
   ;; order written (first applies first), unless the type exists (not
@@ -651,7 +646,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   # hissp.macros.._macro_.fun
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
-  ;;    ...    lambda _Qzec6padpw__lambda=(lambda cls, x, y:
+  ;;    ...    lambda _Qzzygff6yw__lambda=(lambda cls, x, y:
   ;;    ...               tuple.__new__(
   ;;    ...                 cls,
   ;;    ...                 (
@@ -659,20 +654,16 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...                   y,
   ;;    ...                   ))
   ;;    ...           ):
-  ;;    ...      (__import__('builtins').setattr(
-  ;;    ...         _Qzec6padpw__lambda,
-  ;;    ...         ('__code__'),
-  ;;    ...         _Qzec6padpw__lambda.__code__.replace(
-  ;;    ...           co_name='__new__')),
-  ;;    ...       __import__('builtins').setattr(
-  ;;    ...         _Qzec6padpw__lambda,
-  ;;    ...         ('__name__'),
-  ;;    ...         '__new__'),
-  ;;    ...       __import__('builtins').setattr(
-  ;;    ...         _Qzec6padpw__lambda,
-  ;;    ...         ('__qualname__'),
-  ;;    ...         'Point2D.__new__'),
-  ;;    ...       _Qzec6padpw__lambda)  [-1]
+  ;;    ...      ((
+  ;;    ...         *__import__('itertools').starmap(
+  ;;    ...            _Qzzygff6yw__lambda.__setattr__,
+  ;;    ...            __import__('builtins').dict(
+  ;;    ...              __name__='__new__',
+  ;;    ...              __qualname__='Point2D.__new__',
+  ;;    ...              __code__=_Qzzygff6yw__lambda.__code__.replace(
+  ;;    ...                         co_name='__new__')).items()),
+  ;;    ...         ),
+  ;;    ...       _Qzzygff6yw__lambda)  [-1]
   ;;    ...   )())
   ;;
   ;;    #> (defun Point2D.__repr__ (self)
@@ -685,24 +676,20 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   # hissp.macros.._macro_.fun
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
-  ;;    ...    lambda _Qzec6padpw__lambda=(lambda self:
+  ;;    ...    lambda _Qzhdg2exzl__lambda=(lambda self:
   ;;    ...               ('Point2D({!r}, {!r})').format(
   ;;    ...                 *self)
   ;;    ...           ):
-  ;;    ...      (__import__('builtins').setattr(
-  ;;    ...         _Qzec6padpw__lambda,
-  ;;    ...         ('__code__'),
-  ;;    ...         _Qzec6padpw__lambda.__code__.replace(
-  ;;    ...           co_name='__repr__')),
-  ;;    ...       __import__('builtins').setattr(
-  ;;    ...         _Qzec6padpw__lambda,
-  ;;    ...         ('__name__'),
-  ;;    ...         '__repr__'),
-  ;;    ...       __import__('builtins').setattr(
-  ;;    ...         _Qzec6padpw__lambda,
-  ;;    ...         ('__qualname__'),
-  ;;    ...         'Point2D.__repr__'),
-  ;;    ...       _Qzec6padpw__lambda)  [-1]
+  ;;    ...      ((
+  ;;    ...         *__import__('itertools').starmap(
+  ;;    ...            _Qzhdg2exzl__lambda.__setattr__,
+  ;;    ...            __import__('builtins').dict(
+  ;;    ...              __name__='__repr__',
+  ;;    ...              __qualname__='Point2D.__repr__',
+  ;;    ...              __code__=_Qzhdg2exzl__lambda.__code__.replace(
+  ;;    ...                         co_name='__repr__')).items()),
+  ;;    ...         ),
+  ;;    ...       _Qzhdg2exzl__lambda)  [-1]
   ;;    ...   )())
   ;;
   ;;    #> (Point2D 1 2)
@@ -733,28 +720,21 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...      # hissp.macros.._macro_.fun
   ;;    ...      # hissp.macros.._macro_.let
   ;;    ...      (
-  ;;    ...       lambda _Qztxnqfmn3__lambda=(lambda cls, /, **kwargs:
+  ;;    ...       lambda _Qzujblvbnr__lambda=(lambda cls, /, **kwargs:
   ;;    ...                  print(
   ;;    ...                    kwargs)
   ;;    ...              ):
-  ;;    ...         (__import__('builtins').setattr(
-  ;;    ...            _Qztxnqfmn3__lambda,
-  ;;    ...            ('__doc__'),
-  ;;    ...            ('Just displays inputs')),
-  ;;    ...          __import__('builtins').setattr(
-  ;;    ...            _Qztxnqfmn3__lambda,
-  ;;    ...            ('__code__'),
-  ;;    ...            _Qztxnqfmn3__lambda.__code__.replace(
-  ;;    ...              co_name='__init_subclass__')),
-  ;;    ...          __import__('builtins').setattr(
-  ;;    ...            _Qztxnqfmn3__lambda,
-  ;;    ...            ('__name__'),
-  ;;    ...            '__init_subclass__'),
-  ;;    ...          __import__('builtins').setattr(
-  ;;    ...            _Qztxnqfmn3__lambda,
-  ;;    ...            ('__qualname__'),
-  ;;    ...            'Point2D.__init_subclass__'),
-  ;;    ...          _Qztxnqfmn3__lambda)  [-1]
+  ;;    ...         ((
+  ;;    ...            *__import__('itertools').starmap(
+  ;;    ...               _Qzujblvbnr__lambda.__setattr__,
+  ;;    ...               __import__('builtins').dict(
+  ;;    ...                 __doc__=('Just displays inputs'),
+  ;;    ...                 __name__='__init_subclass__',
+  ;;    ...                 __qualname__='Point2D.__init_subclass__',
+  ;;    ...                 __code__=_Qzujblvbnr__lambda.__code__.replace(
+  ;;    ...                            co_name='__init_subclass__')).items()),
+  ;;    ...            ),
+  ;;    ...          _Qzujblvbnr__lambda)  [-1]
   ;;    ...      )()),
   ;;    ...    classmethod(
   ;;    ...      Point2D.__init_subclass__))  [-1])
@@ -794,6 +774,92 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
                            ||)
                 ,(dict)
                 : ,@ibases)))))
+
+(defmacro deftupleonce (typename : :* args)
+  "Defines a `collections.namedtuple` unless it exists.
+
+  .. code-block:: REPL
+
+     #> (deftupleonce Vec3D '(x y z) : defaults '(0 0 0))
+     >>> # deftupleonce
+     ... # hissp.macros.._macro_.defonce
+     ... # hissp.macros.._macro_.unless
+     ... (lambda b, a: ()if b else a())(
+     ...   __import__('operator').contains(
+     ...     __import__('builtins').globals(),
+     ...     'Vec3D'),
+     ...   (lambda :
+     ...       # hissp.macros.._macro_.define
+     ...       __import__('builtins').globals().update(
+     ...         Vec3D=__import__('collections').namedtuple(
+     ...                 'Vec3D',
+     ...                 ('x',
+     ...                  'y',
+     ...                  'z',),
+     ...                 defaults=((0),
+     ...                           (0),
+     ...                           (0),)))
+     ...   ))
+
+  Like `deftypeonce`, methods can be attached afterward. On reload, the
+  existing class is modified, affecting all of its instances, including
+  those created before the reload.
+
+  .. code-block:: REPL
+
+     #> (define offset (Vec3D : z 1  x 2))
+     >>> # define
+     ... __import__('builtins').globals().update(
+     ...   offset=Vec3D(
+     ...            z=(1),
+     ...            x=(2)))
+
+     #> (defun Vec3D.__add__ (self other)
+     #..  (._make Vec3D (map op#add self other)))
+     >>> # defun
+     ... # hissp.macros.._macro_.define
+     ... __import__('builtins').setattr(
+     ...   Vec3D,
+     ...   '__add__',
+     ...   # hissp.macros.._macro_.fun
+     ...   # hissp.macros.._macro_.let
+     ...   (
+     ...    lambda _Qzz7drxadm__lambda=(lambda self, other:
+     ...               Vec3D._make(
+     ...                 map(
+     ...                   __import__('operator').add,
+     ...                   self,
+     ...                   other))
+     ...           ):
+     ...      ((
+     ...         *__import__('itertools').starmap(
+     ...            _Qzz7drxadm__lambda.__setattr__,
+     ...            __import__('builtins').dict(
+     ...              __name__='__add__',
+     ...              __qualname__='Vec3D.__add__',
+     ...              __code__=_Qzz7drxadm__lambda.__code__.replace(
+     ...                         co_name='__add__')).items()),
+     ...         ),
+     ...       _Qzz7drxadm__lambda)  [-1]
+     ...   )())
+
+     #> (op#add offset offset)
+     >>> __import__('operator').add(
+     ...   offset,
+     ...   offset)
+     Vec3D(x=4, y=0, z=2)
+
+     #> (op#add _ (Vec3D 10 20 30))
+     >>> __import__('operator').add(
+     ...   _,
+     ...   Vec3D(
+     ...     (10),
+     ...     (20),
+     ...     (30)))
+     Vec3D(x=14, y=20, z=32)
+
+  "
+  `(defonce ,typename (collections..namedtuple ',typename ,@args)))
 
 (defmacro \:@\# (decoration definition)
   "``:@##`` 'decorator' applies ``decoration`` to definition & reassigns.
@@ -930,7 +996,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; See also:
   ;; `en# <enQzHASH_>`, `O# <OQzHASH_>`, `XY# <XYQzHASH_>`,
-  ;; `@## <QzAT_QzHASH_>`, `operator.attrgetter`, `lambda`.
+  ;; `@# <QzAT_QzHASH_>`, `operator.attrgetter`, `lambda`.
   ;;
   `(lambda ,'X ,expr))
 
@@ -1030,68 +1096,61 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   # hissp.macros.._macro_.fun
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
-  ;;    ...    lambda _Qztxnqfmn3__lambda=(lambda _Qzt6sscwjn__attr, /, *_Qzt6sscwjn__args, **_Qzt6sscwjn__kwargs:
+  ;;    ...    lambda _Qzwxh432ki__lambda=(lambda _Qzrtjqfxk2__attr, /, *_Qzrtjqfxk2__args, **_Qzrtjqfxk2__kwargs:
   ;;    ...               # hissp.macros.._macro_.let
   ;;    ...               (
-  ;;    ...                lambda _Qzt6sscwjn__attr=# hissp.macros.._macro_.ifQzH_else
+  ;;    ...                lambda _Qzrtjqfxk2__attr=# hissp.macros.._macro_.ifQzH_else
   ;;    ...                       (lambda b, c, a: c()if b else a())(
   ;;    ...                         __import__('hissp').is_control(
-  ;;    ...                           _Qzt6sscwjn__attr),
+  ;;    ...                           _Qzrtjqfxk2__attr),
   ;;    ...                         (lambda :
   ;;    ...                             ('_macro_.{}{}').format(
   ;;    ...                               __import__('hissp').munge(
-  ;;    ...                                 _Qzt6sscwjn__attr.removeprefix(
+  ;;    ...                                 _Qzrtjqfxk2__attr.removeprefix(
   ;;    ...                                   ':')),
   ;;    ...                               # hissp.macros.._macro_.ifQzH_else
   ;;    ...                               (lambda b, c, a: c()if b else a())(
   ;;    ...                                 # hissp.macros.._macro_.ifQzH_else
   ;;    ...                                 (lambda b, c, a: c()if b else a())(
-  ;;    ...                                   _Qzt6sscwjn__args,
+  ;;    ...                                   _Qzrtjqfxk2__args,
   ;;    ...                                   (lambda : ':or'),
-  ;;    ...                                   (lambda : _Qzt6sscwjn__kwargs)),
+  ;;    ...                                   (lambda : _Qzrtjqfxk2__kwargs)),
   ;;    ...                                 (lambda : 'QzHASH_'),
   ;;    ...                                 (lambda : (''))))
   ;;    ...                         ),
-  ;;    ...                         (lambda : _Qzt6sscwjn__attr)):
+  ;;    ...                         (lambda : _Qzrtjqfxk2__attr)):
   ;;    ...                   # hissp.macros.._macro_.ifQzH_else
   ;;    ...                   (lambda b, c, a: c()if b else a())(
   ;;    ...                     # hissp.macros.._macro_.ifQzH_else
   ;;    ...                     (lambda b, c, a: c()if b else a())(
-  ;;    ...                       _Qzt6sscwjn__args,
+  ;;    ...                       _Qzrtjqfxk2__args,
   ;;    ...                       (lambda : ':or'),
-  ;;    ...                       (lambda : _Qzt6sscwjn__kwargs)),
+  ;;    ...                       (lambda : _Qzrtjqfxk2__kwargs)),
   ;;    ...                     (lambda :
   ;;    ...                         __import__('operator').attrgetter(
-  ;;    ...                           _Qzt6sscwjn__attr)(
+  ;;    ...                           _Qzrtjqfxk2__attr)(
   ;;    ...                           __import__('hissp'))(
-  ;;    ...                           *_Qzt6sscwjn__args,
-  ;;    ...                           **_Qzt6sscwjn__kwargs)
+  ;;    ...                           *_Qzrtjqfxk2__args,
+  ;;    ...                           **_Qzrtjqfxk2__kwargs)
   ;;    ...                     ),
   ;;    ...                     (lambda :
   ;;    ...                         ('{}.{}').format(
   ;;    ...                           'hissp.',
-  ;;    ...                           _Qzt6sscwjn__attr)
+  ;;    ...                           _Qzrtjqfxk2__attr)
   ;;    ...                     ))
   ;;    ...               )()
   ;;    ...           ):
-  ;;    ...      (__import__('builtins').setattr(
-  ;;    ...         _Qztxnqfmn3__lambda,
-  ;;    ...         ('__doc__'),
-  ;;    ...         'Aliases ``hissp.`` as ``H#``.'),
-  ;;    ...       __import__('builtins').setattr(
-  ;;    ...         _Qztxnqfmn3__lambda,
-  ;;    ...         ('__code__'),
-  ;;    ...         _Qztxnqfmn3__lambda.__code__.replace(
-  ;;    ...           co_name='HQzHASH_')),
-  ;;    ...       __import__('builtins').setattr(
-  ;;    ...         _Qztxnqfmn3__lambda,
-  ;;    ...         ('__name__'),
-  ;;    ...         'HQzHASH_'),
-  ;;    ...       __import__('builtins').setattr(
-  ;;    ...         _Qztxnqfmn3__lambda,
-  ;;    ...         ('__qualname__'),
-  ;;    ...         '_macro_.HQzHASH_'),
-  ;;    ...       _Qztxnqfmn3__lambda)  [-1]
+  ;;    ...      ((
+  ;;    ...         *__import__('itertools').starmap(
+  ;;    ...            _Qzwxh432ki__lambda.__setattr__,
+  ;;    ...            __import__('builtins').dict(
+  ;;    ...              __doc__='Aliases ``hissp.`` as ``H#``.',
+  ;;    ...              __name__='HQzHASH_',
+  ;;    ...              __qualname__='_macro_.HQzHASH_',
+  ;;    ...              __code__=_Qzwxh432ki__lambda.__code__.replace(
+  ;;    ...                         co_name='HQzHASH_')).items()),
+  ;;    ...         ),
+  ;;    ...       _Qzwxh432ki__lambda)  [-1]
   ;;    ...   )())
   ;;
   ;;    #> 'H#munge ; New tag prepends qualifier.
@@ -1146,7 +1205,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; See also: `prelude`, `attach`, `hissp.alias`.
   ;;
   ;;
-  `(defmacro ,(.format "{}{}" abbreviation '#)
+  `(defmacro ,(.format "{}{}" (.replace abbreviation '. '\.) '#)
              ($#attr :/ : :* $#args  :** $#kwargs)
      ',(.format "Aliases ``{}`` as ``{}#``." qualifier abbreviation)
      (let ($#attr (if-else (hissp..is_control $#attr)
@@ -1159,8 +1218,37 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
           : :* $#args  :** $#kwargs)
          (.format "{}.{}" ',qualifier $#attr)))))
 
+;; Long-named standard-library modules commonly used in Python code.
+(alias col collections.)
+(alias dt datetime.)
+(alias ft functools.)
+(alias hsh hashlib.)
 (alias i itertools.)
+(alias mp multiprocessing.)
+(alias mp.sm multiprocessing.shared_memory.)
 (alias op operator.)
+(alias sp subprocess.)
+(alias tf tempfile.)
+(alias thr threading.)
+(alias tb traceback.)
+(alias ut unittest.)
+(alias mk unittest.mock.)
+(alias wrn warnings.)
+
+;;; Common short names (os, re, sys, math, etc.) don't need abbreviation.
+
+;; Less commonly used in Python, but especially useful in Lissp.
+(alias bn builtins.)
+(alias cxv contextvars.)
+(alias fi fileinput.)
+(alias imp importlib.)
+(alias imp.r importlib.resources.)
+(alias nsp inspect.)
+(alias pl pathlib.)
+(alias tw textwrap.)
+
+(alias H hissp.)
+
 
 (defmacro chain\# (xss)
   "``chain#`` Abbreviation for `itertools.chain.from_iterable`."
@@ -1168,7 +1256,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 
 (defmacro &\# (callable+args)
   "``&#`` Abbreviation for `functools.partial`."
-  `(functools..partial ,@callable+args))
+  `(ft#partial ,@callable+args))
 
 (defmacro !\# (key : items "")
   <#;``!#`` 'look up in' Gets an item from items.
@@ -1221,7 +1309,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; See also: `operator.getitem`, `operator.itemgetter`,
   ;; `[# <QzLSQB_QzHASH_>`, `set! <setQzBANG_>`, `&# <QzET_QzHASH_>`,
-  ;; `@## <QzAT_QzHASH_>`.
+  ;; `@# <QzAT_QzHASH_>`.
   ;;
   `((op#itemgetter ,key) ,items))
 
@@ -1268,11 +1356,11 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; `subscriptions`, `slicings`.
   ;;
   `((lambda ($#items)
-      ,(.format "({}[{})" '$#items (hissp..demunge lookup)))
+      ,(.format "({}[{})" '$#items (H#demunge lookup)))
     ,items))
 
 (defmacro @\# (name : ns "")
-  <#;``@##`` 'attribute of' Looks up attribute in a namespace.
+  <#;``@#`` 'attribute of' Looks up attribute in a namespace.
   ;;
   ;; Mnemonic: @tribute.
   ;;
@@ -1313,8 +1401,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ... )()
   ;;    'builtin_function_or_method'
   ;;
-  ;; See also: `getattr`, `operator.attrgetter`, `X# <XQzHASH_>`
-  ;; `\!# <QzBANG_QzHASH_>`, `&# <QzET_QzHASH_>`.
+  ;; See also: `getattr`, `operator.attrgetter`, `X# <XQzHASH_>`,
+  ;; `\!# <QzBANG_QzHASH_>`, `&# <QzET_QzHASH_>`,
+  ;; `:@## <QzCOLON_QzAT_QzHASH_>`.
   ;;
   `((op#attrgetter ,name) ,ns))
 
@@ -1472,7 +1561,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   `((lambda ($#items : $#value ,value)
       ,(.format "[{v}\n for({}[{})in[{v}]][0]"
                 '$#items
-                (hissp..demunge lookup)
+                (H#demunge lookup)
                 : v '$#value))
     ,items))
 
@@ -1541,11 +1630,11 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;;
   `((lambda ($#items)
-      (let ($#value (-> ,(.format "({}[{})" '$#items (hissp..demunge lookup))
+      (let ($#value (-> ,(.format "({}[{})" '$#items (H#demunge lookup))
                         ,callable+args))
         ,(.format "[{v}\n for({}[{})in[{v}]][0]"
                   '$#items
-                  (hissp..demunge lookup)
+                  (H#demunge lookup)
                   : v '$#value)))
     ,items))
 
@@ -2400,7 +2489,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; See also: `B# <BQzHASH_>`, `hissp.reader.is_hissp_string`.
   ;;
   (-> string
-      hissp..readerless
+      H#readerless
       ast..literal_eval
       (.replace "'" '|\'|)
       (.replace "\n" '|\n|)
@@ -2443,7 +2532,11 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
       ast..literal_eval))
 
 (defmacro Q\# Q
-  <#; ``Q#`` 'Rational' Exact fraction tag.
+  <#;``Q#`` 'Rational' Exact fraction tag.
+  ;;
+  ;; Abbreviation for `fractions.Fraction`, with a `demunge` for symbols.
+  ;;
+  ;; Mnemonic: ℚuotient.
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -2452,7 +2545,78 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ... __import__('pickle').loads(b'cfractions\nFraction\n(V2/3\ntR.')
   ;;    Fraction(2, 3)
   ;;
-  (fractions..Fraction (hissp..demunge Q)))
+  ;; See also: `M# <MQzHASH_>`.
+  ;;
+  (fractions..Fraction (H#demunge Q)))
+
+(defmacro M\# M
+  <#;``M#`` 'Decimal' Exact decimal tag.
+  ;;
+  ;; Abbreviation for `decimal.Decimal`, with a `demunge` for symbols.
+  ;;
+  ;; Mnemonic: "Money". Chosen to resemble Clojure's ``BigDecimal``
+  ;; literal, likely inspired by C♯ where "D" was taken for
+  ;; double-precision floats, leaving "M" as the next best letter in
+  ;; "deciMal".
+  ;;
+  ;; The usual construction has a trailing underscore to avoid going
+  ;; through a float literal, which would have limited precision:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> M#1.23e6_
+  ;;    >>> # Decimal('1.23E+6')
+  ;;    ... __import__('pickle').loads(b'cdecimal\nDecimal\n(V1.23E+6\ntR.')
+  ;;    Decimal('1.23E+6')
+  ;;
+  ;; When converting a read-time constant float, go through `str` first:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> M#.#(repr math..tau)
+  ;;    >>> # Decimal('6.283185307179586')
+  ;;    ... __import__('pickle').loads(b'cdecimal\nDecimal\n(V6.283185307179586\ntR.')
+  ;;    Decimal('6.283185307179586')
+  ;;
+  ;; See also: `Q# <QQzHASH_>`.
+  ;;
+  (decimal..Decimal (H#demunge M)))
+
+(defmacro inst\# (date_string)
+  <#;``inst#`` instant tag.
+  ;;
+  ;; Abbreviation for `datetime.datetime.fromisoformat`,
+  ;; with a `demunge` for symbols.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> inst#2024-10-07T11:30:07+00:00
+  ;;    >>> # datetime.datetime(2024, 10, 7, 11, 30, 7, tzinfo=datetime.timezone.utc)
+  ;;    ... __import__('pickle').loads(b'cdatetime\ndatetime\n(c_codecs\nencode\n(V\x07\xe8\\u000a\x07\x0b\x1e\x07\\u0000\\u0000\\u0000\nVlatin1\ntRcdatetime\ntimezone\n(cdatetime\ntimedelta\n(I0\nI0\nI0\ntRtRtR.')
+  ;;    datetime.datetime(2024, 10, 7, 11, 30, 7, tzinfo=datetime.timezone.utc)
+  ;;
+  ;;
+  ;; See also: `uuid# <uuidQzHASH_>`.
+  ;;
+  (dt#datetime.fromisoformat (H#demunge date_string)))
+
+(defmacro uuid\# (hex)
+  <#;``uuid#`` Universally Unique Identifier tag.
+  ;;
+  ;; Abbreviation for `uuid.UUID`, with a `demunge` for symbols.
+  ;; Curly braces, hyphens, and a URN prefix are optional,
+  ;; but the argument must be a read-time `str`, not an `int`.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> uuid#{urn:uuid:12345678-1234-5678-1234-567812345678}
+  ;;    >>> # UUID('12345678-1234-5678-1234-567812345678')
+  ;;    ... __import__('pickle').loads(b'ccopy_reg\n_reconstructor\n(cuuid\nUUID\nc__builtin__\nobject\nNtR(dVint\nL24197857161011715162171839636988778104L\nsb.')
+  ;;    UUID('12345678-1234-5678-1234-567812345678')
+  ;;
+  ;; See also: `inst# <instQzHASH_>`.
+  ;;
+  (uuid..UUID (H#demunge hex)))
 
 (defmacro en\# f
   <#;``en#`` tag.
@@ -2514,7 +2678,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;; There are no bundled tags for a quinary, senary, etc. but
   ;; the ``en#X#`` variadic or a normal lambda form can be used instead.
   ;;
-  ;; See also: `X# <XQzHASH_>`, `&# <QzET_QzHASH_>`, `/# <QzSOL_QzHASH_>`.
+  ;; See also:
+  ;; `X# <XQzHASH_>`, `&# <QzET_QzHASH_>`, `/# <QzSOL_QzHASH_>`, `@ <QzAT_>`.
   ;;
   (if-else (ands (op#is_ str (type f))
                  (.startswith f "."))
@@ -2542,7 +2707,109 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;
   ;; See also: `/XY# <QzSOL_XYQzHASH_>`, `en# <enQzHASH_>`.
   `(lambda (: :* $#xs)
-     (functools..reduce ,f $#xs)))
+     (ft#reduce ,f $#xs)))
+
+(defmacro proxy\# f
+  <#;``proxy#`` wrapper to make a stored callable reloadable.
+  ;;
+  ;; For this to work, it should be applied to a lookup expression
+  ;; such as a global variable name or module attribute.
+  ;; This will be written into the wrapper body.
+  ;;
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (defun greet ()
+  ;;    #..  (print "Hello, World!"))
+  ;;    >>> # defun
+  ;;    ... # hissp.macros.._macro_.define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   greet=# hissp.macros.._macro_.fun
+  ;;    ...         # hissp.macros.._macro_.let
+  ;;    ...         (
+  ;;    ...          lambda _Qzan3nwcb3__lambda=(lambda :
+  ;;    ...                     print(
+  ;;    ...                       ('Hello, World!'))
+  ;;    ...                 ):
+  ;;    ...            ((
+  ;;    ...               *__import__('itertools').starmap(
+  ;;    ...                  _Qzan3nwcb3__lambda.__setattr__,
+  ;;    ...                  __import__('builtins').dict(
+  ;;    ...                    __name__='greet',
+  ;;    ...                    __qualname__='greet',
+  ;;    ...                    __code__=_Qzan3nwcb3__lambda.__code__.replace(
+  ;;    ...                               co_name='greet')).items()),
+  ;;    ...               ),
+  ;;    ...             _Qzan3nwcb3__lambda)  [-1]
+  ;;    ...         )())
+  ;;
+  ;;    #> proxy#greet
+  ;;    >>> __import__('functools').update_wrapper(
+  ;;    ...   (lambda *_Qzxd2las5y__args, **_Qzxd2las5y__kwargs:
+  ;;    ...       greet(
+  ;;    ...         *_Qzxd2las5y__args,
+  ;;    ...         **_Qzxd2las5y__kwargs)
+  ;;    ...   ),
+  ;;    ...   greet)
+  ;;    <function greet at 0x...>
+  ;;
+  ;;    #> (define greet-handlers (types..SimpleNamespace : direct greet  proxied _))
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   greetQzH_handlers=__import__('types').SimpleNamespace(
+  ;;    ...                       direct=greet,
+  ;;    ...                       proxied=_))
+  ;;
+  ;; Now suppose ``greet`` is reloaded with a new definition, but
+  ;; ``greet-handlers`` is not (perhaps due to being in separate modules
+  ;; or if ``greet-handlers`` had used `defonce`):
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (defun greet ()
+  ;;    #..  (print "Wassup?"))
+  ;;    >>> # defun
+  ;;    ... # hissp.macros.._macro_.define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   greet=# hissp.macros.._macro_.fun
+  ;;    ...         # hissp.macros.._macro_.let
+  ;;    ...         (
+  ;;    ...          lambda _Qzan3nwcb3__lambda=(lambda :
+  ;;    ...                     print(
+  ;;    ...                       ('Wassup?'))
+  ;;    ...                 ):
+  ;;    ...            ((
+  ;;    ...               *__import__('itertools').starmap(
+  ;;    ...                  _Qzan3nwcb3__lambda.__setattr__,
+  ;;    ...                  __import__('builtins').dict(
+  ;;    ...                    __name__='greet',
+  ;;    ...                    __qualname__='greet',
+  ;;    ...                    __code__=_Qzan3nwcb3__lambda.__code__.replace(
+  ;;    ...                               co_name='greet')).items()),
+  ;;    ...               ),
+  ;;    ...             _Qzan3nwcb3__lambda)  [-1]
+  ;;    ...         )())
+  ;;
+  ;;    #> (greet-handlers.direct) ; Still the original function object.
+  ;;    >>> greetQzH_handlers.direct()
+  ;;    Hello, World!
+  ;;
+  ;;    #> (greet-handlers.proxied) ; Proxy does the lookup again.
+  ;;    >>> greetQzH_handlers.proxied()
+  ;;    Wassup?
+  ;;
+  `(ft#update_wrapper (lambda (: :* $#args  :** $#kwargs)
+                        (,f : :* $#args  :** $#kwargs))
+                      ,f))
+
+(defmacro sentinel\# f
+  <#;``sentinel#`` Anaphoric.
+  ;;
+  ;; Let ``_sentinel`` be a unique sentinel object in a lexical scope
+  ;; surrounding ``f``.
+  ;;
+  `(let (,'_sentinel (object))
+     ,f))
 
 ;;;; Collection
 
@@ -2567,7 +2834,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...   (1))
   ;;    ['A', 'B', 3.0, 'X', 'Y', 2, 1]
   ;;
-  ;; See also: `# <QzHASH_>`, `% <QzPCENT_>`.
+  ;; See also:
+  ;; `# <QzHASH_>`, `% <QzPCENT_>`, `en# <enQzHASH_>`, `operator.matmul`.
   ;;
   (when (ands xs (op#eq :* !##-1 xs))
      (throw (SyntaxError "trailing :*")))
@@ -2634,7 +2902,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ... {}
   ;;    {}
   ;;
-  ;; See also: `@ <QzAT_>`, `# <QzHASH_>`.
+  ;; See also: `@ <QzAT_>`, `# <QzHASH_>`, `operator.mod`.
   ;;
   (cond
    (op#mod (len kvs) 2) (throw (TypeError "extra key without value"))
@@ -2729,8 +2997,8 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;   (This replaces ``_macro_`` if you already had one.)::
   ;;
   ;;    _macro_=__import__('types').SimpleNamespace()
-  ;;    try:exec('from {}._macro_ import *',vars(_macro_))
-  ;;    except ModuleNotFoundError:pass
+  ;;    try: vars(_macro_).update(vars(__import__('hissp')._macro_))
+  ;;    except ModuleNotFoundError: pass
   ;;
   ;; Prelude Usage
   ;; =============
@@ -3053,7 +3321,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...           wrap=# hissp.macros.._macro_.fun
   ;;    ...                # hissp.macros.._macro_.let
   ;;    ...                (
-  ;;    ...                 lambda _Qztxnqfmn3__lambda=(lambda msg:
+  ;;    ...                 lambda _Qztl624wbs__lambda=(lambda msg:
   ;;    ...                           (print(
   ;;    ...                              ('enter'),
   ;;    ...                              msg),
@@ -3071,20 +3339,16 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
   ;;    ...                                    )))  [-1]
   ;;    ...                              )))  [-1]
   ;;    ...                        ):
-  ;;    ...                   (__import__('builtins').setattr(
-  ;;    ...                      _Qztxnqfmn3__lambda,
-  ;;    ...                      ('__code__'),
-  ;;    ...                      _Qztxnqfmn3__lambda.__code__.replace(
-  ;;    ...                        co_name='wrap')),
-  ;;    ...                    __import__('builtins').setattr(
-  ;;    ...                      _Qztxnqfmn3__lambda,
-  ;;    ...                      ('__name__'),
-  ;;    ...                      'wrap'),
-  ;;    ...                    __import__('builtins').setattr(
-  ;;    ...                      _Qztxnqfmn3__lambda,
-  ;;    ...                      ('__qualname__'),
-  ;;    ...                      'wrap'),
-  ;;    ...                    _Qztxnqfmn3__lambda)  [-1]
+  ;;    ...                   ((
+  ;;    ...                      *__import__('itertools').starmap(
+  ;;    ...                         _Qztl624wbs__lambda.__setattr__,
+  ;;    ...                         __import__('builtins').dict(
+  ;;    ...                           __name__='wrap',
+  ;;    ...                           __qualname__='wrap',
+  ;;    ...                           __code__=_Qztl624wbs__lambda.__code__.replace(
+  ;;    ...                                      co_name='wrap')).items()),
+  ;;    ...                      ),
+  ;;    ...                    _Qztl624wbs__lambda)  [-1]
   ;;    ...                )()),
   ;;    ...         __import__('contextlib').contextmanager(
   ;;    ...           wrap))  [-1])
@@ -3228,7 +3492,7 @@ except ModuleNotFoundError: pass"
 ;;;; Advanced
 
 (defmacro mix (: :* args)
-  <#; Injection. Compiles each arg to Python and concatenates the fragments.
+  <#;Injection. Compiles each arg to Python and concatenates the fragments.
   ;;
   ;; Lissp features like munging and fully-qualified identifiers can be
   ;; freely mixed with Python expressions like slicing, infix operators
@@ -3247,7 +3511,126 @@ except ModuleNotFoundError: pass"
   ;; where it is not conventional to do so, making fragments like
   ;; ``| :|`` or ``|foo .|`` viable workarounds in such cases.
   ;;
-  (.join "" (map hissp..readerless args)))
+  (.join "" (map H#readerless args)))
+
+sentinel#
+(defmacro defvar (name : default _sentinel)
+  <#;Creates a `contextvars.ContextVar`, unless it exists.
+  ;;
+  ;; The default is optional, but cannot be altered once set, however, a
+  ;; new binding may be set for a `contextvars.Context`.
+  ;;
+  ;; Intended for use at the top level only, because Python currently
+  ;; has no way of deleting a ``ContextVar`` once it has been added to
+  ;; the current ``Context``. (Although a ``ContextVar`` could be
+  ;; deleted from the globals and replaced with a new one with the same
+  ;; name and a different default value, the old ``ContextVar`` will
+  ;; also be in the ``Context``.)
+  ;;
+  ;; See `binding` for usage examples.
+  ;;
+  ;; See also: `defonce`.
+  `(unless (op#contains (globals) ',name)
+     (define ,name (cxv#ContextVar ',(hissp..demunge name)
+                                   : ,@(unless (op#is_ default _sentinel)
+                                         `(default ,default))))))
+
+(defmacro binding (pairs : :* body)
+  <#;Runs body in a new `contextvars.Context`, with additional bindings.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (defvar *greeting*)
+  ;;    >>> # defvar
+  ;;    ... # hissp.macros.._macro_.unless
+  ;;    ... (lambda b, a: ()if b else a())(
+  ;;    ...   __import__('operator').contains(
+  ;;    ...     __import__('builtins').globals(),
+  ;;    ...     'QzSTAR_greetingQzSTAR_'),
+  ;;    ...   (lambda :
+  ;;    ...       # hissp.macros.._macro_.define
+  ;;    ...       __import__('builtins').globals().update(
+  ;;    ...         QzSTAR_greetingQzSTAR_=__import__('contextvars').ContextVar(
+  ;;    ...                                  '*greeting*'))
+  ;;    ...   ))
+  ;;
+  ;;    #> *greeting*
+  ;;    >>> QzSTAR_greetingQzSTAR_
+  ;;    <ContextVar name='*greeting*' at 0x...>
+  ;;
+  ;;    #> (defvar *greeted* "World!")
+  ;;    >>> # defvar
+  ;;    ... # hissp.macros.._macro_.unless
+  ;;    ... (lambda b, a: ()if b else a())(
+  ;;    ...   __import__('operator').contains(
+  ;;    ...     __import__('builtins').globals(),
+  ;;    ...     'QzSTAR_greetedQzSTAR_'),
+  ;;    ...   (lambda :
+  ;;    ...       # hissp.macros.._macro_.define
+  ;;    ...       __import__('builtins').globals().update(
+  ;;    ...         QzSTAR_greetedQzSTAR_=__import__('contextvars').ContextVar(
+  ;;    ...                                 '*greeted*',
+  ;;    ...                                 default=('World!')))
+  ;;    ...   ))
+  ;;
+  ;;    #> *greeted*
+  ;;    >>> QzSTAR_greetedQzSTAR_
+  ;;    <ContextVar name='*greeted*' default='World!' at 0x...>
+  ;;
+  ;;    #> (defun greet : (print (.get *greeting* "Hello,") (.get *greeted*)))
+  ;;    >>> # defun
+  ;;    ... # hissp.macros.._macro_.define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   greet=# hissp.macros.._macro_.fun
+  ;;    ...         # hissp.macros.._macro_.let
+  ;;    ...         (
+  ;;    ...          lambda _Qzan3nwcb3__lambda=(lambda :
+  ;;    ...                     print(
+  ;;    ...                       QzSTAR_greetingQzSTAR_.get(
+  ;;    ...                         ('Hello,')),
+  ;;    ...                       QzSTAR_greetedQzSTAR_.get())
+  ;;    ...                 ):
+  ;;    ...            ((
+  ;;    ...               *__import__('itertools').starmap(
+  ;;    ...                  _Qzan3nwcb3__lambda.__setattr__,
+  ;;    ...                  __import__('builtins').dict(
+  ;;    ...                    __name__='greet',
+  ;;    ...                    __qualname__='greet',
+  ;;    ...                    __code__=_Qzan3nwcb3__lambda.__code__.replace(
+  ;;    ...                               co_name='greet')).items()),
+  ;;    ...               ),
+  ;;    ...             _Qzan3nwcb3__lambda)  [-1]
+  ;;    ...         )())
+  ;;
+  ;;    #> (greet)
+  ;;    >>> greet()
+  ;;    Hello, World!
+  ;;
+  ;;    #> (binding (*greeting* "Goodbye,"
+  ;;    #..          *greeted* "all!")
+  ;;    #..  (greet))
+  ;;    >>> # binding
+  ;;    ... __import__('contextvars').copy_context().run(
+  ;;    ...   (lambda :
+  ;;    ...      (QzSTAR_greetingQzSTAR_.set(
+  ;;    ...         ('Goodbye,')),
+  ;;    ...       QzSTAR_greetedQzSTAR_.set(
+  ;;    ...         ('all!')),
+  ;;    ...       greet())  [-1]
+  ;;    ...   ))
+  ;;    Goodbye, all!
+  ;;
+  ;;    #> (greet)
+  ;;    >>> greet()
+  ;;    Hello, World!
+  ;;
+  ;; See also: `defvar`.
+  ;;
+  `(.run (cxv#copy_context)
+         (lambda :
+           ,@(i#starmap (lambda kv `(.set ,k ,v))
+                        (X#(zip X X : strict True) (iter pairs)))
+           ,@body)))
 
 (defmacro my\# (targets_or_scope : expr None  scope ()  :** kwargs)
   <#;``my#`` Anaphoric. Injection. `let` ``my`` be a fresh
@@ -3334,10 +3717,10 @@ except ModuleNotFoundError: pass"
   ;;    ...             )()):
   ;;    ...    (my.__dict__.pop(
   ;;    ...       '_Qze4jatheu__expr',
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     my.__dict__.pop(
   ;;    ...       ('.0'),
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     my)  [-1]
   ;;    ... )()
   ;;    namespace(a=1, b=2, c='s', xs=['p', 'a', 'm'])
@@ -3358,10 +3741,10 @@ except ModuleNotFoundError: pass"
   ;;    ...             )()):
   ;;    ...    (my.__dict__.pop(
   ;;    ...       '_Qzec6padpw__expr',
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     my.__dict__.pop(
   ;;    ...       ('.0'),
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     # QzAT_
   ;;    ...     (lambda *xs: [*xs])(
   ;;    ...       # zapQzAT_
@@ -3413,10 +3796,10 @@ except ModuleNotFoundError: pass"
   ;;    ...             )()):
   ;;    ...    (my.__dict__.pop(
   ;;    ...       '_Qze4jatheu__expr',
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     my.__dict__.pop(
   ;;    ...       ('.0'),
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     ())  [-1]
   ;;    ... )()
   ;;    ()
@@ -3434,36 +3817,456 @@ except ModuleNotFoundError: pass"
   ;;    ...           tomato=spam):
   ;;    ...    (my.__dict__.pop(
   ;;    ...       '_Qze4jatheu__expr',
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     my.__dict__.pop(
   ;;    ...       ('.0'),
-  ;;    ...       (0)),
+  ;;    ...       None),
   ;;    ...     my)  [-1]
   ;;    ... )()
   ;;    namespace(tomato=namespace(eggs=['a', 'b', 'X', 'd', 'Y', 'f', 'Z']))
   ;;
-  ;; See also: `attach`, `set[### <setQzLSQB_QzHASH_>`.
+  ;; See also:
+  ;; `attach`, `set[### <setQzLSQB_QzHASH_>`, `destruct-> <destructQzH_QzGT_>`.
   ;;
   (let (ns (types..SimpleNamespace))
     (setattr ns
              'form
-             X#(cond (isinstance X hissp.reader..Kwarg) `(set@ ,|f"my.{X.k}"| ,X.v)
-                     (hissp..is_atomic X) X
-                     :else (tuple (map ns.form X))))
+             X#(cond (isinstance X H#reader.Kwarg) `(set@ ,(H#munge |f"my.{X.k}"|) ,X.v)
+                     (H#is_node X) `(,@(map ns.form X))
+                     :else X))
     (if-else |expr is None and scope == ()|
       `(let (,'my (types..SimpleNamespace : ,@chain#(.items kwargs)))
          ,(ns.form targets_or_scope))
       `(let (,'my (types..SimpleNamespace
                    : :** (let ($#expr ,expr)
                            ,(.format "[{}()\n for ({})\n in [{}]]  [0]"
-                                     (hissp..readerless `locals)
-                                     (hissp..demunge targets_or_scope)
+                                     (H#readerless `locals)
+                                     (H#demunge targets_or_scope)
                                      '$#expr))
-                   ,@(itertools..chain.from_iterable (.items kwargs))))
+                   ,@chain#(.items kwargs)))
          ;; PEP 709. Compatible with both versions.
-         (,'my.__dict__.pop '$#expr 0)
-         (,'my.__dict__.pop ".0" 0)
+         (,'my.__dict__.pop '$#expr None)
+         (,'my.__dict__.pop ".0" None)
          ,(ns.form scope)))))
+
+(defmacro destruct-> (data bindings : :* body)
+  <#;``destruct->`` 'destruct arrow' Destructuring bindings.
+  ;;
+  ;; Bindings are pairs of a transform expression with either a name or
+  ;; (recursively) another bindings expression. Each transformation
+  ;; expression is applied to the data via a thread-first
+  ;; (`-> <QzH_QzGT_>`). This setup allows a bindings form to mirror the
+  ;; data it's destructuring:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (% 10 1  'ns (types..SimpleNamespace : a-tuple '(a b c)  spam 'eggs))
+  ;;    >>> # QzPCENT_
+  ;;    ... (lambda x0, x1, x2, x3: {x0:x1,x2:x3})(
+  ;;    ...   (10),
+  ;;    ...   (1),
+  ;;    ...   'ns',
+  ;;    ...   __import__('types').SimpleNamespace(
+  ;;    ...     aQzH_tuple=('a',
+  ;;    ...                 'b',
+  ;;    ...                 'c',),
+  ;;    ...     spam='eggs'))
+  ;;    {10: 1, 'ns': namespace(aQzH_tuple=('a', 'b', 'c'), spam='eggs')}
+  ;;
+  ;;    #> (define nested-data _)
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   nestedQzH_data=_)
+  ;;
+  ;;    #> (destruct-> nested-data
+  ;;    #..            (!#10 num  !#'ns (@#'a-tuple (!#0 a  !#1 b  !#2 c)  @#'spam spam))
+  ;;    #..  (locals))
+  ;;    >>> # destructQzH_QzGT_
+  ;;    ... # hissp.macros.._macro_.letQzH_from
+  ;;    ... (lambda num, a, b, c, spam: locals())(
+  ;;    ...   *# hissp.macros.._macro_.let
+  ;;    ...    (lambda _Qzcti67hlh__data=nestedQzH_data:
+  ;;    ...        (
+  ;;    ...          # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...          __import__('operator').itemgetter(
+  ;;    ...            (10))(
+  ;;    ...            _Qzcti67hlh__data,
+  ;;    ...            ),
+  ;;    ...          *# hissp.macros.._macro_.let
+  ;;    ...           (
+  ;;    ...            lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                   __import__('operator').itemgetter(
+  ;;    ...                     'ns')(
+  ;;    ...                     _Qzcti67hlh__data,
+  ;;    ...                     ):
+  ;;    ...               (
+  ;;    ...                 *# hissp.macros.._macro_.let
+  ;;    ...                  (
+  ;;    ...                   lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                          __import__('operator').attrgetter(
+  ;;    ...                            'aQzH_tuple')(
+  ;;    ...                            _Qzcti67hlh__data,
+  ;;    ...                            ):
+  ;;    ...                      (
+  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        __import__('operator').itemgetter(
+  ;;    ...                          (0))(
+  ;;    ...                          _Qzcti67hlh__data,
+  ;;    ...                          ),
+  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        __import__('operator').itemgetter(
+  ;;    ...                          (1))(
+  ;;    ...                          _Qzcti67hlh__data,
+  ;;    ...                          ),
+  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        __import__('operator').itemgetter(
+  ;;    ...                          (2))(
+  ;;    ...                          _Qzcti67hlh__data,
+  ;;    ...                          ),
+  ;;    ...                        )
+  ;;    ...                  )(),
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 __import__('operator').attrgetter(
+  ;;    ...                   'spam')(
+  ;;    ...                   _Qzcti67hlh__data,
+  ;;    ...                   ),
+  ;;    ...                 )
+  ;;    ...           )(),
+  ;;    ...          )
+  ;;    ...    )())
+  ;;    {'num': 1, 'a': 'a', 'b': 'b', 'c': 'c', 'spam': 'eggs'}
+  ;;
+  ;; But it doesn't have to. Transforms need not be simple lookups:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (destruct-> nested-data
+  ;;    #..            (!#'ns (ors ns ; The whole SimpleNamespace (progn works too).
+  ;;    #..                    (getattr 'missing "a default for missing") missing
+  ;;    #..                    @#'spam inner ; attribute lookup
+  ;;    #..                    @#'a-tuple ([#:-1] ab  [#:] abc ; slices with overlaps
+  ;;    #..                                iter (next A  list rest) ; iterator destructuring
+  ;;    #..                                ;; Composed transform, method calls, defaults.
+  ;;    #..                                (-> enumerate dict) ((.get 2 ()) two
+  ;;    #..                                                     (.get 3 ()) three)
+  ;;    #..                                ;; Throwaway names must be unique. (`$#_ always works).
+  ;;    #..                                iter (next _0  (next :b) B  next _1  (next :d) D)))
+  ;;    #..             (.get 'quux "default for quux") myquux)
+  ;;    #..  (pprint..pp (locals)))
+  ;;    >>> # destructQzH_QzGT_
+  ;;    ... # hissp.macros.._macro_.letQzH_from
+  ;;    ... (lambda ns, missing, inner, ab, abc, A, rest, two, three, _0, B, _1, D, myquux:
+  ;;    ...     __import__('pprint').pp(
+  ;;    ...       locals())
+  ;;    ... )(
+  ;;    ...   *# hissp.macros.._macro_.let
+  ;;    ...    (lambda _Qzcti67hlh__data=nestedQzH_data:
+  ;;    ...        (
+  ;;    ...          *# hissp.macros.._macro_.let
+  ;;    ...           (
+  ;;    ...            lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                   __import__('operator').itemgetter(
+  ;;    ...                     'ns')(
+  ;;    ...                     _Qzcti67hlh__data,
+  ;;    ...                     ):
+  ;;    ...               (
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 # ors
+  ;;    ...                 _Qzcti67hlh__data,
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 getattr(
+  ;;    ...                   _Qzcti67hlh__data,
+  ;;    ...                   'missing',
+  ;;    ...                   ('a default for missing')),
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 __import__('operator').attrgetter(
+  ;;    ...                   'spam')(
+  ;;    ...                   _Qzcti67hlh__data,
+  ;;    ...                   ),
+  ;;    ...                 *# hissp.macros.._macro_.let
+  ;;    ...                  (
+  ;;    ...                   lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                          __import__('operator').attrgetter(
+  ;;    ...                            'aQzH_tuple')(
+  ;;    ...                            _Qzcti67hlh__data,
+  ;;    ...                            ):
+  ;;    ...                      (
+  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        (lambda _Qzuah3zizj__items: (_Qzuah3zizj__items[:-1]))(
+  ;;    ...                          _Qzcti67hlh__data,
+  ;;    ...                          ),
+  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        (lambda _Qzuah3zizj__items: (_Qzuah3zizj__items[:]))(
+  ;;    ...                          _Qzcti67hlh__data,
+  ;;    ...                          ),
+  ;;    ...                        *# hissp.macros.._macro_.let
+  ;;    ...                         (
+  ;;    ...                          lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                                 iter(
+  ;;    ...                                   _Qzcti67hlh__data):
+  ;;    ...                             (
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               next(
+  ;;    ...                                 _Qzcti67hlh__data),
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               list(
+  ;;    ...                                 _Qzcti67hlh__data),
+  ;;    ...                               )
+  ;;    ...                         )(),
+  ;;    ...                        *# hissp.macros.._macro_.let
+  ;;    ...                         (
+  ;;    ...                          lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                                 # QzH_QzGT_
+  ;;    ...                                 dict(
+  ;;    ...                                   enumerate(
+  ;;    ...                                     _Qzcti67hlh__data)):
+  ;;    ...                             (
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               _Qzcti67hlh__data.get(
+  ;;    ...                                 (2),
+  ;;    ...                                 ()),
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               _Qzcti67hlh__data.get(
+  ;;    ...                                 (3),
+  ;;    ...                                 ()),
+  ;;    ...                               )
+  ;;    ...                         )(),
+  ;;    ...                        *# hissp.macros.._macro_.let
+  ;;    ...                         (
+  ;;    ...                          lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                                 iter(
+  ;;    ...                                   _Qzcti67hlh__data):
+  ;;    ...                             (
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               next(
+  ;;    ...                                 _Qzcti67hlh__data),
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               next(
+  ;;    ...                                 _Qzcti67hlh__data,
+  ;;    ...                                 ':b'),
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               next(
+  ;;    ...                                 _Qzcti67hlh__data),
+  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               next(
+  ;;    ...                                 _Qzcti67hlh__data,
+  ;;    ...                                 ':d'),
+  ;;    ...                               )
+  ;;    ...                         )(),
+  ;;    ...                        )
+  ;;    ...                  )(),
+  ;;    ...                 )
+  ;;    ...           )(),
+  ;;    ...          # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...          _Qzcti67hlh__data.get(
+  ;;    ...            'quux',
+  ;;    ...            ('default for quux')),
+  ;;    ...          )
+  ;;    ...    )())
+  ;;    {'ns': namespace(aQzH_tuple=('a', 'b', 'c'), spam='eggs'),
+  ;;     'missing': 'a default for missing',
+  ;;     'inner': 'eggs',
+  ;;     'ab': ('a', 'b'),
+  ;;     'abc': ('a', 'b', 'c'),
+  ;;     'A': 'a',
+  ;;     'rest': ['b', 'c'],
+  ;;     'two': 'c',
+  ;;     'three': (),
+  ;;     '_0': 'a',
+  ;;     'B': 'b',
+  ;;     '_1': 'c',
+  ;;     'D': ':d',
+  ;;     'myquux': 'default for quux'}
+  ;;
+  ;; See also: `let*from <letQzSTAR_from>`, `my# <myQzHASH_>`,
+  ;; `!s# <QzBANG_sQzHASH_>`, `@s# <QzAT_sQzHASH_>`, `pos# <posQzHASH_>`.
+  ;;
+  my### names=(list) $data=`$#data
+  (progn walk=(lambda (bindings)
+                (let (pairs (X#(zip X X : strict True) (iter bindings)))
+                  `(|| : ,@chain#(i#starmap XY#(if-else (H#is_node Y)
+                                                 `(:* (let (,my.$data (-> ,my.$data ,X))
+                                                        ,(my.walk Y)))
+                                                 (progn (.append my.names Y)
+                                                        `(:? (-> ,my.$data ,X))))
+                                            pairs)
+                       :? ||)))
+         values=`(let (,my.$data ,data) ,(my.walk bindings))
+         `(let-from (,@my.names) ,my.values ,@body)))
+
+(defmacro !s\# (names)
+  <#;``!s\#`` 'item names'
+  ;;
+  ;; `destruct-> <destructQzH_QzGT_>` helper shorthand.
+  ;; Destructures a mapping using the binding names as the keys.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (destruct-> (dict : spam 1  foo 2)
+  ;;    #..            (ors whole
+  ;;    #..             ors !s#(spam foo))
+  ;;    #..  (print whole spam foo))
+  ;;    >>> # destructQzH_QzGT_
+  ;;    ... # hissp.macros.._macro_.letQzH_from
+  ;;    ... (lambda whole, spam, foo:
+  ;;    ...     print(
+  ;;    ...       whole,
+  ;;    ...       spam,
+  ;;    ...       foo)
+  ;;    ... )(
+  ;;    ...   *# hissp.macros.._macro_.let
+  ;;    ...    (
+  ;;    ...     lambda _Qzxlqqwo2w__data=dict(
+  ;;    ...              spam=(1),
+  ;;    ...              foo=(2)):
+  ;;    ...        (
+  ;;    ...          # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...          # ors
+  ;;    ...          _Qzxlqqwo2w__data,
+  ;;    ...          *# hissp.macros.._macro_.let
+  ;;    ...           (
+  ;;    ...            lambda _Qzxlqqwo2w__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                   # ors
+  ;;    ...                   _Qzxlqqwo2w__data:
+  ;;    ...               (
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 __import__('operator').itemgetter(
+  ;;    ...                   'spam')(
+  ;;    ...                   _Qzxlqqwo2w__data,
+  ;;    ...                   ),
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 __import__('operator').itemgetter(
+  ;;    ...                   'foo')(
+  ;;    ...                   _Qzxlqqwo2w__data,
+  ;;    ...                   ),
+  ;;    ...                 )
+  ;;    ...           )(),
+  ;;    ...          )
+  ;;    ...    )())
+  ;;    {'spam': 1, 'foo': 2} 1 2
+  ;;
+  `(,@chain#(zip (map X#`!#',X names) names)))
+
+(defmacro @s\# (names)
+  <#;``@s\#`` 'attribute names'
+  ;;
+  ;; `destruct-> <destructQzH_QzGT_>` helper shorthand.
+  ;; Destructures a namespace using the binding names as the attributes.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (destruct-> (types..SimpleNamespace : spam 1  foo 2)
+  ;;    #..            (ors whole
+  ;;    #..             ors @s#(spam foo))
+  ;;    #..  (print whole spam foo))
+  ;;    >>> # destructQzH_QzGT_
+  ;;    ... # hissp.macros.._macro_.letQzH_from
+  ;;    ... (lambda whole, spam, foo:
+  ;;    ...     print(
+  ;;    ...       whole,
+  ;;    ...       spam,
+  ;;    ...       foo)
+  ;;    ... )(
+  ;;    ...   *# hissp.macros.._macro_.let
+  ;;    ...    (
+  ;;    ...     lambda _Qzxlqqwo2w__data=__import__('types').SimpleNamespace(
+  ;;    ...              spam=(1),
+  ;;    ...              foo=(2)):
+  ;;    ...        (
+  ;;    ...          # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...          # ors
+  ;;    ...          _Qzxlqqwo2w__data,
+  ;;    ...          *# hissp.macros.._macro_.let
+  ;;    ...           (
+  ;;    ...            lambda _Qzxlqqwo2w__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                   # ors
+  ;;    ...                   _Qzxlqqwo2w__data:
+  ;;    ...               (
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 __import__('operator').attrgetter(
+  ;;    ...                   'spam')(
+  ;;    ...                   _Qzxlqqwo2w__data,
+  ;;    ...                   ),
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 __import__('operator').attrgetter(
+  ;;    ...                   'foo')(
+  ;;    ...                   _Qzxlqqwo2w__data,
+  ;;    ...                   ),
+  ;;    ...                 )
+  ;;    ...           )(),
+  ;;    ...          )
+  ;;    ...    )())
+  ;;    namespace(spam=1, foo=2) 1 2
+  ;;
+  `(,@chain#(zip (map X#`@#',X names) names)))
+
+(defmacro pos\# (bindings)
+  <#;``pos\#`` 'position bindings'
+  ;;
+  ;; `destruct-> <destructQzH_QzGT_>` helper shorthand.
+  ;; Destructures a sequence using each binding form's position index.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (destruct-> '(ABC XYZ)
+  ;;    #..            (ors whole  ors pos#(abc pos#(x y)))
+  ;;    #..  (print whole abc x y))
+  ;;    >>> # destructQzH_QzGT_
+  ;;    ... # hissp.macros.._macro_.letQzH_from
+  ;;    ... (lambda whole, abc, x, y:
+  ;;    ...     print(
+  ;;    ...       whole,
+  ;;    ...       abc,
+  ;;    ...       x,
+  ;;    ...       y)
+  ;;    ... )(
+  ;;    ...   *# hissp.macros.._macro_.let
+  ;;    ...    (
+  ;;    ...     lambda _Qzzqguiyyn__data=('ABC',
+  ;;    ...             'XYZ',):
+  ;;    ...        (
+  ;;    ...          # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...          # ors
+  ;;    ...          _Qzzqguiyyn__data,
+  ;;    ...          *# hissp.macros.._macro_.let
+  ;;    ...           (
+  ;;    ...            lambda _Qzzqguiyyn__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                   # ors
+  ;;    ...                   _Qzzqguiyyn__data:
+  ;;    ...               (
+  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 __import__('operator').itemgetter(
+  ;;    ...                   (0))(
+  ;;    ...                   _Qzzqguiyyn__data,
+  ;;    ...                   ),
+  ;;    ...                 *# hissp.macros.._macro_.let
+  ;;    ...                  (
+  ;;    ...                   lambda _Qzzqguiyyn__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                          __import__('operator').itemgetter(
+  ;;    ...                            (1))(
+  ;;    ...                            _Qzzqguiyyn__data,
+  ;;    ...                            ):
+  ;;    ...                      (
+  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        __import__('operator').itemgetter(
+  ;;    ...                          (0))(
+  ;;    ...                          _Qzzqguiyyn__data,
+  ;;    ...                          ),
+  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        __import__('operator').itemgetter(
+  ;;    ...                          (1))(
+  ;;    ...                          _Qzzqguiyyn__data,
+  ;;    ...                          ),
+  ;;    ...                        )
+  ;;    ...                  )(),
+  ;;    ...                 )
+  ;;    ...           )(),
+  ;;    ...          )
+  ;;    ...    )())
+  ;;    ('ABC', 'XYZ') ABC X Y
+  ;;
+  `(,@chain#(zip (map X#`!#,X (-> bindings len range))
+                 bindings)))
 
 (defmacro case (key default : :* pairs)
   <#;Switch case macro.
@@ -3585,9 +4388,9 @@ except ModuleNotFoundError: pass"
   ;;
   ;;    #> time##file=sys..stdout(time..sleep .05)
   ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (lambda _Qzpmwtvftz__time=__import__('time').time_ns:
+  ;;    ... (lambda _Qz2dtk7y5j__time=__import__('time').time_ns:
   ;;    ...     # hissp.macros.._macro_.letQzH_from
-  ;;    ...     (lambda _Qzpmwtvftz__start, _Qzpmwtvftz__val, _Qzpmwtvftz__end:
+  ;;    ...     (lambda _Qz2dtk7y5j__start, _Qz2dtk7y5j__val, _Qz2dtk7y5j__end:
   ;;    ...        (__import__('builtins').print(
   ;;    ...           ('time# ran'),
   ;;    ...           __import__('pprint').pformat(
@@ -3597,19 +4400,19 @@ except ModuleNotFoundError: pass"
   ;;    ...           ('in'),
   ;;    ...           __import__('operator').truediv(
   ;;    ...             __import__('operator').sub(
-  ;;    ...               _Qzpmwtvftz__end,
-  ;;    ...               _Qzpmwtvftz__start),
-  ;;    ...             __import__('decimal').Decimal(
-  ;;    ...               (1000000.0))),
+  ;;    ...               _Qz2dtk7y5j__end,
+  ;;    ...               _Qz2dtk7y5j__start),
+  ;;    ...             # Decimal('1E+6')
+  ;;    ...             __import__('pickle').loads(b'cdecimal\nDecimal\n(V1E+6\ntR.')),
   ;;    ...           ('ms'),
   ;;    ...           file=__import__('sys').stdout),
-  ;;    ...         _Qzpmwtvftz__val)  [-1]
+  ;;    ...         _Qz2dtk7y5j__val)  [-1]
   ;;    ...     )(
   ;;    ...       *(
-  ;;    ...          _Qzpmwtvftz__time(),
+  ;;    ...          _Qz2dtk7y5j__time(),
   ;;    ...          __import__('time').sleep(
   ;;    ...            (0.05)),
-  ;;    ...          _Qzpmwtvftz__time()))
+  ;;    ...          _Qz2dtk7y5j__time()))
   ;;    ... )()
   ;;    time# ran ('time..sleep', 0.05) in ... ms
   ;;
@@ -3620,8 +4423,7 @@ except ModuleNotFoundError: pass"
        (print "time# ran"
               (pprint..pformat ',expr : sort_dicts 0)
               "in"
-              (op#truediv (op#sub $#end $#start)
-                          (decimal..Decimal 1e6))
+              (op#truediv (op#sub $#end $#start) M#1e6_)
               "ms"
               : file ,file)
        $#val)))

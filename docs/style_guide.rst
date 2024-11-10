@@ -539,7 +539,9 @@ Your code should look like these examples, recursively applied to subforms:
     a 1                                    ; May be better for linewise version control.
     b 2                                    ; Use this style sparingly.
     c 3
-    _#/)
+    _#/dict)                               ;Doorstops are allowed to label what they're
+                                           ; closing, like XML tags. Not needed for a
+                                           ; form this short; a _#/ would have sufficed.
 
    (function arg1                          ;Bad. : not first. Weird extra levels.
              arg2
@@ -707,7 +709,7 @@ not just the fact that it's a call:
     - operator..sub                        ; Sometimes worth it, but
     * operator..mul                        ; use this style sparingly.
     / operator..truediv
-    _#/)                                   ;Doorstop holding ) on this line.
+    _#/.update)                            ;Doorstop holding ) on this line.
 
    (.update (globals)                      ;Preferred. Standard style.
             : + operator..add
@@ -1074,6 +1076,16 @@ Headings begin with four semicolons and a space ``;;;; Foo Bar``,
 fit on one line,
 and are written in ``Title Case`` by default.
 
+Other Lisp dialects may use quadruple-semicolon comments for module-level comments,
+as a category distinct from top-level commentary.
+In Lissp,
+module-level commentary should instead appear in the module's docstring,
+or, in the case of implementation details,
+in triple-semicolon comments near the top of the file,
+usually immediately before or after the module docstring.
+(E.g., license boilerplate.)
+Quadruple semicolon comments are exclusively for headings.
+
 Headings are for the :term:`top level` only;
 they aren't nested in :term:`form`\ s;
 they get their own line and start at the beginning of it.
@@ -1280,7 +1292,7 @@ should start with the `demunge`\ d name in doubled backticks
    ;; in a lexical scope surrounding ``e``.
    ;; ...
 
-For `tag`\ s, use the number of hashes required for its minimum arity.
+For :term:`tag`\ s, use the number of hashes required for its minimum arity.
 The demunged names should be followed by the pronunciation in single quotes,
 if it's not obvious from the identifier:
 
@@ -1527,9 +1539,6 @@ especially for small functions.
 Aliasing and Imports
 ::::::::::::::::::::
 
-Avoid repeating the name of the containing module or package when writing definitions,
-because they may be accessed through an alias or as a module attribute.
-
 The programmer should not have to guess
 what an `alias<_macro_.alias>` means when jumping into an unfamiliar file.
 Use consistent aliases within a project.
@@ -1537,19 +1546,37 @@ Usually, this means the alias is the module name, but not its containing package
 unless there is a shorter well-known name in the community
 (like ``np#`` for NumPy or ``op#`` for operators)
 or for an internal module well-known within your project.
+The bundled aliases can be considered well-known in Lissp.
 
-Avoid reassigning attributes from other modules as globals
-without a very good reason.
-Yes, Python does this all the time.
+Avoid assigning globals attributes of other modules
+without a good reason.
+(A good reason might be to present a clean public interface in
+``__init__.py``.)
+Yes, Python code does this all the time.
 It's how `from` works at the :term:`top level`.
-Just access them as attributes from the module they belong to.
+Just access them as attributes directly from the module they belong to.
 This improves readability,
 and for internal project modules,
 improves reloadability during REPL-driven development.
 Otherwise, instead of just refreshing the module with the updated definition,
 every module reassigning it would have to be reloaded as well.
 
-Aliases are also preferred over assigning modules as globals
+Avoid using the same name for a module and one of its definitions.
+This is an anti-pattern.
+Yes, the standard library does this a lot,
+with `datetime.datetime` being a notorious example.
+In Python code, ``import datetime`` vs. ``from datetime import datetime``
+is a common source of confusion.
+And the module and class can't both be used as globals without renaming one of them,
+which unfortunately discourages the use of the module object at all.
+
+A set of variables with a common prefix (or suffix) is a code smell,
+suggesting they should be members of a namespace (or other data structure)
+with the prefix name.
+If they're already members of a common namespace, the prefix is redundant
+and should be removed.
+
+Aliases are also preferred over assigning globals modules
 (although this is less of a problem).
 They have the advantage of never colliding
 with your locals or global function names,
@@ -1661,8 +1688,10 @@ The End of the Line
 
 Ending brackets should also end the line.
 That's what lets us indent and see the tree structure clearly.
+Readability is mainly laid out on the page.
 It's OK to have single ``)``'s inside the line,
-but don't overdo it:
+but don't overdo it.
+Nesting more than a few levels in a single line can get confusing.
 
 .. code-block:: Lissp
 
@@ -1689,11 +1718,38 @@ then the tree structure is clear from the indents:
              (len xs))
           "on average.")
 
-A train of ``)``'s within a line is almost never acceptable.
+A train of closing ``)`` tokens within a line is almost never acceptable.
 A rare exception might be in something like an `enjoin`_,
 because the structure of the string is more important for readability
 than the structure of the tree,
 but even then, limit it to three ``)))``.
+
+Remember,
+this rule is so we can indent to clearly see the tree structure of the code,
+so it only applies to *closing tokens*,
+not to the ``)`` character *per se*.
+Brackets within an object token don't count.
+E.g., whatever bracket structure you like within a :term:`Unicode token` is fine.
+Symbols can also have ``)`` characters as long as they're escaped.
+
+The empty tuple ``()`` is *technically* not an object token,
+because it's made of an open and close token,
+but this is an implementation detail
+and it easily could have been a token in its own right.
+Regardless, it *is* considered an :term:`atom`, which doesn't count as a node
+(because atoms are leaves in the syntax tree).
+A ``())`` is OK even if it's not at the end of the line,
+but putting it there is usually preferred:
+
+.. code-block:: Lissp
+
+   (print (.get items "key 1" ()) (.get items ())) ;OK. Only one node ) inside.
+
+   (print (.get items "key 1" ())          ;Preferred. )'s end the line.
+          (.get items ()))
+
+   (print "))) is 3 right parentheses")    ;No problem. No closing tokens inside.
+
 
 Semantic groups should be kept together.
 Closing brackets inside a pair can happen in `cond`,
@@ -1717,6 +1773,12 @@ even in an implied group:
            (gt (len xs) (len ys)) (print ">")
            :else (print "0"))))
 
+   (defun compare (xs ys)                  ;OK. But use doorstops sparingly.
+     (cond (lt (len xs) (len ys) _#/lt) (print "<") ; 3 nesting levels in line is pushing it.
+           (gt (len xs) (len ys) _#/gt) (print ">")
+           :else (print "0"))))
+
+
    (defun compare (xs ys)                  ;Bad. No groups. Can't tell if from then.
      (cond (lt (len xs) (len ys))
            (print "<")
@@ -1725,20 +1787,13 @@ even in an implied group:
            :else
            (print "0"))))
 
-   (defun compare (xs ys)                  ;OK. Use discard comments sparingly.
+   (defun compare (xs ys)                  ;OK.
      (cond (lt (len xs) (len ys))
            (print "<")
-           _#:elif->(gt (len xs) (len ys)) ;Unambiguous, but unaligned.
+           ;; else if                      ;A styling comment isn't optional here;
+           (gt (len xs) (len ys))          ; it's required to separate groups.
            (print ">")
-           :else (print "0")))) ; No internal ), so 1 line is OK. Still grouped.
-
-   (defun compare (xs ys)                  ;OK. Better.
-     (cond (lt (len xs) (len ys))
-           (print "<")
-           ;; else if                      ;The styling comment is not optional;
-           (gt (len xs) (len ys))          ; it's needed for separating groups.
-           (print ">")
-           :else (print "0"))))
+           :else (print "0"))))            ;Still grouped. 1 line OK--no internal ).
 
    (defun compare (xs ys)                  ;Preferred. Keep cond simple.
      (let (lxs (len xs)
@@ -1755,8 +1810,9 @@ implementing a single easily-testable concept
 or perhaps a few very closely related ones.
 Build up a vocabulary of definitions
 so the requisite function becomes easily expressible.
-Function definition bodies should be no more than 10 lines,
-and usually no more than 5.
+Function definition bodies should
+usually be no more than 5 lines,
+but may occasionally be several times that.
 That's not counting docstrings, comments, or assertions.
 (:term:`Params` aren't in the body.)
 
@@ -1765,6 +1821,11 @@ This rule doesn't apply to imperative scripts used near the top of the call stac
 once the pure functional bits have been factored out.
 At that point, lexical locality is more important for readability,
 so it's better to leave them long than to break them up.
+
+The bodies of nested lexical closures are also counted separately,
+but any lines in their :term:`params` do count as part of their enclosing body.
+This pattern behaves more like a class with methods,
+and refactoring to that form may make it more easily testable.
 
 Don't break up a single concept just to get under the line quota,
 but consider if it could be refactored into a data structure,
@@ -1787,7 +1848,7 @@ you're not likely to consider exhaustively,
 so you need a good reason to nail down at least one of them.
 It just gets worse from there. The factorial sequence grows pretty quickly.
 Why not make it easy and use meaningful names instead of meaningless positions?
-Sort the kwonly parameters and (argument pairs) lexicographically by default.
+Sort the kwonly parameters (and argument pairs) lexicographically by default.
 You may have a good reason for some other order. E.g.,
 if arguments or defaults need to be evaluated in a certain order due to side effects.
 Document this kind of thing with a comment when it's not obvious,
@@ -1882,8 +1943,6 @@ or it may be possible to configure it to ignore violations in strings or comment
 
 The Limits of Length
 ::::::::::::::::::::
-
-Readability is mainly laid out on the page.
 
 The optimal length for a line in a block of English text is thought to be around
 50-75 characters, given the limitations of the human eye.
@@ -2027,7 +2086,7 @@ You need only modify forms containing long lines (or contained in long lines).
    (function1 arg1 arg2 (function2 arg1
                                    arg2))
 
-   ;; Very bad! Confusing style. Break on `)` first!
+   ;; Very bad! Confusing stair-step style. Break on `)` first!
    (function1 arg1 (function2 arg1
                               arg2) arg2 (function3 arg1 arg2))
 
@@ -2039,7 +2098,7 @@ You need only modify forms containing long lines (or contained in long lines).
                               arg4)
          :else (function3 arg1 arg2))
 
-   ;; Bad. Confusing style.
+   ;; Bad. Confusing stair-step style.
    (cond (test1 x) (function1 arg1 arg2)
          (test2 argument1
                 argument2
