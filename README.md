@@ -14,7 +14,7 @@ SPDX-License-Identifier: Apache-2.0
 ...                 __import__('hissp')._macro_)))
 
 -->
-![Hissp](https://raw.githubusercontent.com/gilch/hissp/master/docs/hissp.svg)
+# ![Hissp](https://raw.githubusercontent.com/gilch/hissp/master/docs/hissp.svg)
 
 It's Python with a *Lissp*.
 
@@ -49,7 +49,7 @@ Python—Syntactic macro metaprogramming with full access to the Python ecosyste
 
 <!-- markdown-toc end -->
 
-# Installation
+## Installation
 A Hissp install requires Python 3.10+.
 (The compiled Python output it generates may work on older versions.)
 
@@ -67,9 +67,9 @@ python -m hissp --help
 lissp -c "__hello__."
 ```
 
-# Examples!
+## Examples!
 
-## Quick Start: Readerless Mode
+### Quick Start: Readerless Mode
 Hissp is a *metaprogramming* intermediate language composed of simple Python data structures,
 easily generated programmatically,
 ```python
@@ -105,7 +105,7 @@ tuples represent calls
 and strings represent Python code in Hissp.
 (Take everything else literally.)
 
-### Special Forms
+#### Special Forms
 Like Python, argument expressions are evaluated before being passed to the function,
 however, the quote and lambda forms are special cases in the compiler
 which are exceptions to this rule.
@@ -156,7 +156,7 @@ A:L:I:C:E
 
 ```
 
-### Macros
+#### Macros
 The ability to make lambdas and call out to arbitrary Python helper functions entails that Hissp can do anything Python can.
 For example, control flow via higher-order functions.
 ```python
@@ -214,7 +214,7 @@ no
 ```
 A number of useful macros come bundled with Hissp.
 
-## The Lissp Reader
+### The Lissp Reader
 The Hissp data-structure language can be written directly in Python using the "readerless mode" demonstrated above,
 or it can be read in from a lightweight textual language called *Lissp* that represents the Hissp
 a little more neatly.
@@ -241,7 +241,7 @@ which compiles Hissp (read from Lissp) to Python and passes that to the Python R
 Lissp can also be read from ``.lissp`` files,
 which compile to Python modules.
 
-### A Small Lissp Application
+#### A Small Lissp Application
 This is a Lissp web app for converting between Celsius and Fahrenheit,
 which demonstrates a number of language features.
 Run as the main script or enter it into the Lissp REPL.
@@ -291,10 +291,10 @@ with zero parameters.
 Consult the [Hissp documentation](https://hissp.readthedocs.io/)
 for an explanation of each form.
 
-## Alternate Readers
+### Alternate Readers
 Hissp is modular, and the reader included for Lissp is not the only one.
 
-### Hebigo
+#### Hebigo
 Here's a native unit test class from the separate
 [Hebigo](https://github.com/gilch/hebigo) prototype,
 a Hissp reader and macro suite implementing a language designed to resemble Python:
@@ -407,7 +407,7 @@ In [1]: pprint..pp:quote:class: TestOr: TestCase
    ('hebi.basic.._macro_.or_', 'x', 'y', 'z'))))
 ```
 
-### Garden of EDN
+#### Garden of EDN
 Extensible Data Notation (EDN) is a subset of Clojure used for data exchange,
 as JSON is to JavaScript, only more extensible.
 Any Clojure editor should be able to handle EDN.
@@ -499,7 +499,7 @@ which includes Clojure-like persistent data structures.
 
 The first and last lines make this a valid Python file as well as EDN.
 
-# Features and Design
+## Features and Design
 
 Python is already a really nice language, a lot closer to Lisp than to C or Fortran.
 It has dynamic types and automatic garbage collection, for example.
@@ -510,7 +510,7 @@ you might think they're all the same.
 
 I assure you, they are not.
 
-## Radical Extensibility
+### Radical Extensibility
 
 While any Turing-complete language has equivalent theoretical power,
 they are not equally *expressive*.
@@ -595,7 +595,7 @@ even if it's a relatively high-level language like Python.
 Lisp is as high level as a programming language gets,
 because you can program in anything higher.
 
-## Minimal implementation
+### Minimal implementation
 Hissp serves as a modular component for other projects.
 The language and its implementation are meant to be small and comprehensible
 by a single individual.
@@ -620,7 +620,7 @@ But it is definitely not meant to be idiomatic Python.
 That would require a much more complex compiler,
 because idiomatic Python is not simple.
 
-## Interoperability
+### Interoperability
 Why base a Lisp on Python when there are already lots of other Lisps?
 
 Python has a rich selection of libraries for a variety of domains
@@ -644,12 +644,12 @@ but may likewise be possible if you carefully avoid using newer Python features.
 Python code can also import and use modules written in Hissp,
 because they compile to Python.
 
-## Useful error messages
+### Useful error messages
 One of Python's best features.
 Any errors that prevent compilation should be easy to find.
 Hissp errs on the side of verbosity.
 
-## Syntax compatible with Emacs' `lisp-mode` and Parlinter
+### Syntax compatible with Emacs' `lisp-mode` and Parlinter
 A language is not very usable without tools.
 Hissp's basic reader syntax (Lissp) should work with Emacs.
 
@@ -659,7 +659,7 @@ Hebigo was designed to work with minimal editor support.
 All it really needs is the ability to cut, paste, and indent/dedent blocks of code.
 Even [IDLE](https://docs.python.org/3/library/idle.html) would do.
 
-## Standalone output
+### Standalone output
 This is part of Hissp's commitment to modularity.
 
 One can, of course, write Hissp code that depends on any Python library.
@@ -674,7 +674,7 @@ Their expansions have no external requirements either.
 Applications and libraries built on Hissp need not follow this restriction;
 they're free to add any dependencies usable by Python.
 
-## Reproducible builds
+### Reproducible builds
 A newer Python feature that Lissp respects.
 
 Lissp's gensym format is deterministic,
@@ -685,7 +685,7 @@ your code will compile the same way.
 One could, of course, write randomized macros,
 but that's no fault of Lissp's.
 
-## REPL-driven development
+### REPL-driven development
 A Lisp tradition, and Hissp is no exception.
 Even though it's a compiled language,
 Hissp has an interactive command-line interface like Python does.
@@ -698,7 +698,7 @@ Hissp comes with utilities to write reloadable modules.
 You can get a subREPL inside any module and refresh changes without restarting your session.
 Updates to classes made with the bundled macros propagate to existing instances.
 
-## Same-module macro helpers
+### Same-module macro helpers
 Functions are generally preferable to macros when functions can do the job.
 They're more reusable and composable.
 Therefore, it makes sense for macros to delegate to functions where possible.
@@ -706,7 +706,7 @@ But such a macro should work in the same module as its helper functions.
 This requires incremental compilation and evaluation of forms in Lissp modules,
 like the REPL.
 
-## Modularity
+### Modularity
 The Hissp language is made of tuples (and atoms), not text.
 The S-expression reader included with the project (Lissp) is just a convenient
 way to write them.
@@ -737,7 +737,7 @@ Its bundled metaprogramming library is optional,
 it produces standalone output,
 and it's modular enough for alternate readers to exist.
 
-## Thorough documentation
+### Thorough documentation
 
 The API docs have usage examples demonstrating how to use every bundled metaprogram.
 Every example is tested and working, because these double as part of Hissp's test suite.
