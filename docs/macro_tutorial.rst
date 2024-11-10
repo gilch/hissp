@@ -11,7 +11,6 @@ Macro Tutorial
 ##############
 
 .. TODO: be sure to demonstrate hissp.compiler..ENV and hissp.compiler..readerless somewhere
-.. TODO: be sure to demonstrate a recursive macro somewhere
 
 Lisp is a higher-level language than Python,
 in the same sense that Python is a higher-level language than C,
@@ -2741,9 +2740,8 @@ which have the same issue.
 A simple basic syntax means there are relatively few edge cases you have to be aware of.
 
 Hissp is so simple that a full code-walking macro would only have to pre-expand all macros,
-and handle atoms, calls, ``quote``, and ``lambda``.
-
-.. TODO: Which we will be demonstrating later!
+and handle atoms, calls, ``quote``, and ``lambda``,
+which we will be demonstrating later!
 
 If you add Python injections to the list,
 then you also have to handle the entirety of all Python expressions.
@@ -6717,8 +6715,6 @@ A lot of programming comes down to restructuring data like this.
 If you've made it this far,
 show off your solutions in the Hissp Community Chat!
 
-.. TODO: and that's how the bundled d# version works.
-
 .. TODO: advanced techniques from A Slice o Python?
    Let's review. This section covered a number of advanced techniques:
    - Brackets in symbols.
@@ -6768,11 +6764,7 @@ show off your solutions in the Hissp Community Chat!
 
 .. TODO: preconditions?
 
-.. TODO: base 6, tau
-
 .. TODO: defmacro/g defmacro!
-.. TODO: destructuring bind (iterable only?)
-.. TODO: destructuring lambda (iterable only?)
 
 .. TODO: one-shot self-referential data structure using reader macros
              See http://www.lispworks.com/documentation/HyperSpec/Body/02_dho.htm
