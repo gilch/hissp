@@ -9,7 +9,6 @@
    ...                 __import__('hissp')._macro_)))
 
 .. TODO: Interactive via web repl?
-.. RELEASE: Update the ;;;; Installation section.
 
 Lissp Whirlwind Tour
 ====================
@@ -49,17 +48,13 @@ Lissp Whirlwind Tour
 
    ;;;; Installation
 
-   ;;; These docs are for the latest development version of Hissp.
-   ;;; Install the latest Hissp version with
-   ;;; $ pip install git+https://github.com/gilch/hissp
+   ;;; Install Hissp from PyPI with
+   ;;; $ pip install hissp==0.5
    ;;; Uninstall any old versions first,
    ;;; or start in a fresh virtual environment.
    ;;; Start the REPL with
    ;;; $ lissp
    ;;; You can quit with EOF or (exit).
-
-   ;;; Most examples are tested automatically, but details may be dated.
-   ;;; Report issues or try the current release version instead.
 
    ;;;; Fragment Tokens
 

@@ -21,7 +21,6 @@ It's Python with a *Lissp*.
 Hissp is a modular Lisp implementation that compiles to a functional subset of
 Python—Syntactic macro metaprogramming with full access to the Python ecosystem!
 
-[//]: # (RELEASE: refresh toc)
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 

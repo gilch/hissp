@@ -4532,4 +4532,5 @@ sentinel#
     expr))
 
 ;;; Don't let the size of this file intimidate you!
+;;; Most of it is documentation with long usage examples.
 ;;; Only about 10% of the lines are actual source code.

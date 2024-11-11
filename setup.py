@@ -55,7 +55,7 @@ setuptools.setup(
         "lisp macro metaprogramming compiler interpreter DSL AST transpiler emacs"
         " clojure scheme language minimal REPL metaprogramming macros extensible"
         " s-expressions code-generation no-dependencies quasiquote backquote"
-        " syntax-quote template Hissp Lissp"
+        " syntax-quote template Hissp Lissp destructuring"
     ),
     packages=setuptools.find_packages("../src"),
     package_data={
@@ -67,7 +67,3 @@ setuptools.setup(
 )
 # Build dist and install:
 # python setup.py bdist_wheel && pip install --force-reinstall setup\dist\hissp-*.whl
-
-# RELEASE: Double-check setup data.
-# RELEASE: Clean build macros.py and make sure it's in the .whl.
-# RELEASE: Inspect all files in the .whl.

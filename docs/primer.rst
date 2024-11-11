@@ -55,17 +55,9 @@ Confirm your Python version with
 
 (Re-)install the Hissp version matching this document with
 
-.. RELEASE: Rewrite to install from PyPI.
-
 .. code-block:: console
 
-   $ python -m pip install --upgrade --force-reinstall git+https://github.com/gilch/hissp
-
-These docs are for the latest development version of Hissp.
-Most examples are tested automatically,
-but details may be dated.
-
-Report issues or try the current release version instead.
+   $ python -m pip install --upgrade hissp==0.5
 
 More details about :ref:`installing-index`, :ref:`Python versions <whatsnew-index>`
 (or :ref:`implementations`),
