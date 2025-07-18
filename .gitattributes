@@ -1,0 +1,4 @@
+# This configuration file is part of the Hissp source code repository,
+# copyright 2025 Matthew Egan Odendahl
+# SPDX-License-Identifier: Apache-2.0
+*.lissp linguist-language=lisp linguist-vendored
