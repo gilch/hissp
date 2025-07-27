@@ -190,8 +190,8 @@ class Compiler:
         """Compile `call`, `macro`, or `special` forms."""
         match form:
             case [["lambda", params, *body] as head] if (
-                is_node(head) and not self.parameters(params)
-            ):
+                is_node(head)
+            ) and not self.parameters(params):
                 return self.body(body)  # progn optimization
             case head, *_ if is_str(head):
                 return self.special(form)
