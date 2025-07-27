@@ -75,7 +75,7 @@ class TestCompileGeneral(TestCase):
         self.assertIn(
             """\
             # ZeroDivisionError: division by zero
-            #\N{space}
+            #\N{SPACE}
 
             print(
               'oops')"""
