@@ -395,7 +395,7 @@ See `hissp.macros`.
   "Creates a new `macro function` for the current module.
 
   If there's no local ``_macro_`` namespace (at compile time), adds code
-  to create one using `types.SimpleNamespace` (at runtime), if it's
+  to create one using `types.SimpleNamespace` (at run time), if it's
   still not there. If there's a docstring, stores it as the new lambda's
   ``__doc__``. Adds the ``_macro_`` prefix to the lambda's
   ``__qualname__``. Saves the lambda in ``_macro_`` using the given
@@ -4071,7 +4071,7 @@ sentinel#
   ;;     'myquux': 'default for quux'}
   ;;
   ;; See also: `let*from <letQzSTAR_from>`, `my# <myQzHASH_>`,
-  ;; `!s# <QzBANG_sQzHASH_>`, `@s# <QzAT_sQzHASH_>`, `pos# <posQzHASH_>`.
+  ;; `\!s# <QzBANG_sQzHASH_>`, `@s# <QzAT_sQzHASH_>`, `pos# <posQzHASH_>`.
   ;;
   my### names=(list) $data=`$#data
   (progn walk=(lambda (bindings)
@@ -4087,7 +4087,7 @@ sentinel#
          `(let-from (,@my.names) ,my.values ,@body)))
 
 (defmacro !s\# (names)
-  <#;``!s\#`` 'item names'
+  <#;``!s#`` 'item names'
   ;;
   ;; `destruct-> <destructQzH_QzGT_>` helper shorthand.
   ;; Destructures a mapping using the binding names as the keys.
@@ -4140,7 +4140,7 @@ sentinel#
   `(,@chain#(zip (map X#`!#',X names) names)))
 
 (defmacro @s\# (names)
-  <#;``@s\#`` 'attribute names'
+  <#;``@s#`` 'attribute names'
   ;;
   ;; `destruct-> <destructQzH_QzGT_>` helper shorthand.
   ;; Destructures a namespace using the binding names as the attributes.
@@ -4193,7 +4193,7 @@ sentinel#
   `(,@chain#(zip (map X#`@#',X names) names)))
 
 (defmacro pos\# (bindings)
-  <#;``pos\#`` 'position bindings'
+  <#;``pos#`` 'position bindings'
   ;;
   ;; `destruct-> <destructQzH_QzGT_>` helper shorthand.
   ;; Destructures a sequence using each binding form's position index.
@@ -4532,4 +4532,5 @@ sentinel#
     expr))
 
 ;;; Don't let the size of this file intimidate you!
-;;; Only about 10% of the lines are actual source code.
+;;; Most of it is documentation with long usage examples.
+;;; Only about 10% of the lines are executable source code.
