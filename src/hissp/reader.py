@@ -319,6 +319,8 @@ class Parser(Iterator):
             elif k == "inject":   yield self._inject(v)
             elif k == "discard":  self._pull(v)
             elif k == "gensym":   yield self._gensym(self._pull(v))
+            elif k == "stararg":  yield Kwarg(v[:-1], self._pull(v))
+            elif k == "kwarg":    yield Kwarg(munge(self.escape(v[:-1])), self._pull(v))
             elif k == "tag":      yield self._tag(self._pull(v), v)
             elif k == "unicode":  yield self._unicode(v)
             elif k == "fragment": yield self._fragment(v)
@@ -327,7 +329,7 @@ class Parser(Iterator):
             elif k == "control":  yield self.escape(v)
             elif k == "bare":     yield self.bare(v)
             elif k == "error":    raise self._error(k)
-            else:                 yield Kwarg(v[:-1], self._pull(v))  # kwarg, stararg
+            else: assert False, f"unhandled token {k!r}"
             # fmt: on
         self._check_depth()
 
@@ -497,7 +499,7 @@ class Parser(Iterator):
             elif k == "**":
                 kwargs.update(dict(v))
             else:
-                kwargs[munge(cls.escape(k))] = v
+                kwargs[k] = v
         else:
             args.append(x)
 
