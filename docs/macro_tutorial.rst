@@ -582,7 +582,7 @@ Now we're at the same length as Python.
 Let's make it even shorter.
 
 Given a tuple containing the *minimum* amount of information,
-we want expand that into the necessary code using a macro.
+we want to expand that into the necessary code using a macro.
 
 Isn't there something extra here we could get rid of?
 With a macro, we won't need the inject.
@@ -4704,7 +4704,7 @@ Lazy Polar Coordinates
 ::::::::::::::::::::::
 
 Suppose we want to express a complex number in polar form.
-We could easily make a separate function that computes the cartesian form from polar inputs.
+We could easily make a separate function that computes the Cartesian form from polar inputs.
 (For custom classes,
 one could similarly make an alternate constructor using `classmethod`.)
 
@@ -4718,7 +4718,7 @@ There's some unavoidable imprecision in the float calculations approximating irr
 but notice the noisy-looking numbers are close to zero.
 I'll be using `round` liberally to make the remaining examples easier to read.
 
-But kwarg alone names should be enough to disambiguate the cases;
+But kwarg names alone should be enough to disambiguate the cases;
 we don't need separate functions.
 Suppose we want a Python signature like ::
 
