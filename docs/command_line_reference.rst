@@ -1,3 +1,4 @@
+.. TODO: mention reason to use python -m hissp
 .. Copyright 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
