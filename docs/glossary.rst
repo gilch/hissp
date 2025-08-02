@@ -17,6 +17,8 @@ Glossary
       `subform` in the same top-level form,
       because by the time it exists,
       the top-level form has already been compiled.
+      (However, the reader must run any `tag`s, which can have arbitrary effects,
+      before giving the compiler the form.)
       `Injection` of a Python statement is only valid at the top level.
 
    doorstop
@@ -47,6 +49,7 @@ Glossary
    repl
    read-evaluate-print loop
    read-eval-print loop
+   subrepl
       The `LisspREPL`,
       Lissp's interactive interpreter shell, layered on Python's.
       (Or a similar language shell.)
@@ -120,7 +123,7 @@ Glossary
       `is_string_literal` tests for string literal fragments.
 
    hissp string
-      A `form` or `parsed object` which would directly represents a string in Hissp,
+      A `form` or `parsed object` which would directly represent a string in Hissp,
       if evaluated on its own.
       All `string literal fragment`\ s are Hissp strings.
       A `quote`\ d `str atom` is also a Hissp string.
@@ -244,7 +247,7 @@ Glossary
       Evaluating it should result in an equivalent object.
 
    fragment
-      A `fragment token`, `fragment atom`, or `python fragment`, depending on context.
+      A `fragment token`, `fragment atom`, or `Python fragment`, depending on context.
 
    python fragment
       A piece of Python code, especially one emitted by the compiler.
@@ -342,13 +345,13 @@ Glossary
       (also known as "hash" characters,
       making these "hash tags" when distinguishing them from other `tagging token`\ s.)
       If it includes a `module handle` part, it's a fully-qualified tag.
-      Any callable accessible this way can be applied as a tag.
+      (Any callable accessible this way can be applied as a tag.
       E.g. ``builtins..str.format##``, ``fractions..Fraction#``,
-      ``textwrap..dedent#``, etc.
-      If it doesn't,
+      ``textwrap..dedent#``, etc.)
+      If it doesn't include one,
       it refers to a module-local `metaprogram` stored in the module's
       ``_macro_`` namespace.
-      These usually need to be pure or at least idempotent,
+      Tags usually need to be pure or at least idempotent,
       as the `REPL` or similar tooling may have to make multiple attempts
       at applying them.
 
@@ -465,7 +468,7 @@ Glossary
       between a `tagging token` and one of its arguments.
 
    gensym tag
-      ``$#``. A `special tag` only valid in a `template` for creating a `gensym`.
+      ``$#``. A `special tag` for creating a `gensym`. Only valid in a `template`.
       Prepends a `gensym hash` to its argument, or replaces ``$`` characters with it.
 
    gensym
@@ -538,7 +541,7 @@ Glossary
       `End-of-file <https://en.wikipedia.org/wiki/End-of-file>`_.
       In most Unix terminals, use a :kbd:`Ctrl+D`,
       or :kbd:`Ctrl+Z Enter` in Windows.
-      Quits a subREPL without also terminating the Python session,
+      Quits a `subREPL` without also terminating the Python session,
       unlike ``(exit)``,
       and works similarly in most shells.
 
