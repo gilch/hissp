@@ -4718,6 +4718,8 @@ There's some unavoidable imprecision in the float calculations approximating irr
 but notice the noisy-looking numbers are close to zero.
 I'll be using `round` liberally to make the remaining examples easier to read.
 
+.. TODO: kwarg "alone"? kwonly? kwargs alone? kwarg names alone?
+
 But kwarg alone names should be enough to disambiguate the cases;
 we don't need separate functions.
 Suppose we want a Python signature like ::
@@ -5399,7 +5401,7 @@ Let's try a small example.
    out: (('lambda', (':', 'a', ('add', ('quote', ('ands',)), ('quote', ('b',)))), 'a'),)
    (('lambda', (':', 'a', ('add', ('quote', ('ands',)), ('quote', ('b',)))), 'a'),)
 
-Traversal is basically depth-first,
+Traversal is basically depth-first:
 the same order the compiler would process code.
 Notice that ``preprocess`` can get called more than once in the same "location" in the code tree.
 This happens whenever an expansion replaces that node.
@@ -6715,13 +6717,13 @@ A lot of programming comes down to restructuring data like this.
 If you've made it this far,
 show off your solutions in the Hissp Community Chat!
 
-.. TODO: advanced techniques from A Slice o Python?
+.. TODO: advanced techniques from A Slice of Python?
    Let's review. This section covered a number of advanced techniques:
    - Brackets in symbols.
    - A code string macro leveraging partial Python syntax.
    - The need for parentheses in injections.
    - Demunging.
-   - Calls to runtime helpers, even in other modules.
+   - Calls to run time helpers, even in other modules.
    - Qualifying symbols with template quote.
    - Compiling in macros using `readerless`.
 

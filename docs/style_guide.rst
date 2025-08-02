@@ -1,3 +1,6 @@
+.. TODO: The style guide has a broken internal link to a header. (To the one thing that isn't a suggestion.)
+         The style guide still has an example using deftype, even though that was replaced with deftypeonce, which works differently.
+         The style guide still calls tags "macros" in some places, which isn't consistent enough with the new glossary.
 .. Copyright 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
