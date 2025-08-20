@@ -7,11 +7,10 @@ The Lissp Read-Evaluate-Print Loop. For interactive use.
 import sys
 from code import InteractiveConsole
 from contextlib import suppress
-from types import ModuleType, SimpleNamespace
+from types import ModuleType
 
 from hissp.compiler import CompileError
 from hissp.reader import Lissp, SoftSyntaxError
-
 
 ps1 = "#> "
 """String specifying the primary prompt of the `LisspREPL`."""
@@ -106,7 +105,7 @@ def main(__main__):
     making the bundled `macros` immediately available `unqualified`.
     """
     repl = LisspREPL(locals=__main__.__dict__)
-    import hissp.macros  # Here so repl can import before compilation.
+    import copy, hissp.macros  # Here so repl can import before compilation.
 
-    repl.locals["_macro_"] = SimpleNamespace(**vars(hissp.macros._macro_))
+    repl.locals["_macro_"] = copy.copy(hissp._macro_)
     repl.interact()
