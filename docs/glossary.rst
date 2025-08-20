@@ -17,7 +17,7 @@ Glossary
       `subform` in the same top-level form,
       because by the time it exists,
       the top-level form has already been compiled.
-      (However, the reader must run any `tag`s, which can have arbitrary effects,
+      (However, the reader must run any `tag`\ s, which can have arbitrary effects,
       before giving the compiler the form.)
       `Injection` of a Python statement is only valid at the top level.
 
