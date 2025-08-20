@@ -6490,7 +6490,7 @@ There are various ways to check for errors if you want to be strict about it:
    #..                   (.pop 'file sys..stdout) file
    #..                   (.pop 'flush False) flush
    #..                   (.values) values
-   #..                   (-> .keys list !#-1) (ors last-key
+   #..                   (-> .keys list !#-1) (|| last-key
    #..                                         type last-key-type))
    #..  (unless (is_ last-key-type int)
    #..    (throw (TypeError (.format "{!r} is an invalid keyword argument" last-key))))

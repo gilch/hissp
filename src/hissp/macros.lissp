@@ -3929,7 +3929,7 @@ sentinel#
   ;; .. code-block:: REPL
   ;;
   ;;    #> (destruct-> nested-data
-  ;;    #..            (!#'ns (ors ns ; The whole SimpleNamespace (progn works too).
+  ;;    #..            (!#'ns (|| ns ; Identity transform. ->, progn, doto, etc. also work.
   ;;    #..                    (getattr 'missing "a default for missing") missing
   ;;    #..                    @#'spam inner ; attribute lookup
   ;;    #..                    @#'a-tuple ([#:-1] ab  [#:] abc ; slices with overlaps
@@ -3937,7 +3937,7 @@ sentinel#
   ;;    #..                                ;; Composed transform, method calls, defaults.
   ;;    #..                                (-> enumerate dict) ((.get 2 ()) two
   ;;    #..                                                     (.get 3 ()) three)
-  ;;    #..                                ;; Throwaway names must be unique. (`$#_ always works).
+  ;;    #..                                ;; Throwaway names must be unique. (`,$#_ always works).
   ;;    #..                                iter (next _0  (next :b) B  next _1  (next :d) D)))
   ;;    #..             (.get 'quux "default for quux") myquux)
   ;;    #..  (pprint..pp (locals)))
@@ -4091,8 +4091,8 @@ sentinel#
   ;; .. code-block:: REPL
   ;;
   ;;    #> (destruct-> (dict : spam 1  foo 2)
-  ;;    #..            (ors whole
-  ;;    #..             ors !s#(spam foo))
+  ;;    #..            (|| whole
+  ;;    #..             || !s#(spam foo))
   ;;    #..  (print whole spam foo))
   ;;    >>> # destructQzH_QzGT_
   ;;    ... # hissp.macros.._macro_.letQzH_from
@@ -4144,8 +4144,8 @@ sentinel#
   ;; .. code-block:: REPL
   ;;
   ;;    #> (destruct-> (types..SimpleNamespace : spam 1  foo 2)
-  ;;    #..            (ors whole
-  ;;    #..             ors @s#(spam foo))
+  ;;    #..            (|| whole
+  ;;    #..             || @s#(spam foo))
   ;;    #..  (print whole spam foo))
   ;;    >>> # destructQzH_QzGT_
   ;;    ... # hissp.macros.._macro_.letQzH_from
@@ -4197,7 +4197,7 @@ sentinel#
   ;; .. code-block:: REPL
   ;;
   ;;    #> (destruct-> '(ABC XYZ)
-  ;;    #..            (ors whole  ors pos#(abc pos#(x y)))
+  ;;    #..            (|| whole  || pos#(abc pos#(x y)))
   ;;    #..  (print whole abc x y))
   ;;    >>> # destructQzH_QzGT_
   ;;    ... # hissp.macros.._macro_.letQzH_from
