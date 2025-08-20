@@ -301,6 +301,23 @@ def test_repl_paren_continue():
     )  # fmt: skip
 
 
+def test_repl_fragment_no_continue():
+    call_response(
+        "> #> ", "< |if 1:1|\n",
+        "! >>> if 1:1\n",
+        "> 1\n",
+        "> #> ", "< |if 1:|\n",
+        "! >>> if 1:\n",
+        '!   File "<Compiled Hissp of <console>:\n',
+        "! 1 if 1:\n",
+        '! >", line 1\n',
+        "!     if 1:\n",
+        "!         ^\n",
+        "! IndentationError: expected an indented block after 'if' statement on line 1\n",
+        "> #> ",
+    )  # fmt: skip
+
+
 def test_compile_error():
     call_response(
         "> #> ", "< (lambda :x)",
