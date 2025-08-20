@@ -6488,7 +6488,7 @@ There are various ways to check for errors if you want to be strict about it:
    #..                   (.pop 'file sys..stdout) file
    #..                   (.pop 'flush False) flush
    #..                   (.values) values
-   #..                   (-> .keys list !#-1) (ors last-key
+   #..                   (-> .keys list !#-1) (|| last-key
    #..                                         type last-key-type))
    #..  (unless (is_ last-key-type int)
    #..    (throw (TypeError (.format "{!r} is an invalid keyword argument" last-key))))
@@ -6500,7 +6500,7 @@ There are various ways to check for errors if you want to be strict about it:
    ...   myQzH_print=# hissp.macros.._macro_.fun
    ...               # hissp.macros.._macro_.let
    ...               (
-   ...                lambda _Qz3murjnbw__lambda=(lambda *_Qzdrlaw3u7__args, **_Qzdrlaw3u7__kwargs:
+   ...                lambda _Qzhxfs6lnk__lambda=(lambda *_Qzdrlaw3u7__args, **_Qzdrlaw3u7__kwargs:
    ...                           # __main__.._macro_.destructQzH_QzGT_
    ...                           # hissp.macros.._macro_.letQzH_from
    ...                           (lambda sep, end, file, flush, values, lastQzH_key, lastQzH_keyQzH_type:
@@ -6526,45 +6526,45 @@ There are various ways to check for errors if you want to be strict about it:
    ...                           )(
    ...                             *# hissp.macros.._macro_.let
    ...                              (
-   ...                               lambda _Qzduavqad3__data=__import__('builtins').dict(
+   ...                               lambda _Qz4v7gmaq3__data=__import__('builtins').dict(
    ...                                        __import__('builtins').enumerate(
    ...                                          _Qzdrlaw3u7__args),
    ...                                        **_Qzdrlaw3u7__kwargs):
    ...                                  (
    ...                                    # hissp.macros.._macro_.QzH_QzGT_
-   ...                                    _Qzduavqad3__data.pop(
+   ...                                    _Qz4v7gmaq3__data.pop(
    ...                                      'sep',
    ...                                      (' ')),
    ...                                    # hissp.macros.._macro_.QzH_QzGT_
-   ...                                    _Qzduavqad3__data.pop(
+   ...                                    _Qz4v7gmaq3__data.pop(
    ...                                      'end',
    ...                                      ('\n')),
    ...                                    # hissp.macros.._macro_.QzH_QzGT_
-   ...                                    _Qzduavqad3__data.pop(
+   ...                                    _Qz4v7gmaq3__data.pop(
    ...                                      'file',
    ...                                      __import__('sys').stdout),
    ...                                    # hissp.macros.._macro_.QzH_QzGT_
-   ...                                    _Qzduavqad3__data.pop(
+   ...                                    _Qz4v7gmaq3__data.pop(
    ...                                      'flush',
    ...                                      False),
    ...                                    # hissp.macros.._macro_.QzH_QzGT_
-   ...                                    _Qzduavqad3__data.values(),
+   ...                                    _Qz4v7gmaq3__data.values(),
    ...                                    *# hissp.macros.._macro_.let
    ...                                     (
-   ...                                      lambda _Qzduavqad3__data=# hissp.macros.._macro_.QzH_QzGT_
+   ...                                      lambda _Qz4v7gmaq3__data=# hissp.macros.._macro_.QzH_QzGT_
    ...                                             # QzH_QzGT_
    ...                                             __import__('operator').itemgetter(
    ...                                               (-1))(
    ...                                               list(
-   ...                                                 _Qzduavqad3__data.keys()),
+   ...                                                 _Qz4v7gmaq3__data.keys()),
    ...                                               ):
    ...                                         (
    ...                                           # hissp.macros.._macro_.QzH_QzGT_
-   ...                                           # ors
-   ...                                           _Qzduavqad3__data,
+   ...                                           (
+   ...                                             _Qz4v7gmaq3__data),
    ...                                           # hissp.macros.._macro_.QzH_QzGT_
    ...                                           type(
-   ...                                             _Qzduavqad3__data),
+   ...                                             _Qz4v7gmaq3__data),
    ...                                           )
    ...                                     )(),
    ...                                    )
@@ -6572,14 +6572,14 @@ There are various ways to check for errors if you want to be strict about it:
    ...                       ):
    ...                  ((
    ...                     *__import__('itertools').starmap(
-   ...                        _Qz3murjnbw__lambda.__setattr__,
+   ...                        _Qzhxfs6lnk__lambda.__setattr__,
    ...                        __import__('builtins').dict(
    ...                          __name__='myQzH_print',
    ...                          __qualname__='myQzH_print',
-   ...                          __code__=_Qz3murjnbw__lambda.__code__.replace(
+   ...                          __code__=_Qzhxfs6lnk__lambda.__code__.replace(
    ...                                     co_name='myQzH_print')).items()),
    ...                     ),
-   ...                   _Qz3murjnbw__lambda)  [-1]
+   ...                   _Qzhxfs6lnk__lambda)  [-1]
    ...               )())
 
 .. code-block:: REPL
