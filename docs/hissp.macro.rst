@@ -10,13 +10,3 @@ hissp.macros module
    :members:
    :undoc-members:
    :show-inheritance:
-
-_macro_
--------
-
-.. automodule:: hissp.macros._macro_
-   :members:
-   :private-members:
-   :no-undoc-members:
-   :imported-members:
-

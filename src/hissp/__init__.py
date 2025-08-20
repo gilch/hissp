@@ -63,8 +63,15 @@ convenience, including,
 
 * and `hissp.repl.interact`
 
-as well as the `hissp.macros._macro_` namespace, making all the bundled
-`macros` available with the shorter ``hissp.._macro_`` `qualifier`.
+as well as the ``_macro_`` namespace from `hissp.macros`, making all the
+bundled `macros` available with the shorter ``hissp.._macro_``
+`qualifier`, instead of the ``hissp.macros.._macro_`` qualifier they use
+internally.
+
+``_macro_`` should not be mutated, so importing it elsewhere is not
+recommended, but it may instead be shallow copied using `copy.copy`.
+The individual macro functions it contains are importable directly from
+`hissp.macros`.
 """
 from hissp.compiler import (
     Compiler,
@@ -102,7 +109,7 @@ def prelude(env):
 
     (A ``||`` or ``:`` argument makes `exec` default to the global env.)
 
-    See `hissp.macros._macro_.prelude`.
+    See `hissp.macros.prelude`.
     """
     return "hissp.macros.._macro_.prelude", env
 
@@ -117,7 +124,7 @@ def alias(abbreviation, qualifier):
 
        (hissp.macros.._macro_.alias abbreviation qualifier)
 
-    See `hissp.macros._macro_.alias`.
+    See `hissp.macros.alias`.
     """
     return "hissp.macros.._macro_.alias", abbreviation, qualifier
 
@@ -140,7 +147,7 @@ def refresh(module_name):
     main again using its name. These are considered separate modules by
     the runtime.
 
-    See also: `subrepl`, `hissp.reader.transpile`, `importlib.reload`.
+    See also: `hissp.subrepl`, `hissp.reader.transpile`, `importlib.reload`.
     """
     return (
         (('lambda',(':','name','__name__',)

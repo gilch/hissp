@@ -71,10 +71,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 ;;;  ---
 
 ;; Bootstrap macro namespace using builtins.
-(.update (globals) : _macro_ (types..SimpleNamespace : __doc__ "\
-Hissp's bundled tag and macro namespace.
-See `hissp.macros`.
-"))
+(.update (globals) : _macro_ (types..SimpleNamespace))
 
 ;;; YO DAWG, I HERD YOU LIKE MACROS
 ;;; SO I PUT A BOOTSTRAP defmacro IN YOUR _macro_ SO YOU CAN defmacro A
@@ -4529,6 +4526,8 @@ sentinel#
   (if-else __debug__
     `(avow ,expr ,predicate ,@args)
     expr))
+
+(.update (globals) (vars _macro_))
 
 ;;; Don't let the size of this file intimidate you!
 ;;; Most of it is documentation with long usage examples.

@@ -1937,7 +1937,7 @@ will automatically import any required module.
 
 You can force an import from a particular location by using
 a fully-qualified symbol yourself in the template in the first place.
-(This works automatically when using `aliases <hissp.macros._macro_.alias>`.)
+(This works automatically when using `aliases <hissp.macros.alias>`.)
 Fully-qualified symbols in templates are not qualified again.
 Usually, if you want an unqualified symbol in the template's result,
 it's a sign that you need to use a :term:`gensym` instead.

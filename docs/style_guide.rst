@@ -1497,11 +1497,11 @@ Shadowing of builtins is a source of potential errors,
 so it is preferable that you do not,
 but lexical scoping handles this acceptably.
 This preference should be extended to a module's globals, including the
-`prelude<hissp.macros._macro_.prelude>`'s star-imports of `operator` and `itertools`.
+`prelude<hissp.macros.prelude>`'s star-imports of `operator` and `itertools`.
 Python's naming conventions for classes (``CapWords``) and "constants"
 (``UPPER_CASE_WITH_UNDERSCORES``) usually prevents local collisions with those,
 but function and module names can be a problem.
-Prefer `aliases<_macro_.alias>` over defining globals of module type.
+Prefer `aliases<macros.alias>` over defining globals of module type.
 
 Name top-level definitions (like helper functions)
 that are only being used inside your module
@@ -1543,7 +1543,7 @@ Aliasing and Imports
 ::::::::::::::::::::
 
 The programmer should not have to guess
-what an `alias<_macro_.alias>` means when jumping into an unfamiliar file.
+what an `alias<macros.alias>` means when jumping into an unfamiliar file.
 Use consistent aliases within a project.
 Usually, this means the alias is the module name, but not its containing packages,
 unless there is a shorter well-known name in the community
@@ -1612,7 +1612,8 @@ The fully-qualified names are only one character longer.
 So this case is not really a conflict,
 although ``np.random#`` is potentially less confusing.
 
-Prefer using aliases over attaching a macro or tag from other modules to `_macro_`,
+Prefer using aliases over attaching a macro
+or tag from other modules to a ``_macro_`` namespace,
 because that's expecting everyone to have it memorized.
 Using tags or macros without aliases is acceptable
 when originally defined in the same module.

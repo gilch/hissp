@@ -262,7 +262,7 @@ And push it to the REPL as well:
 .. caution::
 
    The ``:`` directs it to dump into the module's global namespace.
-   The `prelude<hissp.macros._macro_.prelude>`
+   The `prelude<hissp.macros.prelude>`
    macro overwrites your ``_macro_`` namespace (if any) with a copy of the bundled one.
    Any references you've defined in there will be lost.
    In Lissp files, the prelude is meant to be used before any definitions,
@@ -2182,11 +2182,11 @@ rather than pasting them all in again.
 
 To use your macros from other Lissp modules,
 use their fully-qualified names,
-abbreviate the qualifier with `alias<hissp.macros._macro_.alias>`,
+abbreviate the qualifier with `alias<hissp.macros.alias>`,
 or (if you must) `attach` them to your current module's ``_macro_`` object.
 That last one would require that your macros also be available at run time,
 although there are ways to avoid that if you need to.
-See the `prelude<hissp.macros._macro_.prelude>` expansion for a hint.
+See the `prelude<hissp.macros.prelude>` expansion for a hint.
 
 You can use the resulting macro as a shorter lambda for higher-order functions:
 
