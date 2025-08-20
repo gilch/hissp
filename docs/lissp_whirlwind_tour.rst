@@ -1,12 +1,11 @@
-.. Copyright 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
+.. Copyright 2020, 2021, 2022, 2023, 2024, 2025 Matthew Egan Odendahl
    SPDX-License-Identifier: Apache-2.0
 
 .. This hidden doctest adds bundled macros for REPL-consistent behavior.
-   #> (.update (globals) : _macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
+   #> (.update (globals) : _macro_ (copy..copy hissp.._macro_))
    >>> globals().update(
-   ...   _macro_=__import__('types').SimpleNamespace(
-   ...             **vars(
-   ...                 __import__('hissp')._macro_)))
+   ...   _macro_=__import__('copy').copy(
+   ...             __import__('hissp')._macro_))
 
 .. TODO: Interactive via web repl?
 .. RELEASE: Update the ;;;; Installation section.

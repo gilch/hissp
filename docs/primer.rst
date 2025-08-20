@@ -1,12 +1,11 @@
-.. Copyright 2019, 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
+.. Copyright 2019, 2020, 2021, 2022, 2023, 2024, 2025 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 .. Hidden doctest adds bundled macros for REPL-consistent behavior.
-   #> (.update (globals) : _macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
+   #> (.update (globals) : _macro_ (copy..copy hissp.._macro_))
    >>> globals().update(
-   ...   _macro_=__import__('types').SimpleNamespace(
-   ...             **vars(
-   ...                 __import__('hissp')._macro_)))
+   ...   _macro_=__import__('copy').copy(
+   ...             __import__('hissp')._macro_))
 
 Hissp Primer
 ############

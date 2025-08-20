@@ -2,15 +2,14 @@
          The style guide still has an example using deftype, even though that was replaced with deftypeonce, which works differently.
          The style guide still calls tags "macros" in some places, which isn't consistent enough with the new glossary.
          There's no clear direction on what do do with the "||)" pseudo-brackets.
-.. Copyright 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
+.. Copyright 2020, 2021, 2022, 2023, 2024, 2025 Matthew Egan Odendahl
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 .. Hidden doctest adds bundled macros for REPL-consistent behavior.
-   #> (.update (globals) : _macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
+   #> (.update (globals) : _macro_ (copy..copy hissp.._macro_))
    >>> globals().update(
-   ...   _macro_=__import__('types').SimpleNamespace(
-   ...             **vars(
-   ...                 __import__('hissp')._macro_)))
+   ...   _macro_=__import__('copy').copy(
+   ...             __import__('hissp')._macro_))
 
 Style Guide
 ###########
