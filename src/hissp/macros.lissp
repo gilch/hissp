@@ -162,7 +162,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 (defmacro let (pairs : :* body)
   "Creates local variables. Pairs are implied by position.
 
-  Locals are not in scope until the body.
+  Created locals are not in scope until the body.
 
   .. code-block:: REPL
 
