@@ -397,7 +397,7 @@ Glossary
       The qualifier part is everything but the last segment.
       Qualification is the process of adding a qualifier
       or the state of having a qualifier.
-      `hissp.macros._macro_.alias` produces a `tag` to abbreviate a qualifier.
+      `hissp.macros.alias` produces a `tag` to abbreviate a qualifier.
 
    unqualified
       An identifier without a `qualifier`. An unqualified `tag` is only
@@ -424,7 +424,7 @@ Glossary
       Compiles to attribute access from an `__import__` expression.
       E.g., ``foo.bar.baz..spam.eggs.bacon``, or, with fewer segments, ``foo..spam``.
       The full qualifier part is everything but the last segment,
-      commonly used as an argument to `alias<hissp.macros._macro_.alias>`.
+      commonly used as an argument to `alias<hissp.macros.alias>`.
       Full qualification is the process of adding a full qualifier
       or the state of having a full qualifier.
 
