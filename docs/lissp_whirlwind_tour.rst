@@ -955,14 +955,13 @@ Lissp Whirlwind Tour
    ('_Qziwmx5ob2__eggs', '_Qziwmx5ob2__spam', '_Qziwmx5ob2__bacon', '_Qziwmx5ob2__spam')
 
    ;; Each new template increases the count, so it results in a new hash,
-   #> `$#spam
-   >>> '_Qziosozaxy__spam'
-   '_Qziosozaxy__spam'
-
    ;; even if the code is identical.
-   #> `$#spam
-   >>> '_Qzy6owmzs7__spam'
-   '_Qzy6owmzs7__spam'
+   #> (|| `$#spam `$#spam `$#spam)
+   >>> (
+   ...   '_Qzl23n4pw2__spam',
+   ...   '_Qzyedrzsac__spam',
+   ...   '_Qz46hqqvec__spam')
+   ('_Qzl23n4pw2__spam', '_Qzyedrzsac__spam', '_Qz46hqqvec__spam')
 
 
    ;;; However, the hashing procedure is fully deterministic, so builds are
@@ -1788,6 +1787,8 @@ Lissp Whirlwind Tour
    ...   __import__('spam'))
    Hello from spam!
    <module 'spam' from ...>
+
+   ;; If the reload doesn't work, do (importlib..invalidate_caches) and try again.
 
 
    #> (any (map (lambda f (os..remove f))     ;Cleanup.
