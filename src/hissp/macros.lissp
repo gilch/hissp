@@ -28,7 +28,7 @@ only on the built-in special forms ``quote`` and ``lambda``, which makes
 their expansions compatible with advanced rewriting macros that process
 the Hissp expansions of other macros.
 
-(The -``[#`` and `my# <myQzHASH_>` tags are also something of an
+(The -``[# <QzLSQB_QzHASH_>`` and `my# <myQzHASH_>` tags are also something of an
 exception, as one argument is written in Python to begin with.)
 
 That only goes for arguments and doesn't apply to inlined helper
