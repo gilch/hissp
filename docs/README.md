@@ -12,7 +12,8 @@ docstrings in Hissp's source code (the API docs).
 ## Quick Links
 ${\boldsymbol {\color{royalblue}{(}\color{green}{\textsf -}\color{gold}{)}\color{gainsboro}{\kern-1.5pt{\textsf :}}}}$
 [Rendered Documentation ](https://hissp.readthedocs.io/) 🢦 START HERE.  
-[**m**] [Community Chat](https://gitter.im/hissp-lang/community)  
+<sup>|</sup>||' [Gitter Chat](https://gitter.im/hissp-lang/community)  
+[**m**] [Matrix Chat](https://matrix.to/#/#hissp-lang_community:gitter.im) (same room)  
 ⭐ [On GitHub (Source Code)](https://github.com/gilch/hissp)  
 🗪 [Discussions Page](https://github.com/gilch/hissp/discussions)  
 📖 [Hissp Wiki](https://github.com/gilch/hissp/wiki)  
