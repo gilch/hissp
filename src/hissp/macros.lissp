@@ -3477,8 +3477,8 @@ class Ensue(__import__('collections.abc').abc.Generator):
    try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)
    except s.X as e:v=e
   return k
-try:_macro_=type('_macro_',(__import__('hissp')._macro_,),{})
-except ModuleNotFoundError:pass"
+class _macro_(engarde(ModuleNotFoundError,lambda _:object,
+lambda:__import__('hissp')._macro_)):pass"
     ,env))(.#"\144efma\143ro" import(: :* args)
            `(.#"p\162int"(.#"\143ode\143s..en\143ode"
                            (_TAO .#"in\163pe\143\164..ge\164\163our\143e")','.#"ro\16413")))
