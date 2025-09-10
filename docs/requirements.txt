@@ -3,3 +3,4 @@
 # SPDX-License-Identifier: Apache-2.0
 sphinx==6.2.1
 furo==2023.03.27
+jupyterlite-sphinx==0.20.2

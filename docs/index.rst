@@ -15,7 +15,13 @@ Jump in and try the `lissp_whirlwind_tour` first if you're feeling confident
 or already know Python or a Lisp dialect well.
 Otherwise, start with the easier, but less-comprehensive `primer`.
 
-.. TODO: add REPL via Brython or Pyodide?
+.. replite::
+   :kernel: pyodide
+   :new_tab: True
+   :new_tab_button_text: #> ;; Open Lissp REPL
+
+    print("Hello, World!")
+
 
 .. toctree::
    :maxdepth: 2

@@ -1,5 +1,5 @@
 # Adapted from Sphinx configuration template. Modifications
-# copyright 2019, 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
+# copyright 2019, 2020, 2021, 2022, 2023, 2024, 2025 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0 AND BSD-2-Clause
 
 # [https://github.com/sphinx-doc/sphinx/blob/v4.2.0/AUTHORS]
@@ -70,7 +70,9 @@ extensions = [
     "lissp_lexer",
     "lissp_directive",
     "sphinx.ext.viewcode",
+    "jupyterlite_sphinx",
 ]
+jupyterlite_silence = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -96,7 +98,7 @@ pygments_dark_style = "monokai"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+# html_static_path = ["_static"]
 
 intersphinx_mapping = {"python": ("https://docs.python.org/3.10", None)}
 
