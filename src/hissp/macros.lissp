@@ -71,7 +71,9 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 ;;;  ---
 
 ;; Bootstrap macro namespace using builtins.
-(.update (globals) : _macro_ (type '_macro_ () |{}|))
+(.update (globals) : _macro_ (dict.fromkeys (dir object)))
+(.pop _macro_ '__init_subclass__)
+(.update (globals) : _macro_ (type '_macro_ () _macro_))
 
 ;;; YO DAWG, I HERD YOU LIKE MACROS
 ;;; SO I PUT A BOOTSTRAP defmacro IN YOUR _macro_ SO YOU CAN defmacro A
@@ -452,7 +454,11 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
                          (fun ,(.format "_macro_.{}" name) ,parameters ,@body)))
       (if-else (operator..contains (.get hissp.compiler..ENV) '_macro_)
         form
-        `(progn (.setdefault (globals) "_macro_" (type "_macro_" () |{}|))
+        `(progn (.setdefault (globals)
+                 "_macro_" (type "_macro_" ()
+                            .#(let (d (dict.fromkeys (dir object)))
+                                 (.pop d '__init_subclass__)
+                                 d)))
                 ,form)))))
 
 (defmacro define (qualname value)
