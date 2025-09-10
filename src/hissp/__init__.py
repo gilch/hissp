@@ -174,3 +174,8 @@ def subrepl(module):
             ,("hissp..interact", ("builtins..vars", 'module',),)
             ,('print',('quote','back in',),'__name__',),),),)
     )  # fmt: skip
+
+
+__all__ = "compiler munger reader repl _macro_".split() + [
+    k for k in globals().keys() if not k.startswith("_")
+]

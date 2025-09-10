@@ -71,7 +71,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 ;;;  ---
 
 ;; Bootstrap macro namespace using builtins.
-(.update (globals) : _macro_ (types..SimpleNamespace))
+(.update (globals) : _macro_ (type '_macro_ () |{}|))
 
 ;;; YO DAWG, I HERD YOU LIKE MACROS
 ;;; SO I PUT A BOOTSTRAP defmacro IN YOUR _macro_ SO YOU CAN defmacro A
@@ -452,7 +452,7 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
                          (fun ,(.format "_macro_.{}" name) ,parameters ,@body)))
       (if-else (operator..contains (.get hissp.compiler..ENV) '_macro_)
         form
-        `(progn (.setdefault (globals) "_macro_" (types..SimpleNamespace))
+        `(progn (.setdefault (globals) "_macro_" (type "_macro_" () |{}|))
                 ,form)))))
 
 (defmacro define (qualname value)
@@ -3471,9 +3471,8 @@ class Ensue(__import__('collections.abc').abc.Generator):
    try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)
    except s.X as e:v=e
   return k
-_macro_=__import__('types').SimpleNamespace()
-try: vars(_macro_).update(vars(__import__('hissp')._macro_))
-except ModuleNotFoundError: pass"
+try:_macro_=type('_macro_',(__import__('hissp')._macro_,),{})
+except ModuleNotFoundError:pass"
     ,env))(.#"\144efma\143ro" import(: :* args)
            `(.#"p\162int"(.#"\143ode\143s..en\143ode"
                            (_TAO .#"in\163pe\143\164..ge\164\163our\143e")','.#"ro\16413")))
@@ -4528,7 +4527,9 @@ sentinel#
     `(avow ,expr ,predicate ,@args)
     expr))
 
-(.update (globals) (vars _macro_) : __doctest_skip__ '(|*|)) ; using Sybil instead
+;; (.update (globals) (vars _macro_) : __doctest_skip__ '(|*|)) ; using Sybil instead
+;; (deftypeonce Macro (_macro_))
+;; (define __all__ '(_macro_))
 
 ;;; Don't let the size of this file intimidate you!
 ;;; Most of it is documentation with long usage examples.
