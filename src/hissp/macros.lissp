@@ -202,124 +202,31 @@ See `hissp.macros`.
      x aa
      a b
 
-  See also: `let-from <letQzH_from>`, `my# <myQzHASH_>`, `locals`.
+  See also: `let-call <letQzH_call>`, `my# <myQzHASH_>`, `locals`.
   "
   `((lambda (: ,@pairs)
       ,@body)))
 
-(defmacro let-from (names iterable : :* body)
-  "``let-from`` Create listed locals from iterable.
+(defmacro let-call (names pairs : :* body)
+  "``let-call`` Create parameters from call arg pairs.
 
   .. code-block:: REPL
 
-     #> (let-from (a b : :* cs) 'ABCDEFG
-     #..  (print cs b a))
-     >>> # letQzH_from
+     #> (let-call (a b : :* cs  g :?  h 'H) (:* 'ABCD  :? 'EF  g 'G)
+     #..  (print cs b a g h))
+     >>> # letQzH_call
      ... (lambda a, b, *cs:
      ...     print(
      ...       cs,
      ...       b,
      ...       a)
      ... )(
-     ...   *'ABCDEFG')
-     ('C', 'D', 'E', 'F', 'G') B A
+     ...   *'ABCDEFG', 'EF', *)
+     ('C', 'D', 'EF', 'G') B A G H
 
-  See also: `let`, `let*from <letQzSTAR_from>`, `assignment`.
+  See also: `let`, `let*call <letQzSTAR_call>`, `assignment`.
   "
-  `((lambda ,names ,@body)
-    : :* ,iterable))
-
-(defmacro let*from (pairs : :* body)
-  "``let*from`` 'let star from' Nested `let-from <letQzH_from>`.
-
-  Can unpack nested iterables by using multiple stages.
-
-  .. code-block:: REPL
-
-     #> (dict : A 'B  C 'D)
-     >>> dict(
-     ...   A='B',
-     ...   C='D')
-     {'A': 'B', 'C': 'D'}
-
-     #> (let*from ((ab cd) (.items _)           ;Nested let-froms.
-     #..           (a b) ab                     ;Unpacks first item ('A', 'B')
-     #..           (c d) cd)                    ;Unpacks second item ('C', 'D')
-     #..  (print a b c d))
-     >>> # letQzSTAR_from
-     ... # hissp.macros.._macro_.letQzH_from
-     ... (lambda ab, cd:
-     ...     # hissp.macros..QzMaybe_.letQzSTAR_from
-     ...     # hissp.macros.._macro_.letQzH_from
-     ...     (lambda a, b:
-     ...         # hissp.macros..QzMaybe_.letQzSTAR_from
-     ...         # hissp.macros.._macro_.letQzH_from
-     ...         (lambda c, d:
-     ...             # hissp.macros..QzMaybe_.letQzSTAR_from
-     ...             # hissp.macros.._macro_.progn
-     ...             print(
-     ...               a,
-     ...               b,
-     ...               c,
-     ...               d)
-     ...         )(
-     ...           *cd)
-     ...     )(
-     ...       *ab)
-     ... )(
-     ...   *_.items())
-     A B C D
-
-
-     #> (let*from ((ab cd) (.items _)           ;Fewer stack frames.
-     #..           (a b c d) `(,@ab ,@cd))      ;Leveraging ,@ splicing.
-     #..  (print a b c d))
-     >>> # letQzSTAR_from
-     ... # hissp.macros.._macro_.letQzH_from
-     ... (lambda ab, cd:
-     ...     # hissp.macros..QzMaybe_.letQzSTAR_from
-     ...     # hissp.macros.._macro_.letQzH_from
-     ...     (lambda a, b, c, d:
-     ...         # hissp.macros..QzMaybe_.letQzSTAR_from
-     ...         # hissp.macros.._macro_.progn
-     ...         print(
-     ...           a,
-     ...           b,
-     ...           c,
-     ...           d)
-     ...     )(
-     ...       *(
-     ...          *ab,
-     ...          *cd,
-     ...          ))
-     ... )(
-     ...   *_.items())
-     A B C D
-
-
-     #> (let-from (a c b d) ; Didn't really need let*from this time.
-     #..          `(,@(.keys _) ,@(.values _)) ; Not always this easy.
-     #..  (print a b c d))
-     >>> # letQzH_from
-     ... (lambda a, c, b, d:
-     ...     print(
-     ...       a,
-     ...       b,
-     ...       c,
-     ...       d)
-     ... )(
-     ...   *(
-     ...      *_.keys(),
-     ...      *_.values(),
-     ...      ))
-     A B C D
-
-  See also: `my# <myQzHASH_>`, `destruct-> <destructQzH_QzGT_>`.
-  "
-  (if-else pairs
-    `(let-from ,|pairs[0]| ,|pairs[1]|
-       (let*from ,|pairs[2:]| ,@body))
-    `(progn ,@body)))
+  `((lambda ,names ,@body) : ,@pairs))
 
 (defmacro fun (qualname params : maybe-docstring ()  :* body)
   "A lambda enhanced with a `qualified name` and optionally a docstring.
@@ -332,10 +239,11 @@ See `hissp.macros`.
   Used by `defmacro` and `defun`. Not recommended for otherwise
   anonymous functions due to the additional overhead.
   "
-  (let*from ((name : :* _xs) (reversed (.split qualname '. 1))
-             (top doc) (if-else (hissp..is_hissp_string maybe-docstring)
-                         `(() (__doc__ ,maybe-docstring))
-                         `((,maybe-docstring) ())))
+  (let-call (name : :* _xs  top ()  doc ())
+            (:* (reversed (.split qualname '. 1))
+             :** (if-else (hissp..is_hissp_string maybe-docstring)
+                   (dict : doc `(__doc__ ,maybe-docstring))
+                   (dict : top `(,maybe-docstring))))
     `(let ($#lambda (lambda ,params ,@top ,@body))
        `(,@(itertools..starmap
             ,'$#lambda.__setattr__
@@ -387,8 +295,6 @@ See `hissp.macros`.
 ;;;  ---
 
 ;;;; Binding Variables
-
-;;; See also: let, let-from, and let*from in Bootstrap.
 
 ;; Define the real defmacro using the bootstrap macros.
 (defmacro defmacro (name parameters : :* body)
@@ -482,7 +388,7 @@ See `hissp.macros`.
   "
   (if-else (.startswith qualname ':)
     (exec '|raise SyntaxError('qualname cannot be a control word (try a \:)')|)
-    (let-from (ns _dot attr) (.rpartition qualname ".")
+    (let-call (ns _dot attr) (:* (.rpartition qualname "."))
       (if-else ns
         `(setattr ,ns ',attr ,value)
         `(.update (globals) : ,qualname ,value)))))
@@ -552,7 +458,7 @@ See `hissp.macros`.
   See also: `deftypeonce`, `hissp.refresh`.
 
   "
-  `(unless ,(let-from (ns _dot attr) (.rpartition qualname ".")
+  `(unless ,(let-call (ns _dot attr) (:* (.rpartition qualname "."))
               (if-else ns
                 `(hasattr ,ns ',attr)
                 `(operator..contains (globals) ',attr)))
@@ -892,6 +798,90 @@ See `hissp.macros`.
   (let (qualname (.__getitem__ definition 1))
     `(define ,qualname (progn ,definition (,decoration ,qualname)))))
 
+(defmacro let*call (pairs : :* body)
+  "``let*call`` 'let star call' Nested `let-call <letQzH_call>`.
+
+  Can unpack nested data by using multiple stages.
+
+  .. code-block:: REPL
+
+     #> (let*call ((abcs) (:? "abcdef") ; whole thing
+     #..           (a b : :* cs) (:* abcs) ; rest (tuple packing)
+     #..           (: d ()  e ()  f ()) (:* "de") ; defaults
+     #..           (g h i) (:* "ghi") ; positional unpacking
+     #..           (: :** jkls) (j "J"  k "K"  l "L") ; kwargs (dict packing)
+     #..           (j k l : m None  n "N?") (:** jkls)) ; dict unpacking with defaults
+     #..  (print a b cs abcs d e f g h i j k l m n jkls))
+     >>> # letQzSTAR_call
+     ... # __main__.._macro_.letQzH_call
+     ... (lambda abcs:
+     ...     # __main__..QzMaybe_.letQzSTAR_call
+     ...     # __main__.._macro_.letQzH_call
+     ...     (lambda a, b, *cs:
+     ...         # __main__..QzMaybe_.letQzSTAR_call
+     ...         # __main__.._macro_.letQzH_call
+     ...         (
+     ...          lambda d=(),
+     ...                 e=(),
+     ...                 f=():
+     ...             # __main__..QzMaybe_.letQzSTAR_call
+     ...             # __main__.._macro_.letQzH_call
+     ...             (lambda g, h, i:
+     ...                 # __main__..QzMaybe_.letQzSTAR_call
+     ...                 # __main__.._macro_.letQzH_call
+     ...                 (lambda **jkls:
+     ...                     # __main__..QzMaybe_.letQzSTAR_call
+     ...                     # __main__.._macro_.letQzH_call
+     ...                     (
+     ...                      lambda j,
+     ...                             k,
+     ...                             l,
+     ...                             m=None,
+     ...                             n=('N?'):
+     ...                         # __main__..QzMaybe_.letQzSTAR_call
+     ...                         # __main__.._macro_.progn
+     ...                         print(
+     ...                           a,
+     ...                           b,
+     ...                           cs,
+     ...                           abcs,
+     ...                           d,
+     ...                           e,
+     ...                           f,
+     ...                           g,
+     ...                           h,
+     ...                           i,
+     ...                           j,
+     ...                           k,
+     ...                           l,
+     ...                           m,
+     ...                           n,
+     ...                           jkls)
+     ...                     )(
+     ...                       **jkls)
+     ...                 )(
+     ...                   j=('J'),
+     ...                   k=('K'),
+     ...                   l=('L'))
+     ...             )(
+     ...               *('ghi'))
+     ...         )(
+     ...           *('de'))
+     ...     )(
+     ...       *abcs)
+     ... )(
+     ...   ('abcdef'))
+     a b ('c', 'd', 'e', 'f') abcdef d e () g h i J K L None N? {'j': 'J', 'k': 'K', 'l': 'L'}
+
+  See also: `my# <myQzHASH_>`, `destruct-> <destructQzH_QzGT_>`.
+  "
+  (if-else pairs
+    `(let-call ,|pairs[0]| ,|pairs[1]|
+       (let*call ,|pairs[2:]| ,@body))
+    `(progn ,@body)))
+
+;;; See also: let and let-call in Bootstrap.
+
 ;;;; Abbreviations
 
 (defmacro <\# (comment)
@@ -1159,12 +1149,12 @@ See `hissp.macros`.
   ;;    >>> 'QzSTAR_'
   ;;    'QzSTAR_'
   ;;
-  ;;    #> 'H#:let-from ; control word inserts _macro_. Still munges.
-  ;;    >>> 'hissp.._macro_.letQzH_from'
-  ;;    'hissp.._macro_.letQzH_from'
+  ;;    #> 'H#:let-call ; control word inserts _macro_. Still munges.
+  ;;    >>> 'hissp.._macro_.letQzH_call'
+  ;;    'hissp.._macro_.letQzH_call'
   ;;
-  ;;    #> (H#:let-from ab "AB" b) ; Macro form.
-  ;;    >>> # hissp.._macro_.letQzH_from
+  ;;    #> (H#:let-call ab (:* "AB") b) ; Macro form.
+  ;;    >>> # hissp.._macro_.letQzH_call
   ;;    ... (lambda a, b: b)(
   ;;    ...   *('AB'))
   ;;    'B'
@@ -2124,7 +2114,7 @@ See `hissp.macros`.
   ;;    False
   ;;
   ;; See also: `itertools.starmap`, `any-map <anyQzH_map>`,
-  ;; `loop-from <loopQzH_from>`, `let*from <letQzSTAR_from>`,
+  ;; `loop-from <loopQzH_from>`, `let*call <letQzSTAR_call>`,
   ;; `my# <myQzHASH_>`.
   ;;
   `(any (i#starmap (lambda ,variables ,@body)
@@ -2134,7 +2124,7 @@ See `hissp.macros`.
   <#;``loop-from`` Anaphoric. Loop/recur with trampoline.
   ;;
   ;; Set local values for the first loop with an iterable as
-  ;; `let-from <letQzH_from>`.
+  ;; `let-call <letQzH_call>`.
   ;;
   ;; Creates a stack to schedule future loops. Call the ``recur-from``
   ;; anaphor with an iterable of values for the locals to push another loop
@@ -2144,7 +2134,7 @@ See `hissp.macros`.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (loop-from x '(3)                       ;Unpacks as let-from.
+  ;;    #> (loop-from x '(3)                       ;Unpacks as let-call.
   ;;    #..  (when x
   ;;    #..    (print x)
   ;;    #..    (recur-from (@ (op#sub x 1)))))
@@ -3875,7 +3865,7 @@ sentinel#
   ;;    #..            (!#10 num  !#'ns (@#'a-tuple (!#0 a  !#1 b  !#2 c)  @#'spam spam))
   ;;    #..  (locals))
   ;;    >>> # destructQzH_QzGT_
-  ;;    ... # hissp.macros.._macro_.letQzH_from
+  ;;    ... # hissp.macros.._macro_.letQzH_call
   ;;    ... (lambda num, a, b, c, spam: locals())(
   ;;    ...   *# hissp.macros.._macro_.let
   ;;    ...    (lambda _Qzcti67hlh__data=nestedQzH_data:
@@ -3947,7 +3937,7 @@ sentinel#
   ;;    #..             (.get 'quux "default for quux") myquux)
   ;;    #..  (pprint..pp (locals)))
   ;;    >>> # destructQzH_QzGT_
-  ;;    ... # hissp.macros.._macro_.letQzH_from
+  ;;    ... # hissp.macros.._macro_.letQzH_call
   ;;    ... (lambda ns, missing, inner, ab, abc, A, rest, two, three, _0, B, _1, D, myquux:
   ;;    ...     __import__('pprint').pp(
   ;;    ...       locals())
@@ -4071,7 +4061,7 @@ sentinel#
   ;;     'D': ':d',
   ;;     'myquux': 'default for quux'}
   ;;
-  ;; See also: `let*from <letQzSTAR_from>`, `my# <myQzHASH_>`,
+  ;; See also: `let*call <letQzSTAR_call>`, `my# <myQzHASH_>`,
   ;; `\!s# <QzBANG_sQzHASH_>`, `@s# <QzAT_sQzHASH_>`, `pos# <posQzHASH_>`.
   ;;
   my### names=(list) $data=`$#data
@@ -4085,7 +4075,7 @@ sentinel#
                                             pairs)
                        :? ||)))
          values=`(let (,my.$data ,data) ,(my.walk bindings))
-         `(let-from (,@my.names) ,my.values ,@body)))
+         `(let-call (,@my.names) (:* ,my.values) ,@body)))
 
 (defmacro !s\# (names)
   <#;``!s#`` 'item names'
@@ -4100,7 +4090,7 @@ sentinel#
   ;;    #..             || !s#(spam foo))
   ;;    #..  (print whole spam foo))
   ;;    >>> # destructQzH_QzGT_
-  ;;    ... # hissp.macros.._macro_.letQzH_from
+  ;;    ... # hissp.macros.._macro_.letQzH_call
   ;;    ... (lambda whole, spam, foo:
   ;;    ...     print(
   ;;    ...       whole,
@@ -4153,7 +4143,7 @@ sentinel#
   ;;    #..             || @s#(spam foo))
   ;;    #..  (print whole spam foo))
   ;;    >>> # destructQzH_QzGT_
-  ;;    ... # hissp.macros.._macro_.letQzH_from
+  ;;    ... # hissp.macros.._macro_.letQzH_call
   ;;    ... (lambda whole, spam, foo:
   ;;    ...     print(
   ;;    ...       whole,
@@ -4205,7 +4195,7 @@ sentinel#
   ;;    #..            (|| whole  || pos#(abc pos#(x y)))
   ;;    #..  (print whole abc x y))
   ;;    >>> # destructQzH_QzGT_
-  ;;    ... # hissp.macros.._macro_.letQzH_from
+  ;;    ... # hissp.macros.._macro_.letQzH_call
   ;;    ... (lambda whole, abc, x, y:
   ;;    ...     print(
   ;;    ...       whole,
@@ -4382,7 +4372,7 @@ sentinel#
   ;;    #> time##file=sys..stdout(time..sleep .05)
   ;;    >>> # hissp.macros.._macro_.let
   ;;    ... (lambda _Qz2dtk7y5j__time=__import__('time').time_ns:
-  ;;    ...     # hissp.macros.._macro_.letQzH_from
+  ;;    ...     # hissp.macros.._macro_.letQzH_call
   ;;    ...     (lambda _Qz2dtk7y5j__start, _Qz2dtk7y5j__val, _Qz2dtk7y5j__end:
   ;;    ...        (__import__('builtins').print(
   ;;    ...           ('time# ran'),
@@ -4412,7 +4402,9 @@ sentinel#
   ;; See also: `timeit`.
   ;;
   `(let ($#time time..time_ns)
-     (let-from ($#start $#val $#end) (|| ($#time) ,expr ($#time))
+     (let ($#start ($#time)
+           $#val ,expr
+           $#end ($#time))
        (print "time# ran"
               (pprint..pformat ',expr : sort_dicts 0)
               "in"
