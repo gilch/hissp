@@ -30,8 +30,7 @@ class ParseLissp(DocTestParser):
                  (?:^   [ ]* [#]>[ ] .*)
                  (?:\n  [ ]* [#]\.\. .*)*)?
                  \n?
-            """
-            + self._EXAMPLE_RE.pattern,
+            """ + self._EXAMPLE_RE.pattern,
             re.MULTILINE | re.VERBOSE,
         )
 

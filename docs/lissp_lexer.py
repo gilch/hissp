@@ -3,6 +3,7 @@
 """
 Pygments Lexer for Lissp syntax highlighting.
 """
+
 import re
 
 import pygments.token as pt

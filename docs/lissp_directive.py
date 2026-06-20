@@ -5,16 +5,14 @@ import re
 
 from sphinx.directives.code import CodeBlock
 
-STRIP_OUTPUT = re.compile(
-    r"""(?x)
+STRIP_OUTPUT = re.compile(r"""(?x)
     ((?m:^)[ ]* [#]>(?:[ ] .*)?\n
        (?: [ ]* [#]\.\. .*\n)*)
            [ ]* >>>(?:[ ].*)?\n
        (?: [ ]* \.\.\.(:?[ ].*)\n)*
        (?:.+\n)*
        (?:\n|$)
-    """
-)
+    """)
 STRIP_PROMPTS = re.compile(r"(?m)^ *#(?:> ?|\.\.)")
 
 

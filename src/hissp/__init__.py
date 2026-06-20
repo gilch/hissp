@@ -66,6 +66,7 @@ convenience, including,
 as well as the `hissp.macros._macro_` namespace, making all the bundled
 `macros` available with the shorter ``hissp.._macro_`` `qualifier`.
 """
+
 from hissp.compiler import (
     Compiler,
     evaluate,

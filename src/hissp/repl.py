@@ -12,10 +12,8 @@ from types import ModuleType, SimpleNamespace
 from hissp.compiler import CompileError
 from hissp.reader import Lissp, SoftSyntaxError
 
-
 ps1 = "#> "
 """String specifying the primary prompt of the `LisspREPL`."""
-
 
 ps2 = "#.."
 """String specifying the secondary (continuation) prompt of the `LisspREPL`."""

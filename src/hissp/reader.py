@@ -76,8 +76,7 @@ bytes bits  chars  example
 ===== ===== ====== ===================================
 """
 
-TOKENS = re.compile(
-    r"""(?x)
+TOKENS = re.compile(r"""(?x)
      (?P<whitespace>[\n ]+)
     |(?P<comment>(?:[ ]*;.*\n)+)
     |(?P<badspace>\s)  # Other whitespace not allowed.
@@ -118,8 +117,7 @@ TOKENS = re.compile(
     |(?P<control>:(?:\\.|[^\\ \n"|();])*)
     |(?P<bare>    (?:\\.|[^\\ \n"|();])+)
     |(?P<error>.)
-    """
-)
+    """)
 
 Token = NewType("Token", tuple[str, str, int])
 
