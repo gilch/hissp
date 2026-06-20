@@ -1519,8 +1519,8 @@ Macro definitions should be robust enough to handle a shadowed builtin.
 Lissp's template syntax makes this fairly easy as it qualifies symbols by default.
 You have to go out of your way to turn this off for anaphors.
 
-You are free to use the fully-qualified names in handwritten code as well.
-Using a fully-qualified name is preferred over
+You are free to use the fully qualified names in handwritten code as well.
+Using a fully qualified name is preferred over
 changing a shadowing parameter name in an established public-facing function.
 Parameter names are considered part of the interface,
 especially when they can be passed as kwargs
@@ -1585,19 +1585,19 @@ you probably won't have as many of those.
 Symbols in templates can only be automatically qualified with the defining module's
 `__name__` or `builtins`.
 Using a name with a fully-qualifying alias in a template is like using
-the fully-qualified name,
+the fully qualified name,
 so it will be probably be imported from its canonical location
 (assuming you're aliasing that location),
 rather than from wherever the template happens to be defined.
 
 Sometimes separate packages use the same module name internally.
 Aliases are allowed to contain a dot.
-(Fully-qualified tags have a double dot.)
+(Fully qualified tags have a double dot.)
 Usually, you'd alias as the library's root package name followed by a dot,
 followed by the module name.
 Given Python's "flat is better than nested" culture,
 many library packages have no subpackages,
-so this may not be any shorter than using the fully-qualified name.
+so this may not be any shorter than using the fully qualified name.
 For example, ``foo.bar.baz.`` could be aliased as
 ``foo.baz#`` if ``baz#`` alone would be ambiguous.
 A well-known name is also acceptable,
@@ -1605,7 +1605,7 @@ e.g., ``numpy.random.`` could be aliased as ``np.random#`` instead of ``random#`
 which is the same name as the standard library `random` module.
 Of course, there's no need to alias `random` as ``random#`` in the first place:
 ``(random..random)`` isn't really worse than ``(random#random)``.
-The fully-qualified names are only one character longer.
+The fully qualified names are only one character longer.
 So this case is not really a conflict,
 although ``np.random#`` is potentially less confusing.
 
@@ -1658,7 +1658,7 @@ For an argument, i.e., other method calls, prefer ``.foo bar``:
 
    ;;;; Namespaces
 
-   (tkinter..Tk)                           ;Preferred. Fully-qualified name.
+   (tkinter..Tk)                           ;Preferred. Fully qualified name.
    (.Tk tkinter.)                          ;Bad. Not really a method call.
 
    ;;;; Kind of Both

@@ -191,7 +191,7 @@ Glossary
       The bundled tags and macros mostly avoid nonstandard injections in expansions,
       but (with the notable exception of `mix`)
       allow them where they would be no worse than an opaque
-      `fully-qualified identifier`,
+      `fully qualified identifier`,
       or in a few cases where the user writes part of the injection.
       Standard Hissp also avoids importing the ``hissp`` package outside of
       metaprograms (and direct helpers not otherwise called) to preserve the
@@ -340,11 +340,11 @@ Glossary
    tag token
    hash tag
    module-local tag
-   fully-qualified tag
+   fully qualified tag
       A `tagging token` that ends in one or more number sign (``#``) characters
       (also known as "hash" characters,
       making these "hash tags" when distinguishing them from other `tagging token`\ s.)
-      If it includes a `module handle` part, it's a fully-qualified tag.
+      If it includes a `module handle` part, it's a fully qualified tag.
       (Any callable accessible this way can be applied as a tag.
       E.g. ``builtins..str.format##``, ``fractions..Fraction#``,
       ``textwrap..dedent#``, etc.)
@@ -416,9 +416,9 @@ Glossary
 
    full qualifier
    full qualification
-   fully-qualified identifier
+   fully qualified identifier
       A `module handle` prepended to a `qualified name` and separated with a ``.``
-      is a fully-qualified identifier;
+      is a fully qualified identifier;
       it's the path of attribute access from the full import path of the module,
       which is enough to get a reference to the object from anywhere.
       Compiles to attribute access from an `__import__` expression.

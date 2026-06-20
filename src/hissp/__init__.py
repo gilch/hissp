@@ -31,7 +31,7 @@ See the GitHub project for complete documentation and tests.
 https://github.com/gilch/hissp
 
 ``__init__.py`` defines a few functions meant for use as
-:term:`fully-qualified tag`\ s and imports several utilities for
+:term:`fully qualified tag`\ s and imports several utilities for
 convenience, including,
 
 * from :mod:`hissp.compiler`:

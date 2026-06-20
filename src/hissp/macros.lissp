@@ -462,7 +462,7 @@ See `hissp.macros`.
 (defmacro define (qualname value)
   "Assigns an attribute the value.
 
-  The qualname may be a `fully-qualified identifier` or start from a
+  The qualname may be a `fully qualified identifier` or start from a
   name in scope. Assigns an attribute of the current module (a global)
   if there's no `qualifier`.
 
@@ -1155,7 +1155,7 @@ See `hissp.macros`.
   ;;    ...   ('*'))
   ;;    'QzSTAR_'
   ;;
-  ;;    #> 'H##munge|*| ; Read-time apply, like a fully-qualified tag.
+  ;;    #> 'H##munge|*| ; Read-time apply, like a fully qualified tag.
   ;;    >>> 'QzSTAR_'
   ;;    'QzSTAR_'
   ;;
@@ -1178,9 +1178,9 @@ See `hissp.macros`.
   ;;    ... b'b# at compile time'
   ;;    b'b# at compile time'
   ;;
-  ;;    #> hissp.._macro_.b#"Fully-qualified b# at read time." ; \# implied.
-  ;;    >>> b'Fully-qualified b# at read time.'
-  ;;    b'Fully-qualified b# at read time.'
+  ;;    #> hissp.._macro_.b#"Fully qualified b# at read time." ; \# implied.
+  ;;    >>> b'Fully qualified b# at read time.'
+  ;;    b'Fully qualified b# at read time.'
   ;;
   ;;    #> H##:b"Read-time b# via alias." ; \# implied.
   ;;    >>> b'Read-time b# via alias.'
@@ -3486,7 +3486,7 @@ except ModuleNotFoundError: pass"
 (defmacro mix (: :* args)
   <#;Injection. Compiles each arg to Python and concatenates the fragments.
   ;;
-  ;; Lissp features like munging and fully-qualified identifiers can be
+  ;; Lissp features like munging and fully qualified identifiers can be
   ;; freely mixed with Python expressions like slicing, infix operators
   ;; and list comprehensions by using `fragment token`\ s:
   ;;
