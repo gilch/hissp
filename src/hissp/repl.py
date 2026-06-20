@@ -55,7 +55,13 @@ class LisspREPL(InteractiveConsole):
             return False
         print(sys.ps1, source.replace("\n", f"\n{sys.ps2}"), sep="", file=sys.stderr)
         fn = f"<Compiled Hissp of {filename}:\n{self.lissp.compiler.linenos(source)}\n>"
-        return super().runsource(source, fn, symbol)
+        if super().runsource(source, fn, symbol):
+            if super().runsource(source + "\n", fn, symbol):
+                try:
+                    raise compile(source, fn, symbol)
+                except SyntaxError:
+                    self.showsyntaxerror()
+        return False
 
     def raw_input(self, prompt=""):
         """:meta private:"""

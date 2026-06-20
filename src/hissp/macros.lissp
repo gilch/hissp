@@ -28,7 +28,7 @@ only on the built-in special forms ``quote`` and ``lambda``, which makes
 their expansions compatible with advanced rewriting macros that process
 the Hissp expansions of other macros.
 
-(The -``[#`` and `my# <myQzHASH_>` tags are also something of an
+(The -`[# <QzLSQB_QzHASH_>` and `my# <myQzHASH_>` tags are also something of an
 exception, as one argument is written in Python to begin with.)
 
 That only goes for arguments and doesn't apply to inlined helper
@@ -1232,6 +1232,7 @@ See `hissp.macros`.
 
 ;; Less commonly used in Python, but especially useful in Lissp.
 (alias bn builtins.)
+(alias cxl contextlib.)
 (alias cxv contextvars.)
 (alias fi fileinput.)
 (alias imp importlib.)
@@ -3297,7 +3298,7 @@ See `hissp.macros`.
   ;; --------------
   ;; .. code-block:: REPL
   ;;
-  ;;    #> :@##contextlib..contextmanager
+  ;;    #> :@##cxl#contextmanager
   ;;    #..(defun wrap (msg)
   ;;    #..  (print "enter" msg)
   ;;    #..  (Ensue (lambda (step)
@@ -3386,7 +3387,7 @@ See `hissp.macros`.
   ;;    exit A
   ;;
   ;;    #> (define suppress-zde
-  ;;    #..  (contextlib..contextmanager
+  ;;    #..  (cxl#contextmanager
   ;;    #..   (lambda :
   ;;    #..     (Ensue (lambda (step)
   ;;    #..              (attach step :
