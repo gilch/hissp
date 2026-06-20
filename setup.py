@@ -66,7 +66,7 @@ setuptools.setup(
     entry_points={"console_scripts": ["lissp=hissp.__main__:main"]},
 )
 # Build dist and install:
-# python setup.py bdist_wheel && pip install --force-reinstall setup\dist\hissp-*.whl
+# python setup.py bdist_wheel && pip install --force-reinstall setup/dist/hissp-*.whl
 
 # RELEASE: Double-check setup data.
 # RELEASE: Clean build macros.py and make sure it's in the .whl.

@@ -55,7 +55,7 @@ transpile("hissp", "macros")
 # -- Project information -----------------------------------------------------
 
 project = "Hissp"
-copyright = "2019, 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl"
+copyright = "2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026 Matthew Egan Odendahl"
 author = "Matthew Egan Odendahl"
 
 
