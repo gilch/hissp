@@ -31,6 +31,11 @@ whose minimal options were modeled after Python's most commonly used:
      -i          Drop into REPL after the script.
      -c cmd      Run this string as main script (with prelude).
 
+Use the ``python -m hissp`` form instead of the ``lissp``
+tool for access to Python's other command-line opitons like `-O` to disable asserts,
+`-W` for warning control, etc.
+Some of these opitons have associated environment variables which can be used instead.
+
 The Lissp Compiler
 ==================
 
@@ -39,7 +44,7 @@ The recommended way to compile Lissp modules is with
 for packaged modules,
 or in the main module for any modules not in a package.
 
-One-offs are easy to do manually in the REPL,
+One-offs are easy to do manually in the REPL using `refresh`,
 but an external build system may need to use shell commands.
 It is possible to run transpile commands in the shell via ``python -c`` or ``lissp -c``.
 
