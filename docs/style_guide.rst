@@ -796,12 +796,13 @@ and referenced by name:
    longer than this one.
    ")
 
-   (deftype MessagePrinter ()
-     __doc__ "It is safe
-             to align docstrings.
-             "
-     display (lambda (self)
-               (print MESSAGE)))
+   (define MessagePrinter
+    (type 'MessagePrinter ()
+     (dict : __doc__ "It is safe
+                      to align docstrings.
+                      "
+           display (lambda (self)
+                     (print MESSAGE)))))
 
 Indent any multiline docstring to match its opening quote,
 including the closing quote.
