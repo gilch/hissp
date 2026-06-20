@@ -1362,12 +1362,6 @@ as the :term:`params` when they'd each be one (non-munging) character:
 
    ;;; This goes for macro arguments directly used as params too.
 
-   (let-from abc 'XYZ (print c b a))       ;Preferred
-
-   (let-from (a b c)                       ;OK
-             'XYZ
-     (print c b a))
-
    (any*map kv (.items (dict : a 1  b 2))  ;Preferred
      (print k v))
 
