@@ -140,7 +140,7 @@ def refresh(module_name):
     main again using its name. These are considered separate modules by
     the runtime.
 
-    See also: `subrepl`, `hissp.reader.transpile`, `importlib.reload`.
+    See also: :func:`subrepl`, `hissp.reader.transpile`, `importlib.reload`.
     """
     return (
         (('lambda',(':','name','__name__',)

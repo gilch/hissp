@@ -359,7 +359,7 @@ Alignment Styles
 
 The remaining rules are more a matter of that *practical consistency*.
 A good style guide must be *opinionated* to achieve that consistency,
-but (with `one exception <#margin-comments-x>`_)
+but (with `one exception <#margin-comments>`_)
 they are *suggestions*, not obligations,
 because exactly what rules *implement* that consistency matter much less
 than the consistency itself.
