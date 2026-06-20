@@ -5,6 +5,14 @@
 hissp package
 =============
 
+Module contents
+---------------
+
+.. automodule:: hissp
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -16,11 +24,3 @@ Submodules
    hissp.munger
    hissp.reader
    hissp.repl
-
-Module contents
----------------
-
-.. automodule:: hissp
-   :members:
-   :undoc-members:
-   :show-inheritance:
