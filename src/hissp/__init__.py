@@ -31,7 +31,7 @@ See the GitHub project for complete documentation and tests.
 https://github.com/gilch/hissp
 
 ``__init__.py`` defines a few functions meant for use as
-:term:`fully-qualified tag`\ s and imports several utilities for
+:term:`fully qualified tag`\ s and imports several utilities for
 convenience, including,
 
 * from :mod:`hissp.compiler`:
@@ -66,6 +66,7 @@ convenience, including,
 as well as the `hissp.macros._macro_` namespace, making all the bundled
 `macros` available with the shorter ``hissp.._macro_`` `qualifier`.
 """
+
 from hissp.compiler import (
     Compiler,
     evaluate,
@@ -88,7 +89,7 @@ from hissp.repl import interact
 with __import__("contextlib").suppress(ImportError):
     from hissp.macros import _macro_
 
-VERSION = "0.5.dev"  # RELEASE
+VERSION = "0.5.dev1"  # RELEASE
 
 
 def prelude(env):
@@ -140,7 +141,7 @@ def refresh(module_name):
     main again using its name. These are considered separate modules by
     the runtime.
 
-    See also: `subrepl`, `hissp.reader.transpile`, `importlib.reload`.
+    See also: :func:`subrepl`, `hissp.reader.transpile`, `importlib.reload`.
     """
     return (
         (('lambda',(':','name','__name__',)

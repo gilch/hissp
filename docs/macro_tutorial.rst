@@ -301,9 +301,9 @@ The above is equivalent to
 
    #> hissp..subrepl#_
 
-The :term:`fully-qualified tag` will work anywhere,
+The :term:`fully qualified tag` will work anywhere,
 but the alias only works in modules that have it in their ``_macro_`` namespace.
-That's why the prelude had to use the fully-qualified version.
+That's why the prelude had to use the fully qualified version.
 
 Confirm that `__name__` resolves to your foo
 (think of it like a ``pwd`` in Bash).
@@ -582,7 +582,7 @@ Now we're at the same length as Python.
 Let's make it even shorter.
 
 Given a tuple containing the *minimum* amount of information,
-we want expand that into the necessary code using a macro.
+we want to expand that into the necessary code using a macro.
 
 Isn't there something extra here we could get rid of?
 With a macro, we won't need the inject.
@@ -2181,7 +2181,7 @@ you can start a subREPL with these already loaded using the shell command
 rather than pasting them all in again.
 
 To use your macros from other Lissp modules,
-use their fully-qualified names,
+use their fully qualified names,
 abbreviate the qualifier with `alias<hissp.macros._macro_.alias>`,
 or (if you must) `attach` them to your current module's ``_macro_`` object.
 That last one would require that your macros also be available at run time,
@@ -3417,7 +3417,7 @@ For exact decimals, you need decimal floating-point.
    Decimal('0.6')
 
 Because it takes a single string argument,
-you can already use `decimal.Decimal` as a :term:`fully-qualified tag`:
+you can already use `decimal.Decimal` as a :term:`fully qualified tag`:
 
 .. code-block:: REPL
 
@@ -3430,7 +3430,7 @@ you can already use `decimal.Decimal` as a :term:`fully-qualified tag`:
 
 It's kind of long though.
 
-Fully-qualified tags like this are fine for occasional one-offs
+Fully qualified tags like this are fine for occasional one-offs
 or ``lissp -c`` commands when it's not worth the overhead to implement something better,
 but it's going to get tedious for the human to type
 (and probably to read) if it gets used a lot.
@@ -3455,7 +3455,7 @@ to use it :term:`unqualified`:
    Decimal('0.6')
 
 Unqualified tags like this can be a bit cryptic.
-The fully-qualified version was much clearer.
+The fully qualified version was much clearer.
 Consider carefully if it's worth making the next programmer learn a new notation.
 
 Notice that Hissp had to use a pickle here,
@@ -3971,7 +3971,7 @@ We can do this using `macroexpand1`:
 The pretty-printing makes it a lot easier to read.
 This is what we want: a `let` containing a `when`.
 It's close to what we wrote ourselves,
-plus the :term:`fully-qualified identifier`\ s for extra robustness.
+plus the :term:`fully qualified identifier`\ s for extra robustness.
 If you're still in a subREPL of some other module,
 its `__name__` will appear as the qualifier here instead of ``__main__``.
 
@@ -4704,7 +4704,7 @@ Lazy Polar Coordinates
 ::::::::::::::::::::::
 
 Suppose we want to express a complex number in polar form.
-We could easily make a separate function that computes the cartesian form from polar inputs.
+We could easily make a separate function that computes the Cartesian form from polar inputs.
 (For custom classes,
 one could similarly make an alternate constructor using `classmethod`.)
 
@@ -4718,7 +4718,7 @@ There's some unavoidable imprecision in the float calculations approximating irr
 but notice the noisy-looking numbers are close to zero.
 I'll be using `round` liberally to make the remaining examples easier to read.
 
-But kwarg alone names should be enough to disambiguate the cases;
+But kwarg names alone should be enough to disambiguate the cases;
 we don't need separate functions.
 Suppose we want a Python signature like ::
 
@@ -6488,7 +6488,7 @@ There are various ways to check for errors if you want to be strict about it:
    #..                   (.pop 'file sys..stdout) file
    #..                   (.pop 'flush False) flush
    #..                   (.values) values
-   #..                   (-> .keys list !#-1) (ors last-key
+   #..                   (-> .keys list !#-1) (|| last-key
    #..                                         type last-key-type))
    #..  (unless (is_ last-key-type int)
    #..    (throw (TypeError (.format "{!r} is an invalid keyword argument" last-key))))
@@ -6500,7 +6500,7 @@ There are various ways to check for errors if you want to be strict about it:
    ...   myQzH_print=# hissp.macros.._macro_.fun
    ...               # hissp.macros.._macro_.let
    ...               (
-   ...                lambda _Qz3murjnbw__lambda=(lambda *_Qzdrlaw3u7__args, **_Qzdrlaw3u7__kwargs:
+   ...                lambda _Qzhxfs6lnk__lambda=(lambda *_Qzdrlaw3u7__args, **_Qzdrlaw3u7__kwargs:
    ...                           # __main__.._macro_.destructQzH_QzGT_
    ...                           # hissp.macros.._macro_.letQzH_from
    ...                           (lambda sep, end, file, flush, values, lastQzH_key, lastQzH_keyQzH_type:
@@ -6526,45 +6526,45 @@ There are various ways to check for errors if you want to be strict about it:
    ...                           )(
    ...                             *# hissp.macros.._macro_.let
    ...                              (
-   ...                               lambda _Qzduavqad3__data=__import__('builtins').dict(
+   ...                               lambda _Qz4v7gmaq3__data=__import__('builtins').dict(
    ...                                        __import__('builtins').enumerate(
    ...                                          _Qzdrlaw3u7__args),
    ...                                        **_Qzdrlaw3u7__kwargs):
    ...                                  (
    ...                                    # hissp.macros.._macro_.QzH_QzGT_
-   ...                                    _Qzduavqad3__data.pop(
+   ...                                    _Qz4v7gmaq3__data.pop(
    ...                                      'sep',
    ...                                      (' ')),
    ...                                    # hissp.macros.._macro_.QzH_QzGT_
-   ...                                    _Qzduavqad3__data.pop(
+   ...                                    _Qz4v7gmaq3__data.pop(
    ...                                      'end',
    ...                                      ('\n')),
    ...                                    # hissp.macros.._macro_.QzH_QzGT_
-   ...                                    _Qzduavqad3__data.pop(
+   ...                                    _Qz4v7gmaq3__data.pop(
    ...                                      'file',
    ...                                      __import__('sys').stdout),
    ...                                    # hissp.macros.._macro_.QzH_QzGT_
-   ...                                    _Qzduavqad3__data.pop(
+   ...                                    _Qz4v7gmaq3__data.pop(
    ...                                      'flush',
    ...                                      False),
    ...                                    # hissp.macros.._macro_.QzH_QzGT_
-   ...                                    _Qzduavqad3__data.values(),
+   ...                                    _Qz4v7gmaq3__data.values(),
    ...                                    *# hissp.macros.._macro_.let
    ...                                     (
-   ...                                      lambda _Qzduavqad3__data=# hissp.macros.._macro_.QzH_QzGT_
+   ...                                      lambda _Qz4v7gmaq3__data=# hissp.macros.._macro_.QzH_QzGT_
    ...                                             # QzH_QzGT_
    ...                                             __import__('operator').itemgetter(
    ...                                               (-1))(
    ...                                               list(
-   ...                                                 _Qzduavqad3__data.keys()),
+   ...                                                 _Qz4v7gmaq3__data.keys()),
    ...                                               ):
    ...                                         (
    ...                                           # hissp.macros.._macro_.QzH_QzGT_
-   ...                                           # ors
-   ...                                           _Qzduavqad3__data,
+   ...                                           (
+   ...                                             _Qz4v7gmaq3__data),
    ...                                           # hissp.macros.._macro_.QzH_QzGT_
    ...                                           type(
-   ...                                             _Qzduavqad3__data),
+   ...                                             _Qz4v7gmaq3__data),
    ...                                           )
    ...                                     )(),
    ...                                    )
@@ -6572,14 +6572,14 @@ There are various ways to check for errors if you want to be strict about it:
    ...                       ):
    ...                  ((
    ...                     *__import__('itertools').starmap(
-   ...                        _Qz3murjnbw__lambda.__setattr__,
+   ...                        _Qzhxfs6lnk__lambda.__setattr__,
    ...                        __import__('builtins').dict(
    ...                          __name__='myQzH_print',
    ...                          __qualname__='myQzH_print',
-   ...                          __code__=_Qz3murjnbw__lambda.__code__.replace(
+   ...                          __code__=_Qzhxfs6lnk__lambda.__code__.replace(
    ...                                     co_name='myQzH_print')).items()),
    ...                     ),
-   ...                   _Qz3murjnbw__lambda)  [-1]
+   ...                   _Qzhxfs6lnk__lambda)  [-1]
    ...               )())
 
 .. code-block:: REPL

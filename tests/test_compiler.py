@@ -1,13 +1,12 @@
 # Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
-
+import textwrap
 from unittest import TestCase
 
 import hypothesis.strategies as st
 from hypothesis import given
 
 from hissp import compiler
-from .util import dedented
 
 quoted = (
     st.none()
@@ -63,22 +62,20 @@ class TestCompileGeneral(TestCase):
                 ('print',('quote','oops',),),
             ])  # fmt: skip
         self.assertIn(
-            """\
+            textwrap.dedent("""\
             __import__('operator').truediv(
               (0),
               (0))
 
-            # Traceback (most recent call last):"""
-            // dedented,
+            # Traceback (most recent call last):"""),
             python,
         )
         self.assertIn(
-            """\
+            textwrap.dedent("""\
             # ZeroDivisionError: division by zero
             #\N{SPACE}
 
             print(
-              'oops')"""
-            // dedented,
+              'oops')"""),
             python,
         )

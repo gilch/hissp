@@ -17,6 +17,8 @@ Glossary
       `subform` in the same top-level form,
       because by the time it exists,
       the top-level form has already been compiled.
+      (However, the reader must run any `tag`\ s, which can have arbitrary effects,
+      before giving the compiler the form.)
       `Injection` of a Python statement is only valid at the top level.
 
    doorstop
@@ -47,6 +49,7 @@ Glossary
    repl
    read-evaluate-print loop
    read-eval-print loop
+   subrepl
       The `LisspREPL`,
       Lissp's interactive interpreter shell, layered on Python's.
       (Or a similar language shell.)
@@ -120,7 +123,7 @@ Glossary
       `is_string_literal` tests for string literal fragments.
 
    hissp string
-      A `form` or `parsed object` which would directly represents a string in Hissp,
+      A `form` or `parsed object` which would directly represent a string in Hissp,
       if evaluated on its own.
       All `string literal fragment`\ s are Hissp strings.
       A `quote`\ d `str atom` is also a Hissp string.
@@ -188,7 +191,7 @@ Glossary
       The bundled tags and macros mostly avoid nonstandard injections in expansions,
       but (with the notable exception of `mix`)
       allow them where they would be no worse than an opaque
-      `fully-qualified identifier`,
+      `fully qualified identifier`,
       or in a few cases where the user writes part of the injection.
       Standard Hissp also avoids importing the ``hissp`` package outside of
       metaprograms (and direct helpers not otherwise called) to preserve the
@@ -244,7 +247,7 @@ Glossary
       Evaluating it should result in an equivalent object.
 
    fragment
-      A `fragment token`, `fragment atom`, or `python fragment`, depending on context.
+      A `fragment token`, `fragment atom`, or `Python fragment`, depending on context.
 
    python fragment
       A piece of Python code, especially one emitted by the compiler.
@@ -337,18 +340,18 @@ Glossary
    tag token
    hash tag
    module-local tag
-   fully-qualified tag
+   fully qualified tag
       A `tagging token` that ends in one or more number sign (``#``) characters
       (also known as "hash" characters,
       making these "hash tags" when distinguishing them from other `tagging token`\ s.)
-      If it includes a `module handle` part, it's a fully-qualified tag.
-      Any callable accessible this way can be applied as a tag.
+      If it includes a `module handle` part, it's a fully qualified tag.
+      (Any callable accessible this way can be applied as a tag.
       E.g. ``builtins..str.format##``, ``fractions..Fraction#``,
-      ``textwrap..dedent#``, etc.
-      If it doesn't,
+      ``textwrap..dedent#``, etc.)
+      If it doesn't include one,
       it refers to a module-local `metaprogram` stored in the module's
       ``_macro_`` namespace.
-      These usually need to be pure or at least idempotent,
+      Tags usually need to be pure or at least idempotent,
       as the `REPL` or similar tooling may have to make multiple attempts
       at applying them.
 
@@ -413,9 +416,9 @@ Glossary
 
    full qualifier
    full qualification
-   fully-qualified identifier
+   fully qualified identifier
       A `module handle` prepended to a `qualified name` and separated with a ``.``
-      is a fully-qualified identifier;
+      is a fully qualified identifier;
       it's the path of attribute access from the full import path of the module,
       which is enough to get a reference to the object from anywhere.
       Compiles to attribute access from an `__import__` expression.
@@ -465,7 +468,7 @@ Glossary
       between a `tagging token` and one of its arguments.
 
    gensym tag
-      ``$#``. A `special tag` only valid in a `template` for creating a `gensym`.
+      ``$#``. A `special tag` for creating a `gensym`. Only valid in a `template`.
       Prepends a `gensym hash` to its argument, or replaces ``$`` characters with it.
 
    gensym
@@ -538,7 +541,7 @@ Glossary
       `End-of-file <https://en.wikipedia.org/wiki/End-of-file>`_.
       In most Unix terminals, use a :kbd:`Ctrl+D`,
       or :kbd:`Ctrl+Z Enter` in Windows.
-      Quits a subREPL without also terminating the Python session,
+      Quits a `subREPL` without also terminating the Python session,
       unlike ``(exit)``,
       and works similarly in most shells.
 

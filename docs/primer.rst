@@ -559,7 +559,7 @@ Module Handles and Qualified Identifiers
 ----------------------------------------
 
 You can refer to variables defined in any module by using a
-:term:`fully-qualified identifier`:
+:term:`fully qualified identifier`:
 
 .. code-block:: REPL
 
@@ -567,7 +567,7 @@ You can refer to variables defined in any module by using a
    >>> __import__('operator')
    <module 'operator' from '...operator.py'>
 
-   #> (operator..add 40 2) ; Fully-qualified identifiers include their module.
+   #> (operator..add 40 2) ; Fully qualified identifiers include their module.
    >>> __import__('operator').add(
    ...   (40),
    ...   (2))
@@ -1449,9 +1449,9 @@ Besides a few :term:`special tag`\ s,
 called a :term:`tag`,
 followed by additional argument forms.
 
-A function named by a :term:`fully-qualified identifier` is invoked on the form,
+A function named by a :term:`fully qualified identifier` is invoked on the form,
 and the reader embeds the resulting object into the output Hissp
-(this is called a :term:`fully-qualified tag`):
+(this is called a :term:`fully qualified tag`):
 
 .. code-block:: REPL
 
@@ -1495,7 +1495,7 @@ While unpickling does have some overhead,
 it may be worth it if constructing the object normally has even more.
 Naturally, the object must be picklable to emit a pickle.
 
-Fully-qualified tags don't always result in pickles though.
+Fully qualified tags don't always result in pickles though.
 
 .. code-block:: REPL
 
@@ -1821,7 +1821,7 @@ If another macro form appears in the expansion,
 it is expanded as well, which is an ability that the :term:`tagging token`\ s lack.
 
 The compiler recognizes a :term:`callable` as a macro if it is invoked directly
-from a fully-qualified ``_macro_`` namespace:
+from a fully qualified ``_macro_`` namespace:
 
 .. code-block:: REPL
 
@@ -1933,13 +1933,13 @@ or the current ``__name__`` (which is ``__main__`` here):
 when a macro expands in a module it was not defined in.
 This prevents accidental name collisions
 when the unqualified name was already in use.
-Any fully-qualified identifier in the expansion
+Any fully qualified identifier in the expansion
 will automatically import any required module.
 
 You can force an import from a particular location by using
-a fully-qualified symbol yourself in the template in the first place.
+a fully qualified symbol yourself in the template in the first place.
 (This works automatically when using `aliases <hissp.macros._macro_.alias>`.)
-Fully-qualified symbols in templates are not qualified again.
+Fully qualified symbols in templates are not qualified again.
 Usually, if you want an unqualified symbol in the template's result,
 it's a sign that you need to use a :term:`gensym` instead.
 Symbols already "qualified" with a gensym hash prefix are considered "local" and do not get qualified with a module.

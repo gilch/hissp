@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import math
+import textwrap
 from collections import Counter
 from fractions import Fraction
 from types import SimpleNamespace
@@ -13,7 +14,6 @@ from hissp.reader import SoftSyntaxError
 from hypothesis import given
 
 from hissp import reader
-from .util import dedented
 
 UNICODE_ANY_ = [("unicode", ANY, ANY)]
 
@@ -213,13 +213,13 @@ EXPECTED = {
     """None ...""": [None, ...],
     # Symbolic
     """object math..tau""": ["object", "math..tau"],
+    textwrap.dedent(
     """\
     builtins..object ; qualified identifier
     object.__class__ ; attribute identifier
     builtins..object.__class__ ; qualified attribute identifier
     object.__class__.__name__ ; Attributes chain.
-    """
-    // dedented: [
+    """) : [
         "builtins..object",
         "object.__class__",
         "builtins..object.__class__",
@@ -260,12 +260,11 @@ EXPECTED = {
 
     '''b"not bytes"''': ["b", "('not bytes')"],
 
-    """\
+    textwrap.dedent("""\
     b"not bytes
     with
     newlines"
-    """
-    // dedented: [
+    """) : [
         "b",
         R"('not bytes\nwith\nnewlines')",
     ],

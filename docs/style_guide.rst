@@ -359,7 +359,7 @@ Alignment Styles
 
 The remaining rules are more a matter of that *practical consistency*.
 A good style guide must be *opinionated* to achieve that consistency,
-but (with `one exception <#margin-comments-x>`_)
+but (with `one exception <#margin-comments>`_)
 they are *suggestions*, not obligations,
 because exactly what rules *implement* that consistency matter much less
 than the consistency itself.
@@ -390,8 +390,8 @@ With proper indent style,
 deep nesting is far more acceptable in a Lisp than in Python,
 especially considering how operators work in each language.
 
-Some rules pertain to the use of Hissp's bundled macros.
-The use of the bundled macros is completely optional.
+Some rules pertain to the use of Hissp's bundled metaprograms,
+the use of which is completely optional.
 
 Tuples
 ::::::
@@ -410,7 +410,7 @@ or adding it to a collection may be attached to it.
 
 However, in many of these cases,
 the groups could be better written as a single top-level form instead,
-given the appropriate functions or macros.
+given the appropriate functions or metaprograms.
 E.g. `dict.update` (on `globals`), `let`,
 `:@##<QzCOLON_QzAT_QzHASH_>`, `attach`, `doto`.
 
@@ -796,12 +796,13 @@ and referenced by name:
    longer than this one.
    ")
 
-   (deftype MessagePrinter ()
-     __doc__ "It is safe
-             to align docstrings.
-             "
-     display (lambda (self)
-               (print MESSAGE)))
+   (define MessagePrinter
+    (type 'MessagePrinter ()
+     (dict : __doc__ "It is safe
+                      to align docstrings.
+                      "
+           display (lambda (self)
+                     (print MESSAGE)))))
 
 Indent any multiline docstring to match its opening quote,
 including the closing quote.
@@ -994,13 +995,13 @@ or reconfigure their editors to collaborate at all,
 and then change them back when working on Lissp files with normal style.
 That's not nice.
 
-This includes comment tokens meant as arguments for reader macros!
+This includes comment tokens meant as arguments for tags!
 Lissp tokenizes comments in blocks,
 so multiline comments used as reader arguments nearly always
 use a form/group comment starting with two semicolons and a space as described below.
 But with a single ``;``, they must follow code on the same line,
-typically the reader tag itself.
-In the rare case neither is valid (if the macro is counting the semicolons),
+typically the tag itself.
+In the rare case neither is valid (if the tag is counting the semicolons),
 then it's a margin comment. Indent it to the margin.
 
 Be careful with comments around detached :term:`tagging token`\ s!
@@ -1010,7 +1011,7 @@ in which case they may be treated as literal values.
 Avoid using inline or margin comments as commentary between a tag and its target,
 as this can cause errors when they are instead treated as arguments.
 (Usually, tags are attached to one argument, so this doesn't come up,
-but e.g. the bundled decorator macro `:@##<QzCOLON_QzAT_QzHASH_>` typically is not.)
+but e.g. the bundled decorator tag `:@##<QzCOLON_QzAT_QzHASH_>` typically is not.)
 You may use a discarded string instead ``_#"NB foo"``.
 A good syntax highlighter specialized for Lissp may be able
 to indicate when a comment token is not discarded,
@@ -1019,7 +1020,7 @@ but a traditional Lisp editor like Emacs ``lisp-mode`` would not.
 In rare cases, a margin comment may occupy the same line as some other comment form.
 This is usually acceptable style,
 but a ``;`` following a ``;;`` is still tokenized as part of the ``;;`` block,
-which can matter for reader macros like `<# <QzLT_QzHASH_>`.
+which can matter for tags like `<# <QzLT_QzHASH_>`.
 
 Avoid using either margin or inline comments
 in any situation that would result in a dangling bracket.
@@ -1042,7 +1043,7 @@ forming a comment block.
 Commented-out code does not belong in version control,
 but disabling code without deleting it can be helpful during development.
 Use ``;;`` at the start of each line,
-or use the discard macro ``_#`` to comment out code structurally.
+or use the discard tag ``_#`` to comment out code structurally.
 
 Prefer class and function docstrings over ``;;`` comments where applicable.
 
@@ -1170,13 +1171,13 @@ you will not have any undecorated H6's at all.)
 Multiple H1s might be acceptable for large projects distributed as a single concatenated
 Lissp file, where they'd head what would normally be modules in separate files.
 
-``_#_#_#The Discard Macro``
+``_#_#_#The Discard Tag``
 +++++++++++++++++++++++++++
 
-The discard macro ``_#`` applied to a :term:`Unicode token`
+The discard tag ``_#`` applied to a :term:`Unicode token`
 is acceptable for long block comments at the top level.
 
-Several discard macros may be used in a row to comment out that many forms following them.
+Several discards may be used in a row to comment out that many forms following them.
 
 A discarded tuple may be used to contain scratch code during development.
 But beware that discarded code is still *read*,
@@ -1263,7 +1264,7 @@ and can strip it out when rendering help.
 If the docstring contains any newlines,
 the closing ``"`` gets its own line.
 
-It is acceptable to use reader macros that resolve to a string literal like
+It is acceptable to use tags that resolve to a string literal like
 `<# <QzLT_QzHASH_>` (which is useful for doctests)
 as long as the documentation text is also legible in the source code.
 A comment string is preferred over a :term:`Unicode token` when it would
@@ -1519,8 +1520,8 @@ Macro definitions should be robust enough to handle a shadowed builtin.
 Lissp's template syntax makes this fairly easy as it qualifies symbols by default.
 You have to go out of your way to turn this off for anaphors.
 
-You are free to use the fully-qualified names in handwritten code as well.
-Using a fully-qualified name is preferred over
+You are free to use the fully qualified names in handwritten code as well.
+Using a fully qualified name is preferred over
 changing a shadowing parameter name in an established public-facing function.
 Parameter names are considered part of the interface,
 especially when they can be passed as kwargs
@@ -1585,19 +1586,19 @@ you probably won't have as many of those.
 Symbols in templates can only be automatically qualified with the defining module's
 `__name__` or `builtins`.
 Using a name with a fully-qualifying alias in a template is like using
-the fully-qualified name,
+the fully qualified name,
 so it will be probably be imported from its canonical location
 (assuming you're aliasing that location),
 rather than from wherever the template happens to be defined.
 
 Sometimes separate packages use the same module name internally.
 Aliases are allowed to contain a dot.
-(Fully-qualified tags have a double dot.)
+(Fully qualified tags have a double dot.)
 Usually, you'd alias as the library's root package name followed by a dot,
 followed by the module name.
 Given Python's "flat is better than nested" culture,
 many library packages have no subpackages,
-so this may not be any shorter than using the fully-qualified name.
+so this may not be any shorter than using the fully qualified name.
 For example, ``foo.bar.baz.`` could be aliased as
 ``foo.baz#`` if ``baz#`` alone would be ambiguous.
 A well-known name is also acceptable,
@@ -1605,15 +1606,15 @@ e.g., ``numpy.random.`` could be aliased as ``np.random#`` instead of ``random#`
 which is the same name as the standard library `random` module.
 Of course, there's no need to alias `random` as ``random#`` in the first place:
 ``(random..random)`` isn't really worse than ``(random#random)``.
-The fully-qualified names are only one character longer.
+The fully qualified names are only one character longer.
 So this case is not really a conflict,
 although ``np.random#`` is potentially less confusing.
 
 Prefer using aliases over attaching a macro or tag from other modules to `_macro_`,
 because that's expecting everyone to have it memorized.
-Using tags or macros without aliases is acceptable
+Using metaprograms without aliases is acceptable
 when originally defined in the same module.
-It's also acceptable for the bundled tags and macros,
+It's also acceptable for the bundled metaprograms,
 or some other core library serving a similar function for the project,
 because everyone needs to be familiar with those.
 You need a very good reason for attaching anything else.
@@ -1658,7 +1659,7 @@ For an argument, i.e., other method calls, prefer ``.foo bar``:
 
    ;;;; Namespaces
 
-   (tkinter..Tk)                           ;Preferred. Fully-qualified name.
+   (tkinter..Tk)                           ;Preferred. Fully qualified name.
    (.Tk tkinter.)                          ;Bad. Not really a method call.
 
    ;;;; Kind of Both

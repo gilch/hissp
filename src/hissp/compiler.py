@@ -499,7 +499,7 @@ class Compiler:
     @_trace
     def fragment(self, code: str) -> str:
         """Compile a `fragment atom`.
-        This preprocessing step converts a `fully-qualified identifier`
+        This preprocessing step converts a `fully qualified identifier`
         or `module handle` into an import. No further compilation is
         necessary. The contents are assumed to be Python code already.
         """
@@ -519,7 +519,7 @@ class Compiler:
 
     @staticmethod
     def qualified_identifier(qualname: str, code: str) -> str:
-        """Compile `fully-qualified identifier` into import and attribute."""
+        """Compile `fully qualified identifier` into import and attribute."""
         parts = code.split("..", 1)
         if parts[0] == qualname:  # This module. No import required.
             chain = parts[1].split(".", 1)

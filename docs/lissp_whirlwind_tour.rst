@@ -91,7 +91,7 @@ Lissp Whirlwind Tour
    <module 'collections.abc' from '...'>
 
 
-   ;; A FULLY-QUALIFIED IDENTIFIER can be thought of as getting
+   ;; A FULLY QUALIFIED IDENTIFIER can be thought of as getting
    ;; attributes from a module handle:
    #> |math..tau.__class__|                   ;note the ..
    >>> __import__('math').tau.__class__
@@ -335,7 +335,7 @@ Lissp Whirlwind Tour
    >>> __import__('math')
    <module 'math' ...>
 
-   #> math..tau                               ;symbol token (fully-qualified)
+   #> math..tau                               ;symbol token (fully qualified)
    >>> __import__('math').tau
    6.283185307179586
 
@@ -346,8 +346,8 @@ Lissp Whirlwind Tour
 
    ;;;; Tagging Tokens
 
-   ;; Invoke any fully-qualified callable on the next parsed object at READ TIME.
-   #> builtins..hex#3840                      ;fully-qualified name# is a TAG
+   ;; Invoke any fully qualified callable on the next parsed object at READ TIME.
+   #> builtins..hex#3840                      ;fully qualified name# is a TAG
    >>> 0xf00
    3840
 
@@ -379,7 +379,7 @@ Lissp Whirlwind Tour
    Fraction(2, 3)
 
 
-   ;;; Fully-qualified tags are not the only type of tagging token.
+   ;;; Fully qualified tags are not the only type of tagging token.
 
    #> builtins..complex# imag=2               ;keyword argument via KWARG TOKEN
    >>> (2j)
@@ -453,7 +453,7 @@ Lissp Whirlwind Tour
 
    ;;; The INJECT special tag compiles and evaluates the next form at
    ;;; read time and injects the resulting object directly into the Hissp
-   ;;; tree, like a fully-qualified tag does.
+   ;;; tree, like a fully qualified tag does.
 
    #> '(1 2 (operator..add 1 2))              ;Quoting happens at compile time.
    >>> ((1),
@@ -1829,7 +1829,7 @@ Lissp Whirlwind Tour
 
    ;;; The macros will still be available from there even if you clobber
    ;;; your _macro_ copy. Recall that you can invoke macros using their
-   ;;; fully-qualified names.
+   ;;; fully qualified names.
 
    ;;; The bundled macros have individual docstrings with usage examples.
    ;;; At this point in the tour, you should be able to understand them.
@@ -1838,7 +1838,7 @@ Lissp Whirlwind Tour
 
    ;;; Two particularly important ones to know are alias and the prelude.
    ;;; Unlike the REPL, Lissp modules do not have a _macro_ namespace by
-   ;;; default. A typical Lissp module will start with a fully-qualified
+   ;;; default. A typical Lissp module will start with a fully qualified
    ;;; invocation of something like one of these to create the _macro_
    ;;; namespace for the module.
 
