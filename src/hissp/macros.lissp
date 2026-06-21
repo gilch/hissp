@@ -1,4 +1,4 @@
-;;; Copyright 2019, 2020, 2021, 2022, 2023, 2024 Matthew Egan Odendahl
+;;; Copyright 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026 Matthew Egan Odendahl
 ;;; SPDX-License-Identifier: Apache-2.0
 
 "Hissp's bundled `tag` and `macro` metaprograms.
@@ -2128,79 +2128,72 @@ See `hissp.macros`.
   ;;    False
   ;;
   ;; See also: `itertools.starmap`, `any-map <anyQzH_map>`,
-  ;; `loop-from <loopQzH_from>`, `let*call <letQzSTAR_call>`,
+  ;; `let-again <letQzH_again>`, `let*call <letQzSTAR_call>`,
   ;; `my# <myQzHASH_>`.
   ;;
   `(any (i#starmap (lambda ,params ,@body)
                    ,xss)))
 
-(defmacro loop-from (syms inits : :* body)
-  <#;``loop-from`` Anaphoric. Loop/recur with trampoline.
+(defmacro let-again (pairs : :* body)
+  <#;``let-again`` Loop/recur with trampoline.
   ;;
-  ;; Set local values for the first loop with an iterable.
-  ;;
-  ;; Creates a stack to schedule future loops. Call the ``recur-from``
+  ;; Creates a stack to schedule future loops. Call the ``again-with``
   ;; anaphor with an iterable of values for the locals to push another loop
-  ;; to the schedule. Call with ``None`` to abort any remaining schedule.
+  ;; to the schedule. ``(again-with None)`` will abort any remaining schedule.
   ;;
   ;; Returns the value of the final loop.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (loop-from x '(3)
-  ;;    #..  (when x
-  ;;    #..    (print x)
-  ;;    #..    (recur-from (@ (op#sub x 1)))))
-  ;;    >>> # loopQzH_from
+  ;;    #> (let-again (x 3  y 0)
+  ;;    #..  (when x (again-with (|| |x-1| |y+1|)))
+  ;;    #..  (print x y))
+  ;;    >>> # letQzH_again
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda _Qzj54t3dhw__stack=# hissp.macros..QzMaybe_.QzAT_
-  ;;    ...         (lambda *xs: [*xs])(
-  ;;    ...           (),
-  ;;    ...           None,
-  ;;    ...           ((3),)):
+  ;;    ... (lambda _Qzmg2ab65c__stack=[None, None, ()]:
   ;;    ...     # hissp.macros.._macro_.let
-  ;;    ...     (lambda recurQzH_from=_Qzj54t3dhw__stack.append:
+  ;;    ...     (lambda againQzH_with=_Qzmg2ab65c__stack.append:
   ;;    ...        (# hissp.macros.._macro_.anyQzSTAR_map
   ;;    ...         __import__('builtins').any(
   ;;    ...           __import__('itertools').starmap(
-  ;;    ...             (lambda x:
-  ;;    ...                (_Qzj54t3dhw__stack.__setitem__(
+  ;;    ...             (
+  ;;    ...              lambda x=(3),
+  ;;    ...                     y=(0):
+  ;;    ...                (_Qzmg2ab65c__stack.__setitem__(
   ;;    ...                   (0),
   ;;    ...                   # hissp.macros.._macro_.progn
-  ;;    ...                   # when
-  ;;    ...                   (lambda b, c: c()if b else())(
-  ;;    ...                     x,
-  ;;    ...                     (lambda :
-  ;;    ...                        (print(
-  ;;    ...                           x),
-  ;;    ...                         recurQzH_from(
-  ;;    ...                           # QzAT_
-  ;;    ...                           (lambda *xs: [*xs])(
-  ;;    ...                             __import__('operator').sub(
-  ;;    ...                               x,
-  ;;    ...                               (1)))))  [-1]
-  ;;    ...                     ))),
+  ;;    ...                   (# when
+  ;;    ...                    (lambda b, c: c()if b else())(
+  ;;    ...                      x,
+  ;;    ...                      (lambda :
+  ;;    ...                          againQzH_with(
+  ;;    ...                            (
+  ;;    ...                              x-1,
+  ;;    ...                              y+1))
+  ;;    ...                      )),
+  ;;    ...                    print(
+  ;;    ...                      x,
+  ;;    ...                      y))  [-1]),
   ;;    ...                 None)  [-1]
   ;;    ...             ),
   ;;    ...             __import__('builtins').iter(
-  ;;    ...               _Qzj54t3dhw__stack.pop,
+  ;;    ...               _Qzmg2ab65c__stack.pop,
   ;;    ...               None))),
   ;;    ...         __import__('operator').itemgetter(
   ;;    ...           (0))(
-  ;;    ...           _Qzj54t3dhw__stack))  [-1]
+  ;;    ...           _Qzmg2ab65c__stack))  [-1]
   ;;    ...     )()
   ;;    ... )()
-  ;;    3
-  ;;    2
-  ;;    1
-  ;;    ()
+  ;;    3 0
+  ;;    2 1
+  ;;    1 2
+  ;;    0 3
   ;;
   ;; See also: `any*map <anyQzSTAR_map>`, `Ensue`_, `while`.
   ;;
-  `(let ($#stack (@ () None ,inits))
-     (let (,'recur-from $#stack.append)
-       (any*map ,syms (iter $#stack.pop None)
+  `(let ($#stack .#(list '(None None ()))) ; return, sentinel, first call
+     (let (,'again-with $#stack.append)
+       (any*map (: ,@pairs) (iter $#stack.pop None)
          (.__setitem__ $#stack 0 (progn ,@body))
          None)
        !##0 $#stack)))
@@ -2985,7 +2978,7 @@ See `hissp.macros`.
   ;;   See `Ensue examples`_ and `enter examples`_ below.
   ;;
   ;;   See also: `types.coroutine`, `collections.abc.Generator`,
-  ;;   `loop-from <loopQzH_from>`.
+  ;;   `let-again <letQzH_again>`.
   ;;
   ;; * Adds the bundled macros, but only if available
   ;;   (macros are typically only used at compile time),
