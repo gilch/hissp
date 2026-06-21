@@ -2114,31 +2114,28 @@ See `hissp.macros`.
   ;;    False
   ;;
   ;; See also: `itertools.starmap`, `any-map <anyQzH_map>`,
-  ;; `loop-from <loopQzH_from>`, `let*call <letQzSTAR_call>`,
+  ;; `let-again <letQzH_again>`, `let*call <letQzSTAR_call>`,
   ;; `my# <myQzHASH_>`.
   ;;
   `(any (i#starmap (lambda ,variables ,@body)
                    ,xss)))
 
-(defmacro loop-from (syms inits : :* body)
-  <#;``loop-from`` Anaphoric. Loop/recur with trampoline.
+(defmacro let-again (pairs : :* body)
+  <#;``let-again`` Loop/recur with trampoline.
   ;;
-  ;; Set local values for the first loop with an iterable as
-  ;; `let-call <letQzH_call>`.
-  ;;
-  ;; Creates a stack to schedule future loops. Call the ``recur-from``
+  ;; Creates a stack to schedule future loops. Call the ``again-with``
   ;; anaphor with an iterable of values for the locals to push another loop
-  ;; to the schedule. Call with ``None`` to abort any remaining schedule.
+  ;; to the schedule. ``(again-with None)`` will abort any remaining schedule.
   ;;
   ;; Returns the value of the final loop.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (loop-from x '(3)                       ;Unpacks as let-call.
+  ;;    #> (let-again (x 3  y 0)
   ;;    #..  (when x
-  ;;    #..    (print x)
-  ;;    #..    (recur-from (@ (op#sub x 1)))))
-  ;;    >>> # loopQzH_from
+  ;;    #..    (print x y)
+  ;;    #..    (again-with (|| |x-1| |y+1|))))
+  ;;    >>> # letQzH_again
   ;;    ... # hissp.macros.._macro_.let
   ;;    ... (
   ;;    ...  lambda _Qzj54t3dhw__stack=# hissp.macros..QzMaybe_.QzAT_
@@ -2185,9 +2182,9 @@ See `hissp.macros`.
   ;;
   ;; See also: `any*map <anyQzSTAR_map>`, `Ensue`_, `while`.
   ;;
-  `(let ($#stack (@ () None ,inits))
-     (let (,'recur-from $#stack.append)
-       (any*map ,syms (iter $#stack.pop None)
+  `(let ($#stack (@ () None ()))
+     (let (,'again-with $#stack.append)
+       (any*map (: ,@pairs) (iter $#stack.pop None)
          (.__setitem__ $#stack 0 (progn ,@body))
          None)
        !##0 $#stack)))
@@ -2972,7 +2969,7 @@ See `hissp.macros`.
   ;;   See `Ensue examples`_ and `enter examples`_ below.
   ;;
   ;;   See also: `types.coroutine`, `collections.abc.Generator`,
-  ;;   `loop-from <loopQzH_from>`.
+  ;;   `let-again <letQzH_again>`.
   ;;
   ;; * Adds the bundled macros, but only if available
   ;;   (macros are typically only used at compile time),
