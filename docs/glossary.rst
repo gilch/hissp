@@ -165,7 +165,7 @@ Glossary
       but other iterables can work.
       Also a `macro` argument that
       becomes the whole params argument in a lambda expansion,
-      such as the first argument to `let-from<letQzH_from>`
+      such as the first argument to `let-call<letQzH_call>`
       or `any*map<anyQzSTAR_map>`.
       The equivalent concept is called the “lambda list” in Common Lisp,
       and the “params vector” in Clojure,

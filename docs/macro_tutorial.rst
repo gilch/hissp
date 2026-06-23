@@ -5549,8 +5549,8 @@ Let's implement that as well.
    #> (defun _shadows? (form name)
    #..  (ands (H#is_node form)
    #..        (eq !##0 form 'lambda)
-   #..        (let-from (singles pairs)
-   #..                  (H#compiler.parse_params !##1 form)
+   #..        (let-call (singles pairs)
+   #..                  (:* (H#compiler.parse_params !##1 form))
    #..          (ors (contains singles name)
    #..               (contains (.keys pairs) name)))))
    >>> # defun
@@ -5572,7 +5572,7 @@ Let's implement that as well.
    ...                                        'lambda')
    ...                                  ),
    ...                                  (lambda :
-   ...                                      # letQzH_from
+   ...                                      # letQzH_call
    ...                                      (lambda singles, pairs:
    ...                                          # ors
    ...                                          (lambda x0, x1: x0 or x1())(
@@ -6256,11 +6256,11 @@ Here it is, sans docstring:
                                                pairs)
                           :? ||)))
             values=`(let (,my.$data ,data) ,(my.walk bindings))
-            `(let-from (,@my.names) ,my.values ,@body)))
+            `(let-call (,@my.names) (:* ,my.values) ,@body)))
 
 Starting from the bottom,
 the basic idea is to produce a single tuple of values
-that can be bound to a tuple of local names all at once using a `let-from<letQzH_from>`.
+that can be bound to a tuple of local names all at once using a `let-call<letQzH_call>`.
 
 To do that, it needs to remember each target name it finds (``my.names``).
 The tuple of values (``my.values``)
@@ -6403,7 +6403,7 @@ To prove it's possible, here's how you could implement the signature of `print`:
    ...               (
    ...                lambda _Qz3murjnbw__lambda=(lambda *_Qzdrlaw3u7__args, **_Qzdrlaw3u7__kwargs:
    ...                           # __main__.._macro_.destructQzH_QzGT_
-   ...                           # hissp.macros.._macro_.letQzH_from
+   ...                           # hissp.macros.._macro_.letQzH_call
    ...                           (lambda sep, end, file, flush, values:
    ...                               print(
    ...                                 *values,
@@ -6502,7 +6502,7 @@ There are various ways to check for errors if you want to be strict about it:
    ...               (
    ...                lambda _Qzhxfs6lnk__lambda=(lambda *_Qzdrlaw3u7__args, **_Qzdrlaw3u7__kwargs:
    ...                           # __main__.._macro_.destructQzH_QzGT_
-   ...                           # hissp.macros.._macro_.letQzH_from
+   ...                           # hissp.macros.._macro_.letQzH_call
    ...                           (lambda sep, end, file, flush, values, lastQzH_key, lastQzH_keyQzH_type:
    ...                              (# unless
    ...                               (lambda b, a: ()if b else a())(
@@ -6612,7 +6612,7 @@ in addition to replicating Python's capabilities:
    ...                               (
    ...                                lambda _Qzg4t3gdjc__lambda=(lambda *_Qzdrlaw3u7__args, **_Qzdrlaw3u7__kwargs:
    ...                                           # __main__.._macro_.destructQzH_QzGT_
-   ...                                           # hissp.macros.._macro_.letQzH_from
+   ...                                           # hissp.macros.._macro_.letQzH_call
    ...                                           (lambda x, y:
    ...                                               __import__('builtins').complex(
    ...                                                 x,
