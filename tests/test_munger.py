@@ -21,9 +21,9 @@ class TestMunger(TestCase):
     def test_munge_basic(self):
         self.assertEqual(
             munger.munge(R"""~!@#$%^&*()_+{}|:"<>?`-=[]\;',./"""),
-            "QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzHAT_QzET_QzSTAR_QzLPAR_"
-            "QzRPAR__QzPLUS_QzLCUB_QzRCUB_QzVERT_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_"
-            "QzGRAVE_QzH_QzEQ_QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_.QzSOL_",
+            "Tilde_Bang_At_Hash_Dolr_Pcent_Hat_Et_Star_Lpar_"
+            "Rpar__Plus_Lcub_Rcub_Vert_Colon_Quot_Lt_Gt_Eh_"
+            "Grave____Eq_Lsqb_Rsqb_Bsol_Scoln_Apos_Comma_.Fsol_",
         )
 
     @given(st.text(st.characters(whitelist_categories=["Sm"]), min_size=1))
@@ -31,9 +31,9 @@ class TestMunger(TestCase):
         self.assertTrue(munger.munge(s).isidentifier())
 
     @given(st.characters(whitelist_categories=["Lu", "Ll", "Lt", "Nl", "Sm"]))
-    def test_un_qz_quote(self, char):
-        x = munger.qz_encode(char)
+    def test_decode(self, char):
+        x = munger.encode(char)
         self.assertTrue(("x" + x).isidentifier())
         match = re.fullmatch("x(.*?)_", x)
         if match:
-            self.assertEqual(char, munger._qz_decode(match))
+            self.assertEqual(char, munger._decode(match))

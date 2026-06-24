@@ -592,9 +592,9 @@ Munging
 
 .. code-block:: REPL
 
-   #> 'foo->bar? ; QzH_ is for "Hyphen", QzGT_ for "Greater Than/riGhT".
-   >>> 'fooQzH_QzGT_barQzQUERY_'
-   'fooQzH_QzGT_barQzQUERY_'
+   #> 'foo->bar? ; Gt_ for "Greater Than/riGhT".
+   >>> 'foo___Gt_barEh_'
+   'foo___Gt_barEh_'
 
    #> "foo->bar?"
    >>> ('foo->bar?')
@@ -638,15 +638,15 @@ as an identifier and as a string representing that identifier:
    #..         42)
    >>> setattr(
    ...   _,
-   ...   'QzAT_QzPCENT_QzDOLR_QzBANG_',
+   ...   'At_Pcent_Dolr_Bang_',
    ...   (42))
 
    #> _
    >>> _
-   namespace(QzAT_QzPCENT_QzDOLR_QzBANG_=42)
+   namespace(At_Pcent_Dolr_Bang_=42)
 
    #> _.@%$! ; Munges and compiles to attribute identifier.
-   >>> _.QzAT_QzPCENT_QzDOLR_QzBANG_
+   >>> _.At_Pcent_Dolr_Bang_
    42
 
 Spaces, double quotes, parentheses,
@@ -658,8 +658,8 @@ they must each be escaped with a backslash to prevent it from terminating.
 .. code-block:: REPL
 
    #> 'embedded\ space
-   >>> 'embeddedQzSPACE_space'
-   'embeddedQzSPACE_space'
+   >>> 'embeddedSpace_space'
+   'embeddedSpace_space'
 
 Python does not allow some characters to start an identifier that it allows inside identifiers,
 such as digits.
@@ -668,16 +668,16 @@ You may have to escape these if they begin a symbol to distinguish them from num
 .. code-block:: REPL
 
    #> '\108
-   >>> 'QzDIGITxONE_08'
-   'QzDIGITxONE_08'
+   >>> 'DigitXoneX_08'
+   'DigitXoneX_08'
 
 Notice that only the first digit had to be munged to make it a valid Python identifier.
 
 .. code-block:: REPL
 
    #> '1o8 ; Clearly not a number, so no escape required.
-   >>> 'QzDIGITxONE_o8'
-   'QzDIGITxONE_o8'
+   >>> 'DigitXoneX_o8'
+   'DigitXoneX_o8'
 
 By the way, since a :term:`symbol token`
 can read as a :term:`symbol` with a :term:`module handle`,
@@ -1763,10 +1763,10 @@ Within a template, the same gensym name always makes the same gensym:
 
    #> `($#hiss $#hiss)
    >>> (
-   ...   '_Qztamtdldr__hiss',
-   ...   '_Qztamtdldr__hiss',
+   ...   '_gF6EQIPZY__hiss',
+   ...   '_gF6EQIPZY__hiss',
    ...   )
-   ('_Qztamtdldr__hiss', '_Qztamtdldr__hiss')
+   ('_gF6EQIPZY__hiss', '_gF6EQIPZY__hiss')
 
 But each new template changes the prefix hash.
 
@@ -1774,10 +1774,10 @@ But each new template changes the prefix hash.
 
    #> `($#hiss $#hiss)
    >>> (
-   ...   '_Qzzsoxd2io__hiss',
-   ...   '_Qzzsoxd2io__hiss',
+   ...   '_gGC3RWYPQ__hiss',
+   ...   '_gGC3RWYPQ__hiss',
    ...   )
-   ('_Qzzsoxd2io__hiss', '_Qzzsoxd2io__hiss')
+   ('_gGC3RWYPQ__hiss', '_gGC3RWYPQ__hiss')
 
 Gensyms are mainly used to prevent accidental name collisions in generated code,
 which is very important for reliable compiler macros.
@@ -1953,8 +1953,8 @@ If the gensym hash is *not* in prefix position, it doesn't count as local, and g
 .. code-block:: REPL
 
    #> `$#spam.$eggs
-   >>> '__main__..spam._Qz6ae4gut3__eggs'
-   '__main__..spam._Qz6ae4gut3__eggs'
+   >>> '__main__..spam._gKC7QNHLV__eggs'
+   '__main__..spam._gKC7QNHLV__eggs'
 
 A ``_macro_`` namespace is not the same as its module.
 
@@ -1966,7 +1966,7 @@ A ``_macro_`` namespace is not the same as its module.
    ...   'p123',
    ...   (lambda :
    ...       (
-   ...         '__main__..QzMaybe_.p',
+   ...         '__main__..p',
    ...         (1),
    ...         (2),
    ...         (3),
@@ -1976,12 +1976,9 @@ A ``_macro_`` namespace is not the same as its module.
    ...         )
    ...   ))
 
-Notice the ``QzMaybe_`` qualifying ``p``,
-which means the reader could not determine if ``p`` should be qualified as a global or as a macro,
-and the ``__main__`` qualifying ``sep``, which looks like it's going to be a problem.
-
-The ``QzMaybe_`` means that the compiler will try to resolve this symbol as a macro,
-and fall back to a global if it can't.
+Notice the ``__main__.`` module name qualifying ``sep``,
+which looks like it's going to be a problem,
+because the correct keyword doesn't have that qualifier.
 
 If we were to define a ``p`` global,
 
@@ -2014,7 +2011,13 @@ The templating system, on the other hand,
 It can't tell if a tuple is going to be a normal call or a macro invocation,
 where the qualification could be necessary.
 
-We can resolve the ``QzMaybe_`` the other way by defining a ``p`` macro.
+Symbols like ``__main__..p`` refer to a `top level` variable in the named module.
+(Something like ``__main__..p.__class__`` would not be top level.)
+When such a symbol is in the `invocation position`,
+the compiler will check the module's ``_macro_`` namespace first,
+i.e., as if you had written ``__main__.._macro_.p``.
+If that is not found (or if the `_macro_` namespace for that module is not found),
+it will compile like a normal function call.
 
 .. code-block:: REPL
 
@@ -2031,7 +2034,7 @@ We can resolve the ``QzMaybe_`` the other way by defining a ``p`` macro.
 
    #> (p123)
    >>> # p123
-   ... # __main__..QzMaybe_.p
+   ... # __main__..p
    ... __import__('builtins').print(
    ...   (1),
    ...   (2),
@@ -2039,7 +2042,7 @@ We can resolve the ``QzMaybe_`` the other way by defining a ``p`` macro.
    ...   sep=':')
    1:2:3
 
-Notice the comments indicating *two* compiler macroexpansions,
+Notice the compiler comments indicating *two* `macro expansion`\ s,
 and the use of a builtin instead of the global like last time.
 
 If you *want* to *capture* [#capture]_ an identifier (collide on purpose),
@@ -2129,12 +2132,12 @@ But there are times when a function will not do:
    #> (setattr _macro_ '% (lambda (: :* body) `(lambda (,'%) ,body)))
    >>> setattr(
    ...   _macro_,
-   ...   'QzPCENT_',
+   ...   'Pcent_',
    ...   (lambda *body:
    ...       (
    ...         'lambda',
    ...         (
-   ...           'QzPCENT_',
+   ...           'Pcent_',
    ...           ),
    ...         body,
    ...         )
@@ -2143,19 +2146,19 @@ But there are times when a function will not do:
    #> ((lambda (%)
    #..   (print (.upper %)))                  ;This lambda expression
    #.. "q")
-   >>> (lambda QzPCENT_:
+   >>> (lambda Pcent_:
    ...     print(
-   ...       QzPCENT_.upper())
+   ...       Pcent_.upper())
    ... )(
    ...   ('q'))
    Q
 
    #> ((% print (.upper %))                   ; can now be abbreviated.
    #.. "q")
-   >>> # QzPCENT_
-   ... (lambda QzPCENT_:
+   >>> # Pcent_
+   ... (lambda Pcent_:
    ...     print(
-   ...       QzPCENT_.upper())
+   ...       Pcent_.upper())
    ... )(
    ...   ('q'))
    Q
@@ -2164,12 +2167,12 @@ But there are times when a function will not do:
    #..          "abc"))
    >>> any(
    ...   map(
-   ...     # QzPCENT_
-   ...     (lambda QzPCENT_:
+   ...     # Pcent_
+   ...     (lambda Pcent_:
    ...         print(
-   ...           QzPCENT_.upper(),
+   ...           Pcent_.upper(),
    ...           (':'),
-   ...           QzPCENT_)
+   ...           Pcent_)
    ...     ),
    ...     ('abc')))
    A : a

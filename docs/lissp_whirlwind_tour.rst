@@ -424,8 +424,8 @@ Lissp Whirlwind Tour
    ('quote', 'x')
 
    #> '\'x'
-   >>> 'QzAPOS_xQzAPOS_'
-   'QzAPOS_xQzAPOS_'
+   >>> 'Apos_xApos_'
+   'Apos_xApos_'
 
 
    #> builtins..complex# *=(4 2) ; unpack via STARARG TOKEN (special tag Kwarg)
@@ -497,20 +497,20 @@ Lissp Whirlwind Tour
    ;;;; Symbol Token Munging
 
    #> '+                                      ;read-time munging of invalid identifiers
-   >>> 'QzPLUS_'
-   'QzPLUS_'
+   >>> 'Plus_'
+   'Plus_'
 
-   #> 'Also-a-symbol!                         ;Alias for 'AlsoQzH_aQzH_symbolQzBANG_
-   >>> 'AlsoQzH_aQzH_symbolQzBANG_'
-   'AlsoQzH_aQzH_symbolQzBANG_'
+   #> 'Also-a-symbol!                         ;Alias for 'Also___a___symbolBang_
+   >>> 'Also___a___symbolBang_'
+   'Also___a___symbolBang_'
 
    #> '𝐀                                      ;Alias for 'A (Unicode normal form KC)
    >>> 'A'
    'A'
 
    #> '-<>>
-   >>> 'QzH_QzLT_QzGT_QzGT_'
-   'QzH_QzLT_QzGT_QzGT_'
+   >>> 'Dash_Lt_Gt_Gt_'
+   'Dash_Lt_Gt_Gt_'
 
    #> :-<>>                                   ;doesn't represent identifier (no munge)
    >>> ':-<>>'
@@ -524,20 +524,20 @@ Lissp Whirlwind Tour
    ;;;; Escaping with \
 
    #> 'SPAM\ \"\(\)\;EGGS                     ;would terminate symbol if not escaped
-   >>> 'SPAMQzSPACE_QzQUOT_QzLPAR_QzRPAR_QzSEMI_EGGS'
-   'SPAMQzSPACE_QzQUOT_QzLPAR_QzRPAR_QzSEMI_EGGS'
+   >>> 'SPAMSpace_Quot_Lpar_Rpar_Scoln_EGGS'
+   'SPAMSpace_Quot_Lpar_Rpar_Scoln_EGGS'
 
    #> '\42                                    ;digits can't start identifiers
-   >>> 'QzDIGITxFOUR_2'
-   'QzDIGITxFOUR_2'
+   >>> 'DigitXfourX_2'
+   'DigitXfourX_2'
 
    #> '\.
-   >>> 'QzDOT_'
-   'QzDOT_'
+   >>> 'Stop_'
+   'Stop_'
 
    #> '\\
-   >>> 'QzBSOL_'
-   'QzBSOL_'
+   >>> 'Bsol_'
+   'Bsol_'
 
    #> '\a\b\c                                 ;escapes allowed here (not required)
    >>> 'abc'
@@ -784,11 +784,11 @@ Lissp Whirlwind Tour
    ;; We'll be reusing this one in later sections.
    #> (.update (globals) : + operator..add)   ;assignment (identifier munged)
    >>> globals().update(
-   ...   QzPLUS_=__import__('operator').add)
+   ...   Plus_=__import__('operator').add)
 
 
    #> (+ 40 2)                                ;no operators (Still a function call!)
-   >>> QzPLUS_(
+   >>> Plus_(
    ...   (40),
    ...   (2))
    42
@@ -871,8 +871,8 @@ Lissp Whirlwind Tour
    'builtins..print'
 
    #> `foo+2                                  ;Not builtin. Still munges.
-   >>> '__main__..fooQzPLUS_2'
-   '__main__..fooQzPLUS_2'
+   >>> '__main__..fooPlus_2'
+   '__main__..fooPlus_2'
 
 
    #> `(print "Hi")                           ;Code as data. Seems to act like quote.
@@ -906,10 +906,10 @@ Lissp Whirlwind Tour
 
    #> `(,'foo+2 foo+2)                        ;Interpolations not auto-qualified!
    >>> (
-   ...   'fooQzPLUS_2',
-   ...   '__main__..fooQzPLUS_2',
+   ...   'fooPlus_2',
+   ...   '__main__..fooPlus_2',
    ...   )
-   ('fooQzPLUS_2', '__main__..fooQzPLUS_2')
+   ('fooPlus_2', '__main__..fooPlus_2')
 
 
    ;; SPLICE special tag (,@) interpolates and unpacks. Only valid in a tuple in a template.
@@ -948,22 +948,22 @@ Lissp Whirlwind Tour
 
    #> `($#eggs $#spam $#bacon $#spam)
    >>> (
-   ...   '_Qziwmx5ob2__eggs',
-   ...   '_Qziwmx5ob2__spam',
-   ...   '_Qziwmx5ob2__bacon',
-   ...   '_Qziwmx5ob2__spam',
+   ...   '_gA3SJUN6M__eggs',
+   ...   '_gA3SJUN6M__spam',
+   ...   '_gA3SJUN6M__bacon',
+   ...   '_gA3SJUN6M__spam',
    ...   )
-   ('_Qziwmx5ob2__eggs', '_Qziwmx5ob2__spam', '_Qziwmx5ob2__bacon', '_Qziwmx5ob2__spam')
+   ('_gA3SJUN6M__eggs', '_gA3SJUN6M__spam', '_gA3SJUN6M__bacon', '_gA3SJUN6M__spam')
 
    ;; Each new template increases the count, so it results in a new hash,
    #> `$#spam
-   >>> '_Qziosozaxy__spam'
-   '_Qziosozaxy__spam'
+   >>> '_gSK2CB72C__spam'
+   '_gSK2CB72C__spam'
 
    ;; even if the code is identical.
    #> `$#spam
-   >>> '_Qzy6owmzs7__spam'
-   '_Qzy6owmzs7__spam'
+   >>> '_gT3X2I2PK__spam'
+   '_gT3X2I2PK__spam'
 
 
    ;;; However, the hashing procedure is fully deterministic, so builds are
@@ -973,16 +973,16 @@ Lissp Whirlwind Tour
    ;; but you can put them anywhere in the symbol. $ marks the positions.
    ;; Lacking a gensym prefix, it gets fully qualified by the template.
    #> `$#spam$.$eggs$
-   >>> '__main__..spam_Qza4ibv7j7__._Qza4ibv7j7__eggs_Qza4ibv7j7__'
-   '__main__..spam_Qza4ibv7j7__._Qza4ibv7j7__eggs_Qza4ibv7j7__'
+   >>> '__main__..spam_gUI77T4F6__._gUI77T4F6__eggs_gUI77T4F6__'
+   '__main__..spam_gUI77T4F6__._gUI77T4F6__eggs_gUI77T4F6__'
 
 
-   ;; This is typically used for partially-qualified variables,
+   ;; This is typically used for partially qualified variables,
    ;; i.e., with an explicit namespace that is not a module handle.
    ;; The interpolation suppressed auto-qualification.
    #> `,'$#self.$foo
-   >>> 'self._Qz7uu6wad6__foo'
-   'self._Qz7uu6wad6__foo'
+   >>> 'self._gWD37BZSI__foo'
+   'self._gWD37BZSI__foo'
 
 
    ;;; You can use templates to make collections with interpolated values.
@@ -998,10 +998,10 @@ Lissp Whirlwind Tour
    ...   (
    ...     *('abc'),
    ...     (1),
-   ...     QzPLUS_(
+   ...     Plus_(
    ...       (1),
    ...       (1)),
-   ...     QzPLUS_(
+   ...     Plus_(
    ...       (1),
    ...       (2)),
    ...     ))
@@ -1138,13 +1138,13 @@ Lissp Whirlwind Tour
    ;;; mode, or with Hissp readers other than Lissp, like Hebigo.
 
    ;;; UNQUALIFIED TAGS work if there's a corresponding name ending in #
-   ;;; (i.e. QzHASH_) in _macro_. Metaprograms for tagging tokens run at
+   ;;; (i.e. Hash_) in _macro_. Metaprograms for tagging tokens run at
    ;;; read time, but (like ') may simply return code that runs later.
 
    #> (setattr _macro_ 'chr\# chr)            ;note \# (would be a tag token otherwise)
    >>> setattr(
    ...   _macro_,
-   ...   'chrQzHASH_',
+   ...   'chrHash_',
    ...   chr)
 
    #> 'chr#42                                 ;note hard quote
@@ -1181,10 +1181,10 @@ Lissp Whirlwind Tour
    ...   'triple',
    ...   (lambda x:
    ...       (
-   ...         '__main__..QzMaybe_.QzPLUS_',
+   ...         '__main__..Plus_',
    ...         x,
    ...         (
-   ...           '__main__..QzMaybe_.QzPLUS_',
+   ...           '__main__..Plus_',
    ...           x,
    ...           x,
    ...           ),
@@ -1193,9 +1193,9 @@ Lissp Whirlwind Tour
 
    #> (triple 4)                              ;12
    >>> # triple
-   ... __import__('builtins').globals()['QzPLUS_'](
+   ... __import__('builtins').globals()['Plus_'](
    ...   (4),
-   ...   __import__('builtins').globals()['QzPLUS_'](
+   ...   __import__('builtins').globals()['Plus_'](
    ...     (4),
    ...     (4)))
    12
@@ -1204,21 +1204,21 @@ Lissp Whirlwind Tour
    #> (define loud-number (lambda x (print x) x))
    >>> # define
    ... __import__('builtins').globals().update(
-   ...   loudQzH_number=(lambda x:
-   ...                     (print(
-   ...                        x),
-   ...                      x)  [-1]
-   ...                  ))
+   ...   loud___number=(lambda x:
+   ...                    (print(
+   ...                       x),
+   ...                     x)  [-1]
+   ...                 ))
 
    #> (triple (loud-number 14))               ;Triples the *code*, not just the *value*.
    >>> # triple
-   ... __import__('builtins').globals()['QzPLUS_'](
-   ...   loudQzH_number(
+   ... __import__('builtins').globals()['Plus_'](
+   ...   loud___number(
    ...     (14)),
-   ...   __import__('builtins').globals()['QzPLUS_'](
-   ...     loudQzH_number(
+   ...   __import__('builtins').globals()['Plus_'](
+   ...     loud___number(
    ...       (14)),
-   ...     loudQzH_number(
+   ...     loud___number(
    ...       (14))))
    14
    14
@@ -1231,13 +1231,13 @@ Lissp Whirlwind Tour
    #> ((lambda x (+ x (+ x x)))
    #.. (loud-number 14))
    >>> (lambda x:
-   ...     QzPLUS_(
+   ...     Plus_(
    ...       x,
-   ...       QzPLUS_(
+   ...       Plus_(
    ...         x,
    ...         x))
    ... )(
-   ...   loudQzH_number(
+   ...   loud___number(
    ...     (14)))
    14
    42
@@ -1247,11 +1247,11 @@ Lissp Whirlwind Tour
    #> ((lambda (: x (loud-number 14))
    #..   (+ x (+ x x))))
    >>> (
-   ...  lambda x=loudQzH_number(
+   ...  lambda x=loud___number(
    ...           (14)):
-   ...     QzPLUS_(
+   ...     Plus_(
    ...       x,
-   ...       QzPLUS_(
+   ...       Plus_(
    ...         x,
    ...         x))
    ... )()
@@ -1267,7 +1267,7 @@ Lissp Whirlwind Tour
    >>> # define
    ... __import__('builtins').setattr(
    ...   _macro_,
-   ...   'oopsQzH_triple',
+   ...   'oops___triple',
    ...   (lambda expression:
    ...       (
    ...         (
@@ -1278,10 +1278,10 @@ Lissp Whirlwind Tour
    ...             expression,
    ...             ),
    ...           (
-   ...             '__main__..QzMaybe_.QzPLUS_',
+   ...             '__main__..Plus_',
    ...             '__main__..x',
    ...             (
-   ...               '__main__..QzMaybe_.QzPLUS_',
+   ...               '__main__..Plus_',
    ...               '__main__..x',
    ...               '__main__..x',
    ...               ),
@@ -1291,11 +1291,11 @@ Lissp Whirlwind Tour
    ...   ))
 
    #> (oops-triple 14)                        ;Oops. Templates qualify symbols!
-   >>> # oopsQzH_triple
+   >>> # oops___triple
    ... (lambda __main__..x=(14):
-   ...     __import__('builtins').globals()['QzPLUS_'](
+   ...     __import__('builtins').globals()['Plus_'](
    ...       __import__('builtins').globals()['x'],
-   ...       __import__('builtins').globals()['QzPLUS_'](
+   ...       __import__('builtins').globals()['Plus_'](
    ...         __import__('builtins').globals()['x'],
    ...         __import__('builtins').globals()['x']))
    ... )()
@@ -1315,23 +1315,23 @@ Lissp Whirlwind Tour
    >>> # define
    ... __import__('builtins').setattr(
    ...   _macro_,
-   ...   'onceQzH_triple',
+   ...   'once___triple',
    ...   (lambda x:
    ...       (
    ...         (
    ...           'lambda',
    ...           (
    ...             ':',
-   ...             '_Qziingj4sl__x',
+   ...             '_g5GAZYERM__x',
    ...             x,
    ...             ),
    ...           (
-   ...             '__main__..QzMaybe_.QzPLUS_',
-   ...             '_Qziingj4sl__x',
+   ...             '__main__..Plus_',
+   ...             '_g5GAZYERM__x',
    ...             (
-   ...               '__main__..QzMaybe_.QzPLUS_',
-   ...               '_Qziingj4sl__x',
-   ...               '_Qziingj4sl__x',
+   ...               '__main__..Plus_',
+   ...               '_g5GAZYERM__x',
+   ...               '_g5GAZYERM__x',
    ...               ),
    ...             ),
    ...           ),
@@ -1339,40 +1339,34 @@ Lissp Whirlwind Tour
    ...   ))
 
    #> (once-triple (loud-number 14))
-   >>> # onceQzH_triple
+   >>> # once___triple
    ... (
-   ...  lambda _Qzif7wpgtu__x=loudQzH_number(
+   ...  lambda _g5GAZYERM__x=loud___number(
    ...           (14)):
-   ...     __import__('builtins').globals()['QzPLUS_'](
-   ...       _Qzif7wpgtu__x,
-   ...       __import__('builtins').globals()['QzPLUS_'](
-   ...         _Qzif7wpgtu__x,
-   ...         _Qzif7wpgtu__x))
+   ...     __import__('builtins').globals()['Plus_'](
+   ...       _g5GAZYERM__x,
+   ...       __import__('builtins').globals()['Plus_'](
+   ...         _g5GAZYERM__x,
+   ...         _g5GAZYERM__x))
    ... )()
    14
    42
 
 
-   ;;; Notice the special QzMaybe_ qualifier generated by this template.
-   ;;; Templates create these for symbols in the invocation position (first
-   ;;; tuple element) when they can't tell if _macro_ would work. The
-   ;;; compiler replaces a QzMaybe_ with _macro_ if it can resolve the
-   ;;; resulting symbol, and omits it otherwise.
-
+   ;; Notice the __main__. qualifier generated by this template.
    #> `(+ 1 2 3 4)
    >>> (
-   ...   '__main__..QzMaybe_.QzPLUS_',
+   ...   '__main__..Plus_',
    ...   (1),
    ...   (2),
    ...   (3),
    ...   (4),
    ...   )
-   ('__main__..QzMaybe_.QzPLUS_', 1, 2, 3, 4)
+   ('__main__..Plus_', 1, 2, 3, 4)
 
 
-   ;; Outside-in recursive macro. (A multiary +). Note the QzMaybe_.
-   ;; If this had been qualified like a global instead, the recursion
-   ;; wouldn't work.
+   ;; Outside-in recursive macro. (A multiary +).
+   ;; Note the `__main__..Plus_` in the compilation.
    #> (define _macro_.+
    #..  (lambda (: first 0  :* args) ; 0 with no args. Try it!
    #..    (.__getitem__ ; Tuple method. Templates produce tuples.
@@ -1382,7 +1376,7 @@ Lissp Whirlwind Tour
    >>> # define
    ... __import__('builtins').setattr(
    ...   _macro_,
-   ...   'QzPLUS_',
+   ...   'Plus_',
    ...   (
    ...    lambda first=(0),
    ...           *args:
@@ -1392,7 +1386,7 @@ Lissp Whirlwind Tour
    ...           'operator..add',
    ...           first,
    ...           (
-   ...             '__main__..QzMaybe_.QzPLUS_',
+   ...             '__main__..Plus_',
    ...             *args,
    ...             ),
    ...           ),
@@ -1402,31 +1396,31 @@ Lissp Whirlwind Tour
    ...   ))
 
    #> (+ 1 2 3 4)
-   >>> # QzPLUS_
+   >>> # Plus_
    ... __import__('operator').add(
    ...   (1),
-   ...   # __main__..QzMaybe_.QzPLUS_
+   ...   # __main__..Plus_
    ...   __import__('operator').add(
    ...     (2),
-   ...     # __main__..QzMaybe_.QzPLUS_
+   ...     # __main__..Plus_
    ...     __import__('operator').add(
    ...       (3),
-   ...       # __main__..QzMaybe_.QzPLUS_
+   ...       # __main__..Plus_
    ...       (4))))
    10
 
 
-   ;; Notice that a new template doesn't qualify + with QzMaybe_ now that
-   ;; it detects a macro with that name.
+   ;; Notice that we get a different qualifier now that the reader detects a macro
+   ;; with that name: `__main__.._macro_.Plus` instead of `__main__.Plus_`.
    #> `(+ 1 2 3 4)
    >>> (
-   ...   '__main__.._macro_.QzPLUS_',
+   ...   '__main__.._macro_.Plus_',
    ...   (1),
    ...   (2),
    ...   (3),
    ...   (4),
    ...   )
-   ('__main__.._macro_.QzPLUS_', 1, 2, 3, 4)
+   ('__main__.._macro_.Plus_', 1, 2, 3, 4)
 
 
    ;; Recursive macros can also expand from the inside outwards, although
@@ -1440,7 +1434,7 @@ Lissp Whirlwind Tour
    >>> # define
    ... __import__('builtins').setattr(
    ...   _macro_,
-   ...   'QzSTAR_',
+   ...   'Star_',
    ...   (
    ...    lambda first=(1),
    ...           second=(1),
@@ -1452,7 +1446,7 @@ Lissp Whirlwind Tour
    ...           second,
    ...           ),
    ...         (
-   ...           '__main__..QzMaybe_.QzSTAR_',
+   ...           '__main__..Star_',
    ...           (
    ...             'operator..mul',
    ...             first,
@@ -1468,11 +1462,11 @@ Lissp Whirlwind Tour
 
    ;; Notice that the stacked expansion comments left by the compiler
    ;; have been squashed together. You can count the #s to see how many.
-   ;; 4 of them were recursive invocations and had to use the QzMaybe.
-   ;; The 5th didn't, and that accounts for all 5 calls in the expansion.
+   ;; 4 of them were recursive invocations using the qualified symbol.
+   ;; The first we wrote ourselves wasn't, and that accounts for 5 expansions.
    #> (* 1 2 3 4 5 6)
-   >>> # QzSTAR_
-   ... #### __main__..QzMaybe_.QzSTAR_
+   >>> # Star_
+   ... #### __main__..Star_
    ... __import__('operator').mul(
    ...   __import__('operator').mul(
    ...     __import__('operator').mul(
@@ -1502,15 +1496,15 @@ Lissp Whirlwind Tour
 
    #> (hissp..macroexpand1 '(* 1 2 3))        ;expanded (but still a macro form)
    >>> __import__('hissp').macroexpand1(
-   ...   ('QzSTAR_',
+   ...   ('Star_',
    ...    (1),
    ...    (2),
    ...    (3),))
-   ('__main__..QzMaybe_.QzSTAR_', ('operator..mul', 1, 2), 3)
+   ('__main__..Star_', ('operator..mul', 1, 2), 3)
 
    #> (hissp..macroexpand '(* 1 2 3))         ;repeats while it's a macro form
    >>> __import__('hissp').macroexpand(
-   ...   ('QzSTAR_',
+   ...   ('Star_',
    ...    (1),
    ...    (2),
    ...    (3),))
@@ -1518,15 +1512,15 @@ Lissp Whirlwind Tour
 
    #> (hissp..macroexpand '(+ 1 2 3))         ;but doesn't check subforms
    >>> __import__('hissp').macroexpand(
-   ...   ('QzPLUS_',
+   ...   ('Plus_',
    ...    (1),
    ...    (2),
    ...    (3),))
-   ('operator..add', 1, ('__main__..QzMaybe_.QzPLUS_', 2, 3))
+   ('operator..add', 1, ('__main__..Plus_', 2, 3))
 
    #> (hissp..macroexpand_all '(+ 1 2 3))     ;expands all macro subforms
    >>> __import__('hissp').macroexpand_all(
-   ...   ('QzPLUS_',
+   ...   ('Plus_',
    ...    (1),
    ...    (2),
    ...    (3),))
@@ -1597,20 +1591,20 @@ Lissp Whirlwind Tour
    ;; Macros only work as invocations, not arguments!
    #> (functools..reduce * '(1 2 3 4))        ;Oops.
    >>> __import__('functools').reduce(
-   ...   QzSTAR_,
+   ...   Star_,
    ...   ((1),
    ...    (2),
    ...    (3),
    ...    (4),))
    Traceback (most recent call last):
      ...
-   NameError: name 'QzSTAR_' is not defined
+   NameError: name 'Star_' is not defined
 
    #> (functools..reduce (lambda xy (* x y))  ;Invocation, not argument.
    #..                   '(1 2 3 4))
    >>> __import__('functools').reduce(
    ...   (lambda x, y:
-   ...       # QzSTAR_
+   ...       # Star_
    ...       __import__('operator').mul(
    ...         x,
    ...         y)
@@ -1654,7 +1648,7 @@ Lissp Whirlwind Tour
    >>> __import__('functools').reduce(
    ...   # XY
    ...   (lambda X, Y:
-   ...       # QzSTAR_
+   ...       # Star_
    ...       __import__('operator').mul(
    ...         X,
    ...         Y)
@@ -1668,10 +1662,10 @@ Lissp Whirlwind Tour
    #> ((XY + Y X) "Eggs" "Spam")
    >>> # XY
    ... (lambda X, Y:
-   ...     # QzPLUS_
+   ...     # Plus_
    ...     __import__('operator').add(
    ...       Y,
-   ...       # __main__..QzMaybe_.QzPLUS_
+   ...       # __main__..Plus_
    ...       X)
    ... )(
    ...   ('Eggs'),
@@ -1681,22 +1675,22 @@ Lissp Whirlwind Tour
 
    ;; It's possible for a macro to shadow a global. They live in different namespaces.
    #> (+ 1 2 3 4)                             ;_macro_.+, not the global.
-   >>> # QzPLUS_
+   >>> # Plus_
    ... __import__('operator').add(
    ...   (1),
-   ...   # __main__..QzMaybe_.QzPLUS_
+   ...   # __main__..Plus_
    ...   __import__('operator').add(
    ...     (2),
-   ...     # __main__..QzMaybe_.QzPLUS_
+   ...     # __main__..Plus_
    ...     __import__('operator').add(
    ...       (3),
-   ...       # __main__..QzMaybe_.QzPLUS_
+   ...       # __main__..Plus_
    ...       (4))))
    10
 
    #> (functools..reduce + '(1 2 3 4))        ;Global function, not the macro!
    >>> __import__('functools').reduce(
-   ...   QzPLUS_,
+   ...   Plus_,
    ...   ((1),
    ...    (2),
    ...    (3),
@@ -1704,7 +1698,7 @@ Lissp Whirlwind Tour
    10
 
 
-   (dir)                                   ;Has QzPLUS_, but not QzSTAR_.
+   (dir)                                   ;Has Plus_, but not Star_.
    (dir _macro_)                           ;Has both.
 
    ;; Notice the qualifier on sep. Qualifying a keyword doesn't make sense.

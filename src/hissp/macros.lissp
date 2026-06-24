@@ -28,13 +28,13 @@ only on the built-in special forms ``quote`` and ``lambda``, which makes
 their expansions compatible with advanced rewriting macros that process
 the Hissp expansions of other macros.
 
-(The -`[# <QzLSQB_QzHASH_>` and `my# <myQzHASH_>` tags are also something of an
+(The -`[# <Lsqb_Hash_>` and `my# <myHash_>` tags are also something of an
 exception, as one argument is written in Python to begin with.)
 
 That only goes for arguments and doesn't apply to inlined helper
 functions in the expansions that contain no user code, because that's no
 worse than using an opaque name imported from somewhere else. `if-else
-<ifQzH_else>` is one such example, expanding to a lambda containing an
+<if___else>` is one such example, expanding to a lambda containing an
 injected `conditional expression <if_expr>`, that is called immediately.
 "
 
@@ -109,11 +109,11 @@ See `hissp.macros`.
      #..  (if-else (op#eq c 'b)                 ;ternary conditional
      #..    (print 'Yes)
      #..    (print 'No)))
-     >>> # anyQzH_map
+     >>> # any___map
      ... __import__('builtins').any(
      ...   __import__('builtins').map(
      ...     (lambda c:
-     ...         # ifQzH_else
+     ...         # if___else
      ...         (lambda b, c, a: c()if b else a())(
      ...           __import__('operator').eq(
      ...             c,
@@ -132,7 +132,7 @@ See `hissp.macros`.
      Yes
      False
 
-  See also: `when`, `cond`, `any-map <anyQzH_map>`, `if_expr`.
+  See also: `when`, `cond`, `any-map <any___map>`, `if_expr`.
   "
   `((lambda ,'bca |c()if b else a()|) ; boolean, consequent, alternate
     ,test
@@ -202,7 +202,7 @@ See `hissp.macros`.
      x aa
      a b
 
-  See also: `let-call <letQzH_call>`, `my# <myQzHASH_>`, `locals`.
+  See also: `let-call <let___call>`, `my# <myHash_>`, `locals`.
   "
   `((lambda (: ,@pairs)
       ,@body)))
@@ -214,7 +214,7 @@ See `hissp.macros`.
 
      #> (let-call (a b : :* cs  g :?  h 'H) (:* 'ABCD  :? 'EF  g 'G)
      #..  (print cs b a g h))
-     >>> # letQzH_call
+     >>> # let___call
      ... (
      ...  lambda a,
      ...         b,
@@ -233,7 +233,7 @@ See `hissp.macros`.
      ...   g='G')
      ('C', 'D', 'EF') B A G H
 
-  See also: `let`, `let*call <letQzSTAR_call>`, `assignment`.
+  See also: `let`, `let*call <letStar_call>`, `assignment`.
   "
   `((lambda ,params ,@body) : ,@pairs))
 
@@ -275,7 +275,7 @@ See `hissp.macros`.
      #> (any-map c 'abcd
      #..  (unless (op#eq c 'b)
      #..    (print c)))
-     >>> # anyQzH_map
+     >>> # any___map
      ... __import__('builtins').any(
      ...   __import__('builtins').map(
      ...     (lambda c:
@@ -329,7 +329,7 @@ See `hissp.macros`.
      ...   # hissp.macros.._macro_.fun
      ...   # hissp.macros.._macro_.let
      ...   (
-     ...    lambda _Qzwin5lyqx__lambda=(lambda sep:
+     ...    lambda _gNKUV4WZP__lambda=(lambda sep:
      ...               (
      ...                 'builtins..print',
      ...                 (1),
@@ -342,15 +342,15 @@ See `hissp.macros`.
      ...           ):
      ...      ((
      ...         *__import__('itertools').starmap(
-     ...            _Qzwin5lyqx__lambda.__setattr__,
+     ...            _gNKUV4WZP__lambda.__setattr__,
      ...            __import__('builtins').dict(
      ...              __doc__='Prints 1 2 3 with the given separator',
      ...              __name__='p123',
      ...              __qualname__='_macro_.p123',
-     ...              __code__=_Qzwin5lyqx__lambda.__code__.replace(
+     ...              __code__=_gNKUV4WZP__lambda.__code__.replace(
      ...                         co_name='p123')).items()),
      ...         ),
-     ...       _Qzwin5lyqx__lambda)  [-1]
+     ...       _gNKUV4WZP__lambda)  [-1]
      ...   )())
 
      #> (p123 ::)
@@ -362,7 +362,7 @@ See `hissp.macros`.
      ...   sep='::')
      1::2::3
 
-  See also: `<# <QzLT_QzHASH_>`, `attach`, `lambda_`, `defun`.
+  See also: `<# <Lt_Hash_>`, `attach`, `lambda_`, `defun`.
   "
   (if-else (.startswith name ':)
     (exec '|raise SyntaxError('name cannot be a control word (try a \:)')|)
@@ -407,7 +407,7 @@ See `hissp.macros`.
 
   See `deftypeonce` for how to define methods.
 
-  See also: `def`, `define`, `defmacro`, `:@## <QzCOLON_QzAT_QzHASH_>`.
+  See also: `def`, `define`, `defmacro`, `:@## <Colon_At_Hash_>`.
   "
   `(define ,qualname (fun ,qualname ,params ,@body)))
 
@@ -478,8 +478,8 @@ See `hissp.macros`.
   ;; Defines a `type` (`class`), unless it exists.
   ;;
   ;; Add class attributes afterward using `define` or `defun`, and class
-  ;; decorators above with `:@## <QzCOLON_QzAT_QzHASH_>` or afterward
-  ;; using `zap@ <zapQzAT_>`. These run again on module reload, updating
+  ;; decorators above with `:@## <Colon_At_Hash_>` or afterward
+  ;; using `zap@ <zapAt_>`. These run again on module reload, updating
   ;; the existing class object, which can affect the behavior its
   ;; instances defined before the reload.
   ;;
@@ -512,12 +512,12 @@ See `hissp.macros`.
   ;;    ...         Point2D=(lambda X:
   ;;    ...                     # attach
   ;;    ...                     # hissp.macros.._macro_.let
-  ;;    ...                     (lambda _Qzvibdgdly__target=X:
+  ;;    ...                     (lambda _gC6Z2ODBH__target=X:
   ;;    ...                        (__import__('builtins').setattr(
-  ;;    ...                           _Qzvibdgdly__target,
+  ;;    ...                           _gC6Z2ODBH__target,
   ;;    ...                           '__doc__',
   ;;    ...                           ('Simple ordered pair.')),
-  ;;    ...                         _Qzvibdgdly__target)  [-1]
+  ;;    ...                         _gC6Z2ODBH__target)  [-1]
   ;;    ...                     )()
   ;;    ...                 )(
   ;;    ...                   __import__('builtins').type(
@@ -546,6 +546,7 @@ See `hissp.macros`.
   ;;
   ;;    #> (defun Point2D.__new__ (cls x y)
   ;;    #..  (.__new__ tuple cls `(,x ,y)))
+  ;;    FULL COMPILATION:
   ;;    >>> # defun
   ;;    ... # hissp.macros.._macro_.define
   ;;    ... __import__('builtins').setattr(
@@ -554,7 +555,7 @@ See `hissp.macros`.
   ;;    ...   # hissp.macros.._macro_.fun
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
-  ;;    ...    lambda _Qzzygff6yw__lambda=(lambda cls, x, y:
+  ;;    ...    lambda _gHDCRUAXN__lambda=(lambda cls, x, y:
   ;;    ...               tuple.__new__(
   ;;    ...                 cls,
   ;;    ...                 (
@@ -564,14 +565,14 @@ See `hissp.macros`.
   ;;    ...           ):
   ;;    ...      ((
   ;;    ...         *__import__('itertools').starmap(
-  ;;    ...            _Qzzygff6yw__lambda.__setattr__,
+  ;;    ...            _gHDCRUAXN__lambda.__setattr__,
   ;;    ...            __import__('builtins').dict(
   ;;    ...              __name__='__new__',
   ;;    ...              __qualname__='Point2D.__new__',
-  ;;    ...              __code__=_Qzzygff6yw__lambda.__code__.replace(
+  ;;    ...              __code__=_gHDCRUAXN__lambda.__code__.replace(
   ;;    ...                         co_name='__new__')).items()),
   ;;    ...         ),
-  ;;    ...       _Qzzygff6yw__lambda)  [-1]
+  ;;    ...       _gHDCRUAXN__lambda)  [-1]
   ;;    ...   )())
   ;;
   ;;    #> (defun Point2D.__repr__ (self)
@@ -584,20 +585,20 @@ See `hissp.macros`.
   ;;    ...   # hissp.macros.._macro_.fun
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
-  ;;    ...    lambda _Qzhdg2exzl__lambda=(lambda self:
+  ;;    ...    lambda _gRCWY23WM__lambda=(lambda self:
   ;;    ...               ('Point2D({!r}, {!r})').format(
   ;;    ...                 *self)
   ;;    ...           ):
   ;;    ...      ((
   ;;    ...         *__import__('itertools').starmap(
-  ;;    ...            _Qzhdg2exzl__lambda.__setattr__,
+  ;;    ...            _gRCWY23WM__lambda.__setattr__,
   ;;    ...            __import__('builtins').dict(
   ;;    ...              __name__='__repr__',
   ;;    ...              __qualname__='Point2D.__repr__',
-  ;;    ...              __code__=_Qzhdg2exzl__lambda.__code__.replace(
+  ;;    ...              __code__=_gRCWY23WM__lambda.__code__.replace(
   ;;    ...                         co_name='__repr__')).items()),
   ;;    ...         ),
-  ;;    ...       _Qzhdg2exzl__lambda)  [-1]
+  ;;    ...       _gRCWY23WM__lambda)  [-1]
   ;;    ...   )())
   ;;
   ;;    #> (Point2D 1 2)
@@ -628,21 +629,21 @@ See `hissp.macros`.
   ;;    ...      # hissp.macros.._macro_.fun
   ;;    ...      # hissp.macros.._macro_.let
   ;;    ...      (
-  ;;    ...       lambda _Qzujblvbnr__lambda=(lambda cls, /, **kwargs:
+  ;;    ...       lambda _gXEVGDNH2__lambda=(lambda cls, /, **kwargs:
   ;;    ...                  print(
   ;;    ...                    kwargs)
   ;;    ...              ):
   ;;    ...         ((
   ;;    ...            *__import__('itertools').starmap(
-  ;;    ...               _Qzujblvbnr__lambda.__setattr__,
+  ;;    ...               _gXEVGDNH2__lambda.__setattr__,
   ;;    ...               __import__('builtins').dict(
   ;;    ...                 __doc__=('Just displays inputs'),
   ;;    ...                 __name__='__init_subclass__',
   ;;    ...                 __qualname__='Point2D.__init_subclass__',
-  ;;    ...                 __code__=_Qzujblvbnr__lambda.__code__.replace(
+  ;;    ...                 __code__=_gXEVGDNH2__lambda.__code__.replace(
   ;;    ...                            co_name='__init_subclass__')).items()),
   ;;    ...            ),
-  ;;    ...          _Qzujblvbnr__lambda)  [-1]
+  ;;    ...          _gXEVGDNH2__lambda)  [-1]
   ;;    ...      )()),
   ;;    ...    classmethod(
   ;;    ...      Point2D.__init_subclass__))  [-1])
@@ -732,7 +733,7 @@ See `hissp.macros`.
      ...   # hissp.macros.._macro_.fun
      ...   # hissp.macros.._macro_.let
      ...   (
-     ...    lambda _Qzz7drxadm__lambda=(lambda self, other:
+     ...    lambda _gB5WXG6ZL__lambda=(lambda self, other:
      ...               Vec3D._make(
      ...                 map(
      ...                   __import__('operator').add,
@@ -741,14 +742,14 @@ See `hissp.macros`.
      ...           ):
      ...      ((
      ...         *__import__('itertools').starmap(
-     ...            _Qzz7drxadm__lambda.__setattr__,
+     ...            _gB5WXG6ZL__lambda.__setattr__,
      ...            __import__('builtins').dict(
      ...              __name__='__add__',
      ...              __qualname__='Vec3D.__add__',
-     ...              __code__=_Qzz7drxadm__lambda.__code__.replace(
+     ...              __code__=_gB5WXG6ZL__lambda.__code__.replace(
      ...                         co_name='__add__')).items()),
      ...         ),
-     ...       _Qzz7drxadm__lambda)  [-1]
+     ...       _gB5WXG6ZL__lambda)  [-1]
      ...   )())
 
      #> (op#add offset offset)
@@ -780,7 +781,7 @@ See `hissp.macros`.
   its first argument (not `defmacro`, but `defun` can target the
   ``_macro_`` namespace if it exists).
 
-  Use `zap@ <zapQzAT_>` to decorate an attribute after its definition.
+  Use `zap@ <zapAt_>` to decorate an attribute after its definition.
 
   .. code-block:: REPL
 
@@ -808,7 +809,7 @@ See `hissp.macros`.
     `(define ,qualname (progn ,definition (,decoration ,qualname)))))
 
 (defmacro let*call (pairs : :* body)
-  "``let*call`` 'let star call' Nested `let-call <letQzH_call>`.
+  "``let*call`` 'let star call' Nested `let-call <let___call>`.
 
   Can unpack nested data by using multiple stages.
 
@@ -821,33 +822,33 @@ See `hissp.macros`.
      #..           (: :** jkls) (j 'J  k 'K  l 'L) ; kwargs (dict packing)
      #..           (j k l : m None  n '|N?|) (:** jkls)) ; dict unpacking with defaults
      #..  (print a b cs abcs d e f g h i j k l m n jkls))
-     >>> # letQzSTAR_call
-     ... # hissp.macros.._macro_.letQzH_call
+     >>> # letStar_call
+     ... # hissp.macros.._macro_.let___call
      ... (lambda abcs:
-     ...     # hissp.macros..QzMaybe_.letQzSTAR_call
-     ...     # hissp.macros.._macro_.letQzH_call
+     ...     # hissp.macros..letStar_call
+     ...     # hissp.macros.._macro_.let___call
      ...     (lambda a, b, *cs:
-     ...         # hissp.macros..QzMaybe_.letQzSTAR_call
-     ...         # hissp.macros.._macro_.letQzH_call
+     ...         # hissp.macros..letStar_call
+     ...         # hissp.macros.._macro_.let___call
      ...         (
      ...          lambda d=(),
      ...                 e=(),
      ...                 f=():
-     ...             # hissp.macros..QzMaybe_.letQzSTAR_call
-     ...             # hissp.macros.._macro_.letQzH_call
+     ...             # hissp.macros..letStar_call
+     ...             # hissp.macros.._macro_.let___call
      ...             (lambda g, h, i:
-     ...                 # hissp.macros..QzMaybe_.letQzSTAR_call
-     ...                 # hissp.macros.._macro_.letQzH_call
+     ...                 # hissp.macros..letStar_call
+     ...                 # hissp.macros.._macro_.let___call
      ...                 (lambda **jkls:
-     ...                     # hissp.macros..QzMaybe_.letQzSTAR_call
-     ...                     # hissp.macros.._macro_.letQzH_call
+     ...                     # hissp.macros..letStar_call
+     ...                     # hissp.macros.._macro_.let___call
      ...                     (
      ...                      lambda j,
      ...                             k,
      ...                             l,
      ...                             m=None,
      ...                             n='N?':
-     ...                         # hissp.macros..QzMaybe_.letQzSTAR_call
+     ...                         # hissp.macros..letStar_call
      ...                         # hissp.macros.._macro_.progn
      ...                         print(
      ...                           a,
@@ -882,7 +883,7 @@ See `hissp.macros`.
      ...   'abcdef')
      a b ('c', 'd', 'e', 'f') abcdef d e () g h i J K L None N? {'j': 'J', 'k': 'K', 'l': 'L'}
 
-  See also: `my# <myQzHASH_>`, `destruct-> <destructQzH_QzGT_>`.
+  See also: `my# <myHash_>`, `destruct-> <destruct___Gt_>`.
   "
   (if-else pairs
     `(let-call ,|pairs[0]| ,|pairs[1]|
@@ -915,7 +916,7 @@ See `hissp.macros`.
 (defmacro O\# (expr)
   <#;``O#`` 'thunk' Make ``expr`` an anonymous function body with no parameters.
   ;;
-  ;; See also: `X# <XQzHASH_>`.
+  ;; See also: `X# <XHash_>`.
   ;;
   `(lambda : ,expr))
 
@@ -932,7 +933,7 @@ See `hissp.macros`.
   ;;    >>> list(
   ;;    ...   map(
   ;;    ...     (lambda X:
-  ;;    ...         # QzAT_
+  ;;    ...         # At_
   ;;    ...         (lambda *xs: [*xs])(
   ;;    ...           X)
   ;;    ...     ),
@@ -946,15 +947,15 @@ See `hissp.macros`.
   ;;    #> (define teen? X#|13<=X<20|)
   ;;    >>> # define
   ;;    ... __import__('builtins').globals().update(
-  ;;    ...   teenQzQUERY_=(lambda X: 13<=X<20))
+  ;;    ...   teenEh_=(lambda X: 13<=X<20))
   ;;
   ;;    #> (teen? 12.5)
-  ;;    >>> teenQzQUERY_(
+  ;;    >>> teenEh_(
   ;;    ...   (12.5))
   ;;    False
   ;;
   ;;    #> (teen? 19.5)
-  ;;    >>> teenQzQUERY_(
+  ;;    >>> teenEh_(
   ;;    ...   (19.5))
   ;;    True
   ;;
@@ -974,21 +975,21 @@ See `hissp.macros`.
   ;;    #> (define class-name X#X.__class__.__name__) ; Attributes chain.
   ;;    >>> # define
   ;;    ... __import__('builtins').globals().update(
-  ;;    ...   classQzH_name=(lambda X: X.__class__.__name__))
+  ;;    ...   class___name=(lambda X: X.__class__.__name__))
   ;;
   ;;    #> (class-name object)
-  ;;    >>> classQzH_name(
+  ;;    >>> class___name(
   ;;    ...   object)
   ;;    'type'
   ;;
   ;;    #> (class-name "foo")
-  ;;    >>> classQzH_name(
+  ;;    >>> class___name(
   ;;    ...   ('foo'))
   ;;    'str'
   ;;
   ;; See also:
-  ;; `en# <enQzHASH_>`, `O# <OQzHASH_>`, `XY# <XYQzHASH_>`,
-  ;; `@# <QzAT_QzHASH_>`, `operator.attrgetter`, `lambda`.
+  ;; `en# <enHash_>`, `O# <OHash_>`, `XY# <XYHash_>`,
+  ;; `@# <At_Hash_>`, `operator.attrgetter`, `lambda`.
   ;;
   `(lambda ,'X ,expr))
 
@@ -1008,7 +1009,7 @@ See `hissp.macros`.
   ;;    'dcba'
   ;;
   ;; See also:
-  ;; `X# <XQzHASH_>`, `/XY# <QzSOL_XYQzHASH_>`, `XYZ# <XYZQzHASH_>`.
+  ;; `X# <XHash_>`, `/XY# <Fsol_XYHash_>`, `XYZ# <XYZHash_>`.
   ;;
   `(lambda ,'XY ,expr))
 
@@ -1024,7 +1025,7 @@ See `hissp.macros`.
   ;;    ...   Z=__import__('math').tau)
   ;;    True
   ;;
-  ;; See also: `XY# <XYQzHASH_>`, `XYZW# <XYZWQzHASH_>`.
+  ;; See also: `XY# <XYHash_>`, `XYZW# <XYZWHash_>`.
   ;;
   `(lambda ,'XYZ ,expr))
 
@@ -1041,7 +1042,7 @@ See `hissp.macros`.
   ;;    ...   (-2))
   ;;    'Hello'
   ;;
-  ;; See also: `XYZ# <XYZQzHASH_>`, `en# <enQzHASH_>`, `X# <XQzHASH_>`.
+  ;; See also: `XYZ# <XYZHash_>`, `en# <enHash_>`, `X# <XHash_>`.
   ;;
   `(lambda ,'XYZW ,expr))
 
@@ -1069,7 +1070,7 @@ See `hissp.macros`.
   ;;    ...   'ABCD')
   ;;    'DCBA'
   ;;
-  ;; See also: `XY# <XYQzHASH_>`, `/# <QzSOL_QzHASH_>`.
+  ;; See also: `XY# <XYHash_>`, `/# <Fsol_Hash_>`.
   ;;
   `(functools..partial functools..reduce (lambda ,'XY ,expr)))
 
@@ -1084,114 +1085,84 @@ See `hissp.macros`.
   ;;    ... __import__('builtins').setattr(
   ;;    ...   __import__('builtins').globals().get(
   ;;    ...     ('_macro_')),
-  ;;    ...   'HQzHASH_',
+  ;;    ...   'HHash_',
   ;;    ...   # hissp.macros.._macro_.fun
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
-  ;;    ...    lambda _Qzwxh432ki__lambda=(lambda _Qzrtjqfxk2__attr, /, *_Qzrtjqfxk2__args, **_Qzrtjqfxk2__kwargs:
-  ;;    ...               # hissp.macros.._macro_.let
-  ;;    ...               (
-  ;;    ...                lambda _Qzrtjqfxk2__attr=# hissp.macros.._macro_.ifQzH_else
-  ;;    ...                       (lambda b, c, a: c()if b else a())(
-  ;;    ...                         __import__('hissp').is_control(
-  ;;    ...                           _Qzrtjqfxk2__attr),
-  ;;    ...                         (lambda :
-  ;;    ...                             ('_macro_.{}{}').format(
-  ;;    ...                               __import__('hissp').munge(
-  ;;    ...                                 _Qzrtjqfxk2__attr.removeprefix(
-  ;;    ...                                   ':')),
-  ;;    ...                               # hissp.macros.._macro_.ifQzH_else
-  ;;    ...                               (lambda b, c, a: c()if b else a())(
-  ;;    ...                                 # hissp.macros.._macro_.ifQzH_else
-  ;;    ...                                 (lambda b, c, a: c()if b else a())(
-  ;;    ...                                   _Qzrtjqfxk2__args,
-  ;;    ...                                   (lambda : ':or'),
-  ;;    ...                                   (lambda : _Qzrtjqfxk2__kwargs)),
-  ;;    ...                                 (lambda : 'QzHASH_'),
-  ;;    ...                                 (lambda : (''))))
-  ;;    ...                         ),
-  ;;    ...                         (lambda : _Qzrtjqfxk2__attr)):
-  ;;    ...                   # hissp.macros.._macro_.ifQzH_else
-  ;;    ...                   (lambda b, c, a: c()if b else a())(
-  ;;    ...                     # hissp.macros.._macro_.ifQzH_else
-  ;;    ...                     (lambda b, c, a: c()if b else a())(
-  ;;    ...                       _Qzrtjqfxk2__args,
-  ;;    ...                       (lambda : ':or'),
-  ;;    ...                       (lambda : _Qzrtjqfxk2__kwargs)),
-  ;;    ...                     (lambda :
-  ;;    ...                         __import__('operator').attrgetter(
-  ;;    ...                           _Qzrtjqfxk2__attr)(
-  ;;    ...                           __import__('hissp'))(
-  ;;    ...                           *_Qzrtjqfxk2__args,
-  ;;    ...                           **_Qzrtjqfxk2__kwargs)
-  ;;    ...                     ),
-  ;;    ...                     (lambda :
-  ;;    ...                         ('{}.{}').format(
-  ;;    ...                           'hissp.',
-  ;;    ...                           _Qzrtjqfxk2__attr)
-  ;;    ...                     ))
-  ;;    ...               )()
+  ;;    ...    lambda _gQGGKB6VA__lambda=(lambda _g3HACGW3X__attr, /, *_g3HACGW3X__args, **_g3HACGW3X__kwargs:
+  ;;    ...               # hissp.macros.._macro_.if___else
+  ;;    ...               (lambda b, c, a: c()if b else a())(
+  ;;    ...                 (
+  ;;    ...                   not(
+  ;;    ...                     _g3HACGW3X__args)).__and__(
+  ;;    ...                   not(
+  ;;    ...                     _g3HACGW3X__kwargs)),
+  ;;    ...                 (lambda :
+  ;;    ...                     ('{}.{}').format(
+  ;;    ...                       'hissp.',
+  ;;    ...                       _g3HACGW3X__attr)
+  ;;    ...                 ),
+  ;;    ...                 (lambda :
+  ;;    ...                     __import__('hissp')._macro_.__getattribute__(
+  ;;    ...                       ('{}{}').format(
+  ;;    ...                         _g3HACGW3X__attr,
+  ;;    ...                         'Hash_'))(
+  ;;    ...                       *_g3HACGW3X__args,
+  ;;    ...                       **_g3HACGW3X__kwargs)
+  ;;    ...                 ))
   ;;    ...           ):
   ;;    ...      ((
   ;;    ...         *__import__('itertools').starmap(
-  ;;    ...            _Qzwxh432ki__lambda.__setattr__,
+  ;;    ...            _gQGGKB6VA__lambda.__setattr__,
   ;;    ...            __import__('builtins').dict(
   ;;    ...              __doc__='Aliases ``hissp.`` as ``H#``.',
-  ;;    ...              __name__='HQzHASH_',
-  ;;    ...              __qualname__='_macro_.HQzHASH_',
-  ;;    ...              __code__=_Qzwxh432ki__lambda.__code__.replace(
-  ;;    ...                         co_name='HQzHASH_')).items()),
+  ;;    ...              __name__='HHash_',
+  ;;    ...              __qualname__='_macro_.HHash_',
+  ;;    ...              __code__=_gQGGKB6VA__lambda.__code__.replace(
+  ;;    ...                         co_name='HHash_')).items()),
   ;;    ...         ),
-  ;;    ...       _Qzwxh432ki__lambda)  [-1]
+  ;;    ...       _gQGGKB6VA__lambda)  [-1]
   ;;    ...   )())
   ;;
-  ;;    #> 'H#munge ; New tag prepends qualifier.
+  ;;    #> 'H#munge ; One-arg form of new tag prepends qualifier.
   ;;    >>> 'hissp..munge'
   ;;    'hissp..munge'
   ;;
   ;;    #> (H#munge "*") ; Normal function call.
   ;;    >>> __import__('hissp').munge(
   ;;    ...   ('*'))
-  ;;    'QzSTAR_'
+  ;;    'Star_'
   ;;
-  ;;    #> 'H##munge|*| ; Read-time apply, like a fully qualified tag.
-  ;;    >>> 'QzSTAR_'
-  ;;    'QzSTAR_'
+  ;;    #> '.##H#munge|*| ; Read-time apply via .#, like a fully qualified tag.
+  ;;    >>> 'Star_'
+  ;;    'Star_'
   ;;
-  ;;    #> 'H#:let-call ; control word inserts _macro_. Still munges.
-  ;;    >>> 'hissp.._macro_.letQzH_call'
-  ;;    'hissp.._macro_.letQzH_call'
-  ;;
-  ;;    #> (H#:let-call ab (:* "AB") b) ; Macro form.
-  ;;    >>> # hissp.._macro_.letQzH_call
+  ;;    #> (H#let-call ab (:* "AB") b) ; Macro form. Compiler checks _macro_.
+  ;;    >>> # hissp..let___call
   ;;    ... (lambda a, b: b)(
   ;;    ...   *('AB'))
   ;;    'B'
   ;;
-  ;;    #> H#|:b#| ;b# tag's callable. Note #.
-  ;;    >>> __import__('hissp')._macro_.bQzHASH_
-  ;;    <function _macro_.bQzHASH_ at ...>
-  ;;
-  ;;    #> (H#:b\#"b# at compile time") ; Macro form. :b\# == |:b#|
-  ;;    >>> # hissp.._macro_.bQzHASH_
-  ;;    ... b'b# at compile time'
-  ;;    b'b# at compile time'
+  ;;    #> (H#b\#"a b# at compile time") ; Macro form.
+  ;;    >>> # hissp..bHash_
+  ;;    ... b'a b# at compile time'
+  ;;    b'a b# at compile time'
   ;;
   ;;    #> hissp.._macro_.b#"Fully qualified b# at read time." ; \# implied.
   ;;    >>> b'Fully qualified b# at read time.'
   ;;    b'Fully qualified b# at read time.'
   ;;
-  ;;    #> H##:b"Read-time b# via alias." ; \# implied.
-  ;;    >>> b'Read-time b# via alias.'
-  ;;    b'Read-time b# via alias.'
+  ;;    #> H##b"Read-time b# via multiple-arg alias." ; _macro_ & \# implied.
+  ;;    >>> b'Read-time b# via multiple-arg alias.'
+  ;;    b'Read-time b# via multiple-arg alias.'
   ;;
-  ;;    #> H###:@ ns=math. name='tau ; Kwargs also work.
+  ;;    #> H###@ ns=math. name='tau ; Kwargs also work.
   ;;    >>> __import__('operator').attrgetter(
   ;;    ...   'tau')(
   ;;    ...   __import__('math'))
   ;;    6.283185307179586
   ;;
-  ;; The bundled `op# <opQzHASH_>` and `i# <iQzHASH_>` tags are aliases
+  ;; The bundled `op# <opHash_>` and `i# <iHash_>` tags are aliases
   ;; for `operator` and `itertools`, respectively.
   ;;
   ;; See also: `prelude`, `attach`, `hissp.alias`.
@@ -1200,15 +1171,11 @@ See `hissp.macros`.
   `(defmacro ,(.format "{}{}" (.replace abbreviation '. '\.) '#)
              ($#attr :/ : :* $#args  :** $#kwargs)
      ',(.format "Aliases ``{}`` as ``{}#``." qualifier abbreviation)
-     (let ($#attr (if-else (hissp..is_control $#attr)
-                    (.format "_macro_.{}{}"
-                             (hissp..munge (.removeprefix $#attr ':))
-                             (if-else (if-else $#args :or $#kwargs) ','# ""))
-                    $#attr))
-       (if-else (if-else $#args :or $#kwargs)
-         (((operator..attrgetter $#attr) ,qualifier)
-          : :* $#args  :** $#kwargs)
-         (.format "{}.{}" ',qualifier $#attr)))))
+     (if-else (.__and__ (|| (not $#args))
+                        (not $#kwargs))
+       (.format "{}.{}" ',qualifier $#attr)
+       ((.__getattribute__ ,|qualifier+"._macro_"| (.format "{}{}" $#attr ','#))
+        : :* $#args  :** $#kwargs))))
 
 ;; Long-named standard-library modules commonly used in Python code.
 (alias col collections.)
@@ -1282,14 +1249,14 @@ See `hissp.macros`.
   ;;
   ;;    #> !##'+ (dict : foo 2  + 1)               ;These also work on dicts.
   ;;    >>> __import__('operator').itemgetter(
-  ;;    ...   'QzPLUS_')(
+  ;;    ...   'Plus_')(
   ;;    ...   dict(
   ;;    ...     foo=(2),
-  ;;    ...     QzPLUS_=(1)))
+  ;;    ...     Plus_=(1)))
   ;;    1
   ;;
   ;;    #> (-> '(foo bar) !#1 .upper !#1)          ;Unary compatible with ->.
-  ;;    >>> # QzH_QzGT_
+  ;;    >>> # Dash_Gt_
   ;;    ... __import__('operator').itemgetter(
   ;;    ...   (1))(
   ;;    ...   __import__('operator').itemgetter(
@@ -1301,8 +1268,8 @@ See `hissp.macros`.
   ;;    'A'
   ;;
   ;; See also: `operator.getitem`, `operator.itemgetter`,
-  ;; `[# <QzLSQB_QzHASH_>`, `set! <setQzBANG_>`, `&# <QzET_QzHASH_>`,
-  ;; `@# <QzAT_QzHASH_>`.
+  ;; `[# <Lsqb_Hash_>`, `set! <setBang_>`, `&# <Et_Hash_>`,
+  ;; `@# <At_Hash_>`.
   ;;
   `((op#itemgetter ,key) ,items))
 
@@ -1315,19 +1282,19 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> [##1][::2] '(foo bar)
-  ;;    >>> (lambda _Qznxnvf5z5__items: (_Qznxnvf5z5__items[1][::2]))(
+  ;;    >>> (lambda _gER3ASVPQ__items: (_gER3ASVPQ__items[1][::2]))(
   ;;    ...   ('foo',
   ;;    ...    'bar',))
   ;;    'br'
   ;;
-  ;; Unary compatible with `-> <QzH_QzGT_>` and `&# <QzET_QzHASH_>`.
+  ;; Unary compatible with `-> <Dash_Gt_>` and `&# <Et_Hash_>`.
   ;;
   ;; .. code-block:: REPL
   ;;
   ;;    #> (-> '(foo bar) [#1] .upper [#::2])
-  ;;    >>> # QzH_QzGT_
-  ;;    ... (lambda _Qznxnvf5z5__items: (_Qznxnvf5z5__items[::2]))(
-  ;;    ...   (lambda _Qznxnvf5z5__items: (_Qznxnvf5z5__items[1]))(
+  ;;    >>> # Dash_Gt_
+  ;;    ... (lambda _gMR7QE3F2__items: (_gMR7QE3F2__items[::2]))(
+  ;;    ...   (lambda _gMR7QE3F2__items: (_gMR7QE3F2__items[1]))(
   ;;    ...     ('foo',
   ;;    ...      'bar',),
   ;;    ...     ).upper(),
@@ -1338,14 +1305,14 @@ See `hissp.macros`.
   ;;    >>> ('').join(
   ;;    ...   map(
   ;;    ...     __import__('functools').partial(
-  ;;    ...       (lambda _Qznxnvf5z5__items: (_Qznxnvf5z5__items[1])),
+  ;;    ...       (lambda _gFMSK2DQ7__items: (_gFMSK2DQ7__items[1])),
   ;;    ...       ),
   ;;    ...     ('abc',
   ;;    ...      'xyz',
   ;;    ...      '123',)))
   ;;    'by2'
   ;;
-  ;; See also: `\!# <QzBANG_QzHASH_>`, `-> <QzH_QzGT_>`, `slice`,
+  ;; See also: `\!# <Bang_Hash_>`, `-> <Dash_Gt_>`, `slice`,
   ;; `subscriptions`, `slicings`.
   ;;
   `((lambda ($#items)
@@ -1382,7 +1349,7 @@ See `hissp.macros`.
   ;;    ...         spam='intersection':
   ;;    ...     __import__('operator').attrgetter(
   ;;    ...       '__class__.__name__')(
-  ;;    ...       # QzH_QzGT_
+  ;;    ...       # Dash_Gt_
   ;;    ...       eggs(
   ;;    ...         __import__('operator').attrgetter(
   ;;    ...           '__doc__')(
@@ -1394,9 +1361,9 @@ See `hissp.macros`.
   ;;    ... )()
   ;;    'builtin_function_or_method'
   ;;
-  ;; See also: `getattr`, `operator.attrgetter`, `X# <XQzHASH_>`,
-  ;; `\!# <QzBANG_QzHASH_>`, `&# <QzET_QzHASH_>`,
-  ;; `:@## <QzCOLON_QzAT_QzHASH_>`.
+  ;; See also: `getattr`, `operator.attrgetter`, `X# <XHash_>`,
+  ;; `\!# <Bang_Hash_>`, `&# <Et_Hash_>`,
+  ;; `:@## <Colon_At_Hash_>`.
   ;;
   `((op#attrgetter ,name) ,ns))
 
@@ -1416,23 +1383,23 @@ See `hissp.macros`.
   ;;
   ;;    #> (set! spam 1 (set! spam 2 10)) ; setitem can't do this.
   ;;    #..
-  ;;    >>> # setQzBANG_
+  ;;    >>> # setBang_
   ;;    ... # hissp.macros.._macro_.let
   ;;    ... (
-  ;;    ...  lambda _Qzwk5j5q64__value=# setQzBANG_
+  ;;    ...  lambda _gOR6DYBDV__value=# setBang_
   ;;    ...         # hissp.macros.._macro_.let
-  ;;    ...         (lambda _Qzwk5j5q64__value=(10):
+  ;;    ...         (lambda _gOR6DYBDV__value=(10):
   ;;    ...            (__import__('operator').setitem(
   ;;    ...               spam,
   ;;    ...               (2),
-  ;;    ...               _Qzwk5j5q64__value),
-  ;;    ...             _Qzwk5j5q64__value)  [-1]
+  ;;    ...               _gOR6DYBDV__value),
+  ;;    ...             _gOR6DYBDV__value)  [-1]
   ;;    ...         )():
   ;;    ...    (__import__('operator').setitem(
   ;;    ...       spam,
   ;;    ...       (1),
-  ;;    ...       _Qzwk5j5q64__value),
-  ;;    ...     _Qzwk5j5q64__value)  [-1]
+  ;;    ...       _gOR6DYBDV__value),
+  ;;    ...     _gOR6DYBDV__value)  [-1]
   ;;    ... )()
   ;;    10
   ;;
@@ -1440,7 +1407,7 @@ See `hissp.macros`.
   ;;    >>> spam
   ;;    {2: 10, 1: 10}
   ;;
-  ;; See also: `operator.setitem`, `operator.delitem`, `zap! <zapQzBANG_>`.
+  ;; See also: `operator.setitem`, `operator.delitem`, `zap! <zapBang_>`.
   ;;
   `(let ($#value ,value)
      (op#setitem ,items ,key $#value)
@@ -1464,23 +1431,23 @@ See `hissp.macros`.
   ;;
   ;;    #> (zap! spam 'b op#iadd 1) ; Augmented item assignment, like +=.
   ;;    #..
-  ;;    >>> # zapQzBANG_
+  ;;    >>> # zapBang_
   ;;    ... # hissp.macros.._macro_.let
   ;;    ... (
-  ;;    ...  lambda _Qzm6fx4xxk__items=spam,
-  ;;    ...         _Qzm6fx4xxk__key='b':
-  ;;    ...     # hissp.macros.._macro_.setQzBANG_
+  ;;    ...  lambda _gITEIW3OF__items=spam,
+  ;;    ...         _gITEIW3OF__key='b':
+  ;;    ...     # hissp.macros.._macro_.setBang_
   ;;    ...     # hissp.macros.._macro_.let
   ;;    ...     (
-  ;;    ...      lambda _Qzwk5j5q64__value=__import__('operator').iadd(
-  ;;    ...               _Qzm6fx4xxk__items.__getitem__(
-  ;;    ...                 _Qzm6fx4xxk__key),
+  ;;    ...      lambda _gI2PHTEDN__value=__import__('operator').iadd(
+  ;;    ...               _gITEIW3OF__items.__getitem__(
+  ;;    ...                 _gITEIW3OF__key),
   ;;    ...               (1)):
   ;;    ...        (__import__('operator').setitem(
-  ;;    ...           _Qzm6fx4xxk__items,
-  ;;    ...           _Qzm6fx4xxk__key,
-  ;;    ...           _Qzwk5j5q64__value),
-  ;;    ...         _Qzwk5j5q64__value)  [-1]
+  ;;    ...           _gITEIW3OF__items,
+  ;;    ...           _gITEIW3OF__key,
+  ;;    ...           _gI2PHTEDN__value),
+  ;;    ...         _gI2PHTEDN__value)  [-1]
   ;;    ...     )()
   ;;    ... )()
   ;;    11
@@ -1489,7 +1456,7 @@ See `hissp.macros`.
   ;;    >>> spam
   ;;    {'b': 11}
   ;;
-  ;; See also: `set! <setQzBANG_>`, `zap@ <zapQzAT_>`, `augassign`.
+  ;; See also: `set! <setBang_>`, `zap@ <zapAt_>`, `augassign`.
   ;;
   `(let ($#items ,items
          $#key ,key)
@@ -1511,16 +1478,16 @@ See `hissp.macros`.
   ;;
   ;;    #> set[###-1] spam set[###::2] spam "ab" ; Chained assignment.
   ;;    >>> (
-  ;;    ...  lambda _Qzuwg7puku__items,
-  ;;    ...         _Qzuwg7puku__value=(
-  ;;    ...          lambda _Qzuwg7puku__items,
-  ;;    ...                 _Qzuwg7puku__value=('ab'):
-  ;;    ...             [_Qzuwg7puku__value
-  ;;    ...              for(_Qzuwg7puku__items[::2])in[_Qzuwg7puku__value]][0]
+  ;;    ...  lambda _g3TTXFOWE__items,
+  ;;    ...         _g3TTXFOWE__value=(
+  ;;    ...          lambda _g3TTXFOWE__items,
+  ;;    ...                 _g3TTXFOWE__value=('ab'):
+  ;;    ...             [_g3TTXFOWE__value
+  ;;    ...              for(_g3TTXFOWE__items[::2])in[_g3TTXFOWE__value]][0]
   ;;    ...         )(
   ;;    ...           spam):
-  ;;    ...     [_Qzuwg7puku__value
-  ;;    ...      for(_Qzuwg7puku__items[-1])in[_Qzuwg7puku__value]][0]
+  ;;    ...     [_g3TTXFOWE__value
+  ;;    ...      for(_g3TTXFOWE__items[-1])in[_g3TTXFOWE__value]][0]
   ;;    ... )(
   ;;    ...   spam)
   ;;    'ab'
@@ -1535,21 +1502,21 @@ See `hissp.macros`.
   ;;
   ;;    #> (doto (dict) set[###1] || 2)
   ;;    >>> # doto
-  ;;    ... (lambda _Qzogaeaa42__self=dict():
+  ;;    ... (lambda _gOFBSTZ6J__self=dict():
   ;;    ...    ((
-  ;;    ...      lambda _Qzuwg7puku__items,
-  ;;    ...             _Qzuwg7puku__value=(2):
-  ;;    ...         [_Qzuwg7puku__value
-  ;;    ...          for(_Qzuwg7puku__items[1])in[_Qzuwg7puku__value]][0]
+  ;;    ...      lambda _gZEOID6JH__items,
+  ;;    ...             _gZEOID6JH__value=(2):
+  ;;    ...         [_gZEOID6JH__value
+  ;;    ...          for(_gZEOID6JH__items[1])in[_gZEOID6JH__value]][0]
   ;;    ...     )(
-  ;;    ...       _Qzogaeaa42__self,
+  ;;    ...       _gOFBSTZ6J__self,
   ;;    ...       ),
-  ;;    ...     _Qzogaeaa42__self)  [-1]
+  ;;    ...     _gOFBSTZ6J__self)  [-1]
   ;;    ... )()
   ;;    {1: 2}
   ;;
-  ;; See also: `my# <myQzHASH_>`, `set! <setQzBANG_>`,
-  ;; `zap[### <zapQzLSQB_QzHASH_>`.
+  ;; See also: `my# <myHash_>`, `set! <setBang_>`,
+  ;; `zap[### <zapLsqb_Hash_>`.
   ;;
   `((lambda ($#items : $#value ,value)
       ,(.format "[{v}\n for({}[{})in[{v}]][0]"
@@ -1573,15 +1540,15 @@ See `hissp.macros`.
   ;;    ...          ('abcd')))
   ;;
   ;;    #> zap[###:2] spam (op#iadd "XY")
-  ;;    >>> (lambda _Qzvibdgdly__items:
+  ;;    >>> (lambda _gQGBD7VBT__items:
   ;;    ...     # hissp.macros.._macro_.let
   ;;    ...     (
-  ;;    ...      lambda _Qzvibdgdly__value=# hissp.macros..QzMaybe_.QzH_QzGT_
+  ;;    ...      lambda _gQGBD7VBT__value=# hissp.macros..Dash_Gt_
   ;;    ...             __import__('operator').iadd(
-  ;;    ...               (_Qzvibdgdly__items[:2]),
+  ;;    ...               (_gQGBD7VBT__items[:2]),
   ;;    ...               ('XY')):
-  ;;    ...         [_Qzvibdgdly__value
-  ;;    ...          for(_Qzvibdgdly__items[:2])in[_Qzvibdgdly__value]][0]
+  ;;    ...         [_gQGBD7VBT__value
+  ;;    ...          for(_gQGBD7VBT__items[:2])in[_gQGBD7VBT__value]][0]
   ;;    ...     )()
   ;;    ... )(
   ;;    ...   spam)
@@ -1597,21 +1564,21 @@ See `hissp.macros`.
   ;;
   ;;    #> (doto |[2]| zap[###0] || (op#iadd 1))
   ;;    >>> # doto
-  ;;    ... (lambda _Qzogaeaa42__self=[2]:
-  ;;    ...    ((lambda _Qzvibdgdly__items:
+  ;;    ... (lambda _gDK7SIMRN__self=[2]:
+  ;;    ...    ((lambda _gC45JENYH__items:
   ;;    ...         # hissp.macros.._macro_.let
   ;;    ...         (
-  ;;    ...          lambda _Qzvibdgdly__value=# hissp.macros..QzMaybe_.QzH_QzGT_
+  ;;    ...          lambda _gC45JENYH__value=# hissp.macros..Dash_Gt_
   ;;    ...                 __import__('operator').iadd(
-  ;;    ...                   (_Qzvibdgdly__items[0]),
+  ;;    ...                   (_gC45JENYH__items[0]),
   ;;    ...                   (1)):
-  ;;    ...             [_Qzvibdgdly__value
-  ;;    ...              for(_Qzvibdgdly__items[0])in[_Qzvibdgdly__value]][0]
+  ;;    ...             [_gC45JENYH__value
+  ;;    ...              for(_gC45JENYH__items[0])in[_gC45JENYH__value]][0]
   ;;    ...         )()
   ;;    ...     )(
-  ;;    ...       _Qzogaeaa42__self,
+  ;;    ...       _gDK7SIMRN__self,
   ;;    ...       ),
-  ;;    ...     _Qzogaeaa42__self)  [-1]
+  ;;    ...     _gDK7SIMRN__self)  [-1]
   ;;    ... )()
   ;;    [3]
   ;;
@@ -1619,7 +1586,7 @@ See `hissp.macros`.
   ;;
   ;;    The lookup injection must be written twice: once to read and
   ;;    once to write. In the unusual case that it has a side effect,
-  ;;    it will happen twice. Consider `zap! <zapQzBANG_>` instead.
+  ;;    it will happen twice. Consider `zap! <zapBang_>` instead.
   ;;
   ;;
   `((lambda ($#items)
@@ -1643,47 +1610,47 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (set@ eggs (set@ spam (types..SimpleNamespace))) ; define can't do this.
-  ;;    >>> # setQzAT_
+  ;;    >>> # setAt_
   ;;    ... # hissp.macros.._macro_.let
   ;;    ... (
-  ;;    ...  lambda _Qzqfrecvdx__value=# setQzAT_
+  ;;    ...  lambda _gYZ2LLOWW__value=# setAt_
   ;;    ...         # hissp.macros.._macro_.let
-  ;;    ...         (lambda _Qzqfrecvdx__value=__import__('types').SimpleNamespace():
+  ;;    ...         (lambda _gYZ2LLOWW__value=__import__('types').SimpleNamespace():
   ;;    ...            (# hissp.macros.._macro_.define
   ;;    ...             __import__('builtins').globals().update(
-  ;;    ...               spam=_Qzqfrecvdx__value),
-  ;;    ...             _Qzqfrecvdx__value)  [-1]
+  ;;    ...               spam=_gYZ2LLOWW__value),
+  ;;    ...             _gYZ2LLOWW__value)  [-1]
   ;;    ...         )():
   ;;    ...    (# hissp.macros.._macro_.define
   ;;    ...     __import__('builtins').globals().update(
-  ;;    ...       eggs=_Qzqfrecvdx__value),
-  ;;    ...     _Qzqfrecvdx__value)  [-1]
+  ;;    ...       eggs=_gYZ2LLOWW__value),
+  ;;    ...     _gYZ2LLOWW__value)  [-1]
   ;;    ... )()
   ;;    namespace()
   ;;
   ;;    #> (set@ spam.foo (types..SimpleNamespace))
-  ;;    >>> # setQzAT_
+  ;;    >>> # setAt_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda _Qzqfrecvdx__value=__import__('types').SimpleNamespace():
+  ;;    ... (lambda _gOJ7YYIRC__value=__import__('types').SimpleNamespace():
   ;;    ...    (# hissp.macros.._macro_.define
   ;;    ...     __import__('builtins').setattr(
   ;;    ...       spam,
   ;;    ...       'foo',
-  ;;    ...       _Qzqfrecvdx__value),
-  ;;    ...     _Qzqfrecvdx__value)  [-1]
+  ;;    ...       _gOJ7YYIRC__value),
+  ;;    ...     _gOJ7YYIRC__value)  [-1]
   ;;    ... )()
   ;;    namespace()
   ;;
   ;;    #> (set@ spam.foo.bar 4)
-  ;;    >>> # setQzAT_
+  ;;    >>> # setAt_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda _Qzqfrecvdx__value=(4):
+  ;;    ... (lambda _g4MKUDCHX__value=(4):
   ;;    ...    (# hissp.macros.._macro_.define
   ;;    ...     __import__('builtins').setattr(
   ;;    ...       spam.foo,
   ;;    ...       'bar',
-  ;;    ...       _Qzqfrecvdx__value),
-  ;;    ...     _Qzqfrecvdx__value)  [-1]
+  ;;    ...       _g4MKUDCHX__value),
+  ;;    ...     _g4MKUDCHX__value)  [-1]
   ;;    ... )()
   ;;    4
   ;;
@@ -1691,7 +1658,7 @@ See `hissp.macros`.
   ;;    >>> spam
   ;;    namespace(foo=namespace(bar=4))
   ;;
-  ;; See also: `attach`, `delattr`, `zap@ <zapQzAT_>`, `setattr`.
+  ;; See also: `attach`, `delattr`, `zap@ <zapAt_>`, `setattr`.
   ;;
   `(let ($#value ,value)
      (define ,qualname ,'$#value)
@@ -1714,19 +1681,19 @@ See `hissp.macros`.
   ;;    ...          foo=(10)))
   ;;
   ;;    #> (zap@ spam.foo operator..iadd 1)
-  ;;    >>> # zapQzAT_
-  ;;    ... # hissp.macros.._macro_.setQzAT_
+  ;;    >>> # zapAt_
+  ;;    ... # hissp.macros.._macro_.setAt_
   ;;    ... # hissp.macros.._macro_.let
   ;;    ... (
-  ;;    ...  lambda _Qzqfrecvdx__value=__import__('operator').iadd(
+  ;;    ...  lambda _gOESTXDRX__value=__import__('operator').iadd(
   ;;    ...           spam.foo,
   ;;    ...           (1)):
   ;;    ...    (# hissp.macros.._macro_.define
   ;;    ...     __import__('builtins').setattr(
   ;;    ...       spam,
   ;;    ...       'foo',
-  ;;    ...       _Qzqfrecvdx__value),
-  ;;    ...     _Qzqfrecvdx__value)  [-1]
+  ;;    ...       _gOESTXDRX__value),
+  ;;    ...     _gOESTXDRX__value)  [-1]
   ;;    ... )()
   ;;    11
   ;;
@@ -1735,18 +1702,18 @@ See `hissp.macros`.
   ;;    namespace(foo=11)
   ;;
   ;;    #> (zap@ spam getattr 'foo)
-  ;;    >>> # zapQzAT_
-  ;;    ... # hissp.macros.._macro_.setQzAT_
+  ;;    >>> # zapAt_
+  ;;    ... # hissp.macros.._macro_.setAt_
   ;;    ... # hissp.macros.._macro_.let
   ;;    ... (
-  ;;    ...  lambda _Qzj2zgvjrn__value=getattr(
+  ;;    ...  lambda _gFLL6SH2F__value=getattr(
   ;;    ...           __import__('builtins').globals().__getitem__(
   ;;    ...             'spam'),
   ;;    ...           'foo'):
   ;;    ...    (# hissp.macros.._macro_.define
   ;;    ...     __import__('builtins').globals().update(
-  ;;    ...       spam=_Qzj2zgvjrn__value),
-  ;;    ...     _Qzj2zgvjrn__value)  [-1]
+  ;;    ...       spam=_gFLL6SH2F__value),
+  ;;    ...     _gFLL6SH2F__value)  [-1]
   ;;    ... )()
   ;;    11
   ;;
@@ -1754,8 +1721,8 @@ See `hissp.macros`.
   ;;    >>> spam
   ;;    11
   ;;
-  ;; See also: `set@ <setQzAT_>`, `zap! <zapQzBANG_>`, `operator.iadd`,
-  ;; `augassign`, `:@## <QzCOLON_QzAT_QzHASH_>`.
+  ;; See also: `set@ <setAt_>`, `zap! <zapBang_>`, `operator.iadd`,
+  ;; `augassign`, `:@## <Colon_At_Hash_>`.
   ;;
   `(set@ ,qualname
          (,f ,(if-else |'.' in qualname| qualname `(.__getitem__ (globals) ',qualname))
@@ -1773,24 +1740,24 @@ See `hissp.macros`.
   ;;    #> (attach (types..SimpleNamespace) _macro_.attach : a 1  b 'Hi)
   ;;    >>> # attach
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda _Qzwg5wn73w__target=__import__('types').SimpleNamespace():
+  ;;    ... (lambda _g5UWMEC5Z__target=__import__('types').SimpleNamespace():
   ;;    ...    (__import__('builtins').setattr(
-  ;;    ...       _Qzwg5wn73w__target,
+  ;;    ...       _g5UWMEC5Z__target,
   ;;    ...       'attach',
   ;;    ...       _macro_.attach),
   ;;    ...     __import__('builtins').setattr(
-  ;;    ...       _Qzwg5wn73w__target,
+  ;;    ...       _g5UWMEC5Z__target,
   ;;    ...       'a',
   ;;    ...       (1)),
   ;;    ...     __import__('builtins').setattr(
-  ;;    ...       _Qzwg5wn73w__target,
+  ;;    ...       _g5UWMEC5Z__target,
   ;;    ...       'b',
   ;;    ...       'Hi'),
-  ;;    ...     _Qzwg5wn73w__target)  [-1]
+  ;;    ...     _g5UWMEC5Z__target)  [-1]
   ;;    ... )()
   ;;    namespace(attach=<function _macro_.attach at 0x...>, a=1, b='Hi')
   ;;
-  ;; See also: `setattr`, `set@ <setQzAT_>`, `vars`.
+  ;; See also: `setattr`, `set@ <setAt_>`, `vars`.
   ;;
   (let (iargs (iter args))
     (let (args (i#takewhile X#(op#ne X ':) iargs))
@@ -1815,17 +1782,17 @@ See `hissp.macros`.
   ;;    #..  .sort
   ;;    #..  (.append 'foo))
   ;;    >>> # doto
-  ;;    ... (lambda _Qzkiumbhnz__self=list():
-  ;;    ...    (_Qzkiumbhnz__self.extend(
+  ;;    ... (lambda _gBBU6XSAT__self=list():
+  ;;    ...    (_gBBU6XSAT__self.extend(
   ;;    ...       'bar'),
-  ;;    ...     _Qzkiumbhnz__self.sort(),
-  ;;    ...     _Qzkiumbhnz__self.append(
+  ;;    ...     _gBBU6XSAT__self.sort(),
+  ;;    ...     _gBBU6XSAT__self.append(
   ;;    ...       'foo'),
-  ;;    ...     _Qzkiumbhnz__self)  [-1]
+  ;;    ...     _gBBU6XSAT__self)  [-1]
   ;;    ... )()
   ;;    ['a', 'b', 'r', 'foo']
   ;;
-  ;; See also: `attach`, `progn`, `-> <QzH_QzGT_>`.
+  ;; See also: `attach`, `progn`, `-> <Dash_Gt_>`.
   ;;
   `((lambda (: $#self ,self)
       ,@(map X#`(,!##0 X
@@ -1846,8 +1813,9 @@ See `hissp.macros`.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (_macro_.-> 'x '(A a) 'B '(C c cc))
-  ;;    >>> _macro_.QzH_QzGT_(
+  ;;    #> ((|| _macro_.->) 'x '(A a) 'B '(C c cc))
+  ;;    >>> (
+  ;;    ...   _macro_.Dash_Gt_)(
   ;;    ...   'x',
   ;;    ...   ('A',
   ;;    ...    'a',),
@@ -1858,14 +1826,14 @@ See `hissp.macros`.
   ;;    ('C', ('B', ('A', 'x', 'a')), 'c', 'cc')
   ;;
   ;;    #> (-> 'a set (en#list 'bc) (en#tuple 'de))
-  ;;    >>> # QzH_QzGT_
-  ;;    ... (lambda *_Qz6rfwttvx__xs:
+  ;;    >>> # Dash_Gt_
+  ;;    ... (lambda *_gJHUL5GC3__xs:
   ;;    ...     tuple(
-  ;;    ...       _Qz6rfwttvx__xs)
+  ;;    ...       _gJHUL5GC3__xs)
   ;;    ... )(
-  ;;    ...   (lambda *_Qz6rfwttvx__xs:
+  ;;    ...   (lambda *_gJHUL5GC3__xs:
   ;;    ...       list(
-  ;;    ...         _Qz6rfwttvx__xs)
+  ;;    ...         _gJHUL5GC3__xs)
   ;;    ...   )(
   ;;    ...     set(
   ;;    ...       'a'),
@@ -1873,8 +1841,8 @@ See `hissp.macros`.
   ;;    ...   'de')
   ;;    ([{'a'}, 'bc'], 'de')
   ;;
-  ;; See also: `-\<>> <QzH_QzLT_QzGT_QzGT_>`, `X# <XQzHASH_>`,
-  ;; `\!# <QzBANG_QzHASH_>`, `en# <enQzHASH_>`.
+  ;; See also: `-\<>> <Dash_Lt_Gt_Gt_>`, `X# <XHash_>`,
+  ;; `\!# <Bang_Hash_>`, `en# <enHash_>`.
   ;;
   (/XY# |(Y[0],X,*Y[1:],)| (map X# |X if type(X) is tuple else (X,)| forms)
                            expr))
@@ -1890,8 +1858,9 @@ See `hissp.macros`.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (_macro_.-<>>  'x 'A '(:<> b bb) '(C c cc))
-  ;;    >>> _macro_.QzH_QzLT_QzGT_QzGT_(
+  ;;    #> ((|| _macro_.-<>>)  'x 'A '(:<> b bb) '(C c cc))
+  ;;    >>> (
+  ;;    ...   _macro_.Dash_Lt_Gt_Gt_)(
   ;;    ...   'x',
   ;;    ...   'A',
   ;;    ...   (':<>',
@@ -1903,15 +1872,15 @@ See `hissp.macros`.
   ;;    ('C', 'c', 'cc', (('A', 'x'), 'b', 'bb'))
   ;;
   ;;    #> (-<>> 'a set (en#list 'bc) (en#tuple 'de :<> 'fg :<>))
-  ;;    >>> # QzH_QzLT_QzGT_QzGT_
-  ;;    ... (lambda *_Qz6rfwttvx__xs:
+  ;;    >>> # Dash_Lt_Gt_Gt_
+  ;;    ... (lambda *_gJHUL5GC3__xs:
   ;;    ...     tuple(
-  ;;    ...       _Qz6rfwttvx__xs)
+  ;;    ...       _gJHUL5GC3__xs)
   ;;    ... )(
   ;;    ...   'de',
-  ;;    ...   (lambda *_Qz6rfwttvx__xs:
+  ;;    ...   (lambda *_gJHUL5GC3__xs:
   ;;    ...       list(
-  ;;    ...         _Qz6rfwttvx__xs)
+  ;;    ...         _gJHUL5GC3__xs)
   ;;    ...   )(
   ;;    ...     'bc',
   ;;    ...     set(
@@ -1920,7 +1889,7 @@ See `hissp.macros`.
   ;;    ...   ':<>')
   ;;    ('de', ['bc', {'a'}], 'fg', ':<>')
   ;;
-  ;; See also: `-> <QzH_QzGT_>`, `en# <enQzHASH_>`.
+  ;; See also: `-> <Dash_Gt_>`, `en# <enHash_>`.
   ;;
   (/XY#(let (i (iter Y))
          `(,@(i#takewhile X#(op#ne X :<>) i) ,X ,@i))
@@ -1951,7 +1920,7 @@ See `hissp.macros`.
   ;;    #..  (when (op#eq c 'b)
   ;;    #..    (print 'found)
   ;;    #..    :break))
-  ;;    >>> # anyQzH_map
+  ;;    >>> # any___map
   ;;    ... __import__('builtins').any(
   ;;    ...   __import__('builtins').map(
   ;;    ...     (lambda c:
@@ -1974,7 +1943,7 @@ See `hissp.macros`.
   ;;    found
   ;;    True
   ;;
-  ;; See also: `if-else <ifQzH_else>`, `unless`, `if`.
+  ;; See also: `if-else <if___else>`, `unless`, `if`.
   ;;
   `((lambda ,'bc |c()if b else()|) ; boolean, consequent
     ,condition (lambda : ,@body)))
@@ -1992,7 +1961,7 @@ See `hissp.macros`.
   ;;    #..        (op#eq x 0) (print :Zero)
   ;;    #..        (op#gt x 0) (print :Positive)
   ;;    #..        :else (print :Not-a-Number)))
-  ;;    >>> # anyQzH_map
+  ;;    >>> # any___map
   ;;    ... __import__('builtins').any(
   ;;    ...   __import__('builtins').map(
   ;;    ...     (lambda x:
@@ -2035,7 +2004,7 @@ See `hissp.macros`.
   ;;    ...                 ':Not-a-Number')
   ;;    ...           ))
   ;;    ...     ),
-  ;;    ...     # QzAT_
+  ;;    ...     # At_
   ;;    ...     (lambda *xs: [*xs])(
   ;;    ...       (-0.6),
   ;;    ...       (-0.0),
@@ -2047,7 +2016,7 @@ See `hissp.macros`.
   ;;    :Not-a-Number
   ;;    False
   ;;
-  ;; See also: `if-else <ifQzH_else>`, `case`, `any-map <anyQzH_map>`, `elif`.
+  ;; See also: `if-else <if___else>`, `case`, `any-map <any___map>`, `elif`.
   ;;
   (when pairs
     `((lambda (,@(map X# |f'x{X}'| (range (X# |X+1&-2| (len pairs)))))
@@ -2070,7 +2039,7 @@ See `hissp.macros`.
   ;;    #> (any-map index (range 1 11)             ;Imperative loop with break.
   ;;    #..  (print index : end :)
   ;;    #..  (not (op#mod index 7)))
-  ;;    >>> # anyQzH_map
+  ;;    >>> # any___map
   ;;    ... __import__('builtins').any(
   ;;    ...   __import__('builtins').map(
   ;;    ...     (lambda index:
@@ -2087,7 +2056,7 @@ See `hissp.macros`.
   ;;    ...       (11))))
   ;;    1:2:3:4:5:6:7:True
   ;;
-  ;; See also: `any`, `map`, `any*map <anyQzSTAR_map>`, `for`, `break`,
+  ;; See also: `any`, `map`, `any*map <anyStar_map>`, `for`, `break`,
   ;; `functools.reduce`.
   ;;
   `(any (map (lambda (,variable)
@@ -2106,16 +2075,16 @@ See `hissp.macros`.
   ;;    #> (any*map (i c : P print  * op#mul) ; Extra locals (P and *) via default params.
   ;;    #..         (enumerate 'abc 1) ; As any-map, but with starmap.
   ;;    #..  (P (* i c)))
-  ;;    >>> # anyQzSTAR_map
+  ;;    >>> # anyStar_map
   ;;    ... __import__('builtins').any(
   ;;    ...   __import__('itertools').starmap(
   ;;    ...     (
   ;;    ...      lambda i,
   ;;    ...             c,
   ;;    ...             P=print,
-  ;;    ...             QzSTAR_=__import__('operator').mul:
+  ;;    ...             Star_=__import__('operator').mul:
   ;;    ...         P(
-  ;;    ...           QzSTAR_(
+  ;;    ...           Star_(
   ;;    ...             i,
   ;;    ...             c))
   ;;    ...     ),
@@ -2127,9 +2096,9 @@ See `hissp.macros`.
   ;;    ccc
   ;;    False
   ;;
-  ;; See also: `itertools.starmap`, `any-map <anyQzH_map>`,
-  ;; `let-again <letQzH_again>`, `let*call <letQzSTAR_call>`,
-  ;; `my# <myQzHASH_>`.
+  ;; See also: `itertools.starmap`, `any-map <any___map>`,
+  ;; `let-again <let___again>`, `let*call <letStar_call>`,
+  ;; `my# <myHash_>`.
   ;;
   `(any (i#starmap (lambda ,params ,@body)
                    ,xss)))
@@ -2148,25 +2117,25 @@ See `hissp.macros`.
   ;;    #> (let-again (x 3  y 0)
   ;;    #..  (when x (again-with (|| |x-1| |y+1|)))
   ;;    #..  (print x y))
-  ;;    >>> # letQzH_again
+  ;;    >>> # let___again
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda _Qzmg2ab65c__stack=[None, None, ()]:
+  ;;    ... (lambda _gY44MBROP__stack=[None, None, ()]:
   ;;    ...     # hissp.macros.._macro_.let
-  ;;    ...     (lambda againQzH_with=_Qzmg2ab65c__stack.append:
-  ;;    ...        (# hissp.macros.._macro_.anyQzSTAR_map
+  ;;    ...     (lambda again___with=_gY44MBROP__stack.append:
+  ;;    ...        (# hissp.macros.._macro_.anyStar_map
   ;;    ...         __import__('builtins').any(
   ;;    ...           __import__('itertools').starmap(
   ;;    ...             (
   ;;    ...              lambda x=(3),
   ;;    ...                     y=(0):
-  ;;    ...                (_Qzmg2ab65c__stack.__setitem__(
+  ;;    ...                (_gY44MBROP__stack.__setitem__(
   ;;    ...                   (0),
   ;;    ...                   # hissp.macros.._macro_.progn
   ;;    ...                   (# when
   ;;    ...                    (lambda b, c: c()if b else())(
   ;;    ...                      x,
   ;;    ...                      (lambda :
-  ;;    ...                          againQzH_with(
+  ;;    ...                          again___with(
   ;;    ...                            (
   ;;    ...                              x-1,
   ;;    ...                              y+1))
@@ -2177,11 +2146,11 @@ See `hissp.macros`.
   ;;    ...                 None)  [-1]
   ;;    ...             ),
   ;;    ...             __import__('builtins').iter(
-  ;;    ...               _Qzmg2ab65c__stack.pop,
+  ;;    ...               _gY44MBROP__stack.pop,
   ;;    ...               None))),
   ;;    ...         __import__('operator').itemgetter(
   ;;    ...           (0))(
-  ;;    ...           _Qzmg2ab65c__stack))  [-1]
+  ;;    ...           _gY44MBROP__stack))  [-1]
   ;;    ...     )()
   ;;    ... )()
   ;;    3 0
@@ -2189,7 +2158,7 @@ See `hissp.macros`.
   ;;    1 2
   ;;    0 3
   ;;
-  ;; See also: `any*map <anyQzSTAR_map>`, `Ensue`_, `while`.
+  ;; See also: `any*map <anyStar_map>`, `Ensue`_, `while`.
   ;;
   `(let ($#stack .#(list '(None None ()))) ; return, sentinel, first call
      (let (,'again-with $#stack.append)
@@ -2325,7 +2294,7 @@ See `hissp.macros`.
   ;;
   ;;    #> (throw Exception)                       ;Raise exception objects or classes.
   ;;    >>> # throw
-  ;;    ... # hissp.macros.._macro_.throwQzSTAR_
+  ;;    ... # hissp.macros.._macro_.throwStar_
   ;;    ... (lambda g:g.close()or g.throw)(c for c in'')(
   ;;    ...   Exception)
   ;;    Traceback (most recent call last):
@@ -2334,7 +2303,7 @@ See `hissp.macros`.
   ;;
   ;;    #> (throw (TypeError 'message))
   ;;    >>> # throw
-  ;;    ... # hissp.macros.._macro_.throwQzSTAR_
+  ;;    ... # hissp.macros.._macro_.throwStar_
   ;;    ... (lambda g:g.close()or g.throw)(c for c in'')(
   ;;    ...   TypeError(
   ;;    ...     'message'))
@@ -2342,7 +2311,7 @@ See `hissp.macros`.
   ;;      ...
   ;;    TypeError: message
   ;;
-  ;; See also: `throw-from <throwQzH_from>`, `engarde`_, `raise`.
+  ;; See also: `throw-from <throw___from>`, `engarde`_, `raise`.
   ;;
   `(throw* ,exception))
 
@@ -2357,39 +2326,39 @@ See `hissp.macros`.
   ;;
   ;;    #> (throw-from Exception (Exception 'message)) ; Explicit chaining.
   ;;    #..
-  ;;    >>> # throwQzH_from
-  ;;    ... # hissp.macros.._macro_.throwQzSTAR_
+  ;;    >>> # throw___from
+  ;;    ... # hissp.macros.._macro_.throwStar_
   ;;    ... (lambda g:g.close()or g.throw)(c for c in'')(
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
-  ;;    ...    lambda _Qzzkusd5eu__G=(lambda _Qzzkusd5eu__x:
-  ;;    ...               # hissp.macros.._macro_.ifQzH_else
+  ;;    ...    lambda _gP46TIEQT__G=(lambda _gP46TIEQT__x:
+  ;;    ...               # hissp.macros.._macro_.if___else
   ;;    ...               (lambda b, c, a: c()if b else a())(
   ;;    ...                 __import__('builtins').isinstance(
-  ;;    ...                   _Qzzkusd5eu__x,
+  ;;    ...                   _gP46TIEQT__x,
   ;;    ...                   __import__('builtins').BaseException),
-  ;;    ...                 (lambda : _Qzzkusd5eu__x),
-  ;;    ...                 (lambda : _Qzzkusd5eu__x()))
+  ;;    ...                 (lambda : _gP46TIEQT__x),
+  ;;    ...                 (lambda : _gP46TIEQT__x()))
   ;;    ...           ):
   ;;    ...       # hissp.macros.._macro_.attach
   ;;    ...       # hissp.macros.._macro_.let
   ;;    ...       (
-  ;;    ...        lambda _Qzwawunnb6__target=_Qzzkusd5eu__G(
+  ;;    ...        lambda _gXPD76NRZ__target=_gP46TIEQT__G(
   ;;    ...                 Exception):
   ;;    ...          (__import__('builtins').setattr(
-  ;;    ...             _Qzwawunnb6__target,
+  ;;    ...             _gXPD76NRZ__target,
   ;;    ...             '__cause__',
-  ;;    ...             _Qzzkusd5eu__G(
+  ;;    ...             _gP46TIEQT__G(
   ;;    ...               Exception(
   ;;    ...                 'message'))),
-  ;;    ...           _Qzwawunnb6__target)  [-1]
+  ;;    ...           _gXPD76NRZ__target)  [-1]
   ;;    ...       )()
   ;;    ...   )())
   ;;    Traceback (most recent call last):
   ;;      ...
   ;;    Exception
   ;;
-  ;; See also: `throw`, `throw* <throwQzSTAR_>`.
+  ;; See also: `throw`, `throw* <throwStar_>`.
   ;;
   `(throw* (let ($#G (lambda ($#x) (if-else (isinstance $#x BaseException) $#x ($#x))))
              (attach ($#G ,exception) : ,'__cause__ ($#G ,cause)))))
@@ -2412,12 +2381,12 @@ See `hissp.macros`.
   ;;    >>> print(
   ;;    ...   # prog1
   ;;    ...   # hissp.macros.._macro_.let
-  ;;    ...   (lambda _Qz46bj7iw6__value1=(0):
+  ;;    ...   (lambda _gP2FSZYVE__value1=(0):
   ;;    ...      (print(
   ;;    ...         (1)),
   ;;    ...       print(
   ;;    ...         (2)),
-  ;;    ...       _Qz46bj7iw6__value1)  [-1]
+  ;;    ...       _gP2FSZYVE__value1)  [-1]
   ;;    ...   )())
   ;;    1
   ;;    2
@@ -2434,13 +2403,13 @@ See `hissp.macros`.
   ;;    >>> # prog1
   ;;    ... # hissp.macros.._macro_.let
   ;;    ... (
-  ;;    ...  lambda _Qz46bj7iw6__value1=# progn
+  ;;    ...  lambda _gKTCZ2AQB__value1=# progn
   ;;    ...         (print(
   ;;    ...            (1)),
   ;;    ...          (3))  [-1]:
   ;;    ...    (print(
   ;;    ...       (2)),
-  ;;    ...     _Qz46bj7iw6__value1)  [-1]
+  ;;    ...     _gKTCZ2AQB__value1)  [-1]
   ;;    ... )()
   ;;    1
   ;;    2
@@ -2466,8 +2435,8 @@ See `hissp.macros`.
   ;;
   ;;
   ;;    #> b#'bytes! ; Note the '. Beware munging.
-  ;;    >>> b'bytesQzBANG_'
-  ;;    b'bytesQzBANG_'
+  ;;    >>> b'bytesBang_'
+  ;;    b'bytesBang_'
   ;;
   ;;    #> b#<#
   ;;    #..;; Bytes,
@@ -2476,7 +2445,7 @@ See `hissp.macros`.
   ;;    >>> b'Bytes,\nnewlines, & escapes!'
   ;;    b'Bytes,\nnewlines, & escapes!'
   ;;
-  ;; See also: `B# <BQzHASH_>`, `hissp.reader.is_hissp_string`.
+  ;; See also: `B# <BHash_>`, `hissp.reader.is_hissp_string`.
   ;;
   (-> string
       H#readerless
@@ -2498,8 +2467,8 @@ See `hissp.macros`.
   ;;    b'bytes!'
   ;;
   ;;    #> B#oops! ; Works directly on symbols, but beware munging.
-  ;;    >>> b'oopsQzBANG_'
-  ;;    b'oopsQzBANG_'
+  ;;    >>> b'oopsBang_'
+  ;;    b'oopsBang_'
   ;;
   ;;    #> B#"oops!" ; You probably wanted b# instead.
   ;;    >>> b"('oops!')"
@@ -2513,7 +2482,7 @@ See `hissp.macros`.
   ;;    >>> b'\xff | "\n\'" BBQ'
   ;;    b'\xff | "\n\'" BBQ'
   ;;
-  ;; See also: `b# <bQzHASH_>`.
+  ;; See also: `b# <bHash_>`.
   ;;
   (-> symbol
       (.replace "'" '|\'|)
@@ -2535,7 +2504,7 @@ See `hissp.macros`.
   ;;    ... __import__('pickle').loads(b'cfractions\nFraction\n(V2/3\ntR.')
   ;;    Fraction(2, 3)
   ;;
-  ;; See also: `M# <MQzHASH_>`.
+  ;; See also: `M# <MHash_>`.
   ;;
   (fractions..Fraction (H#demunge Q)))
 
@@ -2568,7 +2537,7 @@ See `hissp.macros`.
   ;;    ... __import__('pickle').loads(b'cdecimal\nDecimal\n(V6.283185307179586\ntR.')
   ;;    Decimal('6.283185307179586')
   ;;
-  ;; See also: `Q# <QQzHASH_>`.
+  ;; See also: `Q# <QHash_>`.
   ;;
   (decimal..Decimal (H#demunge M)))
 
@@ -2586,7 +2555,7 @@ See `hissp.macros`.
   ;;    datetime.datetime(2024, 10, 7, 11, 30, 7, tzinfo=datetime.timezone.utc)
   ;;
   ;;
-  ;; See also: `uuid# <uuidQzHASH_>`.
+  ;; See also: `uuid# <uuidHash_>`.
   ;;
   (dt#datetime.fromisoformat (H#demunge date_string)))
 
@@ -2604,7 +2573,7 @@ See `hissp.macros`.
   ;;    ... __import__('pickle').loads(b'ccopy_reg\n_reconstructor\n(cuuid\nUUID\nc__builtin__\nobject\nNtR(dVint\nL24197857161011715162171839636988778104L\nsb.')
   ;;    UUID('12345678-1234-5678-1234-567812345678')
   ;;
-  ;; See also: `inst# <instQzHASH_>`.
+  ;; See also: `inst# <instHash_>`.
   ;;
   (uuid..UUID (H#demunge hex)))
 
@@ -2615,9 +2584,9 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (en#list 1 2 3)
-  ;;    >>> (lambda *_Qz6rfwttvx__xs:
+  ;;    >>> (lambda *_g4TYWBSNP__xs:
   ;;    ...     list(
-  ;;    ...       _Qz6rfwttvx__xs)
+  ;;    ...       _g4TYWBSNP__xs)
   ;;    ... )(
   ;;    ...   (1),
   ;;    ...   (2),
@@ -2626,9 +2595,9 @@ See `hissp.macros`.
   ;;
   ;;    #> (en#.extend _ 4 5 6) ; Methods too.
   ;;    #..
-  ;;    >>> (lambda _Qz6rfwttvx__self, *_Qz6rfwttvx__xs:
-  ;;    ...     _Qz6rfwttvx__self.extend(
-  ;;    ...       _Qz6rfwttvx__xs)
+  ;;    >>> (lambda _gB3AJD2PD__self, *_gB3AJD2PD__xs:
+  ;;    ...     _gB3AJD2PD__self.extend(
+  ;;    ...       _gB3AJD2PD__xs)
   ;;    ... )(
   ;;    ...   _,
   ;;    ...   (4),
@@ -2642,14 +2611,14 @@ See `hissp.macros`.
   ;;    #> (define enjoin en#X#(.join "" (map str X)))
   ;;    >>> # define
   ;;    ... __import__('builtins').globals().update(
-  ;;    ...   enjoin=(lambda *_Qz6rfwttvx__xs:
+  ;;    ...   enjoin=(lambda *_gEEXENIDY__xs:
   ;;    ...              (lambda X:
   ;;    ...                  ('').join(
   ;;    ...                    map(
   ;;    ...                      str,
   ;;    ...                      X))
   ;;    ...              )(
-  ;;    ...                _Qz6rfwttvx__xs)
+  ;;    ...                _gEEXENIDY__xs)
   ;;    ...          ))
   ;;
   ;;    #> (enjoin "Sum: "(op#add 2 3)". Product: "(op#mul 2 3)".")
@@ -2669,7 +2638,7 @@ See `hissp.macros`.
   ;; the ``en#X#`` variadic or a normal lambda form can be used instead.
   ;;
   ;; See also:
-  ;; `X# <XQzHASH_>`, `&# <QzET_QzHASH_>`, `/# <QzSOL_QzHASH_>`, `@ <QzAT_>`.
+  ;; `X# <XHash_>`, `&# <Et_Hash_>`, `/# <Fsol_Hash_>`, `@ <At_>`.
   ;;
   (if-else (ands (op#is_ str (type f))
                  (.startswith f "."))
@@ -2684,10 +2653,10 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (/#operator..add 1 2 3 4)
-  ;;    >>> (lambda *_Qztkr22wce__xs:
+  ;;    >>> (lambda *_gVBXQOUGG__xs:
   ;;    ...     __import__('functools').reduce(
   ;;    ...       __import__('operator').add,
-  ;;    ...       _Qztkr22wce__xs)
+  ;;    ...       _gVBXQOUGG__xs)
   ;;    ... )(
   ;;    ...   (1),
   ;;    ...   (2),
@@ -2695,7 +2664,7 @@ See `hissp.macros`.
   ;;    ...   (4))
   ;;    10
   ;;
-  ;; See also: `/XY# <QzSOL_XYQzHASH_>`, `en# <enQzHASH_>`.
+  ;; See also: `/XY# <Fsol_XYHash_>`, `en# <enHash_>`.
   `(lambda (: :* $#xs)
      (ft#reduce ,f $#xs)))
 
@@ -2716,28 +2685,28 @@ See `hissp.macros`.
   ;;    ...   greet=# hissp.macros.._macro_.fun
   ;;    ...         # hissp.macros.._macro_.let
   ;;    ...         (
-  ;;    ...          lambda _Qzan3nwcb3__lambda=(lambda :
+  ;;    ...          lambda _gROR2V2G5__lambda=(lambda :
   ;;    ...                     print(
   ;;    ...                       ('Hello, World!'))
   ;;    ...                 ):
   ;;    ...            ((
   ;;    ...               *__import__('itertools').starmap(
-  ;;    ...                  _Qzan3nwcb3__lambda.__setattr__,
+  ;;    ...                  _gROR2V2G5__lambda.__setattr__,
   ;;    ...                  __import__('builtins').dict(
   ;;    ...                    __name__='greet',
   ;;    ...                    __qualname__='greet',
-  ;;    ...                    __code__=_Qzan3nwcb3__lambda.__code__.replace(
+  ;;    ...                    __code__=_gROR2V2G5__lambda.__code__.replace(
   ;;    ...                               co_name='greet')).items()),
   ;;    ...               ),
-  ;;    ...             _Qzan3nwcb3__lambda)  [-1]
+  ;;    ...             _gROR2V2G5__lambda)  [-1]
   ;;    ...         )())
   ;;
   ;;    #> proxy#greet
   ;;    >>> __import__('functools').update_wrapper(
-  ;;    ...   (lambda *_Qzxd2las5y__args, **_Qzxd2las5y__kwargs:
+  ;;    ...   (lambda *_g3XJMPIBW__args, **_g3XJMPIBW__kwargs:
   ;;    ...       greet(
-  ;;    ...         *_Qzxd2las5y__args,
-  ;;    ...         **_Qzxd2las5y__kwargs)
+  ;;    ...         *_g3XJMPIBW__args,
+  ;;    ...         **_g3XJMPIBW__kwargs)
   ;;    ...   ),
   ;;    ...   greet)
   ;;    <function greet at 0x...>
@@ -2745,9 +2714,9 @@ See `hissp.macros`.
   ;;    #> (define greet-handlers (types..SimpleNamespace : direct greet  proxied _))
   ;;    >>> # define
   ;;    ... __import__('builtins').globals().update(
-  ;;    ...   greetQzH_handlers=__import__('types').SimpleNamespace(
-  ;;    ...                       direct=greet,
-  ;;    ...                       proxied=_))
+  ;;    ...   greet___handlers=__import__('types').SimpleNamespace(
+  ;;    ...                      direct=greet,
+  ;;    ...                      proxied=_))
   ;;
   ;; Now suppose ``greet`` is reloaded with a new definition, but
   ;; ``greet-handlers`` is not (perhaps due to being in separate modules
@@ -2763,28 +2732,28 @@ See `hissp.macros`.
   ;;    ...   greet=# hissp.macros.._macro_.fun
   ;;    ...         # hissp.macros.._macro_.let
   ;;    ...         (
-  ;;    ...          lambda _Qzan3nwcb3__lambda=(lambda :
+  ;;    ...          lambda _gPAWCWJOD__lambda=(lambda :
   ;;    ...                     print(
   ;;    ...                       ('Wassup?'))
   ;;    ...                 ):
   ;;    ...            ((
   ;;    ...               *__import__('itertools').starmap(
-  ;;    ...                  _Qzan3nwcb3__lambda.__setattr__,
+  ;;    ...                  _gPAWCWJOD__lambda.__setattr__,
   ;;    ...                  __import__('builtins').dict(
   ;;    ...                    __name__='greet',
   ;;    ...                    __qualname__='greet',
-  ;;    ...                    __code__=_Qzan3nwcb3__lambda.__code__.replace(
+  ;;    ...                    __code__=_gPAWCWJOD__lambda.__code__.replace(
   ;;    ...                               co_name='greet')).items()),
   ;;    ...               ),
-  ;;    ...             _Qzan3nwcb3__lambda)  [-1]
+  ;;    ...             _gPAWCWJOD__lambda)  [-1]
   ;;    ...         )())
   ;;
   ;;    #> (greet-handlers.direct) ; Still the original function object.
-  ;;    >>> greetQzH_handlers.direct()
+  ;;    >>> greet___handlers.direct()
   ;;    Hello, World!
   ;;
   ;;    #> (greet-handlers.proxied) ; Proxy does the lookup again.
-  ;;    >>> greetQzH_handlers.proxied()
+  ;;    >>> greet___handlers.proxied()
   ;;    Wassup?
   ;;
   `(ft#update_wrapper (lambda (: :* $#args  :** $#kwargs)
@@ -2813,7 +2782,7 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (@ :* "AB" (math..sqrt 9) :* "XY" 2 1)
-  ;;    >>> # QzAT_
+  ;;    >>> # At_
   ;;    ... (lambda *xs: [*xs])(
   ;;    ...   *('AB'),
   ;;    ...   __import__('math').sqrt(
@@ -2824,7 +2793,7 @@ See `hissp.macros`.
   ;;    ['A', 'B', 3.0, 'X', 'Y', 2, 1]
   ;;
   ;; See also:
-  ;; `# <QzHASH_>`, `% <QzPCENT_>`, `en# <enQzHASH_>`, `operator.matmul`.
+  ;; `# <Hash_>`, `% <Pcent_>`, `en# <enHash_>`, `operator.matmul`.
   ;;
   (when (ands xs (op#eq :* !##-1 xs))
      (throw (SyntaxError "trailing :*")))
@@ -2844,10 +2813,10 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (# 1 :* (@ 1 2 3) 4)                    ;Set, with unpacking.
-  ;;    >>> # QzHASH_
+  ;;    >>> # Hash_
   ;;    ... (lambda *xs: {*xs})(
   ;;    ...   (1),
-  ;;    ...   *# QzAT_
+  ;;    ...   *# At_
   ;;    ...    (lambda *xs: [*xs])(
   ;;    ...      (1),
   ;;    ...      (2),
@@ -2855,7 +2824,7 @@ See `hissp.macros`.
   ;;    ...   (4))
   ;;    {1, 2, 3, 4}
   ;;
-  ;; See also: `@ <QzAT_>`, `% <QzPCENT_>`.
+  ;; See also: `@ <At_>`, `% <Pcent_>`.
   ;;
   (when (ands xs (op#eq :* !##-1 xs))
      (throw (SyntaxError "trailing :*")))
@@ -2875,7 +2844,7 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (% 1 2  :** (dict : x 3  y 4)  5 6) ; Dict, with mapping unpacking.
-  ;;    >>> # QzPCENT_
+  ;;    >>> # Pcent_
   ;;    ... (lambda x0, x1, x3, x4, x5: {x0:x1,**x3,x4:x5})(
   ;;    ...   (1),
   ;;    ...   (2),
@@ -2887,11 +2856,11 @@ See `hissp.macros`.
   ;;    {1: 2, 'x': 3, 'y': 4, 5: 6}
   ;;
   ;;    #> (%)
-  ;;    >>> # QzPCENT_
+  ;;    >>> # Pcent_
   ;;    ... {}
   ;;    {}
   ;;
-  ;; See also: `@ <QzAT_>`, `# <QzHASH_>`, `operator.mod`.
+  ;; See also: `@ <At_>`, `# <Hash_>`, `operator.mod`.
   ;;
   (cond
    (op#mod (len kvs) 2) (throw (TypeError "extra key without value"))
@@ -2978,7 +2947,7 @@ See `hissp.macros`.
   ;;   See `Ensue examples`_ and `enter examples`_ below.
   ;;
   ;;   See also: `types.coroutine`, `collections.abc.Generator`,
-  ;;   `let-again <letQzH_again>`.
+  ;;   `let-again <let___again>`.
   ;;
   ;; * Adds the bundled macros, but only if available
   ;;   (macros are typically only used at compile time),
@@ -3087,32 +3056,32 @@ See `hissp.macros`.
   ;;    ...   Exception,
   ;;    ...   (lambda x: x.__cause__),
   ;;    ...   (lambda :
-  ;;    ...       # throwQzH_from
-  ;;    ...       # hissp.macros.._macro_.throwQzSTAR_
+  ;;    ...       # throw___from
+  ;;    ...       # hissp.macros.._macro_.throwStar_
   ;;    ...       (lambda g:g.close()or g.throw)(c for c in'')(
   ;;    ...         # hissp.macros.._macro_.let
   ;;    ...         (
-  ;;    ...          lambda _Qzzkusd5eu__G=(lambda _Qzzkusd5eu__x:
-  ;;    ...                     # hissp.macros.._macro_.ifQzH_else
+  ;;    ...          lambda _g6Q6NJSTQ__G=(lambda _g6Q6NJSTQ__x:
+  ;;    ...                     # hissp.macros.._macro_.if___else
   ;;    ...                     (lambda b, c, a: c()if b else a())(
   ;;    ...                       __import__('builtins').isinstance(
-  ;;    ...                         _Qzzkusd5eu__x,
+  ;;    ...                         _g6Q6NJSTQ__x,
   ;;    ...                         __import__('builtins').BaseException),
-  ;;    ...                       (lambda : _Qzzkusd5eu__x),
-  ;;    ...                       (lambda : _Qzzkusd5eu__x()))
+  ;;    ...                       (lambda : _g6Q6NJSTQ__x),
+  ;;    ...                       (lambda : _g6Q6NJSTQ__x()))
   ;;    ...                 ):
   ;;    ...             # hissp.macros.._macro_.attach
   ;;    ...             # hissp.macros.._macro_.let
   ;;    ...             (
-  ;;    ...              lambda _Qzwawunnb6__target=_Qzzkusd5eu__G(
+  ;;    ...              lambda _gPQUNU63T__target=_g6Q6NJSTQ__G(
   ;;    ...                       Exception):
   ;;    ...                (__import__('builtins').setattr(
-  ;;    ...                   _Qzwawunnb6__target,
+  ;;    ...                   _gPQUNU63T__target,
   ;;    ...                   '__cause__',
-  ;;    ...                   _Qzzkusd5eu__G(
+  ;;    ...                   _g6Q6NJSTQ__G(
   ;;    ...                     Exception(
   ;;    ...                       ('msg')))),
-  ;;    ...                 _Qzwawunnb6__target)  [-1]
+  ;;    ...                 _gPQUNU63T__target)  [-1]
   ;;    ...             )()
   ;;    ...         )())
   ;;    ...   ))
@@ -3162,31 +3131,31 @@ See `hissp.macros`.
   ;;    #..               (my-range (add i 1) n)))))) ;Conditional recursion.
   ;;    #..
   ;;    >>> globals().update(
-  ;;    ...   myQzH_range=(lambda i, n:
-  ;;    ...                   Ensue(
-  ;;    ...                     (lambda step:
-  ;;    ...                         # when
-  ;;    ...                         (lambda b, c: c()if b else())(
-  ;;    ...                           lt(
-  ;;    ...                             i,
-  ;;    ...                             n),
-  ;;    ...                           (lambda :
-  ;;    ...                              (setattr(
-  ;;    ...                                 step,
-  ;;    ...                                 'Y',
-  ;;    ...                                 i),
-  ;;    ...                               myQzH_range(
-  ;;    ...                                 add(
-  ;;    ...                                   i,
-  ;;    ...                                   (1)),
-  ;;    ...                                 n))  [-1]
-  ;;    ...                           ))
-  ;;    ...                     ))
-  ;;    ...               ))
+  ;;    ...   my___range=(lambda i, n:
+  ;;    ...                  Ensue(
+  ;;    ...                    (lambda step:
+  ;;    ...                        # when
+  ;;    ...                        (lambda b, c: c()if b else())(
+  ;;    ...                          lt(
+  ;;    ...                            i,
+  ;;    ...                            n),
+  ;;    ...                          (lambda :
+  ;;    ...                             (setattr(
+  ;;    ...                                step,
+  ;;    ...                                'Y',
+  ;;    ...                                i),
+  ;;    ...                              my___range(
+  ;;    ...                                add(
+  ;;    ...                                  i,
+  ;;    ...                                  (1)),
+  ;;    ...                                n))  [-1]
+  ;;    ...                          ))
+  ;;    ...                    ))
+  ;;    ...              ))
   ;;
   ;;    #> (list (my-range 1 6))
   ;;    >>> list(
-  ;;    ...   myQzH_range(
+  ;;    ...   my___range(
   ;;    ...     (1),
   ;;    ...     (6)))
   ;;    [1, 2, 3, 4, 5]
@@ -3200,20 +3169,20 @@ See `hissp.macros`.
   ;;    ...   (lambda step:
   ;;    ...      (# attach
   ;;    ...       # hissp.macros.._macro_.let
-  ;;    ...       (lambda _Qzwg5wn73w__target=step:
+  ;;    ...       (lambda _gG4YAHWYA__target=step:
   ;;    ...          (__import__('builtins').setattr(
-  ;;    ...             _Qzwg5wn73w__target,
+  ;;    ...             _gG4YAHWYA__target,
   ;;    ...             'F',
   ;;    ...             True),
   ;;    ...           __import__('builtins').setattr(
-  ;;    ...             _Qzwg5wn73w__target,
+  ;;    ...             _gG4YAHWYA__target,
   ;;    ...             'Y',
   ;;    ...             ((1),
   ;;    ...              (2),
   ;;    ...              (3),
   ;;    ...              (4),
   ;;    ...              (5),)),
-  ;;    ...           _Qzwg5wn73w__target)  [-1]
+  ;;    ...           _gG4YAHWYA__target)  [-1]
   ;;    ...       )(),
   ;;    ...       None)  [-1]
   ;;    ...   ))
@@ -3236,22 +3205,22 @@ See `hissp.macros`.
   ;;    ...                 (lambda step:
   ;;    ...                     # attach
   ;;    ...                     # hissp.macros.._macro_.let
-  ;;    ...                     (lambda _Qzwg5wn73w__target=step:
+  ;;    ...                     (lambda _gGB6P3557__target=step:
   ;;    ...                        (__import__('builtins').setattr(
-  ;;    ...                           _Qzwg5wn73w__target,
+  ;;    ...                           _gGB6P3557__target,
   ;;    ...                           'Y',
   ;;    ...                           itr),
   ;;    ...                         __import__('builtins').setattr(
-  ;;    ...                           _Qzwg5wn73w__target,
+  ;;    ...                           _gGB6P3557__target,
   ;;    ...                           'F',
   ;;    ...                           (1)),
-  ;;    ...                         _Qzwg5wn73w__target)  [-1]
+  ;;    ...                         _gGB6P3557__target)  [-1]
   ;;    ...                     )()
   ;;    ...                 ))
   ;;    ...           ))
   ;;
   ;;    #> (-> '(1 2 3) recycle (islice 7) list)
-  ;;    >>> # QzH_QzGT_
+  ;;    >>> # Dash_Gt_
   ;;    ... list(
   ;;    ...   islice(
   ;;    ...     recycle(
@@ -3310,7 +3279,7 @@ See `hissp.macros`.
   ;;    ...           wrap=# hissp.macros.._macro_.fun
   ;;    ...                # hissp.macros.._macro_.let
   ;;    ...                (
-  ;;    ...                 lambda _Qztl624wbs__lambda=(lambda msg:
+  ;;    ...                 lambda _gGVVLJLUM__lambda=(lambda msg:
   ;;    ...                           (print(
   ;;    ...                              ('enter'),
   ;;    ...                              msg),
@@ -3330,14 +3299,14 @@ See `hissp.macros`.
   ;;    ...                        ):
   ;;    ...                   ((
   ;;    ...                      *__import__('itertools').starmap(
-  ;;    ...                         _Qztl624wbs__lambda.__setattr__,
+  ;;    ...                         _gGVVLJLUM__lambda.__setattr__,
   ;;    ...                         __import__('builtins').dict(
   ;;    ...                           __name__='wrap',
   ;;    ...                           __qualname__='wrap',
-  ;;    ...                           __code__=_Qztl624wbs__lambda.__code__.replace(
+  ;;    ...                           __code__=_gGVVLJLUM__lambda.__code__.replace(
   ;;    ...                                      co_name='wrap')).items()),
   ;;    ...                      ),
-  ;;    ...                    _Qztl624wbs__lambda)  [-1]
+  ;;    ...                    _gGVVLJLUM__lambda)  [-1]
   ;;    ...                )()),
   ;;    ...         __import__('contextlib').contextmanager(
   ;;    ...           wrap))  [-1])
@@ -3393,36 +3362,36 @@ See `hissp.macros`.
   ;;    #..                       (print "Caught a" step.sent))))))))
   ;;    >>> # define
   ;;    ... __import__('builtins').globals().update(
-  ;;    ...   suppressQzH_zde=__import__('contextlib').contextmanager(
-  ;;    ...                     (lambda :
-  ;;    ...                         Ensue(
-  ;;    ...                           (lambda step:
-  ;;    ...                              (# attach
-  ;;    ...                               # hissp.macros.._macro_.let
-  ;;    ...                               (lambda _Qzwg5wn73w__target=step:
-  ;;    ...                                  (__import__('builtins').setattr(
-  ;;    ...                                     _Qzwg5wn73w__target,
-  ;;    ...                                     'Y',
-  ;;    ...                                     None),
-  ;;    ...                                   __import__('builtins').setattr(
-  ;;    ...                                     _Qzwg5wn73w__target,
-  ;;    ...                                     'X',
-  ;;    ...                                     ZeroDivisionError),
-  ;;    ...                                   _Qzwg5wn73w__target)  [-1]
-  ;;    ...                               )(),
-  ;;    ...                               Ensue(
-  ;;    ...                                 (lambda step:
-  ;;    ...                                     print(
-  ;;    ...                                       ('Caught a'),
-  ;;    ...                                       step.sent)
-  ;;    ...                                 )))  [-1]
-  ;;    ...                           ))
-  ;;    ...                     )))
+  ;;    ...   suppress___zde=__import__('contextlib').contextmanager(
+  ;;    ...                    (lambda :
+  ;;    ...                        Ensue(
+  ;;    ...                          (lambda step:
+  ;;    ...                             (# attach
+  ;;    ...                              # hissp.macros.._macro_.let
+  ;;    ...                              (lambda _gWXSTHSTC__target=step:
+  ;;    ...                                 (__import__('builtins').setattr(
+  ;;    ...                                    _gWXSTHSTC__target,
+  ;;    ...                                    'Y',
+  ;;    ...                                    None),
+  ;;    ...                                  __import__('builtins').setattr(
+  ;;    ...                                    _gWXSTHSTC__target,
+  ;;    ...                                    'X',
+  ;;    ...                                    ZeroDivisionError),
+  ;;    ...                                  _gWXSTHSTC__target)  [-1]
+  ;;    ...                              )(),
+  ;;    ...                              Ensue(
+  ;;    ...                                (lambda step:
+  ;;    ...                                    print(
+  ;;    ...                                      ('Caught a'),
+  ;;    ...                                      step.sent)
+  ;;    ...                                )))  [-1]
+  ;;    ...                          ))
+  ;;    ...                    )))
   ;;
   ;;    #> (enter (suppress-zde)
   ;;    #..  (lambda _ (truediv 1 0)))
   ;;    >>> enter(
-  ;;    ...   suppressQzH_zde(),
+  ;;    ...   suppress___zde(),
   ;;    ...   (lambda _:
   ;;    ...       truediv(
   ;;    ...         (1),
@@ -3433,7 +3402,7 @@ See `hissp.macros`.
   ;;    #> (enter (suppress-zde) ; No exception, so step.sent was .send() value.
   ;;    #..  (lambda _ (truediv 4 2)))
   ;;    >>> enter(
-  ;;    ...   suppressQzH_zde(),
+  ;;    ...   suppress___zde(),
   ;;    ...   (lambda _:
   ;;    ...       truediv(
   ;;    ...         (4),
@@ -3445,10 +3414,10 @@ See `hissp.macros`.
   ;;    #> (enter (suppress-zde)
   ;;    #..  (lambda _ (throw Exception)))
   ;;    >>> enter(
-  ;;    ...   suppressQzH_zde(),
+  ;;    ...   suppress___zde(),
   ;;    ...   (lambda _:
   ;;    ...       # throw
-  ;;    ...       # hissp.macros.._macro_.throwQzSTAR_
+  ;;    ...       # hissp.macros.._macro_.throwStar_
   ;;    ...       (lambda g:g.close()or g.throw)(c for c in'')(
   ;;    ...         Exception)
   ;;    ...   ))
@@ -3491,7 +3460,7 @@ except ModuleNotFoundError: pass"
   ;;
   ;;    #> (mix |[|%|+|(.lower %)| for |%| in |string..ascii_uppercase|[:10]]|)
   ;;    >>> # mix
-  ;;    ... [QzPCENT_+QzPCENT_.lower() for QzPCENT_ in __import__('string').ascii_uppercase[:10]]
+  ;;    ... [Pcent_+Pcent_.lower() for Pcent_ in __import__('string').ascii_uppercase[:10]]
   ;;    ['Aa', 'Bb', 'Cc', 'Dd', 'Ee', 'Ff', 'Gg', 'Hh', 'Ii', 'Jj']
   ;;
   ;; Beware that a `str atom` like ``|:|`` is still a `control word`,
@@ -3535,16 +3504,16 @@ sentinel#
   ;;    ... (lambda b, a: ()if b else a())(
   ;;    ...   __import__('operator').contains(
   ;;    ...     __import__('builtins').globals(),
-  ;;    ...     'QzSTAR_greetingQzSTAR_'),
+  ;;    ...     'Star_greetingStar_'),
   ;;    ...   (lambda :
   ;;    ...       # hissp.macros.._macro_.define
   ;;    ...       __import__('builtins').globals().update(
-  ;;    ...         QzSTAR_greetingQzSTAR_=__import__('contextvars').ContextVar(
-  ;;    ...                                  '*greeting*'))
+  ;;    ...         Star_greetingStar_=__import__('contextvars').ContextVar(
+  ;;    ...                              '*greeting*'))
   ;;    ...   ))
   ;;
   ;;    #> *greeting*
-  ;;    >>> QzSTAR_greetingQzSTAR_
+  ;;    >>> Star_greetingStar_
   ;;    <ContextVar name='*greeting*' at 0x...>
   ;;
   ;;    #> (defvar *greeted* "World!")
@@ -3553,17 +3522,17 @@ sentinel#
   ;;    ... (lambda b, a: ()if b else a())(
   ;;    ...   __import__('operator').contains(
   ;;    ...     __import__('builtins').globals(),
-  ;;    ...     'QzSTAR_greetedQzSTAR_'),
+  ;;    ...     'Star_greetedStar_'),
   ;;    ...   (lambda :
   ;;    ...       # hissp.macros.._macro_.define
   ;;    ...       __import__('builtins').globals().update(
-  ;;    ...         QzSTAR_greetedQzSTAR_=__import__('contextvars').ContextVar(
-  ;;    ...                                 '*greeted*',
-  ;;    ...                                 default=('World!')))
+  ;;    ...         Star_greetedStar_=__import__('contextvars').ContextVar(
+  ;;    ...                             '*greeted*',
+  ;;    ...                             default=('World!')))
   ;;    ...   ))
   ;;
   ;;    #> *greeted*
-  ;;    >>> QzSTAR_greetedQzSTAR_
+  ;;    >>> Star_greetedStar_
   ;;    <ContextVar name='*greeted*' default='World!' at 0x...>
   ;;
   ;;    #> (defun greet : (print (.get *greeting* "Hello,") (.get *greeted*)))
@@ -3573,22 +3542,22 @@ sentinel#
   ;;    ...   greet=# hissp.macros.._macro_.fun
   ;;    ...         # hissp.macros.._macro_.let
   ;;    ...         (
-  ;;    ...          lambda _Qzan3nwcb3__lambda=(lambda :
+  ;;    ...          lambda _gM7G4BACH__lambda=(lambda :
   ;;    ...                     print(
-  ;;    ...                       QzSTAR_greetingQzSTAR_.get(
+  ;;    ...                       Star_greetingStar_.get(
   ;;    ...                         ('Hello,')),
-  ;;    ...                       QzSTAR_greetedQzSTAR_.get())
+  ;;    ...                       Star_greetedStar_.get())
   ;;    ...                 ):
   ;;    ...            ((
   ;;    ...               *__import__('itertools').starmap(
-  ;;    ...                  _Qzan3nwcb3__lambda.__setattr__,
+  ;;    ...                  _gM7G4BACH__lambda.__setattr__,
   ;;    ...                  __import__('builtins').dict(
   ;;    ...                    __name__='greet',
   ;;    ...                    __qualname__='greet',
-  ;;    ...                    __code__=_Qzan3nwcb3__lambda.__code__.replace(
+  ;;    ...                    __code__=_gM7G4BACH__lambda.__code__.replace(
   ;;    ...                               co_name='greet')).items()),
   ;;    ...               ),
-  ;;    ...             _Qzan3nwcb3__lambda)  [-1]
+  ;;    ...             _gM7G4BACH__lambda)  [-1]
   ;;    ...         )())
   ;;
   ;;    #> (greet)
@@ -3601,9 +3570,9 @@ sentinel#
   ;;    >>> # binding
   ;;    ... __import__('contextvars').copy_context().run(
   ;;    ...   (lambda :
-  ;;    ...      (QzSTAR_greetingQzSTAR_.set(
+  ;;    ...      (Star_greetingStar_.set(
   ;;    ...         ('Goodbye,')),
-  ;;    ...       QzSTAR_greetedQzSTAR_.set(
+  ;;    ...       Star_greetedStar_.set(
   ;;    ...         ('all!')),
   ;;    ...       greet())  [-1]
   ;;    ...   ))
@@ -3626,7 +3595,7 @@ sentinel#
   ;; `types.SimpleNamespace` in a lexical scope.
   ;;
   ;; Creates a local namespace for imperative-style (re)assignments.
-  ;; `Kwarg token`\ s in scope translate to `set@ <setQzAT_>`.
+  ;; `Kwarg token`\ s in scope translate to `set@ <setAt_>`.
   ;;
   ;; Often combined with branching macros to reuse the results of an
   ;; expression, with uses similar to Python's 'walrus' operator ``:=``.
@@ -3638,18 +3607,18 @@ sentinel#
   ;;    >>> # hissp.macros.._macro_.let
   ;;    ... (lambda my=__import__('types').SimpleNamespace():
   ;;    ...     print(
-  ;;    ...       # hissp.macros.._macro_.setQzAT_
+  ;;    ...       # hissp.macros.._macro_.setAt_
   ;;    ...       # hissp.macros.._macro_.let
   ;;    ...       (
-  ;;    ...        lambda _Qzwk5j5q64__value=__import__('operator').add(
+  ;;    ...        lambda _gUJATU5TX__value=__import__('operator').add(
   ;;    ...                 (1),
   ;;    ...                 (1)):
   ;;    ...          (# hissp.macros.._macro_.define
   ;;    ...           __import__('builtins').setattr(
   ;;    ...             my,
   ;;    ...             'x',
-  ;;    ...             _Qzwk5j5q64__value),
-  ;;    ...           _Qzwk5j5q64__value)  [-1]
+  ;;    ...             _gUJATU5TX__value),
+  ;;    ...           _gUJATU5TX__value)  [-1]
   ;;    ...       )(),
   ;;    ...       my.x)
   ;;    ... )()
@@ -3678,7 +3647,7 @@ sentinel#
   ;;    ...      lambda my=__import__('types').SimpleNamespace(
   ;;    ...               inner=(1),
   ;;    ...               bridge=my):
-  ;;    ...         # QzAT_
+  ;;    ...         # At_
   ;;    ...         (lambda *xs: [*xs])(
   ;;    ...           my.bridge.outer,
   ;;    ...           my.inner)
@@ -3697,15 +3666,15 @@ sentinel#
   ;;    ...  lambda my=__import__('types').SimpleNamespace(
   ;;    ...           **# hissp.macros.._macro_.let
   ;;    ...             (
-  ;;    ...              lambda _Qze4jatheu__expr=((1),
+  ;;    ...              lambda _gEZHZ5K77__expr=((1),
   ;;    ...                      (2),
   ;;    ...                      'spam',):
   ;;    ...                 [__import__('builtins').locals()
   ;;    ...                  for (a,b,[c,*xs])
-  ;;    ...                  in [_Qze4jatheu__expr]]  [0]
+  ;;    ...                  in [_gEZHZ5K77__expr]]  [0]
   ;;    ...             )()):
   ;;    ...    (my.__dict__.pop(
-  ;;    ...       '_Qze4jatheu__expr',
+  ;;    ...       '_gEZHZ5K77__expr',
   ;;    ...       None),
   ;;    ...     my.__dict__.pop(
   ;;    ...       ('.0'),
@@ -3714,7 +3683,7 @@ sentinel#
   ;;    ... )()
   ;;    namespace(a=1, b=2, c='s', xs=['p', 'a', 'm'])
   ;;
-  ;; Use `zap@ <zapQzAT_>` for augmented assignments:
+  ;; Use `zap@ <zapAt_>` for augmented assignments:
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -3723,41 +3692,41 @@ sentinel#
   ;;    ... (
   ;;    ...  lambda my=__import__('types').SimpleNamespace(
   ;;    ...           **# hissp.macros.._macro_.let
-  ;;    ...             (lambda _Qzec6padpw__expr='AB':
+  ;;    ...             (lambda _gH2ASYXGG__expr='AB':
   ;;    ...                 [__import__('builtins').locals()
   ;;    ...                  for (a,b)
-  ;;    ...                  in [_Qzec6padpw__expr]]  [0]
+  ;;    ...                  in [_gH2ASYXGG__expr]]  [0]
   ;;    ...             )()):
   ;;    ...    (my.__dict__.pop(
-  ;;    ...       '_Qzec6padpw__expr',
+  ;;    ...       '_gH2ASYXGG__expr',
   ;;    ...       None),
   ;;    ...     my.__dict__.pop(
   ;;    ...       ('.0'),
   ;;    ...       None),
-  ;;    ...     # QzAT_
+  ;;    ...     # At_
   ;;    ...     (lambda *xs: [*xs])(
-  ;;    ...       # zapQzAT_
-  ;;    ...       # hissp.macros.._macro_.setQzAT_
+  ;;    ...       # zapAt_
+  ;;    ...       # hissp.macros.._macro_.setAt_
   ;;    ...       # hissp.macros.._macro_.let
   ;;    ...       (
-  ;;    ...        lambda _Qzqfrecvdx__value=iadd(
+  ;;    ...        lambda _gE2CNKVL4__value=iadd(
   ;;    ...                 my.a,
-  ;;    ...                 # hissp.macros.._macro_.setQzAT_
+  ;;    ...                 # hissp.macros.._macro_.setAt_
   ;;    ...                 # hissp.macros.._macro_.let
-  ;;    ...                 (lambda _Qzqfrecvdx__value='C':
+  ;;    ...                 (lambda _gE2CNKVL4__value='C':
   ;;    ...                    (# hissp.macros.._macro_.define
   ;;    ...                     __import__('builtins').setattr(
   ;;    ...                       my,
   ;;    ...                       'c',
-  ;;    ...                       _Qzqfrecvdx__value),
-  ;;    ...                     _Qzqfrecvdx__value)  [-1]
+  ;;    ...                       _gE2CNKVL4__value),
+  ;;    ...                     _gE2CNKVL4__value)  [-1]
   ;;    ...                 )()):
   ;;    ...          (# hissp.macros.._macro_.define
   ;;    ...           __import__('builtins').setattr(
   ;;    ...             my,
   ;;    ...             'a',
-  ;;    ...             _Qzqfrecvdx__value),
-  ;;    ...           _Qzqfrecvdx__value)  [-1]
+  ;;    ...             _gE2CNKVL4__value),
+  ;;    ...           _gE2CNKVL4__value)  [-1]
   ;;    ...       )(),
   ;;    ...       my))  [-1]
   ;;    ... )()
@@ -3773,7 +3742,7 @@ sentinel#
   ;;    ...  lambda my=__import__('types').SimpleNamespace(
   ;;    ...           **# hissp.macros.._macro_.let
   ;;    ...             (
-  ;;    ...              lambda _Qze4jatheu__expr=(
+  ;;    ...              lambda _g2MBLMLUY__expr=(
   ;;    ...                       # hissp.macros.._macro_.let
   ;;    ...                       (lambda my=__import__('types').SimpleNamespace(): my)(),
   ;;    ...                       list(
@@ -3781,10 +3750,10 @@ sentinel#
   ;;    ...                       ):
   ;;    ...                 [__import__('builtins').locals()
   ;;    ...                  for (globals()['spam'], spam.eggs)
-  ;;    ...                  in [_Qze4jatheu__expr]]  [0]
+  ;;    ...                  in [_g2MBLMLUY__expr]]  [0]
   ;;    ...             )()):
   ;;    ...    (my.__dict__.pop(
-  ;;    ...       '_Qze4jatheu__expr',
+  ;;    ...       '_g2MBLMLUY__expr',
   ;;    ...       None),
   ;;    ...     my.__dict__.pop(
   ;;    ...       ('.0'),
@@ -3798,14 +3767,14 @@ sentinel#
   ;;    ... (
   ;;    ...  lambda my=__import__('types').SimpleNamespace(
   ;;    ...           **# hissp.macros.._macro_.let
-  ;;    ...             (lambda _Qze4jatheu__expr='XYZ':
+  ;;    ...             (lambda _gMMP53OIO__expr='XYZ':
   ;;    ...                 [__import__('builtins').locals()
   ;;    ...                  for (spam.eggs[2::2])
-  ;;    ...                  in [_Qze4jatheu__expr]]  [0]
+  ;;    ...                  in [_gMMP53OIO__expr]]  [0]
   ;;    ...             )(),
   ;;    ...           tomato=spam):
   ;;    ...    (my.__dict__.pop(
-  ;;    ...       '_Qze4jatheu__expr',
+  ;;    ...       '_gMMP53OIO__expr',
   ;;    ...       None),
   ;;    ...     my.__dict__.pop(
   ;;    ...       ('.0'),
@@ -3815,7 +3784,7 @@ sentinel#
   ;;    namespace(tomato=namespace(eggs=['a', 'b', 'X', 'd', 'Y', 'f', 'Z']))
   ;;
   ;; See also:
-  ;; `attach`, `set[### <setQzLSQB_QzHASH_>`, `destruct-> <destructQzH_QzGT_>`.
+  ;; `attach`, `set[### <setLsqb_Hash_>`, `destruct-> <destruct___Gt_>`.
   ;;
   (let (ns (types..SimpleNamespace))
     (setattr ns
@@ -3844,80 +3813,80 @@ sentinel#
   ;; Bindings are pairs of a transform expression with either a name or
   ;; (recursively) another bindings expression. Each transformation
   ;; expression is applied to the data via a thread-first
-  ;; (`-> <QzH_QzGT_>`). This setup allows a bindings form to mirror the
+  ;; (`-> <Dash_Gt_>`). This setup allows a bindings form to mirror the
   ;; data it's destructuring:
   ;;
   ;; .. code-block:: REPL
   ;;
   ;;    #> (% 10 1  'ns (types..SimpleNamespace : a-tuple '(a b c)  spam 'eggs))
-  ;;    >>> # QzPCENT_
+  ;;    >>> # Pcent_
   ;;    ... (lambda x0, x1, x2, x3: {x0:x1,x2:x3})(
   ;;    ...   (10),
   ;;    ...   (1),
   ;;    ...   'ns',
   ;;    ...   __import__('types').SimpleNamespace(
-  ;;    ...     aQzH_tuple=('a',
-  ;;    ...                 'b',
-  ;;    ...                 'c',),
+  ;;    ...     a___tuple=('a',
+  ;;    ...                'b',
+  ;;    ...                'c',),
   ;;    ...     spam='eggs'))
-  ;;    {10: 1, 'ns': namespace(aQzH_tuple=('a', 'b', 'c'), spam='eggs')}
+  ;;    {10: 1, 'ns': namespace(a___tuple=('a', 'b', 'c'), spam='eggs')}
   ;;
   ;;    #> (define nested-data _)
   ;;    >>> # define
   ;;    ... __import__('builtins').globals().update(
-  ;;    ...   nestedQzH_data=_)
+  ;;    ...   nested___data=_)
   ;;
   ;;    #> (destruct-> nested-data
   ;;    #..            (!#10 num  !#'ns (@#'a-tuple (!#0 a  !#1 b  !#2 c)  @#'spam spam))
   ;;    #..  (locals))
-  ;;    >>> # destructQzH_QzGT_
-  ;;    ... # hissp.macros.._macro_.letQzH_call
+  ;;    >>> # destruct___Gt_
+  ;;    ... # hissp.macros.._macro_.let___call
   ;;    ... (lambda num, a, b, c, spam: locals())(
   ;;    ...   *# hissp.macros.._macro_.let
-  ;;    ...    (lambda _Qzcti67hlh__data=nestedQzH_data:
+  ;;    ...    (lambda _g275ZTQAC__data=nested___data:
   ;;    ...        (
-  ;;    ...          # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...          # hissp.macros.._macro_.Dash_Gt_
   ;;    ...          __import__('operator').itemgetter(
   ;;    ...            (10))(
-  ;;    ...            _Qzcti67hlh__data,
+  ;;    ...            _g275ZTQAC__data,
   ;;    ...            ),
   ;;    ...          *# hissp.macros.._macro_.let
   ;;    ...           (
-  ;;    ...            lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...            lambda _g275ZTQAC__data=# hissp.macros.._macro_.Dash_Gt_
   ;;    ...                   __import__('operator').itemgetter(
   ;;    ...                     'ns')(
-  ;;    ...                     _Qzcti67hlh__data,
+  ;;    ...                     _g275ZTQAC__data,
   ;;    ...                     ):
   ;;    ...               (
   ;;    ...                 *# hissp.macros.._macro_.let
   ;;    ...                  (
-  ;;    ...                   lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                   lambda _g275ZTQAC__data=# hissp.macros.._macro_.Dash_Gt_
   ;;    ...                          __import__('operator').attrgetter(
-  ;;    ...                            'aQzH_tuple')(
-  ;;    ...                            _Qzcti67hlh__data,
+  ;;    ...                            'a___tuple')(
+  ;;    ...                            _g275ZTQAC__data,
   ;;    ...                            ):
   ;;    ...                      (
-  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                        __import__('operator').itemgetter(
   ;;    ...                          (0))(
-  ;;    ...                          _Qzcti67hlh__data,
+  ;;    ...                          _g275ZTQAC__data,
   ;;    ...                          ),
-  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                        __import__('operator').itemgetter(
   ;;    ...                          (1))(
-  ;;    ...                          _Qzcti67hlh__data,
+  ;;    ...                          _g275ZTQAC__data,
   ;;    ...                          ),
-  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                        __import__('operator').itemgetter(
   ;;    ...                          (2))(
-  ;;    ...                          _Qzcti67hlh__data,
+  ;;    ...                          _g275ZTQAC__data,
   ;;    ...                          ),
   ;;    ...                        )
   ;;    ...                  )(),
-  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                 __import__('operator').attrgetter(
   ;;    ...                   'spam')(
-  ;;    ...                   _Qzcti67hlh__data,
+  ;;    ...                   _g275ZTQAC__data,
   ;;    ...                   ),
   ;;    ...                 )
   ;;    ...           )(),
@@ -3942,103 +3911,103 @@ sentinel#
   ;;    #..                                iter (next _0  (next :b) B  next _1  (next :d) D)))
   ;;    #..             (.get 'quux "default for quux") myquux)
   ;;    #..  (pprint..pp (locals)))
-  ;;    >>> # destructQzH_QzGT_
-  ;;    ... # hissp.macros.._macro_.letQzH_call
+  ;;    >>> # destruct___Gt_
+  ;;    ... # hissp.macros.._macro_.let___call
   ;;    ... (lambda ns, missing, inner, ab, abc, A, rest, two, three, _0, B, _1, D, myquux:
   ;;    ...     __import__('pprint').pp(
   ;;    ...       locals())
   ;;    ... )(
   ;;    ...   *# hissp.macros.._macro_.let
-  ;;    ...    (lambda _Qzcti67hlh__data=nestedQzH_data:
+  ;;    ...    (lambda _gU3TLRBXC__data=nested___data:
   ;;    ...        (
   ;;    ...          *# hissp.macros.._macro_.let
   ;;    ...           (
-  ;;    ...            lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...            lambda _gU3TLRBXC__data=# hissp.macros.._macro_.Dash_Gt_
   ;;    ...                   __import__('operator').itemgetter(
   ;;    ...                     'ns')(
-  ;;    ...                     _Qzcti67hlh__data,
+  ;;    ...                     _gU3TLRBXC__data,
   ;;    ...                     ):
   ;;    ...               (
-  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                 (
-  ;;    ...                   _Qzcti67hlh__data),
-  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                   _gU3TLRBXC__data),
+  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                 getattr(
-  ;;    ...                   _Qzcti67hlh__data,
+  ;;    ...                   _gU3TLRBXC__data,
   ;;    ...                   'missing',
   ;;    ...                   ('a default for missing')),
-  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                 __import__('operator').attrgetter(
   ;;    ...                   'spam')(
-  ;;    ...                   _Qzcti67hlh__data,
+  ;;    ...                   _gU3TLRBXC__data,
   ;;    ...                   ),
   ;;    ...                 *# hissp.macros.._macro_.let
   ;;    ...                  (
-  ;;    ...                   lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                   lambda _gU3TLRBXC__data=# hissp.macros.._macro_.Dash_Gt_
   ;;    ...                          __import__('operator').attrgetter(
-  ;;    ...                            'aQzH_tuple')(
-  ;;    ...                            _Qzcti67hlh__data,
+  ;;    ...                            'a___tuple')(
+  ;;    ...                            _gU3TLRBXC__data,
   ;;    ...                            ):
   ;;    ...                      (
-  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
-  ;;    ...                        (lambda _Qzuah3zizj__items: (_Qzuah3zizj__items[:-1]))(
-  ;;    ...                          _Qzcti67hlh__data,
+  ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                        (lambda _gX4M4GEV6__items: (_gX4M4GEV6__items[:-1]))(
+  ;;    ...                          _gU3TLRBXC__data,
   ;;    ...                          ),
-  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
-  ;;    ...                        (lambda _Qzuah3zizj__items: (_Qzuah3zizj__items[:]))(
-  ;;    ...                          _Qzcti67hlh__data,
+  ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                        (lambda _gX4M4GEV6__items: (_gX4M4GEV6__items[:]))(
+  ;;    ...                          _gU3TLRBXC__data,
   ;;    ...                          ),
   ;;    ...                        *# hissp.macros.._macro_.let
   ;;    ...                         (
-  ;;    ...                          lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                          lambda _gU3TLRBXC__data=# hissp.macros.._macro_.Dash_Gt_
   ;;    ...                                 iter(
-  ;;    ...                                   _Qzcti67hlh__data):
+  ;;    ...                                   _gU3TLRBXC__data):
   ;;    ...                             (
-  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                               next(
-  ;;    ...                                 _Qzcti67hlh__data),
-  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                                 _gU3TLRBXC__data),
+  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                               list(
-  ;;    ...                                 _Qzcti67hlh__data),
+  ;;    ...                                 _gU3TLRBXC__data),
   ;;    ...                               )
   ;;    ...                         )(),
   ;;    ...                        *# hissp.macros.._macro_.let
   ;;    ...                         (
-  ;;    ...                          lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
-  ;;    ...                                 # QzH_QzGT_
+  ;;    ...                          lambda _gU3TLRBXC__data=# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                                 # Dash_Gt_
   ;;    ...                                 dict(
   ;;    ...                                   enumerate(
-  ;;    ...                                     _Qzcti67hlh__data)):
+  ;;    ...                                     _gU3TLRBXC__data)):
   ;;    ...                             (
-  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
-  ;;    ...                               _Qzcti67hlh__data.get(
+  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                               _gU3TLRBXC__data.get(
   ;;    ...                                 (2),
   ;;    ...                                 ()),
-  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
-  ;;    ...                               _Qzcti67hlh__data.get(
+  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                               _gU3TLRBXC__data.get(
   ;;    ...                                 (3),
   ;;    ...                                 ()),
   ;;    ...                               )
   ;;    ...                         )(),
   ;;    ...                        *# hissp.macros.._macro_.let
   ;;    ...                         (
-  ;;    ...                          lambda _Qzcti67hlh__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                          lambda _gU3TLRBXC__data=# hissp.macros.._macro_.Dash_Gt_
   ;;    ...                                 iter(
-  ;;    ...                                   _Qzcti67hlh__data):
+  ;;    ...                                   _gU3TLRBXC__data):
   ;;    ...                             (
-  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                               next(
-  ;;    ...                                 _Qzcti67hlh__data),
-  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                                 _gU3TLRBXC__data),
+  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                               next(
-  ;;    ...                                 _Qzcti67hlh__data,
+  ;;    ...                                 _gU3TLRBXC__data,
   ;;    ...                                 ':b'),
-  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                               next(
-  ;;    ...                                 _Qzcti67hlh__data),
-  ;;    ...                               # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                                 _gU3TLRBXC__data),
+  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                               next(
-  ;;    ...                                 _Qzcti67hlh__data,
+  ;;    ...                                 _gU3TLRBXC__data,
   ;;    ...                                 ':d'),
   ;;    ...                               )
   ;;    ...                         )(),
@@ -4046,13 +4015,13 @@ sentinel#
   ;;    ...                  )(),
   ;;    ...                 )
   ;;    ...           )(),
-  ;;    ...          # hissp.macros.._macro_.QzH_QzGT_
-  ;;    ...          _Qzcti67hlh__data.get(
+  ;;    ...          # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...          _gU3TLRBXC__data.get(
   ;;    ...            'quux',
   ;;    ...            ('default for quux')),
   ;;    ...          )
   ;;    ...    )())
-  ;;    {'ns': namespace(aQzH_tuple=('a', 'b', 'c'), spam='eggs'),
+  ;;    {'ns': namespace(a___tuple=('a', 'b', 'c'), spam='eggs'),
   ;;     'missing': 'a default for missing',
   ;;     'inner': 'eggs',
   ;;     'ab': ('a', 'b'),
@@ -4067,8 +4036,8 @@ sentinel#
   ;;     'D': ':d',
   ;;     'myquux': 'default for quux'}
   ;;
-  ;; See also: `let*call <letQzSTAR_call>`, `my# <myQzHASH_>`,
-  ;; `\!s# <QzBANG_sQzHASH_>`, `@s# <QzAT_sQzHASH_>`, `pos# <posQzHASH_>`.
+  ;; See also: `let*call <letStar_call>`, `my# <myHash_>`,
+  ;; `\!s# <Bang_sHash_>`, `@s# <At_sHash_>`, `pos# <posHash_>`.
   ;;
   my### names=(list) $data=`$#data
   (progn walk=(lambda (bindings)
@@ -4086,7 +4055,7 @@ sentinel#
 (defmacro !s\# (names)
   <#;``!s#`` 'item names'
   ;;
-  ;; `destruct-> <destructQzH_QzGT_>` helper shorthand.
+  ;; `destruct-> <destruct___Gt_>` helper shorthand.
   ;; Destructures a mapping using the binding names as the keys.
   ;;
   ;; .. code-block:: REPL
@@ -4095,8 +4064,8 @@ sentinel#
   ;;    #..            (|| whole
   ;;    #..             || !s#(spam foo))
   ;;    #..  (print whole spam foo))
-  ;;    >>> # destructQzH_QzGT_
-  ;;    ... # hissp.macros.._macro_.letQzH_call
+  ;;    >>> # destruct___Gt_
+  ;;    ... # hissp.macros.._macro_.let___call
   ;;    ... (lambda whole, spam, foo:
   ;;    ...     print(
   ;;    ...       whole,
@@ -4105,28 +4074,28 @@ sentinel#
   ;;    ... )(
   ;;    ...   *# hissp.macros.._macro_.let
   ;;    ...    (
-  ;;    ...     lambda _Qzxlqqwo2w__data=dict(
+  ;;    ...     lambda _gK53PHZRK__data=dict(
   ;;    ...              spam=(1),
   ;;    ...              foo=(2)):
   ;;    ...        (
-  ;;    ...          # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...          # hissp.macros.._macro_.Dash_Gt_
   ;;    ...          (
-  ;;    ...            _Qzxlqqwo2w__data),
+  ;;    ...            _gK53PHZRK__data),
   ;;    ...          *# hissp.macros.._macro_.let
   ;;    ...           (
-  ;;    ...            lambda _Qzxlqqwo2w__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...            lambda _gK53PHZRK__data=# hissp.macros.._macro_.Dash_Gt_
   ;;    ...                   (
-  ;;    ...                     _Qzxlqqwo2w__data):
+  ;;    ...                     _gK53PHZRK__data):
   ;;    ...               (
-  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                 __import__('operator').itemgetter(
   ;;    ...                   'spam')(
-  ;;    ...                   _Qzxlqqwo2w__data,
+  ;;    ...                   _gK53PHZRK__data,
   ;;    ...                   ),
-  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                 __import__('operator').itemgetter(
   ;;    ...                   'foo')(
-  ;;    ...                   _Qzxlqqwo2w__data,
+  ;;    ...                   _gK53PHZRK__data,
   ;;    ...                   ),
   ;;    ...                 )
   ;;    ...           )(),
@@ -4139,7 +4108,7 @@ sentinel#
 (defmacro @s\# (names)
   <#;``@s#`` 'attribute names'
   ;;
-  ;; `destruct-> <destructQzH_QzGT_>` helper shorthand.
+  ;; `destruct-> <destruct___Gt_>` helper shorthand.
   ;; Destructures a namespace using the binding names as the attributes.
   ;;
   ;; .. code-block:: REPL
@@ -4148,8 +4117,8 @@ sentinel#
   ;;    #..            (|| whole
   ;;    #..             || @s#(spam foo))
   ;;    #..  (print whole spam foo))
-  ;;    >>> # destructQzH_QzGT_
-  ;;    ... # hissp.macros.._macro_.letQzH_call
+  ;;    >>> # destruct___Gt_
+  ;;    ... # hissp.macros.._macro_.let___call
   ;;    ... (lambda whole, spam, foo:
   ;;    ...     print(
   ;;    ...       whole,
@@ -4158,28 +4127,28 @@ sentinel#
   ;;    ... )(
   ;;    ...   *# hissp.macros.._macro_.let
   ;;    ...    (
-  ;;    ...     lambda _Qzxlqqwo2w__data=__import__('types').SimpleNamespace(
+  ;;    ...     lambda _g4JOGNIEV__data=__import__('types').SimpleNamespace(
   ;;    ...              spam=(1),
   ;;    ...              foo=(2)):
   ;;    ...        (
-  ;;    ...          # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...          # hissp.macros.._macro_.Dash_Gt_
   ;;    ...          (
-  ;;    ...            _Qzxlqqwo2w__data),
+  ;;    ...            _g4JOGNIEV__data),
   ;;    ...          *# hissp.macros.._macro_.let
   ;;    ...           (
-  ;;    ...            lambda _Qzxlqqwo2w__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...            lambda _g4JOGNIEV__data=# hissp.macros.._macro_.Dash_Gt_
   ;;    ...                   (
-  ;;    ...                     _Qzxlqqwo2w__data):
+  ;;    ...                     _g4JOGNIEV__data):
   ;;    ...               (
-  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                 __import__('operator').attrgetter(
   ;;    ...                   'spam')(
-  ;;    ...                   _Qzxlqqwo2w__data,
+  ;;    ...                   _g4JOGNIEV__data,
   ;;    ...                   ),
-  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                 __import__('operator').attrgetter(
   ;;    ...                   'foo')(
-  ;;    ...                   _Qzxlqqwo2w__data,
+  ;;    ...                   _g4JOGNIEV__data,
   ;;    ...                   ),
   ;;    ...                 )
   ;;    ...           )(),
@@ -4192,7 +4161,7 @@ sentinel#
 (defmacro pos\# (bindings)
   <#;``pos#`` 'position bindings'
   ;;
-  ;; `destruct-> <destructQzH_QzGT_>` helper shorthand.
+  ;; `destruct-> <destruct___Gt_>` helper shorthand.
   ;; Destructures a sequence using each binding form's position index.
   ;;
   ;; .. code-block:: REPL
@@ -4200,8 +4169,8 @@ sentinel#
   ;;    #> (destruct-> '(ABC XYZ)
   ;;    #..            (|| whole  || pos#(abc pos#(x y)))
   ;;    #..  (print whole abc x y))
-  ;;    >>> # destructQzH_QzGT_
-  ;;    ... # hissp.macros.._macro_.letQzH_call
+  ;;    >>> # destruct___Gt_
+  ;;    ... # hissp.macros.._macro_.let___call
   ;;    ... (lambda whole, abc, x, y:
   ;;    ...     print(
   ;;    ...       whole,
@@ -4211,40 +4180,40 @@ sentinel#
   ;;    ... )(
   ;;    ...   *# hissp.macros.._macro_.let
   ;;    ...    (
-  ;;    ...     lambda _Qz4v7gmaq3__data=('ABC',
+  ;;    ...     lambda _gFS4QYTZL__data=('ABC',
   ;;    ...             'XYZ',):
   ;;    ...        (
-  ;;    ...          # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...          # hissp.macros.._macro_.Dash_Gt_
   ;;    ...          (
-  ;;    ...            _Qz4v7gmaq3__data),
+  ;;    ...            _gFS4QYTZL__data),
   ;;    ...          *# hissp.macros.._macro_.let
   ;;    ...           (
-  ;;    ...            lambda _Qz4v7gmaq3__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...            lambda _gFS4QYTZL__data=# hissp.macros.._macro_.Dash_Gt_
   ;;    ...                   (
-  ;;    ...                     _Qz4v7gmaq3__data):
+  ;;    ...                     _gFS4QYTZL__data):
   ;;    ...               (
-  ;;    ...                 # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                 __import__('operator').itemgetter(
   ;;    ...                   (0))(
-  ;;    ...                   _Qz4v7gmaq3__data,
+  ;;    ...                   _gFS4QYTZL__data,
   ;;    ...                   ),
   ;;    ...                 *# hissp.macros.._macro_.let
   ;;    ...                  (
-  ;;    ...                   lambda _Qz4v7gmaq3__data=# hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                   lambda _gFS4QYTZL__data=# hissp.macros.._macro_.Dash_Gt_
   ;;    ...                          __import__('operator').itemgetter(
   ;;    ...                            (1))(
-  ;;    ...                            _Qz4v7gmaq3__data,
+  ;;    ...                            _gFS4QYTZL__data,
   ;;    ...                            ):
   ;;    ...                      (
-  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                        __import__('operator').itemgetter(
   ;;    ...                          (0))(
-  ;;    ...                          _Qz4v7gmaq3__data,
+  ;;    ...                          _gFS4QYTZL__data,
   ;;    ...                          ),
-  ;;    ...                        # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                        __import__('operator').itemgetter(
   ;;    ...                          (1))(
-  ;;    ...                          _Qz4v7gmaq3__data,
+  ;;    ...                          _gFS4QYTZL__data,
   ;;    ...                          ),
   ;;    ...                        )
   ;;    ...                  )(),
@@ -4273,7 +4242,7 @@ sentinel#
   ;;    #..  (case x (print "default")
   ;;    #..    (0 2 |42|) (print "even")
   ;;    #..    (1 3 spam) (print "odd")))
-  ;;    >>> # anyQzH_map
+  ;;    >>> # any___map
   ;;    ... __import__('builtins').any(
   ;;    ...   __import__('builtins').map(
   ;;    ...     (lambda x:
@@ -4346,7 +4315,7 @@ sentinel#
   ;;    ...   # hissp.._macro_._spy
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
-  ;;    ...    lambda _Qz764kzbp5__e=__import__('operator').mul(
+  ;;    ...    lambda _gJTVHKNI3__e=__import__('operator').mul(
   ;;    ...             (7),
   ;;    ...             (3)):
   ;;    ...      (__import__('builtins').print(
@@ -4357,9 +4326,9 @@ sentinel#
   ;;    ...           sort_dicts=(0)),
   ;;    ...         ('=>'),
   ;;    ...         __import__('builtins').repr(
-  ;;    ...           _Qz764kzbp5__e),
+  ;;    ...           _gJTVHKNI3__e),
   ;;    ...         file=__import__('sys').stdout),
-  ;;    ...       _Qz764kzbp5__e)  [-1]
+  ;;    ...       _gJTVHKNI3__e)  [-1]
   ;;    ...   )())
   ;;    ('operator..mul', 7, 3) => 21
   ;;    26
@@ -4377,13 +4346,13 @@ sentinel#
   ;;
   ;;    #> time##file=sys..stdout(time..sleep .05)
   ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (lambda _Qznymmwe73__time=__import__('time').time_ns:
+  ;;    ... (lambda _g72AOZNBR__time=__import__('time').time_ns:
   ;;    ...     # hissp.macros.._macro_.let
   ;;    ...     (
-  ;;    ...      lambda _Qznymmwe73__start=_Qznymmwe73__time(),
-  ;;    ...             _Qznymmwe73__val=__import__('time').sleep(
+  ;;    ...      lambda _g72AOZNBR__start=_g72AOZNBR__time(),
+  ;;    ...             _g72AOZNBR__val=__import__('time').sleep(
   ;;    ...               (0.05)),
-  ;;    ...             _Qznymmwe73__end=_Qznymmwe73__time():
+  ;;    ...             _g72AOZNBR__end=_g72AOZNBR__time():
   ;;    ...        (__import__('builtins').print(
   ;;    ...           ('time# ran'),
   ;;    ...           __import__('pprint').pformat(
@@ -4393,13 +4362,13 @@ sentinel#
   ;;    ...           ('in'),
   ;;    ...           __import__('operator').truediv(
   ;;    ...             __import__('operator').sub(
-  ;;    ...               _Qznymmwe73__end,
-  ;;    ...               _Qznymmwe73__start),
+  ;;    ...               _g72AOZNBR__end,
+  ;;    ...               _g72AOZNBR__start),
   ;;    ...             # Decimal('1E+6')
   ;;    ...             __import__('pickle').loads(b'cdecimal\nDecimal\n(V1E+6\ntR.')),
   ;;    ...           ('ms'),
   ;;    ...           file=__import__('sys').stdout),
-  ;;    ...         _Qznymmwe73__val)  [-1]
+  ;;    ...         _g72AOZNBR__val)  [-1]
   ;;    ...     )()
   ;;    ... )()
   ;;    time# ran ('time..sleep', 0.05) in ... ms
@@ -4442,12 +4411,12 @@ sentinel#
   ;;    ... (lambda it=(7):
   ;;    ...    (# hissp.macros.._macro_.unless
   ;;    ...     (lambda b, a: ()if b else a())(
-  ;;    ...       # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...       # hissp.macros.._macro_.Dash_Gt_
   ;;    ...       (lambda X: X%2 == 0)(
   ;;    ...         it),
   ;;    ...       (lambda :
   ;;    ...           # hissp.macros.._macro_.throw
-  ;;    ...           # hissp.macros.._macro_.throwQzSTAR_
+  ;;    ...           # hissp.macros.._macro_.throwStar_
   ;;    ...           (lambda g:g.close()or g.throw)(c for c in'')(
   ;;    ...             __import__('builtins').AssertionError(
   ;;    ...               it,
@@ -4506,12 +4475,12 @@ sentinel#
   ;;    ... (lambda it=(7):
   ;;    ...    (# hissp.macros.._macro_.unless
   ;;    ...     (lambda b, a: ()if b else a())(
-  ;;    ...       # hissp.macros.._macro_.QzH_QzGT_
+  ;;    ...       # hissp.macros.._macro_.Dash_Gt_
   ;;    ...       (lambda X: X%2 == 0)(
   ;;    ...         it),
   ;;    ...       (lambda :
   ;;    ...           # hissp.macros.._macro_.throw
-  ;;    ...           # hissp.macros.._macro_.throwQzSTAR_
+  ;;    ...           # hissp.macros.._macro_.throwStar_
   ;;    ...           (lambda g:g.close()or g.throw)(c for c in'')(
   ;;    ...             __import__('builtins').AssertionError(
   ;;    ...               it,

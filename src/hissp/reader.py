@@ -37,7 +37,7 @@ from typing import (
 
 import hissp.compiler as C
 from hissp.compiler import Env
-from hissp.munger import force_qz_encode, munge
+from hissp.munger import force_encode, munge
 
 GENSYM_BYTES = 5
 """
@@ -66,13 +66,13 @@ fairly efficient for their size:
 ===== ===== ====== ===================================
 bytes bits  chars  example
 ===== ===== ====== ===================================
-3     24    5      ``Qzthink__G``
-5     40    8      ``Qzthinking__G``
-8     64    13     ``Qzinvestigation__G``
-10    80    16     ``Qzincomprehensible__G``
-13    104   21     ``Qzelectroencephalograph__G``
-15    120   24     ``Qzmagneticresonanceimaging__G``
-16    128   26     ``Qzpositronemissiontomography__G``
+3     24    5      ``gTHINK__G``
+5     40    8      ``gTHINKING__G``
+8     64    13     ``gINVESTIGATION__G``
+10    80    16     ``gINCOMPREHENSIBLE__G``
+13    104   21     ``gELECTROENCEPHALOGRAPH__G``
+15    120   24     ``gMAGNETICRESONANCEIMAGING__G``
+16    128   26     ``gPOSITRONEMISSIONTOMOGRAPHY__G``
 ===== ===== ====== ===================================
 """
 
@@ -85,7 +85,7 @@ TOKENS = re.compile(r"""(?x)
     |(?P<template>`)
     |(?P<unquote>,@?)
     |(?P<quote>')
-    |(?P<inject>[.][#])
+    |(?P<inject>[.][#]+)
     |(?P<discard> _[#])
     |(?P<gensym>[$][#])
     |(?P<stararg>[*][*]?=)
@@ -380,9 +380,13 @@ class Parser(Iterator):
 
     def _inject(self, v: str):
         with C.macro_context(self.lissp.env):
-            return eval(
+            result = eval(
                 C.readerless(self._pull(v, self._pos), self.lissp.env), self.lissp.env
             )
+        assert v.endswith("#")
+        if re.sub(r"\\.", "", v).count("#") - 1:
+            return self._tag(next(self._parse()), v[:-1], lambda _: result)
+        return result
 
     def _pull(self, v: str, p: int | None = None):
         if p is None:
@@ -436,8 +440,6 @@ class Parser(Iterator):
             return f"{self.lissp.qualname}..{C.MACROS}.{symbol}"  # Known macro.
         if symbol in dir(builtins) and symbol.split(".", 1)[0] not in env:
             return f"builtins..{symbol}"  # Known builtin, not shadowed (yet).
-        if invocation and "." not in symbol:  # Could still be a recursive macro.
-            return f"{self.lissp.qualname}{C.MAYBE}{symbol}"
         return f"{self.lissp.qualname}..{symbol}"
 
     def _gensym(self, form: str) -> str:
@@ -450,7 +452,7 @@ class Parser(Iterator):
         """
         blk = self.blake.copy()
         blk.update((c := self._get_counter()).to_bytes(1 + c.bit_length() // 8, "big"))
-        prefix = f"_Qz{b32encode(blk.digest()).rstrip(b'=').lower().decode()}__"
+        prefix = f"_g{b32encode(blk.digest()).rstrip(b'=').decode()}__"
         marker = munge("$")
         if marker not in form:
             return f"{prefix}{form}"
@@ -465,7 +467,7 @@ class Parser(Iterator):
             return self.counters[-1]
         return self.counters[index]
 
-    def _tag(self, form, tag: str):
+    def _tag(self, form, tag: str, fn=None):
         assert tag.endswith("#")
         arity = re.sub(r"\\.", "", tag).count("#")
         assert arity >= 1
@@ -478,14 +480,15 @@ class Parser(Iterator):
         else:
             self._tag_error(tag, *depth_pos)
         label = self._label(arity, tag)
-        fn = self._fully_qualified if ".." in label else self._local
+        if fn is None:
+            fn = self._fully_qualified if ".." in label else self._local
         with C.macro_context(self.lissp.env):
             return fn(label)(*args, **kwargs)
 
     @classmethod
     def _label(cls, arity: int, tag: str) -> str:
         label = munge(cls.escape(tag[:-arity]))
-        return re.sub(r"(^\.)", lambda m: force_qz_encode(m[1]), label)
+        return re.sub(r"(^\.)", lambda m: force_encode(m[1]), label)
 
     @classmethod
     def _collect(cls, args: list, kwargs: dict, x) -> None:
@@ -513,7 +516,7 @@ class Parser(Iterator):
         return cast(Fn, reduce(getattr, function.split("."), import_module(module)))
 
     def _local(self, tag: str):
-        tag = tag.replace(".", force_qz_encode("."))
+        tag = tag.replace(".", force_encode("."))
         try:
             return getattr(self.lissp.env[C.MACROS], tag + munge("#"))
         except (AttributeError, KeyError):
@@ -523,7 +526,7 @@ class Parser(Iterator):
     def escape(atom: str) -> str:
         """Process the backslashes in a token."""
         return re.sub(
-            r"\\(.)", lambda m: force_qz_encode(m[1]) if m[1] in ".:" else m[1], atom
+            r"\\(.)", lambda m: force_encode(m[1]) if m[1] in ".:" else m[1], atom
         )
 
     @staticmethod
@@ -604,7 +607,7 @@ def is_qualifiable(symbol: str) -> bool:
     return (
         symbol not in {"quote", "__import__"}
         and not _iskeyword(symbol)
-        and not re.match(r"_Qz[a-z2-7]+__", symbol)
+        and not re.match(r"_g[A-Z2-7]+__", symbol)
         and all(map(str.isidentifier, symbol.split(".")))
     )
 
