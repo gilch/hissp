@@ -10,10 +10,10 @@ from unittest import TestCase
 from unittest.mock import ANY
 
 import hypothesis.strategies as st
-from hissp.reader import SoftSyntaxError
 from hypothesis import given
 
 from hissp import reader
+from hissp.reader import SoftSyntaxError
 
 UNICODE_ANY_ = [("unicode", ANY, ANY)]
 
