@@ -165,8 +165,8 @@ Glossary
       but other iterables can work.
       Also a `macro` argument that
       becomes the whole params argument in a lambda expansion,
-      such as the first argument to `let-call<letQzH_call>`
-      or `any*map<anyQzSTAR_map>`.
+      such as the first argument to `let-call<let___call>`
+      or `any*map<anyStar_map>`.
       The equivalent concept is called the “lambda list” in Common Lisp,
       and the “params vector” in Clojure,
       but Hissp is made of tuples,
@@ -297,8 +297,10 @@ Glossary
 
    symbol token
       A `bare token` that is not a `literal token`.
-      These are subject to `munging` and read as a `symbol`,
+      These are subject to `munging` and typically read as a `symbol`,
       a type of `str atom` used for identifiers.
+      However, something like ``foo.....bar``, while a valid symbol token,
+      is not a valid `symbol`.
 
    symbol
       A `module handle` or a `Python fragment` containing an
@@ -308,7 +310,9 @@ Glossary
       `is_symbol` tests for symbols.
       Some identifiers are `reserved<keyword.iskeyword>` in Python and
       can't be used as variable/attribute names
-      (`not`, `None`, `class`, etc.) These still count as symbols.
+      (`not`, `None`, `class`, etc.) These still count as symbols. E.g., the
+      token ``|True|``, though not a ``symbol token``, reads to a `str atom`
+      which is a symbol, but `True` (which reads as type bool) is neither.
 
    munging
       The process of replacing characters invalid in a Python identifier
@@ -503,6 +507,14 @@ Glossary
       or may instead be a `special form` or `macro form`,
       which calls a `macro` at compile time.
       Or the process of making such a call.
+
+   invocation position
+      The first element of a tuple form.
+      A tuple form is typically interpreted as a function call,
+      with the first element being the function to call.
+      However, a symbol in the invocation position may refer to a `macro function`,
+      which is invoked at compile time instead of run time.
+      Or it may be a `special form`.
 
    read time
       The phase before compilation proper that translates Lissp to Hissp:

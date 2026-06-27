@@ -53,46 +53,12 @@ class TestReader(TestCase):
     def test_auto_qualification(self):
         self.assertEqual(
             [("",
-              ":",":?",("quote","__main__..QzMaybe_.x"),
+              ":",":?",("quote","__main__..x"),
               ":?",("quote","__main__..x"),
               ":?",("quote","__main__..x"),
               ":?",("",
-                    ":",":?",("quote","__main__..QzMaybe_.y"),
+                    ":",":?",("quote","__main__..y"),
                     ":?",("quote", "__main__..y"),
-                    ":?",""),
-              ":?",("",":",":?",1, ":?",("quote","__main__..z"), ":?",""),
-              ":?","")
-             ],
-            [*self.reader.reads("`(x x x (y y) (1 z))")],
-        )  # fmt: skip
-
-    def test_module_qualification(self):
-        self.reader.env.update(x=1, y=2, z=3)
-        self.assertEqual(
-            [("",
-              ":",":?",("quote","__main__..QzMaybe_.x"),
-              ":?",("quote","__main__..x"),
-              ":?",("quote","__main__..x"),
-              ":?",("",
-                    ":",":?",("quote","__main__..QzMaybe_.y"),
-                    ":?",("quote","__main__..y"),
-                    ":?",""),
-              ":?",("",":",":?",1, ":?",("quote","__main__..z"), ":?",""),
-              ":?","")
-             ],
-            [*self.reader.reads("`(x x x (y y) (1 z))")],
-        )  # fmt: skip
-
-    def test_macro_qualification(self):
-        self.reader.env.update(_macro_=SimpleNamespace(x=1, y=2, z=3))
-        self.assertEqual(
-            [("",
-              ":",":?",("quote","__main__.._macro_.x"),
-              ":?",("quote","__main__..x"),
-              ":?",("quote","__main__..x"),
-              ":?",("",
-                    ":",":?",("quote","__main__.._macro_.y"),
-                    ":?",("quote","__main__..y"),
                     ":?",""),
               ":?",("",":",":?",1, ":?",("quote","__main__..z"), ":?",""),
               ":?","")
@@ -106,11 +72,11 @@ class TestReader(TestCase):
              ("",":",":?",("quote","quote"), ":?",1, ":?",""),
              ("",":",":?",("quote","lambda"), ":?",":", ":?",""),
              ("quote","__import__"),
-             ("quote","_Qzabcdefg__"),
+             ("quote","_gABCDEFG__"),
              ("quote","foo..bar"),
              ("quote","foo.")],
             [*self.reader.reads(
-                "`(.x) `(quote 1) `(lambda :) `__import__ `_Qzabcdefg__ `foo..bar `foo."
+                "`(.x) `(quote 1) `(lambda :) `__import__ `_gABCDEFG__ `foo..bar `foo."
             )],
         )  # fmt: skip
 
@@ -125,10 +91,10 @@ class TestReader(TestCase):
               ":?",("quote","__main__..int.x"),
               ":?",("quote","__main__..int.float"),
               ":?",""),
-             ("",":",":?",("quote","__main__..QzMaybe_.int"), ":?",1, ":?",""),
+             ("",":",":?",("quote","__main__..int"), ":?",1, ":?",""),
              ("",":",":?",("quote","builtins..float"), ":?",1, ":?",""),
              ("",":",
-              ":?",("quote","__main__..QzMaybe_.x"),
+              ":?",("quote","__main__..x"),
               ":?",("quote","__main__..x"),
               ":?","")],
             [*self.reader.reads(
@@ -157,7 +123,7 @@ class TestReader(TestCase):
             next(self.reader.reads("(x#)"))
 
     def test_reader_initial_dot(self):
-        msg = r"unknown tag 'QzDOT_foo'"
+        msg = r"unknown tag 'Stop_foo'"
         with self.assertRaisesRegex(SyntaxError, msg):
             next(self.reader.reads(".foo# 0"))
 
@@ -182,7 +148,7 @@ class TestReader(TestCase):
         name_reader = reader.Lissp(__name__, globals())
         name = next(name_reader.reads(code))
         self.assertNotEqual(main, name)
-        self.assertRegex(main + name, r"(?:_Qz[a-z0-7]+__G){2}")
+        self.assertRegex(main + name, r"(?:_g[A-Z0-7]+__G){2}")
 
     def test_unwrapped_splice(self):
         with self.assertRaisesRegex(SyntaxError, "splice not in tuple"):
@@ -230,9 +196,9 @@ EXPECTED = {
     "'symbol": [("quote", "symbol",)],
 
     "'Also-a-symbol! '+ '-<>>": [
-        ("quote", "AlsoQzH_aQzH_symbolQzBANG_",),
-        ("quote", "QzPLUS_",),
-        ("quote", "QzH_QzLT_QzGT_QzGT_",),
+        ("quote", "Also___a___symbolBang_",),
+        ("quote", "Plus_",),
+        ("quote", "Dash_Lt_Gt_Gt_",),
     ],
 
     '''"string" ""''': [
@@ -241,15 +207,15 @@ EXPECTED = {
     ],
 
     '''b""''': ["b", "('')"],
-    "b''": ["bQzAPOS_QzAPOS_"],
-    "b''''''": ["bQzAPOS_QzAPOS_QzAPOS_QzAPOS_QzAPOS_QzAPOS_"],
+    "b''": ["bApos_Apos_"],
+    "b''''''": ["bApos_Apos_Apos_Apos_Apos_Apos_"],
     '''b""""""''': ["b", "('')", "('')", "('')"],
 
     """rb'' br'' RB'' BR'' rb"" br"" B"" """: [
-        "rbQzAPOS_QzAPOS_",
-        "brQzAPOS_QzAPOS_",
-        "RBQzAPOS_QzAPOS_",
-        "BRQzAPOS_QzAPOS_",
+        "rbApos_Apos_",
+        "brApos_Apos_",
+        "RBApos_Apos_",
+        "BRApos_Apos_",
         "rb",
         "('')",
         "br",
@@ -286,29 +252,29 @@ EXPECTED = {
 
     R"""'\~\!\@\#\$\%\^\&\*\(\)\_\+\{\}\|\:\"\<\>\?\`\-\=\[\]\\\;\'\,\.\/""": [
         ("quote",
-         "QzTILDE_QzBANG_QzAT_QzHASH_QzDOLR_QzPCENT_QzHAT_QzET_QzSTAR_QzLPAR_QzRPAR__"
-         "QzPLUS_QzLCUB_QzRCUB_QzVERT_QzCOLON_QzQUOT_QzLT_QzGT_QzQUERY_QzGRAVE_QzH_QzEQ_"
-         "QzLSQB_QzRSQB_QzBSOL_QzSEMI_QzAPOS_QzCOMMA_QzDOT_QzSOL_",)
+         "Tilde_Bang_At_Hash_Dolr_Pcent_Hat_Et_Star_Lpar_Rpar__"
+         "Plus_Lcub_Rcub_Vert_Colon_Quot_Lt_Gt_Eh_Grave____Eq_"
+         "Lsqb_Rsqb_Bsol_Scoln_Apos_Comma_Stop_Fsol_",)
     ],
 
     R"""\1 \12 \[] \(\) \{} \[] \: \; \# \` \, \' \" \\ \\. \. \ """: [
-        "QzDIGITxONE_",
-        "QzDIGITxONE_2",
-        "QzLSQB_QzRSQB_",
-        "QzLPAR_QzRPAR_",
-        "QzLCUB_QzRCUB_",
-        "QzLSQB_QzRSQB_",
-        "QzCOLON_",
-        "QzSEMI_",
-        "QzHASH_",
-        "QzGRAVE_",
-        "QzCOMMA_",
-        "QzAPOS_",
-        "QzQUOT_",
-        "QzBSOL_",
-        'QzBSOL_.',
-        'QzDOT_',
-        "QzSPACE_",
+        "DigitXoneX_",
+        "DigitXoneX_2",
+        "Lsqb_Rsqb_",
+        "Lpar_Rpar_",
+        "Lcub_Rcub_",
+        "Lsqb_Rsqb_",
+        "Colon_",
+        "Scoln_",
+        "Hash_",
+        "Grave_",
+        "Comma_",
+        "Apos_",
+        "Quot_",
+        "Bsol_",
+        'Bsol_.',
+        'Stop_',
+        "Space_",
     ],
 
     R"""\b\u\i\l\t\i\n\s..\f\l\o\a\t#\i\n\f""": [math.inf],

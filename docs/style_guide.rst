@@ -366,7 +366,7 @@ than the consistency itself.
 It's better if the rules are thorough enough to answer your uncertainty,
 but not so complicated that no-one reads them.
 
-Consistency with a widely-adopted style guide is good for the community,
+Consistency with a widely adopted style guide is good for the community,
 but consistency within a project is a higher priority.
 When they conflict with this guide, project rules rule.
 Readability is paramount.
@@ -400,7 +400,7 @@ By default, separate :term:`top level` forms from each other with a single blank
 Don't use multiple blank lines in succession.
 When greater separation is required, use comments.
 
-Small and closely-related forms may be semantically "attached" to the next
+Small and closely related forms may be semantically "attached" to the next
 or previous form by omitting the usual blank line.
 E.g., several one-line "constant"
 `define` forms making up a conceptual group need not be separated;
@@ -412,7 +412,7 @@ However, in many of these cases,
 the groups could be better written as a single top-level form instead,
 given the appropriate functions or metaprograms.
 E.g. `dict.update` (on `globals`), `let`,
-`:@##<QzCOLON_QzAT_QzHASH_>`, `attach`, `doto`.
+`:@##<Colon_At_Hash_>`, `attach`, `doto`.
 
 Try to avoid blank lines within forms.
 You may need them for separating groups whose elements span lines
@@ -425,7 +425,7 @@ should be segmented by `let` indentation or similar lambda-body forms
 without resorting to blank lines.
 
 Blank lines are OK in docstrings,
-but comment strings (`<# <QzLT_QzHASH_>`) instead of :term:`Unicode token`\ s
+but comment strings (`<# <Lt_Hash_>`) instead of :term:`Unicode token`\ s
 are preferred for docstrings when they have more than a single paragraph.
 
 Keep the elements in a tuple aligned to start on the same column.
@@ -751,7 +751,7 @@ Because the string was injected (``.#``),
 don't forget to quote it (``'``),
 or the compiler will assume the string contents are Python code to be inlined.
 
-Remember that `<# <QzLT_QzHASH_>` can also make multiline strings:
+Remember that `<# <Lt_Hash_>` can also make multiline strings:
 
 .. code-block:: REPL
 
@@ -766,7 +766,7 @@ Remember that `<# <QzLT_QzHASH_>` can also make multiline strings:
    THE FLOW.
 
 Notice the required :term:`doorstop` and identical compilation.
-You can avoid the doorstop in this case by using the `-><QzH_QzGT_>` macro:
+You can avoid the doorstop in this case by using the `-><Dash_Gt_>` macro:
 
 .. code-block:: REPL
 
@@ -775,7 +775,7 @@ You can avoid the doorstop in this case by using the `-><QzH_QzGT_>` macro:
    #..           ;; the flow.
    #..           .upper))
    >>> print(
-   ...   # QzH_QzGT_
+   ...   # Dash_Gt_
    ...   "These lines\ndon't interrupt\nthe flow.".upper())
    THESE LINES
    DON'T INTERRUPT
@@ -898,7 +898,7 @@ and then actually read the nearby commentary before modifying existing code.
 Don't manually write separate API docs.
 Generate it from your docstrings with something like Sphinx.
 A docstring in a script, with doctests,
-is better than a manually-written separate README file
+is better than a manually written separate README file
 with the same information.
 Prefer scripts with commentary over complicated README instructions.
 
@@ -1011,7 +1011,7 @@ in which case they may be treated as literal values.
 Avoid using inline or margin comments as commentary between a tag and its target,
 as this can cause errors when they are instead treated as arguments.
 (Usually, tags are attached to one argument, so this doesn't come up,
-but e.g. the bundled decorator tag `:@##<QzCOLON_QzAT_QzHASH_>` typically is not.)
+but e.g. the bundled decorator tag `:@##<Colon_At_Hash_>` typically is not.)
 You may use a discarded string instead ``_#"NB foo"``.
 A good syntax highlighter specialized for Lissp may be able
 to indicate when a comment token is not discarded,
@@ -1020,7 +1020,7 @@ but a traditional Lisp editor like Emacs ``lisp-mode`` would not.
 In rare cases, a margin comment may occupy the same line as some other comment form.
 This is usually acceptable style,
 but a ``;`` following a ``;;`` is still tokenized as part of the ``;;`` block,
-which can matter for tags like `<# <QzLT_QzHASH_>`.
+which can matter for tags like `<# <Lt_Hash_>`.
 
 Avoid using either margin or inline comments
 in any situation that would result in a dangling bracket.
@@ -1066,7 +1066,7 @@ To avoid confusion,
 do not use triple-semicolon comments as headings at all.
 
 Prefer a module docstring over top-level comments where applicable.
-Remember that a `<# <QzLT_QzHASH_>`
+Remember that a `<# <Lt_Hash_>`
 applied to a comment block compiles to a string literal,
 which can be a docstring.
 
@@ -1195,7 +1195,7 @@ Try using ``;;`` form comments on the affected lines instead when this happens.)
 As with line comments,
 commented-out code does not belong in shared version control;
 old versions should be in old commits.
-Move the manually-executed functionality you need to keep out of the comments
+Move the manually executed functionality you need to keep out of the comments
 and into functions run by a `name_equals_main` guard or separate scripts.
 Move the experiments you want to keep running to assertions.
 (See `assure`, `unittest`, and `doctest`.)
@@ -1265,7 +1265,7 @@ If the docstring contains any newlines,
 the closing ``"`` gets its own line.
 
 It is acceptable to use tags that resolve to a string literal like
-`<# <QzLT_QzHASH_>` (which is useful for doctests)
+`<# <Lt_Hash_>` (which is useful for doctests)
 as long as the documentation text is also legible in the source code.
 A comment string is preferred over a :term:`Unicode token` when it would
 contain a blank line.
@@ -1343,7 +1343,7 @@ Abbreviated (even single-character)
 local identifiers are acceptable if their lexical scope is very small,
 preferably within the same line or the next few,
 especially if their initial binding makes their meaning clear.
-(This includes `X#<XQzHASH_>` and friends.)
+(This includes `X#<XHash_>` and friends.)
 Parameter names of public-facing functions are considered part of their interface,
 since they can be passed as kwargs,
 and should be more descriptive in most cases.
@@ -1437,7 +1437,7 @@ Throwaway (unused) locals should begin with an underscore.
 For example, :ref:`engarde <engarde>`'s exception handler must accept an exception.
 If you're going to use it, you can call it ``e``,
 but if you're not, call it ``_e`` instead.
-Don't let this stop you from using `X#<XQzHASH_>` to make a handler,
+Don't let this stop you from using `X#<XHash_>` to make a handler,
 or when otherwise appropriate.
 Avoid assigning to ``_``
 except in very terse code when its lexical scope is within the same line,
@@ -1579,7 +1579,7 @@ although they would use up a tag name instead,
 you probably won't have as many of those.
 Symbols in templates can only be automatically qualified with the defining module's
 `__name__` or `builtins`.
-Using a name with a fully-qualifying alias in a template is like using
+Using a name with a fully qualifying alias in a template is like using
 the fully qualified name,
 so it will be probably be imported from its canonical location
 (assuming you're aliasing that location),
@@ -1801,7 +1801,7 @@ Prefer Shorter Definitions
 ::::::::::::::::::::::::::
 
 Pure functions and especially methods of a class should be kept very short,
-implementing a single easily-testable concept
+implementing a single easily testable concept
 or perhaps a few very closely related ones.
 Build up a vocabulary of definitions
 so the requisite function becomes easily expressible.
@@ -1969,7 +1969,7 @@ Wrapped code lines are even worse as they disrupt the indent,
 although an occasional string literal containing a newline is acceptable,
 even in deeply nested code.
 If it's more than occasional, consider alternatives.
-Remember you can use ``\n``, constants, `<# <QzLT_QzHASH_>`,
+Remember you can use ``\n``, constants, `<# <Lt_Hash_>`,
 or `textwrap.dedent` (even at read time).
 
 In rare instances (e.g., URLs), a constant definition containing a one-line string

@@ -41,13 +41,14 @@ class TestCompileGeneral(TestCase):
     def test_compile_pickle(self, form):
         self.assertEqual(form, eval(compiler.Compiler().pickle(form)))
 
+    def test_module_not_found(self):
+        self.assertEqual(
+            "__import__('bogus').foo(\n  (2))", compiler.readerless(("bogus..foo", 2))
+        )
+
     @given(literals)
     def test_compile_literal(self, form):
         self.assertEqual(form, eval(compiler.Compiler().atomic(form)))
-
-    def test_maybe_macro_error(self):
-        with self.assertRaises(compiler.CompileError):
-            compiler.readerless(("hissp.macros.._macro_.foobar",))
 
     def test_compile_method(self):
         msg = r"self must be paired with :\?"

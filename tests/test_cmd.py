@@ -29,7 +29,7 @@ def test_reproducible_gensym():
     again = cmd(args, shell=False)
     assert once == again
     assert err == ""
-    assert "_Qz" in out
+    assert "_g" in out
 
 
 def test_unique_gensyms():
@@ -39,8 +39,8 @@ def test_unique_gensyms():
     again, err[1] = cmd(HISSP_C + ("0 " + arg,), shell=False)
     assert err == ["", ""]
     assert once != again
-    assert "_Qz" in once
-    assert "_Qz" in again
+    assert "_g" in once
+    assert "_g" in again
 
 
 def test_ic_args():

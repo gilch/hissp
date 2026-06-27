@@ -10,26 +10,22 @@ import builtins
 import inspect
 import pickle
 import pickletools
-import re
 import sys
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from contextlib import contextmanager, suppress
 from contextvars import ContextVar
 from functools import partial, wraps
+from importlib import import_module
 from itertools import chain, starmap, takewhile
 from pprint import pformat
 from traceback import format_exc
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 from typing import Any, NewType, TypeAlias, TypeGuard, TypeVar
 from warnings import warn
 
 PAIR_WORDS = {":*": "*", ":**": "**", ":?": ""}
 # Module Macro container
 MACROS = "_macro_"
-# Macro from foreign module foo.bar.._macro_.baz
-MACRO = f"..{MACROS}."
-MAYBE = "..QzMaybe_."
-RE_MACRO = re.compile(rf"({re.escape(MACRO)}|{re.escape(MAYBE)})")
 _PARAM_INDENT = f"\n{len('(lambda ')*' '}"
 
 Env: TypeAlias = dict[str, Any]
@@ -114,6 +110,14 @@ class PostCompileWarning(Warning):
     modules have side effects besides definitions. Warnings can be
     upgraded to errors if this is a concern. See `warnings` for how.
     """
+
+
+class _Empty_NS:
+    def __getattribute__(self, item):
+        raise AttributeError(item)
+
+
+_EMPTY_NS = _Empty_NS()
 
 
 class Compiler:
@@ -355,53 +359,37 @@ class Compiler:
             if res.startswith("#") and res.lstrip("#").startswith(f" {form[0]}\n"):
                 return f"#{res}"  # Abbreviate direct recursion.
             return f"# {form[0]}\n{res}"
-        form = form[0].replace(MAYBE, "..", 1), *form[1:]
         return self.call(form)
 
     @_trace
     def expand_macro(self, form: tuple) -> str | Sentinel:
         """Macroexpand and start over with `compile_form`, if macro."""
         head, *tail = form
-        if (macro := self._get_macro(head, self.env)) is not None:
+        if (macro := self.get_macro(head, self.env)) is not None:
             with macro_context(self.env):
                 return self.compile_form(macro(*tail))
         return _SENTINEL
 
     @classmethod
-    def get_macro(cls, symbol: object, env: Env):
+    def get_macro(cls, head: object, env: Env):
         """Returns the macro function for ``symbol`` given the ``env``.
 
         Returns ``None`` if ``symbol`` isn't a macro identifier.
         """
-        if not is_str(symbol) or symbol.startswith(":"):
+        if not is_symbol(head):
             return None
-        return cls._get_macro(symbol, env)
-
-    @classmethod
-    def _get_macro(cls, head: str, env: Env):
-        parts = RE_MACRO.split(head, 1)
-        head = head.replace(MAYBE, MACRO, 1)
-        if len(parts) > 1:
-            return cls._qualified_macro(env, head, parts)
-        return cls._unqualified_macro(env, head)
-
-    @classmethod
-    def _qualified_macro(cls, env: Env, head: str, parts: Sequence[str]):
-        try:
-            qualname = env.get("__name__", "__main__")
-            if parts[0] == qualname:  # Internal?
-                return getattr(env[MACROS], parts[2])
-            return eval(cls._fragment(qualname, head))
-        except (LookupError, AttributeError):
-            if parts[1] != MAYBE:
-                raise
-
-    @staticmethod
-    def _unqualified_macro(env: Env, head: str):
-        try:
-            return getattr(env[MACROS], head)
-        except (LookupError, AttributeError):
-            pass
+        # if "Plus_" in head and "Plus_" in vars(env.get(MACROS)): breakpoint()
+        parts = head.split(".")
+        ns = SimpleNamespace(M=MACROS, qn=env.get("__name__", "__main__"))
+        match parts:
+            case [name] | [ns.M, name] | [ns.qn, "", name] | [ns.qn, "", ns.M, name]:
+                return getattr(env.get(MACROS, _EMPTY_NS), name, None)
+            case [*handle, "", ns.M, name] | [*handle, "", name]:
+                try:
+                    module = import_module(".".join(handle))
+                except ImportError:
+                    return None
+                return getattr(getattr(module, MACROS, _EMPTY_NS), name, None)
 
     @_trace
     def call(self, form: Iterable) -> str:
@@ -724,8 +712,58 @@ def is_node(form: object) -> TypeGuard[tuple]:
 
 
 def is_symbol(form: object) -> TypeGuard[str]:
-    """Determines if form is a `symbol`."""
-    return (is_str(form) and form != "") and all(
+    """Determines if form is a `symbol`.
+
+    Meaning, a `fragment atom` containing exactly a `module handle` or
+    an `identifier<str.isidentifier>` (possilby with `qualification`).
+
+    Examples:
+    >>> is_symbol("foo")  # Identifier.
+    True
+    >>> is_symbol("foo.bar")  # Qualified identifier.
+    True
+    >>> is_symbol("spam..foo")  # Fully qualified identifier.
+    True
+    >>> is_symbol("spam.eggs.bacon..foo.bar.baz")  # Package/namespace.
+    True
+    >>> is_symbol("True")  # Some identifiers are also literals.
+    True
+    >>> is_symbol("class")  # Reserved words are identifiers too.
+    True
+    >>> is_symbol("foo.")  # Module handles count.
+    True
+
+    Non-symbols:
+    >>> is_symbol(".foo")  # Method syntax doesn't. Not qualification.
+    False
+    >>> is_symbol(False)  # Needs to be a str type.
+    False
+    >>> is_symbol("not in")  # Not exactly. Counts as two identifiers.
+    False
+    >>> is_symbol("foo..")  # No identifier after separator.
+    False
+    >>> is_symbol("..foo")  # No qualifier before separator.
+    False
+    >>> is_symbol("..")  # Just a separator.
+    False
+    >>> is_symbol("...")  # This is an Ellipsis literal though.
+    False
+    >>> is_symbol("foo ")  # Not exactly. Note the space.
+    False
+    >>> is_symbol(" foo")  # Either side.
+    False
+    >>> is_symbol(" ")  # Space.
+    False
+    >>> is_symbol("")  # Empty.
+    False
+    >>> is_symbol("(foo)")  # Not an identifier string.
+    False
+    >>> is_symbol("foo.....bar")  # Invalid separator.
+    False
+    >>> is_symbol("foo..bar..baz")  # Too many separators.
+    False
+    """
+    return (is_str(form) and form != "" and not form.endswith("..")) and all(
         part.isidentifier() for part in f"{form}_".replace("..", ".", 1).split(".")
     )
 
