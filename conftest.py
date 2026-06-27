@@ -7,9 +7,16 @@ from difflib import context_diff
 from doctest import ELLIPSIS
 from fnmatch import fnmatch
 from textwrap import indent
+from unittest.mock import patch
 
 from sybil import Sybil
 from sybil.parsers.doctest import DocTestParser
+
+# Ensures we're testing the current version.
+with patch.dict("sys.modules"):
+    import hissp
+
+    hissp.transpile(hissp.__package__, "macros")
 
 from hissp.reader import Lissp
 
