@@ -1207,6 +1207,8 @@ See `hissp.macros`.
 (alias pl pathlib.)
 (alias tw textwrap.)
 
+(alias \: mk#sentinel)
+
 (alias H hissp.)
 
 
