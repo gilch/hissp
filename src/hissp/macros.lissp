@@ -1089,26 +1089,27 @@ See `hissp.macros`.
   ;;    ...   # hissp.macros.._macro_.fun
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
-  ;;    ...    lambda _gQGGKB6VA__lambda=(lambda _g3HACGW3X__attr, /, *_g3HACGW3X__args, **_g3HACGW3X__kwargs:
+  ;;    ...    lambda _gQGGKB6VA__lambda=(lambda attr, /, *args, **kwargs:
   ;;    ...               # hissp.macros.._macro_.if___else
   ;;    ...               (lambda b, c, a: c()if b else a())(
   ;;    ...                 (
   ;;    ...                   not(
-  ;;    ...                     _g3HACGW3X__args)).__and__(
+  ;;    ...                     args)).__and__(
   ;;    ...                   not(
-  ;;    ...                     _g3HACGW3X__kwargs)),
+  ;;    ...                     kwargs)),
   ;;    ...                 (lambda :
   ;;    ...                     ('{}.{}').format(
   ;;    ...                       'hissp.',
-  ;;    ...                       _g3HACGW3X__attr)
+  ;;    ...                       attr)
   ;;    ...                 ),
   ;;    ...                 (lambda :
-  ;;    ...                     __import__('hissp')._macro_.__getattribute__(
+  ;;    ...                     __import__('builtins').getattr(
+  ;;    ...                       __import__('hissp')._macro_,
   ;;    ...                       ('{}{}').format(
-  ;;    ...                         _g3HACGW3X__attr,
+  ;;    ...                         attr,
   ;;    ...                         'Hash_'))(
-  ;;    ...                       *_g3HACGW3X__args,
-  ;;    ...                       **_g3HACGW3X__kwargs)
+  ;;    ...                       *args,
+  ;;    ...                       **kwargs)
   ;;    ...                 ))
   ;;    ...           ):
   ;;    ...      ((
@@ -1169,13 +1170,13 @@ See `hissp.macros`.
   ;;
   ;;
   `(defmacro ,(.format "{}{}" (.replace abbreviation '. '\.) '#)
-             ($#attr :/ : :* $#args  :** $#kwargs)
+             (,'attr :/ : :* ,'args  :** ,'kwargs)
      ',(.format "Aliases ``{}`` as ``{}#``." qualifier abbreviation)
-     (if-else (.__and__ (|| (not $#args))
-                        (not $#kwargs))
-       (.format "{}.{}" ',qualifier $#attr)
-       ((.__getattribute__ ,|qualifier+"._macro_"| (.format "{}{}" $#attr ','#))
-        : :* $#args  :** $#kwargs))))
+     (if-else (.__and__ (|| (not ,'args))
+                        (not ,'kwargs))
+       (.format "{}.{}" ',qualifier ,'attr)
+       ((getattr ,|qualifier+"._macro_"| (.format "{}{}" ,'attr ','#))
+        : :* ,'args  :** ,'kwargs))))
 
 ;; Long-named standard-library modules commonly used in Python code.
 (alias col collections.)
