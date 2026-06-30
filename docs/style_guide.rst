@@ -2,11 +2,7 @@
    SPDX-License-Identifier: CC-BY-SA-4.0
 
 .. Hidden doctest adds bundled macros for REPL-consistent behavior.
-   #> (.update (globals) : _macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
-   >>> globals().update(
-   ...   _macro_=__import__('types').SimpleNamespace(
-   ...             **vars(
-   ...                 __import__('hissp')._macro_)))
+   >>> class _macro_(__import__('hissp')._macro_):0
 
 Style Guide
 ###########
@@ -2157,11 +2153,20 @@ Use your best judgement to find a workaround.
 
 .. rubric:: Footnotes
 
-.. [#ns] Usually a `types.ModuleType` or `types.SimpleNamespace`,
-   but most types work, including a simple lambda.
+.. [#ns]
+      Namespaces are one honking great idea -- let's do more of those!
+
+      ---Tim Peters, *The Zen of Python*
+
    A namespace can be anything supporting the
    `getattr`/`setattr`/`delattr` protocol.
-   Python classes support this by default for their instances
-   (in order to support instance variables),
-   although, notably, many basic builtin types,
-   including any produced by `ast.literal_eval`, do not.
+
+   In this context, that usually means a `type` (class object),
+   `types.ModuleType`, or `types.SimpleNamespace`.
+   But a simple lambda also works.
+
+   In fact, Python objects are namespaces by default
+   (for instance variables), but some types restrict their attributes.
+   Notably, many basic literal types are immutable values,
+   and even the mutable `list`
+   and `set` types do not allow attribute assignments.

@@ -255,15 +255,15 @@ And push it to the REPL as well:
    ...    '   try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)\n'
    ...    '   except s.X as e:v=e\n'
    ...    '  return k\n'
-   ...    "_macro_=__import__('types').SimpleNamespace()\n"
-   ...    "try: vars(_macro_).update(vars(__import__('hissp')._macro_))\n"
-   ...    'except ModuleNotFoundError: pass'))
+   ...    "class _macro_(*engarde(ModuleNotFoundError,lambda _:'',\n"
+   ...    "lambda:[__import__('hissp')._macro_])):0\n"))
 
 .. caution::
 
    The ``:`` directs it to dump into the module's global namespace.
    The `prelude<hissp.macros._macro_.prelude>`
-   macro overwrites your ``_macro_`` namespace (if any) with a copy of the bundled one.
+   macro overwrites your ``_macro_`` namespace (if any) with a new one,
+   inheriting from of the bundled one if available.
    Any references you've defined in there will be lost.
    In Lissp files, the prelude is meant to be used before any definitions,
    when it is used at all.
