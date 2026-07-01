@@ -23,6 +23,9 @@ SPDX-License-Identifier: Apache-2.0
 
 ### Breaking
 
+No once decorators in `deftypeonce`.
+Don't wrap the bases in a tuple.
+
 Remove useless `hissp..prelude#` and `hissp..alias#` tags.
 Use `(hissp..prelude)` and `(hissp..alias`- instead.
 
