@@ -683,14 +683,14 @@ def execute(*forms: object, env: Env | None = None) -> str:
     calling frame's globals.
 
     >>> print(execute(
-    ...     ('hissp.._macro_.define','FACTOR',7,),
-    ...     ('hissp.._macro_.define','result',('operator..mul','FACTOR',6,),),
+    ...     ('hissp..define','FACTOR',7,),
+    ...     ('hissp..define','result',('operator..mul','FACTOR',6,),),
     ... ))
-    # hissp.._macro_.define
+    # hissp..define
     __import__('builtins').globals().update(
       FACTOR=(7))
     <BLANKLINE>
-    # hissp.._macro_.define
+    # hissp..define
     __import__('builtins').globals().update(
       result=__import__('operator').mul(
                FACTOR,

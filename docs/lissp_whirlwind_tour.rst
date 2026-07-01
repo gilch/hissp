@@ -2,11 +2,7 @@
    SPDX-License-Identifier: Apache-2.0
 
 .. This hidden doctest adds bundled macros for REPL-consistent behavior.
-   #> (.update (globals) : _macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
-   >>> globals().update(
-   ...   _macro_=__import__('types').SimpleNamespace(
-   ...             **vars(
-   ...                 __import__('hissp')._macro_)))
+   >>> class _macro_(__import__('hissp')._macro_):0
 
 .. TODO: Interactive via web repl?
 .. RELEASE: Update the ;;;; Installation section.
@@ -1807,7 +1803,7 @@ Lissp Whirlwind Tour
 
    (dir _macro_)
 
-   ;;; This is a copy of of the following namespace.
+   ;;; This inherits from the following namespace.
 
    hissp.macros.._macro_
 
@@ -1841,7 +1837,7 @@ Lissp Whirlwind Tour
 
    (help _macro_.alias)
 
-   ;;; The prelude copies _macro_ from hissp._macro_ like the REPL, defines
+   ;;; The prelude creates _macro_ inheriting hissp._macro_ like the REPL, defines
    ;;; some Python interop helper functions, and imports Python's standard-library
    ;;; functional programming utilities from operator and itertools.
 

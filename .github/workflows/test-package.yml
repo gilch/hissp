@@ -61,7 +61,7 @@ jobs:
         # TODO: try upgrading libraries affected by deprecations.
         PYTHONWARNINGS: error,default:SelectableGroups:DeprecationWarning:hypothesis.entry_points,default:A private pytest:DeprecationWarning:sybil.integration.pytest
       run: |
-        pytest -p no:cacheprovider -v --cov=hissp --cov-report=xml --doctest-modules --doctest-glob *.md src/hissp/*.lissp tests/ docs/ $(python -c "import hissp; print(hissp.__path__[0])")
+        pytest -p no:cacheprovider -v --cov=hissp --cov-report=xml --doctest-plus --doctest-glob *.md src/hissp/*.lissp tests/ docs/ $(python -c "import hissp; print(hissp.__path__[0])")
     - name: Codecov
       uses: codecov/codecov-action@v1.0.4
       with:

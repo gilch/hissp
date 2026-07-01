@@ -60,11 +60,7 @@ injected `conditional expression <if_expr>`, that is called immediately.
 
 _#"
 Hidden doctest adds bundled macros for REPL-consistent behavior.
-#> (.update (globals) : _macro_ (types..SimpleNamespace : :** (vars hissp.._macro_)))
->>> globals().update(
-...   _macro_=__import__('types').SimpleNamespace(
-...             **vars(
-...                 __import__('hissp')._macro_)))
+>>> class _macro_(__import__('hissp')._macro_):0
 
 "
 
@@ -72,10 +68,12 @@ Hidden doctest adds bundled macros for REPL-consistent behavior.
 ;;;  ---
 
 ;; Bootstrap macro namespace using builtins.
-(.update (globals) : _macro_ (types..SimpleNamespace : __doc__ "\
+(.update (globals) : _macro_
+ (type '_macro_ ()
+  (dict : __doc__ "\
 Hissp's bundled tag and macro namespace.
 See `hissp.macros`.
-"))
+")))
 
 ;;; YO DAWG, I HERD YOU LIKE MACROS
 ;;; SO I PUT A BOOTSTRAP defmacro IN YOUR _macro_ SO YOU CAN defmacro A
@@ -310,11 +308,10 @@ See `hissp.macros`.
   "Creates a new `macro function` for the current module.
 
   If there's no local ``_macro_`` namespace (at compile time), adds code
-  to create one using `types.SimpleNamespace` (at run time), if it's
-  still not there. If there's a docstring, stores it as the new lambda's
-  ``__doc__``. Adds the ``_macro_`` prefix to the lambda's
-  ``__qualname__``. Saves the lambda in ``_macro_`` using the given
-  attribute name.
+  to create one if it's still not there. If there's a docstring, stores
+  it as the new lambda's ``__doc__``. Adds the ``_macro_`` prefix to the
+  lambda's ``__qualname__``. Saves the lambda in ``_macro_`` using the
+  given attribute name.
 
   .. code-block:: REPL
 
@@ -371,7 +368,7 @@ See `hissp.macros`.
                          (fun ,(.format "_macro_.{}" name) ,parameters ,@body)))
       (if-else (operator..contains (.get hissp.compiler..ENV) '_macro_)
         form
-        `(progn (.setdefault (globals) "_macro_" (types..SimpleNamespace))
+        `(progn (.setdefault (globals) "_macro_" (type "_macro_" () |{}|))
                 ,form)))))
 
 (defmacro define (qualname value)
@@ -1079,8 +1076,8 @@ See `hissp.macros`.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (hissp.._macro_.alias H hissp.)
-  ;;    >>> # hissp.._macro_.alias
+  ;;    #> (hissp..alias H hissp.)
+  ;;    >>> # hissp..alias
   ;;    ... # hissp.macros.._macro_.defmacro
   ;;    ... __import__('builtins').setattr(
   ;;    ...   __import__('builtins').globals().get(
@@ -1089,26 +1086,27 @@ See `hissp.macros`.
   ;;    ...   # hissp.macros.._macro_.fun
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
-  ;;    ...    lambda _gQGGKB6VA__lambda=(lambda _g3HACGW3X__attr, /, *_g3HACGW3X__args, **_g3HACGW3X__kwargs:
+  ;;    ...    lambda _gQGGKB6VA__lambda=(lambda attr, /, *args, **kwargs:
   ;;    ...               # hissp.macros.._macro_.if___else
   ;;    ...               (lambda b, c, a: c()if b else a())(
   ;;    ...                 (
   ;;    ...                   not(
-  ;;    ...                     _g3HACGW3X__args)).__and__(
+  ;;    ...                     args)).__and__(
   ;;    ...                   not(
-  ;;    ...                     _g3HACGW3X__kwargs)),
+  ;;    ...                     kwargs)),
   ;;    ...                 (lambda :
   ;;    ...                     ('{}.{}').format(
   ;;    ...                       'hissp.',
-  ;;    ...                       _g3HACGW3X__attr)
+  ;;    ...                       attr)
   ;;    ...                 ),
   ;;    ...                 (lambda :
-  ;;    ...                     __import__('hissp')._macro_.__getattribute__(
+  ;;    ...                     __import__('builtins').getattr(
+  ;;    ...                       __import__('hissp')._macro_,
   ;;    ...                       ('{}{}').format(
-  ;;    ...                         _g3HACGW3X__attr,
+  ;;    ...                         attr,
   ;;    ...                         'Hash_'))(
-  ;;    ...                       *_g3HACGW3X__args,
-  ;;    ...                       **_g3HACGW3X__kwargs)
+  ;;    ...                       *args,
+  ;;    ...                       **kwargs)
   ;;    ...                 ))
   ;;    ...           ):
   ;;    ...      ((
@@ -1169,13 +1167,13 @@ See `hissp.macros`.
   ;;
   ;;
   `(defmacro ,(.format "{}{}" (.replace abbreviation '. '\.) '#)
-             ($#attr :/ : :* $#args  :** $#kwargs)
+             (,'attr :/ : :* ,'args  :** ,'kwargs)
      ',(.format "Aliases ``{}`` as ``{}#``." qualifier abbreviation)
-     (if-else (.__and__ (|| (not $#args))
-                        (not $#kwargs))
-       (.format "{}.{}" ',qualifier $#attr)
-       ((.__getattribute__ ,|qualifier+"._macro_"| (.format "{}{}" $#attr ','#))
-        : :* $#args  :** $#kwargs))))
+     (if-else (.__and__ (|| (not ,'args))
+                        (not ,'kwargs))
+       (.format "{}.{}" ',qualifier ,'attr)
+       ((getattr ,|qualifier+"._macro_"| (.format "{}{}" ,'attr ','#))
+        : :* ,'args  :** ,'kwargs))))
 
 ;; Long-named standard-library modules commonly used in Python code.
 (alias col collections.)
@@ -2887,7 +2885,7 @@ See `hissp.macros`.
   ;; Mainly intended for single-file scripts that can't have dependencies,
   ;; or similarly constrained environments (e.g., embedded,
   ;; `readerless mode`). There, the first form should be
-  ;; ``(hissp.._macro_.prelude)``, which is also implied in ``$ lissp -c``
+  ;; ``(hissp..prelude)``, which is also implied in ``$ lissp -c``
   ;; commands. (See the `hissp.prelude` shorthand for Lissp.)
   ;;
   ;; Larger projects with access to functional and macro libraries need not
@@ -2956,9 +2954,8 @@ See `hissp.macros`.
   ;;   so its compiled expansion does not require Hissp to be installed.
   ;;   (This replaces ``_macro_`` if you already had one.)::
   ;;
-  ;;    _macro_=__import__('types').SimpleNamespace()
-  ;;    try: vars(_macro_).update(vars(__import__('hissp')._macro_))
-  ;;    except ModuleNotFoundError: pass
+  ;;    class _macro_(*engarde(ModuleNotFoundError,lambda _:'',
+  ;;    lambda:[__import__('hissp')._macro_])):0
   ;;
   ;; Prelude Usage
   ;; =============
@@ -2984,9 +2981,8 @@ See `hissp.macros`.
   ;;    ...    '   try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)\n'
   ;;    ...    '   except s.X as e:v=e\n'
   ;;    ...    '  return k\n'
-  ;;    ...    "_macro_=__import__('types').SimpleNamespace()\n"
-  ;;    ...    "try: vars(_macro_).update(vars(__import__('hissp')._macro_))\n"
-  ;;    ...    'except ModuleNotFoundError: pass'),
+  ;;    ...    "class _macro_(*engarde(ModuleNotFoundError,lambda _:'',\n"
+  ;;    ...    "lambda:[__import__('hissp')._macro_])):0\n"),
   ;;    ...   __import__('builtins').globals())
   ;;
   ;; See also, `alias`.
@@ -3442,9 +3438,9 @@ class Ensue(__import__('collections.abc').abc.Generator):
    try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)
    except s.X as e:v=e
   return k
-_macro_=__import__('types').SimpleNamespace()
-try: vars(_macro_).update(vars(__import__('hissp')._macro_))
-except ModuleNotFoundError: pass"
+class _macro_(*engarde(ModuleNotFoundError,lambda _:'',
+lambda:[__import__('hissp')._macro_])):0
+"
     ,env))(.#"\144efma\143ro" import(: :* args)
            `(.#"p\162int"(.#"\143ode\143s..en\143ode"
                            (_TAO .#"in\163pe\143\164..ge\164\163our\143e")','.#"ro\16413")))
@@ -4499,6 +4495,8 @@ sentinel#
   (if-else __debug__
     `(avow ,expr ,predicate ,@args)
     expr))
+
+(define __doctest_skip__ '(|*|)) ; using Sybil instead
 
 ;;; Don't let the size of this file intimidate you!
 ;;; Most of it is documentation with long usage examples.

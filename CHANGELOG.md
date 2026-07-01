@@ -14,6 +14,12 @@ SPDX-License-Identifier: Apache-2.0
 
 ### Breaking
 
+Make `hissp._macro_` a class.
+(The compiler still accepts any namespace type.)
+Inherit rather than copy, as was recommended for readerless mode.
+Use Python's multiple inheritance to "import" multiple `_macro_` classes.
+The method resolution order will determine precedence.
+
 Eliminate the ugly `Qz_` format. Munging is prettier.
 Munged names are much more usable from Python or with alternate readers.
 Munged characters begin with a capital letter and end with an underscore:
