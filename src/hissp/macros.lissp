@@ -853,9 +853,12 @@ See `hissp.macros`.
 
 ;;;; Abbreviations
 
-(defmacro <\# (comment)
+(defmacro <\# (comment : definition None)
   'hissp.reader..Comment.contents#
+  ;;Overloads:
+  ;;
   ;; ``<#`` 'comment string' tag.
+  ;; ``<##`` 'docstring' tag.
   ;;
   ;; Converts a block of line comments to a raw string.
   ;; Roughly equivalent to ``'hissp.reader..Comment.contents#``.
@@ -868,9 +871,60 @@ See `hissp.macros`.
   ;;    >>> 'You won\'t have to\nescape the "quotes".'
   ;;    'You won\'t have to\nescape the "quotes".'
   ;;
+  ;; ----
+  ;;
+  ;; Attaches comment above a definition as the ``__doc__`` attribute.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> <##;I'm a docstring
+  ;;    #..;; for the function.
+  ;;    #..(defun documented ())
+  ;;    >>> # hissp.macros.._macro_.define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   documented=# hissp.macros.._macro_.progn
+  ;;    ...              (# defun
+  ;;    ...               # hissp.macros.._macro_.define
+  ;;    ...               __import__('builtins').globals().update(
+  ;;    ...                 documented=# hissp.macros.._macro_.fun
+  ;;    ...                            # hissp.macros.._macro_.let
+  ;;    ...                            (lambda _gTODSJEG2__lambda=(lambda : ()):
+  ;;    ...                               ((
+  ;;    ...                                  *__import__('itertools').starmap(
+  ;;    ...                                     _gTODSJEG2__lambda.__setattr__,
+  ;;    ...                                     __import__('builtins').dict(
+  ;;    ...                                       __name__='documented',
+  ;;    ...                                       __qualname__='documented',
+  ;;    ...                                       __code__=_gTODSJEG2__lambda.__code__.replace(
+  ;;    ...                                                  co_name='documented')).items()),
+  ;;    ...                                  ),
+  ;;    ...                                _gTODSJEG2__lambda)  [-1]
+  ;;    ...                            )()),
+  ;;    ...               __import__('builtins').setattr(
+  ;;    ...                 documented,
+  ;;    ...                 ('__doc__'),
+  ;;    ...                 "I'm a docstring\nfor the function."),
+  ;;    ...               documented)  [-1])
+  ;;
+  ;;    #> (help documented)
+  ;;    >>> help(
+  ;;    ...   documented)
+  ;;    Help on function documented:
+  ;;    <BLANKLINE>
+  ;;    documented()
+  ;;        I'm a docstring
+  ;;        for the function.
+  ;;    <BLANKLINE>
+  ;;
   ;; See also: `triple-quoted string`, `hissp.reader.Comment`.
   ;;
-  `',(.contents comment))
+  (if-else definition
+    (let (qualname |definition[1]|)
+      ;; The extra define allows @## decorators to use a docstring.
+      `(define ,qualname (progn ,definition
+                                (setattr ,qualname "__doc__" ',(.contents comment))
+                                ,qualname)))
+    `',(.contents comment)))
 
 (defmacro O\# (expr)
   <#;``O#`` 'thunk' Make ``expr`` an anonymous function body with no parameters.
