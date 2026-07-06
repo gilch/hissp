@@ -1386,14 +1386,16 @@ Descriptive names do not excuse bad design.
 
 Conventional short names include, but are not limited to,
 
-* ``i`` and ``j``, in that order, for integer indexes,
-* ``k`` and ``v`` for "key" and "value" when iterating over a mapping,
-* ``kvs`` for a mapping (or other iterable of key-value pairs).
+* ``i`` and ``j``, in that order, for integer indexes.
+* ``k`` and ``v`` for "key" and "value" when iterating over a mapping.
+* ``kvs`` for an iterable of key-value pairs.
 * ``ks`` for iterables of keys.
 * ``vs`` for iterables of values.
 * ``xss`` or ``yss`` for iterables of iterables.
 * ``xs`` or ``ys`` for iterables, especially if pulled from ``xss`` or ``yss``.
-* ``x`` or ``y`` for elements pulled, especially from ``xs`` or ``ys``.
+* ``xys`` for iterables of pairs. Prefer ``kvs`` if applicable.
+* ``x`` or ``y`` for elements pulled, especially from ``xs``, ``ys``, or ``xys``.
+  * use ``z`` and ``w`` if you need a third and forth, e.g. ``xyzws``.
 * ``f``, or ``g`` for callable parameters or locals.
 * ``n`` for an integer parameter, especially if it's a size.
 * ``ns`` for a namespace. (Something used for assignable attributes. [#ns]_)
@@ -1403,18 +1405,23 @@ Conventional short names include, but are not limited to,
 * ``c`` for characters (`len`-1 `str`\ s), especially if pulled from ``cs``.
 * ``b`` for a boolean parameter.
 * ``e`` for an exception.
-* ``items`` for collections supporting at least ``__getitem__``,
-  (Usually `Sequence` or `Mapping` protocols, but you don't care which.)
-  May need to be mutable, depending on context.
+* ``m`` for a mapping.
 * ``seq`` for random-access sequences.
   (This is very different from the Clojure meaning! See `collections.abc.Sequence`.)
   May need to be mutable, depending on context.
-* ``expr`` for an expression.
+* ``table`` for subscriptable collections supporting at least ``__getitem__``,
+  (Usually `Sequence` or `Mapping` protocols, but you don't care which.)
+  May need to be mutable, depending on context.
+* ``expr`` for an expression (in macros).
+* ``body`` for the ``*`` parameter meant as a macro body.
 * ``args`` for the ``*`` parameter collecting positional arguments.
   Prefer a more meaningful name if possible,
-  but this is acceptable for decorator implementations that pass them through.
+  but this is acceptable for e.g. decorator implementations that pass them through.
 * ``kwargs`` for the ``**`` parameter collecting keyword arguments.
   Prefer a more meaningful name, as ``args``.
+* ``pairs`` for alternations meant as implicit pairs.
+  * also ``triples``, ``quadruples``, etc.
+* ``groups`` for other implicit groupings.
 
 Prepend an ``i`` to the variable name for once-through iterators,
 especially when you call :func:`iter` on a variable with otherwise the same name:
