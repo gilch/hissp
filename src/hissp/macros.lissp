@@ -2769,6 +2769,127 @@ See `hissp.macros`.
   `(let (,'_sentinel (object))
      ,f))
 
+(defmacro -<\# (f : :* arg_funs  :** kwarg_funs)
+  <#;``forked composition`` Point-free functions.
+  ;;
+  ;; Creates a new function applying ``f`` to the results of ``arg_funs`` and
+  ;; ``kwarg_funs``, which are each passed all arguments:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (define mean -<###op#truediv sum len)
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   mean=(lambda *_g5FRXO76U__a, **_g5FRXO76U__kw:
+  ;;    ...            __import__('operator').truediv(
+  ;;    ...              sum(
+  ;;    ...                *_g5FRXO76U__a,
+  ;;    ...                **_g5FRXO76U__kw),
+  ;;    ...              len(
+  ;;    ...                *_g5FRXO76U__a,
+  ;;    ...                **_g5FRXO76U__kw))
+  ;;    ...        ))
+  ;;
+  ;;    #> (mean (range 6))
+  ;;    >>> mean(
+  ;;    ...   range(
+  ;;    ...     (6)))
+  ;;    2.5
+  ;;
+  ;; Literals or quoted forms act like constant functions:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (-<####print -<##X#X 1 _#; constant function
+  ;;    #..             '(op#add 1 1) _#; quoted
+  ;;    #..             sep=: _#|<-literal (and kwarg)|)
+  ;;    >>> (lambda *_g5FRXO76U__a, **_g5FRXO76U__kw:
+  ;;    ...     print(
+  ;;    ...       (lambda *_g5FRXO76U__a, **_g5FRXO76U__kw:
+  ;;    ...           (lambda X: X)(
+  ;;    ...             (1))
+  ;;    ...       )(
+  ;;    ...         *_g5FRXO76U__a,
+  ;;    ...         **_g5FRXO76U__kw),
+  ;;    ...       __import__('operator').add(
+  ;;    ...         (1),
+  ;;    ...         (1)),
+  ;;    ...       sep=':')
+  ;;    ... )()
+  ;;    1:2
+  ;;
+  ;; Chaining:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> -<##.title -<###.join "" -<###filter 'X#|X!='a'| sorted
+  ;;    >>> (lambda *_g5FRXO76U__a, **_g5FRXO76U__kw:
+  ;;    ...     (lambda *_g5FRXO76U__a, **_g5FRXO76U__kw:
+  ;;    ...         ('').join(
+  ;;    ...           (lambda *_g5FRXO76U__a, **_g5FRXO76U__kw:
+  ;;    ...               filter(
+  ;;    ...                 (lambda X: X!='a'),
+  ;;    ...                 sorted(
+  ;;    ...                   *_g5FRXO76U__a,
+  ;;    ...                   **_g5FRXO76U__kw))
+  ;;    ...           )(
+  ;;    ...             *_g5FRXO76U__a,
+  ;;    ...             **_g5FRXO76U__kw))
+  ;;    ...     )(
+  ;;    ...       *_g5FRXO76U__a,
+  ;;    ...       **_g5FRXO76U__kw).title()
+  ;;    ... )
+  ;;    <function <lambda> at 0x...>
+  ;;
+  ;;    #> (_ 'abracadabra)
+  ;;    >>> _(
+  ;;    ...   'abracadabra')
+  ;;    'Bbcdrr'
+  ;;
+  ;; Macros can work in some cases, like `ors`:
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (define symbol-or-node? -<###ors H#is_symbol H#is_node)
+  ;;    >>> # define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   symbol___or___nodeEh_=(lambda *_g5FRXO76U__a, **_g5FRXO76U__kw:
+  ;;    ...                             # ors
+  ;;    ...                             (lambda x0, x1: x0 or x1())(
+  ;;    ...                               __import__('hissp').is_symbol(
+  ;;    ...                                 *_g5FRXO76U__a,
+  ;;    ...                                 **_g5FRXO76U__kw),
+  ;;    ...                               (lambda :
+  ;;    ...                                   __import__('hissp').is_node(
+  ;;    ...                                     *_g5FRXO76U__a,
+  ;;    ...                                     **_g5FRXO76U__kw)
+  ;;    ...                               ))
+  ;;    ...                         ))
+  ;;
+  ;;    #> (list (map symbol-or-node? '(foo 2 () (foo))))
+  ;;    >>> list(
+  ;;    ...   map(
+  ;;    ...     symbol___or___nodeEh_,
+  ;;    ...     ('foo',
+  ;;    ...      (2),
+  ;;    ...      (),
+  ;;    ...      ('foo',),)))
+  ;;    [True, False, False, True]
+  ;;
+  ;; See also: `statistics.mean`, `-> <Dash_Gt_>`, `destruct-> <destruct___Gt_>`.
+  ;;
+  `(lambda (: :* $#a  :** $#kw)
+     ,(let (with-args X#(cond (op#eq `',mk#ANY X) |X[1]|
+                              ;; else if
+                              (ors (H#is_symbol X)
+                                   (H#is_node X))
+                              `(,X : :* ,'$#a  :** ,'$#kw)
+                              :else X))
+        `(,f ,@(map with-args arg_funs)
+             ,@(when kwarg_funs :)
+             ,@chain#(i#starmap XY#`(,X ,(with-args Y))
+                                (.items kwarg_funs))))))
+
 ;;;; Collection
 
 (defmacro @ (: :* xs)
