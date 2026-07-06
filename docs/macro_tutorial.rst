@@ -5476,7 +5476,7 @@ We can use this to implement "symbol macros":
    ...                                                       _g4R7TTKM7__target)  [-1]
    ...                                                   )()
    ...                                               ),
-   ...                                               (lambda _gR42M4RLN__items: (_gR42M4RLN__items[2:]))(
+   ...                                               (lambda _gR42M4RLN__table: (_gR42M4RLN__table[2:]))(
    ...                                                 X)),
    ...                                            )
    ...                                      ),
@@ -5755,7 +5755,7 @@ We can check for exactly that, and rewrite it to a let expression.
    ...                                                       _g4R7TTKM7__target)  [-1]
    ...                                                   )()
    ...                                               ),
-   ...                                               (lambda _gR42M4RLN__items: (_gR42M4RLN__items[2:]))(
+   ...                                               (lambda _gR42M4RLN__table: (_gR42M4RLN__table[2:]))(
    ...                                                 X)),
    ...                                            )
    ...                                      ),
@@ -5981,7 +5981,7 @@ I will again omit the docstring handling for simplicity.
    ...                         (
    ...                           'builtins..zip',
    ...                           list(
-   ...                             (lambda _gR42M4RLN__items: (_gR42M4RLN__items[::2]))(
+   ...                             (lambda _gR42M4RLN__table: (_gR42M4RLN__table[::2]))(
    ...                               params)),
    ...                           (
    ...                             '',
@@ -5993,7 +5993,7 @@ I will again omit the docstring handling for simplicity.
    ...                                      X,
    ...                                      )
    ...                                ),
-   ...                                (lambda _gR42M4RLN__items: (_gR42M4RLN__items[1::2]))(
+   ...                                (lambda _gR42M4RLN__table: (_gR42M4RLN__table[1::2]))(
    ...                                  params)),
    ...                             '',
    ...                             ),
@@ -6047,7 +6047,7 @@ I will again omit the docstring handling for simplicity.
    ...                              ),
    ...                            )
    ...                      ),
-   ...                      (lambda _gR42M4RLN__items: (_gR42M4RLN__items[::2]))(
+   ...                      (lambda _gR42M4RLN__table: (_gR42M4RLN__table[::2]))(
    ...                        params)),
    ...                   ),
    ...                 )

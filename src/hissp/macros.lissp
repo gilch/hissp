@@ -1218,8 +1218,8 @@ See `hissp.macros`.
   "``&#`` Abbreviation for `functools.partial`."
   `(ft#partial ,@callable+args))
 
-(defmacro !\# (key : items "")
-  <#;``!#`` 'look up in' Gets an item from items.
+(defmacro !\# (key : table "")
+  <#;``!#`` 'look up in' Gets an item from table.
   ;;
   ;; Mnemonic: !tem.
   ;;
@@ -1271,9 +1271,9 @@ See `hissp.macros`.
   ;; `[# <Lsqb_Hash_>`, `set! <setBang_>`, `&# <Et_Hash_>`,
   ;; `@# <At_Hash_>`.
   ;;
-  `((op#itemgetter ,key) ,items))
+  `((op#itemgetter ,key) ,table))
 
-(defmacro \[\# (lookup : items "")
+(defmacro \[\# (lookup : table "")
   <#;``[#`` 'subscript' Injection. Python's subscription operator.
   ;;
   ;; Interpret the lookup as Python code prepended with a ``[``.
@@ -1282,7 +1282,7 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> [##1][::2] '(foo bar)
-  ;;    >>> (lambda _gER3ASVPQ__items: (_gER3ASVPQ__items[1][::2]))(
+  ;;    >>> (lambda _gER3ASVPQ__table: (_gER3ASVPQ__table[1][::2]))(
   ;;    ...   ('foo',
   ;;    ...    'bar',))
   ;;    'br'
@@ -1293,8 +1293,8 @@ See `hissp.macros`.
   ;;
   ;;    #> (-> '(foo bar) [#1] .upper [#::2])
   ;;    >>> # Dash_Gt_
-  ;;    ... (lambda _gMR7QE3F2__items: (_gMR7QE3F2__items[::2]))(
-  ;;    ...   (lambda _gMR7QE3F2__items: (_gMR7QE3F2__items[1]))(
+  ;;    ... (lambda _gMR7QE3F2__table: (_gMR7QE3F2__table[::2]))(
+  ;;    ...   (lambda _gMR7QE3F2__table: (_gMR7QE3F2__table[1]))(
   ;;    ...     ('foo',
   ;;    ...      'bar',),
   ;;    ...     ).upper(),
@@ -1305,7 +1305,7 @@ See `hissp.macros`.
   ;;    >>> ('').join(
   ;;    ...   map(
   ;;    ...     __import__('functools').partial(
-  ;;    ...       (lambda _gFMSK2DQ7__items: (_gFMSK2DQ7__items[1])),
+  ;;    ...       (lambda _gFMSK2DQ7__table: (_gFMSK2DQ7__table[1])),
   ;;    ...       ),
   ;;    ...     ('abc',
   ;;    ...      'xyz',
@@ -1315,9 +1315,9 @@ See `hissp.macros`.
   ;; See also: `\!# <Bang_Hash_>`, `-> <Dash_Gt_>`, `slice`,
   ;; `subscriptions`, `slicings`.
   ;;
-  `((lambda ($#items)
-      ,(.format "({}[{})" '$#items (H#demunge lookup)))
-    ,items))
+  `((lambda ($#table)
+      ,(.format "({}[{})" '$#table (H#demunge lookup)))
+    ,table))
 
 (defmacro @\# (name : ns "")
   <#;``@#`` 'attribute of' Looks up attribute in a namespace.
@@ -1369,7 +1369,7 @@ See `hissp.macros`.
 
 ;;;; Configuration
 
-(defmacro set! (items key value)
+(defmacro set! (table key value)
   <#;``set!`` 'setbang' Assigns an item, returns the value.
   ;;
   ;; Mnemonic: set !tem.
@@ -1410,10 +1410,10 @@ See `hissp.macros`.
   ;; See also: `operator.setitem`, `operator.delitem`, `zap! <zapBang_>`.
   ;;
   `(let ($#value ,value)
-     (op#setitem ,items ,key $#value)
+     (op#setitem ,table ,key $#value)
      $#value))
 
-(defmacro zap! (items key f : :* args)
+(defmacro zap! (table key f : :* args)
   <#;``zap!`` 'zapbang' Augmented item assignment operator.
   ;;
   ;; The current item value becomes the first argument.
@@ -1434,17 +1434,17 @@ See `hissp.macros`.
   ;;    >>> # zapBang_
   ;;    ... # hissp.macros.._macro_.let
   ;;    ... (
-  ;;    ...  lambda _gITEIW3OF__items=spam,
+  ;;    ...  lambda _gITEIW3OF__table=spam,
   ;;    ...         _gITEIW3OF__key='b':
   ;;    ...     # hissp.macros.._macro_.setBang_
   ;;    ...     # hissp.macros.._macro_.let
   ;;    ...     (
   ;;    ...      lambda _gI2PHTEDN__value=__import__('operator').iadd(
-  ;;    ...               _gITEIW3OF__items.__getitem__(
+  ;;    ...               _gITEIW3OF__table.__getitem__(
   ;;    ...                 _gITEIW3OF__key),
   ;;    ...               (1)):
   ;;    ...        (__import__('operator').setitem(
-  ;;    ...           _gITEIW3OF__items,
+  ;;    ...           _gITEIW3OF__table,
   ;;    ...           _gITEIW3OF__key,
   ;;    ...           _gI2PHTEDN__value),
   ;;    ...         _gI2PHTEDN__value)  [-1]
@@ -1458,12 +1458,12 @@ See `hissp.macros`.
   ;;
   ;; See also: `set! <setBang_>`, `zap@ <zapAt_>`, `augassign`.
   ;;
-  `(let ($#items ,items
+  `(let ($#table ,table
          $#key ,key)
-     (set! $#items $#key (,f (.__getitem__ $#items $#key)
+     (set! $#table $#key (,f (.__getitem__ $#table $#key)
                              ,@args))))
 
-(defmacro set\[\# (lookup items value)
+(defmacro set\[\# (lookup table value)
   <#;``set[###`` 'setsub' Injection. Subscription with assignment.
   ;;
   ;; Returns the value assigned (not the collection updated).
@@ -1478,16 +1478,16 @@ See `hissp.macros`.
   ;;
   ;;    #> set[###-1] spam set[###::2] spam "ab" ; Chained assignment.
   ;;    >>> (
-  ;;    ...  lambda _g3TTXFOWE__items,
+  ;;    ...  lambda _g3TTXFOWE__table,
   ;;    ...         _g3TTXFOWE__value=(
-  ;;    ...          lambda _g3TTXFOWE__items,
+  ;;    ...          lambda _g3TTXFOWE__table,
   ;;    ...                 _g3TTXFOWE__value=('ab'):
   ;;    ...             [_g3TTXFOWE__value
-  ;;    ...              for(_g3TTXFOWE__items[::2])in[_g3TTXFOWE__value]][0]
+  ;;    ...              for(_g3TTXFOWE__table[::2])in[_g3TTXFOWE__value]][0]
   ;;    ...         )(
   ;;    ...           spam):
   ;;    ...     [_g3TTXFOWE__value
-  ;;    ...      for(_g3TTXFOWE__items[-1])in[_g3TTXFOWE__value]][0]
+  ;;    ...      for(_g3TTXFOWE__table[-1])in[_g3TTXFOWE__value]][0]
   ;;    ... )(
   ;;    ...   spam)
   ;;    'ab'
@@ -1496,7 +1496,7 @@ See `hissp.macros`.
   ;;    >>> spam
   ;;    ['a', '0', 'b', 'ab']
   ;;
-  ;; ``items`` can be ``||`` if set by another macro like `doto`.
+  ;; ``table`` can be ``||`` if set by another macro like `doto`.
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -1504,10 +1504,10 @@ See `hissp.macros`.
   ;;    >>> # doto
   ;;    ... (lambda _gOFBSTZ6J__self=dict():
   ;;    ...    ((
-  ;;    ...      lambda _gZEOID6JH__items,
+  ;;    ...      lambda _gZEOID6JH__table,
   ;;    ...             _gZEOID6JH__value=(2):
   ;;    ...         [_gZEOID6JH__value
-  ;;    ...          for(_gZEOID6JH__items[1])in[_gZEOID6JH__value]][0]
+  ;;    ...          for(_gZEOID6JH__table[1])in[_gZEOID6JH__value]][0]
   ;;    ...     )(
   ;;    ...       _gOFBSTZ6J__self,
   ;;    ...       ),
@@ -1518,14 +1518,14 @@ See `hissp.macros`.
   ;; See also: `my# <myHash_>`, `set! <setBang_>`,
   ;; `zap[### <zapLsqb_Hash_>`.
   ;;
-  `((lambda ($#items : $#value ,value)
+  `((lambda ($#table : $#value ,value)
       ,(.format "[{v}\n for({}[{})in[{v}]][0]"
-                '$#items
+                '$#table
                 (H#demunge lookup)
                 : v '$#value))
-    ,items))
+    ,table))
 
-(defmacro zap\[\# (lookup items callable+args)
+(defmacro zap\[\# (lookup table callable+args)
   <#;``zap[###`` 'zapsub' Injection. Augmented subscription assignment.
   ;;
   ;; The current item value becomes the first argument.
@@ -1540,15 +1540,15 @@ See `hissp.macros`.
   ;;    ...          ('abcd')))
   ;;
   ;;    #> zap[###:2] spam (op#iadd "XY")
-  ;;    >>> (lambda _gQGBD7VBT__items:
+  ;;    >>> (lambda _gQGBD7VBT__table:
   ;;    ...     # hissp.macros.._macro_.let
   ;;    ...     (
   ;;    ...      lambda _gQGBD7VBT__value=# hissp.macros..Dash_Gt_
   ;;    ...             __import__('operator').iadd(
-  ;;    ...               (_gQGBD7VBT__items[:2]),
+  ;;    ...               (_gQGBD7VBT__table[:2]),
   ;;    ...               ('XY')):
   ;;    ...         [_gQGBD7VBT__value
-  ;;    ...          for(_gQGBD7VBT__items[:2])in[_gQGBD7VBT__value]][0]
+  ;;    ...          for(_gQGBD7VBT__table[:2])in[_gQGBD7VBT__value]][0]
   ;;    ...     )()
   ;;    ... )(
   ;;    ...   spam)
@@ -1558,22 +1558,22 @@ See `hissp.macros`.
   ;;    >>> spam
   ;;    ['a', 'b', 'X', 'Y', 'c', 'd']
   ;;
-  ;; ``items`` can be ``||`` if set by another macro like `doto`.
+  ;; ``table`` can be ``||`` if set by another macro like `doto`.
   ;;
   ;; .. code-block:: REPL
   ;;
   ;;    #> (doto |[2]| zap[###0] || (op#iadd 1))
   ;;    >>> # doto
   ;;    ... (lambda _gDK7SIMRN__self=[2]:
-  ;;    ...    ((lambda _gC45JENYH__items:
+  ;;    ...    ((lambda _gC45JENYH__table:
   ;;    ...         # hissp.macros.._macro_.let
   ;;    ...         (
   ;;    ...          lambda _gC45JENYH__value=# hissp.macros..Dash_Gt_
   ;;    ...                 __import__('operator').iadd(
-  ;;    ...                   (_gC45JENYH__items[0]),
+  ;;    ...                   (_gC45JENYH__table[0]),
   ;;    ...                   (1)):
   ;;    ...             [_gC45JENYH__value
-  ;;    ...              for(_gC45JENYH__items[0])in[_gC45JENYH__value]][0]
+  ;;    ...              for(_gC45JENYH__table[0])in[_gC45JENYH__value]][0]
   ;;    ...         )()
   ;;    ...     )(
   ;;    ...       _gDK7SIMRN__self,
@@ -1589,14 +1589,14 @@ See `hissp.macros`.
   ;;    it will happen twice. Consider `zap! <zapBang_>` instead.
   ;;
   ;;
-  `((lambda ($#items)
-      (let ($#value (-> ,(.format "({}[{})" '$#items (H#demunge lookup))
+  `((lambda ($#table)
+      (let ($#value (-> ,(.format "({}[{})" '$#table (H#demunge lookup))
                         ,callable+args))
         ,(.format "[{v}\n for({}[{})in[{v}]][0]"
-                  '$#items
+                  '$#table
                   (H#demunge lookup)
                   : v '$#value)))
-    ,items))
+    ,table))
 
 (defmacro set@ (qualname value)
   <#;``set@`` 'setat' Assigns an attribute, returns the value.
@@ -3948,11 +3948,11 @@ sentinel#
   ;;    ...                            ):
   ;;    ...                      (
   ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                        (lambda _gX4M4GEV6__items: (_gX4M4GEV6__items[:-1]))(
+  ;;    ...                        (lambda _gX4M4GEV6__table: (_gX4M4GEV6__table[:-1]))(
   ;;    ...                          _gU3TLRBXC__data,
   ;;    ...                          ),
   ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                        (lambda _gX4M4GEV6__items: (_gX4M4GEV6__items[:]))(
+  ;;    ...                        (lambda _gX4M4GEV6__table: (_gX4M4GEV6__table[:]))(
   ;;    ...                          _gU3TLRBXC__data,
   ;;    ...                          ),
   ;;    ...                        *# hissp.macros.._macro_.let
@@ -4039,14 +4039,14 @@ sentinel#
   ;;
   my### names=(list) $data=`$#data
   (progn walk=(lambda (bindings)
-                (let (pairs (X#(zip X X : strict True) (iter bindings)))
-                  `(|| : ,@chain#(i#starmap XY#(if-else (H#is_node Y)
-                                                 `(:* (let (,my.$data (-> ,my.$data ,X))
-                                                        ,(my.walk Y)))
-                                                 (progn (.append my.names Y)
-                                                        `(:? (-> ,my.$data ,X))))
-                                            pairs)
-                       :? ||)))
+                `(|| : ,@chain#(i#starmap XY#(if-else (H#is_node Y)
+                                               `(:* (let (,my.$data (-> ,my.$data ,X))
+                                                      ,(my.walk Y)))
+                                               (progn (.append my.names Y)
+                                                      `(:? (-> ,my.$data ,X))))
+                                          ;; TODO: itertools.batched on 3.12+
+                                          (zip |*2*[iter(bindings)]| : strict True))
+                     :? ||))
          values=`(let (,my.$data ,data) ,(my.walk bindings))
          `(let-call (,@my.names) (:* ,my.values) ,@body)))
 
