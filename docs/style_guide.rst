@@ -1034,12 +1034,11 @@ Be careful with comments around detached :term:`tagging token`\ s!
 :term:`Comment token`\ s are normally discarded by the reader in Lissp,
 but they are a valid target for :term:`tagging token`\ s,
 in which case they may be treated as literal values.
-Avoid using inline or margin comments as commentary between a tag and its target,
+Avoid carelessly using inline or margin comments as commentary between a tag and its target,
 as this can cause errors when they are instead treated as arguments.
 (Usually, tags are attached to one argument, so this doesn't come up,
 but e.g. the bundled decorator tag `@##<At_Hash_>` typically is not.)
-You may instead use a discarded string ``_#"NB foo"``
-or explicitly discarded comment ``_#; foo``.
+You can explicitly use the discard tag ``_#`` on a comment token in that case.
 A good syntax highlighter specialized for Lissp may be able
 to indicate when a comment token is not discarded,
 but a traditional Lisp editor like Emacs ``lisp-mode`` would not.
@@ -1237,6 +1236,9 @@ and not just disabled code:
 
    (print 1 2 _#:<-even 3 _#|also even ->| 4
           : sep : _#"NB Control words compile to strings!")
+
+A discarded `comment token` is acceptable only when meant as commentary
+and would otherwise be consumed by some other tag.
 
 An extra space is typically used to imply separation between groups on the same line.
 Where one level of grouping is not sufficient,
