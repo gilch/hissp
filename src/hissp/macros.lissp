@@ -4039,14 +4039,14 @@ sentinel#
   ;;
   my### names=(list) $data=`$#data
   (progn walk=(lambda (bindings)
-                (let (pairs (X#(zip X X : strict True) (iter bindings)))
-                  `(|| : ,@chain#(i#starmap XY#(if-else (H#is_node Y)
-                                                 `(:* (let (,my.$data (-> ,my.$data ,X))
-                                                        ,(my.walk Y)))
-                                                 (progn (.append my.names Y)
-                                                        `(:? (-> ,my.$data ,X))))
-                                            pairs)
-                       :? ||)))
+                `(|| : ,@chain#(i#starmap XY#(if-else (H#is_node Y)
+                                               `(:* (let (,my.$data (-> ,my.$data ,X))
+                                                      ,(my.walk Y)))
+                                               (progn (.append my.names Y)
+                                                      `(:? (-> ,my.$data ,X))))
+                                          ;; TODO: itertools.batched on 3.12+
+                                          (zip |*2*[iter(bindings)]| : strict True))
+                     :? ||))
          values=`(let (,my.$data ,data) ,(my.walk bindings))
          `(let-call (,@my.names) (:* ,my.values) ,@body)))
 
