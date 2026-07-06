@@ -19,7 +19,10 @@ SPDX-License-Identifier: Apache-2.0
 
 ### Breaking
 
-`&#` is gone. Use `ft#partial` instead.
+`&#` is now forked compose,
+which can still be used for partial application.
+Quote arguments where required or use `ft#partial` instead.
+
 `[#`, `!#`, and, `@#` no longer require `&#` when used alone.
 
 `!#` now requires application.
