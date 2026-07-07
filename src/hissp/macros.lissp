@@ -1495,7 +1495,7 @@ See `hissp.macros`.
      (set! $#table $#key (,f (.__getitem__ $#table $#key)
                              ,@args))))
 
-(defmacro set\[\# (lookup table value)
+(defmacro set\[\# (lookup table_or_value : :* value)
   <#;``set[###`` 'setsub' Injection. Subscription with assignment.
   ;;
   ;; Returns the value assigned (not the collection updated).
@@ -1509,9 +1509,11 @@ See `hissp.macros`.
   ;;    ...          ('0000')))
   ;;
   ;;    #> set[###-1] spam set[###::2] spam "ab" ; Chained assignment.
-  ;;    >>> (
+  ;;    >>> # hissp.macros.._macro_._backapply
+  ;;    ... (
   ;;    ...  lambda _g3TTXFOWE__table,
-  ;;    ...         _g3TTXFOWE__value=(
+  ;;    ...         _g3TTXFOWE__value=# hissp.macros.._macro_._backapply
+  ;;    ...         (
   ;;    ...          lambda _g3TTXFOWE__table,
   ;;    ...                 _g3TTXFOWE__value=('ab'):
   ;;    ...             [_g3TTXFOWE__value
@@ -1528,21 +1530,21 @@ See `hissp.macros`.
   ;;    >>> spam
   ;;    ['a', '0', 'b', 'ab']
   ;;
-  ;; ``table`` can be ``||`` if set by another macro like `doto`.
+  ;; `set[##` form returns a partial setter function which takes a table:
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (doto (dict) set[###1] || 2)
+  ;;    #> (doto (dict) set[##1] 2)
   ;;    >>> # doto
   ;;    ... (lambda _gOFBSTZ6J__self=dict():
-  ;;    ...    ((
+  ;;    ...    (# hissp.macros.._macro_._backapply
+  ;;    ...     (
   ;;    ...      lambda _gZEOID6JH__table,
   ;;    ...             _gZEOID6JH__value=(2):
   ;;    ...         [_gZEOID6JH__value
   ;;    ...          for(_gZEOID6JH__table[1])in[_gZEOID6JH__value]][0]
   ;;    ...     )(
-  ;;    ...       _gOFBSTZ6J__self,
-  ;;    ...       ),
+  ;;    ...       _gOFBSTZ6J__self),
   ;;    ...     _gOFBSTZ6J__self)  [-1]
   ;;    ... )()
   ;;    {1: 2}
@@ -1550,12 +1552,15 @@ See `hissp.macros`.
   ;; See also: `my# <myHash_>`, `set! <setBang_>`,
   ;; `zap[### <zapLsqb_Hash_>`.
   ;;
-  `((lambda ($#table : $#value ,value)
-      ,(.format "[{v}\n for({}[{})in[{v}]][0]"
-                '$#table
-                (H#demunge lookup)
-                : v '$#value))
-    ,table))
+  (let*call ((value : table None) (:* value  :? table_or_value)
+             (table) (:? (unless |table is None| `(,table))))
+    `(_backapply
+      ,@table
+      (lambda ($#table : $#value ,value)
+        ,(.format "[{v}\n for({}[{})in[{v}]][0]"
+                  '$#table
+                  (H#demunge lookup)
+                  : v '$#value)))))
 
 (defmacro zap\[\# (lookup table callable+args)
   <#;``zap[###`` 'zapsub' Injection. Augmented subscription assignment.
