@@ -1218,28 +1218,31 @@ See `hissp.macros`.
   "``&#`` Abbreviation for `functools.partial`."
   `(ft#partial ,@callable+args))
 
-(defmacro !\# (key : table "")
-  <#;``!#`` 'look up in' Gets an item from table.
+(defmacro _backapply (a : :* args)
+  (if-else args `(,|args[-1]| ,a ,@|args[:-1]|) a))
+
+(defmacro !\# (: :* keys)
+  <#;``!#`` 'item tag'
   ;;
   ;; Mnemonic: !tem.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (define first &#!#0)                    ;Gets an item by index.
+  ;;    #> (define first !#0)                      ;Gets an item by index.
   ;;    >>> # define
   ;;    ... __import__('builtins').globals().update(
-  ;;    ...   first=__import__('functools').partial(
-  ;;    ...           __import__('operator').itemgetter(
-  ;;    ...             (0)),
-  ;;    ...           ))
+  ;;    ...   first=# hissp.macros.._macro_._backapply
+  ;;    ...         __import__('operator').itemgetter(
+  ;;    ...           (0)))
   ;;
   ;;    #> (first "abc")
   ;;    >>> first(
   ;;    ...   ('abc'))
   ;;    'a'
   ;;
-  ;;    #> !##(slice None None -1) "abc"           ;Slicing without injection.
-  ;;    >>> __import__('operator').itemgetter(
+  ;;    #> (!#(slice None None -1) "abc")          ;Slicing without injection.
+  ;;    >>> # hissp.macros.._macro_._backapply
+  ;;    ... __import__('operator').itemgetter(
   ;;    ...   slice(
   ;;    ...     None,
   ;;    ...     None,
@@ -1247,34 +1250,41 @@ See `hissp.macros`.
   ;;    ...   ('abc'))
   ;;    'cba'
   ;;
-  ;;    #> !##'+ (dict : foo 2  + 1)               ;These also work on dicts.
-  ;;    >>> __import__('operator').itemgetter(
+  ;;    #> (!###2 0 1 "abc")                       ;Multiple lookups.
+  ;;    >>> # hissp.macros.._macro_._backapply
+  ;;    ... __import__('operator').itemgetter(
+  ;;    ...   (2),
+  ;;    ...   (0),
+  ;;    ...   (1))(
+  ;;    ...   ('abc'))
+  ;;    ('c', 'a', 'b')
+  ;;
+  ;;    #> (!#'+ (dict : foo 2  + 1))              ;These also work on dicts.
+  ;;    >>> # hissp.macros.._macro_._backapply
+  ;;    ... __import__('operator').itemgetter(
   ;;    ...   'Plus_')(
   ;;    ...   dict(
   ;;    ...     foo=(2),
   ;;    ...     Plus_=(1)))
   ;;    1
   ;;
-  ;;    #> (-> '(foo bar) !#1 .upper !#1)          ;Unary compatible with ->.
+  ;;    #> (-> '(foo bar) !#1 .upper !#0)          ;Unary compatible with ->.
   ;;    >>> # Dash_Gt_
+  ;;    ... # hissp.macros.._macro_._backapply
   ;;    ... __import__('operator').itemgetter(
-  ;;    ...   (1))(
+  ;;    ...   (0))(
+  ;;    ...   # hissp.macros.._macro_._backapply
   ;;    ...   __import__('operator').itemgetter(
   ;;    ...     (1))(
   ;;    ...     ('foo',
-  ;;    ...      'bar',),
-  ;;    ...     ).upper(),
-  ;;    ...   )
-  ;;    'A'
+  ;;    ...      'bar',)).upper())
+  ;;    'B'
   ;;
   ;; See also: `operator.getitem`, `operator.itemgetter`,
   ;; `[# <Lsqb_Hash_>`, `set! <setBang_>`, `&# <Et_Hash_>`,
   ;; `@# <At_Hash_>`.
   ;;
-  `((op#itemgetter ,key) ,table))
-
-(defmacro _backapply (a : b None)
-  (if-else b `(,b ,a) a))
+  `(_backapply (op#itemgetter ,@keys)))
 
 (defmacro \[\# (lookup : table None)
   <#;``[#`` 'subscript' Injection. Python's subscription operator.
@@ -1799,7 +1809,7 @@ See `hissp.macros`.
   ;; See also: `attach`, `progn`, `-> <Dash_Gt_>`.
   ;;
   `((lambda (: $#self ,self)
-      ,@(map X#`(,!##0 X
+      ,@(map X#`(,(!#0 X)
                  ,'$#self
                  ,@[##1:] X)
              (map X# |X if type(X) is tuple else (X,)| invocations))
@@ -2028,7 +2038,7 @@ See `hissp.macros`.
           (.join "\nelse " `(,"     x1() if x0" ,@(map X# |f'x{X+1}() if x{X}()'|
                                                        (range 2 (len pairs) 2))))
           "\nelse ()"))
-      ,!##0 pairs
+      ,(!#0 pairs)
       ,@(map X#`O#,X [##1:] pairs))))
 
 (defmacro any-map (variable xs : :* body)
@@ -2152,6 +2162,7 @@ See `hissp.macros`.
   ;;    ...             __import__('builtins').iter(
   ;;    ...               _gY44MBROP__stack.pop,
   ;;    ...               None))),
+  ;;    ...         # hissp.macros.._macro_._backapply
   ;;    ...         __import__('operator').itemgetter(
   ;;    ...           (0))(
   ;;    ...           _gY44MBROP__stack))  [-1]
@@ -2169,7 +2180,7 @@ See `hissp.macros`.
        (any*map (: ,@pairs) (iter $#stack.pop None)
          (.__setitem__ $#stack 0 (progn ,@body))
          None)
-       !##0 $#stack)))
+       (!#0 $#stack))))
 
 ;; I would have named this 'and, but that's a reserved word.
 (defmacro ands (: :* exprs)
@@ -2218,11 +2229,11 @@ See `hissp.macros`.
   ;; See also: `ors`, `and`, `all`, `when`.
   ;;
   (cond (not exprs) True
-        (op#eq (len exprs) 1) !##0 exprs
+        (op#eq (len exprs) 1) (!#0 exprs)
         :else
         `((lambda (,@(map X# |f'x{X}'| (range (len exprs))))
             ,(.join "and " `(,"x0 " ,@(map X# |f'x{X}()'| (range 1 (len exprs))))))
-          ,!##0 exprs
+          ,(!#0 exprs)
           ,@(map X#`O#,X [##1:] exprs))))
 
 ;; 'or is also a reserved word.
@@ -2272,11 +2283,11 @@ See `hissp.macros`.
   ;;
   ;; See also: `ands`, `bool`, `or`, `any`.
   ;;
-  (cond (op#eq (len exprs) 1) !##0 exprs
+  (cond (op#eq (len exprs) 1) (!#0 exprs)
         exprs
         `((lambda (,@(map X# |f'x{X}'| (range (len exprs))))
             ,(.join "or " `(,"x0 " ,@(map X# |f'x{X}()'| (range 1 (len exprs))))))
-          ,!##0 exprs
+          ,(!#0 exprs)
           ,@(map X#`O#,X [##1:] exprs))))
 
 (defmacro throw* (: :* exception)
@@ -2799,7 +2810,7 @@ See `hissp.macros`.
   ;; See also:
   ;; `# <Hash_>`, `% <Pcent_>`, `en# <enHash_>`, `operator.matmul`.
   ;;
-  (when (ands xs (op#eq :* !##-1 xs))
+  (when (ands xs (op#eq :* (!#-1 xs)))
      (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
     `((lambda (: :* ,'xs) |[*xs]|)
@@ -2830,7 +2841,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `@ <At_>`, `% <Pcent_>`.
   ;;
-  (when (ands xs (op#eq :* !##-1 xs))
+  (when (ands xs (op#eq :* (!#-1 xs)))
      (throw (SyntaxError "trailing :*")))
   (let (ixs (iter xs))
     `((lambda (: :* ,'xs) |{*xs}|)
@@ -2868,7 +2879,7 @@ See `hissp.macros`.
   ;;
   (cond
    (op#mod (len kvs) 2) (throw (TypeError "extra key without value"))
-   kvs `((lambda (,@(i#starmap XY# |f'x{X}'| (filter X#(op#ne :** !##1 X)
+   kvs `((lambda (,@(i#starmap XY# |f'x{X}'| (filter X#(op#ne :** (!#1 X))
                                                      (enumerate kvs))))
            ,(.format "{{{}}}"
                      (.join "," (i#starmap XY#(if-else (op#eq Y :**)
@@ -3848,17 +3859,17 @@ sentinel#
   ;;    ...    (lambda _g275ZTQAC__data=nested___data:
   ;;    ...        (
   ;;    ...          # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...          # hissp.macros.._macro_._backapply
   ;;    ...          __import__('operator').itemgetter(
   ;;    ...            (10))(
-  ;;    ...            _g275ZTQAC__data,
-  ;;    ...            ),
+  ;;    ...            _g275ZTQAC__data),
   ;;    ...          *# hissp.macros.._macro_.let
   ;;    ...           (
   ;;    ...            lambda _g275ZTQAC__data=# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                   # hissp.macros.._macro_._backapply
   ;;    ...                   __import__('operator').itemgetter(
   ;;    ...                     'ns')(
-  ;;    ...                     _g275ZTQAC__data,
-  ;;    ...                     ):
+  ;;    ...                     _g275ZTQAC__data):
   ;;    ...               (
   ;;    ...                 *# hissp.macros.._macro_.let
   ;;    ...                  (
@@ -3869,20 +3880,20 @@ sentinel#
   ;;    ...                            ):
   ;;    ...                      (
   ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                        # hissp.macros.._macro_._backapply
   ;;    ...                        __import__('operator').itemgetter(
   ;;    ...                          (0))(
-  ;;    ...                          _g275ZTQAC__data,
-  ;;    ...                          ),
+  ;;    ...                          _g275ZTQAC__data),
   ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                        # hissp.macros.._macro_._backapply
   ;;    ...                        __import__('operator').itemgetter(
   ;;    ...                          (1))(
-  ;;    ...                          _g275ZTQAC__data,
-  ;;    ...                          ),
+  ;;    ...                          _g275ZTQAC__data),
   ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                        # hissp.macros.._macro_._backapply
   ;;    ...                        __import__('operator').itemgetter(
   ;;    ...                          (2))(
-  ;;    ...                          _g275ZTQAC__data,
-  ;;    ...                          ),
+  ;;    ...                          _g275ZTQAC__data),
   ;;    ...                        )
   ;;    ...                  )(),
   ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
@@ -3925,10 +3936,10 @@ sentinel#
   ;;    ...          *# hissp.macros.._macro_.let
   ;;    ...           (
   ;;    ...            lambda _gU3TLRBXC__data=# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                   # hissp.macros.._macro_._backapply
   ;;    ...                   __import__('operator').itemgetter(
   ;;    ...                     'ns')(
-  ;;    ...                     _gU3TLRBXC__data,
-  ;;    ...                     ):
+  ;;    ...                     _gU3TLRBXC__data):
   ;;    ...               (
   ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                 (
@@ -4090,15 +4101,15 @@ sentinel#
   ;;    ...                     _gK53PHZRK__data):
   ;;    ...               (
   ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                 # hissp.macros.._macro_._backapply
   ;;    ...                 __import__('operator').itemgetter(
   ;;    ...                   'spam')(
-  ;;    ...                   _gK53PHZRK__data,
-  ;;    ...                   ),
+  ;;    ...                   _gK53PHZRK__data),
   ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                 # hissp.macros.._macro_._backapply
   ;;    ...                 __import__('operator').itemgetter(
   ;;    ...                   'foo')(
-  ;;    ...                   _gK53PHZRK__data,
-  ;;    ...                   ),
+  ;;    ...                   _gK53PHZRK__data),
   ;;    ...                 )
   ;;    ...           )(),
   ;;    ...          )
@@ -4195,28 +4206,28 @@ sentinel#
   ;;    ...                     _gFS4QYTZL__data):
   ;;    ...               (
   ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                 # hissp.macros.._macro_._backapply
   ;;    ...                 __import__('operator').itemgetter(
   ;;    ...                   (0))(
-  ;;    ...                   _gFS4QYTZL__data,
-  ;;    ...                   ),
+  ;;    ...                   _gFS4QYTZL__data),
   ;;    ...                 *# hissp.macros.._macro_.let
   ;;    ...                  (
   ;;    ...                   lambda _gFS4QYTZL__data=# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                          # hissp.macros.._macro_._backapply
   ;;    ...                          __import__('operator').itemgetter(
   ;;    ...                            (1))(
-  ;;    ...                            _gFS4QYTZL__data,
-  ;;    ...                            ):
+  ;;    ...                            _gFS4QYTZL__data):
   ;;    ...                      (
   ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                        # hissp.macros.._macro_._backapply
   ;;    ...                        __import__('operator').itemgetter(
   ;;    ...                          (0))(
-  ;;    ...                          _gFS4QYTZL__data,
-  ;;    ...                          ),
+  ;;    ...                          _gFS4QYTZL__data),
   ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                        # hissp.macros.._macro_._backapply
   ;;    ...                        __import__('operator').itemgetter(
   ;;    ...                          (1))(
-  ;;    ...                          _gFS4QYTZL__data,
-  ;;    ...                          ),
+  ;;    ...                          _gFS4QYTZL__data),
   ;;    ...                        )
   ;;    ...                  )(),
   ;;    ...                 )

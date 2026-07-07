@@ -250,7 +250,7 @@ hissp..prelude#:
 (define enjoin en#X#(.join "" (map str X)))
 
 (defun tag (tag : :* contents)
-  (enjoin "<"tag">"(enjoin : :* contents)"</"!##0(.split tag)">"))
+  (enjoin "<"tag">"(enjoin : :* contents)"</"[##0](.split tag)">"))
 
 (defmacro script (: :* forms)
   `',(tag "script type='text/python'" "\n"
