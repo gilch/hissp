@@ -404,7 +404,7 @@ See `hissp.macros`.
 
   See `deftypeonce` for how to define methods.
 
-  See also: `def`, `define`, `defmacro`, `:@## <Colon_At_Hash_>`.
+  See also: `def`, `define`, `defmacro`, `@## <At_Hash_>`.
   "
   `(define ,qualname (fun ,qualname ,params ,@body)))
 
@@ -475,7 +475,7 @@ See `hissp.macros`.
   ;; Defines a `type` (`class`), unless it exists.
   ;;
   ;; Add class attributes afterward using `define` or `defun`, and class
-  ;; decorators above with `:@## <Colon_At_Hash_>` or afterward
+  ;; decorators above with `@## <At_Hash_>` or afterward
   ;; using `zap@ <zapAt_>`. These run again on module reload, updating
   ;; the existing class object, which can affect the behavior its
   ;; instances defined before the reload.
@@ -609,7 +609,7 @@ See `hissp.macros`.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> :@##classmethod
+  ;;    #> @##classmethod
   ;;    #..(defun Point2D.__init_subclass__ (cls :/ : :** kwargs)
   ;;    #..  "Just displays inputs"
   ;;    #..  (print kwargs))
@@ -766,44 +766,6 @@ See `hissp.macros`.
 
   "
   `(defonce ,typename (collections..namedtuple ',typename ,@args)))
-
-(defmacro \:@\# (decoration definition)
-  "``:@##`` 'decorator' applies ``decoration`` to definition & reassigns.
-
-  ``definition`` form must assign an attribute identified by its first
-  arg. Expands to a `define`, meaning decorators can stack.
-
-  Decorator syntax is for definitions, like `define` and `defun`, and
-  would work on any definition macro that has the definition qualname as
-  its first argument (not `defmacro`, but `defun` can target the
-  ``_macro_`` namespace if it exists).
-
-  Use `zap@ <zapAt_>` to decorate an attribute after its definition.
-
-  .. code-block:: REPL
-
-     #> :@##.swapcase
-     #..:@##.title
-     #..(define spam 'spam) ; Unlike Python def, not always a function.
-     >>> # hissp.macros.._macro_.define
-     ... __import__('builtins').globals().update(
-     ...   spam=# hissp.macros.._macro_.progn
-     ...        (# hissp.macros.._macro_.define
-     ...         __import__('builtins').globals().update(
-     ...           spam=# hissp.macros.._macro_.progn
-     ...                (# define
-     ...                 __import__('builtins').globals().update(
-     ...                   spam='spam'),
-     ...                 spam.title())  [-1]),
-     ...         spam.swapcase())  [-1])
-
-     #> spam
-     >>> spam
-     'sPAM'
-
-  "
-  (let (qualname (.__getitem__ definition 1))
-    `(define ,qualname (progn ,definition (,decoration ,qualname)))))
 
 (defmacro let*call (pairs : :* body)
   "``let*call`` 'let star call' Nested `let-call <let___call>`.
@@ -1154,8 +1116,9 @@ See `hissp.macros`.
   ;;    >>> b'Read-time b# via multiple-arg alias.'
   ;;    b'Read-time b# via multiple-arg alias.'
   ;;
-  ;;    #> H###@ ns=math. name='tau ; Kwargs also work.
-  ;;    >>> __import__('operator').attrgetter(
+  ;;    #> H##@ tau=math. ; Kwargs also work.
+  ;;    >>> # hissp.macros.._macro_._backapply
+  ;;    ... __import__('operator').attrgetter(
   ;;    ...   'tau')(
   ;;    ...   __import__('math'))
   ;;    6.283185307179586
@@ -1332,17 +1295,22 @@ See `hissp.macros`.
                (lambda ($#table)
                  ,(.format "({}[{})" '$#table (H#demunge lookup)))))
 
-
-(defmacro @\# (name : ns "")
-  <#;``@#`` 'attribute of' Looks up attribute in a namespace.
+(defmacro @\# (: decoration_or_attr None  definition None  :/ :?  :** attr)
+  <#;Overloads:
+  ;; * ``@#`` 'attribute tag' gets attribute.
+  ;; * ``@##`` 'decorator' applies decoration to definition and reassigns.
   ;;
   ;; Mnemonic: @tribute.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (.join "" (filter @##'intersection (set "abc") "abracadabra"))
-  ;;    >>> ('').join(
+  ;;    #> (@#join="" (filter @#intersection=(set "abc") "abracadabra"))
+  ;;    >>> # hissp.macros.._macro_._backapply
+  ;;    ... __import__('operator').attrgetter(
+  ;;    ...   'join')(
+  ;;    ...   (''))(
   ;;    ...   filter(
+  ;;    ...     # hissp.macros.._macro_._backapply
   ;;    ...     __import__('operator').attrgetter(
   ;;    ...       'intersection')(
   ;;    ...       set(
@@ -1350,36 +1318,86 @@ See `hissp.macros`.
   ;;    ...     ('abracadabra')))
   ;;    'abacaaba'
   ;;
-  ;;    #> (let (eggs &#@#'upper ; Unary compatible with &#.
-  ;;    #..      spam 'intersection) ; Lookup need not be constant.
-  ;;    #..  ;; Various chaining techniques. Note unary @# and '.
-  ;;    #..  @##'__class__.__name__ (-> (set) @#spam @#'__doc__ eggs))
+  ;;    #> (@#'__class__.__name__ 1+1j) ; Note the `.`.
+  ;;    >>> # hissp.macros.._macro_._backapply
+  ;;    ... __import__('operator').attrgetter(
+  ;;    ...   '__class__.__name__')(
+  ;;    ...   ((1+1j)))
+  ;;    'complex'
+  ;;
+  ;;    #> (let (eggs @#'upper
+  ;;    #..      spam 'intersection)
+  ;;    #..  ;; Various chaining techniques. Note ' and =@#.
+  ;;    #..  @#__name__=@#__class__=(-> (set) @#spam @#'__doc__ eggs))
   ;;    >>> # let
   ;;    ... (
-  ;;    ...  lambda eggs=__import__('functools').partial(
-  ;;    ...           __import__('operator').attrgetter(
-  ;;    ...             'upper'),
-  ;;    ...           ),
-  ;;    ...         spam='intersection':
-  ;;    ...     __import__('operator').attrgetter(
-  ;;    ...       '__class__.__name__')(
-  ;;    ...       # Dash_Gt_
-  ;;    ...       eggs(
+  ;;    ...  lambda eggs=# hissp.macros.._macro_._backapply
   ;;    ...         __import__('operator').attrgetter(
-  ;;    ...           '__doc__')(
+  ;;    ...           'upper'),
+  ;;    ...         spam='intersection':
+  ;;    ...     # hissp.macros.._macro_._backapply
+  ;;    ...     __import__('operator').attrgetter(
+  ;;    ...       '__name__')(
+  ;;    ...       # hissp.macros.._macro_._backapply
+  ;;    ...       __import__('operator').attrgetter(
+  ;;    ...         '__class__')(
+  ;;    ...         # Dash_Gt_
+  ;;    ...         eggs(
+  ;;    ...           # hissp.macros.._macro_._backapply
   ;;    ...           __import__('operator').attrgetter(
-  ;;    ...             spam)(
-  ;;    ...             set(),
-  ;;    ...             ),
-  ;;    ...           )))
+  ;;    ...             '__doc__')(
+  ;;    ...             # hissp.macros.._macro_._backapply
+  ;;    ...             __import__('operator').attrgetter(
+  ;;    ...               spam)(
+  ;;    ...               set())))))
   ;;    ... )()
   ;;    'builtin_function_or_method'
   ;;
   ;; See also: `getattr`, `operator.attrgetter`, `X# <XHash_>`,
-  ;; `\!# <Bang_Hash_>`, `&# <Et_Hash_>`,
-  ;; `:@## <Colon_At_Hash_>`.
+  ;; `\!# <Bang_Hash_>`, `&# <Et_Hash_>`.
   ;;
-  `((op#attrgetter ,name) ,ns))
+  ;; ***
+  ;;
+  ;; Definition form must assign an attribute identified by its first
+  ;; arg. Expands to a `define`, meaning decorators can stack.
+  ;;
+  ;; Decorator syntax is for definitions, like `define` and `defun`, and
+  ;; would work on any definition macro that has the definition qualname as
+  ;; its first argument (not `defmacro`, but `defun` can target the
+  ;; ``_macro_`` namespace if it exists).
+  ;;
+  ;; Use `zap@ <zapAt_>` to decorate an attribute after its definition.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> @##.swapcase
+  ;;    #..@##.title
+  ;;    #..(define spam 'spam) ; Unlike Python def, not always a function.
+  ;;    >>> # hissp.macros.._macro_.define
+  ;;    ... __import__('builtins').globals().update(
+  ;;    ...   spam=# hissp.macros.._macro_.progn
+  ;;    ...        (# hissp.macros.._macro_.define
+  ;;    ...         __import__('builtins').globals().update(
+  ;;    ...           spam=# hissp.macros.._macro_.progn
+  ;;    ...                (# define
+  ;;    ...                 __import__('builtins').globals().update(
+  ;;    ...                   spam='spam'),
+  ;;    ...                 spam.title())  [-1]),
+  ;;    ...         spam.swapcase())  [-1])
+  ;;
+  ;;    #> spam
+  ;;    >>> spam
+  ;;    'sPAM'
+  ;;
+  (if-else definition
+    (let (qualname (.__getitem__ definition 1))
+      (if-else attr
+        (exec "raise TypeError('@## got unexpected keyword argument(s)', attr)")
+        `(define ,qualname (progn ,definition (,decoration_or_attr ,qualname)))))
+    (let-call (name : oops None) (:* (map X#`',X attr)  :? decoration_or_attr)
+      (if-else oops
+        (exec "raise TypeError('@# got unexpected keyword argument(s)', attr)")
+        `(_backapply ,@(.values attr) (op#attrgetter ,name))))))
 
 ;;;; Configuration
 
@@ -1736,7 +1754,7 @@ See `hissp.macros`.
   ;;    11
   ;;
   ;; See also: `set@ <setAt_>`, `zap! <zapBang_>`, `operator.iadd`,
-  ;; `augassign`, `:@## <Colon_At_Hash_>`.
+  ;; `augassign`, `@## <At_Hash_>`.
   ;;
   `(set@ ,qualname
          (,f ,(if-else |'.' in qualname| qualname `(.__getitem__ (globals) ',qualname))
@@ -3276,7 +3294,7 @@ See `hissp.macros`.
   ;; --------------
   ;; .. code-block:: REPL
   ;;
-  ;;    #> :@##cxl#contextmanager
+  ;;    #> @##cxl#contextmanager
   ;;    #..(defun wrap (msg)
   ;;    #..  (print "enter" msg)
   ;;    #..  (Ensue (lambda (step)
@@ -3874,10 +3892,10 @@ sentinel#
   ;;    ...                 *# hissp.macros.._macro_.let
   ;;    ...                  (
   ;;    ...                   lambda _g275ZTQAC__data=# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                          # hissp.macros.._macro_._backapply
   ;;    ...                          __import__('operator').attrgetter(
   ;;    ...                            'a___tuple')(
-  ;;    ...                            _g275ZTQAC__data,
-  ;;    ...                            ):
+  ;;    ...                            _g275ZTQAC__data):
   ;;    ...                      (
   ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                        # hissp.macros.._macro_._backapply
@@ -3897,10 +3915,10 @@ sentinel#
   ;;    ...                        )
   ;;    ...                  )(),
   ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                 # hissp.macros.._macro_._backapply
   ;;    ...                 __import__('operator').attrgetter(
   ;;    ...                   'spam')(
-  ;;    ...                   _g275ZTQAC__data,
-  ;;    ...                   ),
+  ;;    ...                   _g275ZTQAC__data),
   ;;    ...                 )
   ;;    ...           )(),
   ;;    ...          )
@@ -3950,17 +3968,17 @@ sentinel#
   ;;    ...                   'missing',
   ;;    ...                   ('a default for missing')),
   ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                 # hissp.macros.._macro_._backapply
   ;;    ...                 __import__('operator').attrgetter(
   ;;    ...                   'spam')(
-  ;;    ...                   _gU3TLRBXC__data,
-  ;;    ...                   ),
+  ;;    ...                   _gU3TLRBXC__data),
   ;;    ...                 *# hissp.macros.._macro_.let
   ;;    ...                  (
   ;;    ...                   lambda _gU3TLRBXC__data=# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                          # hissp.macros.._macro_._backapply
   ;;    ...                          __import__('operator').attrgetter(
   ;;    ...                            'a___tuple')(
-  ;;    ...                            _gU3TLRBXC__data,
-  ;;    ...                            ):
+  ;;    ...                            _gU3TLRBXC__data):
   ;;    ...                      (
   ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                        # hissp.macros.._macro_._backapply
@@ -4154,15 +4172,15 @@ sentinel#
   ;;    ...                     _g4JOGNIEV__data):
   ;;    ...               (
   ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                 # hissp.macros.._macro_._backapply
   ;;    ...                 __import__('operator').attrgetter(
   ;;    ...                   'spam')(
-  ;;    ...                   _g4JOGNIEV__data,
-  ;;    ...                   ),
+  ;;    ...                   _g4JOGNIEV__data),
   ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                 # hissp.macros.._macro_._backapply
   ;;    ...                 __import__('operator').attrgetter(
   ;;    ...                   'foo')(
-  ;;    ...                   _g4JOGNIEV__data,
-  ;;    ...                   ),
+  ;;    ...                   _g4JOGNIEV__data),
   ;;    ...                 )
   ;;    ...           )(),
   ;;    ...          )

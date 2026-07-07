@@ -408,7 +408,7 @@ However, in many of these cases,
 the groups could be better written as a single top-level form instead,
 given the appropriate functions or metaprograms.
 E.g. `dict.update` (on `globals`), `let`,
-`:@##<Colon_At_Hash_>`, `attach`, `doto`.
+`@##<At_Hash_>`, `attach`, `doto`.
 
 Try to avoid blank lines within forms.
 You may need them for separating groups whose elements span lines
@@ -1007,8 +1007,9 @@ in which case they may be treated as literal values.
 Avoid using inline or margin comments as commentary between a tag and its target,
 as this can cause errors when they are instead treated as arguments.
 (Usually, tags are attached to one argument, so this doesn't come up,
-but e.g. the bundled decorator tag `:@##<Colon_At_Hash_>` typically is not.)
-You may use a discarded string instead ``_#"NB foo"``.
+but e.g. the bundled decorator tag `@##<At_Hash_>` typically is not.)
+You may instead use a discarded string ``_#"NB foo"``
+or explicitly discarded comment ``_#; foo``.
 A good syntax highlighter specialized for Lissp may be able
 to indicate when a comment token is not discarded,
 but a traditional Lisp editor like Emacs ``lisp-mode`` would not.
@@ -1183,7 +1184,7 @@ executing any :term:`tag`\ s.
 :term:`metaprogram`\ s should avoid side effects,
 or at least be idempotent.
 Of course,
-such a metaprogram indented to be well-behaved may
+such a metaprogram intended to be well-behaved may
 still raise errors while it's being developed,
 preventing a normal file reload.
 Try using ``;;`` form comments on the affected lines instead when this happens.)
@@ -1295,7 +1296,7 @@ if it's not obvious from the identifier:
 
 .. code-block:: Lissp
 
-   "``:@##`` 'decorator' applies ``decoration`` to a definition & reassigns."
+   "``@##`` 'decorator' applies ``decoration`` to a definition & reassigns."
 
 This way, all three name versions (`munge`\ d, `demunge`\ d, and pronounced)
 will appear in generated docs.
