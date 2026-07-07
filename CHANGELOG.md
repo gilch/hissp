@@ -15,6 +15,19 @@ SPDX-License-Identifier: Apache-2.0
 
 ### Breaking
 
+`[#`, `!#`, and, `@#` no longer require `&#` when used alone.
+
+`!#` now requires application.
+ - `!##1 X` becomes `(!#1 X)` or `[##1] X`.
+Extra args instead do extra lookups, returning a tuple.
+
+`:@##` is now an overload of `@#`,
+which accepts a kwarg instead.
+- `@##'foo(expr)` becomes `@#foo=(expr)`.
+- `:@##decorator (def` becomes `@##decorator (def`.
+- `@##spam(expr)` becomes `(@#spam (expr))`.
+- `@##'spam.eggs(expr)` becomes `(@#'spam.eggs (expr))` or `@#eggs=@#spam=(expr)`.
+
 Make `hissp._macro_` a class.
 (The compiler still accepts any namespace type.)
 Inherit rather than copy, as was recommended for readerless mode.
