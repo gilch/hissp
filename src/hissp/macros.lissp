@@ -1562,7 +1562,7 @@ See `hissp.macros`.
                   (H#demunge lookup)
                   : v '$#value)))))
 
-(defmacro zap\[\# (lookup table callable+args)
+(defmacro zap\[\# (lookup table_or_call : :* call)
   <#;``zap[###`` 'zapsub' Injection. Augmented subscription assignment.
   ;;
   ;; The current item value becomes the first argument.
@@ -1576,8 +1576,9 @@ See `hissp.macros`.
   ;;    ...   spam=list(
   ;;    ...          ('abcd')))
   ;;
-  ;;    #> zap[###:2] spam (op#iadd "XY")
-  ;;    >>> (lambda _gQGBD7VBT__table:
+  ;;    #> zap[###:2] spam (op#iadd "XY") ; spam[:2]+="XY", but an expression
+  ;;    >>> # hissp.macros.._macro_._backapply
+  ;;    ... (lambda _gQGBD7VBT__table:
   ;;    ...     # hissp.macros.._macro_.let
   ;;    ...     (
   ;;    ...      lambda _gQGBD7VBT__value=# hissp.macros..Dash_Gt_
@@ -1595,14 +1596,15 @@ See `hissp.macros`.
   ;;    >>> spam
   ;;    ['a', 'b', 'X', 'Y', 'c', 'd']
   ;;
-  ;; ``table`` can be ``||`` if set by another macro like `doto`.
+  ;; `zap[##` returns a partial function taking a table:
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (doto |[2]| zap[###0] || (op#iadd 1))
+  ;;    #> (doto |[2]| zap[##0] (op#iadd 1))
   ;;    >>> # doto
   ;;    ... (lambda _gDK7SIMRN__self=[2]:
-  ;;    ...    ((lambda _gC45JENYH__table:
+  ;;    ...    (# hissp.macros.._macro_._backapply
+  ;;    ...     (lambda _gC45JENYH__table:
   ;;    ...         # hissp.macros.._macro_.let
   ;;    ...         (
   ;;    ...          lambda _gC45JENYH__value=# hissp.macros..Dash_Gt_
@@ -1613,8 +1615,7 @@ See `hissp.macros`.
   ;;    ...              for(_gC45JENYH__table[0])in[_gC45JENYH__value]][0]
   ;;    ...         )()
   ;;    ...     )(
-  ;;    ...       _gDK7SIMRN__self,
-  ;;    ...       ),
+  ;;    ...       _gDK7SIMRN__self),
   ;;    ...     _gDK7SIMRN__self)  [-1]
   ;;    ... )()
   ;;    [3]
@@ -1623,17 +1624,20 @@ See `hissp.macros`.
   ;;
   ;;    The lookup injection must be written twice: once to read and
   ;;    once to write. In the unusual case that it has a side effect,
-  ;;    it will happen twice. Consider `zap! <zapBang_>` instead.
+  ;;    it will happen twice. Use `zap! <zapBang_>` instead or `let`.
   ;;
   ;;
-  `((lambda ($#table)
-      (let ($#value (-> ,(.format "({}[{})" '$#table (H#demunge lookup))
-                        ,callable+args))
-        ,(.format "[{v}\n for({}[{})in[{v}]][0]"
-                  '$#table
-                  (H#demunge lookup)
-                  : v '$#value)))
-    ,table))
+  (let*call ((call : table None) (:* call  :? table_or_call)
+             (table) (:? (unless |table is None| `(,table))))
+    `(_backapply
+      ,@table
+      (lambda ($#table)
+        (let ($#value (-> ,(.format "({}[{})" '$#table (H#demunge lookup))
+                          ,call))
+          ,(.format "[{v}\n for({}[{})in[{v}]][0]"
+                    '$#table
+                    (H#demunge lookup)
+                    : v '$#value))))))
 
 (defmacro set@ (qualname value)
   <#;``set@`` 'setat' Assigns an attribute, returns the value.

@@ -12,9 +12,10 @@ SPDX-License-Identifier: Apache-2.0
 ### Add
 - `cxl#` alias for `contextlib.`.
 - `:#` alias for `unittest.mock..sentinel`
-- `set[#` no longer requires `||` in a `doto`,
+- `set[#` and `zap[#` no longer require `||` in a `doto`,
   which is no longer recommended, but still works.
-  - Use two-argument tag instead.
+  - Use a two-argument tag instead,
+    which results in a partial application taking a table.
 
 ### Breaking
 
