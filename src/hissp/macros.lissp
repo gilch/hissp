@@ -1273,7 +1273,10 @@ See `hissp.macros`.
   ;;
   `((op#itemgetter ,key) ,table))
 
-(defmacro \[\# (lookup : table "")
+(defmacro _backapply (a : b None)
+  (if-else b `(,b ,a) a))
+
+(defmacro \[\# (lookup : table None)
   <#;``[#`` 'subscript' Injection. Python's subscription operator.
   ;;
   ;; Interpret the lookup as Python code prepended with a ``[``.
@@ -1282,7 +1285,8 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> [##1][::2] '(foo bar)
-  ;;    >>> (lambda _gER3ASVPQ__table: (_gER3ASVPQ__table[1][::2]))(
+  ;;    >>> # hissp.macros.._macro_._backapply
+  ;;    ... (lambda _gER3ASVPQ__table: (_gER3ASVPQ__table[1][::2]))(
   ;;    ...   ('foo',
   ;;    ...    'bar',))
   ;;    'br'
@@ -1293,20 +1297,19 @@ See `hissp.macros`.
   ;;
   ;;    #> (-> '(foo bar) [#1] .upper [#::2])
   ;;    >>> # Dash_Gt_
-  ;;    ... (lambda _gMR7QE3F2__table: (_gMR7QE3F2__table[::2]))(
-  ;;    ...   (lambda _gMR7QE3F2__table: (_gMR7QE3F2__table[1]))(
+  ;;    ... # hissp.macros.._macro_._backapply
+  ;;    ... (lambda _gQVGKJX6Z__table: (_gQVGKJX6Z__table[::2]))(
+  ;;    ...   # hissp.macros.._macro_._backapply
+  ;;    ...   (lambda _gQVGKJX6Z__table: (_gQVGKJX6Z__table[1]))(
   ;;    ...     ('foo',
-  ;;    ...      'bar',),
-  ;;    ...     ).upper(),
-  ;;    ...   )
+  ;;    ...      'bar',)).upper())
   ;;    'BR'
   ;;
-  ;;    #> (.join "" (map &#[#1] '(abc xyz |123|)))
+  ;;    #> (.join "" (map [#1] '(abc xyz |123|)))
   ;;    >>> ('').join(
   ;;    ...   map(
-  ;;    ...     __import__('functools').partial(
-  ;;    ...       (lambda _gFMSK2DQ7__table: (_gFMSK2DQ7__table[1])),
-  ;;    ...       ),
+  ;;    ...     # hissp.macros.._macro_._backapply
+  ;;    ...     (lambda _gFMSK2DQ7__table: (_gFMSK2DQ7__table[1])),
   ;;    ...     ('abc',
   ;;    ...      'xyz',
   ;;    ...      '123',)))
@@ -1315,9 +1318,10 @@ See `hissp.macros`.
   ;; See also: `\!# <Bang_Hash_>`, `-> <Dash_Gt_>`, `slice`,
   ;; `subscriptions`, `slicings`.
   ;;
-  `((lambda ($#table)
-      ,(.format "({}[{})" '$#table (H#demunge lookup)))
-    ,table))
+  `(_backapply ,@(unless |table is None| `(,table))
+               (lambda ($#table)
+                 ,(.format "({}[{})" '$#table (H#demunge lookup)))))
+
 
 (defmacro @\# (name : ns "")
   <#;``@#`` 'attribute of' Looks up attribute in a namespace.
@@ -3948,13 +3952,13 @@ sentinel#
   ;;    ...                            ):
   ;;    ...                      (
   ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                        # hissp.macros.._macro_._backapply
   ;;    ...                        (lambda _gX4M4GEV6__table: (_gX4M4GEV6__table[:-1]))(
-  ;;    ...                          _gU3TLRBXC__data,
-  ;;    ...                          ),
+  ;;    ...                          _gU3TLRBXC__data),
   ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                        # hissp.macros.._macro_._backapply
   ;;    ...                        (lambda _gX4M4GEV6__table: (_gX4M4GEV6__table[:]))(
-  ;;    ...                          _gU3TLRBXC__data,
-  ;;    ...                          ),
+  ;;    ...                          _gU3TLRBXC__data),
   ;;    ...                        *# hissp.macros.._macro_.let
   ;;    ...                         (
   ;;    ...                          lambda _gU3TLRBXC__data=# hissp.macros.._macro_.Dash_Gt_

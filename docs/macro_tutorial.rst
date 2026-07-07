@@ -5476,6 +5476,7 @@ We can use this to implement "symbol macros":
    ...                                                       _g4R7TTKM7__target)  [-1]
    ...                                                   )()
    ...                                               ),
+   ...                                               # hissp.macros.._macro_._backapply
    ...                                               (lambda _gR42M4RLN__table: (_gR42M4RLN__table[2:]))(
    ...                                                 X)),
    ...                                            )
@@ -5755,6 +5756,7 @@ We can check for exactly that, and rewrite it to a let expression.
    ...                                                       _g4R7TTKM7__target)  [-1]
    ...                                                   )()
    ...                                               ),
+   ...                                               # hissp.macros.._macro_._backapply
    ...                                               (lambda _gR42M4RLN__table: (_gR42M4RLN__table[2:]))(
    ...                                                 X)),
    ...                                            )
@@ -5981,6 +5983,7 @@ I will again omit the docstring handling for simplicity.
    ...                         (
    ...                           'builtins..zip',
    ...                           list(
+   ...                             # hissp.macros.._macro_._backapply
    ...                             (lambda _gR42M4RLN__table: (_gR42M4RLN__table[::2]))(
    ...                               params)),
    ...                           (
@@ -5993,6 +5996,7 @@ I will again omit the docstring handling for simplicity.
    ...                                      X,
    ...                                      )
    ...                                ),
+   ...                                # hissp.macros.._macro_._backapply
    ...                                (lambda _gR42M4RLN__table: (_gR42M4RLN__table[1::2]))(
    ...                                  params)),
    ...                             '',
@@ -6047,6 +6051,7 @@ I will again omit the docstring handling for simplicity.
    ...                              ),
    ...                            )
    ...                      ),
+   ...                      # hissp.macros.._macro_._backapply
    ...                      (lambda _gR42M4RLN__table: (_gR42M4RLN__table[::2]))(
    ...                        params)),
    ...                   ),
