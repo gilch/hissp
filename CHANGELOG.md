@@ -10,7 +10,8 @@ SPDX-License-Identifier: Apache-2.0
 ## [0.5.dev1]
 
 ### Add
-- `cxl#` alias for `contextlib`.
+- `cxl#` alias for `contextlib.`.
+- `:#` alias for `unittest.mock..sentinel`
 
 ### Breaking
 
@@ -28,7 +29,7 @@ Munged characters begin with a capital letter and end with an underscore:
 Words in multiword names end in `X`, but hyphens become `H`:
 - `▲` to `BlackXupHpointingXtriangleX_`
 
-Unnamed letters still use a hex code, but begin with `Ox`.
+Unnamed characters still use a hex code, but begin with `Ox`.
 (That's not a zero, because identifiers can't start with a digit.)
 
 Some of the ASCII short names have changed.
