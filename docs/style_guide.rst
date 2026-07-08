@@ -713,6 +713,36 @@ not just the fact that it's a call:
             * operator..mul
             / operator..truediv)
 
+Omit whitespace between tags and their arguments when not required,
+especially for one-argument tags.
+Newlines between tags and their arguments may be preferable to excessive line length
+or indentation levels.
+
+.. code-block:: Lissp
+
+   [##1](os..getenv 'FOO)                  ;Preferred.
+   [##1] (os..getenv 'FOO)                 ;OK. Meaningful groupings.
+   [## 1] (os..getenv ' FOO)               ;Bad. No reason to separate ' FOO.
+   [## 1](os..getenv 'FOO)                 ;Maybe OK. Meaningless whitespace grouping,
+                                           ; but the [] also implies one.
+
+   [## 1] sys..argv                        ;OK. 2-arg tag and all tokens separated.
+   [##1]sys..argv                          ;Error. Don't omit when required.
+   [##1] sys..argv                         ;Preferred. Meaningful groupings.
+
+   '.##H#munge|*|                          ;Preferred. Omit whitespace when not required.
+   ' .## H# munge |*|                      ;OK. All tokens separated, and not all 1-arg tags.
+   '.## H#munge |*|                        ;OK. Meaningful grouping showing the 2-arg tag.
+   ' .##H# munge|*|                        ;Bad. Meaningless groupings are hard to read.
+
+   @##classmethod                        _#;Preferred. Avoids excessive indentation,
+   (defun Foo.foo (cls)                    ; although it risks consuming a comment (hence _#).
+     <#;Again no whitespace here.
+     ;; Which aligns with the next line.
+     2)
+
+   @##classmethod(defun Foo.foo (cls) 2)   ;OK because it's short.
+
 Strings
 :::::::
 
