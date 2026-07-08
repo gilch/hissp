@@ -3852,7 +3852,7 @@ We want a macro to expand to the previous code.
 .. Lissp::
 
    #> (defmacro let-when (binding : :* body)
-   #..  `(let ,binding (when ,!##0 binding ,@body)))
+   #..  `(let ,binding (when ,(!#0 binding) ,@body)))
    >>> # defmacro
    ... __import__('builtins').setattr(
    ...   __import__('builtins').globals().get(
@@ -3867,6 +3867,7 @@ We want a macro to expand to the previous code.
    ...                 binding,
    ...                 (
    ...                   '__main__.._macro_.when',
+   ...                   # hissp.macros.._macro_._backapply
    ...                   __import__('operator').itemgetter(
    ...                     (0))(
    ...                     binding),
@@ -5426,8 +5427,8 @@ We can use this to implement "symbol macros":
    #..  (defmacro smacrolet (name expansion : :* body)
    #..    (H#macroexpand_all `(progn ,@body)
    #..                       : preprocess X#(if-else (_shadows? X name)
-   #..                                        `(lambda ,!##1 X ,@(map X#(attach (Sentinel) X)
-   #..                                                                [##2:] X))
+   #..                                        `(lambda ,(!#1 X) ,@(map X#(attach (Sentinel) X)
+   #..                                                                 [##2:] X))
    #..                                        X)
    #..                       postprocess X#(cond (eq X name) expansion
    #..                                           (isinstance X Sentinel) X.X
@@ -5461,6 +5462,7 @@ We can use this to implement "symbol macros":
    ...                                      (lambda :
    ...                                          (
    ...                                            'lambda',
+   ...                                            # hissp.macros.._macro_._backapply
    ...                                            __import__('operator').itemgetter(
    ...                                              (1))(
    ...                                              X),
@@ -5476,6 +5478,7 @@ We can use this to implement "symbol macros":
    ...                                                       _g4R7TTKM7__target)  [-1]
    ...                                                   )()
    ...                                               ),
+   ...                                               # hissp.macros.._macro_._backapply
    ...                                               (lambda _gR42M4RLN__table: (_gR42M4RLN__table[2:]))(
    ...                                                 X)),
    ...                                            )
@@ -5548,9 +5551,9 @@ Let's implement that as well.
 
    #> (defun _shadows? (form name)
    #..  (ands (H#is_node form)
-   #..        (eq !##0 form 'lambda)
+   #..        (eq (!#0 form) 'lambda)
    #..        (let-call (singles pairs)
-   #..                  (:* (H#compiler.parse_params !##1 form))
+   #..                  (:* (H#compiler.parse_params (!#1 form)))
    #..          (ors (contains singles name)
    #..               (contains (.keys pairs) name)))))
    >>> # defun
@@ -5566,6 +5569,7 @@ Let's implement that as well.
    ...                               form),
    ...                             (lambda :
    ...                                 eq(
+   ...                                   # hissp.macros.._macro_._backapply
    ...                                   __import__('operator').itemgetter(
    ...                                     (0))(
    ...                                     form),
@@ -5586,6 +5590,7 @@ Let's implement that as well.
    ...                                       ))
    ...                                 )(
    ...                                   *__import__('hissp').compiler.parse_params(
+   ...                                      # hissp.macros.._macro_._backapply
    ...                                      __import__('operator').itemgetter(
    ...                                        (1))(
    ...                                        form)))
@@ -5701,15 +5706,15 @@ We can check for exactly that, and rewrite it to a let expression.
    #..    (H#macroexpand_all
    #..     `(progn ,@body)
    #..     : preprocess X#(if-else (_shadows? X name)
-   #..                      `(lambda ,!##1 X ,@(map X#(attach (Sentinel) X)
-   #..                                              [##2:] X))
+   #..                      `(lambda ,(!#1 X) ,@(map X#(attach (Sentinel) X)
+   #..                                               [##2:] X))
    #..                      X)
    #..     postprocess X#(cond (eq X name) expansion
    #..                         (isinstance X Sentinel) X.X
    #..                         (eq (_root-name X) name) `(let ($#name ,expansion)
    #..                                                     ,(.format "{}.{}"
    #..                                                               '$#name
-   #..                                                               !##-1(.partition X ".")))
+   #..                                                               [##-1](.partition X ".")))
    #..                         :else X))))
    >>> # let
    ... (
@@ -5740,6 +5745,7 @@ We can check for exactly that, and rewrite it to a let expression.
    ...                                      (lambda :
    ...                                          (
    ...                                            'lambda',
+   ...                                            # hissp.macros.._macro_._backapply
    ...                                            __import__('operator').itemgetter(
    ...                                              (1))(
    ...                                              X),
@@ -5755,6 +5761,7 @@ We can check for exactly that, and rewrite it to a let expression.
    ...                                                       _g4R7TTKM7__target)  [-1]
    ...                                                   )()
    ...                                               ),
+   ...                                               # hissp.macros.._macro_._backapply
    ...                                               (lambda _gR42M4RLN__table: (_gR42M4RLN__table[2:]))(
    ...                                                 X)),
    ...                                            )
@@ -5795,8 +5802,8 @@ We can check for exactly that, and rewrite it to a let expression.
    ...                                               ),
    ...                                             ('{}.{}').format(
    ...                                               '_g6FEG5SPL__name',
-   ...                                               __import__('operator').itemgetter(
-   ...                                                 (-1))(
+   ...                                               # hissp.macros.._macro_._backapply
+   ...                                               (lambda _gABCDEFGH__table: (_gABCDEFGH__table[-1]))(
    ...                                                 X.partition(
    ...                                                   ('.')))),
    ...                                             )
@@ -5829,7 +5836,7 @@ This should work even for a chain of attributes.
    #> (defun _root-name (form)
    #..  my#(ands (H#is_symbol form)
    #..           match=(re..match '|(.+?\.||[^.]+)\.| form)
-   #..           !##1 my.match))
+   #..           (!#1 my.match)))
    >>> # defun
    ... # hissp.macros.._macro_.define
    ... __import__('builtins').globals().update(
@@ -5859,6 +5866,7 @@ This should work even for a chain of attributes.
    ...                                      )()
    ...                                  ),
    ...                                  (lambda :
+   ...                                      # hissp.macros.._macro_._backapply
    ...                                      __import__('operator').itemgetter(
    ...                                        (1))(
    ...                                        my.match)
@@ -5981,6 +5989,7 @@ I will again omit the docstring handling for simplicity.
    ...                         (
    ...                           'builtins..zip',
    ...                           list(
+   ...                             # hissp.macros.._macro_._backapply
    ...                             (lambda _gR42M4RLN__table: (_gR42M4RLN__table[::2]))(
    ...                               params)),
    ...                           (
@@ -5993,6 +6002,7 @@ I will again omit the docstring handling for simplicity.
    ...                                      X,
    ...                                      )
    ...                                ),
+   ...                                # hissp.macros.._macro_._backapply
    ...                                (lambda _gR42M4RLN__table: (_gR42M4RLN__table[1::2]))(
    ...                                  params)),
    ...                             '',
@@ -6047,6 +6057,7 @@ I will again omit the docstring handling for simplicity.
    ...                              ),
    ...                            )
    ...                      ),
+   ...                      # hissp.macros.._macro_._backapply
    ...                      (lambda _gR42M4RLN__table: (_gR42M4RLN__table[::2]))(
    ...                        params)),
    ...                   ),
@@ -6553,11 +6564,11 @@ There are various ways to check for errors if you want to be strict about it:
    ...                                    (
    ...                                     lambda _g2AAGVDSJ__data=# hissp.macros.._macro_.Dash_Gt_
    ...                                            # Dash_Gt_
+   ...                                            # hissp.macros.._macro_._backapply
    ...                                            __import__('operator').itemgetter(
    ...                                              (-1))(
    ...                                              list(
-   ...                                                _g2AAGVDSJ__data.keys()),
-   ...                                              ):
+   ...                                                _g2AAGVDSJ__data.keys())):
    ...                                        (
    ...                                          # hissp.macros.._macro_.Dash_Gt_
    ...                                          (
@@ -6628,29 +6639,29 @@ in addition to replicating Python's capabilities:
    ...                                                 *# hissp.macros.._macro_.let
    ...                                                  (
    ...                                                   lambda _g2AAGVDSJ__data=# hissp.macros.._macro_.Dash_Gt_
+   ...                                                          # hissp.macros.._macro_._backapply
    ...                                                          __import__('operator').itemgetter(
    ...                                                            (0))(
-   ...                                                            _g2AAGVDSJ__data,
-   ...                                                            ):
+   ...                                                            _g2AAGVDSJ__data):
    ...                                                      (
    ...                                                        *# hissp.macros.._macro_.let
    ...                                                         (
    ...                                                          lambda _g2AAGVDSJ__data=# hissp.macros.._macro_.Dash_Gt_
+   ...                                                                 # hissp.macros.._macro_._backapply
    ...                                                                 __import__('operator').itemgetter(
    ...                                                                   'cartesian')(
-   ...                                                                   _g2AAGVDSJ__data,
-   ...                                                                   ):
+   ...                                                                   _g2AAGVDSJ__data):
    ...                                                             (
    ...                                                               # hissp.macros.._macro_.Dash_Gt_
+   ...                                                               # hissp.macros.._macro_._backapply
    ...                                                               __import__('operator').itemgetter(
    ...                                                                 (0))(
-   ...                                                                 _g2AAGVDSJ__data,
-   ...                                                                 ),
+   ...                                                                 _g2AAGVDSJ__data),
    ...                                                               # hissp.macros.._macro_.Dash_Gt_
+   ...                                                               # hissp.macros.._macro_._backapply
    ...                                                               __import__('operator').itemgetter(
    ...                                                                 (1))(
-   ...                                                                 _g2AAGVDSJ__data,
-   ...                                                                 ),
+   ...                                                                 _g2AAGVDSJ__data),
    ...                                                               )
    ...                                                         )(),
    ...                                                        )

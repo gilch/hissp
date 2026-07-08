@@ -10,9 +10,27 @@ SPDX-License-Identifier: Apache-2.0
 ## [0.5.dev1]
 
 ### Add
-- `cxl#` alias for `contextlib`.
+- `cxl#` alias for `contextlib.`.
+- `:#` alias for `unittest.mock..sentinel`
+- `set[#` and `zap[#` no longer require `||` in a `doto`,
+  which is no longer recommended, but still works.
+  - Use a two-argument tag instead,
+    which results in a partial application taking a table.
 
 ### Breaking
+
+`[#`, `!#`, and, `@#` no longer require `&#` when used alone.
+
+`!#` now requires application.
+ - `!##1 X` becomes `(!#1 X)` or `[##1] X`.
+Extra args instead do extra lookups, returning a tuple.
+
+`:@##` is now an overload of `@#`,
+which accepts a kwarg instead.
+- `@##'foo(expr)` becomes `@#foo=(expr)`.
+- `:@##decorator (def` becomes `@##decorator (def`.
+- `@##spam(expr)` becomes `(@#spam (expr))`.
+- `@##'spam.eggs(expr)` becomes `(@#'spam.eggs (expr))` or `@#eggs=@#spam=(expr)`.
 
 Make `hissp._macro_` a class.
 (The compiler still accepts any namespace type.)
@@ -28,7 +46,7 @@ Munged characters begin with a capital letter and end with an underscore:
 Words in multiword names end in `X`, but hyphens become `H`:
 - `▲` to `BlackXupHpointingXtriangleX_`
 
-Unnamed letters still use a hex code, but begin with `Ox`.
+Unnamed characters still use a hex code, but begin with `Ox`.
 (That's not a zero, because identifiers can't start with a digit.)
 
 Some of the ASCII short names have changed.
