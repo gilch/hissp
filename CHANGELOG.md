@@ -19,6 +19,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ### Breaking
 
+`&#` is gone. Use `ft#partial` instead.
 `[#`, `!#`, and, `@#` no longer require `&#` when used alone.
 
 `!#` now requires application.

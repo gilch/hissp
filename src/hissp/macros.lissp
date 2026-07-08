@@ -1177,10 +1177,6 @@ See `hissp.macros`.
   "``chain#`` Abbreviation for `itertools.chain.from_iterable`."
   `(i#chain.from_iterable ,xss))
 
-(defmacro &\# (callable+args)
-  "``&#`` Abbreviation for `functools.partial`."
-  `(ft#partial ,@callable+args))
-
 (defmacro _backapply (a : :* args)
   (if-else args `(,|args[-1]| ,a ,@|args[:-1]|) a))
 
@@ -1244,8 +1240,7 @@ See `hissp.macros`.
   ;;    'B'
   ;;
   ;; See also: `operator.getitem`, `operator.itemgetter`,
-  ;; `[# <Lsqb_Hash_>`, `set! <setBang_>`, `&# <Et_Hash_>`,
-  ;; `@# <At_Hash_>`.
+  ;; `[# <Lsqb_Hash_>`, `set! <setBang_>`, `@# <At_Hash_>`.
   ;;
   `(_backapply (op#itemgetter ,@keys)))
 
@@ -1264,7 +1259,7 @@ See `hissp.macros`.
   ;;    ...    'bar',))
   ;;    'br'
   ;;
-  ;; Unary compatible with `-> <Dash_Gt_>` and `&# <Et_Hash_>`.
+  ;; Unary compatible with `-> <Dash_Gt_>`.
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -1354,7 +1349,7 @@ See `hissp.macros`.
   ;;    'builtin_function_or_method'
   ;;
   ;; See also: `getattr`, `operator.attrgetter`, `X# <XHash_>`,
-  ;; `\!# <Bang_Hash_>`, `&# <Et_Hash_>`.
+  ;; `\!# <Bang_Hash_>`.
   ;;
   ;; ***
   ;;
@@ -2679,8 +2674,7 @@ See `hissp.macros`.
   ;; There are no bundled tags for a quinary, senary, etc. but
   ;; the ``en#X#`` variadic or a normal lambda form can be used instead.
   ;;
-  ;; See also:
-  ;; `X# <XHash_>`, `&# <Et_Hash_>`, `/# <Fsol_Hash_>`, `@ <At_>`.
+  ;; See also: `X# <XHash_>`, `/# <Fsol_Hash_>`, `@ <At_>`.
   ;;
   (if-else (ands (op#is_ str (type f))
                  (.startswith f "."))
