@@ -6096,7 +6096,7 @@ Let's try it!
 
 .. Lissp::
 
-   #> (define r4 &#(round : ndigits 4)) ; Just a partial now.
+   #> (define r4 (ft#partial round : ndigits 4))
    >>> # define
    ... __import__('builtins').globals().update(
    ...   r4=__import__('functools').partial(
