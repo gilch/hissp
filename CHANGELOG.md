@@ -19,6 +19,9 @@ SPDX-License-Identifier: Apache-2.0
 
 ### Breaking
 
+Remove useless `hissp..prelude#` tag.
+Use `(hissp..prelude)` instead.
+
 `&#` is now forked compose,
 which can still be used for partial application.
 Quote arguments where required or use `ft#partial` instead.

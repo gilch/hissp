@@ -92,22 +92,6 @@ with __import__("contextlib").suppress(ImportError):
 VERSION = "0.5.dev1"  # RELEASE
 
 
-def prelude(env):
-    """Lissp prelude shorthand `tag`.
-
-    Usage: ``hissp..prelude#env``, which expands to
-
-    .. code-block:: Lissp
-
-       (hissp.macros.._macro_.prelude env)
-
-    (A ``||`` or ``:`` argument makes `exec` default to the global env.)
-
-    See `hissp.macros._macro_.prelude`.
-    """
-    return "hissp.macros.._macro_.prelude", env
-
-
 def alias(abbreviation, qualifier):
     """Lissp alias shorthand `tag`.
 

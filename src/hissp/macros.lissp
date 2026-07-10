@@ -3046,7 +3046,7 @@ See `hissp.macros`.
   ;; or similarly constrained environments (e.g., embedded,
   ;; `readerless mode`). There, the first form should be
   ;; ``(hissp..prelude)``, which is also implied in ``$ lissp -c``
-  ;; commands. (See the `hissp.prelude` shorthand for Lissp.)
+  ;; commands.
   ;;
   ;; Larger projects with access to functional and macro libraries need not
   ;; use this prelude at all.
