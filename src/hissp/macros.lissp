@@ -1292,8 +1292,11 @@ See `hissp.macros`.
 
 (defmacro @\# (: decoration_or_attr None  definition None  :/ :?  :** attr)
   <#;Overloads:
+  ;;
   ;; * ``@#`` 'attribute tag' gets attribute.
   ;; * ``@##`` 'decorator' applies decoration to definition and reassigns.
+  ;;
+  ;; ----
   ;;
   ;; Mnemonic: @tribute.
   ;;
@@ -1351,7 +1354,7 @@ See `hissp.macros`.
   ;; See also: `getattr`, `operator.attrgetter`, `X# <XHash_>`,
   ;; `\!# <Bang_Hash_>`.
   ;;
-  ;; ***
+  ;; ----
   ;;
   ;; Definition form must assign an attribute identified by its first
   ;; arg. Expands to a `define`, meaning decorators can stack.
@@ -1525,7 +1528,7 @@ See `hissp.macros`.
   ;;    >>> spam
   ;;    ['a', '0', 'b', 'ab']
   ;;
-  ;; `set[##` form returns a partial setter function which takes a table:
+  ;; ``set[##`` form returns a partial setter function which takes a table:
   ;;
   ;; .. code-block:: REPL
   ;;
@@ -1591,7 +1594,7 @@ See `hissp.macros`.
   ;;    >>> spam
   ;;    ['a', 'b', 'X', 'Y', 'c', 'd']
   ;;
-  ;; `zap[##` returns a partial function taking a table:
+  ;; ``zap[##`` returns a partial function taking a table:
   ;;
   ;; .. code-block:: REPL
   ;;

@@ -263,7 +263,7 @@ hissp..prelude#:
     (tag "body onload='brython()'" ; Browser Python: https://brython.info
      (script
        (define getE X#(.getElementById browser..document X))
-       (define getf@v X#(float @##'value (getE X)))
+       (define getf@v X#(float @#value=(getE X)))
        (define set@v XY#(setattr (getE Y) 'value X))
        (attach browser..window
          : Celsius O#(-> (getf@v 'Celsius) (X#|X*1.8+32|) (set@v 'Fahrenheit))

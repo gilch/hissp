@@ -737,7 +737,7 @@ or indentation levels.
 
    @##classmethod                        _#;Preferred. Avoids excessive indentation,
    (defun Foo.foo (cls)                    ; although it risks consuming a comment (hence _#).
-     <#;Again no whitespace here.
+     <#;Again, no whitespace here.
      ;; Which aligns with the next line.
      2)
 
