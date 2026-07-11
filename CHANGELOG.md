@@ -17,6 +17,7 @@ SPDX-License-Identifier: Apache-2.0
   - Use a two-argument tag instead,
     which results in a partial application taking a table.
 - `hissp.apropos` to scan for imported symbols.
+- `Q##` two-argument overload.
 
 ### Breaking
 
