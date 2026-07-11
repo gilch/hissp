@@ -2530,7 +2530,7 @@ See `hissp.macros`.
       (-<>> (.format "b'{}'"))
       ast..literal_eval))
 
-(defmacro Q\# Q
+(defmacro Q\# (numerator : denominator None)
   <#;``Q#`` 'Rational' Exact fraction tag.
   ;;
   ;; Abbreviation for `fractions.Fraction`, with a `demunge` for symbols.
@@ -2544,9 +2544,31 @@ See `hissp.macros`.
   ;;    ... __import__('pickle').loads(b'cfractions\nFraction\n(V2/3\ntR.')
   ;;    Fraction(2, 3)
   ;;
-  ;; See also: `M# <MHash_>`.
+  ;;    #> Q#.2 ; Be careful converting binary float literals.
+  ;;    >>> # Fraction(3602879701896397, 18014398509481984)
+  ;;    ... __import__('pickle').loads(b'cfractions\nFraction\n(V3602879701896397/18014398509481984\ntR.')
+  ;;    Fraction(3602879701896397, 18014398509481984)
   ;;
-  (fractions..Fraction (H#demunge Q)))
+  ;;    #> Q#|.2| ; Fragment, not a float literal.
+  ;;    >>> # Fraction(1, 5)
+  ;;    ... __import__('pickle').loads(b'cfractions\nFraction\n(V1/5\ntR.')
+  ;;    Fraction(1, 5)
+  ;;
+  ;;    #> Q##1 2 ; Note ##.
+  ;;    >>> # Fraction(1, 2)
+  ;;    ... __import__('pickle').loads(b'cfractions\nFraction\n(V1/2\ntR.')
+  ;;    Fraction(1, 2)
+  ;;
+  ;;    #> Q##Q#1/4 0b10 ; Other numbers.Rational types work.
+  ;;    >>> # Fraction(1, 8)
+  ;;    ... __import__('pickle').loads(b'cfractions\nFraction\n(V1/8\ntR.')
+  ;;    Fraction(1, 8)
+  ;;
+  ;; See also: `M# <MHash_>`, `numbers.Rational`.
+  ;;
+  (fractions..Fraction ((if-else (isinstance numerator str) H#demunge X#X)
+                        numerator)
+                       denominator))
 
 (defmacro M\# M
   <#;``M#`` 'Decimal' Exact decimal tag.
