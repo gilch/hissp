@@ -245,7 +245,7 @@ which demonstrates a number of language features.
 Run as the main script or enter it into the Lissp REPL.
 Requires [Bottle.](https://bottlepy.org/docs/dev/)
 ```Racket
-hissp..prelude#:
+(hissp..prelude)
 
 (define enjoin en#X#(.join "" (map str X)))
 
@@ -263,7 +263,7 @@ hissp..prelude#:
     (tag "body onload='brython()'" ; Browser Python: https://brython.info
      (script
        (define getE X#(.getElementById browser..document X))
-       (define getf@v X#(float @##'value (getE X)))
+       (define getf@v X#(float @#value=(getE X)))
        (define set@v XY#(setattr (getE Y) 'value X))
        (attach browser..window
          : Celsius O#(-> (getf@v 'Celsius) (X#|X*1.8+32|) (set@v 'Fahrenheit))

@@ -59,7 +59,7 @@ jobs:
         # Currently turns off some in libraries due to Python 3.10 upgrade.
         # These are not due to issues in Hissp itself, which has no dependencies.
         # TODO: try upgrading libraries affected by deprecations.
-        PYTHONWARNINGS: error,default:SelectableGroups:DeprecationWarning:hypothesis.entry_points,default:A private pytest:DeprecationWarning:sybil.integration.pytest
+        PYTHONWARNINGS: error,default:SelectableGroups:DeprecationWarning:hypothesis.entry_points,default:A private pytest:DeprecationWarning:sybil.integration.pytest,default:pytest.collect.
       run: |
         pytest -p no:cacheprovider -v --cov=hissp --cov-report=xml --doctest-plus --doctest-glob *.md src/hissp/*.lissp tests/ docs/ $(python -c "import hissp; print(hissp.__path__[0])")
     - name: Codecov

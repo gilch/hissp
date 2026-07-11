@@ -16,8 +16,12 @@ SPDX-License-Identifier: Apache-2.0
   which is no longer recommended, but still works.
   - Use a two-argument tag instead,
     which results in a partial application taking a table.
+- `hissp.apropos` to scan for imported symbols.
 
 ### Breaking
+
+Remove useless `hissp..prelude#` and `hissp..alias#` tags.
+Use `(hissp..prelude)` and `(hissp..alias`- instead.
 
 `&#` is now forked compose,
 which can still be used for partial application.

@@ -228,18 +228,18 @@ Fire up the Lissp REPL in a terminal,
 or in your editor if it does that,
 in the same directory as your Lissp file.
 
-Add the `prelude<hissp.prelude>` shorthand to the top of the file:
+Add the `prelude` to the top of the file:
 
 .. code-block:: Lissp
 
-   hissp..prelude#:
+   (hissp..prelude)
 
 And push it to the REPL as well:
 
 .. code-block:: REPL
 
-   #> hissp..prelude#:
-   >>> # hissp.macros.._macro_.prelude
+   #> (hissp..prelude)
+   >>> # hissp..prelude
    ... __import__('builtins').exec(
    ...   ('from itertools import *;from operator import *\n'
    ...    'def engarde(xs,h,f,/,*a,**kw):\n'
@@ -256,20 +256,23 @@ And push it to the REPL as well:
    ...    '   except s.X as e:v=e\n'
    ...    '  return k\n'
    ...    "class _macro_(*engarde(ModuleNotFoundError,lambda _:'',\n"
-   ...    "lambda:[__import__('hissp')._macro_])):0\n"))
+   ...    "lambda:[__import__('hissp')._macro_])):0\n"),
+   ...   __import__('builtins').globals())
 
 .. caution::
 
-   The ``:`` directs it to dump into the module's global namespace.
+   The prelude dumps into the module's global namespace by default.
    The `prelude<hissp.macros._macro_.prelude>`
    macro overwrites your ``_macro_`` namespace (if any) with a new one,
-   inheriting from of the bundled one if available.
+   inheriting from the bundled one if available.
    Any references you've defined in there will be lost.
    In Lissp files, the prelude is meant to be used before any definitions,
    when it is used at all.
    Likewise, in the REPL, enter it first, or be prepared to re-enter your definitions.
    The REPL already comes with the bundled macros loaded,
    but not the en- group or imports.
+   However, `-c` implies the prelude,
+   so you can start the REPL with the prelude from the command line: ``lissp -ic ""``.
 
 .. sidebar::
 
@@ -2133,7 +2136,7 @@ Let's review. The code you need to make the version we have so far is:
 
 .. code-block:: Lissp
 
-   hissp..prelude#:
+   (hissp..prelude)
 
    (defmacro L (: :* expr)
      `(lambda ,(map (lambda i (.format "X{}" i))
