@@ -67,6 +67,8 @@ as well as the `hissp.macros._macro_` namespace, making all the bundled
 `macros` available with the shorter ``hissp.`` `qualifier`.
 """
 
+import typing
+
 from hissp.compiler import (
     Compiler,
     evaluate,
@@ -137,3 +139,59 @@ def subrepl(module):
             ,("hissp..interact", ("builtins..vars", 'module',),)
             ,('print',('quote','back in',),'__name__',),),),)
     )  # fmt: skip
+
+
+def apropos(term: str, startswith: str = "") -> typing.Iterator[str]:
+    """
+    Scans `dir` of all imported modules and their classes for ``term``.
+
+    >>> 'hissp..apropos' in apropos('apropos')
+    True
+
+    The resulting symbols are qualified in Hissp's import format,
+    with modules names ending in a period.
+
+    Get help for a symbol:
+
+    >>> help(next(apropos('apropos')))
+    Help on function apropos in hissp.:
+    <BLANKLINE>
+    hissp..apropos = apropos(term: str, startswith: str = '') -> Iterator[str]
+        Scans `dir` of all imported modules and their classes for ``term``.
+        ...
+
+    Print symbols:
+
+    >>> for s in apropos(munge('*'), 'hissp.'): print(demunge(s))
+    hissp.macros.._macro_.any*map
+    hissp.macros.._macro_.let*call
+    hissp.macros.._macro_.throw*
+    hissp.._macro_.any*map
+    hissp.._macro_.let*call
+    hissp.._macro_.throw*
+
+    List symbols:
+
+    >>> [*apropos('Star_', 'hissp.._')]
+    ['hissp.._macro_.anyStar_map', 'hissp.._macro_.letStar_call', 'hissp.._macro_.throwStar_']
+
+    Modules themselves are included:
+
+    >>> 'hissp.' in apropos('')
+    True
+    """
+    import sys
+
+    def _apropos():
+        for qualname, module in [*sys.modules.items()]:
+            yield f"{qualname}."
+            for name in dir(module):
+                yield f"{qualname}..{name}"
+                if isinstance(cls := getattr(sys.modules[qualname], name, None), type):
+                    for attribute in dir(cls):
+                        yield f"{qualname}..{name}.{attribute}"
+
+    return (s for s in _apropos() if s.startswith(startswith) and term in s)
+
+
+del typing
