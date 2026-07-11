@@ -1126,7 +1126,7 @@ See `hissp.macros`.
   ;; The bundled `op# <opHash_>` and `i# <iHash_>` tags are aliases
   ;; for `operator` and `itertools`, respectively.
   ;;
-  ;; See also: `prelude`, `attach`, `hissp.alias`.
+  ;; See also: `prelude`, `attach`.
   ;;
   ;;
   `(defmacro ,(.format "{}{}" (.replace abbreviation '. '\.) '#)

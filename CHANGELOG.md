@@ -19,8 +19,8 @@ SPDX-License-Identifier: Apache-2.0
 
 ### Breaking
 
-Remove useless `hissp..prelude#` tag.
-Use `(hissp..prelude)` instead.
+Remove useless `hissp..prelude#` and `hissp..alias#` tags.
+Use `(hissp..prelude)` and `(hissp..alias`- instead.
 
 `&#` is now forked compose,
 which can still be used for partial application.

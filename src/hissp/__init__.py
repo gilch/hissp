@@ -92,21 +92,6 @@ with __import__("contextlib").suppress(ImportError):
 VERSION = "0.5.dev1"  # RELEASE
 
 
-def alias(abbreviation, qualifier):
-    """Lissp alias shorthand `tag`.
-
-    Usage: ``hissp..alias## abbreviation qualifier``,
-    which expands to
-
-    .. code-block:: Lissp
-
-       (hissp.macros.._macro_.alias abbreviation qualifier)
-
-    See `hissp.macros._macro_.alias`.
-    """
-    return "hissp.macros.._macro_.alias", abbreviation, qualifier
-
-
 def refresh(module_name):
     """`REPL` convenience `tag` to recompile and reload a module.
 
