@@ -597,18 +597,19 @@ def is_string_literal(form: object) -> TypeGuard[str]:
     return False
 
 
-def is_qualifiable(symbol: str) -> bool:
-    """Determines if symbol can be qualified with a module.
+def is_qualifiable(form: object) -> TypeGuard[str]:
+    """Determines if `form` is a symbol that can be qualified.
 
     Can't be ``quote``, ``__import__``, any Python reserved word, a
     prefix auto-`gensym`, fully qualified, method syntax, or a `module
     handle`; and must be a valid identifier or attribute identifier.
     """
     return (
-        symbol not in {"quote", "__import__"}
-        and not _iskeyword(symbol)
-        and not re.match(r"_g[A-Z2-7]+__", symbol)
-        and all(map(str.isidentifier, symbol.split(".")))
+        C.is_symbol(form)
+        and form not in {"quote", "__import__"}
+        and not _iskeyword(form)
+        and not re.match(r"_g[A-Z2-7]+__", form)
+        and all(map(str.isidentifier, form.split(".")))
     )
 
 

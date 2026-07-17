@@ -711,6 +711,40 @@ def is_node(form: object) -> TypeGuard[tuple]:
     return type(form) is tuple and form != ()
 
 
+def dequote(form: object) -> tuple:
+    """Tries to destructure as a quote special form.
+
+    Returns a single containing the quoted element if valid,
+    else ().
+    """
+    match form:
+        case ["quote", x] if type(form) is tuple:
+            return (x,)
+    return ()
+
+
+def delambda(form: object) -> dict:
+    """Try to destructure as a lambda special form.
+
+    Returns a dict of params, singles, pairs, and body, if valid,
+    else {}. Does not validate params besides that they're Iterable.
+    (Constructing the pairs dict will fail with a TypeError if keys
+    aren't hashable, but those should be type str in a lambda form.)
+    """
+    match form:
+        case ["lambda", params, *body] if type(form) is tuple and isinstance(
+            params, Iterable
+        ):
+            singles, pairs = parse_params(params)
+            return {
+                "params": params,
+                "singles": singles,
+                "pairs": pairs,
+                "body": body,
+            }
+    return {}
+
+
 def is_symbol(form: object) -> TypeGuard[str]:
     """Determines if form is a `symbol`.
 
@@ -863,7 +897,7 @@ def _pexpand(params: Iterable, mx_a: partial) -> Iterable:
     return *singles, ":", *chain.from_iterable(pairs.items())
 
 
-def parse_params(params) -> tuple[tuple, Env]:
+def parse_params(params: Iterable) -> tuple[tuple, Env]:
     """Parses a lambda form's `params` into a tuple of singles and a dict of pairs."""
     iparams = iter(params)
     singles = tuple(takewhile(lambda x: x != ":", iparams))
