@@ -723,6 +723,28 @@ def dequote(form: object) -> tuple:
     return ()
 
 
+def delambda(form: object) -> dict:
+    """Try to destructure as a lambda special form.
+
+    Returns a dict of params, singles, pairs, and body, if valid,
+    else {}. Does not validate params besides that they're Iterable.
+    (Constructing the pairs dict will fail with a TypeError if keys
+    aren't hashable, but those should be type str in a lambda form.)
+    """
+    match form:
+        case ["lambda", params, *body] if type(form) is tuple and isinstance(
+            params, Iterable
+        ):
+            singles, pairs = parse_params(params)
+            return {
+                "params": params,
+                "singles": singles,
+                "pairs": pairs,
+                "body": body,
+            }
+    return {}
+
+
 def is_symbol(form: object) -> TypeGuard[str]:
     """Determines if form is a `symbol`.
 

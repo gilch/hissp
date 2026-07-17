@@ -5553,67 +5553,51 @@ Let's implement that as well.
 .. Lissp::
 
    #> (defun _shadows? (form name)
-   #..  (ands (H#is_node form)
-   #..        (eq (!#0 form) 'lambda)
-   #..        (let-call (singles pairs)
-   #..                  (:* (H#compiler.parse_params (!#1 form)))
-   #..          (ors (contains singles name)
-   #..               (contains (.keys pairs) name)))))
+   #..  (let-call (: singles ()  pairs (dict)  :** _kwargs)
+   #..            (:** (H#compiler.delambda form))
+   #..    (ors (contains singles name)
+   #..         (contains (.keys pairs) name))))
    >>> # defun
    ... # hissp.macros.._macro_.define
    ... __import__('builtins').globals().update(
    ...   _shadowsEh_=# hissp.macros.._macro_.fun
    ...               # hissp.macros.._macro_.let
    ...               (
-   ...                lambda _gJGOZQ46N__lambda=(lambda form, name:
-   ...                           # ands
-   ...                           (lambda x0, x1, x2: x0 and x1()and x2())(
-   ...                             __import__('hissp').is_node(
-   ...                               form),
-   ...                             (lambda :
-   ...                                 eq(
-   ...                                   # hissp.macros.._macro_._backapply
-   ...                                   __import__('operator').itemgetter(
-   ...                                     (0))(
-   ...                                     form),
-   ...                                   'lambda')
-   ...                             ),
-   ...                             (lambda :
-   ...                                 # let___call
-   ...                                 (lambda singles, pairs:
-   ...                                     # ors
-   ...                                     (lambda x0, x1: x0 or x1())(
-   ...                                       contains(
-   ...                                         singles,
-   ...                                         name),
-   ...                                       (lambda :
-   ...                                           contains(
-   ...                                             pairs.keys(),
-   ...                                             name)
-   ...                                       ))
-   ...                                 )(
-   ...                                   *__import__('hissp').compiler.parse_params(
-   ...                                      # hissp.macros.._macro_._backapply
-   ...                                      __import__('operator').itemgetter(
-   ...                                        (1))(
-   ...                                        form)))
-   ...                             ))
+   ...                lambda _gT47WM5HY__lambda=(lambda form, name:
+   ...                           # let___call
+   ...                           (
+   ...                            lambda singles=(),
+   ...                                   pairs=dict(),
+   ...                                   **_kwargs:
+   ...                               # ors
+   ...                               (lambda x0, x1: x0 or x1())(
+   ...                                 contains(
+   ...                                   singles,
+   ...                                   name),
+   ...                                 (lambda :
+   ...                                     contains(
+   ...                                       pairs.keys(),
+   ...                                       name)
+   ...                                 ))
+   ...                           )(
+   ...                             **__import__('hissp').compiler.delambda(
+   ...                                 form))
    ...                       ):
    ...                  ((
    ...                     *__import__('itertools').starmap(
-   ...                        _gJGOZQ46N__lambda.__setattr__,
+   ...                        _gT47WM5HY__lambda.__setattr__,
    ...                        __import__('builtins').dict(
    ...                          __name__='_shadowsEh_',
    ...                          __qualname__='_shadowsEh_',
-   ...                          __code__=_gJGOZQ46N__lambda.__code__.replace(
+   ...                          __code__=_gT47WM5HY__lambda.__code__.replace(
    ...                                     co_name='_shadowsEh_')).items()),
    ...                     ),
-   ...                   _gJGOZQ46N__lambda)  [-1]
+   ...                   _gT47WM5HY__lambda)  [-1]
    ...               )())
 
-Check if it's a node, so we can safely check if it's a lambda.
-If so, check the parameter names.
-`parse_params` makes it a little easier to get those.
+
+`delambda` makes it a little easier to get the parameter names,
+and just returns an empty dict if it's not a lambda form.
 This function uses metaprogramming helpers from the ``hissp`` package.
 Importing anything from ``hissp``
 at run time violates the :term:`standalone property`,
