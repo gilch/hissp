@@ -1048,40 +1048,29 @@ See `hissp.macros`.
   ;;    ...   # hissp.macros.._macro_.fun
   ;;    ...   # hissp.macros.._macro_.let
   ;;    ...   (
-  ;;    ...    lambda _gQGGKB6VA__lambda=(lambda attr, /, *args, **kwargs:
-  ;;    ...               # hissp.macros.._macro_.if___else
-  ;;    ...               (lambda b, c, a: c()if b else a())(
-  ;;    ...                 (
-  ;;    ...                   not(
-  ;;    ...                     args)).__and__(
-  ;;    ...                   not(
-  ;;    ...                     kwargs)),
-  ;;    ...                 (lambda :
-  ;;    ...                     ('{}.{}').format(
-  ;;    ...                       'hissp.',
-  ;;    ...                       attr)
-  ;;    ...                 ),
+  ;;    ...    lambda _g5W6NQPRW__lambda=(lambda attr, /, *args, **kwargs:
+  ;;    ...               __import__('hissp.macros',fromlist='*')._alias(
   ;;    ...                 (lambda :
   ;;    ...                     __import__('builtins').getattr(
   ;;    ...                       __import__('hissp')._macro_,
-  ;;    ...                       ('{}{}').format(
-  ;;    ...                         attr,
-  ;;    ...                         'Hash_'))(
-  ;;    ...                       *args,
-  ;;    ...                       **kwargs)
-  ;;    ...                 ))
+  ;;    ...                       f'{attr}Hash_')
+  ;;    ...                 ),
+  ;;    ...                 'hissp.',
+  ;;    ...                 attr,
+  ;;    ...                 *args,
+  ;;    ...                 **kwargs)
   ;;    ...           ):
   ;;    ...      ((
   ;;    ...         *__import__('itertools').starmap(
-  ;;    ...            _gQGGKB6VA__lambda.__setattr__,
+  ;;    ...            _g5W6NQPRW__lambda.__setattr__,
   ;;    ...            __import__('builtins').dict(
   ;;    ...              __doc__='Aliases ``hissp.`` as ``H#``.',
   ;;    ...              __name__='HHash_',
   ;;    ...              __qualname__='_macro_.HHash_',
-  ;;    ...              __code__=_gQGGKB6VA__lambda.__code__.replace(
+  ;;    ...              __code__=_g5W6NQPRW__lambda.__code__.replace(
   ;;    ...                         co_name='HHash_')).items()),
   ;;    ...         ),
-  ;;    ...       _gQGGKB6VA__lambda)  [-1]
+  ;;    ...       _g5W6NQPRW__lambda)  [-1]
   ;;    ...   )())
   ;;
   ;;    #> 'H#munge ; One-arg form of new tag prepends qualifier.
@@ -1102,6 +1091,29 @@ See `hissp.macros`.
   ;;    ... (lambda a, b: b)(
   ;;    ...   *('AB'))
   ;;    'B'
+  ;;
+  ;;    #>  H#(% 'qualified (% 'not 'recursive) ; Qualifies qualifiable 'symbol keys.
+  ;;    #..      'foo..bar 'baz ; Already qualified. No effect.
+  ;;    #..      operator..add "quoted symbols only"
+  ;;    #..      '7 '8 ; quoting other things is OK.
+  ;;    #..      (|| 'identity-form) "doesn't count")
+  ;;    >>> # Pcent_
+  ;;    ... (lambda x0, x1, x2, x3, x4, x5, x6, x7, x8, x9: {x0:x1,x2:x3,x4:x5,x6:x7,x8:x9})(
+  ;;    ...   'hissp..qualified',
+  ;;    ...   # Pcent_
+  ;;    ...   (lambda x0, x1: {x0:x1})(
+  ;;    ...     'not',
+  ;;    ...     'recursive'),
+  ;;    ...   'foo..bar',
+  ;;    ...   'baz',
+  ;;    ...   __import__('operator').add,
+  ;;    ...   ('quoted symbols only'),
+  ;;    ...   (7),
+  ;;    ...   (8),
+  ;;    ...   (
+  ;;    ...     'identity___form'),
+  ;;    ...   ("doesn't count"))
+  ;;    {'hissp..qualified': {'not': 'recursive'}, 'foo..bar': 'baz', <built-in function add>: 'quoted symbols only', 7: 8, 'identity___form': "doesn't count"}
   ;;
   ;;    #> (H#b\#"a b# at compile time") ; Macro form.
   ;;    >>> # hissp..bHash_
@@ -1132,11 +1144,26 @@ See `hissp.macros`.
   `(defmacro ,(.format "{}{}" (.replace abbreviation '. '\.) '#)
              (,'attr :/ : :* ,'args  :** ,'kwargs)
      ',(.format "Aliases ``{}`` as ``{}#``." qualifier abbreviation)
-     (if-else (.__and__ (|| (not ,'args))
-                        (not ,'kwargs))
-       (.format "{}.{}" ',qualifier ,'attr)
-       ((getattr ,|qualifier+"._macro_"| (.format "{}{}" ,'attr ','#))
-        : :* ,'args  :** ,'kwargs))))
+       (_alias (lambda : (getattr ,|qualifier+"._macro_"| ,(.format "f'{{attr}}{}'" '#)))
+               ',qualifier
+               ,'attr
+               : :* ,'args  :** ,'kwargs)))
+
+(defun _alias (tag qualifier attr :/ : :* args  :** kwargs)
+  (if-else |args or kwargs|
+    ((tag) : :* args  :** kwargs)
+    (if-else (hissp..is_node attr)
+      `(,|attr[0]|
+        ,@(itertools..chain.from_iterable
+           (zip (map (lambda (x : d hissp.compiler..dequote  q hissp.reader..is_qualifiable)
+                       (if-else |d(x) and q(x[1])|
+                         `',(.format "{}.{}" qualifier |x[1]|)
+                         x))
+                     |attr[1::2]|)
+                |attr[2::2]|
+                : strict True)))
+      (.format "{}.{}" qualifier attr))))
+
 
 ;; Long-named standard-library modules commonly used in Python code.
 (alias col collections.)

@@ -711,6 +711,18 @@ def is_node(form: object) -> TypeGuard[tuple]:
     return type(form) is tuple and form != ()
 
 
+def dequote(form: object) -> tuple:
+    """Tries to destructure as a quote special form.
+
+    Returns a single containing the quoted element if valid,
+    else ().
+    """
+    match form:
+        case ["quote", x] if type(form) is tuple:
+            return (x,)
+    return ()
+
+
 def is_symbol(form: object) -> TypeGuard[str]:
     """Determines if form is a `symbol`.
 
@@ -863,7 +875,7 @@ def _pexpand(params: Iterable, mx_a: partial) -> Iterable:
     return *singles, ":", *chain.from_iterable(pairs.items())
 
 
-def parse_params(params) -> tuple[tuple, Env]:
+def parse_params(params: Iterable) -> tuple[tuple, Env]:
     """Parses a lambda form's `params` into a tuple of singles and a dict of pairs."""
     iparams = iter(params)
     singles = tuple(takewhile(lambda x: x != ":", iparams))
