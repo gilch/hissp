@@ -470,32 +470,27 @@ See `hissp.macros`.
                 `(operator..contains (globals) ',attr)))
      (define ,qualname ,value)))
 
-(defmacro deftypeonce (qualname : bases ()  :* once_decorators)
+(defmacro deftypeonce (qualname : :* bases)
   'hissp.reader..Comment.contents#
   ;; Defines a `type` (`class`), unless it exists.
   ;;
   ;; Add class attributes afterward using `define` or `defun`, and class
-  ;; decorators above with `@## <At_Hash_>` or afterward
-  ;; using `zap@ <zapAt_>`. These run again on module reload, updating
-  ;; the existing class object, which can affect the behavior its
-  ;; instances defined before the reload.
+  ;; decorators above with `@## <At_Hash_>` or afterward using `zap@ <zapAt_>`.
+  ;; These run again on module reload, updating the existing class object,
+  ;; which can affect the behavior its instances defined before the reload.
   ;;
-  ;; The ``once_decorators`` apply before any external ones, in the
-  ;; order written (first applies first), unless the type exists (not
-  ;; reapplied on reloads). Beware that type attributes defined
-  ;; afterward will not be available for the ``once_decorators`` to
-  ;; operate upon. A decorator can add attributes for subsequent
-  ;; decorators to operate upon, however, and a decorator may be a
-  ;; lambda defined in line. It is possible to add arbitrary attributes
-  ;; this way, but remember that ``once_decorators`` don't run again on
-  ;; reloads, so changes here cannot simply be reloaded with the module
-  ;; the way attributes defined afterward can.
+  ;; Improperly written decorators may not be idempotent on reload.
+  ;; You can put ``zap@`` in a `when` which checks if the decorator has already
+  ;; been applied to avoid applying it again on reload.
+  ;;
+  ;; Or You can avoid reloading a class decorator by putting ``zap@`` in a
+  ;; `defonce` form. The resulting value is unimportant; it's the presence of
+  ;; the key in the module namespace that prevents `defonce` from running the
+  ;; ``zap@`` again on reload.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (deftypeonce Point2D (tuple)
-  ;;    #..  ;; Example of setting an attr with an internal decorator.
-  ;;    #..  X#(attach X : __doc__ "Simple ordered pair."))
+  ;;    #> (deftypeonce Point2D tuple)
   ;;    >>> # deftypeonce
   ;;    ... # hissp.macros.._macro_.defonce
   ;;    ... # hissp.macros.._macro_.unless
@@ -506,28 +501,13 @@ See `hissp.macros`.
   ;;    ...   (lambda :
   ;;    ...       # hissp.macros.._macro_.define
   ;;    ...       __import__('builtins').globals().update(
-  ;;    ...         Point2D=(lambda X:
-  ;;    ...                     # attach
-  ;;    ...                     # hissp.macros.._macro_.let
-  ;;    ...                     (lambda _gC6Z2ODBH__target=X:
-  ;;    ...                        (__import__('builtins').setattr(
-  ;;    ...                           _gC6Z2ODBH__target,
-  ;;    ...                           '__doc__',
-  ;;    ...                           ('Simple ordered pair.')),
-  ;;    ...                         _gC6Z2ODBH__target)  [-1]
-  ;;    ...                     )()
-  ;;    ...                 )(
-  ;;    ...                   __import__('builtins').type(
-  ;;    ...                     'Point2D',
-  ;;    ...                     (
-  ;;    ...                       tuple,
-  ;;    ...                       ),
-  ;;    ...                     {})))
+  ;;    ...         Point2D=__import__('builtins').type(
+  ;;    ...                   'Point2D',
+  ;;    ...                   (
+  ;;    ...                     tuple,
+  ;;    ...                     ),
+  ;;    ...                   {}))
   ;;    ...   ))
-  ;;
-  ;;    #> Point2D.__doc__
-  ;;    >>> Point2D.__doc__
-  ;;    'Simple ordered pair.'
   ;;
   ;;    #> (define Point2D.__doc__
   ;;    #..  "Attributes can also be defined afterwards.")
@@ -543,7 +523,6 @@ See `hissp.macros`.
   ;;
   ;;    #> (defun Point2D.__new__ (cls x y)
   ;;    #..  (.__new__ tuple cls `(,x ,y)))
-  ;;    FULL COMPILATION:
   ;;    >>> # defun
   ;;    ... # hissp.macros.._macro_.define
   ;;    ... __import__('builtins').setattr(
@@ -572,6 +551,20 @@ See `hissp.macros`.
   ;;    ...       _gHDCRUAXN__lambda)  [-1]
   ;;    ...   )())
   ;;
+  ;;    #> (set@ a-point (Point2D 1 2))
+  ;;    >>> # setAt_
+  ;;    ... # hissp.macros.._macro_.let
+  ;;    ... (
+  ;;    ...  lambda _g25XHX4Y4__value=Point2D(
+  ;;    ...           (1),
+  ;;    ...           (2)):
+  ;;    ...    (# hissp.macros.._macro_.define
+  ;;    ...     __import__('builtins').globals().update(
+  ;;    ...       a___point=_g25XHX4Y4__value),
+  ;;    ...     _g25XHX4Y4__value)  [-1]
+  ;;    ... )()
+  ;;    (1, 2)
+  ;;
   ;;    #> (defun Point2D.__repr__ (self)
   ;;    #..  (.format "Point2D({!r}, {!r})" : :* self))
   ;;    >>> # defun
@@ -598,10 +591,8 @@ See `hissp.macros`.
   ;;    ...       _gRCWY23WM__lambda)  [-1]
   ;;    ...   )())
   ;;
-  ;;    #> (Point2D 1 2)
-  ;;    >>> Point2D(
-  ;;    ...   (1),
-  ;;    ...   (2))
+  ;;    #> a-point ; Existing instances can find the new method.
+  ;;    >>> a___point
   ;;    Point2D(1, 2)
   ;;
   ;; Also supports keyword arguments in the bases tuple for
@@ -645,7 +636,7 @@ See `hissp.macros`.
   ;;    ...    classmethod(
   ;;    ...      Point2D.__init_subclass__))  [-1])
   ;;
-  ;;    #> (deftypeonce ASubclass (Point2D : a 1  b 2))
+  ;;    #> (deftypeonce ASubclass Point2D : a 1  b 2)
   ;;    >>> # deftypeonce
   ;;    ... # hissp.macros.._macro_.defonce
   ;;    ... # hissp.macros.._macro_.unless
@@ -669,17 +660,10 @@ See `hissp.macros`.
   ;;
   ;; See also: `attach`, `types.new_class`, `defonce`.
   ;;
-  (let (ibases (iter bases)
-        name |qualname.rpartition('.')[-1]|)
-    `(defonce ,qualname
-       ,(functools..reduce
-         (lambda (cls f) `(,f ,cls))
-         once_decorators
-         `(type ',name (|| ,@(itertools..takewhile (lambda x (operator..ne x ':))
-                                                   ibases)
-                           ||)
-                ,(dict)
-                : ,@ibases)))))
+  (let-call (name singles pairs) (:? |qualname.rpartition('.')[-1]|
+                                  :* (hissp.compiler..parse_params bases))
+    `(defonce ,qualname (type ',name (|| ,@singles ||) ,(dict)
+                              : ,@|(x for kv in pairs.items() for x in kv)|))))
 
 (defmacro deftupleonce (typename : :* args)
   "Defines a `collections.namedtuple` unless it exists.

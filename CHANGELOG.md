@@ -18,8 +18,13 @@ SPDX-License-Identifier: Apache-2.0
     which results in a partial application taking a table.
 - `hissp.apropos` to scan for imported symbols.
 - `Q##` two-argument overload.
+- `H#compiler.delambda` and `H#compiler.dequote` for destructuring lambda and quote forms in macros.
+- Map overload for alias tags. Apply to a `(%`- form to qualify its keys.
 
 ### Breaking
+
+No once decorators in `deftypeonce`.
+Don't wrap the bases in a tuple.
 
 Remove useless `hissp..prelude#` and `hissp..alias#` tags.
 Use `(hissp..prelude)` and `(hissp..alias`- instead.
