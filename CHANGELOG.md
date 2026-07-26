@@ -112,12 +112,12 @@ Replace
 - `let*from` with `let*call`.
 - `loop-from` with `let-again`.
 
-See updated API docs. Use `(:*`-`)` for the old behavior, e.g.,
+See updated API docs. Use `(: :*`-`)` for the old behavior, e.g.,
 ```lisp
 (let-from (a b : :* cs) 'abcdefg
   (print a b cs))
 ;; becomes
-(let-call (a b : :* cs) (:* 'abcdefg)
+(let-call (a b : :* cs) (: :* 'abcdefg)
   (print a b cs))
 ```
 

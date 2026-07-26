@@ -5554,7 +5554,7 @@ Let's implement that as well.
 
    #> (defun _shadows? (form name)
    #..  (let-call (: singles ()  pairs (dict)  :** _kwargs)
-   #..            (:** (H#compiler.delambda form))
+   #..            (: :** (H#compiler.delambda form))
    #..    (ors (contains singles name)
    #..         (contains (.keys pairs) name))))
    >>> # defun
@@ -6254,7 +6254,7 @@ Here it is, sans docstring:
                                                pairs)
                           :? ||)))
             values=`(let (,my.$data ,data) ,(my.walk bindings))
-            `(let-call (,@my.names) (:* ,my.values) ,@body)))
+            `(let-call (,@my.names) (: :* ,my.values) ,@body)))
 
 Starting from the bottom,
 the basic idea is to produce a single tuple of values

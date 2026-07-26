@@ -210,7 +210,7 @@ See `hissp.macros`.
 
   .. code-block:: REPL
 
-     #> (let-call (a b : :* cs  g :?  h 'H) (:* 'ABCD  :? 'EF  g 'G)
+     #> (let-call (a b : :* cs  g :?  h 'H) (: :* 'ABCD  :? 'EF  g 'G)
      #..  (print cs b a g h))
      >>> # let___call
      ... (
@@ -233,7 +233,7 @@ See `hissp.macros`.
 
   See also: `let`, `let*call <letStar_call>`, `assignment`.
   "
-  `((lambda ,params ,@body) : ,@pairs))
+  `((lambda ,params ,@body) ,@pairs))
 
 (defmacro fun (qualname params : maybe-docstring ()  :* body)
   "A lambda enhanced with a `qualified name` and optionally a docstring.
@@ -247,7 +247,7 @@ See `hissp.macros`.
   anonymous functions due to the additional overhead.
   "
   (let-call (name : :* _xs  top ()  doc ())
-            (:* (reversed (.split qualname '. 1))
+            (: :* (reversed (.split qualname '. 1))
              :** (if-else (hissp..is_hissp_string maybe-docstring)
                    (dict : doc `(__doc__ ,maybe-docstring))
                    (dict : top `(,maybe-docstring))))
@@ -394,7 +394,7 @@ See `hissp.macros`.
   "
   (if-else (.startswith qualname ':)
     (exec '|raise SyntaxError('qualname cannot be a control word (try a \:)')|)
-    (let-call (ns _dot attr) (:* (.rpartition qualname "."))
+    (let-call (ns _dot attr) (: :* (.rpartition qualname "."))
       (if-else ns
         `(setattr ,ns ',attr ,value)
         `(.update (globals) : ,qualname ,value)))))
@@ -464,7 +464,7 @@ See `hissp.macros`.
   See also: `deftypeonce`, `hissp.refresh`.
 
   "
-  `(unless ,(let-call (ns _dot attr) (:* (.rpartition qualname "."))
+  `(unless ,(let-call (ns _dot attr) (: :* (.rpartition qualname "."))
               (if-else ns
                 `(hasattr ,ns ',attr)
                 `(operator..contains (globals) ',attr)))
@@ -660,7 +660,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `attach`, `types.new_class`, `defonce`.
   ;;
-  (let-call (name singles pairs) (:? |qualname.rpartition('.')[-1]|
+  (let-call (name singles pairs) (: :? |qualname.rpartition('.')[-1]|
                                   :* (hissp.compiler..parse_params bases))
     `(defonce ,qualname (type ',name (|| ,@singles ||) ,(dict)
                               : ,@|(x for kv in pairs.items() for x in kv)|))))
@@ -758,12 +758,12 @@ See `hissp.macros`.
 
   .. code-block:: REPL
 
-     #> (let*call ((abcs) (:? 'abcdef) ; whole thing
-     #..           (a b : :* cs) (:* abcs) ; rest (tuple packing)
-     #..           (: d ()  e ()  f ()) (:* 'de) ; defaults
-     #..           (g h i) (:* 'ghi) ; positional unpacking
-     #..           (: :** jkls) (j 'J  k 'K  l 'L) ; kwargs (dict packing)
-     #..           (j k l : m None  n '|N?|) (:** jkls)) ; dict unpacking with defaults
+     #> (let*call ((abcs) (: :? 'abcdef) ; whole thing
+     #..           (a b : :* cs) (: :* abcs) ; rest (tuple packing)
+     #..           (: d ()  e ()  f ()) (: :* 'de) ; defaults
+     #..           (g h i) (: :* 'ghi) ; positional unpacking
+     #..           (: :** jkls) (: j 'J  k 'K  l 'L) ; kwargs (dict packing)
+     #..           (j k l : m None  n '|N?|) (: :** jkls)) ; dict unpacking with defaults
      #..  (print a b cs abcs d e f g h i j k l m n jkls))
      >>> # letStar_call
      ... # hissp.macros.._macro_.let___call
@@ -1070,7 +1070,7 @@ See `hissp.macros`.
   ;;    >>> 'Star_'
   ;;    'Star_'
   ;;
-  ;;    #> (H#let-call ab (:* "AB") b) ; Macro form. Compiler checks _macro_.
+  ;;    #> (H#let-call ab (: :* "AB") b) ; Macro form. Compiler checks _macro_.
   ;;    >>> # hissp..let___call
   ;;    ... (lambda a, b: b)(
   ;;    ...   *('AB'))
@@ -1403,7 +1403,7 @@ See `hissp.macros`.
       (if-else attr
         (exec "raise TypeError('@## got unexpected keyword argument(s)', attr)")
         `(define ,qualname (progn ,definition (,decoration_or_attr ,qualname)))))
-    (let-call (name : oops None) (:* (map X#`',X attr)  :? decoration_or_attr)
+    (let-call (name : oops None) (: :* (map X#`',X attr)  :? decoration_or_attr)
       (if-else oops
         (exec "raise TypeError('@# got unexpected keyword argument(s)', attr)")
         `(_backapply ,@(.values attr) (op#attrgetter ,name))))))
@@ -1561,8 +1561,8 @@ See `hissp.macros`.
   ;; See also: `my# <myHash_>`, `set! <setBang_>`,
   ;; `zap[### <zapLsqb_Hash_>`.
   ;;
-  (let*call ((value : table None) (:* value  :? table_or_value)
-             (table) (:? (unless |table is None| `(,table))))
+  (let*call ((value : table None) (: :* value  :? table_or_value)
+             (table) (: :? (unless |table is None| `(,table))))
     `(_backapply
       ,@table
       (lambda ($#table : $#value ,value)
@@ -1636,8 +1636,8 @@ See `hissp.macros`.
   ;;    it will happen twice. Use `zap! <zapBang_>` instead or `let`.
   ;;
   ;;
-  (let*call ((call : table None) (:* call  :? table_or_call)
-             (table) (:? (unless |table is None| `(,table))))
+  (let*call ((call : table None) (: :* call  :? table_or_call)
+             (table) (: :? (unless |table is None| `(,table))))
     `(_backapply
       ,@table
       (lambda ($#table)
@@ -4266,7 +4266,7 @@ sentinel#
                                           (zip |*2*[iter(bindings)]| : strict True))
                      :? ||))
          values=`(let (,my.$data ,data) ,(my.walk bindings))
-         `(let-call (,@my.names) (:* ,my.values) ,@body)))
+         `(let-call (,@my.names) (: :* ,my.values) ,@body)))
 
 (defmacro !s\# (names)
   <#;``!s#`` 'item names'
