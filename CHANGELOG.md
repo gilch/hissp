@@ -25,6 +25,9 @@ SPDX-License-Identifier: Apache-2.0
 
 ### Breaking
 
+`any-map` is gone. Use `for-in` instead.
+`for-in` is lazy. For the old behavior, wrap in `any`.
+
 Rename `-<>>` to `-o>`. Rename its anaphor `:<>` to `:o`.
 
 No once decorators in `deftypeonce`.

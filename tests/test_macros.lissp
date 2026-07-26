@@ -95,11 +95,11 @@
       () (.append xs :oops))
     (self.assertEqual xs (enlist () 1 2 3 4))))
 
-(H#defun TestMacros.test_any-map (self)
+(H#defun TestMacros.test_any-for-in (self)
   (H#let (: xs (list)):
-    (H#any-map i (range 1 10)
-      (.append xs i)
-      (operator..not_ (operator..mod i 7)))
+    (any (H#for-in i (range 1 10)
+           (.append xs i)
+           (operator..not_ (operator..mod i 7))))
     (self.assertEqual xs (enlist 1 2 3 4 5 6 7))))
 
 (H#defun TestMacros.test_ands (self)
