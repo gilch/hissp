@@ -2091,6 +2091,17 @@ See `hissp.macros`.
       ,(!#0 pairs)
       ,@(map X#`O#,X [##1:] pairs))))
 
+(defmacro for-in (param xs : :* body)
+  <#;``for-in`` generator expression.
+  ;;
+  ;; As with Python `genexpr`, the resulting iterator is typically immediately passed to some other callable.
+  ;; Pass to collection constructors like `dict` or `list` for comprehensions.
+  ;; Pass to `any` for an imperative loop with a break.
+  ;;
+  ;; TODO: examples
+  ;;
+  `(map (lambda (,param) ,@body) ,xs))
+
 (defmacro any-map (variable xs : :* body)
   <#;``any-map`` imperative iterator ``for`` loop.
   ;;
