@@ -23,6 +23,8 @@ SPDX-License-Identifier: Apache-2.0
 
 ### Breaking
 
+Rename `-<>>` to `-o>`. Rename its anaphor `:<>` to `:o`.
+
 No once decorators in `deftypeonce`.
 Don't wrap the bases in a tuple.
 

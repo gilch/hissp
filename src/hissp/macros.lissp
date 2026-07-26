@@ -1891,29 +1891,29 @@ See `hissp.macros`.
   ;;    ...   'de')
   ;;    ([{'a'}, 'bc'], 'de')
   ;;
-  ;; See also: `-\<>> <Dash_Lt_Gt_Gt_>`, `X# <XHash_>`,
+  ;; See also: `-o> <Dash_oGt_>`, `X# <XHash_>`,
   ;; `\!# <Bang_Hash_>`, `en# <enHash_>`.
   ;;
   (/XY# |(Y[0],X,*Y[1:],)| (map X# |X if type(X) is tuple else (X,)| forms)
                            expr))
 
-(defmacro -<>> (expr : :* forms)
-  <#;``-<>>`` 'Thread-through'.
+(defmacro -o> (expr : :* forms)
+  <#;``-o>`` 'Thread-through'.
   ;;
   ;; Converts a pipeline to function calls by recursively threading
   ;; expressions into the next form at the first point indicated with
-  ;; ``:<>``, or at the last if no ``:<>`` is found. Non-tuple forms
+  ;; ``:o``, or at the last if no ``:o`` is found. Non-tuple forms
   ;; (typically function identifiers) will be wrapped in a tuple first.
   ;; Can replace partial application in some cases.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> ((|| _macro_.-<>>)  'x 'A '(:<> b bb) '(C c cc))
+  ;;    #> ((|| _macro_.-o>)  'x 'A '(:o b bb) '(C c cc))
   ;;    >>> (
-  ;;    ...   _macro_.Dash_Lt_Gt_Gt_)(
+  ;;    ...   _macro_.Dash_oGt_)(
   ;;    ...   'x',
   ;;    ...   'A',
-  ;;    ...   (':<>',
+  ;;    ...   (':o',
   ;;    ...    'b',
   ;;    ...    'bb',),
   ;;    ...   ('C',
@@ -1921,8 +1921,8 @@ See `hissp.macros`.
   ;;    ...    'cc',))
   ;;    ('C', 'c', 'cc', (('A', 'x'), 'b', 'bb'))
   ;;
-  ;;    #> (-<>> 'a set (en#list 'bc) (en#tuple 'de :<> 'fg :<>))
-  ;;    >>> # Dash_Lt_Gt_Gt_
+  ;;    #> (-o> 'a set (en#list 'bc) (en#tuple 'de :o 'fg :o))
+  ;;    >>> # Dash_oGt_
   ;;    ... (lambda *_gJHUL5GC3__xs:
   ;;    ...     tuple(
   ;;    ...       _gJHUL5GC3__xs)
@@ -1936,13 +1936,13 @@ See `hissp.macros`.
   ;;    ...     set(
   ;;    ...       'a')),
   ;;    ...   'fg',
-  ;;    ...   ':<>')
-  ;;    ('de', ['bc', {'a'}], 'fg', ':<>')
+  ;;    ...   ':o')
+  ;;    ('de', ['bc', {'a'}], 'fg', ':o')
   ;;
   ;; See also: `-> <Dash_Gt_>`, `en# <enHash_>`.
   ;;
   (/XY#(let (i (iter Y))
-         `(,@(i#takewhile X#(op#ne X :<>) i) ,X ,@i))
+         `(,@(i#takewhile X#(op#ne X :o) i) ,X ,@i))
    (map X# |X if type(X) is tuple else (X,)| forms)
    expr))
 
@@ -2503,7 +2503,7 @@ See `hissp.macros`.
       ast..literal_eval
       (.replace "'" '|\'|)
       (.replace "\n" '|\n|)
-      (-<>> (.format "b'{}'"))
+      (-o> (.format "b'{}'"))
       ast..literal_eval))
 
 (defmacro B\# (symbol)
@@ -2538,7 +2538,7 @@ See `hissp.macros`.
   (-> symbol
       (.replace "'" '|\'|)
       (.replace "\n" '|\n|)
-      (-<>> (.format "b'{}'"))
+      (-o> (.format "b'{}'"))
       ast..literal_eval))
 
 (defmacro Q\# (numerator : denominator None)

@@ -5926,7 +5926,7 @@ I will again omit the docstring handling for simplicity.
 
    #> (defmacro defun-lazy (qualname params : :* body)
    #..  `(defun ,qualname (: :** ,'kwargs)
-   #..     (-<>>
+   #..     (-o>
    #..      (let ($#lazy (types..SimpleNamespace))
    #..        (doto (vars $#lazy)
    #..          (.update (zip ,(list [##::2] params)
@@ -5956,7 +5956,7 @@ I will again omit the docstring handling for simplicity.
    ...                   'kwargs',
    ...                   ),
    ...                 (
-   ...                   '__main__.._macro_.Dash_Lt_Gt_Gt_',
+   ...                   '__main__.._macro_.Dash_oGt_',
    ...                   (
    ...                     '__main__.._macro_.let',
    ...                     (
@@ -6064,7 +6064,7 @@ I will again omit the docstring handling for simplicity.
 
 Because they can only handle one name each,
 we need one ``smacrolet`` per lazy default parameter.
-We're leveraging `-\<>> <Dash_Lt_Gt_Gt_>` to do the nesting for us.
+We're leveraging `-o> <Dash_oGt_>` to do the nesting for us.
 The replacements follow a simple pattern we're computing from the keyword.
 ``lazy`` is now a gensym, not an anaphor.
 
@@ -6107,7 +6107,7 @@ Let's try it!
    ...               # hissp.macros.._macro_.let
    ...               (
    ...                lambda _gJGOZQ46N__lambda=(lambda **kwargs:
-   ...                           # __main__.._macro_.Dash_Lt_Gt_Gt_
+   ...                           # __main__.._macro_.Dash_oGt_
    ...                           # __main__.._macro_.smacrolet
    ...                           (lambda _gGQGC4A3Y__lazy=__import__('types').SimpleNamespace():
    ...                              ((

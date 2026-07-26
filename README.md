@@ -453,13 +453,13 @@ which includes Clojure-like persistent data structures.
            (random/randint 0 (sub HEIGHT 1))))
 
 (defun frame (state)
-  (-<>> (product (range HEIGHT) (range WIDTH))
-        (starmap #XY(complex Y X))
-        (map #X(concat (cond (contains state.snake X) "O"
-                             (eq X state.food) "@"
-                             :else " ")
-                       (if-else (eq 0 X.real) "\n" "")))
-        (.join "")))
+  (-o> (product (range HEIGHT) (range WIDTH))
+       (starmap #XY(complex Y X))
+       (map #X(concat (cond (contains state.snake X) "O"
+                            (eq X state.food) "@"
+                            :else " ")
+                      (if-else (eq 0 X.real) "\n" "")))
+       (.join "")))
 
 (defun move (state new-food arrow)
   (let (direction (if-else (ands arrow (ne arrow (neg state.direction)))
@@ -480,13 +480,13 @@ which includes Clojure-like persistent data structures.
                    head))))
 
 (defun update! (state)
-  (-<>> (if-else (lost? state)
-          " GAME OVER!"
-          (prog1 "" (.after root TICK update! (move state
-                                                    (food!)
-                                                    (when arrow (.pop arrow))))))
-        (.format "Score: {}{}{}" state.score :<> (frame state))
-        (.configure label . text)))
+  (-o> (if-else (lost? state)
+         " GAME OVER!"
+         (prog1 "" (.after root TICK update! (move state
+                                                   (food!)
+                                                   (when arrow (.pop arrow))))))
+       (.format "Score: {}{}{}" state.score :o (frame state))
+       (.configure label . text)))
 
 (when (eq __name__ "__main__")
   (update! {"score" 0, "direction" 1, "snake" SNAKE, "food" (food!)})
