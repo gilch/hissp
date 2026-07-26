@@ -20,6 +20,7 @@ SPDX-License-Identifier: Apache-2.0
 - `Q##` two-argument overload.
 - `H#compiler.delambda` and `H#compiler.dequote` for destructuring lambda and quote forms in macros.
 - Map overload for alias tags. Apply to a `(%`- form to qualify its keys.
+- Add `<o-` 'Backthread' macro to compose macros with bodies.
 
 ### Breaking
 

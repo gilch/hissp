@@ -1946,7 +1946,21 @@ See `hissp.macros`.
    (map X# |X if type(X) is tuple else (X,)| forms)
    expr))
 
-;;; TODO: implement other arrange macros?
+(defmacro <o- (: :* forms)
+  <#;``<o-`` 'Backthread'.
+  ;;
+  ;; As `-o> <Dash_oGt_>`, but with the arguments reversed.
+  ;;
+  ;; A common use is for complex generator expressions.
+  ;; Pass to `itertools.chain.from_iterable` to flatten a layer.
+  ;; That can be abbreviated as ``chain#:o`` in this context.
+  ;; Combine with `when` or `unless` to skip. (They default to ``()``)
+  ;; Use `let` for more locals without wrapping in an iterable first.
+  ;; `itertools.takewhile` can shortcut, perhaps based on a sentinel value.
+  ;;
+  ;; TODO: examples
+  ;;
+  (.-o> _macro_ : :* (reversed forms)))
 
 (define _TAO
   (lambda s (-> (.join " " (re..findall "(?m)^# (.*)~$" (s hissp.)))
