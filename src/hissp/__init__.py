@@ -163,17 +163,15 @@ def apropos(term: str, startswith: str = "") -> typing.Iterator[str]:
     Print symbols:
 
     >>> for s in apropos(munge('*'), 'hissp.'): print(demunge(s))
-    hissp.macros.._macro_.any*map
     hissp.macros.._macro_.let*call
     hissp.macros.._macro_.throw*
-    hissp.._macro_.any*map
     hissp.._macro_.let*call
     hissp.._macro_.throw*
 
     List symbols:
 
     >>> [*apropos('Star_', 'hissp.._')]
-    ['hissp.._macro_.anyStar_map', 'hissp.._macro_.letStar_call', 'hissp.._macro_.throwStar_']
+    ['hissp.._macro_.letStar_call', 'hissp.._macro_.throwStar_']
 
     Modules themselves are included:
 

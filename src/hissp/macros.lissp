@@ -2085,7 +2085,8 @@ See `hissp.macros`.
 (defmacro for-in (param xs : :* body)
   <#;``for-in`` generator expression.
   ;;
-  ;; As with Python `genexpr`, the resulting iterator is typically immediately passed to some other callable.
+  ;; As with Python `genexpr`, the resulting iterator is typically immediately
+  ;; passed to some other callable.
   ;; Pass to collection constructors like `dict` or `list` for comprehensions.
   ;; Pass to `any` for an imperative loop with a break.
   ;;
@@ -2113,50 +2114,10 @@ See `hissp.macros`.
   ;;
   ;; TODO: examples
   ;;
-  ;; See also: `any`, `map`, `any*map <anyStar_map>`, `for`, `break`,
+  ;; See also: `map`, `for`, `break`, `set`, `chain# <chainHash_>`.
   ;; `functools.reduce`.
   ;;
   `(map (lambda (,param) ,@body) ,xs))
-
-(defmacro any*map (params xss : :* body)
-  <#;``any*map`` 'any star map' imperative iterator ``for`` loop & unpack.
-  ;;
-  ;; Bind each ``x`` to a variable and evaluate the body for each ``xs``
-  ;; from ``xss`` until any result is true (and return ``True``), or
-  ;; until ``xss`` is exhausted (and return ``False``).
-  ;;
-  ;; .. code-block:: REPL
-  ;;
-  ;;    #> (any*map (i c : P print  * op#mul) ; Extra locals (P and *) via default params.
-  ;;    #..         (enumerate 'abc 1)
-  ;;    #..  (P (* i c)))
-  ;;    >>> # anyStar_map
-  ;;    ... __import__('builtins').any(
-  ;;    ...   __import__('itertools').starmap(
-  ;;    ...     (
-  ;;    ...      lambda i,
-  ;;    ...             c,
-  ;;    ...             P=print,
-  ;;    ...             Star_=__import__('operator').mul:
-  ;;    ...         P(
-  ;;    ...           Star_(
-  ;;    ...             i,
-  ;;    ...             c))
-  ;;    ...     ),
-  ;;    ...     enumerate(
-  ;;    ...       'abc',
-  ;;    ...       (1))))
-  ;;    a
-  ;;    bb
-  ;;    ccc
-  ;;    False
-  ;;
-  ;; See also: `itertools.starmap`, `for-in <for___in>`,
-  ;; `let-again <let___again>`, `let*call <letStar_call>`,
-  ;; `my# <myHash_>`.
-  ;;
-  `(any (i#starmap (lambda ,params ,@body)
-                   ,xss)))
 
 (defmacro let-again (pairs : :* body)
   <#;``let-again`` Loop/recur with trampoline.
@@ -2177,8 +2138,7 @@ See `hissp.macros`.
   ;;    ... (lambda _gY44MBROP__stack=[None, None, ()]:
   ;;    ...     # hissp.macros.._macro_.let
   ;;    ...     (lambda again___with=_gY44MBROP__stack.append:
-  ;;    ...        (# hissp.macros.._macro_.anyStar_map
-  ;;    ...         __import__('builtins').any(
+  ;;    ...        (__import__('builtins').any(
   ;;    ...           __import__('itertools').starmap(
   ;;    ...             (
   ;;    ...              lambda x=(3),
@@ -2214,13 +2174,14 @@ See `hissp.macros`.
   ;;    1 2
   ;;    0 3
   ;;
-  ;; See also: `any*map <anyStar_map>`, `Ensue`_, `while`.
+  ;; See also: `for-in <for___in>`, `Ensue`_, `while`.
   ;;
   `(let (: $#stack .#(list '(None None ()))): ; return, sentinel, first call
      (let (: ,'again-with $#stack.append):
-       (any*map (: ,@pairs) (iter $#stack.pop None)
-         (.__setitem__ $#stack 0 (progn ,@body))
-         None)
+       (any (i#starmap (lambda (: ,@pairs)
+                         (.__setitem__ $#stack 0 (progn ,@body))
+                         None)
+                       (iter $#stack.pop None)))
        (!#0 $#stack))))
 
 ;; I would have named this 'and, but that's a reserved word.

@@ -27,6 +27,7 @@ SPDX-License-Identifier: Apache-2.0
 
 `any-map` is gone. Use `for-in` instead.
 `for-in` is lazy. For the old behavior, wrap in `any`.
+`any*map` is also gone. Use `for-in` and `let`, wrapped in `any`.
 
 Rename `-<>>` to `-o>`. Rename its anaphor `:<>` to `:o`.
 
