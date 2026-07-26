@@ -130,7 +130,7 @@ use defaults and empty args:
 
 Replace
 - `let-from` with `let`.
-- `let*from` with `let*call`.
+- `let*from` with nested `let` (use `<o-`).
 - `loop-from` with `let-again`.
 
 See updated API docs. Use `(: :*`-`)` for the old behavior, e.g.,

@@ -200,29 +200,55 @@ See `hissp.macros`.
      x aa
      a b
 
-     #> (let (a b : :* cs  g :?  h 'H) ; parameter packing
-     #..     (: :* 'ABCD  :? 'EF  g 'G) ; argument unpacking
-     #..  (print cs b a g h))
-     >>> # let
-     ... (
-     ...  lambda a,
-     ...         b,
-     ...         *cs,
-     ...         g,
-     ...         h='H':
-     ...     print(
-     ...       cs,
-     ...       b,
-     ...       a,
-     ...       g,
-     ...       h)
-     ... )(
-     ...   *'ABCD',
-     ...   'EF',
-     ...   g='G')
-     ('C', 'D', 'EF') B A G H
+  Can destructure nested data by using args and multiple stages:
 
-  See also: `my# <myHash_>`, `locals`, `let*call <letStar_call>`, `assignment`.
+  .. code-block:: REPL
+
+     #> (<o- (let (abcs) (: :? 'abcdef)) ; whole thing
+     #..     (let (a b : :* cs) (: :* abcs)) ; rest (tuple packing)
+     #..     (let (: d ()  e ()  f ()) (: :* 'de)) ; defaults
+     #..     (let (g h i) (: :* 'ghi)) ; positional unpacking
+     #..     (let (: :** jkls) (: j 'J  k 'K  l 'L)) ; kwargs (dict packing)
+     #..     (let (j k l : m None  n '|N?|) (: :** jkls) ; dict unpacking with defaults
+     #..       |print(a,b,cs,abcs,d,e,f,g,h,i,j,k,l,m,n,jkls)|))
+     >>> # Lt_oDash_
+     ... # let
+     ... (lambda abcs:
+     ...     # let
+     ...     (lambda a, b, *cs:
+     ...         # let
+     ...         (
+     ...          lambda d=(),
+     ...                 e=(),
+     ...                 f=():
+     ...             # let
+     ...             (lambda g, h, i:
+     ...                 # let
+     ...                 (lambda **jkls:
+     ...                     # let
+     ...                     (
+     ...                      lambda j,
+     ...                             k,
+     ...                             l,
+     ...                             m=None,
+     ...                             n='N?':
+     ...                         print(a,b,cs,abcs,d,e,f,g,h,i,j,k,l,m,n,jkls))(
+     ...                       **jkls)
+     ...                 )(
+     ...                   j='J',
+     ...                   k='K',
+     ...                   l='L')
+     ...             )(
+     ...               *'ghi')
+     ...         )(
+     ...           *'de')
+     ...     )(
+     ...       *abcs)
+     ... )(
+     ...   'abcdef')
+     a b ('c', 'd', 'e', 'f') abcdef d e () g h i J K L None N? {'j': 'J', 'k': 'K', 'l': 'L'}
+
+  See also: `my# <myHash_>`, `locals`, `<o- <Lt_oDash_>`, `assignment`.
   "
   `((lambda ,params ,@body) ,@args))
 
@@ -741,88 +767,6 @@ See `hissp.macros`.
 
   "
   `(defonce ,typename (collections..namedtuple ',typename ,@args)))
-
-(defmacro let*call (pairs : :* body)
-  "``let*call`` 'let star call' Nested `let`.
-
-  Can unpack nested data by using multiple stages.
-
-  .. code-block:: REPL
-
-     #> (let*call ((abcs) (: :? 'abcdef) ; whole thing
-     #..           (a b : :* cs) (: :* abcs) ; rest (tuple packing)
-     #..           (: d ()  e ()  f ()) (: :* 'de) ; defaults
-     #..           (g h i) (: :* 'ghi) ; positional unpacking
-     #..           (: :** jkls) (: j 'J  k 'K  l 'L) ; kwargs (dict packing)
-     #..           (j k l : m None  n '|N?|) (: :** jkls)) ; dict unpacking with defaults
-     #..  (print a b cs abcs d e f g h i j k l m n jkls))
-     >>> # letStar_call
-     ... # hissp.macros.._macro_.let
-     ... (lambda abcs:
-     ...     # hissp.macros..letStar_call
-     ...     # hissp.macros.._macro_.let
-     ...     (lambda a, b, *cs:
-     ...         # hissp.macros..letStar_call
-     ...         # hissp.macros.._macro_.let
-     ...         (
-     ...          lambda d=(),
-     ...                 e=(),
-     ...                 f=():
-     ...             # hissp.macros..letStar_call
-     ...             # hissp.macros.._macro_.let
-     ...             (lambda g, h, i:
-     ...                 # hissp.macros..letStar_call
-     ...                 # hissp.macros.._macro_.let
-     ...                 (lambda **jkls:
-     ...                     # hissp.macros..letStar_call
-     ...                     # hissp.macros.._macro_.let
-     ...                     (
-     ...                      lambda j,
-     ...                             k,
-     ...                             l,
-     ...                             m=None,
-     ...                             n='N?':
-     ...                         # hissp.macros..letStar_call
-     ...                         # hissp.macros.._macro_.progn
-     ...                         print(
-     ...                           a,
-     ...                           b,
-     ...                           cs,
-     ...                           abcs,
-     ...                           d,
-     ...                           e,
-     ...                           f,
-     ...                           g,
-     ...                           h,
-     ...                           i,
-     ...                           j,
-     ...                           k,
-     ...                           l,
-     ...                           m,
-     ...                           n,
-     ...                           jkls)
-     ...                     )(
-     ...                       **jkls)
-     ...                 )(
-     ...                   j='J',
-     ...                   k='K',
-     ...                   l='L')
-     ...             )(
-     ...               *'ghi')
-     ...         )(
-     ...           *'de')
-     ...     )(
-     ...       *abcs)
-     ... )(
-     ...   'abcdef')
-     a b ('c', 'd', 'e', 'f') abcdef d e () g h i J K L None N? {'j': 'J', 'k': 'K', 'l': 'L'}
-
-  See also: `my# <myHash_>`, `destruct-> <destruct___Gt_>`.
-  "
-  (if-else pairs
-    `(let ,|pairs[0]| ,|pairs[1]|
-       (let*call ,|pairs[2:]| ,@body))
-    `(progn ,@body)))
 
 ;;; See also: let (in Bootstrap).
 
@@ -1552,15 +1496,15 @@ See `hissp.macros`.
   ;; See also: `my# <myHash_>`, `set! <setBang_>`,
   ;; `zap[### <zapLsqb_Hash_>`.
   ;;
-  (let*call ((value : table None) (: :* value  :? table_or_value)
-             (table) (: :? (unless |table is None| `(,table))))
-    `(_backapply
-      ,@table
-      (lambda ($#table : $#value ,value)
-        ,(.format "[{v}\n for({}[{})in[{v}]][0]"
-                  '$#table
-                  (H#demunge lookup)
-                  : v '$#value)))))
+  (let (value : table None) (: :* value  :? table_or_value)
+    (let (table) (: :? (unless |table is None| `(,table)))
+      `(_backapply
+        ,@table
+        (lambda ($#table : $#value ,value)
+          ,(.format "[{v}\n for({}[{})in[{v}]][0]"
+                    '$#table
+                    (H#demunge lookup)
+                    : v '$#value))))))
 
 (defmacro zap\[\# (lookup table_or_call : :* call)
   <#;``zap[###`` 'zapsub' Injection. Augmented subscription assignment.
@@ -1627,17 +1571,17 @@ See `hissp.macros`.
   ;;    it will happen twice. Use `zap! <zapBang_>` instead or `let`.
   ;;
   ;;
-  (let*call ((call : table None) (: :* call  :? table_or_call)
-             (table) (: :? (unless |table is None| `(,table))))
-    `(_backapply
-      ,@table
-      (lambda ($#table)
-        (let (: $#value (-> ,(.format "({}[{})" '$#table (H#demunge lookup))
-                            ,call)):
-          ,(.format "[{v}\n for({}[{})in[{v}]][0]"
-                    '$#table
-                    (H#demunge lookup)
-                    : v '$#value))))))
+  (let (call : table None) (: :* call  :? table_or_call)
+    (let (table) (: :? (unless |table is None| `(,table)))
+      `(_backapply
+        ,@table
+        (lambda ($#table)
+          (let (: $#value (-> ,(.format "({}[{})" '$#table (H#demunge lookup))
+                              ,call)):
+            ,(.format "[{v}\n for({}[{})in[{v}]][0]"
+                      '$#table
+                      (H#demunge lookup)
+                      : v '$#value)))))))
 
 (defmacro set@ (qualname value)
   <#;``set@`` 'setat' Assigns an attribute, returns the value.
@@ -1938,10 +1882,9 @@ See `hissp.macros`.
    expr))
 
 (defmacro <o- (: :* forms)
-  <#;``<o-`` 'Backthread'.
+  <#;``<o-`` 'Backthread'. As `-o> <Dash_oGt_>`, but reversed.
   ;;
-  ;; As `-o> <Dash_oGt_>`, but with the arguments reversed.
-  ;;
+  ;; Forms nested in macro bodies can stack instead.
   ;; A common use is for complex generator expressions.
   ;; Pass to `itertools.chain.from_iterable` to flatten a layer.
   ;; That can be abbreviated as ``chain#:o`` in this context.
@@ -1950,6 +1893,7 @@ See `hissp.macros`.
   ;; `itertools.takewhile` can shortcut, perhaps based on a sentinel value.
   ;;
   ;; TODO: examples
+  ;;
   ;;
   (.-o> _macro_ : :* (reversed forms)))
 
@@ -4193,7 +4137,7 @@ sentinel#
   ;;     'D': ':d',
   ;;     'myquux': 'default for quux'}
   ;;
-  ;; See also: `let*call <letStar_call>`, `my# <myHash_>`,
+  ;; See also: `<o- <Lt_oDash_>`, `my# <myHash_>`,
   ;; `\!s# <Bang_sHash_>`, `@s# <At_sHash_>`, `pos# <posHash_>`.
   ;;
   my### names=(list) $data=`$#data
