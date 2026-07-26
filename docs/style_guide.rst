@@ -1461,7 +1461,7 @@ especially when you call :func:`iter` on a variable with otherwise the same name
 
 .. code-block:: Lissp
 
-   (let (ixs (iter xs))
+   (let (: ixs (iter xs)):
      ...)
 
 Throwaway Names
@@ -1827,8 +1827,8 @@ even in an implied group:
            :else (print "0"))))            ;Still grouped. 1 line OK--no internal ).
 
    (defun compare (xs ys)                  ;Preferred. Keep cond simple.
-     (let (lxs (len xs)
-           lys (len ys))
+     (let (: lxs (len xs)
+             lys (len ys)):
        (cond (lt lxs lys) (print "<")
              (gt lxs lys) (print ">")
              :else (print "0")))))

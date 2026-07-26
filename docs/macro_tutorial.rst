@@ -1889,7 +1889,7 @@ Can we just iterate through the expression and check?
 
    #> (defun max-X (expr)
    #..  (max (map (lambda x (ors (when (is_ str (type x))
-   #..                             (let (match (re..fullmatch "X([1-9][0-9]*)" x))
+   #..                             (let (: match (re..fullmatch "X([1-9][0-9]*)" x)):
    #..                               (when match (int (.group match 1)))))
    #..                           0))
    #..            expr)))
@@ -2054,7 +2054,7 @@ Now we can fix ``max-X``.
 
    #> (defun max-X (expr)
    #..  (max (map (lambda x (ors (when (is_ str (type x))
-   #..                             (let (match (re..fullmatch "X([1-9][0-9]*)" x))
+   #..                             (let (: match (re..fullmatch "X([1-9][0-9]*)" x)):
    #..                               (when match (int (.group match 1)))))
    #..                           0))
    #..            (flatten expr))))
@@ -2145,7 +2145,7 @@ Let's review. The code you need to make the version we have so far is:
 
    (defun max-X (expr)
      (max (map (lambda x (ors (when (is_ str (type x))
-                                (let (match (re..fullmatch "X([1-9][0-9]*)" x))
+                                (let (: match (re..fullmatch "X([1-9][0-9]*)" x)):
                                   (when match (int (.group match 1)))))
                               0))
                (flatten expr))))
@@ -2475,7 +2475,7 @@ Here you go:
    #..                `(:* ,'Xᵢ)))
    #..     ,(if-else (contains (flatten expr)
    #..                         'X)
-   #..        `(let (,'X ,'X₁)
+   #..        `(let (: ,'X ,'X₁):
    #..           ,expr)
    #..        expr)))
    >>> # defmacro
@@ -2533,9 +2533,11 @@ Here you go:
    ...                       (
    ...                         '__main__.._macro_.let',
    ...                         (
+   ...                           ':',
    ...                           'X',
    ...                           'X1',
    ...                           ),
+   ...                         ':',
    ...                         expr,
    ...                         )
    ...                   ),
@@ -2806,7 +2808,7 @@ or by using names invariant under munging in the first place:
 
 .. code-block:: REPL
 
-   #> (let (ABCs string..ascii_uppercase) |ABCs[::2]|)
+   #> (let (: ABCs string..ascii_uppercase): |ABCs[::2]|)
    >>> # let
    ... (lambda ABCs=__import__('string').ascii_uppercase: ABCs[::2])()
    'ACEGIKMOQSUWY'
@@ -3332,7 +3334,7 @@ Or you can add floating-point. Python's literal notation can't do that.
 .. Lissp::
 
    #> (defmacro \16\# (x)
-   #..  (let (x (H#demunge (str x)))
+   #..  (let x ((H#demunge (str x)))
    #..    (if-else (re..search "[.Pp]" x)
    #..      (float.fromhex x)
    #..      (int x 16))))
@@ -3344,12 +3346,9 @@ Or you can add floating-point. Python's literal notation can't do that.
    ...   # hissp.macros.._macro_.fun
    ...   # hissp.macros.._macro_.let
    ...   (
-   ...    lambda _gJGOZQ46N__lambda=(lambda x:
+   ...    lambda _gG253Q25B__lambda=(lambda x:
    ...               # let
-   ...               (
-   ...                lambda x=__import__('hissp').demunge(
-   ...                         str(
-   ...                           x)):
+   ...               (lambda x:
    ...                   # if___else
    ...                   (lambda b, c, a: c()if b else a())(
    ...                     __import__('re').search(
@@ -3364,18 +3363,21 @@ Or you can add floating-point. Python's literal notation can't do that.
    ...                           x,
    ...                           (16))
    ...                     ))
-   ...               )()
+   ...               )(
+   ...                 __import__('hissp').demunge(
+   ...                   str(
+   ...                     x)))
    ...           ):
    ...      ((
    ...         *__import__('itertools').starmap(
-   ...            _gJGOZQ46N__lambda.__setattr__,
+   ...            _gG253Q25B__lambda.__setattr__,
    ...            __import__('builtins').dict(
    ...              __name__='DigitXoneX_6Hash_',
    ...              __qualname__='_macro_.DigitXoneX_6Hash_',
-   ...              __code__=_gJGOZQ46N__lambda.__code__.replace(
+   ...              __code__=_gG253Q25B__lambda.__code__.replace(
    ...                         co_name='DigitXoneX_6Hash_')).items()),
    ...         ),
-   ...       _gJGOZQ46N__lambda)  [-1]
+   ...       _gG253Q25B__lambda)  [-1]
    ...   )())
 
 .. code-block:: REPL
@@ -3791,7 +3793,7 @@ but if you extract it to a local, you won't have to check:
 .. Lissp::
 
    #> (defun find-z-word (text)
-   #..  (let (match (re..search '|\b\w*z\w*\b| text))
+   #..  (let (: match (re..search '|\b\w*z\w*\b| text)):
    #..    (when match (print "found:" (.group match 0)))))
    >>> # defun
    ... # hissp.macros.._macro_.define
@@ -3855,7 +3857,7 @@ We want a macro to expand to the previous code.
 .. Lissp::
 
    #> (defmacro let-when (binding : :* body)
-   #..  `(let ,binding (when ,(!#0 binding) ,@body)))
+   #..  `(let (: ,@binding): (when ,(!#0 binding) ,@body)))
    >>> # defmacro
    ... __import__('builtins').setattr(
    ...   __import__('builtins').globals().get(
@@ -3867,7 +3869,11 @@ We want a macro to expand to the previous code.
    ...    lambda _gJGOZQ46N__lambda=(lambda binding, *body:
    ...               (
    ...                 '__main__.._macro_.let',
-   ...                 binding,
+   ...                 (
+   ...                   ':',
+   ...                   *binding,
+   ...                   ),
+   ...                 ':',
    ...                 (
    ...                   '__main__.._macro_.when',
    ...                   # hissp.macros.._macro_._backapply
@@ -3967,7 +3973,8 @@ We can do this using `macroexpand1`:
    ...        'match',
    ...        (0),),),)))
    ('__main__.._macro_.let',
-    ('match', ('re..search', ('quote', '\\b\\w*z\\w*\\b'), 'text')),
+    (':', 'match', ('re..search', ('quote', '\\b\\w*z\\w*\\b'), 'text')),
+    ':',
     ('__main__.._macro_.when',
      'match',
      ('print', "('found:')", ('.group', 'match', 0))))
@@ -4005,7 +4012,8 @@ so the `let` would get expanded as well:
      (':', 'match', ('re..search', ('quote', '\\b\\w*z\\w*\\b'), 'text')),
      ('__main__.._macro_.when',
       'match',
-      ('print', "('found:')", ('.group', 'match', 0)))),)
+      ('print', "('found:')", ('.group', 'match', 0)))),
+    ':')
 
 The resulting form is no longer a :term:`macro form`,
 but it does contain one (the `when`) as a subform.
@@ -4034,7 +4042,8 @@ but it does contain one (the `when`) as a subform.
      (':', 'match', ('re..search', ('quote', '\\b\\w*z\\w*\\b'), 'text')),
      (('lambda', 'bc', 'c()if b else()'),
       'match',
-      ('lambda', ':', ('print', "('found:')", ('.group', 'match', 0))))),)
+      ('lambda', ':', ('print', "('found:')", ('.group', 'match', 0))))),
+    ':')
 
 And now we see the inner `when` has been expanded too.
 The resulting Hissp is now defined entirely in terms of `quote` and `lambda` :term:`special form`\ s,
@@ -4062,7 +4071,7 @@ An anaphoric macro can make this even more concise:
 .. Lissp::
 
    #> (defmacro awhen (condition : :* body)
-   #..  `(let (,'it ,condition)
+   #..  `(let (: ,'it ,condition):
    #..     (when ,'it ,@body)))
    >>> # defmacro
    ... __import__('builtins').setattr(
@@ -4076,9 +4085,11 @@ An anaphoric macro can make this even more concise:
    ...               (
    ...                 '__main__.._macro_.let',
    ...                 (
+   ...                   ':',
    ...                   'it',
    ...                   condition,
    ...                   ),
+   ...                 ':',
    ...                 (
    ...                   '__main__.._macro_.when',
    ...                   'it',
@@ -4191,7 +4202,7 @@ We can do the same thing in Hissp:
 .. Lissp::
 
    #> (defun find-z-word (text)
-   #..  (let (scope (types..SimpleNamespace))
+   #..  (let (: scope (types..SimpleNamespace)):
    #..    (if-else (set@ scope.match (re..search '|\b\w*z\w*\b| text))
    #..      (print "found:" (.group scope.match 0))
    #..      (print "not found"))))
@@ -4300,7 +4311,7 @@ For example:
 
 
    #> (defun find-z-word (text)
-   #..  (let (scope (types..SimpleNamespace))
+   #..  (let (: scope (types..SimpleNamespace)):
    #..    (if-else it-is#(re..search '|\b\w*z\w*\b| text)
    #..      (print "found:" (.group scope.it 0))
    #..      (print "not found"))))
@@ -4372,7 +4383,7 @@ we could also reduce the `let` form to a tag with a single argument (its body):
 .. Lissp::
 
    #> (defmacro scope\# (expr)
-   #..  `(let (,'scope (types..SimpleNamespace))
+   #..  `(let (: ,'scope (types..SimpleNamespace)):
    #..     ,expr))
    >>> # defmacro
    ... __import__('builtins').setattr(
@@ -4386,11 +4397,13 @@ we could also reduce the `let` form to a tag with a single argument (its body):
    ...               (
    ...                 '__main__.._macro_.let',
    ...                 (
+   ...                   ':',
    ...                   'scope',
    ...                   (
    ...                     'types..SimpleNamespace',
    ...                     ),
    ...                   ),
+   ...                 ':',
    ...                 expr,
    ...                 )
    ...           ):
@@ -4506,7 +4519,7 @@ Let's try that.
 .. Lissp::
 
    #> (defmacro the\# (expr)
-   #..  `(let (,'the (types..SimpleNamespace))
+   #..  `(let (: ,'the (types..SimpleNamespace)):
    #..     ,(kwarg->set@ expr)))
    >>> # defmacro
    ... __import__('builtins').setattr(
@@ -4520,11 +4533,13 @@ Let's try that.
    ...               (
    ...                 '__main__.._macro_.let',
    ...                 (
+   ...                   ':',
    ...                   'the',
    ...                   (
    ...                     'types..SimpleNamespace',
    ...                     ),
    ...                   ),
+   ...                 ':',
    ...                 kwarg___Gt_setAt_(
    ...                   expr),
    ...                 )
@@ -5005,9 +5020,9 @@ We can implement the macro for it like this:
 
    (defmacro defun-lazy (qualname params : :* body)
      `(defun ,qualname (: :** ,'kwargs)
-        (let (,'lazy (types..SimpleNamespace))
+        (let (: ,'lazy (types..SimpleNamespace)):
           (doto (vars ,'lazy)
-            (.update : ,@chain#(let (iparams (iter params))
+            (.update : ,@chain#(let (: iparams (iter params)):
                                  (zip iparams (map X#`O#,X iparams) : strict 1)))
             (.update (i#starmap (lambda ($#k $#v)
                                   (@ $#k (lambda (: $#v $#v) $#v)))
@@ -5047,9 +5062,9 @@ Let's add that now.
    #..  `(defun ,qualname (: :** ,'kwargs)
    #..     ,@(when (H#is_hissp_string maybe_docstring)
    #..         `(,maybe_docstring))
-   #..     (let (,'lazy (types..SimpleNamespace))
+   #..     (let (: ,'lazy (types..SimpleNamespace)):
    #..       (doto (vars ,'lazy)
-   #..         (.update : ,@chain#(let (iparams (iter params))
+   #..         (.update : ,@chain#(let (: iparams (iter params)):
    #..                              (zip iparams (map X#`O#,X iparams) : strict 1)))
    #..         (.update (i#starmap (lambda ($#k $#v)
    #..                               (@ $#k (lambda (: $#v $#v) $#v)))
@@ -5090,11 +5105,13 @@ Let's add that now.
    ...                 (
    ...                   '__main__.._macro_.let',
    ...                   (
+   ...                     ':',
    ...                     'lazy',
    ...                     (
    ...                       'types..SimpleNamespace',
    ...                       ),
    ...                     ),
+   ...                   ':',
    ...                   (
    ...                     '__main__.._macro_.doto',
    ...                     (
@@ -5357,14 +5374,14 @@ Let's try a small example.
 .. code-block:: REPL
 
    #> (H#macroexpand_all
-   #.. '(let (a (add '(ands) '(b)))
+   #.. '(let a ((add '(ands) '(b)))
    #..    (ors a))
    #.. : preprocess X#(progn (print " in:" X) X)
    #..   postprocess X#(progn (print "out:" X) X))
    >>> __import__('hissp').macroexpand_all(
    ...   ('let',
-   ...    ('a',
-   ...     ('add',
+   ...    'a',
+   ...    (('add',
    ...      ('quote',
    ...       ('ands',),),
    ...      ('quote',
@@ -5385,9 +5402,13 @@ Let's try a small example.
    ...                      X),
    ...                    X)  [-1]
    ...               ))
-    in: ('let', ('a', ('add', ('quote', ('ands',)), ('quote', ('b',)))), ('ors', 'a'))
-    in: (('lambda', (':', 'a', ('add', ('quote', ('ands',)), ('quote', ('b',)))), ('ors', 'a')),)
-    in: ('lambda', (':', 'a', ('add', ('quote', ('ands',)), ('quote', ('b',)))), ('ors', 'a'))
+    in: ('let', 'a', (('add', ('quote', ('ands',)), ('quote', ('b',))),), ('ors', 'a'))
+    in: (('lambda', 'a', ('ors', 'a')), ('add', ('quote', ('ands',)), ('quote', ('b',))))
+    in: ('lambda', 'a', ('ors', 'a'))
+    in: ('ors', 'a')
+    in: a
+   out: a
+   out: ('lambda', 'a', 'a')
     in: ('add', ('quote', ('ands',)), ('quote', ('b',)))
     in: add
    out: add
@@ -5396,12 +5417,8 @@ Let's try a small example.
     in: ('quote', ('b',))
    out: ('quote', ('b',))
    out: ('add', ('quote', ('ands',)), ('quote', ('b',)))
-    in: ('ors', 'a')
-    in: a
-   out: a
-   out: ('lambda', (':', 'a', ('add', ('quote', ('ands',)), ('quote', ('b',)))), 'a')
-   out: (('lambda', (':', 'a', ('add', ('quote', ('ands',)), ('quote', ('b',)))), 'a'),)
-   (('lambda', (':', 'a', ('add', ('quote', ('ands',)), ('quote', ('b',)))), 'a'),)
+   out: (('lambda', 'a', 'a'), ('add', ('quote', ('ands',)), ('quote', ('b',))))
+   (('lambda', 'a', 'a'), ('add', ('quote', ('ands',)), ('quote', ('b',))))
 
 Traversal is basically depth-first,
 the same order the compiler would process code.
@@ -5426,7 +5443,7 @@ We can use this to implement "symbol macros":
 
 .. Lissp::
 
-   #> (let (Sentinel (type "Sentinel" () (dict)))
+   #> (let (: Sentinel (type "Sentinel" () (dict))):
    #..  (defmacro smacrolet (name expansion : :* body)
    #..    (H#macroexpand_all `(progn ,@body)
    #..                       : preprocess X#(if-else (_shadows? X name)
@@ -5553,8 +5570,8 @@ Let's implement that as well.
 .. Lissp::
 
    #> (defun _shadows? (form name)
-   #..  (let-call (: singles ()  pairs (dict)  :** _kwargs)
-   #..            (: :** (H#compiler.delambda form))
+   #..  (let (: singles ()  pairs (dict)  :** _kwargs)
+   #..       (: :** (H#compiler.delambda form))
    #..    (ors (contains singles name)
    #..         (contains (.keys pairs) name))))
    >>> # defun
@@ -5564,7 +5581,7 @@ Let's implement that as well.
    ...               # hissp.macros.._macro_.let
    ...               (
    ...                lambda _gT47WM5HY__lambda=(lambda form, name:
-   ...                           # let___call
+   ...                           # let
    ...                           (
    ...                            lambda singles=(),
    ...                                   pairs=dict(),
@@ -5615,14 +5632,21 @@ Let's try it.
 .. code-block:: REPL
 
    #> (smacrolet a 'A
-   #..  (let () (print a))
-   #..  (let (a (add a a))
+   #..  (let :() (print a))
+   #..  (let (): (print a))
+   #..  (let (: a (add a a)):
+   #..    (ors (print a a.__class__)))
+   #..  (let a ((add a a))
    #..    (ors (print a a.__class__)))
    #..  (print a)
    #..  (print (type a)))
    >>> # smacrolet
    ... (print(
    ...    'A'),
+   ...  (lambda :
+   ...      print(
+   ...        'A')
+   ...  )(),
    ...  (
    ...   lambda a=add(
    ...            'A',
@@ -5632,12 +5656,23 @@ Let's try it.
    ...        a,
    ...        a.__class__)
    ...  )(),
+   ...  (lambda a:
+   ...      # ors
+   ...      print(
+   ...        a,
+   ...        a.__class__)
+   ...  )(
+   ...    add(
+   ...      'A',
+   ...      'A')),
    ...  print(
    ...    'A'),
    ...  print(
    ...    type(
    ...      'A')))  [-1]
    A
+   A
+   AA <class 'str'>
    AA <class 'str'>
    A
    <class 'str'>
@@ -5647,13 +5682,17 @@ but, as you can see from the compiled Python output,
 it does a compile-time substitution instead of an assignment.
 The compiler adds a comment whenever it expands a macro,
 but `macroexpand_all` does not.
-The first `let` disappears without a trace,
+The first `let` disappears without a trace due to the progn optimization,
 and the ``a`` in its body was replaced.
-The second `let` expands to a lambda with a default argument,
+The second `let` was written in a way the compiler didn't recognize as a progn,
+and the ``a`` in its body was replaced as well.
+The third `let` expands to a lambda with a default argument,
 and the name in the default expression gets substituted as well,
 but the body isn't processed,
 because it introduces a local with the target name,
 which "shadows" our symbol macro.
+Finally, the fourth `let` lacks a default,
+but otherwise works the same way.
 Note from the comment that the compiler expanded the `ors`,
 not the pre-expansion from the ``smacrolet``.
 
@@ -5688,7 +5727,7 @@ We can check for exactly that, and rewrite it to a let expression.
 
 .. Lissp::
 
-   #> (let (Sentinel (type "Sentinel" () (dict)))
+   #> (let (: Sentinel (type "Sentinel" () (dict))):
    #..  (defmacro smacrolet (name expansion : :* body)
    #..    (H#macroexpand_all
    #..     `(progn ,@body)
@@ -5698,7 +5737,7 @@ We can check for exactly that, and rewrite it to a let expression.
    #..                      X)
    #..     postprocess X#(cond (eq X name) expansion
    #..                         (isinstance X Sentinel) X.X
-   #..                         (eq (_root-name X) name) `(let ($#name ,expansion)
+   #..                         (eq (_root-name X) name) `(let (: $#name ,expansion):
    #..                                                     ,(.format "{}.{}"
    #..                                                               '$#name
    #..                                                               [##-1](.partition X ".")))
@@ -5784,9 +5823,11 @@ We can check for exactly that, and rewrite it to a let expression.
    ...                                           (
    ...                                             '__main__.._macro_.let',
    ...                                             (
+   ...                                               ':',
    ...                                               '_g6FEG5SPL__name',
    ...                                               expansion,
    ...                                               ),
+   ...                                             ':',
    ...                                             ('{}.{}').format(
    ...                                               '_g6FEG5SPL__name',
    ...                                               # hissp.macros.._macro_._backapply
@@ -5877,8 +5918,8 @@ And now we don't get an error from attribute access:
 .. code-block:: REPL
 
    #> (smacrolet a 'A
-   #..  (let () (print a))
-   #..  (let (a (add a a))
+   #..  (let :() (print a))
+   #..  (let (: a (add a a)):
    #..    (ors (print a a.__class__)))
    #..  (print a a.__class__ a.__class__.__mro__))
    >>> # smacrolet
@@ -5927,7 +5968,7 @@ I will again omit the docstring handling for simplicity.
    #> (defmacro defun-lazy (qualname params : :* body)
    #..  `(defun ,qualname (: :** ,'kwargs)
    #..     (-o>
-   #..      (let ($#lazy (types..SimpleNamespace))
+   #..      (let (: $#lazy (types..SimpleNamespace)):
    #..        (doto (vars $#lazy)
    #..          (.update (zip ,(list [##::2] params)
    #..                        (|| ,@(map X#`O#,X [##1::2] params) ||)
@@ -5960,11 +6001,13 @@ I will again omit the docstring handling for simplicity.
    ...                   (
    ...                     '__main__.._macro_.let',
    ...                     (
+   ...                       ':',
    ...                       '_gGQGC4A3Y__lazy',
    ...                       (
    ...                         'types..SimpleNamespace',
    ...                         ),
    ...                       ),
+   ...                     ':',
    ...                     (
    ...                       '__main__.._macro_.doto',
    ...                       (
@@ -6245,20 +6288,20 @@ Here it is, sans docstring:
    (defmacro destruct-> (data bindings : :* body)
      my### names=(list) $data=`$#data
      (progn walk=(lambda (bindings)
-                   (let (pairs (X#(zip X X : strict True) (iter bindings)))
+                   (let (: pairs (X#(zip X X : strict True) (iter bindings))):
                      `(|| : ,@chain#(i#starmap XY#(if-else (H#is_node Y)
-                                                    `(:* (let (,my.$data (-> ,my.$data ,X))
+                                                    `(:* (let (: ,my.$data (-> ,my.$data ,X)):
                                                            ,(my.walk Y)))
                                                     (progn (.append my.names Y)
                                                            `(:? (-> ,my.$data ,X))))
                                                pairs)
                           :? ||)))
-            values=`(let (,my.$data ,data) ,(my.walk bindings))
-            `(let-call (,@my.names) (: :* ,my.values) ,@body)))
+            values=`(let (: ,my.$data ,data) ,(my.walk bindings)):
+            `(let (,@my.names) (: :* ,my.values) ,@body)))
 
 Starting from the bottom,
 the basic idea is to produce a single tuple of values
-that can be bound to a tuple of local names all at once using a `let-call<let___call>`.
+that can be bound to a tuple of local names all at once using a `let`.
 
 To do that, it needs to remember each target name it finds (``my.names``).
 The tuple of values (``my.values``)
@@ -6401,7 +6444,7 @@ To prove it's possible, here's how you could implement the signature of `print`:
    ...              (
    ...               lambda _gJGOZQ46N__lambda=(lambda *_g454JEHYB__args, **_g454JEHYB__kwargs:
    ...                          # __main__.._macro_.destruct___Gt_
-   ...                          # hissp.macros.._macro_.let___call
+   ...                          # hissp.macros.._macro_.let
    ...                          (lambda sep, end, file, flush, values:
    ...                              print(
    ...                                *values,
@@ -6500,7 +6543,7 @@ There are various ways to check for errors if you want to be strict about it:
    ...              (
    ...               lambda _gJGOZQ46N__lambda=(lambda *_g454JEHYB__args, **_g454JEHYB__kwargs:
    ...                          # __main__.._macro_.destruct___Gt_
-   ...                          # hissp.macros.._macro_.let___call
+   ...                          # hissp.macros.._macro_.let
    ...                          (lambda sep, end, file, flush, values, last___key, last___key___type:
    ...                             (# unless
    ...                              (lambda b, a: ()if b else a())(
@@ -6610,7 +6653,7 @@ in addition to replicating Python's capabilities:
    ...                            (
    ...                             lambda _gJGOZQ46N__lambda=(lambda *_g454JEHYB__args, **_g454JEHYB__kwargs:
    ...                                        # __main__.._macro_.destruct___Gt_
-   ...                                        # hissp.macros.._macro_.let___call
+   ...                                        # hissp.macros.._macro_.let
    ...                                        (lambda x, y:
    ...                                            __import__('builtins').complex(
    ...                                              x,

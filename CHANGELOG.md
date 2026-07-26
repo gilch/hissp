@@ -107,8 +107,25 @@ For example, functions used as tags can be abbreviated with an alias:
 builtins..dict#((1 2)(3 4))
 ```
 
+`let` takes params then args.
+To get the old behavior,
+use defaults and empty args:
+```
+(let (x 1
+      y 2)
+  (print x y))
+;; becomes
+(let (: x 1 ; default params
+        y 2): ; A : is an empty call, like (:).
+  (print x y))
+;; or
+(let xy (1 2) ; You can use a params symbol, like lambda.
+  (print x y))
+```
+`let` can now do packing/unpacking like a call.
+
 Replace
-- `let-from` with `let-call`.
+- `let-from` with `let`.
 - `let*from` with `let*call`.
 - `loop-from` with `let-again`.
 
@@ -117,11 +134,12 @@ See updated API docs. Use `(: :*`-`)` for the old behavior, e.g.,
 (let-from (a b : :* cs) 'abcdefg
   (print a b cs))
 ;; becomes
-(let-call (a b : :* cs) (: :* 'abcdefg)
+(let (a b : :* cs)
+     (: :* 'abcdefg)
   (print a b cs))
 ```
 
-`let-again` takes pairs like `let` instead of an initial iterable.
+`let-again` takes pairs instead of an initial iterable.
 The `recur-from` anaphor has been replaced with `again-with`,
 but works the same.
 

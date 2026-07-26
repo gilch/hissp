@@ -54,8 +54,8 @@
   (self.assertIsNone (nil)))
 
 (H#defun TestMacros.test_let (self)
-  (H#let (x 1
-          y 2)
+  (H#let (: x 1
+            y 2):
     (self.assertEqual x 1)
     (self.assertEqual y 2)))
 
@@ -69,7 +69,8 @@
 (H#defun TestMacros.test_if-else (self)
   (self.assertEqual (H#if-else False :yes :no) :no)
   (self.assertEqual (H#if-else True :yes :no) :yes)
-  (H#let (xs (list))
+  (H#let (xs)
+         ((list))
     (H#if-else False
       (.append xs :yes)
       (.append xs :no))
@@ -79,7 +80,7 @@
     (self.assertEqual xs (enlist ":no" ":yes"))))
 
 (H#defun TestMacros.test_cond (self)
-  (H#let (xs (list))
+  (H#let (: xs (list)):
     (.append xs (H#cond))
     (H#cond False (.append xs :oops))
     (H#cond :else (.append xs 1))
@@ -95,14 +96,14 @@
     (self.assertEqual xs (enlist () 1 2 3 4))))
 
 (H#defun TestMacros.test_any-map (self)
-  (H#let (xs (list))
+  (H#let (: xs (list)):
     (H#any-map i (range 1 10)
       (.append xs i)
       (operator..not_ (operator..mod i 7)))
     (self.assertEqual xs (enlist 1 2 3 4 5 6 7))))
 
 (H#defun TestMacros.test_ands (self)
-  (H#let (xs (list))
+  (H#let (: xs (list)):
     (H#doto xs
       (.append (H#ands))
       (.append (H#ands 0))
@@ -121,7 +122,7 @@
                       xs)))
 
 (H#defun TestMacros.test_ors (self)
-  (H#let (xs (list))
+  (H#let (: xs (list)):
     (H#doto xs
       (.append (H#ors))
       (.append (H#ors 0))
@@ -133,7 +134,7 @@
                       xs)))
 
 (H#defun TestMacros.test_progn (self)
-  (self.assertEqual (H#let (xs (list))
+  (self.assertEqual (H#let (: xs (list)):
                       (H#progn
                         (.append xs 1)
                         (.extend xs "bc")
@@ -141,23 +142,23 @@
                     (enlist 1 "b" "c")))
 
 (H#defun TestMacros.test_prog1 (self)
-  (H#let (xs (list))
+  (H#let (: xs (list)):
     (.append xs (H#prog1 3
                   (.append xs 1)
                   (.append xs 2)))
     (self.assertEqual (enlist 1 2 3) xs)))
 
 (H#defun TestMacros.test_attach (self)
-  (H#let (ns (types..SimpleNamespace)
-          x 1
-          y 2
-          z 3)
+  (H#let (: ns (types..SimpleNamespace)
+            x 1
+            y 2
+            z 3):
     (H#attach ns x y z : p 4  q 5  r 6)
     (self.assertEqual (types..SimpleNamespace : x 1  y 2  z 3  p 4  q 5  r 6)
                       ns)))
 
 (H#defun TestMacros.test_when (self)
-  (H#let (xs (list))
+  (H#let (: xs (list)):
     (H#when 1
       (.append xs 1)
       (.append xs 2))
@@ -167,7 +168,7 @@
     (self.assertEqual (enlist 1 2) xs)))
 
 (H#defun TestMacros.test_unless (self)
-  (H#let (xs (list))
+  (H#let (: xs (list)):
     (H#unless 0
       (.append xs 1)
       (.append xs 2))
@@ -190,14 +191,15 @@
                     (enlist '(100 0) '(101 4))))
 
 (H#defun TestMacros.test_prelude (self)
-  (H#let (env (dict))
+  (H#let (: env (dict)):
     (H#prelude env)
     (self.assertEqual (set operator..__all__)
                       (.intersection (set operator..__all__)
                                      (.keys env)))
     ;; Asserts everything public in itertools is in env.
-    (H#let (members (set (itertools..filterfalse (lambda x (.startswith x "_"))
-                                                 (dir itertools.))))
+    (H#let (members)
+           ((set (itertools..filterfalse (lambda x (.startswith x "_"))
+                                         (dir itertools.))))
       (self.assertEqual members (.intersection members (.keys env))))
     (self.assertIn '_macro_ env)))
 

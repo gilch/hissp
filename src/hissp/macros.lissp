@@ -161,18 +161,18 @@ See `hissp.macros`.
   "
   `((lambda : ,@body)))
 
-(defmacro let (pairs : :* body)
-  "Creates local variables. Pairs are implied by position.
+(defmacro let (params args : :* body)
+  "Creates local variables by immediately calling a lambda.
 
   Created locals are not in scope until the body.
 
   .. code-block:: REPL
 
-     #> (let (x 'a                              ;Create locals.
-     #..      y 'b)                             ;Any number of pairs.
+     #> (let (: x 'a                            ;Create locals from defaults.
+     #..        y 'b):                          ;A : is same as (:). (No args.)
      #..  (print x y)
-     #..  (let (x 'x
-     #..        y (op#concat x x))              ;Not in scope until body.
+     #..  (let (: x 'x
+     #..          y (op#concat x x)):           ;Not in scope until body.
      #..    (print x y))                        ;Outer variables shadowed.
      #..  (print x y))                          ;Inner went out of scope.
      >>> # let
@@ -200,19 +200,10 @@ See `hissp.macros`.
      x aa
      a b
 
-  See also: `let-call <let___call>`, `my# <myHash_>`, `locals`.
-  "
-  `((lambda (: ,@pairs)
-      ,@body)))
-
-(defmacro let-call (params pairs : :* body)
-  "``let-call`` Create parameters from call arg pairs.
-
-  .. code-block:: REPL
-
-     #> (let-call (a b : :* cs  g :?  h 'H) (: :* 'ABCD  :? 'EF  g 'G)
+     #> (let (a b : :* cs  g :?  h 'H) ; parameter packing
+     #..     (: :* 'ABCD  :? 'EF  g 'G) ; argument unpacking
      #..  (print cs b a g h))
-     >>> # let___call
+     >>> # let
      ... (
      ...  lambda a,
      ...         b,
@@ -231,9 +222,9 @@ See `hissp.macros`.
      ...   g='G')
      ('C', 'D', 'EF') B A G H
 
-  See also: `let`, `let*call <letStar_call>`, `assignment`.
+  See also: `my# <myHash_>`, `locals`, `let*call <letStar_call>`, `assignment`.
   "
-  `((lambda ,params ,@body) ,@pairs))
+  `((lambda ,params ,@body) ,@args))
 
 (defmacro fun (qualname params : maybe-docstring ()  :* body)
   "A lambda enhanced with a `qualified name` and optionally a docstring.
@@ -246,12 +237,12 @@ See `hissp.macros`.
   Used by `defmacro` and `defun`. Not recommended for otherwise
   anonymous functions due to the additional overhead.
   "
-  (let-call (name : :* _xs  top ()  doc ())
-            (: :* (reversed (.split qualname '. 1))
-             :** (if-else (hissp..is_hissp_string maybe-docstring)
-                   (dict : doc `(__doc__ ,maybe-docstring))
-                   (dict : top `(,maybe-docstring))))
-    `(let ($#lambda (lambda ,params ,@top ,@body))
+  (let (name : :* _xs  top ()  doc ())
+       (: :* (reversed (.split qualname '. 1))
+        :** (if-else (hissp..is_hissp_string maybe-docstring)
+              (dict : doc `(__doc__ ,maybe-docstring))
+              (dict : top `(,maybe-docstring))))
+    `(let (: $#lambda (lambda ,params ,@top ,@body)):
        `(,@(itertools..starmap
             ,'$#lambda.__setattr__
             (.items (dict : ,@doc ; Used by help().
@@ -363,9 +354,9 @@ See `hissp.macros`.
   "
   (if-else (.startswith name ':)
     (exec '|raise SyntaxError('name cannot be a control word (try a \:)')|)
-    (let (form `(setattr (.get (globals) "_macro_")
-                         ',name
-                         (fun ,(.format "_macro_.{}" name) ,parameters ,@body)))
+    (let (: form `(setattr (.get (globals) "_macro_")
+                           ',name
+                           (fun ,(.format "_macro_.{}" name) ,parameters ,@body))):
       (if-else (operator..contains (.get hissp.compiler..ENV) '_macro_)
         form
         `(progn (.setdefault (globals) "_macro_" (type "_macro_" () |{}|))
@@ -394,7 +385,7 @@ See `hissp.macros`.
   "
   (if-else (.startswith qualname ':)
     (exec '|raise SyntaxError('qualname cannot be a control word (try a \:)')|)
-    (let-call (ns _dot attr) (: :* (.rpartition qualname "."))
+    (let (ns _dot attr) (: :* (.rpartition qualname "."))
       (if-else ns
         `(setattr ,ns ',attr ,value)
         `(.update (globals) : ,qualname ,value)))))
@@ -464,7 +455,7 @@ See `hissp.macros`.
   See also: `deftypeonce`, `hissp.refresh`.
 
   "
-  `(unless ,(let-call (ns _dot attr) (: :* (.rpartition qualname "."))
+  `(unless ,(let (ns _dot attr) (: :* (.rpartition qualname "."))
               (if-else ns
                 `(hasattr ,ns ',attr)
                 `(operator..contains (globals) ',attr)))
@@ -660,8 +651,8 @@ See `hissp.macros`.
   ;;
   ;; See also: `attach`, `types.new_class`, `defonce`.
   ;;
-  (let-call (name singles pairs) (: :? |qualname.rpartition('.')[-1]|
-                                  :* (hissp.compiler..parse_params bases))
+  (let (name singles pairs) (: :? |qualname.rpartition('.')[-1]|
+                             :* (hissp.compiler..parse_params bases))
     `(defonce ,qualname (type ',name (|| ,@singles ||) ,(dict)
                               : ,@|(x for kv in pairs.items() for x in kv)|))))
 
@@ -752,7 +743,7 @@ See `hissp.macros`.
   `(defonce ,typename (collections..namedtuple ',typename ,@args)))
 
 (defmacro let*call (pairs : :* body)
-  "``let*call`` 'let star call' Nested `let-call <let___call>`.
+  "``let*call`` 'let star call' Nested `let`.
 
   Can unpack nested data by using multiple stages.
 
@@ -766,25 +757,25 @@ See `hissp.macros`.
      #..           (j k l : m None  n '|N?|) (: :** jkls)) ; dict unpacking with defaults
      #..  (print a b cs abcs d e f g h i j k l m n jkls))
      >>> # letStar_call
-     ... # hissp.macros.._macro_.let___call
+     ... # hissp.macros.._macro_.let
      ... (lambda abcs:
      ...     # hissp.macros..letStar_call
-     ...     # hissp.macros.._macro_.let___call
+     ...     # hissp.macros.._macro_.let
      ...     (lambda a, b, *cs:
      ...         # hissp.macros..letStar_call
-     ...         # hissp.macros.._macro_.let___call
+     ...         # hissp.macros.._macro_.let
      ...         (
      ...          lambda d=(),
      ...                 e=(),
      ...                 f=():
      ...             # hissp.macros..letStar_call
-     ...             # hissp.macros.._macro_.let___call
+     ...             # hissp.macros.._macro_.let
      ...             (lambda g, h, i:
      ...                 # hissp.macros..letStar_call
-     ...                 # hissp.macros.._macro_.let___call
+     ...                 # hissp.macros.._macro_.let
      ...                 (lambda **jkls:
      ...                     # hissp.macros..letStar_call
-     ...                     # hissp.macros.._macro_.let___call
+     ...                     # hissp.macros.._macro_.let
      ...                     (
      ...                      lambda j,
      ...                             k,
@@ -829,11 +820,11 @@ See `hissp.macros`.
   See also: `my# <myHash_>`, `destruct-> <destruct___Gt_>`.
   "
   (if-else pairs
-    `(let-call ,|pairs[0]| ,|pairs[1]|
+    `(let ,|pairs[0]| ,|pairs[1]|
        (let*call ,|pairs[2:]| ,@body))
     `(progn ,@body)))
 
-;;; See also: let and let-call in Bootstrap.
+;;; See also: let (in Bootstrap).
 
 ;;;; Abbreviations
 
@@ -1070,8 +1061,8 @@ See `hissp.macros`.
   ;;    >>> 'Star_'
   ;;    'Star_'
   ;;
-  ;;    #> (H#let-call ab (: :* "AB") b) ; Macro form. Compiler checks _macro_.
-  ;;    >>> # hissp..let___call
+  ;;    #> (H#let ab (: :* "AB") b) ; Macro form. Compiler checks _macro_.
+  ;;    >>> # hissp..let
   ;;    ... (lambda a, b: b)(
   ;;    ...   *('AB'))
   ;;    'B'
@@ -1334,8 +1325,8 @@ See `hissp.macros`.
   ;;    ...   ((1+1j)))
   ;;    'complex'
   ;;
-  ;;    #> (let (eggs @#'upper
-  ;;    #..      spam 'intersection)
+  ;;    #> (let (: eggs @#'upper
+  ;;    #..        spam 'intersection):
   ;;    #..  ;; Various chaining techniques. Note ' and =@#.
   ;;    #..  @#__name__=@#__class__=(-> (set) @#spam @#'__doc__ eggs))
   ;;    >>> # let
@@ -1399,11 +1390,11 @@ See `hissp.macros`.
   ;;    'sPAM'
   ;;
   (if-else definition
-    (let (qualname (.__getitem__ definition 1))
+    (let (: qualname (.__getitem__ definition 1)):
       (if-else attr
         (exec "raise TypeError('@## got unexpected keyword argument(s)', attr)")
         `(define ,qualname (progn ,definition (,decoration_or_attr ,qualname)))))
-    (let-call (name : oops None) (: :* (map X#`',X attr)  :? decoration_or_attr)
+    (let (name : oops None) (: :* (map X#`',X attr)  :? decoration_or_attr)
       (if-else oops
         (exec "raise TypeError('@# got unexpected keyword argument(s)', attr)")
         `(_backapply ,@(.values attr) (op#attrgetter ,name))))))
@@ -1450,7 +1441,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `operator.setitem`, `operator.delitem`, `zap! <zapBang_>`.
   ;;
-  `(let ($#value ,value)
+  `(let (: $#value ,value):
      (op#setitem ,table ,key $#value)
      $#value))
 
@@ -1499,8 +1490,8 @@ See `hissp.macros`.
   ;;
   ;; See also: `set! <setBang_>`, `zap@ <zapAt_>`, `augassign`.
   ;;
-  `(let ($#table ,table
-         $#key ,key)
+  `(let (: $#table ,table
+           $#key ,key):
      (set! $#table $#key (,f (.__getitem__ $#table $#key)
                              ,@args))))
 
@@ -1641,8 +1632,8 @@ See `hissp.macros`.
     `(_backapply
       ,@table
       (lambda ($#table)
-        (let ($#value (-> ,(.format "({}[{})" '$#table (H#demunge lookup))
-                          ,call))
+        (let (: $#value (-> ,(.format "({}[{})" '$#table (H#demunge lookup))
+                            ,call)):
           ,(.format "[{v}\n for({}[{})in[{v}]][0]"
                     '$#table
                     (H#demunge lookup)
@@ -1710,7 +1701,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `attach`, `delattr`, `zap@ <zapAt_>`, `setattr`.
   ;;
-  `(let ($#value ,value)
+  `(let (: $#value ,value):
      (define ,qualname ,'$#value)
      $#value))
 
@@ -1809,9 +1800,9 @@ See `hissp.macros`.
   ;;
   ;; See also: `setattr`, `set@ <setAt_>`, `vars`.
   ;;
-  (let (iargs (iter args))
-    (let (args (i#takewhile X#(op#ne X ':) iargs))
-      `(let ($#target ,target)
+  (let (: iargs (iter args)):
+    (let (: args (i#takewhile X#(op#ne X ':) iargs)):
+      `(let (: $#target ,target):
          ,@(map X#`(setattr ,'$#target ',|X.split('.')[-1]| ,X) args)
          ,@(map X#`(setattr ,'$#target ',X ,(next iargs))
                 iargs)
@@ -1941,7 +1932,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `-> <Dash_Gt_>`, `en# <enHash_>`.
   ;;
-  (/XY#(let (i (iter Y))
+  (/XY#(let i ((iter Y))
          `(,@(i#takewhile X#(op#ne X :o) i) ,X ,@i))
    (map X# |X if type(X) is tuple else (X,)| forms)
    expr))
@@ -2236,8 +2227,8 @@ See `hissp.macros`.
   ;;
   ;; See also: `any*map <anyStar_map>`, `Ensue`_, `while`.
   ;;
-  `(let ($#stack .#(list '(None None ()))) ; return, sentinel, first call
-     (let (,'again-with $#stack.append)
+  `(let (: $#stack .#(list '(None None ()))): ; return, sentinel, first call
+     (let (: ,'again-with $#stack.append):
        (any*map (: ,@pairs) (iter $#stack.pop None)
          (.__setitem__ $#stack 0 (progn ,@body))
          None)
@@ -2436,7 +2427,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `throw`, `throw* <throwStar_>`.
   ;;
-  `(throw* (let ($#G (lambda ($#x) (if-else (isinstance $#x BaseException) $#x ($#x))))
+  `(throw* (let (: $#G (lambda ($#x) (if-else (isinstance $#x BaseException) $#x ($#x)))):
              (attach ($#G ,exception) : ,'__cause__ ($#G ,cause)))))
 
 ;;;; Side Effect
@@ -2493,7 +2484,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `doto`.
   ;;
-  `(let ($#value1 ,expr1) ,@body $#value1))
+  `(let (: $#value1 ,expr1): ,@body $#value1))
 
 ;;;; Tags
 
@@ -2863,7 +2854,7 @@ See `hissp.macros`.
   ;; Let ``_sentinel`` be a unique sentinel object in a lexical scope
   ;; surrounding ``f``.
   ;;
-  `(let (,'_sentinel (object))
+  `(let (: ,'_sentinel (object)):
      ,f))
 
 (defmacro &\# (f : :* arg_funs  :** kwarg_funs)
@@ -2976,12 +2967,12 @@ See `hissp.macros`.
   ;; See also: `statistics.mean`, `-> <Dash_Gt_>`, `destruct-> <destruct___Gt_>`.
   ;;
   `(lambda (: :* $#a  :** $#kw)
-     ,(let (with-args X#(cond (op#eq `',mk#ANY X) |X[1]|
-                              ;; else if
-                              (ors (H#is_symbol X)
-                                   (H#is_node X))
-                              `(,X : :* ,'$#a  :** ,'$#kw)
-                              :else X))
+     ,(let (: with-args X#(cond (op#eq `',mk#ANY X) |X[1]|
+                                ;; else if
+                                (ors (H#is_symbol X)
+                                     (H#is_node X))
+                                `(,X : :* ,'$#a  :** ,'$#kw)
+                                :else X)):
         `(,f ,@(map with-args arg_funs)
              ,@(when kwarg_funs :)
              ,@chain#(i#starmap XY#`(,X ,(with-args Y))
@@ -3015,7 +3006,7 @@ See `hissp.macros`.
   ;;
   (when (ands xs (op#eq :* (!#-1 xs)))
      (throw (SyntaxError "trailing :*")))
-  (let (ixs (iter xs))
+  (let (: ixs (iter xs)):
     `((lambda (: :* ,'xs) |[*xs]|)
       : ,@chain#(map X#(if-else (op#eq X ":*")
                          `(,X ,(next ixs))
@@ -3046,7 +3037,7 @@ See `hissp.macros`.
   ;;
   (when (ands xs (op#eq :* (!#-1 xs)))
      (throw (SyntaxError "trailing :*")))
-  (let (ixs (iter xs))
+  (let (: ixs (iter xs)):
     `((lambda (: :* ,'xs) |{*xs}|)
       : ,@chain#(map X#(if-else (op#eq X ":*")
                          `(,X ,(next ixs))
@@ -4002,22 +3993,22 @@ sentinel#
   ;; See also:
   ;; `attach`, `set[### <setLsqb_Hash_>`, `destruct-> <destruct___Gt_>`.
   ;;
-  (let (ns (types..SimpleNamespace))
+  (let (: ns (types..SimpleNamespace)):
     (setattr ns
              'form
              X#(cond (isinstance X H#reader.Kwarg) `(set@ ,(H#munge |f"my.{X.k}"|) ,X.v)
                      (H#is_node X) `(,@(map ns.form X))
                      :else X))
     (if-else |expr is None and scope == ()|
-      `(let (,'my (types..SimpleNamespace : ,@chain#(.items kwargs)))
+      `(let (: ,'my (types..SimpleNamespace : ,@chain#(.items kwargs))):
          ,(ns.form targets_or_scope))
-      `(let (,'my (types..SimpleNamespace
-                   : :** (let ($#expr ,expr)
-                           ,(.format "[{}()\n for ({})\n in [{}]]  [0]"
-                                     (H#readerless `locals)
-                                     (H#demunge targets_or_scope)
-                                     '$#expr))
-                   ,@chain#(.items kwargs)))
+      `(let (: ,'my (types..SimpleNamespace
+                     : :** (let (: $#expr ,expr):
+                             ,(.format "[{}()\n for ({})\n in [{}]]  [0]"
+                                       (H#readerless `locals)
+                                       (H#demunge targets_or_scope)
+                                       '$#expr))
+                     ,@chain#(.items kwargs))):
          ;; PEP 709. Compatible with both versions.
          (,'my.__dict__.pop '$#expr None)
          (,'my.__dict__.pop ".0" None)
@@ -4056,7 +4047,7 @@ sentinel#
   ;;    #..            (!#10 num  !#'ns (@#'a-tuple (!#0 a  !#1 b  !#2 c)  @#'spam spam))
   ;;    #..  (locals))
   ;;    >>> # destruct___Gt_
-  ;;    ... # hissp.macros.._macro_.let___call
+  ;;    ... # hissp.macros.._macro_.let
   ;;    ... (lambda num, a, b, c, spam: locals())(
   ;;    ...   *# hissp.macros.._macro_.let
   ;;    ...    (lambda _g275ZTQAC__data=nested___data:
@@ -4128,7 +4119,7 @@ sentinel#
   ;;    #..             (.get 'quux "default for quux") myquux)
   ;;    #..  (pprint..pp (locals)))
   ;;    >>> # destruct___Gt_
-  ;;    ... # hissp.macros.._macro_.let___call
+  ;;    ... # hissp.macros.._macro_.let
   ;;    ... (lambda ns, missing, inner, ab, abc, A, rest, two, three, _0, B, _1, D, myquux:
   ;;    ...     __import__('pprint').pp(
   ;;    ...       locals())
@@ -4258,15 +4249,15 @@ sentinel#
   my### names=(list) $data=`$#data
   (progn walk=(lambda (bindings)
                 `(|| : ,@chain#(i#starmap XY#(if-else (H#is_node Y)
-                                               `(:* (let (,my.$data (-> ,my.$data ,X))
+                                               `(:* (let (: ,my.$data (-> ,my.$data ,X)):
                                                       ,(my.walk Y)))
                                                (progn (.append my.names Y)
                                                       `(:? (-> ,my.$data ,X))))
                                           ;; TODO: itertools.batched on 3.12+
                                           (zip |*2*[iter(bindings)]| : strict True))
                      :? ||))
-         values=`(let (,my.$data ,data) ,(my.walk bindings))
-         `(let-call (,@my.names) (: :* ,my.values) ,@body)))
+         values=`(let (: ,my.$data ,data): ,(my.walk bindings))
+         `(let (,@my.names) (: :* ,my.values) ,@body)))
 
 (defmacro !s\# (names)
   <#;``!s#`` 'item names'
@@ -4281,7 +4272,7 @@ sentinel#
   ;;    #..             || !s#(spam foo))
   ;;    #..  (print whole spam foo))
   ;;    >>> # destruct___Gt_
-  ;;    ... # hissp.macros.._macro_.let___call
+  ;;    ... # hissp.macros.._macro_.let
   ;;    ... (lambda whole, spam, foo:
   ;;    ...     print(
   ;;    ...       whole,
@@ -4334,7 +4325,7 @@ sentinel#
   ;;    #..             || @s#(spam foo))
   ;;    #..  (print whole spam foo))
   ;;    >>> # destruct___Gt_
-  ;;    ... # hissp.macros.._macro_.let___call
+  ;;    ... # hissp.macros.._macro_.let
   ;;    ... (lambda whole, spam, foo:
   ;;    ...     print(
   ;;    ...       whole,
@@ -4386,7 +4377,7 @@ sentinel#
   ;;    #..            (|| whole  || pos#(abc pos#(x y)))
   ;;    #..  (print whole abc x y))
   ;;    >>> # destruct___Gt_
-  ;;    ... # hissp.macros.._macro_.let___call
+  ;;    ... # hissp.macros.._macro_.let
   ;;    ... (lambda whole, abc, x, y:
   ;;    ...     print(
   ;;    ...       whole,
@@ -4497,8 +4488,8 @@ sentinel#
   ;;
   (when (op#mod (len pairs) 2)
     (throw (TypeError "incomplete pair")))
-  (let (kss [##-2::-2] pairs
-        ts [##::-2] pairs)
+  (let (: kss [##-2::-2] pairs
+          ts [##::-2] pairs):
     `((.__getitem__ (|| ,@(map X#`O#,X ts) O#,default ||)
                     (.get ,(dict chain#(i#starmap (lambda (i ks)
                                                     (map X#(@ X i) ks))
@@ -4511,7 +4502,7 @@ sentinel#
   `(ors ,x ()))
 
 (defmacro _spy (expr file)
-  `(let ($#e ,expr)
+  `(let (: $#e ,expr):
      (print (pprint..pformat ',expr : sort_dicts 0)
             "=>"
             (repr $#e)
@@ -4591,10 +4582,10 @@ sentinel#
   ;;
   ;; See also: `timeit`.
   ;;
-  `(let ($#time time..time_ns)
-     (let ($#start ($#time)
-           $#val ,expr
-           $#end ($#time))
+  `(let (: $#time time..time_ns):
+     (let (: $#start ($#time)
+             $#val ,expr
+             $#end ($#time)):
        (print "time# ran"
               (pprint..pformat ',expr : sort_dicts 0)
               "in"
@@ -4646,7 +4637,7 @@ sentinel#
   ;;
   ;; See also: `assert`, `assure`, `throw`.
   ;;
-  `(let (,'it ,expr)
+  `(let (: ,'it ,expr):
      (unless (-> ,'it ,predicate)
        (throw (AssertionError ,@args)))
      ,'it))
