@@ -1183,7 +1183,7 @@ See `hissp.macros`.
   (if-else args `(,|args[-1]| ,a ,@|args[:-1]|) a))
 
 (defmacro !\# (: :* keys)
-  <#;``!#`` 'item tag'
+  <#;``!#`` 'as item'
   ;;
   ;; Mnemonic: !tem.
   ;;
@@ -1295,7 +1295,7 @@ See `hissp.macros`.
 (defmacro @\# (: decoration_or_attr None  definition None  :/ :?  :** attr)
   <#;Overloads:
   ;;
-  ;; * ``@#`` 'attribute tag' gets attribute.
+  ;; * ``@#`` 'as attribute' gets attribute.
   ;; * ``@##`` 'decorator' applies decoration to definition and reassigns.
   ;;
   ;; ----
@@ -4210,7 +4210,7 @@ sentinel#
          `(let (,@my.names) (: :* ,my.values) ,@body)))
 
 (defmacro !s\# (names)
-  <#;``!s#`` 'item names'
+  <#;``!s#`` 'as item names'
   ;;
   ;; `destruct-> <destruct___Gt_>` helper shorthand.
   ;; Destructures a mapping using the binding names as the keys.
@@ -4263,7 +4263,7 @@ sentinel#
   `(,@chain#(zip (map X#`!#',X names) names)))
 
 (defmacro @s\# (names)
-  <#;``@s#`` 'attribute names'
+  <#;``@s#`` 'as attribute names'
   ;;
   ;; `destruct-> <destruct___Gt_>` helper shorthand.
   ;; Destructures a namespace using the binding names as the attributes.
@@ -4316,7 +4316,7 @@ sentinel#
   `(,@chain#(zip (map X#`@#',X names) names)))
 
 (defmacro pos\# (bindings)
-  <#;``pos#`` 'position bindings'
+  <#;``pos#`` 'positionally'
   ;;
   ;; `destruct-> <destruct___Gt_>` helper shorthand.
   ;; Destructures a sequence using each binding form's position index.
