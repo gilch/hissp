@@ -1882,18 +1882,50 @@ See `hissp.macros`.
    expr))
 
 (defmacro <o- (: :* forms)
-  <#;``<o-`` 'Backthread'. As `-o> <Dash_oGt_>`, but reversed.
+  <#;``<o-`` 'Backthread'. As `-o> <Dash_oGt_>`, but prefix order.
   ;;
   ;; Forms nested in macro bodies can stack instead.
-  ;; A common use is for complex generator expressions.
-  ;; Pass to `itertools.chain.from_iterable` to flatten a layer.
-  ;; That can be abbreviated as ``chain#:o`` in this context.
-  ;; Combine with `when` or `unless` to skip. (They default to ``()``)
+  ;; Commonly used for complex `for-in <for___in>` generator expressions.
   ;; Use `let` for more locals without wrapping in an iterable first.
-  ;; `itertools.takewhile` can shortcut, perhaps based on a sentinel value.
   ;;
-  ;; TODO: examples
+  ;; .. code-block:: REPL
   ;;
+  ;;    #> (<o- pprint..pp
+  ;;    #..     (let d ((dict : a 1  b 2  c 3)))
+  ;;    #..     list (for-in k d)
+  ;;    #..     list (for-in v (.values d)
+  ;;    #..            (@ k v)))
+  ;;    >>> # Lt_oDash_
+  ;;    ... __import__('pprint').pp(
+  ;;    ...   # let
+  ;;    ...   (lambda d:
+  ;;    ...       list(
+  ;;    ...         # for___in
+  ;;    ...         __import__('builtins').map(
+  ;;    ...           (lambda k:
+  ;;    ...               list(
+  ;;    ...                 # for___in
+  ;;    ...                 __import__('builtins').map(
+  ;;    ...                   (lambda v:
+  ;;    ...                       # At_
+  ;;    ...                       (lambda *xs: [*xs])(
+  ;;    ...                         k,
+  ;;    ...                         v)
+  ;;    ...                   ),
+  ;;    ...                   d.values()))
+  ;;    ...           ),
+  ;;    ...           d))
+  ;;    ...   )(
+  ;;    ...     dict(
+  ;;    ...       a=(1),
+  ;;    ...       b=(2),
+  ;;    ...       c=(3))))
+  ;;    [[['a', 1], ['a', 2], ['a', 3]],
+  ;;     [['b', 1], ['b', 2], ['b', 3]],
+  ;;     [['c', 1], ['c', 2], ['c', 3]]]
+  ;;
+  ;; See also: `when`, `unless`, `prog1`, `binding`, `if-else <if___else>`,
+  ;; `let-again <let___again>`, `destruct-> <destruct___Gt_>`.
   ;;
   (.-o> _macro_ : :* (reversed forms)))
 
@@ -2029,9 +2061,9 @@ See `hissp.macros`.
 (defmacro for-in (param xs : :* body)
   <#;``for-in`` generator expression.
   ;;
-  ;; As with Python `genexpr`, the resulting iterator is typically immediately
-  ;; passed to some other callable.
-  ;; Pass to collection constructors like `dict` or `list` for comprehensions.
+  ;; As with Python's `genexpr`, the resulting iterator is typically
+  ;; immediately passed to a callable.
+  ;;
   ;; Pass to `any` for an imperative loop with a break.
   ;;
   ;; .. code-block:: REPL
@@ -2056,10 +2088,176 @@ See `hissp.macros`.
   ;;    ...       (11))))
   ;;    1:2:3:4:5:6:7:True
   ;;
-  ;; TODO: examples
+  ;; Pass to collection constructors like `dict` or `list` for comprehensions.
+  ;; Combine with `<o- <Lt_oDash_>` for complex comprehensions with multiple
+  ;; loops or conditions.
   ;;
-  ;; See also: `map`, `for`, `break`, `set`, `chain# <chainHash_>`.
-  ;; `functools.reduce`.
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (<o- dict (for-in kv (.items (dict : a 1  b 2  c 3)))
+  ;;    #..     (let kv (: :* kv))
+  ;;    #..     (|| v k)) ; Inverts the dict.
+  ;;    >>> # Lt_oDash_
+  ;;    ... dict(
+  ;;    ...   # for___in
+  ;;    ...   __import__('builtins').map(
+  ;;    ...     (lambda kv:
+  ;;    ...         # let
+  ;;    ...         (lambda k, v:
+  ;;    ...             (
+  ;;    ...               v,
+  ;;    ...               k)
+  ;;    ...         )(
+  ;;    ...           *kv)
+  ;;    ...     ),
+  ;;    ...     dict(
+  ;;    ...       a=(1),
+  ;;    ...       b=(2),
+  ;;    ...       c=(3)).items()))
+  ;;    {1: 'a', 2: 'b', 3: 'c'}
+  ;;
+  ;; Pass to `itertools.chain.from_iterable` to flatten a layer.
+  ;; That can be abbreviated with `chain# <chainHash_>`. Use on ``:o``
+  ;; inside a ``<o-`` context. (See also: `itertools.product`.)
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (<o- list
+  ;;    #..     (let d ((dict : a 1  b 2  c 3)))
+  ;;    #..     chain#:o (for-in k d)
+  ;;    #..     (for-in v (.values d)
+  ;;    #..       (.format "{}-{}" k v)))
+  ;;    >>> # Lt_oDash_
+  ;;    ... list(
+  ;;    ...   # let
+  ;;    ...   (lambda d:
+  ;;    ...       __import__('itertools').chain.from_iterable(
+  ;;    ...         # for___in
+  ;;    ...         __import__('builtins').map(
+  ;;    ...           (lambda k:
+  ;;    ...               # for___in
+  ;;    ...               __import__('builtins').map(
+  ;;    ...                 (lambda v:
+  ;;    ...                     ('{}-{}').format(
+  ;;    ...                       k,
+  ;;    ...                       v)
+  ;;    ...                 ),
+  ;;    ...                 d.values())
+  ;;    ...           ),
+  ;;    ...           d))
+  ;;    ...   )(
+  ;;    ...     dict(
+  ;;    ...       a=(1),
+  ;;    ...       b=(2),
+  ;;    ...       c=(3))))
+  ;;    ['a-1', 'a-2', 'a-3', 'b-1', 'b-2', 'b-3', 'c-1', 'c-2', 'c-3']
+  ;;
+  ;; Combine with `when` or `unless` to skip. (They default to ``()``.)
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (<o- list
+  ;;    #..     (let d ((dict : a 1  b 2  c 3)))
+  ;;    #..     (let (: items (set (.items d))):)
+  ;;    #..     chain#:o (for-in k d)
+  ;;    #..     (unless |k=='b'|)
+  ;;    #..     chain#:o (for-in v (.values d))
+  ;;    #..     (unless (items.__contains__ (|| k v))
+  ;;    #..       ;; Wrapped so we can use chain#.
+  ;;    #..       `(,(.format "{}-{}" k v))))
+  ;;    >>> # Lt_oDash_
+  ;;    ... list(
+  ;;    ...   # let
+  ;;    ...   (lambda d:
+  ;;    ...       # let
+  ;;    ...       (
+  ;;    ...        lambda items=set(
+  ;;    ...                 d.items()):
+  ;;    ...           __import__('itertools').chain.from_iterable(
+  ;;    ...             # for___in
+  ;;    ...             __import__('builtins').map(
+  ;;    ...               (lambda k:
+  ;;    ...                   # unless
+  ;;    ...                   (lambda b, a: ()if b else a())(
+  ;;    ...                     k=='b',
+  ;;    ...                     (lambda :
+  ;;    ...                         __import__('itertools').chain.from_iterable(
+  ;;    ...                           # for___in
+  ;;    ...                           __import__('builtins').map(
+  ;;    ...                             (lambda v:
+  ;;    ...                                 # unless
+  ;;    ...                                 (lambda b, a: ()if b else a())(
+  ;;    ...                                   items.__contains__(
+  ;;    ...                                     (
+  ;;    ...                                       k,
+  ;;    ...                                       v)),
+  ;;    ...                                   (lambda :
+  ;;    ...                                       (
+  ;;    ...                                         ('{}-{}').format(
+  ;;    ...                                           k,
+  ;;    ...                                           v),
+  ;;    ...                                         )
+  ;;    ...                                   ))
+  ;;    ...                             ),
+  ;;    ...                             d.values()))
+  ;;    ...                     ))
+  ;;    ...               ),
+  ;;    ...               d))
+  ;;    ...       )()
+  ;;    ...   )(
+  ;;    ...     dict(
+  ;;    ...       a=(1),
+  ;;    ...       b=(2),
+  ;;    ...       c=(3))))
+  ;;    ['a-2', 'a-3', 'c-1', 'c-2']
+  ;;
+  ;; `itertools.takewhile` can shortcut lazy iterators,
+  ;;  perhaps based on a sentinel value.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (<o- list (i#takewhile X#X)
+  ;;    #..     (let d ((dict : a 1  b 2  c 3)))
+  ;;    #..     chain#:o (for-in k d)
+  ;;    #..     (for-in v (.values d))
+  ;;    #..     (let x ((.format "{}-{}" k v)))
+  ;;    #..     (unless |x=='b-3'| x))
+  ;;    >>> # Lt_oDash_
+  ;;    ... list(
+  ;;    ...   __import__('itertools').takewhile(
+  ;;    ...     (lambda X: X),
+  ;;    ...     # let
+  ;;    ...     (lambda d:
+  ;;    ...         __import__('itertools').chain.from_iterable(
+  ;;    ...           # for___in
+  ;;    ...           __import__('builtins').map(
+  ;;    ...             (lambda k:
+  ;;    ...                 # for___in
+  ;;    ...                 __import__('builtins').map(
+  ;;    ...                   (lambda v:
+  ;;    ...                       # let
+  ;;    ...                       (lambda x:
+  ;;    ...                           # unless
+  ;;    ...                           (lambda b, a: ()if b else a())(
+  ;;    ...                             x=='b-3',
+  ;;    ...                             (lambda : x))
+  ;;    ...                       )(
+  ;;    ...                         ('{}-{}').format(
+  ;;    ...                           k,
+  ;;    ...                           v))
+  ;;    ...                   ),
+  ;;    ...                   d.values())
+  ;;    ...             ),
+  ;;    ...             d))
+  ;;    ...     )(
+  ;;    ...       dict(
+  ;;    ...         a=(1),
+  ;;    ...         b=(2),
+  ;;    ...         c=(3)))))
+  ;;    ['a-1', 'a-2', 'a-3', 'b-1', 'b-2']
+  ;;
+  ;; See also: `map`, `for`, `break`, `zip`, `itertools`,
+  ;; `functools.reduce`, `let-again <let___again>`.
   ;;
   `(map (lambda (,param) ,@body) ,xs))
 
@@ -2327,7 +2525,7 @@ See `hissp.macros`.
 ;;;; Side Effect
 
 ;;; see also from Bootstrap: progn
-;;; Note that any of the bundled macros with a lambda "body" argument
+;;; Note that any of the bundled macros with a lambda "*body" argument
 ;;; also sequence expressions for side effects.
 
 (defmacro prog1 (expr1 : :* body)
