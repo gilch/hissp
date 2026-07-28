@@ -408,7 +408,8 @@ class Parser(Iterator):
         if is_lissp_unicode(form):
             return "quote", form
         if C.is_node(form):
-            return ("",":", *chain(*self._template_forms(form)), ":?", "")  # fmt: skip
+            xs = ("", ":", *chain(*self._template_forms(form)), ":?", "")
+            return xs[: max(6, len(xs) - 2)]
         if C.is_str(form) and not form.startswith(":"):
             return "quote", self.qualify(form)
         if case is _Unquote:

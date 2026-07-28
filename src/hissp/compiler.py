@@ -212,8 +212,7 @@ class Compiler:
         compiled output:
 
         >>> print(readerless(('print',42,)))  # function call
-        print(
-          (42))
+        (print ((42)))
         >>> print(readerless(('quote',('print',42,),)))  # tuple
         ('print',
          (42),)
@@ -245,8 +244,7 @@ class Compiler:
         ...            ,':**','kwargs',)
         ...  ,42,)
         ... ))
-        (
-         lambda a,
+        (lambda a,
                 /,
                 b,
                 e=(1),
@@ -256,7 +254,7 @@ class Compiler:
                 i,
                 j=(1),
                 **kwargs:
-            (42))
+          (42))
 
 
         The special `control word`\ s ``:*`` and ``:**`` designate the
@@ -271,11 +269,8 @@ class Compiler:
         ...  ,('print','kwargs',),)
         ... ))
         (lambda *args, **kwargs:
-           (print(
-              args),
-            print(
-              kwargs))  [-1]
-        )
+         ((print (args))
+         ,(print (kwargs))  )[-1])
 
         You can omit the right of a pair with ``:?``
         (except the final ``**kwargs``).
@@ -284,13 +279,12 @@ class Compiler:
         >>> print(readerless(
         ... ('lambda', (':','a',1, ':/',':?', ':*',':?', 'b',':?', 'c',2,),),
         ... ))
-        (
-         lambda a=(1),
+        (lambda a=(1),
                 /,
                 *,
                 b,
                 c=(2):
-            ())
+          ())
 
         The ``:`` may be omitted if there are no paired parameters.
 
@@ -307,18 +301,16 @@ class Compiler:
         if there are no single parameters:
 
         >>> readerless(('lambda', (':',':**','kwargs',),),)
-        '(lambda **kwargs: ())'
+        '(lambda **kwargs:\n ())'
 
         """
-        fn, parameters, *body = form
-        assert fn == "lambda"
-        sep = (len(body) <= 1) * " "
-        parameters, body = self.parameters(parameters), self.body(body)
-        param_has_nl, body_has_nl = "\n" in parameters, "\n" in body
-        begin, end = param_has_nl * "\n ", body_has_nl * "\n"
-        middle = (body_has_nl or param_has_nl) * f"\n{3*' '}"
-        body = body.replace("\n", f"\n{3*' '}{sep}")
-        return f"({begin}lambda {parameters}:{middle}{sep}{body}{end})"
+        h, p, *b = form
+        assert h == "lambda"
+        sep = (len(b) <= 1) * " "
+        parameters, body = self.parameters(p), self.body(b)
+        middle = "\n " * ("\n" in body or len(parameters) != 0)
+        body = body.replace("\n", f"\n {sep}")
+        return f"(lambda {parameters}:{middle}{sep}{body})"
 
     @_trace
     def parameters(self, parameters: Iterable) -> str:
@@ -339,7 +331,8 @@ class Compiler:
             elif v == ":?":
                 r.append(k)
             else:
-                r.append(f"{k}={self.compile_form(v)}")
+                default = self.compile_form(v).replace("\n", "\n ")
+                r.append("{}{}={}".format(k, "\n" * ("\n" in default), default))
                 sep = ",\n"
         return sep.join(r).replace("\n", _PARAM_INDENT)
 
@@ -348,8 +341,8 @@ class Compiler:
         """Compile body of `lambda_`."""
         body = tuple(map(self.compile_form, body))
         if len(body) > 1:
-            result = ",\n".join(body).replace("\n", "\n ")
-            return f"({result})  [-1]"
+            result = "\n,".join(s.replace("\n", "\n ") for s in body)
+            return f"({result}  )[-1]"
         return f"{body and body[0]}"
 
     @_trace
@@ -411,31 +404,23 @@ class Compiler:
         ... ('print',1,2,3
         ...         ,':','sep',('quote',":",), 'end',('quote',"\n\n",),)
         ... ))
-        print(
-          (1),
-          (2),
-          (3),
-          sep=':',
-          end='\n\n')
+        (print ((1),(2),(3),sep=':',end='\n\n'))
 
         Either <singles> or <pairs> may be empty:
 
         >>> readerless(('foo',':',),)
-        'foo()'
+        '(foo ())'
         >>> print(readerless(('foo','bar',':',),))
-        foo(
-          bar)
+        (foo (bar))
         >>> print(readerless(('foo',':','bar','baz',),))
-        foo(
-          bar=baz)
+        (foo (bar=baz))
 
         The ``:`` is optional if the <pairs> part is empty:
 
         >>> readerless(('foo',),)
-        'foo()'
+        '(foo ())'
         >>> print(readerless(('foo','bar',),),)
-        foo(
-          bar)
+        (foo (bar))
 
         Use the ``:*`` and ``:**`` targets for position and
         keyword unpacking, respectively:
@@ -443,11 +428,7 @@ class Compiler:
         >>> print(readerless(
         ... ('print',':',':*',[1,2], 'a',3, ':*',[4], ':**',{'sep':':','end':'\n\n'},),
         ... ))
-        print(
-          *[1, 2],
-          a=(3),
-          *[4],
-          **{'sep': ':', 'end': '\n\n'})
+        (print (*[1, 2],a=(3),*[4],**{'sep': ':', 'end': '\n\n'}))
 
         Method calls are similar to function calls:
 
@@ -457,32 +438,40 @@ class Compiler:
         name starts with a dot:
 
         >>> readerless(('.conjugate', 1j,),)
-        '(1j).conjugate()'
+        '((1j).conjugate ())'
         >>> eval(_)
         -1j
         >>> readerless(('.decode', b'\xfffoo', ':', 'errors',('quote','ignore',),),)
-        "b'\\xfffoo'.decode(\n  errors='ignore')"
+        "(b'\\xfffoo'.decode (errors='ignore'))"
         >>> eval(_)
         'foo'
 
         """
-        form = iter(form)
-        head = next(form)
-        args = chain(
-            (singles := [*map(self.compile_form, takewhile(lambda a: a != ":", form))]),
-            starmap(self._pair_arg, pairs := [*_pairs(form)]),
+        head, args = next(ixs := iter(form)), chain(
+            (singles := [*map(self.compile_form, takewhile(lambda a: a != ":", ixs))]),
+            starmap(self._pair_arg, pairs := [*_pairs(ixs)]),
         )
-        if is_str(head) and head.startswith("."):
-            if singles or pairs[0][0] == ":?":
-                return "{}.{}({})".format(next(args), head[1:], _join_args(*args))
+        is_method = is_str(head) and head.startswith(".")
+        if is_method and not singles and pairs[0][0] != ":?":
             raise CompileError("self must be paired with :?")
-        return "{}({})".format(self.compile_form(head), _join_args(*args))
+        head = f"{next(args)}{head}" if is_method else self.compile_form(head)
+        joined = self._join_args(*args)
+        nl = "\n " * ("\n" in joined or "\n" in head or len(joined) + len(head) > 70)
+        head = head.replace("\n", "\n ")
+        return f"({head} ({nl}{joined}))"
 
     def _pair_arg(self, k: str, v) -> str:
-        k = PAIR_WORDS.get(k, k + "=")
+        v = self.compile_form(v)
+        k = PAIR_WORDS.get(k, "{}{}=".format(k, "\n" * ("\n" in v)))
         if ".." in k:
             k = k.split(".")[-1]
-        return k + self.compile_form(v).replace("\n", "\n" + " " * len(k))
+        return k + v.replace("\n", "\n" + " " * len(k.split("\n")[-1]))
+
+    @staticmethod
+    def _join_args(*args: str) -> str:
+        if len(s := ",".join(args)) > 50 or "\n" in s or "))" in s:
+            s = ",\n".join(args).replace("\n", "\n ")
+        return s
 
     @_trace
     def fragment(self, code: str) -> str:
@@ -633,10 +622,6 @@ class Compiler:
         return (code,)
 
 
-def _join_args(*args: str) -> str:
-    return (("\n" if args else "") + ",\n".join(args)).replace("\n", "\n  ")
-
-
 T = TypeVar("T")
 
 
@@ -695,14 +680,11 @@ def execute(*forms: object, env: Env | None = None) -> str:
     ...     ('hissp..define','result',('operator..mul','FACTOR',6,),),
     ... ))
     # hissp..define
-    __import__('builtins').globals().update(
-      FACTOR=(7))
+    ((__import__('builtins').globals ()).update (FACTOR=(7)))
     <BLANKLINE>
     # hissp..define
-    __import__('builtins').globals().update(
-      result=__import__('operator').mul(
-               FACTOR,
-               (6)))
+    ((__import__('builtins').globals ()).update (
+     result=(__import__('operator').mul (FACTOR,(6)))))
     >>> result
     42
     """

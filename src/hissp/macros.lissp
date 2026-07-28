@@ -107,25 +107,17 @@ See `hissp.macros`.
      #..       (if-else (op#eq c 'b)            ;ternary conditional
      #..         (print 'Yes)
      #..         (print 'No))))
-     >>> any(
-     ...   # for___in
-     ...   __import__('builtins').map(
-     ...     (lambda c:
-     ...         # if___else
-     ...         (lambda b, c, a: c()if b else a())(
-     ...           __import__('operator').eq(
-     ...             c,
-     ...             'b'),
-     ...           (lambda :
-     ...               print(
-     ...                 'Yes')
-     ...           ),
-     ...           (lambda :
-     ...               print(
-     ...                 'No')
-     ...           ))
-     ...     ),
-     ...     'ab'))
+     >>> (any (
+     ...  # for___in
+     ...  (__import__('builtins').map (
+     ...   (lambda c:
+     ...     # if___else
+     ...     ((lambda b, c, a:
+     ...        c()if b else a()) (
+     ...      (__import__('operator').eq (c,'b')),
+     ...      (lambda : (print ('Yes'))),
+     ...      (lambda : (print ('No')))))),
+     ...   'ab'))))
      No
      Yes
      False
@@ -146,13 +138,11 @@ See `hissp.macros`.
      #> (print (progn (print 1)                 ;Sequence for side effects, eval to last.
      #..              (print 2)
      #..              3))
-     >>> print(
-     ...   # progn
-     ...   (print(
-     ...      (1)),
-     ...    print(
-     ...      (2)),
-     ...    (3))  [-1])
+     >>> (print (
+     ...  # progn
+     ...  ((print ((1)))
+     ...  ,(print ((2)))
+     ...  ,(3)  )[-1]))
      1
      2
      3
@@ -176,26 +166,16 @@ See `hissp.macros`.
      #..    (print x y))                        ;Outer variables shadowed.
      #..  (print x y))                          ;Inner went out of scope.
      >>> # let
-     ... (
-     ...  lambda x='a',
-     ...         y='b':
-     ...    (print(
-     ...       x,
-     ...       y),
-     ...     # let
-     ...     (
-     ...      lambda x='x',
-     ...             y=__import__('operator').concat(
-     ...               x,
-     ...               x):
-     ...         print(
-     ...           x,
-     ...           y)
-     ...     )(),
-     ...     print(
-     ...       x,
-     ...       y))  [-1]
-     ... )()
+     ... ((lambda x='a',
+     ...          y='b':
+     ...   ((print (x,y))
+     ...   ,# let
+     ...    ((lambda x='x',
+     ...             y=(__import__('operator').concat (x,x)):
+     ...       (print (x,y))) (
+     ...     ))
+     ...   ,(print (x,y))  )[-1]) (
+     ...  ))
      a b
      x aa
      a b
@@ -210,42 +190,33 @@ See `hissp.macros`.
      #..     (let (g h i) (: :* 'ghi)) ; positional unpacking
      #..     (let (: :** jkls) (: j 'J  k 'K  l 'L)) ; kwargs (dict packing)
      #..     (let (j k l : m None  n '|N?|) (: :** jkls) ; dict unpacking with defaults
-     #..       |print(a,b,cs,abcs,d,e,f,g,h,i,j,k,l,m,n,jkls)|))
+     #..       (print a b cs abcs d e f g h i j k l m n jkls)))
      >>> # Lt_oDash_
      ... # let
-     ... (lambda abcs:
-     ...     # let
-     ...     (lambda a, b, *cs:
-     ...         # let
-     ...         (
-     ...          lambda d=(),
-     ...                 e=(),
-     ...                 f=():
+     ... ((lambda abcs:
+     ...    # let
+     ...    ((lambda a, b, *cs:
+     ...       # let
+     ...       ((lambda d=(),
+     ...                e=(),
+     ...                f=():
+     ...          # let
+     ...          ((lambda g, h, i:
      ...             # let
-     ...             (lambda g, h, i:
-     ...                 # let
-     ...                 (lambda **jkls:
-     ...                     # let
-     ...                     (
-     ...                      lambda j,
-     ...                             k,
-     ...                             l,
-     ...                             m=None,
-     ...                             n='N?':
-     ...                         print(a,b,cs,abcs,d,e,f,g,h,i,j,k,l,m,n,jkls))(
-     ...                       **jkls)
-     ...                 )(
-     ...                   j='J',
-     ...                   k='K',
-     ...                   l='L')
-     ...             )(
-     ...               *'ghi')
-     ...         )(
-     ...           *'de')
-     ...     )(
-     ...       *abcs)
-     ... )(
-     ...   'abcdef')
+     ...             ((lambda **jkls:
+     ...                # let
+     ...                ((lambda j,
+     ...                         k,
+     ...                         l,
+     ...                         m=None,
+     ...                         n='N?':
+     ...                   (print (a,b,cs,abcs,d,e,f,g,h,i,j,k,l,m,n,jkls))) (
+     ...                 **jkls))) (
+     ...              j='J',k='K',l='L'))) (
+     ...           *'ghi'))) (
+     ...        *'de'))) (
+     ...     *abcs))) (
+     ...  'abcdef'))
      a b ('c', 'd', 'e', 'f') abcdef d e () g h i J K L None N? {'j': 'J', 'k': 'K', 'l': 'L'}
 
   See also: `my# <myHash_>`, `locals`, `<o- <Lt_oDash_>`, `assignment`.
@@ -290,21 +261,16 @@ See `hissp.macros`.
      #> (any (for-in c 'abcd
      #..       (unless (op#eq c 'b)
      #..         (print c))))
-     >>> any(
-     ...   # for___in
-     ...   __import__('builtins').map(
-     ...     (lambda c:
-     ...         # unless
-     ...         (lambda b, a: ()if b else a())(
-     ...           __import__('operator').eq(
-     ...             c,
-     ...             'b'),
-     ...           (lambda :
-     ...               print(
-     ...                 c)
-     ...           ))
-     ...     ),
-     ...     'abcd'))
+     >>> (any (
+     ...  # for___in
+     ...  (__import__('builtins').map (
+     ...   (lambda c:
+     ...     # unless
+     ...     ((lambda b, a:
+     ...        ()if b else a()) (
+     ...      (__import__('operator').eq (c,'b')),
+     ...      (lambda : (print (c)))))),
+     ...   'abcd'))))
      a
      c
      d
@@ -336,44 +302,37 @@ See `hissp.macros`.
      #..  <#;Prints 1 2 3 with the given separator
      #..  `(print 1 2 3 : sep ,sep))
      >>> # defmacro
-     ... __import__('builtins').setattr(
-     ...   __import__('builtins').globals().get(
-     ...     ('_macro_')),
-     ...   'p123',
-     ...   # hissp.macros.._macro_.fun
-     ...   # hissp.macros.._macro_.let
-     ...   (
-     ...    lambda _gNKUV4WZP__lambda=(lambda sep:
-     ...               (
-     ...                 'builtins..print',
-     ...                 (1),
-     ...                 (2),
-     ...                 (3),
-     ...                 ':',
-     ...                 '__main__..sep',
-     ...                 sep,
-     ...                 )
-     ...           ):
-     ...      ((
-     ...         *__import__('itertools').starmap(
-     ...            _gNKUV4WZP__lambda.__setattr__,
-     ...            __import__('builtins').dict(
-     ...              __doc__='Prints 1 2 3 with the given separator',
-     ...              __name__='p123',
-     ...              __qualname__='_macro_.p123',
-     ...              __code__=_gNKUV4WZP__lambda.__code__.replace(
-     ...                         co_name='p123')).items()),
-     ...         ),
-     ...       _gNKUV4WZP__lambda)  [-1]
-     ...   )())
+     ... (__import__('builtins').setattr (
+     ...  ((__import__('builtins').globals ()).get (('_macro_'))),
+     ...  'p123',
+     ...  # hissp.macros.._macro_.fun
+     ...  # hissp.macros.._macro_.let
+     ...  ((lambda _gNEKQ6WMZ__lambda
+     ...           =(lambda sep:
+     ...              ( (
+     ...               'builtins..print',
+     ...               (1),
+     ...               (2),
+     ...               (3),
+     ...               ':',
+     ...               '__main__..sep',
+     ...               sep))):
+     ...    (( (
+     ...      *(__import__('itertools').starmap (
+     ...        _gNEKQ6WMZ__lambda.__setattr__,
+     ...        ((__import__('builtins').dict (
+     ...          __doc__='Prints 1 2 3 with the given separator',
+     ...          __name__='p123',
+     ...          __qualname__='_macro_.p123',
+     ...          __code__=(_gNEKQ6WMZ__lambda.__code__.replace (co_name='p123')))).items (
+     ...         )))),
+     ...      ))
+     ...    ,_gNEKQ6WMZ__lambda  )[-1]) (
+     ...   ))))
 
      #> (p123 ::)
      >>> # p123
-     ... __import__('builtins').print(
-     ...   (1),
-     ...   (2),
-     ...   (3),
-     ...   sep='::')
+     ... (__import__('builtins').print ((1),(2),(3),sep='::'))
      1::2::3
 
   See also: `<# <Lt_Hash_>`, `attach`, `lambda_`, `defun`.
@@ -399,8 +358,7 @@ See `hissp.macros`.
 
      #> (define SPAM 'tomato)
      >>> # define
-     ... __import__('builtins').globals().update(
-     ...   SPAM='tomato')
+     ... ((__import__('builtins').globals ()).update (SPAM='tomato'))
 
      #> SPAM
      >>> SPAM
@@ -437,41 +395,35 @@ See `hissp.macros`.
      #> (defonce CACHE (types..SimpleNamespace : x 1))
      >>> # defonce
      ... # hissp.macros.._macro_.unless
-     ... (lambda b, a: ()if b else a())(
-     ...   __import__('operator').contains(
-     ...     __import__('builtins').globals(),
-     ...     'CACHE'),
-     ...   (lambda :
-     ...       # hissp.macros.._macro_.define
-     ...       __import__('builtins').globals().update(
-     ...         CACHE=__import__('types').SimpleNamespace(
-     ...                 x=(1)))
-     ...   ))
+     ... ((lambda b, a:
+     ...    ()if b else a()) (
+     ...  (__import__('operator').contains (
+     ...   (__import__('builtins').globals ()),
+     ...   'CACHE')),
+     ...  (lambda :
+     ...    # hissp.macros.._macro_.define
+     ...    ((__import__('builtins').globals ()).update (
+     ...     CACHE=(__import__('types').SimpleNamespace (x=(1))))))))
 
      #> (setattr CACHE 'x 42)
-     >>> setattr(
-     ...   CACHE,
-     ...   'x',
-     ...   (42))
+     >>> (setattr (CACHE,'x',(42)))
 
      #> (defonce CACHE (progn (print 'not 'evaluated)
      #..                      (types..SimpleNamespace : x 1)))
      >>> # defonce
      ... # hissp.macros.._macro_.unless
-     ... (lambda b, a: ()if b else a())(
-     ...   __import__('operator').contains(
-     ...     __import__('builtins').globals(),
-     ...     'CACHE'),
-     ...   (lambda :
-     ...       # hissp.macros.._macro_.define
-     ...       __import__('builtins').globals().update(
-     ...         CACHE=# progn
-     ...               (print(
-     ...                  'not',
-     ...                  'evaluated'),
-     ...                __import__('types').SimpleNamespace(
-     ...                  x=(1)))  [-1])
-     ...   ))
+     ... ((lambda b, a:
+     ...    ()if b else a()) (
+     ...  (__import__('operator').contains (
+     ...   (__import__('builtins').globals ()),
+     ...   'CACHE')),
+     ...  (lambda :
+     ...    # hissp.macros.._macro_.define
+     ...    ((__import__('builtins').globals ()).update (
+     ...     CACHE
+     ...     =# progn
+     ...      ((print ('not','evaluated'))
+     ...      ,(__import__('types').SimpleNamespace (x=(1)))  )[-1])))))
      ()
 
      #> CACHE ; The second defonce had no effect.
@@ -511,28 +463,27 @@ See `hissp.macros`.
   ;;    >>> # deftypeonce
   ;;    ... # hissp.macros.._macro_.defonce
   ;;    ... # hissp.macros.._macro_.unless
-  ;;    ... (lambda b, a: ()if b else a())(
-  ;;    ...   __import__('operator').contains(
-  ;;    ...     __import__('builtins').globals(),
-  ;;    ...     'Point2D'),
-  ;;    ...   (lambda :
-  ;;    ...       # hissp.macros.._macro_.define
-  ;;    ...       __import__('builtins').globals().update(
-  ;;    ...         Point2D=__import__('builtins').type(
-  ;;    ...                   'Point2D',
-  ;;    ...                   (
-  ;;    ...                     tuple,
-  ;;    ...                     ),
-  ;;    ...                   {}))
-  ;;    ...   ))
+  ;;    ... ((lambda b, a:
+  ;;    ...    ()if b else a()) (
+  ;;    ...  (__import__('operator').contains (
+  ;;    ...   (__import__('builtins').globals ()),
+  ;;    ...   'Point2D')),
+  ;;    ...  (lambda :
+  ;;    ...    # hissp.macros.._macro_.define
+  ;;    ...    ((__import__('builtins').globals ()).update (
+  ;;    ...     Point2D
+  ;;    ...     =(__import__('builtins').type (
+  ;;    ...       'Point2D',
+  ;;    ...       ( (tuple,)),
+  ;;    ...       {})))))))
   ;;
   ;;    #> (define Point2D.__doc__
   ;;    #..  "Attributes can also be defined afterwards.")
   ;;    >>> # define
-  ;;    ... __import__('builtins').setattr(
-  ;;    ...   Point2D,
-  ;;    ...   '__doc__',
-  ;;    ...   ('Attributes can also be defined afterwards.'))
+  ;;    ... (__import__('builtins').setattr (
+  ;;    ...  Point2D,
+  ;;    ...  '__doc__',
+  ;;    ...  ('Attributes can also be defined afterwards.')))
   ;;
   ;;    #> Point2D.__doc__
   ;;    >>> Point2D.__doc__
@@ -542,71 +493,61 @@ See `hissp.macros`.
   ;;    #..  (.__new__ tuple cls `(,x ,y)))
   ;;    >>> # defun
   ;;    ... # hissp.macros.._macro_.define
-  ;;    ... __import__('builtins').setattr(
-  ;;    ...   Point2D,
-  ;;    ...   '__new__',
-  ;;    ...   # hissp.macros.._macro_.fun
-  ;;    ...   # hissp.macros.._macro_.let
-  ;;    ...   (
-  ;;    ...    lambda _gHDCRUAXN__lambda=(lambda cls, x, y:
-  ;;    ...               tuple.__new__(
-  ;;    ...                 cls,
-  ;;    ...                 (
-  ;;    ...                   x,
-  ;;    ...                   y,
-  ;;    ...                   ))
-  ;;    ...           ):
-  ;;    ...      ((
-  ;;    ...         *__import__('itertools').starmap(
-  ;;    ...            _gHDCRUAXN__lambda.__setattr__,
-  ;;    ...            __import__('builtins').dict(
-  ;;    ...              __name__='__new__',
-  ;;    ...              __qualname__='Point2D.__new__',
-  ;;    ...              __code__=_gHDCRUAXN__lambda.__code__.replace(
-  ;;    ...                         co_name='__new__')).items()),
-  ;;    ...         ),
-  ;;    ...       _gHDCRUAXN__lambda)  [-1]
-  ;;    ...   )())
+  ;;    ... (__import__('builtins').setattr (
+  ;;    ...  Point2D,
+  ;;    ...  '__new__',
+  ;;    ...  # hissp.macros.._macro_.fun
+  ;;    ...  # hissp.macros.._macro_.let
+  ;;    ...  ((lambda _gOZSYHIUC__lambda
+  ;;    ...           =(lambda cls, x, y:
+  ;;    ...              (tuple.__new__ (
+  ;;    ...               cls,
+  ;;    ...               ( (x,y))))):
+  ;;    ...    (( (
+  ;;    ...      *(__import__('itertools').starmap (
+  ;;    ...        _gOZSYHIUC__lambda.__setattr__,
+  ;;    ...        ((__import__('builtins').dict (
+  ;;    ...          __name__='__new__',
+  ;;    ...          __qualname__='Point2D.__new__',
+  ;;    ...          __code__=(_gOZSYHIUC__lambda.__code__.replace (co_name='__new__')))).items (
+  ;;    ...         )))),
+  ;;    ...      ))
+  ;;    ...    ,_gOZSYHIUC__lambda  )[-1]) (
+  ;;    ...   ))))
   ;;
   ;;    #> (set@ a-point (Point2D 1 2))
   ;;    >>> # setAt_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda _g25XHX4Y4__value=Point2D(
-  ;;    ...           (1),
-  ;;    ...           (2)):
-  ;;    ...    (# hissp.macros.._macro_.define
-  ;;    ...     __import__('builtins').globals().update(
-  ;;    ...       a___point=_g25XHX4Y4__value),
-  ;;    ...     _g25XHX4Y4__value)  [-1]
-  ;;    ... )()
+  ;;    ... ((lambda _g3FNGFV3O__value=(Point2D ((1),(2))):
+  ;;    ...   (# hissp.macros.._macro_.define
+  ;;    ...    ((__import__('builtins').globals ()).update (a___point=_g3FNGFV3O__value))
+  ;;    ...   ,_g3FNGFV3O__value  )[-1]) (
+  ;;    ...  ))
   ;;    (1, 2)
   ;;
   ;;    #> (defun Point2D.__repr__ (self)
   ;;    #..  (.format "Point2D({!r}, {!r})" : :* self))
   ;;    >>> # defun
   ;;    ... # hissp.macros.._macro_.define
-  ;;    ... __import__('builtins').setattr(
-  ;;    ...   Point2D,
-  ;;    ...   '__repr__',
-  ;;    ...   # hissp.macros.._macro_.fun
-  ;;    ...   # hissp.macros.._macro_.let
-  ;;    ...   (
-  ;;    ...    lambda _gRCWY23WM__lambda=(lambda self:
-  ;;    ...               ('Point2D({!r}, {!r})').format(
-  ;;    ...                 *self)
-  ;;    ...           ):
-  ;;    ...      ((
-  ;;    ...         *__import__('itertools').starmap(
-  ;;    ...            _gRCWY23WM__lambda.__setattr__,
-  ;;    ...            __import__('builtins').dict(
-  ;;    ...              __name__='__repr__',
-  ;;    ...              __qualname__='Point2D.__repr__',
-  ;;    ...              __code__=_gRCWY23WM__lambda.__code__.replace(
-  ;;    ...                         co_name='__repr__')).items()),
-  ;;    ...         ),
-  ;;    ...       _gRCWY23WM__lambda)  [-1]
-  ;;    ...   )())
+  ;;    ... (__import__('builtins').setattr (
+  ;;    ...  Point2D,
+  ;;    ...  '__repr__',
+  ;;    ...  # hissp.macros.._macro_.fun
+  ;;    ...  # hissp.macros.._macro_.let
+  ;;    ...  ((lambda _gINGGMGKS__lambda
+  ;;    ...           =(lambda self:
+  ;;    ...              (('Point2D({!r}, {!r})').format (*self))):
+  ;;    ...    (( (
+  ;;    ...      *(__import__('itertools').starmap (
+  ;;    ...        _gINGGMGKS__lambda.__setattr__,
+  ;;    ...        ((__import__('builtins').dict (
+  ;;    ...          __name__='__repr__',
+  ;;    ...          __qualname__='Point2D.__repr__',
+  ;;    ...          __code__=(_gINGGMGKS__lambda.__code__.replace (co_name='__repr__')))).items (
+  ;;    ...         )))),
+  ;;    ...      ))
+  ;;    ...    ,_gINGGMGKS__lambda  )[-1]) (
+  ;;    ...   ))))
   ;;
   ;;    #> a-point ; Existing instances can find the new method.
   ;;    >>> a___point
@@ -622,57 +563,53 @@ See `hissp.macros`.
   ;;    #..  "Just displays inputs"
   ;;    #..  (print kwargs))
   ;;    >>> # hissp.macros.._macro_.define
-  ;;    ... __import__('builtins').setattr(
-  ;;    ...   Point2D,
-  ;;    ...   '__init_subclass__',
-  ;;    ...   # hissp.macros.._macro_.progn
-  ;;    ...   (# defun
-  ;;    ...    # hissp.macros.._macro_.define
-  ;;    ...    __import__('builtins').setattr(
-  ;;    ...      Point2D,
-  ;;    ...      '__init_subclass__',
-  ;;    ...      # hissp.macros.._macro_.fun
-  ;;    ...      # hissp.macros.._macro_.let
-  ;;    ...      (
-  ;;    ...       lambda _gXEVGDNH2__lambda=(lambda cls, /, **kwargs:
-  ;;    ...                  print(
-  ;;    ...                    kwargs)
-  ;;    ...              ):
-  ;;    ...         ((
-  ;;    ...            *__import__('itertools').starmap(
-  ;;    ...               _gXEVGDNH2__lambda.__setattr__,
-  ;;    ...               __import__('builtins').dict(
-  ;;    ...                 __doc__=('Just displays inputs'),
-  ;;    ...                 __name__='__init_subclass__',
-  ;;    ...                 __qualname__='Point2D.__init_subclass__',
-  ;;    ...                 __code__=_gXEVGDNH2__lambda.__code__.replace(
-  ;;    ...                            co_name='__init_subclass__')).items()),
-  ;;    ...            ),
-  ;;    ...          _gXEVGDNH2__lambda)  [-1]
-  ;;    ...      )()),
-  ;;    ...    classmethod(
-  ;;    ...      Point2D.__init_subclass__))  [-1])
+  ;;    ... (__import__('builtins').setattr (
+  ;;    ...  Point2D,
+  ;;    ...  '__init_subclass__',
+  ;;    ...  # hissp.macros.._macro_.progn
+  ;;    ...  (# defun
+  ;;    ...   # hissp.macros.._macro_.define
+  ;;    ...   (__import__('builtins').setattr (
+  ;;    ...    Point2D,
+  ;;    ...    '__init_subclass__',
+  ;;    ...    # hissp.macros.._macro_.fun
+  ;;    ...    # hissp.macros.._macro_.let
+  ;;    ...    ((lambda _gXCSQFJ7P__lambda
+  ;;    ...             =(lambda cls, /, **kwargs:
+  ;;    ...                (print (kwargs))):
+  ;;    ...      (( (
+  ;;    ...        *(__import__('itertools').starmap (
+  ;;    ...          _gXCSQFJ7P__lambda.__setattr__,
+  ;;    ...          ((__import__('builtins').dict (
+  ;;    ...            __doc__=('Just displays inputs'),
+  ;;    ...            __name__='__init_subclass__',
+  ;;    ...            __qualname__='Point2D.__init_subclass__',
+  ;;    ...            __code__=(_gXCSQFJ7P__lambda.__code__.replace (co_name='__init_subclass__')))).items (
+  ;;    ...           )))),
+  ;;    ...        ))
+  ;;    ...      ,_gXCSQFJ7P__lambda  )[-1]) (
+  ;;    ...     ))))
+  ;;    ...  ,(classmethod (Point2D.__init_subclass__))  )[-1]))
   ;;
   ;;    #> (deftypeonce ASubclass Point2D : a 1  b 2)
   ;;    >>> # deftypeonce
   ;;    ... # hissp.macros.._macro_.defonce
   ;;    ... # hissp.macros.._macro_.unless
-  ;;    ... (lambda b, a: ()if b else a())(
-  ;;    ...   __import__('operator').contains(
-  ;;    ...     __import__('builtins').globals(),
-  ;;    ...     'ASubclass'),
-  ;;    ...   (lambda :
-  ;;    ...       # hissp.macros.._macro_.define
-  ;;    ...       __import__('builtins').globals().update(
-  ;;    ...         ASubclass=__import__('builtins').type(
-  ;;    ...                     'ASubclass',
-  ;;    ...                     (
-  ;;    ...                       Point2D,
-  ;;    ...                       ),
-  ;;    ...                     {},
-  ;;    ...                     a=(1),
-  ;;    ...                     b=(2)))
-  ;;    ...   ))
+  ;;    ... ((lambda b, a:
+  ;;    ...    ()if b else a()) (
+  ;;    ...  (__import__('operator').contains (
+  ;;    ...   (__import__('builtins').globals ()),
+  ;;    ...   'ASubclass')),
+  ;;    ...  (lambda :
+  ;;    ...    # hissp.macros.._macro_.define
+  ;;    ...    ((__import__('builtins').globals ()).update (
+  ;;    ...     ASubclass
+  ;;    ...     =(__import__('builtins').type (
+  ;;    ...       'ASubclass',
+  ;;    ...       ( (Point2D,)),
+  ;;    ...       {},
+  ;;    ...       a=(1),
+  ;;    ...       b=(2))))))))
   ;;    {'a': 1, 'b': 2}
   ;;
   ;; See also: `attach`, `types.new_class`, `defonce`.
@@ -691,22 +628,24 @@ See `hissp.macros`.
      >>> # deftupleonce
      ... # hissp.macros.._macro_.defonce
      ... # hissp.macros.._macro_.unless
-     ... (lambda b, a: ()if b else a())(
-     ...   __import__('operator').contains(
-     ...     __import__('builtins').globals(),
-     ...     'Vec3D'),
-     ...   (lambda :
-     ...       # hissp.macros.._macro_.define
-     ...       __import__('builtins').globals().update(
-     ...         Vec3D=__import__('collections').namedtuple(
-     ...                 'Vec3D',
-     ...                 ('x',
-     ...                  'y',
-     ...                  'z',),
-     ...                 defaults=((0),
-     ...                           (0),
-     ...                           (0),)))
-     ...   ))
+     ... ((lambda b, a:
+     ...    ()if b else a()) (
+     ...  (__import__('operator').contains (
+     ...   (__import__('builtins').globals ()),
+     ...   'Vec3D')),
+     ...  (lambda :
+     ...    # hissp.macros.._macro_.define
+     ...    ((__import__('builtins').globals ()).update (
+     ...     Vec3D
+     ...     =(__import__('collections').namedtuple (
+     ...       'Vec3D',
+     ...       ('x',
+     ...        'y',
+     ...        'z',),
+     ...       defaults
+     ...       =((0),
+     ...         (0),
+     ...         (0),))))))))
 
   Like `deftypeonce`, methods can be attached afterward. On reload, the
   existing class is modified, affecting all of its instances, including
@@ -716,53 +655,40 @@ See `hissp.macros`.
 
      #> (define offset (Vec3D : z 1  x 2))
      >>> # define
-     ... __import__('builtins').globals().update(
-     ...   offset=Vec3D(
-     ...            z=(1),
-     ...            x=(2)))
+     ... ((__import__('builtins').globals ()).update (offset=(Vec3D (z=(1),x=(2)))))
 
      #> (defun Vec3D.__add__ (self other)
      #..  (._make Vec3D (map op#add self other)))
      >>> # defun
      ... # hissp.macros.._macro_.define
-     ... __import__('builtins').setattr(
-     ...   Vec3D,
-     ...   '__add__',
-     ...   # hissp.macros.._macro_.fun
-     ...   # hissp.macros.._macro_.let
-     ...   (
-     ...    lambda _gB5WXG6ZL__lambda=(lambda self, other:
-     ...               Vec3D._make(
-     ...                 map(
-     ...                   __import__('operator').add,
-     ...                   self,
-     ...                   other))
-     ...           ):
-     ...      ((
-     ...         *__import__('itertools').starmap(
-     ...            _gB5WXG6ZL__lambda.__setattr__,
-     ...            __import__('builtins').dict(
-     ...              __name__='__add__',
-     ...              __qualname__='Vec3D.__add__',
-     ...              __code__=_gB5WXG6ZL__lambda.__code__.replace(
-     ...                         co_name='__add__')).items()),
-     ...         ),
-     ...       _gB5WXG6ZL__lambda)  [-1]
-     ...   )())
+     ... (__import__('builtins').setattr (
+     ...  Vec3D,
+     ...  '__add__',
+     ...  # hissp.macros.._macro_.fun
+     ...  # hissp.macros.._macro_.let
+     ...  ((lambda _gPMXP6CNX__lambda
+     ...           =(lambda self, other:
+     ...              (Vec3D._make ((map (__import__('operator').add,self,other))))):
+     ...    (( (
+     ...      *(__import__('itertools').starmap (
+     ...        _gPMXP6CNX__lambda.__setattr__,
+     ...        ((__import__('builtins').dict (
+     ...          __name__='__add__',
+     ...          __qualname__='Vec3D.__add__',
+     ...          __code__=(_gPMXP6CNX__lambda.__code__.replace (co_name='__add__')))).items (
+     ...         )))),
+     ...      ))
+     ...    ,_gPMXP6CNX__lambda  )[-1]) (
+     ...   ))))
 
      #> (op#add offset offset)
-     >>> __import__('operator').add(
-     ...   offset,
-     ...   offset)
+     >>> (__import__('operator').add (offset,offset))
      Vec3D(x=4, y=0, z=2)
 
      #> (op#add _ (Vec3D 10 20 30))
-     >>> __import__('operator').add(
-     ...   _,
-     ...   Vec3D(
-     ...     (10),
-     ...     (20),
-     ...     (30)))
+     >>> (__import__('operator').add (
+     ...  _,
+     ...  (Vec3D ((10),(20),(30)))))
      Vec3D(x=14, y=20, z=32)
 
   "
@@ -808,14 +734,14 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (list (map X#(@ X) "abc")) ; en#list would also work here.
-  ;;    >>> list(
-  ;;    ...   map(
-  ;;    ...     (lambda X:
-  ;;    ...         # At_
-  ;;    ...         (lambda *xs: [*xs])(
-  ;;    ...           X)
-  ;;    ...     ),
-  ;;    ...     ('abc')))
+  ;;    >>> (list (
+  ;;    ...  (map (
+  ;;    ...   (lambda X:
+  ;;    ...     # At_
+  ;;    ...     ((lambda *xs:
+  ;;    ...        [*xs]) (
+  ;;    ...      X))),
+  ;;    ...   ('abc')))))
   ;;    [['a'], ['b'], ['c']]
   ;;
   ;; Compact function definition using Python operators.
@@ -824,17 +750,17 @@ See `hissp.macros`.
   ;;
   ;;    #> (define teen? X#|13<=X<20|)
   ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   teenEh_=(lambda X: 13<=X<20))
+  ;;    ... ((__import__('builtins').globals ()).update (
+  ;;    ...  teenEh_
+  ;;    ...  =(lambda X:
+  ;;    ...     13<=X<20)))
   ;;
   ;;    #> (teen? 12.5)
-  ;;    >>> teenEh_(
-  ;;    ...   (12.5))
+  ;;    >>> (teenEh_ ((12.5)))
   ;;    False
   ;;
   ;;    #> (teen? 19.5)
-  ;;    >>> teenEh_(
-  ;;    ...   (19.5))
+  ;;    >>> (teenEh_ ((19.5)))
   ;;    True
   ;;
   ;; Get an attribute without calling it.
@@ -842,27 +768,28 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (X#X.upper "shout")
-  ;;    >>> (lambda X: X.upper)(
-  ;;    ...   ('shout'))
+  ;;    >>> ((lambda X:
+  ;;    ...    X.upper) (
+  ;;    ...  ('shout')))
   ;;    <built-in method upper of str object at ...>
   ;;
   ;;    #> (_)
-  ;;    >>> _()
+  ;;    >>> (_ ())
   ;;    'SHOUT'
   ;;
   ;;    #> (define class-name X#X.__class__.__name__) ; Attributes chain.
   ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   class___name=(lambda X: X.__class__.__name__))
+  ;;    ... ((__import__('builtins').globals ()).update (
+  ;;    ...  class___name
+  ;;    ...  =(lambda X:
+  ;;    ...     X.__class__.__name__)))
   ;;
   ;;    #> (class-name object)
-  ;;    >>> class___name(
-  ;;    ...   object)
+  ;;    >>> (class___name (object))
   ;;    'type'
   ;;
   ;;    #> (class-name "foo")
-  ;;    >>> class___name(
-  ;;    ...   ('foo'))
+  ;;    >>> (class___name (('foo')))
   ;;    'str'
   ;;
   ;; See also:
@@ -877,13 +804,10 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (functools..reduce XY#(op#concat Y X) 'abcd)
-  ;;    >>> __import__('functools').reduce(
-  ;;    ...   (lambda X, Y:
-  ;;    ...       __import__('operator').concat(
-  ;;    ...         Y,
-  ;;    ...         X)
-  ;;    ...   ),
-  ;;    ...   'abcd')
+  ;;    >>> (__import__('functools').reduce (
+  ;;    ...  (lambda X, Y:
+  ;;    ...    (__import__('operator').concat (Y,X))),
+  ;;    ...  'abcd'))
   ;;    'dcba'
   ;;
   ;; See also:
@@ -897,10 +821,11 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (XYZ#|X*Y == Z| : X math..pi  Y 2  Z math..tau)
-  ;;    >>> (lambda X, Y, Z: X*Y == Z)(
-  ;;    ...   X=__import__('math').pi,
-  ;;    ...   Y=(2),
-  ;;    ...   Z=__import__('math').tau)
+  ;;    >>> ((lambda X, Y, Z:
+  ;;    ...    X*Y == Z) (
+  ;;    ...  X=__import__('math').pi,
+  ;;    ...  Y=(2),
+  ;;    ...  Z=__import__('math').tau))
   ;;    True
   ;;
   ;; See also: `XY# <XYHash_>`, `XYZW# <XYZWHash_>`.
@@ -913,11 +838,9 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (XYZW#|X[Y:Z:W]| "QuaoblcldefHg" -2 1 -2)
-  ;;    >>> (lambda X, Y, Z, W: X[Y:Z:W])(
-  ;;    ...   ('QuaoblcldefHg'),
-  ;;    ...   (-2),
-  ;;    ...   (1),
-  ;;    ...   (-2))
+  ;;    >>> ((lambda X, Y, Z, W:
+  ;;    ...    X[Y:Z:W]) (
+  ;;    ...  ('QuaoblcldefHg'),(-2),(1),(-2)))
   ;;    'Hello'
   ;;
   ;; See also: `XYZ# <XYZHash_>`, `en# <enHash_>`, `X# <XHash_>`.
@@ -934,18 +857,14 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> /XY#(op#add Y X)
-  ;;    >>> __import__('functools').partial(
-  ;;    ...   __import__('functools').reduce,
-  ;;    ...   (lambda X, Y:
-  ;;    ...       __import__('operator').add(
-  ;;    ...         Y,
-  ;;    ...         X)
-  ;;    ...   ))
+  ;;    >>> (__import__('functools').partial (
+  ;;    ...  __import__('functools').reduce,
+  ;;    ...  (lambda X, Y:
+  ;;    ...    (__import__('operator').add (Y,X)))))
   ;;    functools.partial(<built-in function reduce>, <function <lambda> at 0x...>)
   ;;
   ;;    #> (_ 'ABCD)
-  ;;    >>> _(
-  ;;    ...   'ABCD')
+  ;;    >>> (_ ('ABCD'))
   ;;    'DCBA'
   ;;
   ;; See also: `XY# <XYHash_>`, `/# <Fsol_Hash_>`.
@@ -960,45 +879,40 @@ See `hissp.macros`.
   ;;    #> (hissp..alias H hissp.)
   ;;    >>> # hissp..alias
   ;;    ... # hissp.macros.._macro_.defmacro
-  ;;    ... __import__('builtins').setattr(
-  ;;    ...   __import__('builtins').globals().get(
-  ;;    ...     ('_macro_')),
-  ;;    ...   'HHash_',
-  ;;    ...   # hissp.macros.._macro_.fun
-  ;;    ...   # hissp.macros.._macro_.let
-  ;;    ...   (
-  ;;    ...    lambda _g5W6NQPRW__lambda=(lambda attr, /, *args, **kwargs:
-  ;;    ...               __import__('hissp.macros',fromlist='*')._alias(
-  ;;    ...                 (lambda :
-  ;;    ...                     __import__('builtins').getattr(
-  ;;    ...                       __import__('hissp')._macro_,
-  ;;    ...                       f'{attr}Hash_')
-  ;;    ...                 ),
-  ;;    ...                 'hissp.',
-  ;;    ...                 attr,
-  ;;    ...                 *args,
-  ;;    ...                 **kwargs)
-  ;;    ...           ):
-  ;;    ...      ((
-  ;;    ...         *__import__('itertools').starmap(
-  ;;    ...            _g5W6NQPRW__lambda.__setattr__,
-  ;;    ...            __import__('builtins').dict(
-  ;;    ...              __doc__='Aliases ``hissp.`` as ``H#``.',
-  ;;    ...              __name__='HHash_',
-  ;;    ...              __qualname__='_macro_.HHash_',
-  ;;    ...              __code__=_g5W6NQPRW__lambda.__code__.replace(
-  ;;    ...                         co_name='HHash_')).items()),
-  ;;    ...         ),
-  ;;    ...       _g5W6NQPRW__lambda)  [-1]
-  ;;    ...   )())
+  ;;    ... (__import__('builtins').setattr (
+  ;;    ...  ((__import__('builtins').globals ()).get (('_macro_'))),
+  ;;    ...  'HHash_',
+  ;;    ...  # hissp.macros.._macro_.fun
+  ;;    ...  # hissp.macros.._macro_.let
+  ;;    ...  ((lambda _gAC6JH3NQ__lambda
+  ;;    ...           =(lambda attr, /, *args, **kwargs:
+  ;;    ...              (__import__('hissp.macros',fromlist='*')._alias (
+  ;;    ...               (lambda :
+  ;;    ...                 (__import__('builtins').getattr (
+  ;;    ...                  __import__('hissp')._macro_,f'{attr}Hash_'))),
+  ;;    ...               'hissp.',
+  ;;    ...               attr,
+  ;;    ...               *args,
+  ;;    ...               **kwargs))):
+  ;;    ...    (( (
+  ;;    ...      *(__import__('itertools').starmap (
+  ;;    ...        _gAC6JH3NQ__lambda.__setattr__,
+  ;;    ...        ((__import__('builtins').dict (
+  ;;    ...          __doc__='Aliases ``hissp.`` as ``H#``.',
+  ;;    ...          __name__='HHash_',
+  ;;    ...          __qualname__='_macro_.HHash_',
+  ;;    ...          __code__=(_gAC6JH3NQ__lambda.__code__.replace (co_name='HHash_')))).items (
+  ;;    ...         )))),
+  ;;    ...      ))
+  ;;    ...    ,_gAC6JH3NQ__lambda  )[-1]) (
+  ;;    ...   ))))
   ;;
   ;;    #> 'H#munge ; One-arg form of new tag prepends qualifier.
   ;;    >>> 'hissp..munge'
   ;;    'hissp..munge'
   ;;
   ;;    #> (H#munge "*") ; Normal function call.
-  ;;    >>> __import__('hissp').munge(
-  ;;    ...   ('*'))
+  ;;    >>> (__import__('hissp').munge (('*')))
   ;;    'Star_'
   ;;
   ;;    #> '.##H#munge|*| ; Read-time apply via .#, like a fully qualified tag.
@@ -1007,8 +921,9 @@ See `hissp.macros`.
   ;;
   ;;    #> (H#let ab (: :* "AB") b) ; Macro form. Compiler checks _macro_.
   ;;    >>> # hissp..let
-  ;;    ... (lambda a, b: b)(
-  ;;    ...   *('AB'))
+  ;;    ... ((lambda a, b:
+  ;;    ...    b) (
+  ;;    ...  *('AB')))
   ;;    'B'
   ;;
   ;;    #>  H#(% 'qualified (% 'not 'recursive) ; Qualifies qualifiable 'symbol keys.
@@ -1016,22 +931,21 @@ See `hissp.macros`.
   ;;    #..      operator..add "quoted symbols only"
   ;;    #..      '7 '8 ; quoting other things is OK.
   ;;    #..      (|| 'identity-form) "doesn't count")
-  ;;    >>> # Pcent_
-  ;;    ... (lambda x0, x1, x2, x3, x4, x5, x6, x7, x8, x9: {x0:x1,x2:x3,x4:x5,x6:x7,x8:x9})(
-  ;;    ...   'hissp..qualified',
-  ;;    ...   # Pcent_
-  ;;    ...   (lambda x0, x1: {x0:x1})(
-  ;;    ...     'not',
-  ;;    ...     'recursive'),
-  ;;    ...   'foo..bar',
-  ;;    ...   'baz',
-  ;;    ...   __import__('operator').add,
-  ;;    ...   ('quoted symbols only'),
-  ;;    ...   (7),
-  ;;    ...   (8),
-  ;;    ...   (
-  ;;    ...     'identity___form'),
-  ;;    ...   ("doesn't count"))
+  ;;    lambda x0, x1, x2, x3, x4, x5, x6, x7, x8, x9: {x0:x1,x2:x3,x4:x5,x6:x7,x8:x9}) (
+  ;;    ...  'hissp..qualified',
+  ;;    ...  # Pcent_
+  ;;    ...  ((lambda x0, x1: {x0:x1}) (
+  ;;    ...   'not',
+  ;;    ...   'recursive')),
+  ;;    ...  'foo..bar',
+  ;;    ...  'baz',
+  ;;    ...  __import__('operator').add,
+  ;;    ...  ('quoted symbols only'),
+  ;;    ...  (7),
+  ;;    ...  (8),
+  ;;    ...  ( (
+  ;;    ...   'identity___form')),
+  ;;    ...  ("doesn't count")))
   ;;    {'hissp..qualified': {'not': 'recursive'}, 'foo..bar': 'baz', <built-in function add>: 'quoted symbols only', 7: 8, 'identity___form': "doesn't count"}
   ;;
   ;;    #> (H#b\#"a b# at compile time") ; Macro form.
@@ -1049,9 +963,7 @@ See `hissp.macros`.
   ;;
   ;;    #> H##@ tau=math. ; Kwargs also work.
   ;;    >>> # hissp.macros.._macro_._backapply
-  ;;    ... __import__('operator').attrgetter(
-  ;;    ...   'tau')(
-  ;;    ...   __import__('math'))
+  ;;    ... ((__import__('operator').attrgetter ('tau')) (__import__('math')))
   ;;    6.283185307179586
   ;;
   ;; The bundled `op# <opHash_>` and `i# <iHash_>` tags are aliases
@@ -1135,54 +1047,42 @@ See `hissp.macros`.
   ;;
   ;;    #> (define first !#0)                      ;Gets an item by index.
   ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   first=# hissp.macros.._macro_._backapply
-  ;;    ...         __import__('operator').itemgetter(
-  ;;    ...           (0)))
+  ;;    ... ((__import__('builtins').globals ()).update (
+  ;;    ...  first
+  ;;    ...  =# hissp.macros.._macro_._backapply
+  ;;    ...   (__import__('operator').itemgetter ((0)))))
   ;;
   ;;    #> (first "abc")
-  ;;    >>> first(
-  ;;    ...   ('abc'))
+  ;;    >>> (first (('abc')))
   ;;    'a'
   ;;
   ;;    #> (!#(slice None None -1) "abc")          ;Slicing without injection.
-  ;;    >>> # hissp.macros.._macro_._backapply
-  ;;    ... __import__('operator').itemgetter(
-  ;;    ...   slice(
-  ;;    ...     None,
-  ;;    ...     None,
-  ;;    ...     (-1)))(
-  ;;    ...   ('abc'))
+  ;;    >>> (# hissp.macros.._macro_._backapply
+  ;;    ...  (__import__('operator').itemgetter ((slice (None,None,(-1))))) (
+  ;;    ...  ('abc')))
   ;;    'cba'
   ;;
-  ;;    #> (!###2 0 1 "abc")                       ;Multiple lookups.
-  ;;    >>> # hissp.macros.._macro_._backapply
-  ;;    ... __import__('operator').itemgetter(
-  ;;    ...   (2),
-  ;;    ...   (0),
-  ;;    ...   (1))(
-  ;;    ...   ('abc'))
+  ;;    #> (!#*=(2 0 1) "abc")                       ;Multiple lookups.
+  ;;    >>> (# hissp.macros.._macro_._backapply
+  ;;    ...  (__import__('operator').itemgetter ((2),(0),(1))) (
+  ;;    ...  ('abc')))
   ;;    ('c', 'a', 'b')
   ;;
   ;;    #> (!#'+ (dict : foo 2  + 1))              ;These also work on dicts.
-  ;;    >>> # hissp.macros.._macro_._backapply
-  ;;    ... __import__('operator').itemgetter(
-  ;;    ...   'Plus_')(
-  ;;    ...   dict(
-  ;;    ...     foo=(2),
-  ;;    ...     Plus_=(1)))
+  ;;    >>> (# hissp.macros.._macro_._backapply
+  ;;    ...  (__import__('operator').itemgetter ('Plus_')) (
+  ;;    ...  (dict (foo=(2),Plus_=(1)))))
   ;;    1
   ;;
   ;;    #> (-> '(foo bar) !#1 .upper !#0)          ;Unary compatible with ->.
   ;;    >>> # Dash_Gt_
   ;;    ... # hissp.macros.._macro_._backapply
-  ;;    ... __import__('operator').itemgetter(
-  ;;    ...   (0))(
-  ;;    ...   # hissp.macros.._macro_._backapply
-  ;;    ...   __import__('operator').itemgetter(
-  ;;    ...     (1))(
-  ;;    ...     ('foo',
-  ;;    ...      'bar',)).upper())
+  ;;    ... ((__import__('operator').itemgetter ((0))) (
+  ;;    ...  (# hissp.macros.._macro_._backapply
+  ;;    ...   ((__import__('operator').itemgetter ((1))) (
+  ;;    ...    ('foo',
+  ;;    ...     'bar',))).upper (
+  ;;    ...   ))))
   ;;    'B'
   ;;
   ;; See also: `operator.getitem`, `operator.itemgetter`,
@@ -1200,9 +1100,10 @@ See `hissp.macros`.
   ;;
   ;;    #> [##1][::2] '(foo bar)
   ;;    >>> # hissp.macros.._macro_._backapply
-  ;;    ... (lambda _gER3ASVPQ__table: (_gER3ASVPQ__table[1][::2]))(
-  ;;    ...   ('foo',
-  ;;    ...    'bar',))
+  ;;    ... ((lambda _gER3ASVPQ__table:
+  ;;    ...    (_gER3ASVPQ__table[1][::2])) (
+  ;;    ...  ('foo',
+  ;;    ...   'bar',)))
   ;;    'br'
   ;;
   ;; Unary compatible with `-> <Dash_Gt_>`.
@@ -1212,21 +1113,25 @@ See `hissp.macros`.
   ;;    #> (-> '(foo bar) [#1] .upper [#::2])
   ;;    >>> # Dash_Gt_
   ;;    ... # hissp.macros.._macro_._backapply
-  ;;    ... (lambda _gQVGKJX6Z__table: (_gQVGKJX6Z__table[::2]))(
-  ;;    ...   # hissp.macros.._macro_._backapply
-  ;;    ...   (lambda _gQVGKJX6Z__table: (_gQVGKJX6Z__table[1]))(
-  ;;    ...     ('foo',
-  ;;    ...      'bar',)).upper())
+  ;;    ... ((lambda _gTJRERX66__table:
+  ;;    ...    (_gTJRERX66__table[::2])) (
+  ;;    ...  (# hissp.macros.._macro_._backapply
+  ;;    ...   ((lambda _gTJRERX66__table:
+  ;;    ...      (_gTJRERX66__table[1])) (
+  ;;    ...    ('foo',
+  ;;    ...     'bar',))).upper (
+  ;;    ...   ))))
   ;;    'BR'
   ;;
   ;;    #> (.join "" (map [#1] '(abc xyz |123|)))
-  ;;    >>> ('').join(
-  ;;    ...   map(
-  ;;    ...     # hissp.macros.._macro_._backapply
-  ;;    ...     (lambda _gFMSK2DQ7__table: (_gFMSK2DQ7__table[1])),
-  ;;    ...     ('abc',
-  ;;    ...      'xyz',
-  ;;    ...      '123',)))
+  ;;    >>> (('').join (
+  ;;    ...  (map (
+  ;;    ...   # hissp.macros.._macro_._backapply
+  ;;    ...   (lambda _gFMSK2DQ7__table:
+  ;;    ...     (_gFMSK2DQ7__table[1])),
+  ;;    ...   ('abc',
+  ;;    ...    'xyz',
+  ;;    ...    '123',)))))
   ;;    'by2'
   ;;
   ;; See also: `\!# <Bang_Hash_>`, `-> <Dash_Gt_>`, `slice`,
@@ -1236,7 +1141,7 @@ See `hissp.macros`.
                (lambda ($#table)
                  ,(.format "({}[{})" '$#table (H#demunge lookup)))))
 
-(defmacro @\# (: decoration_or_attr None  definition None  :/ :?  :** attr)
+(defmacro @\# (: decoration_or_attr None definition None  :/ :?  :** attr)
   <#;Overloads:
   ;;
   ;; * ``@#`` 'as attribute' gets attribute.
@@ -1249,24 +1154,18 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (@#join="" (filter @#intersection=(set "abc") "abracadabra"))
-  ;;    >>> # hissp.macros.._macro_._backapply
-  ;;    ... __import__('operator').attrgetter(
-  ;;    ...   'join')(
-  ;;    ...   (''))(
-  ;;    ...   filter(
-  ;;    ...     # hissp.macros.._macro_._backapply
-  ;;    ...     __import__('operator').attrgetter(
-  ;;    ...       'intersection')(
-  ;;    ...       set(
-  ;;    ...         ('abc'))),
-  ;;    ...     ('abracadabra')))
+  ;;    >>> (# hissp.macros.._macro_._backapply
+  ;;    ...  ((__import__('operator').attrgetter ('join')) ((''))) (
+  ;;    ...  (filter (
+  ;;    ...   # hissp.macros.._macro_._backapply
+  ;;    ...   ((__import__('operator').attrgetter ('intersection')) ((set (('abc'))))),
+  ;;    ...   ('abracadabra')))))
   ;;    'abacaaba'
   ;;
   ;;    #> (@#'__class__.__name__ 1+1j) ; Note the `.`.
-  ;;    >>> # hissp.macros.._macro_._backapply
-  ;;    ... __import__('operator').attrgetter(
-  ;;    ...   '__class__.__name__')(
-  ;;    ...   ((1+1j)))
+  ;;    >>> (# hissp.macros.._macro_._backapply
+  ;;    ...  (__import__('operator').attrgetter ('__class__.__name__')) (
+  ;;    ...  ((1+1j))))
   ;;    'complex'
   ;;
   ;;    #> (let (: eggs @#'upper
@@ -1274,27 +1173,21 @@ See `hissp.macros`.
   ;;    #..  ;; Various chaining techniques. Note ' and =@#.
   ;;    #..  @#__name__=@#__class__=(-> (set) @#spam @#'__doc__ eggs))
   ;;    >>> # let
-  ;;    ... (
-  ;;    ...  lambda eggs=# hissp.macros.._macro_._backapply
-  ;;    ...         __import__('operator').attrgetter(
-  ;;    ...           'upper'),
-  ;;    ...         spam='intersection':
+  ;;    ... ((lambda eggs
+  ;;    ...          =# hissp.macros.._macro_._backapply
+  ;;    ...           (__import__('operator').attrgetter ('upper')),
+  ;;    ...          spam='intersection':
+  ;;    ...    # hissp.macros.._macro_._backapply
+  ;;    ...    ((__import__('operator').attrgetter ('__name__')) (
   ;;    ...     # hissp.macros.._macro_._backapply
-  ;;    ...     __import__('operator').attrgetter(
-  ;;    ...       '__name__')(
+  ;;    ...     ((__import__('operator').attrgetter ('__class__')) (
+  ;;    ...      # Dash_Gt_
+  ;;    ...      (eggs (
   ;;    ...       # hissp.macros.._macro_._backapply
-  ;;    ...       __import__('operator').attrgetter(
-  ;;    ...         '__class__')(
-  ;;    ...         # Dash_Gt_
-  ;;    ...         eggs(
-  ;;    ...           # hissp.macros.._macro_._backapply
-  ;;    ...           __import__('operator').attrgetter(
-  ;;    ...             '__doc__')(
-  ;;    ...             # hissp.macros.._macro_._backapply
-  ;;    ...             __import__('operator').attrgetter(
-  ;;    ...               spam)(
-  ;;    ...               set())))))
-  ;;    ... )()
+  ;;    ...       ((__import__('operator').attrgetter ('__doc__')) (
+  ;;    ...        # hissp.macros.._macro_._backapply
+  ;;    ...        ((__import__('operator').attrgetter (spam)) ((set ())))))))))))) (
+  ;;    ...  ))
   ;;    'builtin_function_or_method'
   ;;
   ;; See also: `getattr`, `operator.attrgetter`, `X# <XHash_>`,
@@ -1318,16 +1211,17 @@ See `hissp.macros`.
   ;;    #..@##.title
   ;;    #..(define spam 'spam) ; Unlike Python def, not always a function.
   ;;    >>> # hissp.macros.._macro_.define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   spam=# hissp.macros.._macro_.progn
-  ;;    ...        (# hissp.macros.._macro_.define
-  ;;    ...         __import__('builtins').globals().update(
-  ;;    ...           spam=# hissp.macros.._macro_.progn
-  ;;    ...                (# define
-  ;;    ...                 __import__('builtins').globals().update(
-  ;;    ...                   spam='spam'),
-  ;;    ...                 spam.title())  [-1]),
-  ;;    ...         spam.swapcase())  [-1])
+  ;;    ... ((__import__('builtins').globals ()).update (
+  ;;    ...  spam
+  ;;    ...  =# hissp.macros.._macro_.progn
+  ;;    ...   (# hissp.macros.._macro_.define
+  ;;    ...    ((__import__('builtins').globals ()).update (
+  ;;    ...     spam
+  ;;    ...     =# hissp.macros.._macro_.progn
+  ;;    ...      (# define
+  ;;    ...       ((__import__('builtins').globals ()).update (spam='spam'))
+  ;;    ...      ,(spam.title ())  )[-1]))
+  ;;    ...   ,(spam.swapcase ())  )[-1]))
   ;;
   ;;    #> spam
   ;;    >>> spam
@@ -1354,29 +1248,22 @@ See `hissp.macros`.
   ;;
   ;;    #> (define spam (dict))
   ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   spam=dict())
+  ;;    ... ((__import__('builtins').globals ()).update (spam=(dict ())))
   ;;
   ;;    #> (set! spam 1 (set! spam 2 10)) ; setitem can't do this.
   ;;    #..
   ;;    >>> # setBang_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda _gOR6DYBDV__value=# setBang_
-  ;;    ...         # hissp.macros.._macro_.let
-  ;;    ...         (lambda _gOR6DYBDV__value=(10):
-  ;;    ...            (__import__('operator').setitem(
-  ;;    ...               spam,
-  ;;    ...               (2),
-  ;;    ...               _gOR6DYBDV__value),
-  ;;    ...             _gOR6DYBDV__value)  [-1]
-  ;;    ...         )():
-  ;;    ...    (__import__('operator').setitem(
-  ;;    ...       spam,
-  ;;    ...       (1),
-  ;;    ...       _gOR6DYBDV__value),
-  ;;    ...     _gOR6DYBDV__value)  [-1]
-  ;;    ... )()
+  ;;    ... ((lambda _gKOR3HEW6__value
+  ;;    ...          =# setBang_
+  ;;    ...           # hissp.macros.._macro_.let
+  ;;    ...           ((lambda _gKOR3HEW6__value=(10):
+  ;;    ...             ((__import__('operator').setitem (spam,(2),_gKOR3HEW6__value))
+  ;;    ...             ,_gKOR3HEW6__value  )[-1]) (
+  ;;    ...            )):
+  ;;    ...   ((__import__('operator').setitem (spam,(1),_gKOR3HEW6__value))
+  ;;    ...   ,_gKOR3HEW6__value  )[-1]) (
+  ;;    ...  ))
   ;;    10
   ;;
   ;;    #> spam
@@ -1401,31 +1288,27 @@ See `hissp.macros`.
   ;;
   ;;    #> (define spam (dict : b 10))
   ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   spam=dict(
-  ;;    ...          b=(10)))
+  ;;    ... ((__import__('builtins').globals ()).update (spam=(dict (b=(10)))))
   ;;
   ;;    #> (zap! spam 'b op#iadd 1) ; Augmented item assignment, like +=.
   ;;    #..
   ;;    >>> # zapBang_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda _gITEIW3OF__table=spam,
-  ;;    ...         _gITEIW3OF__key='b':
-  ;;    ...     # hissp.macros.._macro_.setBang_
-  ;;    ...     # hissp.macros.._macro_.let
-  ;;    ...     (
-  ;;    ...      lambda _gI2PHTEDN__value=__import__('operator').iadd(
-  ;;    ...               _gITEIW3OF__table.__getitem__(
-  ;;    ...                 _gITEIW3OF__key),
-  ;;    ...               (1)):
-  ;;    ...        (__import__('operator').setitem(
-  ;;    ...           _gITEIW3OF__table,
-  ;;    ...           _gITEIW3OF__key,
-  ;;    ...           _gI2PHTEDN__value),
-  ;;    ...         _gI2PHTEDN__value)  [-1]
-  ;;    ...     )()
-  ;;    ... )()
+  ;;    ... ((lambda _g3LQYG6Y6__table=spam,
+  ;;    ...          _g3LQYG6Y6__key='b':
+  ;;    ...    # hissp.macros.._macro_.setBang_
+  ;;    ...    # hissp.macros.._macro_.let
+  ;;    ...    ((lambda _gICVCHOHO__value
+  ;;    ...             =(__import__('operator').iadd (
+  ;;    ...               (_g3LQYG6Y6__table.__getitem__ (_g3LQYG6Y6__key)),
+  ;;    ...               (1))):
+  ;;    ...      ((__import__('operator').setitem (
+  ;;    ...        _g3LQYG6Y6__table,
+  ;;    ...        _g3LQYG6Y6__key,
+  ;;    ...        _gICVCHOHO__value))
+  ;;    ...      ,_gICVCHOHO__value  )[-1]) (
+  ;;    ...     ))) (
+  ;;    ...  ))
   ;;    11
   ;;
   ;;    #> spam
@@ -1448,26 +1331,21 @@ See `hissp.macros`.
   ;;
   ;;    #> (define spam (list "0000"))
   ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   spam=list(
-  ;;    ...          ('0000')))
+  ;;    ... ((__import__('builtins').globals ()).update (spam=(list (('0000')))))
   ;;
   ;;    #> set[###-1] spam set[###::2] spam "ab" ; Chained assignment.
   ;;    >>> # hissp.macros.._macro_._backapply
-  ;;    ... (
-  ;;    ...  lambda _g3TTXFOWE__table,
-  ;;    ...         _g3TTXFOWE__value=# hissp.macros.._macro_._backapply
-  ;;    ...         (
-  ;;    ...          lambda _g3TTXFOWE__table,
-  ;;    ...                 _g3TTXFOWE__value=('ab'):
-  ;;    ...             [_g3TTXFOWE__value
-  ;;    ...              for(_g3TTXFOWE__table[::2])in[_g3TTXFOWE__value]][0]
-  ;;    ...         )(
-  ;;    ...           spam):
-  ;;    ...     [_g3TTXFOWE__value
-  ;;    ...      for(_g3TTXFOWE__table[-1])in[_g3TTXFOWE__value]][0]
-  ;;    ... )(
-  ;;    ...   spam)
+  ;;    ... ((lambda _gGWG4K65R__table,
+  ;;    ...          _gGWG4K65R__value
+  ;;    ...          =# hissp.macros.._macro_._backapply
+  ;;    ...           ((lambda _gGWG4K65R__table,
+  ;;    ...                    _gGWG4K65R__value=('ab'):
+  ;;    ...              [_gGWG4K65R__value
+  ;;    ...               for(_gGWG4K65R__table[::2])in[_gGWG4K65R__value]][0]) (
+  ;;    ...            spam)):
+  ;;    ...    [_gGWG4K65R__value
+  ;;    ...     for(_gGWG4K65R__table[-1])in[_gGWG4K65R__value]][0]) (
+  ;;    ...  spam))
   ;;    'ab'
   ;;
   ;;    #> spam
@@ -1480,17 +1358,15 @@ See `hissp.macros`.
   ;;
   ;;    #> (doto (dict) set[##1] 2)
   ;;    >>> # doto
-  ;;    ... (lambda _gOFBSTZ6J__self=dict():
-  ;;    ...    (# hissp.macros.._macro_._backapply
-  ;;    ...     (
-  ;;    ...      lambda _gZEOID6JH__table,
-  ;;    ...             _gZEOID6JH__value=(2):
-  ;;    ...         [_gZEOID6JH__value
-  ;;    ...          for(_gZEOID6JH__table[1])in[_gZEOID6JH__value]][0]
-  ;;    ...     )(
-  ;;    ...       _gOFBSTZ6J__self),
-  ;;    ...     _gOFBSTZ6J__self)  [-1]
-  ;;    ... )()
+  ;;    ... ((lambda _gT2T7MPVB__self=(dict ()):
+  ;;    ...   (# hissp.macros.._macro_._backapply
+  ;;    ...    ((lambda _gTCZLGUDI__table,
+  ;;    ...             _gTCZLGUDI__value=(2):
+  ;;    ...       [_gTCZLGUDI__value
+  ;;    ...        for(_gTCZLGUDI__table[1])in[_gTCZLGUDI__value]][0]) (
+  ;;    ...     _gT2T7MPVB__self))
+  ;;    ...   ,_gT2T7MPVB__self  )[-1]) (
+  ;;    ...  ))
   ;;    {1: 2}
   ;;
   ;; See also: `my# <myHash_>`, `set! <setBang_>`,
@@ -1516,24 +1392,19 @@ See `hissp.macros`.
   ;;
   ;;    #> (define spam (list "abcd"))
   ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   spam=list(
-  ;;    ...          ('abcd')))
+  ;;    ... ((__import__('builtins').globals ()).update (spam=(list (('abcd')))))
   ;;
   ;;    #> zap[###:2] spam (op#iadd "XY") ; spam[:2]+="XY", but an expression
   ;;    >>> # hissp.macros.._macro_._backapply
-  ;;    ... (lambda _gQGBD7VBT__table:
-  ;;    ...     # hissp.macros.._macro_.let
-  ;;    ...     (
-  ;;    ...      lambda _gQGBD7VBT__value=# hissp.macros..Dash_Gt_
-  ;;    ...             __import__('operator').iadd(
-  ;;    ...               (_gQGBD7VBT__table[:2]),
-  ;;    ...               ('XY')):
-  ;;    ...         [_gQGBD7VBT__value
-  ;;    ...          for(_gQGBD7VBT__table[:2])in[_gQGBD7VBT__value]][0]
-  ;;    ...     )()
-  ;;    ... )(
-  ;;    ...   spam)
+  ;;    ... ((lambda _gHNPNB7IO__table:
+  ;;    ...    # hissp.macros.._macro_.let
+  ;;    ...    ((lambda _gHNPNB7IO__value
+  ;;    ...             =# hissp.macros..Dash_Gt_
+  ;;    ...              (__import__('operator').iadd ((_gHNPNB7IO__table[:2]),('XY'))):
+  ;;    ...       [_gHNPNB7IO__value
+  ;;    ...        for(_gHNPNB7IO__table[:2])in[_gHNPNB7IO__value]][0]) (
+  ;;    ...     ))) (
+  ;;    ...  spam))
   ;;    ['a', 'b', 'X', 'Y']
   ;;
   ;;    #> spam
@@ -1546,22 +1417,19 @@ See `hissp.macros`.
   ;;
   ;;    #> (doto |[2]| zap[##0] (op#iadd 1))
   ;;    >>> # doto
-  ;;    ... (lambda _gDK7SIMRN__self=[2]:
-  ;;    ...    (# hissp.macros.._macro_._backapply
-  ;;    ...     (lambda _gC45JENYH__table:
-  ;;    ...         # hissp.macros.._macro_.let
-  ;;    ...         (
-  ;;    ...          lambda _gC45JENYH__value=# hissp.macros..Dash_Gt_
-  ;;    ...                 __import__('operator').iadd(
-  ;;    ...                   (_gC45JENYH__table[0]),
-  ;;    ...                   (1)):
-  ;;    ...             [_gC45JENYH__value
-  ;;    ...              for(_gC45JENYH__table[0])in[_gC45JENYH__value]][0]
-  ;;    ...         )()
-  ;;    ...     )(
-  ;;    ...       _gDK7SIMRN__self),
-  ;;    ...     _gDK7SIMRN__self)  [-1]
-  ;;    ... )()
+  ;;    ... ((lambda _g6F35G3GF__self=[2]:
+  ;;    ...   (# hissp.macros.._macro_._backapply
+  ;;    ...    ((lambda _g3ZRS7BRL__table:
+  ;;    ...       # hissp.macros.._macro_.let
+  ;;    ...       ((lambda _g3ZRS7BRL__value
+  ;;    ...                =# hissp.macros..Dash_Gt_
+  ;;    ...                 (__import__('operator').iadd ((_g3ZRS7BRL__table[0]),(1))):
+  ;;    ...          [_g3ZRS7BRL__value
+  ;;    ...           for(_g3ZRS7BRL__table[0])in[_g3ZRS7BRL__value]][0]) (
+  ;;    ...        ))) (
+  ;;    ...     _g6F35G3GF__self))
+  ;;    ...   ,_g6F35G3GF__self  )[-1]) (
+  ;;    ...  ))
   ;;    [3]
   ;;
   ;; .. CAUTION::
@@ -1597,46 +1465,38 @@ See `hissp.macros`.
   ;;    #> (set@ eggs (set@ spam (types..SimpleNamespace))) ; define can't do this.
   ;;    >>> # setAt_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda _gYZ2LLOWW__value=# setAt_
-  ;;    ...         # hissp.macros.._macro_.let
-  ;;    ...         (lambda _gYZ2LLOWW__value=__import__('types').SimpleNamespace():
-  ;;    ...            (# hissp.macros.._macro_.define
-  ;;    ...             __import__('builtins').globals().update(
-  ;;    ...               spam=_gYZ2LLOWW__value),
-  ;;    ...             _gYZ2LLOWW__value)  [-1]
-  ;;    ...         )():
-  ;;    ...    (# hissp.macros.._macro_.define
-  ;;    ...     __import__('builtins').globals().update(
-  ;;    ...       eggs=_gYZ2LLOWW__value),
-  ;;    ...     _gYZ2LLOWW__value)  [-1]
-  ;;    ... )()
+  ;;    ... ((lambda _gVGRE4XPC__value
+  ;;    ...          =# setAt_
+  ;;    ...           # hissp.macros.._macro_.let
+  ;;    ...           ((lambda _gVGRE4XPC__value=(__import__('types').SimpleNamespace ()):
+  ;;    ...             (# hissp.macros.._macro_.define
+  ;;    ...              ((__import__('builtins').globals ()).update (spam=_gVGRE4XPC__value))
+  ;;    ...             ,_gVGRE4XPC__value  )[-1]) (
+  ;;    ...            )):
+  ;;    ...   (# hissp.macros.._macro_.define
+  ;;    ...    ((__import__('builtins').globals ()).update (eggs=_gVGRE4XPC__value))
+  ;;    ...   ,_gVGRE4XPC__value  )[-1]) (
+  ;;    ...  ))
   ;;    namespace()
   ;;
   ;;    #> (set@ spam.foo (types..SimpleNamespace))
   ;;    >>> # setAt_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda _gOJ7YYIRC__value=__import__('types').SimpleNamespace():
-  ;;    ...    (# hissp.macros.._macro_.define
-  ;;    ...     __import__('builtins').setattr(
-  ;;    ...       spam,
-  ;;    ...       'foo',
-  ;;    ...       _gOJ7YYIRC__value),
-  ;;    ...     _gOJ7YYIRC__value)  [-1]
-  ;;    ... )()
+  ;;    ... ((lambda _gFE54PZ6Y__value=(__import__('types').SimpleNamespace ()):
+  ;;    ...   (# hissp.macros.._macro_.define
+  ;;    ...    (__import__('builtins').setattr (spam,'foo',_gFE54PZ6Y__value))
+  ;;    ...   ,_gFE54PZ6Y__value  )[-1]) (
+  ;;    ...  ))
   ;;    namespace()
   ;;
   ;;    #> (set@ spam.foo.bar 4)
   ;;    >>> # setAt_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda _g4MKUDCHX__value=(4):
-  ;;    ...    (# hissp.macros.._macro_.define
-  ;;    ...     __import__('builtins').setattr(
-  ;;    ...       spam.foo,
-  ;;    ...       'bar',
-  ;;    ...       _g4MKUDCHX__value),
-  ;;    ...     _g4MKUDCHX__value)  [-1]
-  ;;    ... )()
+  ;;    ... ((lambda _gYTOVRKUI__value=(4):
+  ;;    ...   (# hissp.macros.._macro_.define
+  ;;    ...    (__import__('builtins').setattr (spam.foo,'bar',_gYTOVRKUI__value))
+  ;;    ...   ,_gYTOVRKUI__value  )[-1]) (
+  ;;    ...  ))
   ;;    4
   ;;
   ;;    #> spam
@@ -1661,25 +1521,18 @@ See `hissp.macros`.
   ;;
   ;;    #> (define spam (types..SimpleNamespace : foo 10))
   ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   spam=__import__('types').SimpleNamespace(
-  ;;    ...          foo=(10)))
+  ;;    ... ((__import__('builtins').globals ()).update (
+  ;;    ...  spam=(__import__('types').SimpleNamespace (foo=(10)))))
   ;;
   ;;    #> (zap@ spam.foo operator..iadd 1)
   ;;    >>> # zapAt_
   ;;    ... # hissp.macros.._macro_.setAt_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda _gOESTXDRX__value=__import__('operator').iadd(
-  ;;    ...           spam.foo,
-  ;;    ...           (1)):
-  ;;    ...    (# hissp.macros.._macro_.define
-  ;;    ...     __import__('builtins').setattr(
-  ;;    ...       spam,
-  ;;    ...       'foo',
-  ;;    ...       _gOESTXDRX__value),
-  ;;    ...     _gOESTXDRX__value)  [-1]
-  ;;    ... )()
+  ;;    ... ((lambda _g4OSIKTM7__value=(__import__('operator').iadd (spam.foo,(1))):
+  ;;    ...   (# hissp.macros.._macro_.define
+  ;;    ...    (__import__('builtins').setattr (spam,'foo',_g4OSIKTM7__value))
+  ;;    ...   ,_g4OSIKTM7__value  )[-1]) (
+  ;;    ...  ))
   ;;    11
   ;;
   ;;    #> spam
@@ -1690,16 +1543,14 @@ See `hissp.macros`.
   ;;    >>> # zapAt_
   ;;    ... # hissp.macros.._macro_.setAt_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda _gFLL6SH2F__value=getattr(
-  ;;    ...           __import__('builtins').globals().__getitem__(
-  ;;    ...             'spam'),
-  ;;    ...           'foo'):
-  ;;    ...    (# hissp.macros.._macro_.define
-  ;;    ...     __import__('builtins').globals().update(
-  ;;    ...       spam=_gFLL6SH2F__value),
-  ;;    ...     _gFLL6SH2F__value)  [-1]
-  ;;    ... )()
+  ;;    ... ((lambda _g37U25YJP__value
+  ;;    ...          =(getattr (
+  ;;    ...            ((__import__('builtins').globals ()).__getitem__ ('spam')),
+  ;;    ...            'foo')):
+  ;;    ...   (# hissp.macros.._macro_.define
+  ;;    ...    ((__import__('builtins').globals ()).update (spam=_g37U25YJP__value))
+  ;;    ...   ,_g37U25YJP__value  )[-1]) (
+  ;;    ...  ))
   ;;    11
   ;;
   ;;    #> spam
@@ -1725,21 +1576,13 @@ See `hissp.macros`.
   ;;    #> (attach (types..SimpleNamespace) _macro_.attach : a 1  b 'Hi)
   ;;    >>> # attach
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda _g5UWMEC5Z__target=__import__('types').SimpleNamespace():
-  ;;    ...    (__import__('builtins').setattr(
-  ;;    ...       _g5UWMEC5Z__target,
-  ;;    ...       'attach',
-  ;;    ...       _macro_.attach),
-  ;;    ...     __import__('builtins').setattr(
-  ;;    ...       _g5UWMEC5Z__target,
-  ;;    ...       'a',
-  ;;    ...       (1)),
-  ;;    ...     __import__('builtins').setattr(
-  ;;    ...       _g5UWMEC5Z__target,
-  ;;    ...       'b',
-  ;;    ...       'Hi'),
-  ;;    ...     _g5UWMEC5Z__target)  [-1]
-  ;;    ... )()
+  ;;    ... ((lambda _g4VR6YMSO__target=(__import__('types').SimpleNamespace ()):
+  ;;    ...   ((__import__('builtins').setattr (
+  ;;    ...     _g4VR6YMSO__target,'attach',_macro_.attach))
+  ;;    ...   ,(__import__('builtins').setattr (_g4VR6YMSO__target,'a',(1)))
+  ;;    ...   ,(__import__('builtins').setattr (_g4VR6YMSO__target,'b','Hi'))
+  ;;    ...   ,_g4VR6YMSO__target  )[-1]) (
+  ;;    ...  ))
   ;;    namespace(attach=<function _macro_.attach at 0x...>, a=1, b='Hi')
   ;;
   ;; See also: `setattr`, `set@ <setAt_>`, `vars`.
@@ -1767,14 +1610,12 @@ See `hissp.macros`.
   ;;    #..  .sort
   ;;    #..  (.append 'foo))
   ;;    >>> # doto
-  ;;    ... (lambda _gBBU6XSAT__self=list():
-  ;;    ...    (_gBBU6XSAT__self.extend(
-  ;;    ...       'bar'),
-  ;;    ...     _gBBU6XSAT__self.sort(),
-  ;;    ...     _gBBU6XSAT__self.append(
-  ;;    ...       'foo'),
-  ;;    ...     _gBBU6XSAT__self)  [-1]
-  ;;    ... )()
+  ;;    ... ((lambda _gOTCFIXKO__self=(list ()):
+  ;;    ...   ((_gOTCFIXKO__self.extend ('bar'))
+  ;;    ...   ,(_gOTCFIXKO__self.sort ())
+  ;;    ...   ,(_gOTCFIXKO__self.append ('foo'))
+  ;;    ...   ,_gOTCFIXKO__self  )[-1]) (
+  ;;    ...  ))
   ;;    ['a', 'b', 'r', 'foo']
   ;;
   ;; See also: `attach`, `progn`, `-> <Dash_Gt_>`.
@@ -1799,31 +1640,25 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> ((|| _macro_.->) 'x '(A a) 'B '(C c cc))
-  ;;    >>> (
-  ;;    ...   _macro_.Dash_Gt_)(
-  ;;    ...   'x',
-  ;;    ...   ('A',
-  ;;    ...    'a',),
-  ;;    ...   'B',
-  ;;    ...   ('C',
-  ;;    ...    'c',
-  ;;    ...    'cc',))
+  ;;    >>> (( (_macro_.Dash_Gt_)) (
+  ;;    ...  'x',
+  ;;    ...  ('A',
+  ;;    ...   'a',),
+  ;;    ...  'B',
+  ;;    ...  ('C',
+  ;;    ...   'c',
+  ;;    ...   'cc',)))
   ;;    ('C', ('B', ('A', 'x', 'a')), 'c', 'cc')
   ;;
   ;;    #> (-> 'a set (en#list 'bc) (en#tuple 'de))
   ;;    >>> # Dash_Gt_
-  ;;    ... (lambda *_gJHUL5GC3__xs:
-  ;;    ...     tuple(
-  ;;    ...       _gJHUL5GC3__xs)
-  ;;    ... )(
-  ;;    ...   (lambda *_gJHUL5GC3__xs:
-  ;;    ...       list(
-  ;;    ...         _gJHUL5GC3__xs)
-  ;;    ...   )(
-  ;;    ...     set(
-  ;;    ...       'a'),
-  ;;    ...     'bc'),
-  ;;    ...   'de')
+  ;;    ... ((lambda *_g4GXNTWW2__xs:
+  ;;    ...    (tuple (_g4GXNTWW2__xs))) (
+  ;;    ...  ((lambda *_g4GXNTWW2__xs:
+  ;;    ...     (list (_g4GXNTWW2__xs))) (
+  ;;    ...   (set ('a')),
+  ;;    ...   'bc')),
+  ;;    ...  'de'))
   ;;    ([{'a'}, 'bc'], 'de')
   ;;
   ;; See also: `-o> <Dash_oGt_>`, `X# <XHash_>`,
@@ -1844,34 +1679,28 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> ((|| _macro_.-o>)  'x 'A '(:o b bb) '(C c cc))
-  ;;    >>> (
-  ;;    ...   _macro_.Dash_oGt_)(
-  ;;    ...   'x',
-  ;;    ...   'A',
-  ;;    ...   (':o',
-  ;;    ...    'b',
-  ;;    ...    'bb',),
-  ;;    ...   ('C',
-  ;;    ...    'c',
-  ;;    ...    'cc',))
+  ;;    >>> (( (_macro_.Dash_oGt_)) (
+  ;;    ...  'x',
+  ;;    ...  'A',
+  ;;    ...  (':o',
+  ;;    ...   'b',
+  ;;    ...   'bb',),
+  ;;    ...  ('C',
+  ;;    ...   'c',
+  ;;    ...   'cc',)))
   ;;    ('C', 'c', 'cc', (('A', 'x'), 'b', 'bb'))
   ;;
   ;;    #> (-o> 'a set (en#list 'bc) (en#tuple 'de :o 'fg :o))
   ;;    >>> # Dash_oGt_
-  ;;    ... (lambda *_gJHUL5GC3__xs:
-  ;;    ...     tuple(
-  ;;    ...       _gJHUL5GC3__xs)
-  ;;    ... )(
-  ;;    ...   'de',
-  ;;    ...   (lambda *_gJHUL5GC3__xs:
-  ;;    ...       list(
-  ;;    ...         _gJHUL5GC3__xs)
-  ;;    ...   )(
-  ;;    ...     'bc',
-  ;;    ...     set(
-  ;;    ...       'a')),
-  ;;    ...   'fg',
-  ;;    ...   ':o')
+  ;;    ... ((lambda *_gKPVWGNFL__xs:
+  ;;    ...    (tuple (_gKPVWGNFL__xs))) (
+  ;;    ...  'de',
+  ;;    ...  ((lambda *_gKPVWGNFL__xs:
+  ;;    ...     (list (_gKPVWGNFL__xs))) (
+  ;;    ...   'bc',
+  ;;    ...   (set ('a')))),
+  ;;    ...  'fg',
+  ;;    ...  ':o'))
   ;;    ('de', ['bc', {'a'}], 'fg', ':o')
   ;;
   ;; See also: `-> <Dash_Gt_>`, `en# <enHash_>`.
@@ -1896,30 +1725,24 @@ See `hissp.macros`.
   ;;    #..     list (for-in v (.values d)
   ;;    #..            (@ k v)))
   ;;    >>> # Lt_oDash_
-  ;;    ... __import__('pprint').pp(
-  ;;    ...   # let
-  ;;    ...   (lambda d:
-  ;;    ...       list(
-  ;;    ...         # for___in
-  ;;    ...         __import__('builtins').map(
-  ;;    ...           (lambda k:
-  ;;    ...               list(
-  ;;    ...                 # for___in
-  ;;    ...                 __import__('builtins').map(
-  ;;    ...                   (lambda v:
-  ;;    ...                       # At_
-  ;;    ...                       (lambda *xs: [*xs])(
-  ;;    ...                         k,
-  ;;    ...                         v)
-  ;;    ...                   ),
-  ;;    ...                   d.values()))
-  ;;    ...           ),
-  ;;    ...           d))
-  ;;    ...   )(
-  ;;    ...     dict(
-  ;;    ...       a=(1),
-  ;;    ...       b=(2),
-  ;;    ...       c=(3))))
+  ;;    ... (__import__('pprint').pp (
+  ;;    ...  # let
+  ;;    ...  ((lambda d:
+  ;;    ...     (list (
+  ;;    ...      # for___in
+  ;;    ...      (__import__('builtins').map (
+  ;;    ...       (lambda k:
+  ;;    ...         (list (
+  ;;    ...          # for___in
+  ;;    ...          (__import__('builtins').map (
+  ;;    ...           (lambda v:
+  ;;    ...             # At_
+  ;;    ...             ((lambda *xs:
+  ;;    ...                [*xs]) (
+  ;;    ...              k,v))),
+  ;;    ...           (d.values ())))))),
+  ;;    ...       d))))) (
+  ;;    ...   (dict (a=(1),b=(2),c=(3)))))))
   ;;    [[['a', 1], ['a', 2], ['a', 3]],
   ;;     [['b', 1], ['b', 2], ['b', 3]],
   ;;     [['c', 1], ['c', 2], ['c', 3]]]
@@ -1951,24 +1774,19 @@ See `hissp.macros`.
   ;;    #..       (when (op#eq c 'b)
   ;;    #..         (print 'found)
   ;;    #..         :break)))
-  ;;    >>> any(
-  ;;    ...   # for___in
-  ;;    ...   __import__('builtins').map(
-  ;;    ...     (lambda c:
-  ;;    ...        (print(
-  ;;    ...           c),
-  ;;    ...         # when
-  ;;    ...         (lambda b, c: c()if b else())(
-  ;;    ...           __import__('operator').eq(
-  ;;    ...             c,
-  ;;    ...             'b'),
-  ;;    ...           (lambda :
-  ;;    ...              (print(
-  ;;    ...                 'found'),
-  ;;    ...               ':break')  [-1]
-  ;;    ...           )))  [-1]
-  ;;    ...     ),
-  ;;    ...     'abcd'))
+  ;;    >>> (any (
+  ;;    ...  # for___in
+  ;;    ...  (__import__('builtins').map (
+  ;;    ...   (lambda c:
+  ;;    ...    ((print (c))
+  ;;    ...    ,# when
+  ;;    ...     ((lambda b, c:
+  ;;    ...        c()if b else()) (
+  ;;    ...      (__import__('operator').eq (c,'b')),
+  ;;    ...      (lambda :
+  ;;    ...       ((print ('found'))
+  ;;    ...       ,':break'  )[-1])))  )[-1]),
+  ;;    ...   'abcd'))))
   ;;    a
   ;;    b
   ;;    found
@@ -1992,55 +1810,29 @@ See `hissp.macros`.
   ;;    #..             (op#eq x 0) (print :Zero)
   ;;    #..             (op#gt x 0) (print :Positive)
   ;;    #..             :else (print :Not-a-Number))))
-  ;;    >>> any(
-  ;;    ...   # for___in
-  ;;    ...   __import__('builtins').map(
-  ;;    ...     (lambda x:
-  ;;    ...         # cond
-  ;;    ...         (lambda x0, x1, x2, x3, x4, x5, x6, x7:
-  ;;    ...                  x1() if x0
-  ;;    ...             else x3() if x2()
-  ;;    ...             else x5() if x4()
-  ;;    ...             else x7() if x6()
-  ;;    ...             else ()
-  ;;    ...         )(
-  ;;    ...           __import__('operator').lt(
-  ;;    ...             x,
-  ;;    ...             (0)),
-  ;;    ...           (lambda :
-  ;;    ...               print(
-  ;;    ...                 ':Negative')
-  ;;    ...           ),
-  ;;    ...           (lambda :
-  ;;    ...               __import__('operator').eq(
-  ;;    ...                 x,
-  ;;    ...                 (0))
-  ;;    ...           ),
-  ;;    ...           (lambda :
-  ;;    ...               print(
-  ;;    ...                 ':Zero')
-  ;;    ...           ),
-  ;;    ...           (lambda :
-  ;;    ...               __import__('operator').gt(
-  ;;    ...                 x,
-  ;;    ...                 (0))
-  ;;    ...           ),
-  ;;    ...           (lambda :
-  ;;    ...               print(
-  ;;    ...                 ':Positive')
-  ;;    ...           ),
-  ;;    ...           (lambda : ':else'),
-  ;;    ...           (lambda :
-  ;;    ...               print(
-  ;;    ...                 ':Not-a-Number')
-  ;;    ...           ))
-  ;;    ...     ),
-  ;;    ...     # At_
-  ;;    ...     (lambda *xs: [*xs])(
-  ;;    ...       (-0.6),
-  ;;    ...       (-0.0),
-  ;;    ...       (42.0),
-  ;;    ...       __import__('math').nan)))
+  ;;    >>> (any (
+  ;;    ...  # for___in
+  ;;    ...  (__import__('builtins').map (
+  ;;    ...   (lambda x:
+  ;;    ...     # cond
+  ;;    ...     ((lambda x0, x1, x2, x3, x4, x5, x6, x7:
+  ;;    ...             x1() if x0
+  ;;    ...        else x3() if x2()
+  ;;    ...        else x5() if x4()
+  ;;    ...        else x7() if x6()
+  ;;    ...        else ()) (
+  ;;    ...      (__import__('operator').lt (x,(0))),
+  ;;    ...      (lambda : (print (':Negative'))),
+  ;;    ...      (lambda : (__import__('operator').eq (x,(0)))),
+  ;;    ...      (lambda : (print (':Zero'))),
+  ;;    ...      (lambda : (__import__('operator').gt (x,(0)))),
+  ;;    ...      (lambda : (print (':Positive'))),
+  ;;    ...      (lambda : ':else'),
+  ;;    ...      (lambda : (print (':Not-a-Number')))))),
+  ;;    ...   # At_
+  ;;    ...   ((lambda *xs:
+  ;;    ...      [*xs]) (
+  ;;    ...    (-0.6),(-0.0),(42.0),__import__('math').nan))))))
   ;;    :Negative
   ;;    :Zero
   ;;    :Positive
@@ -2071,21 +1863,13 @@ See `hissp.macros`.
   ;;    #> (any (for-in index (range 1 11)
   ;;    #..       (print index : end :)
   ;;    #..       (not (op#mod index 7))))
-  ;;    >>> any(
-  ;;    ...   # for___in
-  ;;    ...   __import__('builtins').map(
-  ;;    ...     (lambda index:
-  ;;    ...        (print(
-  ;;    ...           index,
-  ;;    ...           end=':'),
-  ;;    ...         not(
-  ;;    ...           __import__('operator').mod(
-  ;;    ...             index,
-  ;;    ...             (7))))  [-1]
-  ;;    ...     ),
-  ;;    ...     range(
-  ;;    ...       (1),
-  ;;    ...       (11))))
+  ;;    >>> (any (
+  ;;    ...  # for___in
+  ;;    ...  (__import__('builtins').map (
+  ;;    ...   (lambda index:
+  ;;    ...    ((print (index,end=':'))
+  ;;    ...    ,(not ((__import__('operator').mod (index,(7)))))  )[-1]),
+  ;;    ...   (range ((1),(11)))))))
   ;;    1:2:3:4:5:6:7:True
   ;;
   ;; Pass to collection constructors like `dict` or `list` for comprehensions.
@@ -2098,22 +1882,15 @@ See `hissp.macros`.
   ;;    #..     (let kv (: :* kv))
   ;;    #..     (|| v k)) ; Inverts the dict.
   ;;    >>> # Lt_oDash_
-  ;;    ... dict(
-  ;;    ...   # for___in
-  ;;    ...   __import__('builtins').map(
-  ;;    ...     (lambda kv:
-  ;;    ...         # let
-  ;;    ...         (lambda k, v:
-  ;;    ...             (
-  ;;    ...               v,
-  ;;    ...               k)
-  ;;    ...         )(
-  ;;    ...           *kv)
-  ;;    ...     ),
-  ;;    ...     dict(
-  ;;    ...       a=(1),
-  ;;    ...       b=(2),
-  ;;    ...       c=(3)).items()))
+  ;;    ... (dict (
+  ;;    ...  # for___in
+  ;;    ...  (__import__('builtins').map (
+  ;;    ...   (lambda kv:
+  ;;    ...     # let
+  ;;    ...     ((lambda k, v:
+  ;;    ...        ( (v,k))) (
+  ;;    ...      *kv))),
+  ;;    ...   ((dict (a=(1),b=(2),c=(3))).items ())))))
   ;;    {1: 'a', 2: 'b', 3: 'c'}
   ;;
   ;; Pass to `itertools.chain.from_iterable` to flatten a layer.
@@ -2128,28 +1905,20 @@ See `hissp.macros`.
   ;;    #..     (for-in v (.values d)
   ;;    #..       (.format "{}-{}" k v)))
   ;;    >>> # Lt_oDash_
-  ;;    ... list(
-  ;;    ...   # let
-  ;;    ...   (lambda d:
-  ;;    ...       __import__('itertools').chain.from_iterable(
+  ;;    ... (list (
+  ;;    ...  # let
+  ;;    ...  ((lambda d:
+  ;;    ...     (__import__('itertools').chain.from_iterable (
+  ;;    ...      # for___in
+  ;;    ...      (__import__('builtins').map (
+  ;;    ...       (lambda k:
   ;;    ...         # for___in
-  ;;    ...         __import__('builtins').map(
-  ;;    ...           (lambda k:
-  ;;    ...               # for___in
-  ;;    ...               __import__('builtins').map(
-  ;;    ...                 (lambda v:
-  ;;    ...                     ('{}-{}').format(
-  ;;    ...                       k,
-  ;;    ...                       v)
-  ;;    ...                 ),
-  ;;    ...                 d.values())
-  ;;    ...           ),
-  ;;    ...           d))
-  ;;    ...   )(
-  ;;    ...     dict(
-  ;;    ...       a=(1),
-  ;;    ...       b=(2),
-  ;;    ...       c=(3))))
+  ;;    ...         (__import__('builtins').map (
+  ;;    ...          (lambda v:
+  ;;    ...            (('{}-{}').format (k,v))),
+  ;;    ...          (d.values ())))),
+  ;;    ...       d))))) (
+  ;;    ...   (dict (a=(1),b=(2),c=(3)))))))
   ;;    ['a-1', 'a-2', 'a-3', 'b-1', 'b-2', 'b-3', 'c-1', 'c-2', 'c-3']
   ;;
   ;; Combine with `when` or `unless` to skip. (They default to ``()``.)
@@ -2166,49 +1935,36 @@ See `hissp.macros`.
   ;;    #..       ;; Wrapped so we can use chain#.
   ;;    #..       `(,(.format "{}-{}" k v))))
   ;;    >>> # Lt_oDash_
-  ;;    ... list(
-  ;;    ...   # let
-  ;;    ...   (lambda d:
-  ;;    ...       # let
-  ;;    ...       (
-  ;;    ...        lambda items=set(
-  ;;    ...                 d.items()):
-  ;;    ...           __import__('itertools').chain.from_iterable(
-  ;;    ...             # for___in
-  ;;    ...             __import__('builtins').map(
-  ;;    ...               (lambda k:
+  ;;    ... (list (
+  ;;    ...  # let
+  ;;    ...  ((lambda d:
+  ;;    ...     # let
+  ;;    ...     ((lambda items=(set ((d.items ()))):
+  ;;    ...        (__import__('itertools').chain.from_iterable (
+  ;;    ...         # for___in
+  ;;    ...         (__import__('builtins').map (
+  ;;    ...          (lambda k:
+  ;;    ...            # unless
+  ;;    ...            ((lambda b, a:
+  ;;    ...               ()if b else a()) (
+  ;;    ...             k=='b',
+  ;;    ...             (lambda :
+  ;;    ...               (__import__('itertools').chain.from_iterable (
+  ;;    ...                # for___in
+  ;;    ...                (__import__('builtins').map (
+  ;;    ...                 (lambda v:
   ;;    ...                   # unless
-  ;;    ...                   (lambda b, a: ()if b else a())(
-  ;;    ...                     k=='b',
-  ;;    ...                     (lambda :
-  ;;    ...                         __import__('itertools').chain.from_iterable(
-  ;;    ...                           # for___in
-  ;;    ...                           __import__('builtins').map(
-  ;;    ...                             (lambda v:
-  ;;    ...                                 # unless
-  ;;    ...                                 (lambda b, a: ()if b else a())(
-  ;;    ...                                   items.__contains__(
-  ;;    ...                                     (
-  ;;    ...                                       k,
-  ;;    ...                                       v)),
-  ;;    ...                                   (lambda :
-  ;;    ...                                       (
-  ;;    ...                                         ('{}-{}').format(
-  ;;    ...                                           k,
-  ;;    ...                                           v),
-  ;;    ...                                         )
-  ;;    ...                                   ))
-  ;;    ...                             ),
-  ;;    ...                             d.values()))
-  ;;    ...                     ))
-  ;;    ...               ),
-  ;;    ...               d))
-  ;;    ...       )()
-  ;;    ...   )(
-  ;;    ...     dict(
-  ;;    ...       a=(1),
-  ;;    ...       b=(2),
-  ;;    ...       c=(3))))
+  ;;    ...                   ((lambda b, a:
+  ;;    ...                      ()if b else a()) (
+  ;;    ...                    (items.__contains__ (( (k,v)))),
+  ;;    ...                    (lambda :
+  ;;    ...                      ( (
+  ;;    ...                       (('{}-{}').format (k,v)),
+  ;;    ...                       )))))),
+  ;;    ...                 (d.values ()))))))))),
+  ;;    ...          d))))) (
+  ;;    ...      ))) (
+  ;;    ...   (dict (a=(1),b=(2),c=(3)))))))
   ;;    ['a-2', 'a-3', 'c-1', 'c-2']
   ;;
   ;; `itertools.takewhile` can shortcut lazy iterators,
@@ -2223,37 +1979,29 @@ See `hissp.macros`.
   ;;    #..     (let x ((.format "{}-{}" k v)))
   ;;    #..     (unless |x=='b-3'| x))
   ;;    >>> # Lt_oDash_
-  ;;    ... list(
-  ;;    ...   __import__('itertools').takewhile(
-  ;;    ...     (lambda X: X),
-  ;;    ...     # let
-  ;;    ...     (lambda d:
-  ;;    ...         __import__('itertools').chain.from_iterable(
-  ;;    ...           # for___in
-  ;;    ...           __import__('builtins').map(
-  ;;    ...             (lambda k:
-  ;;    ...                 # for___in
-  ;;    ...                 __import__('builtins').map(
-  ;;    ...                   (lambda v:
-  ;;    ...                       # let
-  ;;    ...                       (lambda x:
-  ;;    ...                           # unless
-  ;;    ...                           (lambda b, a: ()if b else a())(
-  ;;    ...                             x=='b-3',
-  ;;    ...                             (lambda : x))
-  ;;    ...                       )(
-  ;;    ...                         ('{}-{}').format(
-  ;;    ...                           k,
-  ;;    ...                           v))
-  ;;    ...                   ),
-  ;;    ...                   d.values())
-  ;;    ...             ),
-  ;;    ...             d))
-  ;;    ...     )(
-  ;;    ...       dict(
-  ;;    ...         a=(1),
-  ;;    ...         b=(2),
-  ;;    ...         c=(3)))))
+  ;;    ... (list (
+  ;;    ...  (__import__('itertools').takewhile (
+  ;;    ...   (lambda X:
+  ;;    ...     X),
+  ;;    ...   # let
+  ;;    ...   ((lambda d:
+  ;;    ...      (__import__('itertools').chain.from_iterable (
+  ;;    ...       # for___in
+  ;;    ...       (__import__('builtins').map (
+  ;;    ...        (lambda k:
+  ;;    ...          # for___in
+  ;;    ...          (__import__('builtins').map (
+  ;;    ...           (lambda v:
+  ;;    ...             # let
+  ;;    ...             ((lambda x:
+  ;;    ...                # unless
+  ;;    ...                ((lambda b, a:
+  ;;    ...                   ()if b else a()) (
+  ;;    ...                 x=='b-3',(lambda : x)))) (
+  ;;    ...              (('{}-{}').format (k,v))))),
+  ;;    ...           (d.values ())))),
+  ;;    ...        d))))) (
+  ;;    ...    (dict (a=(1),b=(2),c=(3)))))))))
   ;;    ['a-1', 'a-2', 'a-3', 'b-1', 'b-2']
   ;;
   ;; See also: `map`, `for`, `break`, `zip`, `itertools`,
@@ -2277,40 +2025,29 @@ See `hissp.macros`.
   ;;    #..  (print x y))
   ;;    >>> # let___again
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda _gY44MBROP__stack=[None, None, ()]:
-  ;;    ...     # hissp.macros.._macro_.let
-  ;;    ...     (lambda again___with=_gY44MBROP__stack.append:
-  ;;    ...        (__import__('builtins').any(
-  ;;    ...           __import__('itertools').starmap(
-  ;;    ...             (
-  ;;    ...              lambda x=(3),
-  ;;    ...                     y=(0):
-  ;;    ...                (_gY44MBROP__stack.__setitem__(
-  ;;    ...                   (0),
-  ;;    ...                   # hissp.macros.._macro_.progn
-  ;;    ...                   (# when
-  ;;    ...                    (lambda b, c: c()if b else())(
-  ;;    ...                      x,
-  ;;    ...                      (lambda :
-  ;;    ...                          again___with(
-  ;;    ...                            (
-  ;;    ...                              x-1,
-  ;;    ...                              y+1))
-  ;;    ...                      )),
-  ;;    ...                    print(
-  ;;    ...                      x,
-  ;;    ...                      y))  [-1]),
-  ;;    ...                 None)  [-1]
-  ;;    ...             ),
-  ;;    ...             __import__('builtins').iter(
-  ;;    ...               _gY44MBROP__stack.pop,
-  ;;    ...               None))),
-  ;;    ...         # hissp.macros.._macro_._backapply
-  ;;    ...         __import__('operator').itemgetter(
-  ;;    ...           (0))(
-  ;;    ...           _gY44MBROP__stack))  [-1]
-  ;;    ...     )()
-  ;;    ... )()
+  ;;    ... ((lambda _gSGS4PST2__stack=[None, None, ()]:
+  ;;    ...    # hissp.macros.._macro_.let
+  ;;    ...    ((lambda again___with=_gSGS4PST2__stack.append:
+  ;;    ...      ((__import__('builtins').any (
+  ;;    ...        (__import__('itertools').starmap (
+  ;;    ...         (lambda x=(3),
+  ;;    ...                 y=(0):
+  ;;    ...          ((_gSGS4PST2__stack.__setitem__ (
+  ;;    ...            (0),
+  ;;    ...            # hissp.macros.._macro_.progn
+  ;;    ...            (# when
+  ;;    ...             ((lambda b, c:
+  ;;    ...                c()if b else()) (
+  ;;    ...              x,
+  ;;    ...              (lambda : (again___with (( (x-1,y+1)))))))
+  ;;    ...            ,(print (x,y))  )[-1]))
+  ;;    ...          ,None  )[-1]),
+  ;;    ...         (__import__('builtins').iter (_gSGS4PST2__stack.pop,None))))))
+  ;;    ...      ,(# hissp.macros.._macro_._backapply
+  ;;    ...        (__import__('operator').itemgetter ((0))) (
+  ;;    ...        _gSGS4PST2__stack))  )[-1]) (
+  ;;    ...     ))) (
+  ;;    ...  ))
   ;;    3 0
   ;;    2 1
   ;;    1 2
@@ -2337,27 +2074,25 @@ See `hissp.macros`.
   ;;
   ;;    #> (ands True True False) ; and finds the False
   ;;    >>> # ands
-  ;;    ... (lambda x0, x1, x2: x0 and x1()and x2())(
-  ;;    ...   True,
-  ;;    ...   (lambda : True),
-  ;;    ...   (lambda : False))
+  ;;    ... ((lambda x0, x1, x2:
+  ;;    ...    x0 and x1()and x2()) (
+  ;;    ...  True,(lambda : True),(lambda : False)))
   ;;    False
   ;;
   ;;    #> (ands False (print 'oops)) ; Shortcutting.
   ;;    >>> # ands
-  ;;    ... (lambda x0, x1: x0 and x1())(
-  ;;    ...   False,
-  ;;    ...   (lambda :
-  ;;    ...       print(
-  ;;    ...         'oops')
-  ;;    ...   ))
+  ;;    ... ((lambda x0, x1:
+  ;;    ...    x0 and x1()) (
+  ;;    ...  False,
+  ;;    ...  (lambda : (print ('oops')))))
   ;;    False
   ;;
   ;;    #> (ands True 42)
   ;;    >>> # ands
-  ;;    ... (lambda x0, x1: x0 and x1())(
-  ;;    ...   True,
-  ;;    ...   (lambda : (42)))
+  ;;    ... ((lambda x0, x1:
+  ;;    ...    x0 and x1()) (
+  ;;    ...  True,
+  ;;    ...  (lambda : (42))))
   ;;    42
   ;;
   ;;    #> (ands)
@@ -2391,28 +2126,27 @@ See `hissp.macros`.
   ;;
   ;;    #> (ors True (print 'oops)) ; Shortcutting.
   ;;    >>> # ors
-  ;;    ... (lambda x0, x1: x0 or x1())(
-  ;;    ...   True,
-  ;;    ...   (lambda :
-  ;;    ...       print(
-  ;;    ...         'oops')
-  ;;    ...   ))
+  ;;    ... ((lambda x0, x1:
+  ;;    ...    x0 or x1()) (
+  ;;    ...  True,
+  ;;    ...  (lambda : (print ('oops')))))
   ;;    True
   ;;
   ;;    #> (ors 42 False)
   ;;    >>> # ors
-  ;;    ... (lambda x0, x1: x0 or x1())(
-  ;;    ...   (42),
-  ;;    ...   (lambda : False))
+  ;;    ... ((lambda x0, x1:
+  ;;    ...    x0 or x1()) (
+  ;;    ...  (42),(lambda : False)))
   ;;    42
   ;;
   ;;    #> (ors () False 0 1)  ; or seeks the truth
   ;;    >>> # ors
-  ;;    ... (lambda x0, x1, x2, x3: x0 or x1()or x2()or x3())(
-  ;;    ...   (),
-  ;;    ...   (lambda : False),
-  ;;    ...   (lambda : (0)),
-  ;;    ...   (lambda : (1)))
+  ;;    ... ((lambda x0, x1, x2, x3:
+  ;;    ...    x0 or x1()or x2()or x3()) (
+  ;;    ...  (),
+  ;;    ...  (lambda : False),
+  ;;    ...  (lambda : (0)),
+  ;;    ...  (lambda : (1))))
   ;;    1
   ;;
   ;;    #> (ors False)
@@ -2454,8 +2188,7 @@ See `hissp.macros`.
   ;;    #> (throw Exception)                       ;Raise exception objects or classes.
   ;;    >>> # throw
   ;;    ... # hissp.macros.._macro_.throwStar_
-  ;;    ... (lambda g:g.close()or g.throw)(c for c in'')(
-  ;;    ...   Exception)
+  ;;    ... ((lambda g:g.close()or g.throw)(c for c in'') (Exception))
   ;;    Traceback (most recent call last):
   ;;      ...
   ;;    Exception
@@ -2463,9 +2196,7 @@ See `hissp.macros`.
   ;;    #> (throw (TypeError 'message))
   ;;    >>> # throw
   ;;    ... # hissp.macros.._macro_.throwStar_
-  ;;    ... (lambda g:g.close()or g.throw)(c for c in'')(
-  ;;    ...   TypeError(
-  ;;    ...     'message'))
+  ;;    ... ((lambda g:g.close()or g.throw)(c for c in'') ((TypeError ('message'))))
   ;;    Traceback (most recent call last):
   ;;      ...
   ;;    TypeError: message
@@ -2487,32 +2218,27 @@ See `hissp.macros`.
   ;;    #..
   ;;    >>> # throw___from
   ;;    ... # hissp.macros.._macro_.throwStar_
-  ;;    ... (lambda g:g.close()or g.throw)(c for c in'')(
-  ;;    ...   # hissp.macros.._macro_.let
-  ;;    ...   (
-  ;;    ...    lambda _gP46TIEQT__G=(lambda _gP46TIEQT__x:
-  ;;    ...               # hissp.macros.._macro_.if___else
-  ;;    ...               (lambda b, c, a: c()if b else a())(
-  ;;    ...                 __import__('builtins').isinstance(
-  ;;    ...                   _gP46TIEQT__x,
-  ;;    ...                   __import__('builtins').BaseException),
-  ;;    ...                 (lambda : _gP46TIEQT__x),
-  ;;    ...                 (lambda : _gP46TIEQT__x()))
-  ;;    ...           ):
-  ;;    ...       # hissp.macros.._macro_.attach
-  ;;    ...       # hissp.macros.._macro_.let
-  ;;    ...       (
-  ;;    ...        lambda _gXPD76NRZ__target=_gP46TIEQT__G(
-  ;;    ...                 Exception):
-  ;;    ...          (__import__('builtins').setattr(
-  ;;    ...             _gXPD76NRZ__target,
-  ;;    ...             '__cause__',
-  ;;    ...             _gP46TIEQT__G(
-  ;;    ...               Exception(
-  ;;    ...                 'message'))),
-  ;;    ...           _gXPD76NRZ__target)  [-1]
-  ;;    ...       )()
-  ;;    ...   )())
+  ;;    ... ((lambda g:g.close()or g.throw)(c for c in'') (
+  ;;    ...  # hissp.macros.._macro_.let
+  ;;    ...  ((lambda _gHSA7XONP__G
+  ;;    ...           =(lambda _gHSA7XONP__x:
+  ;;    ...              # hissp.macros.._macro_.if___else
+  ;;    ...              ((lambda b, c, a:
+  ;;    ...                 c()if b else a()) (
+  ;;    ...               (__import__('builtins').isinstance (
+  ;;    ...                _gHSA7XONP__x,__import__('builtins').BaseException)),
+  ;;    ...               (lambda : _gHSA7XONP__x),
+  ;;    ...               (lambda : (_gHSA7XONP__x ()))))):
+  ;;    ...     # hissp.macros.._macro_.attach
+  ;;    ...     # hissp.macros.._macro_.let
+  ;;    ...     ((lambda _gSNPWLC4C__target=(_gHSA7XONP__G (Exception)):
+  ;;    ...       ((__import__('builtins').setattr (
+  ;;    ...         _gSNPWLC4C__target,
+  ;;    ...         '__cause__',
+  ;;    ...         (_gHSA7XONP__G ((Exception ('message'))))))
+  ;;    ...       ,_gSNPWLC4C__target  )[-1]) (
+  ;;    ...      ))) (
+  ;;    ...   ))))
   ;;    Traceback (most recent call last):
   ;;      ...
   ;;    Exception
@@ -2537,16 +2263,14 @@ See `hissp.macros`.
   ;;    #> (print (prog1 0                         ;Side effects in sequence. Eval to first.
   ;;    #..         (print 1)
   ;;    #..         (print 2)))
-  ;;    >>> print(
-  ;;    ...   # prog1
-  ;;    ...   # hissp.macros.._macro_.let
-  ;;    ...   (lambda _gP2FSZYVE__value1=(0):
-  ;;    ...      (print(
-  ;;    ...         (1)),
-  ;;    ...       print(
-  ;;    ...         (2)),
-  ;;    ...       _gP2FSZYVE__value1)  [-1]
-  ;;    ...   )())
+  ;;    >>> (print (
+  ;;    ...  # prog1
+  ;;    ...  # hissp.macros.._macro_.let
+  ;;    ...  ((lambda _gBCYI4362__value1=(0):
+  ;;    ...    ((print ((1)))
+  ;;    ...    ,(print ((2)))
+  ;;    ...    ,_gBCYI4362__value1  )[-1]) (
+  ;;    ...   ))))
   ;;    1
   ;;    2
   ;;    0
@@ -2561,15 +2285,13 @@ See `hissp.macros`.
   ;;    #..  (print 2))
   ;;    >>> # prog1
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda _gKTCZ2AQB__value1=# progn
-  ;;    ...         (print(
-  ;;    ...            (1)),
-  ;;    ...          (3))  [-1]:
-  ;;    ...    (print(
-  ;;    ...       (2)),
-  ;;    ...     _gKTCZ2AQB__value1)  [-1]
-  ;;    ... )()
+  ;;    ... ((lambda _gKTCZ2AQB__value1
+  ;;    ...          =# progn
+  ;;    ...           ((print ((1)))
+  ;;    ...           ,(3)  )[-1]:
+  ;;    ...   ((print ((2)))
+  ;;    ...   ,_gKTCZ2AQB__value1  )[-1]) (
+  ;;    ...  ))
   ;;    1
   ;;    2
   ;;    3
@@ -2765,25 +2487,16 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (en#list 1 2 3)
-  ;;    >>> (lambda *_g4TYWBSNP__xs:
-  ;;    ...     list(
-  ;;    ...       _g4TYWBSNP__xs)
-  ;;    ... )(
-  ;;    ...   (1),
-  ;;    ...   (2),
-  ;;    ...   (3))
+  ;;    >>> ((lambda *_g4TYWBSNP__xs:
+  ;;    ...    (list (_g4TYWBSNP__xs))) (
+  ;;    ...  (1),(2),(3)))
   ;;    [1, 2, 3]
   ;;
   ;;    #> (en#.extend _ 4 5 6) ; Methods too.
   ;;    #..
-  ;;    >>> (lambda _gB3AJD2PD__self, *_gB3AJD2PD__xs:
-  ;;    ...     _gB3AJD2PD__self.extend(
-  ;;    ...       _gB3AJD2PD__xs)
-  ;;    ... )(
-  ;;    ...   _,
-  ;;    ...   (4),
-  ;;    ...   (5),
-  ;;    ...   (6))
+  ;;    >>> ((lambda _gB3AJD2PD__self, *_gB3AJD2PD__xs:
+  ;;    ...    (_gB3AJD2PD__self.extend (_gB3AJD2PD__xs))) (
+  ;;    ...  _,(4),(5),(6)))
   ;;
   ;;    #> _
   ;;    >>> _
@@ -2791,28 +2504,20 @@ See `hissp.macros`.
   ;;
   ;;    #> (define enjoin en#X#(.join "" (map str X)))
   ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   enjoin=(lambda *_gEEXENIDY__xs:
-  ;;    ...              (lambda X:
-  ;;    ...                  ('').join(
-  ;;    ...                    map(
-  ;;    ...                      str,
-  ;;    ...                      X))
-  ;;    ...              )(
-  ;;    ...                _gEEXENIDY__xs)
-  ;;    ...          ))
+  ;;    ... ((__import__('builtins').globals ()).update (
+  ;;    ...  enjoin
+  ;;    ...  =(lambda *_gITWNWCHM__xs:
+  ;;    ...     ((lambda X:
+  ;;    ...        (('').join ((map (str,X))))) (
+  ;;    ...      _gITWNWCHM__xs)))))
   ;;
   ;;    #> (enjoin "Sum: "(op#add 2 3)". Product: "(op#mul 2 3)".")
-  ;;    >>> enjoin(
-  ;;    ...   ('Sum: '),
-  ;;    ...   __import__('operator').add(
-  ;;    ...     (2),
-  ;;    ...     (3)),
-  ;;    ...   ('. Product: '),
-  ;;    ...   __import__('operator').mul(
-  ;;    ...     (2),
-  ;;    ...     (3)),
-  ;;    ...   ('.'))
+  ;;    >>> (enjoin (
+  ;;    ...  ('Sum: '),
+  ;;    ...  (__import__('operator').add ((2),(3))),
+  ;;    ...  ('. Product: '),
+  ;;    ...  (__import__('operator').mul ((2),(3))),
+  ;;    ...  ('.')))
   ;;    'Sum: 5. Product: 6.'
   ;;
   ;; There are no bundled tags for a quinary, senary, etc. but
@@ -2833,15 +2538,10 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> (/#operator..add 1 2 3 4)
-  ;;    >>> (lambda *_gVBXQOUGG__xs:
-  ;;    ...     __import__('functools').reduce(
-  ;;    ...       __import__('operator').add,
-  ;;    ...       _gVBXQOUGG__xs)
-  ;;    ... )(
-  ;;    ...   (1),
-  ;;    ...   (2),
-  ;;    ...   (3),
-  ;;    ...   (4))
+  ;;    >>> ((lambda *_gVBXQOUGG__xs:
+  ;;    ...    (__import__('functools').reduce (
+  ;;    ...     __import__('operator').add,_gVBXQOUGG__xs))) (
+  ;;    ...  (1),(2),(3),(4)))
   ;;    10
   ;;
   ;; See also: `/XY# <Fsol_XYHash_>`, `en# <enHash_>`.
@@ -2861,42 +2561,34 @@ See `hissp.macros`.
   ;;    #..  (print "Hello, World!"))
   ;;    >>> # defun
   ;;    ... # hissp.macros.._macro_.define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   greet=# hissp.macros.._macro_.fun
-  ;;    ...         # hissp.macros.._macro_.let
-  ;;    ...         (
-  ;;    ...          lambda _gROR2V2G5__lambda=(lambda :
-  ;;    ...                     print(
-  ;;    ...                       ('Hello, World!'))
-  ;;    ...                 ):
-  ;;    ...            ((
-  ;;    ...               *__import__('itertools').starmap(
-  ;;    ...                  _gROR2V2G5__lambda.__setattr__,
-  ;;    ...                  __import__('builtins').dict(
-  ;;    ...                    __name__='greet',
-  ;;    ...                    __qualname__='greet',
-  ;;    ...                    __code__=_gROR2V2G5__lambda.__code__.replace(
-  ;;    ...                               co_name='greet')).items()),
-  ;;    ...               ),
-  ;;    ...             _gROR2V2G5__lambda)  [-1]
-  ;;    ...         )())
+  ;;    ... ((__import__('builtins').globals ()).update (
+  ;;    ...  greet
+  ;;    ...  =# hissp.macros.._macro_.fun
+  ;;    ...   # hissp.macros.._macro_.let
+  ;;    ...   ((lambda _gHMHMN2OR__lambda=(lambda : (print (('Hello, World!')))):
+  ;;    ...     (( (
+  ;;    ...       *(__import__('itertools').starmap (
+  ;;    ...         _gHMHMN2OR__lambda.__setattr__,
+  ;;    ...         ((__import__('builtins').dict (
+  ;;    ...           __name__='greet',
+  ;;    ...           __qualname__='greet',
+  ;;    ...           __code__=(_gHMHMN2OR__lambda.__code__.replace (co_name='greet')))).items (
+  ;;    ...          )))),
+  ;;    ...       ))
+  ;;    ...     ,_gHMHMN2OR__lambda  )[-1]) (
+  ;;    ...    ))))
   ;;
   ;;    #> proxy#greet
-  ;;    >>> __import__('functools').update_wrapper(
-  ;;    ...   (lambda *_g3XJMPIBW__args, **_g3XJMPIBW__kwargs:
-  ;;    ...       greet(
-  ;;    ...         *_g3XJMPIBW__args,
-  ;;    ...         **_g3XJMPIBW__kwargs)
-  ;;    ...   ),
-  ;;    ...   greet)
+  ;;    >>> (__import__('functools').update_wrapper (
+  ;;    ...  (lambda *_gAFEV3P5E__args, **_gAFEV3P5E__kwargs:
+  ;;    ...    (greet (*_gAFEV3P5E__args,**_gAFEV3P5E__kwargs))),
+  ;;    ...  greet))
   ;;    <function greet at 0x...>
   ;;
   ;;    #> (define greet-handlers (types..SimpleNamespace : direct greet  proxied _))
   ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   greet___handlers=__import__('types').SimpleNamespace(
-  ;;    ...                      direct=greet,
-  ;;    ...                      proxied=_))
+  ;;    ... ((__import__('builtins').globals ()).update (
+  ;;    ...  greet___handlers=(__import__('types').SimpleNamespace (direct=greet,proxied=_))))
   ;;
   ;; Now suppose ``greet`` is reloaded with a new definition, but
   ;; ``greet-handlers`` is not (perhaps due to being in separate modules
@@ -2908,32 +2600,29 @@ See `hissp.macros`.
   ;;    #..  (print "Wassup?"))
   ;;    >>> # defun
   ;;    ... # hissp.macros.._macro_.define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   greet=# hissp.macros.._macro_.fun
-  ;;    ...         # hissp.macros.._macro_.let
-  ;;    ...         (
-  ;;    ...          lambda _gPAWCWJOD__lambda=(lambda :
-  ;;    ...                     print(
-  ;;    ...                       ('Wassup?'))
-  ;;    ...                 ):
-  ;;    ...            ((
-  ;;    ...               *__import__('itertools').starmap(
-  ;;    ...                  _gPAWCWJOD__lambda.__setattr__,
-  ;;    ...                  __import__('builtins').dict(
-  ;;    ...                    __name__='greet',
-  ;;    ...                    __qualname__='greet',
-  ;;    ...                    __code__=_gPAWCWJOD__lambda.__code__.replace(
-  ;;    ...                               co_name='greet')).items()),
-  ;;    ...               ),
-  ;;    ...             _gPAWCWJOD__lambda)  [-1]
-  ;;    ...         )())
+  ;;    ... ((__import__('builtins').globals ()).update (
+  ;;    ...  greet
+  ;;    ...  =# hissp.macros.._macro_.fun
+  ;;    ...   # hissp.macros.._macro_.let
+  ;;    ...   ((lambda _gNZGZK36Q__lambda=(lambda : (print (('Wassup?')))):
+  ;;    ...     (( (
+  ;;    ...       *(__import__('itertools').starmap (
+  ;;    ...         _gNZGZK36Q__lambda.__setattr__,
+  ;;    ...         ((__import__('builtins').dict (
+  ;;    ...           __name__='greet',
+  ;;    ...           __qualname__='greet',
+  ;;    ...           __code__=(_gNZGZK36Q__lambda.__code__.replace (co_name='greet')))).items (
+  ;;    ...          )))),
+  ;;    ...       ))
+  ;;    ...     ,_gNZGZK36Q__lambda  )[-1]) (
+  ;;    ...    ))))
   ;;
   ;;    #> (greet-handlers.direct) ; Still the original function object.
-  ;;    >>> greet___handlers.direct()
+  ;;    >>> (greet___handlers.direct ())
   ;;    Hello, World!
   ;;
   ;;    #> (greet-handlers.proxied) ; Proxy does the lookup again.
-  ;;    >>> greet___handlers.proxied()
+  ;;    >>> (greet___handlers.proxied ())
   ;;    Wassup?
   ;;
   `(ft#update_wrapper (lambda (: :* $#args  :** $#kwargs)
@@ -2959,21 +2648,15 @@ See `hissp.macros`.
   ;;
   ;;    #> (define mean &###op#truediv sum len)
   ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   mean=(lambda *_g5FRXO76U__a, **_g5FRXO76U__kw:
-  ;;    ...            __import__('operator').truediv(
-  ;;    ...              sum(
-  ;;    ...                *_g5FRXO76U__a,
-  ;;    ...                **_g5FRXO76U__kw),
-  ;;    ...              len(
-  ;;    ...                *_g5FRXO76U__a,
-  ;;    ...                **_g5FRXO76U__kw))
-  ;;    ...        ))
+  ;;    ... ((__import__('builtins').globals ()).update (
+  ;;    ...  mean
+  ;;    ...  =(lambda *_gGQN7LX33__a, **_gGQN7LX33__kw:
+  ;;    ...     (__import__('operator').truediv (
+  ;;    ...      (sum (*_gGQN7LX33__a,**_gGQN7LX33__kw)),
+  ;;    ...      (len (*_gGQN7LX33__a,**_gGQN7LX33__kw)))))))
   ;;
   ;;    #> (mean (range 6))
-  ;;    >>> mean(
-  ;;    ...   range(
-  ;;    ...     (6)))
+  ;;    >>> (mean ((range ((6)))))
   ;;    2.5
   ;;
   ;; Literals or quoted forms act like constant functions:
@@ -2983,19 +2666,16 @@ See `hissp.macros`.
   ;;    #> (&####print &##X#X 1 _#; constant function
   ;;    #..            '(op#add 1 1) _#; quoted
   ;;    #..            sep=: _#|<-literal (and kwarg)|)
-  ;;    >>> (lambda *_g5FRXO76U__a, **_g5FRXO76U__kw:
-  ;;    ...     print(
-  ;;    ...       (lambda *_g5FRXO76U__a, **_g5FRXO76U__kw:
-  ;;    ...           (lambda X: X)(
-  ;;    ...             (1))
-  ;;    ...       )(
-  ;;    ...         *_g5FRXO76U__a,
-  ;;    ...         **_g5FRXO76U__kw),
-  ;;    ...       __import__('operator').add(
-  ;;    ...         (1),
-  ;;    ...         (1)),
-  ;;    ...       sep=':')
-  ;;    ... )()
+  ;;    >>> ((lambda *_gIR3MTRA4__a, **_gIR3MTRA4__kw:
+  ;;    ...    (print (
+  ;;    ...     ((lambda *_gIR3MTRA4__a, **_gIR3MTRA4__kw:
+  ;;    ...        ((lambda X:
+  ;;    ...           X) (
+  ;;    ...         (1)))) (
+  ;;    ...      *_gIR3MTRA4__a,**_gIR3MTRA4__kw)),
+  ;;    ...     (__import__('operator').add ((1),(1))),
+  ;;    ...     sep=':'))) (
+  ;;    ...  ))
   ;;    1:2
   ;;
   ;; Chaining:
@@ -3003,27 +2683,21 @@ See `hissp.macros`.
   ;; .. code-block:: REPL
   ;;
   ;;    #> &##.title &###.join "" &###filter 'X#|X!='a'| sorted
-  ;;    >>> (lambda *_g5FRXO76U__a, **_g5FRXO76U__kw:
-  ;;    ...     (lambda *_g5FRXO76U__a, **_g5FRXO76U__kw:
-  ;;    ...         ('').join(
-  ;;    ...           (lambda *_g5FRXO76U__a, **_g5FRXO76U__kw:
-  ;;    ...               filter(
-  ;;    ...                 (lambda X: X!='a'),
-  ;;    ...                 sorted(
-  ;;    ...                   *_g5FRXO76U__a,
-  ;;    ...                   **_g5FRXO76U__kw))
-  ;;    ...           )(
-  ;;    ...             *_g5FRXO76U__a,
-  ;;    ...             **_g5FRXO76U__kw))
-  ;;    ...     )(
-  ;;    ...       *_g5FRXO76U__a,
-  ;;    ...       **_g5FRXO76U__kw).title()
-  ;;    ... )
+  ;;    >>> (lambda *_gBQIYA3II__a, **_gBQIYA3II__kw:
+  ;;    ...   (((lambda *_gBQIYA3II__a, **_gBQIYA3II__kw:
+  ;;    ...       (('').join (
+  ;;    ...        ((lambda *_gBQIYA3II__a, **_gBQIYA3II__kw:
+  ;;    ...           (filter (
+  ;;    ...            (lambda X:
+  ;;    ...              X!='a'),
+  ;;    ...            (sorted (*_gBQIYA3II__a,**_gBQIYA3II__kw))))) (
+  ;;    ...         *_gBQIYA3II__a,**_gBQIYA3II__kw))))) (
+  ;;    ...     *_gBQIYA3II__a,**_gBQIYA3II__kw)).title (
+  ;;    ...    )))
   ;;    <function <lambda> at 0x...>
   ;;
   ;;    #> (_ 'abracadabra)
-  ;;    >>> _(
-  ;;    ...   'abracadabra')
+  ;;    >>> (_ ('abracadabra'))
   ;;    'Bbcdrr'
   ;;
   ;; Macros can work in some cases, like `ors`:
@@ -3032,28 +2706,23 @@ See `hissp.macros`.
   ;;
   ;;    #> (define symbol-or-node? &###ors H#is_symbol H#is_node)
   ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   symbol___or___nodeEh_=(lambda *_g5FRXO76U__a, **_g5FRXO76U__kw:
-  ;;    ...                             # ors
-  ;;    ...                             (lambda x0, x1: x0 or x1())(
-  ;;    ...                               __import__('hissp').is_symbol(
-  ;;    ...                                 *_g5FRXO76U__a,
-  ;;    ...                                 **_g5FRXO76U__kw),
-  ;;    ...                               (lambda :
-  ;;    ...                                   __import__('hissp').is_node(
-  ;;    ...                                     *_g5FRXO76U__a,
-  ;;    ...                                     **_g5FRXO76U__kw)
-  ;;    ...                               ))
-  ;;    ...                         ))
+  ;;    ... ((__import__('builtins').globals ()).update (
+  ;;    ...  symbol___or___nodeEh_
+  ;;    ...  =(lambda *_g4NJJAGQX__a, **_g4NJJAGQX__kw:
+  ;;    ...     # ors
+  ;;    ...     ((lambda x0, x1:
+  ;;    ...        x0 or x1()) (
+  ;;    ...      (__import__('hissp').is_symbol (*_g4NJJAGQX__a,**_g4NJJAGQX__kw)),
+  ;;    ...      (lambda : (__import__('hissp').is_node (*_g4NJJAGQX__a,**_g4NJJAGQX__kw))))))))
   ;;
   ;;    #> (list (map symbol-or-node? '(foo 2 () (foo))))
-  ;;    >>> list(
-  ;;    ...   map(
-  ;;    ...     symbol___or___nodeEh_,
-  ;;    ...     ('foo',
-  ;;    ...      (2),
-  ;;    ...      (),
-  ;;    ...      ('foo',),)))
+  ;;    >>> (list (
+  ;;    ...  (map (
+  ;;    ...   symbol___or___nodeEh_,
+  ;;    ...   ('foo',
+  ;;    ...    (2),
+  ;;    ...    (),
+  ;;    ...    ('foo',),)))))
   ;;    [True, False, False, True]
   ;;
   ;; See also: `statistics.mean`, `-> <Dash_Gt_>`, `destruct-> <destruct___Gt_>`.
@@ -3084,13 +2753,13 @@ See `hissp.macros`.
   ;;
   ;;    #> (@ :* "AB" (math..sqrt 9) :* "XY" 2 1)
   ;;    >>> # At_
-  ;;    ... (lambda *xs: [*xs])(
-  ;;    ...   *('AB'),
-  ;;    ...   __import__('math').sqrt(
-  ;;    ...     (9)),
-  ;;    ...   *('XY'),
-  ;;    ...   (2),
-  ;;    ...   (1))
+  ;;    ... ((lambda *xs:
+  ;;    ...    [*xs]) (
+  ;;    ...  *('AB'),
+  ;;    ...  (__import__('math').sqrt ((9))),
+  ;;    ...  *('XY'),
+  ;;    ...  (2),
+  ;;    ...  (1)))
   ;;    ['A', 'B', 3.0, 'X', 'Y', 2, 1]
   ;;
   ;; See also:
@@ -3115,14 +2784,14 @@ See `hissp.macros`.
   ;;
   ;;    #> (# 1 :* (@ 1 2 3) 4)                    ;Set, with unpacking.
   ;;    >>> # Hash_
-  ;;    ... (lambda *xs: {*xs})(
-  ;;    ...   (1),
-  ;;    ...   *# At_
-  ;;    ...    (lambda *xs: [*xs])(
-  ;;    ...      (1),
-  ;;    ...      (2),
-  ;;    ...      (3)),
-  ;;    ...   (4))
+  ;;    ... ((lambda *xs:
+  ;;    ...    {*xs}) (
+  ;;    ...  (1),
+  ;;    ...  *# At_
+  ;;    ...   ((lambda *xs:
+  ;;    ...      [*xs]) (
+  ;;    ...    (1),(2),(3))),
+  ;;    ...  (4)))
   ;;    {1, 2, 3, 4}
   ;;
   ;; See also: `@ <At_>`, `% <Pcent_>`.
@@ -3146,14 +2815,13 @@ See `hissp.macros`.
   ;;
   ;;    #> (% 1 2  :** (dict : x 3  y 4)  5 6) ; Dict, with mapping unpacking.
   ;;    >>> # Pcent_
-  ;;    ... (lambda x0, x1, x3, x4, x5: {x0:x1,**x3,x4:x5})(
-  ;;    ...   (1),
-  ;;    ...   (2),
-  ;;    ...   dict(
-  ;;    ...     x=(3),
-  ;;    ...     y=(4)),
-  ;;    ...   (5),
-  ;;    ...   (6))
+  ;;    ... ((lambda x0, x1, x3, x4, x5:
+  ;;    ...    {x0:x1,**x3,x4:x5}) (
+  ;;    ...  (1),
+  ;;    ...  (2),
+  ;;    ...  (dict (x=(3),y=(4))),
+  ;;    ...  (5),
+  ;;    ...  (6)))
   ;;    {1: 2, 'x': 3, 'y': 4, 5: 6}
   ;;
   ;;    #> (%)
@@ -3267,24 +2935,24 @@ See `hissp.macros`.
   ;;
   ;;    #> (prelude)
   ;;    >>> # prelude
-  ;;    ... __import__('builtins').exec(
-  ;;    ...   ('from itertools import *;from operator import *\n'
-  ;;    ...    'def engarde(xs,h,f,/,*a,**kw):\n'
-  ;;    ...    ' try:return f(*a,**kw)\n'
-  ;;    ...    ' except xs as e:return h(e)\n'
-  ;;    ...    'def enter(c,f,/,*a):\n'
-  ;;    ...    ' with c as C:return f(*a,C)\n'
-  ;;    ...    "class Ensue(__import__('collections.abc').abc.Generator):\n"
-  ;;    ...    ' send=lambda s,v:s.g.send(v);throw=lambda s,*x:s.g.throw(*x);F=0;X=();Y=[]\n'
-  ;;    ...    ' def __init__(s,p):s.p,s.g,s.n=p,s._(s),s.Y\n'
-  ;;    ...    ' def _(s,k,v=None):\n'
-  ;;    ...    "  while isinstance(s:=k,__class__) and not setattr(s,'sent',v):\n"
-  ;;    ...    '   try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)\n'
-  ;;    ...    '   except s.X as e:v=e\n'
-  ;;    ...    '  return k\n'
-  ;;    ...    "class _macro_(*engarde(ModuleNotFoundError,lambda _:'',\n"
-  ;;    ...    "lambda:[__import__('hissp')._macro_])):0\n"),
-  ;;    ...   __import__('builtins').globals())
+  ;;    ... (__import__('builtins').exec (
+  ;;    ...  ('from itertools import *;from operator import *\n'
+  ;;    ...   'def engarde(xs,h,f,/,*a,**kw):\n'
+  ;;    ...   ' try:return f(*a,**kw)\n'
+  ;;    ...   ' except xs as e:return h(e)\n'
+  ;;    ...   'def enter(c,f,/,*a):\n'
+  ;;    ...   ' with c as C:return f(*a,C)\n'
+  ;;    ...   "class Ensue(__import__('collections.abc').abc.Generator):\n"
+  ;;    ...   ' send=lambda s,v:s.g.send(v);throw=lambda s,*x:s.g.throw(*x);F=0;X=();Y=[]\n'
+  ;;    ...   ' def __init__(s,p):s.p,s.g,s.n=p,s._(s),s.Y\n'
+  ;;    ...   ' def _(s,k,v=None):\n'
+  ;;    ...   "  while isinstance(s:=k,__class__) and not setattr(s,'sent',v):\n"
+  ;;    ...   '   try:k,y=s.p(s),s.Y;v=(yield from y)if s.F or y is s.n else(yield y)\n'
+  ;;    ...   '   except s.X as e:v=e\n'
+  ;;    ...   '  return k\n'
+  ;;    ...   "class _macro_(*engarde(ModuleNotFoundError,lambda _:'',\n"
+  ;;    ...   "lambda:[__import__('hissp')._macro_])):0\n"),
+  ;;    ...  (__import__('builtins').globals ())))
   ;;
   ;; See also, `alias`.
   ;;
@@ -3295,38 +2963,23 @@ See `hissp.macros`.
   ;;    #> (engarde `(,FloatingPointError ,ZeroDivisionError) ;two targets
   ;;    #..         (lambda e (print "Oops!") e)   ;handler (returns exception)
   ;;    #..         truediv 6 0)                   ;calls it on your behalf
-  ;;    >>> engarde(
-  ;;    ...   (
-  ;;    ...     FloatingPointError,
-  ;;    ...     ZeroDivisionError,
-  ;;    ...     ),
-  ;;    ...   (lambda e:
-  ;;    ...      (print(
-  ;;    ...         ('Oops!')),
-  ;;    ...       e)  [-1]
-  ;;    ...   ),
-  ;;    ...   truediv,
-  ;;    ...   (6),
-  ;;    ...   (0))
+  ;;    >>> (engarde (
+  ;;    ...  ( (FloatingPointError,ZeroDivisionError)),
+  ;;    ...  (lambda e:
+  ;;    ...   ((print (('Oops!')))
+  ;;    ...   ,e  )[-1]),
+  ;;    ...  truediv,
+  ;;    ...  (6),
+  ;;    ...  (0)))
   ;;    Oops!
   ;;    ZeroDivisionError('division by zero')
   ;;
   ;;    #> (engarde ArithmeticError repr truediv 6 0) ;superclass target
-  ;;    >>> engarde(
-  ;;    ...   ArithmeticError,
-  ;;    ...   repr,
-  ;;    ...   truediv,
-  ;;    ...   (6),
-  ;;    ...   (0))
+  ;;    >>> (engarde (ArithmeticError,repr,truediv,(6),(0)))
   ;;    "ZeroDivisionError('division by zero')"
   ;;
   ;;    #> (engarde ArithmeticError repr truediv 6 2) ;returned answer
-  ;;    >>> engarde(
-  ;;    ...   ArithmeticError,
-  ;;    ...   repr,
-  ;;    ...   truediv,
-  ;;    ...   (6),
-  ;;    ...   (2))
+  ;;    >>> (engarde (ArithmeticError,repr,truediv,(6),(2)))
   ;;    3.0
   ;;
   ;;    #> (engarde Exception                      ;The stacked outer engarde
@@ -3334,56 +2987,49 @@ See `hissp.macros`.
   ;;    #.. engarde ZeroDivisionError              ; calls the inner.
   ;;    #.. (lambda e (print "It means what you want it to mean."))
   ;;    #.. truediv "6" 0)                         ;Try variations.
-  ;;    >>> engarde(
-  ;;    ...   Exception,
-  ;;    ...   print,
-  ;;    ...   engarde,
-  ;;    ...   ZeroDivisionError,
-  ;;    ...   (lambda e:
-  ;;    ...       print(
-  ;;    ...         ('It means what you want it to mean.'))
-  ;;    ...   ),
-  ;;    ...   truediv,
-  ;;    ...   ('6'),
-  ;;    ...   (0))
+  ;;    >>> (engarde (
+  ;;    ...  Exception,
+  ;;    ...  print,
+  ;;    ...  engarde,
+  ;;    ...  ZeroDivisionError,
+  ;;    ...  (lambda e:
+  ;;    ...    (print (('It means what you want it to mean.')))),
+  ;;    ...  truediv,
+  ;;    ...  ('6'),
+  ;;    ...  (0)))
   ;;    unsupported operand type(s) for /: 'str' and 'int'
   ;;
   ;;    #> (engarde Exception
   ;;    #..         (lambda x x.__cause__)
   ;;    #..         (lambda : (throw-from Exception (Exception "msg"))))
-  ;;    >>> engarde(
-  ;;    ...   Exception,
-  ;;    ...   (lambda x: x.__cause__),
-  ;;    ...   (lambda :
-  ;;    ...       # throw___from
-  ;;    ...       # hissp.macros.._macro_.throwStar_
-  ;;    ...       (lambda g:g.close()or g.throw)(c for c in'')(
-  ;;    ...         # hissp.macros.._macro_.let
-  ;;    ...         (
-  ;;    ...          lambda _g6Q6NJSTQ__G=(lambda _g6Q6NJSTQ__x:
-  ;;    ...                     # hissp.macros.._macro_.if___else
-  ;;    ...                     (lambda b, c, a: c()if b else a())(
-  ;;    ...                       __import__('builtins').isinstance(
-  ;;    ...                         _g6Q6NJSTQ__x,
-  ;;    ...                         __import__('builtins').BaseException),
-  ;;    ...                       (lambda : _g6Q6NJSTQ__x),
-  ;;    ...                       (lambda : _g6Q6NJSTQ__x()))
-  ;;    ...                 ):
-  ;;    ...             # hissp.macros.._macro_.attach
-  ;;    ...             # hissp.macros.._macro_.let
-  ;;    ...             (
-  ;;    ...              lambda _gPQUNU63T__target=_g6Q6NJSTQ__G(
-  ;;    ...                       Exception):
-  ;;    ...                (__import__('builtins').setattr(
-  ;;    ...                   _gPQUNU63T__target,
-  ;;    ...                   '__cause__',
-  ;;    ...                   _g6Q6NJSTQ__G(
-  ;;    ...                     Exception(
-  ;;    ...                       ('msg')))),
-  ;;    ...                 _gPQUNU63T__target)  [-1]
-  ;;    ...             )()
-  ;;    ...         )())
-  ;;    ...   ))
+  ;;    >>> (engarde (
+  ;;    ...  Exception,
+  ;;    ...  (lambda x:
+  ;;    ...    x.__cause__),
+  ;;    ...  (lambda :
+  ;;    ...    # throw___from
+  ;;    ...    # hissp.macros.._macro_.throwStar_
+  ;;    ...    ((lambda g:g.close()or g.throw)(c for c in'') (
+  ;;    ...     # hissp.macros.._macro_.let
+  ;;    ...     ((lambda _gT2VJ2Y4V__G
+  ;;    ...              =(lambda _gT2VJ2Y4V__x:
+  ;;    ...                 # hissp.macros.._macro_.if___else
+  ;;    ...                 ((lambda b, c, a:
+  ;;    ...                    c()if b else a()) (
+  ;;    ...                  (__import__('builtins').isinstance (
+  ;;    ...                   _gT2VJ2Y4V__x,__import__('builtins').BaseException)),
+  ;;    ...                  (lambda : _gT2VJ2Y4V__x),
+  ;;    ...                  (lambda : (_gT2VJ2Y4V__x ()))))):
+  ;;    ...        # hissp.macros.._macro_.attach
+  ;;    ...        # hissp.macros.._macro_.let
+  ;;    ...        ((lambda _g6MYFHU5M__target=(_gT2VJ2Y4V__G (Exception)):
+  ;;    ...          ((__import__('builtins').setattr (
+  ;;    ...            _g6MYFHU5M__target,
+  ;;    ...            '__cause__',
+  ;;    ...            (_gT2VJ2Y4V__G ((Exception (('msg')))))))
+  ;;    ...          ,_g6MYFHU5M__target  )[-1]) (
+  ;;    ...         ))) (
+  ;;    ...      )))))))
   ;;    Exception('msg')
   ;;
   ;; Ensue examples
@@ -3396,29 +3042,22 @@ See `hissp.macros`.
   ;;    #..    (Ensue (lambda (step)
   ;;    #..             (setattr step 'Y a)        ;Y for yield.
   ;;    #..             (fibonacci b (add a b))))))
-  ;;    >>> globals().update(
-  ;;    ...   fibonacci=(
-  ;;    ...              lambda a=(1),
-  ;;    ...                     b=(1):
-  ;;    ...                 Ensue(
-  ;;    ...                   (lambda step:
-  ;;    ...                      (setattr(
-  ;;    ...                         step,
-  ;;    ...                         'Y',
-  ;;    ...                         a),
-  ;;    ...                       fibonacci(
-  ;;    ...                         b,
-  ;;    ...                         add(
-  ;;    ...                           a,
-  ;;    ...                           b)))  [-1]
-  ;;    ...                   ))
-  ;;    ...             ))
+  ;;    >>> ((globals ()).update (
+  ;;    ...  fibonacci
+  ;;    ...  =(lambda a=(1),
+  ;;    ...           b=(1):
+  ;;    ...     (Ensue (
+  ;;    ...      (lambda step:
+  ;;    ...       ((setattr (step,'Y',a))
+  ;;    ...       ,(fibonacci (
+  ;;    ...         b,
+  ;;    ...         (add (a,b))))  )[-1]))))))
   ;;
   ;;    #> (list (islice (fibonacci) 7))
-  ;;    >>> list(
-  ;;    ...   islice(
-  ;;    ...     fibonacci(),
-  ;;    ...     (7)))
+  ;;    >>> (list (
+  ;;    ...  (islice (
+  ;;    ...   (fibonacci ()),
+  ;;    ...   (7)))))
   ;;    [1, 1, 2, 3, 5, 8, 13]
   ;;
   ;;    #> (.update (globals) ; Terminate by not returning an Ensue.
@@ -3429,34 +3068,23 @@ See `hissp.macros`.
   ;;    #..               (setattr step 'Y i)
   ;;    #..               (my-range (add i 1) n)))))) ;Conditional recursion.
   ;;    #..
-  ;;    >>> globals().update(
-  ;;    ...   my___range=(lambda i, n:
-  ;;    ...                  Ensue(
-  ;;    ...                    (lambda step:
-  ;;    ...                        # when
-  ;;    ...                        (lambda b, c: c()if b else())(
-  ;;    ...                          lt(
-  ;;    ...                            i,
-  ;;    ...                            n),
-  ;;    ...                          (lambda :
-  ;;    ...                             (setattr(
-  ;;    ...                                step,
-  ;;    ...                                'Y',
-  ;;    ...                                i),
-  ;;    ...                              my___range(
-  ;;    ...                                add(
-  ;;    ...                                  i,
-  ;;    ...                                  (1)),
-  ;;    ...                                n))  [-1]
-  ;;    ...                          ))
-  ;;    ...                    ))
-  ;;    ...              ))
+  ;;    >>> ((globals ()).update (
+  ;;    ...  my___range
+  ;;    ...  =(lambda i, n:
+  ;;    ...     (Ensue (
+  ;;    ...      (lambda step:
+  ;;    ...        # when
+  ;;    ...        ((lambda b, c:
+  ;;    ...           c()if b else()) (
+  ;;    ...         (lt (i,n)),
+  ;;    ...         (lambda :
+  ;;    ...          ((setattr (step,'Y',i))
+  ;;    ...          ,(my___range (
+  ;;    ...            (add (i,(1))),
+  ;;    ...            n))  )[-1])))))))))
   ;;
   ;;    #> (list (my-range 1 6))
-  ;;    >>> list(
-  ;;    ...   my___range(
-  ;;    ...     (1),
-  ;;    ...     (6)))
+  ;;    >>> (list ((my___range ((1),(6)))))
   ;;    [1, 2, 3, 4, 5]
   ;;
   ;;    #> (Ensue (lambda (step)
@@ -3464,32 +3092,27 @@ See `hissp.macros`.
   ;;    #..           F True ; Set F for yield-From mode.
   ;;    #..           Y '(1 2 3 4 5))
   ;;    #..         None))
-  ;;    >>> Ensue(
-  ;;    ...   (lambda step:
-  ;;    ...      (# attach
-  ;;    ...       # hissp.macros.._macro_.let
-  ;;    ...       (lambda _gG4YAHWYA__target=step:
-  ;;    ...          (__import__('builtins').setattr(
-  ;;    ...             _gG4YAHWYA__target,
-  ;;    ...             'F',
-  ;;    ...             True),
-  ;;    ...           __import__('builtins').setattr(
-  ;;    ...             _gG4YAHWYA__target,
-  ;;    ...             'Y',
-  ;;    ...             ((1),
-  ;;    ...              (2),
-  ;;    ...              (3),
-  ;;    ...              (4),
-  ;;    ...              (5),)),
-  ;;    ...           _gG4YAHWYA__target)  [-1]
-  ;;    ...       )(),
-  ;;    ...       None)  [-1]
-  ;;    ...   ))
+  ;;    >>> (Ensue (
+  ;;    ...  (lambda step:
+  ;;    ...   (# attach
+  ;;    ...    # hissp.macros.._macro_.let
+  ;;    ...    ((lambda _gRIAGGRBI__target=step:
+  ;;    ...      ((__import__('builtins').setattr (_gRIAGGRBI__target,'F',True))
+  ;;    ...      ,(__import__('builtins').setattr (
+  ;;    ...        _gRIAGGRBI__target,
+  ;;    ...        'Y',
+  ;;    ...        ((1),
+  ;;    ...         (2),
+  ;;    ...         (3),
+  ;;    ...         (4),
+  ;;    ...         (5),)))
+  ;;    ...      ,_gRIAGGRBI__target  )[-1]) (
+  ;;    ...     ))
+  ;;    ...   ,None  )[-1])))
   ;;    <...Ensue object at ...>
   ;;
   ;;    #> (list _)
-  ;;    >>> list(
-  ;;    ...   _)
+  ;;    >>> (list (_))
   ;;    [1, 2, 3, 4, 5]
   ;;
   ;;    #> (define recycle
@@ -3498,35 +3121,28 @@ See `hissp.macros`.
   ;;    #..             ;; Implicit continuation; step is an Ensue.
   ;;    #..             (attach step : Y itr  F 1)))))
   ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   recycle=(lambda itr:
-  ;;    ...               Ensue(
-  ;;    ...                 (lambda step:
-  ;;    ...                     # attach
-  ;;    ...                     # hissp.macros.._macro_.let
-  ;;    ...                     (lambda _gGB6P3557__target=step:
-  ;;    ...                        (__import__('builtins').setattr(
-  ;;    ...                           _gGB6P3557__target,
-  ;;    ...                           'Y',
-  ;;    ...                           itr),
-  ;;    ...                         __import__('builtins').setattr(
-  ;;    ...                           _gGB6P3557__target,
-  ;;    ...                           'F',
-  ;;    ...                           (1)),
-  ;;    ...                         _gGB6P3557__target)  [-1]
-  ;;    ...                     )()
-  ;;    ...                 ))
-  ;;    ...           ))
+  ;;    ... ((__import__('builtins').globals ()).update (
+  ;;    ...  recycle
+  ;;    ...  =(lambda itr:
+  ;;    ...     (Ensue (
+  ;;    ...      (lambda step:
+  ;;    ...        # attach
+  ;;    ...        # hissp.macros.._macro_.let
+  ;;    ...        ((lambda _gYI5V5NR4__target=step:
+  ;;    ...          ((__import__('builtins').setattr (_gYI5V5NR4__target,'Y',itr))
+  ;;    ...          ,(__import__('builtins').setattr (_gYI5V5NR4__target,'F',(1)))
+  ;;    ...          ,_gYI5V5NR4__target  )[-1]) (
+  ;;    ...         ))))))))
   ;;
   ;;    #> (-> '(1 2 3) recycle (islice 7) list)
   ;;    >>> # Dash_Gt_
-  ;;    ... list(
-  ;;    ...   islice(
-  ;;    ...     recycle(
-  ;;    ...       ((1),
-  ;;    ...        (2),
-  ;;    ...        (3),)),
-  ;;    ...     (7)))
+  ;;    ... (list (
+  ;;    ...  (islice (
+  ;;    ...   (recycle (
+  ;;    ...    ((1),
+  ;;    ...     (2),
+  ;;    ...     (3),))),
+  ;;    ...   (7)))))
   ;;    [1, 2, 3, 1, 2, 3, 1]
   ;;
   ;;    #> (.update (globals)
@@ -3534,28 +3150,22 @@ See `hissp.macros`.
   ;;    #..  (Ensue (lambda (step)
   ;;    #..           (setattr step 'Y step.sent)
   ;;    #..           step)))
-  ;;    >>> globals().update(
-  ;;    ...   echo=Ensue(
-  ;;    ...          (lambda step:
-  ;;    ...             (setattr(
-  ;;    ...                step,
-  ;;    ...                'Y',
-  ;;    ...                step.sent),
-  ;;    ...              step)  [-1]
-  ;;    ...          )))
+  ;;    >>> ((globals ()).update (
+  ;;    ...  echo
+  ;;    ...  =(Ensue (
+  ;;    ...    (lambda step:
+  ;;    ...     ((setattr (step,'Y',step.sent))
+  ;;    ...     ,step  )[-1])))))
   ;;
   ;;    #> (.send echo None) ; Always send a None first. Same as Python.
-  ;;    >>> echo.send(
-  ;;    ...   None)
+  ;;    >>> (echo.send (None))
   ;;
   ;;    #> (.send echo "Yodel!") ; Generators are two-way.
-  ;;    >>> echo.send(
-  ;;    ...   ('Yodel!'))
+  ;;    >>> (echo.send (('Yodel!')))
   ;;    'Yodel!'
   ;;
   ;;    #> (.send echo 42)
-  ;;    >>> echo.send(
-  ;;    ...   (42))
+  ;;    >>> (echo.send ((42)))
   ;;    42
   ;;
   ;; enter examples
@@ -3570,55 +3180,43 @@ See `hissp.macros`.
   ;;    #..           (Ensue (lambda (step)
   ;;    #..                    (print "exit" msg))))))
   ;;    >>> # hissp.macros.._macro_.define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   wrap=# hissp.macros.._macro_.progn
-  ;;    ...        (# defun
-  ;;    ...         # hissp.macros.._macro_.define
-  ;;    ...         __import__('builtins').globals().update(
-  ;;    ...           wrap=# hissp.macros.._macro_.fun
-  ;;    ...                # hissp.macros.._macro_.let
-  ;;    ...                (
-  ;;    ...                 lambda _gGVVLJLUM__lambda=(lambda msg:
-  ;;    ...                           (print(
-  ;;    ...                              ('enter'),
-  ;;    ...                              msg),
-  ;;    ...                            Ensue(
-  ;;    ...                              (lambda step:
-  ;;    ...                                 (setattr(
-  ;;    ...                                    step,
-  ;;    ...                                    'Y',
-  ;;    ...                                    msg),
-  ;;    ...                                  Ensue(
-  ;;    ...                                    (lambda step:
-  ;;    ...                                        print(
-  ;;    ...                                          ('exit'),
-  ;;    ...                                          msg)
-  ;;    ...                                    )))  [-1]
-  ;;    ...                              )))  [-1]
-  ;;    ...                        ):
-  ;;    ...                   ((
-  ;;    ...                      *__import__('itertools').starmap(
-  ;;    ...                         _gGVVLJLUM__lambda.__setattr__,
-  ;;    ...                         __import__('builtins').dict(
-  ;;    ...                           __name__='wrap',
-  ;;    ...                           __qualname__='wrap',
-  ;;    ...                           __code__=_gGVVLJLUM__lambda.__code__.replace(
-  ;;    ...                                      co_name='wrap')).items()),
-  ;;    ...                      ),
-  ;;    ...                    _gGVVLJLUM__lambda)  [-1]
-  ;;    ...                )()),
-  ;;    ...         __import__('contextlib').contextmanager(
-  ;;    ...           wrap))  [-1])
+  ;;    ... ((__import__('builtins').globals ()).update (
+  ;;    ...  wrap
+  ;;    ...  =# hissp.macros.._macro_.progn
+  ;;    ...   (# defun
+  ;;    ...    # hissp.macros.._macro_.define
+  ;;    ...    ((__import__('builtins').globals ()).update (
+  ;;    ...     wrap
+  ;;    ...     =# hissp.macros.._macro_.fun
+  ;;    ...      # hissp.macros.._macro_.let
+  ;;    ...      ((lambda _g6V525SMN__lambda
+  ;;    ...               =(lambda msg:
+  ;;    ...                 ((print (('enter'),msg))
+  ;;    ...                 ,(Ensue (
+  ;;    ...                   (lambda step:
+  ;;    ...                    ((setattr (step,'Y',msg))
+  ;;    ...                    ,(Ensue (
+  ;;    ...                      (lambda step:
+  ;;    ...                        (print (('exit'),msg)))))  )[-1])))  )[-1]):
+  ;;    ...        (( (
+  ;;    ...          *(__import__('itertools').starmap (
+  ;;    ...            _g6V525SMN__lambda.__setattr__,
+  ;;    ...            ((__import__('builtins').dict (
+  ;;    ...              __name__='wrap',
+  ;;    ...              __qualname__='wrap',
+  ;;    ...              __code__=(_g6V525SMN__lambda.__code__.replace (co_name='wrap')))).items (
+  ;;    ...             )))),
+  ;;    ...          ))
+  ;;    ...        ,_g6V525SMN__lambda  )[-1]) (
+  ;;    ...       ))))
+  ;;    ...   ,(__import__('contextlib').contextmanager (wrap))  )[-1]))
   ;;
   ;;    #> (enter (wrap 'A)
   ;;    #..       (lambda a (print a)))
-  ;;    >>> enter(
-  ;;    ...   wrap(
-  ;;    ...     'A'),
-  ;;    ...   (lambda a:
-  ;;    ...       print(
-  ;;    ...         a)
-  ;;    ...   ))
+  ;;    >>> (enter (
+  ;;    ...  (wrap ('A')),
+  ;;    ...  (lambda a:
+  ;;    ...    (print (a)))))
   ;;    enter A
   ;;    A
   ;;    exit A
@@ -3627,21 +3225,14 @@ See `hissp.macros`.
   ;;    #.. enter (wrap 'B)
   ;;    #.. enter (wrap 'C) ; You can stack them.
   ;;    #.. (lambda abc (print a b c)))
-  ;;    >>> enter(
-  ;;    ...   wrap(
-  ;;    ...     'A'),
-  ;;    ...   enter,
-  ;;    ...   wrap(
-  ;;    ...     'B'),
-  ;;    ...   enter,
-  ;;    ...   wrap(
-  ;;    ...     'C'),
-  ;;    ...   (lambda a, b, c:
-  ;;    ...       print(
-  ;;    ...         a,
-  ;;    ...         b,
-  ;;    ...         c)
-  ;;    ...   ))
+  ;;    >>> (enter (
+  ;;    ...  (wrap ('A')),
+  ;;    ...  enter,
+  ;;    ...  (wrap ('B')),
+  ;;    ...  enter,
+  ;;    ...  (wrap ('C')),
+  ;;    ...  (lambda a, b, c:
+  ;;    ...    (print (a,b,c)))))
   ;;    enter A
   ;;    enter B
   ;;    enter C
@@ -3660,66 +3251,48 @@ See `hissp.macros`.
   ;;    #..              (Ensue (lambda (step)
   ;;    #..                       (print "Caught a" step.sent))))))))
   ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   suppress___zde=__import__('contextlib').contextmanager(
-  ;;    ...                    (lambda :
-  ;;    ...                        Ensue(
-  ;;    ...                          (lambda step:
-  ;;    ...                             (# attach
-  ;;    ...                              # hissp.macros.._macro_.let
-  ;;    ...                              (lambda _gWXSTHSTC__target=step:
-  ;;    ...                                 (__import__('builtins').setattr(
-  ;;    ...                                    _gWXSTHSTC__target,
-  ;;    ...                                    'Y',
-  ;;    ...                                    None),
-  ;;    ...                                  __import__('builtins').setattr(
-  ;;    ...                                    _gWXSTHSTC__target,
-  ;;    ...                                    'X',
-  ;;    ...                                    ZeroDivisionError),
-  ;;    ...                                  _gWXSTHSTC__target)  [-1]
-  ;;    ...                              )(),
-  ;;    ...                              Ensue(
-  ;;    ...                                (lambda step:
-  ;;    ...                                    print(
-  ;;    ...                                      ('Caught a'),
-  ;;    ...                                      step.sent)
-  ;;    ...                                )))  [-1]
-  ;;    ...                          ))
-  ;;    ...                    )))
+  ;;    ... ((__import__('builtins').globals ()).update (
+  ;;    ...  suppress___zde
+  ;;    ...  =(__import__('contextlib').contextmanager (
+  ;;    ...    (lambda :
+  ;;    ...      (Ensue (
+  ;;    ...       (lambda step:
+  ;;    ...        (# attach
+  ;;    ...         # hissp.macros.._macro_.let
+  ;;    ...         ((lambda _gTJ5MLTH6__target=step:
+  ;;    ...           ((__import__('builtins').setattr (_gTJ5MLTH6__target,'Y',None))
+  ;;    ...           ,(__import__('builtins').setattr (_gTJ5MLTH6__target,'X',ZeroDivisionError))
+  ;;    ...           ,_gTJ5MLTH6__target  )[-1]) (
+  ;;    ...          ))
+  ;;    ...        ,(Ensue (
+  ;;    ...          (lambda step:
+  ;;    ...            (print (('Caught a'),step.sent)))))  )[-1]))))))))
   ;;
   ;;    #> (enter (suppress-zde)
   ;;    #..  (lambda _ (truediv 1 0)))
-  ;;    >>> enter(
-  ;;    ...   suppress___zde(),
-  ;;    ...   (lambda _:
-  ;;    ...       truediv(
-  ;;    ...         (1),
-  ;;    ...         (0))
-  ;;    ...   ))
+  ;;    >>> (enter (
+  ;;    ...  (suppress___zde ()),
+  ;;    ...  (lambda _:
+  ;;    ...    (truediv ((1),(0))))))
   ;;    Caught a division by zero
   ;;
   ;;    #> (enter (suppress-zde) ; No exception, so step.sent was .send() value.
   ;;    #..  (lambda _ (truediv 4 2)))
-  ;;    >>> enter(
-  ;;    ...   suppress___zde(),
-  ;;    ...   (lambda _:
-  ;;    ...       truediv(
-  ;;    ...         (4),
-  ;;    ...         (2))
-  ;;    ...   ))
+  ;;    >>> (enter (
+  ;;    ...  (suppress___zde ()),
+  ;;    ...  (lambda _:
+  ;;    ...    (truediv ((4),(2))))))
   ;;    Caught a None
   ;;    2.0
   ;;
   ;;    #> (enter (suppress-zde)
   ;;    #..  (lambda _ (throw Exception)))
-  ;;    >>> enter(
-  ;;    ...   suppress___zde(),
-  ;;    ...   (lambda _:
-  ;;    ...       # throw
-  ;;    ...       # hissp.macros.._macro_.throwStar_
-  ;;    ...       (lambda g:g.close()or g.throw)(c for c in'')(
-  ;;    ...         Exception)
-  ;;    ...   ))
+  ;;    >>> (enter (
+  ;;    ...  (suppress___zde ()),
+  ;;    ...  (lambda _:
+  ;;    ...    # throw
+  ;;    ...    # hissp.macros.._macro_.throwStar_
+  ;;    ...    ((lambda g:g.close()or g.throw)(c for c in'') (Exception)))))
   ;;    Traceback (most recent call last):
   ;;      ...
   ;;    Exception
@@ -3759,7 +3332,7 @@ lambda:[__import__('hissp')._macro_])):0
   ;;
   ;;    #> (mix |[|%|+|(.lower %)| for |%| in |string..ascii_uppercase|[:10]]|)
   ;;    >>> # mix
-  ;;    ... [Pcent_+Pcent_.lower() for Pcent_ in __import__('string').ascii_uppercase[:10]]
+  ;;    ... [Pcent_+(Pcent_.lower ()) for Pcent_ in __import__('string').ascii_uppercase[:10]]
   ;;    ['Aa', 'Bb', 'Cc', 'Dd', 'Ee', 'Ff', 'Gg', 'Hh', 'Ii', 'Jj']
   ;;
   ;; Beware that a `str atom` like ``|:|`` is still a `control word`,
@@ -3800,16 +3373,15 @@ sentinel#
   ;;    #> (defvar *greeting*)
   ;;    >>> # defvar
   ;;    ... # hissp.macros.._macro_.unless
-  ;;    ... (lambda b, a: ()if b else a())(
-  ;;    ...   __import__('operator').contains(
-  ;;    ...     __import__('builtins').globals(),
-  ;;    ...     'Star_greetingStar_'),
-  ;;    ...   (lambda :
-  ;;    ...       # hissp.macros.._macro_.define
-  ;;    ...       __import__('builtins').globals().update(
-  ;;    ...         Star_greetingStar_=__import__('contextvars').ContextVar(
-  ;;    ...                              '*greeting*'))
-  ;;    ...   ))
+  ;;    ... ((lambda b, a:
+  ;;    ...    ()if b else a()) (
+  ;;    ...  (__import__('operator').contains (
+  ;;    ...   (__import__('builtins').globals ()),
+  ;;    ...   'Star_greetingStar_')),
+  ;;    ...  (lambda :
+  ;;    ...    # hissp.macros.._macro_.define
+  ;;    ...    ((__import__('builtins').globals ()).update (
+  ;;    ...     Star_greetingStar_=(__import__('contextvars').ContextVar ('*greeting*')))))))
   ;;
   ;;    #> *greeting*
   ;;    >>> Star_greetingStar_
@@ -3818,17 +3390,15 @@ sentinel#
   ;;    #> (defvar *greeted* "World!")
   ;;    >>> # defvar
   ;;    ... # hissp.macros.._macro_.unless
-  ;;    ... (lambda b, a: ()if b else a())(
-  ;;    ...   __import__('operator').contains(
-  ;;    ...     __import__('builtins').globals(),
-  ;;    ...     'Star_greetedStar_'),
-  ;;    ...   (lambda :
-  ;;    ...       # hissp.macros.._macro_.define
-  ;;    ...       __import__('builtins').globals().update(
-  ;;    ...         Star_greetedStar_=__import__('contextvars').ContextVar(
-  ;;    ...                             '*greeted*',
-  ;;    ...                             default=('World!')))
-  ;;    ...   ))
+  ;;    ... ((lambda b, a:
+  ;;    ...    ()if b else a()) (
+  ;;    ...  (__import__('operator').contains (
+  ;;    ...   (__import__('builtins').globals ()),
+  ;;    ...   'Star_greetedStar_')),
+  ;;    ...  (lambda :
+  ;;    ...    # hissp.macros.._macro_.define
+  ;;    ...    ((__import__('builtins').globals ()).update (
+  ;;    ...     Star_greetedStar_=(__import__('contextvars').ContextVar ('*greeted*',default=('World!'))))))))
   ;;
   ;;    #> *greeted*
   ;;    >>> Star_greetedStar_
@@ -3837,48 +3407,44 @@ sentinel#
   ;;    #> (defun greet : (print (.get *greeting* "Hello,") (.get *greeted*)))
   ;;    >>> # defun
   ;;    ... # hissp.macros.._macro_.define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   greet=# hissp.macros.._macro_.fun
-  ;;    ...         # hissp.macros.._macro_.let
-  ;;    ...         (
-  ;;    ...          lambda _gM7G4BACH__lambda=(lambda :
-  ;;    ...                     print(
-  ;;    ...                       Star_greetingStar_.get(
-  ;;    ...                         ('Hello,')),
-  ;;    ...                       Star_greetedStar_.get())
-  ;;    ...                 ):
-  ;;    ...            ((
-  ;;    ...               *__import__('itertools').starmap(
-  ;;    ...                  _gM7G4BACH__lambda.__setattr__,
-  ;;    ...                  __import__('builtins').dict(
-  ;;    ...                    __name__='greet',
-  ;;    ...                    __qualname__='greet',
-  ;;    ...                    __code__=_gM7G4BACH__lambda.__code__.replace(
-  ;;    ...                               co_name='greet')).items()),
-  ;;    ...               ),
-  ;;    ...             _gM7G4BACH__lambda)  [-1]
-  ;;    ...         )())
+  ;;    ... ((__import__('builtins').globals ()).update (
+  ;;    ...  greet
+  ;;    ...  =# hissp.macros.._macro_.fun
+  ;;    ...   # hissp.macros.._macro_.let
+  ;;    ...   ((lambda _g6N4TTSY3__lambda
+  ;;    ...            =(lambda :
+  ;;    ...               (print (
+  ;;    ...                (Star_greetingStar_.get (('Hello,'))),
+  ;;    ...                (Star_greetedStar_.get ())))):
+  ;;    ...     (( (
+  ;;    ...       *(__import__('itertools').starmap (
+  ;;    ...         _g6N4TTSY3__lambda.__setattr__,
+  ;;    ...         ((__import__('builtins').dict (
+  ;;    ...           __name__='greet',
+  ;;    ...           __qualname__='greet',
+  ;;    ...           __code__=(_g6N4TTSY3__lambda.__code__.replace (co_name='greet')))).items (
+  ;;    ...          )))),
+  ;;    ...       ))
+  ;;    ...     ,_g6N4TTSY3__lambda  )[-1]) (
+  ;;    ...    ))))
   ;;
   ;;    #> (greet)
-  ;;    >>> greet()
+  ;;    >>> (greet ())
   ;;    Hello, World!
   ;;
   ;;    #> (binding (*greeting* "Goodbye,"
   ;;    #..          *greeted* "all!")
   ;;    #..  (greet))
   ;;    >>> # binding
-  ;;    ... __import__('contextvars').copy_context().run(
-  ;;    ...   (lambda :
-  ;;    ...      (Star_greetingStar_.set(
-  ;;    ...         ('Goodbye,')),
-  ;;    ...       Star_greetedStar_.set(
-  ;;    ...         ('all!')),
-  ;;    ...       greet())  [-1]
-  ;;    ...   ))
+  ;;    ... ((__import__('contextvars').copy_context ()).run (
+  ;;    ...  (lambda :
+  ;;    ...   ((Star_greetingStar_.set (('Goodbye,')))
+  ;;    ...   ,(Star_greetedStar_.set (('all!')))
+  ;;    ...   ,(greet ())  )[-1])))
   ;;    Goodbye, all!
   ;;
   ;;    #> (greet)
-  ;;    >>> greet()
+  ;;    >>> (greet ())
   ;;    Hello, World!
   ;;
   ;; See also: `defvar`.
@@ -3904,54 +3470,44 @@ sentinel#
   ;;
   ;;    #> my#(print x=(op#add 1 1) my.x)
   ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (lambda my=__import__('types').SimpleNamespace():
-  ;;    ...     print(
-  ;;    ...       # hissp.macros.._macro_.setAt_
-  ;;    ...       # hissp.macros.._macro_.let
-  ;;    ...       (
-  ;;    ...        lambda _gUJATU5TX__value=__import__('operator').add(
-  ;;    ...                 (1),
-  ;;    ...                 (1)):
-  ;;    ...          (# hissp.macros.._macro_.define
-  ;;    ...           __import__('builtins').setattr(
-  ;;    ...             my,
-  ;;    ...             'x',
-  ;;    ...             _gUJATU5TX__value),
-  ;;    ...           _gUJATU5TX__value)  [-1]
-  ;;    ...       )(),
-  ;;    ...       my.x)
-  ;;    ... )()
+  ;;    ... ((lambda my=(__import__('types').SimpleNamespace ()):
+  ;;    ...    (print (
+  ;;    ...     # hissp.macros.._macro_.setAt_
+  ;;    ...     # hissp.macros.._macro_.let
+  ;;    ...     ((lambda _gKIXXRDVM__value=(__import__('operator').add ((1),(1))):
+  ;;    ...       (# hissp.macros.._macro_.define
+  ;;    ...        (__import__('builtins').setattr (my,'x',_gKIXXRDVM__value))
+  ;;    ...       ,_gKIXXRDVM__value  )[-1]) (
+  ;;    ...      )),
+  ;;    ...     my.x))) (
+  ;;    ...  ))
   ;;    2 2
   ;;
   ;;    #> my#my ; Empty namespace shorthand.
   ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (lambda my=__import__('types').SimpleNamespace(): my)()
+  ;;    ... ((lambda my=(__import__('types').SimpleNamespace ()):
+  ;;    ...    my) (
+  ;;    ...  ))
   ;;    namespace()
   ;;
   ;;    #> my##foo=2 my ; Initial content from read-time kwarg.
   ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda my=__import__('types').SimpleNamespace(
-  ;;    ...           foo=(2)):
-  ;;    ...     my)()
+  ;;    ... ((lambda my=(__import__('types').SimpleNamespace (foo=(2))):
+  ;;    ...    my) (
+  ;;    ...  ))
   ;;    namespace(foo=2)
   ;;
   ;;    #> my##outer=2 my###inner=1 bridge=my (@ my.bridge.outer my.inner)
   ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda my=__import__('types').SimpleNamespace(
-  ;;    ...           outer=(2)):
-  ;;    ...     # hissp.macros.._macro_.let
-  ;;    ...     (
-  ;;    ...      lambda my=__import__('types').SimpleNamespace(
-  ;;    ...               inner=(1),
-  ;;    ...               bridge=my):
-  ;;    ...         # At_
-  ;;    ...         (lambda *xs: [*xs])(
-  ;;    ...           my.bridge.outer,
-  ;;    ...           my.inner)
-  ;;    ...     )()
-  ;;    ... )()
+  ;;    ... ((lambda my=(__import__('types').SimpleNamespace (outer=(2))):
+  ;;    ...    # hissp.macros.._macro_.let
+  ;;    ...    ((lambda my=(__import__('types').SimpleNamespace (inner=(1),bridge=my)):
+  ;;    ...       # At_
+  ;;    ...       ((lambda *xs:
+  ;;    ...          [*xs]) (
+  ;;    ...        my.bridge.outer,my.inner))) (
+  ;;    ...     ))) (
+  ;;    ...  ))
   ;;    [2, 1]
   ;;
   ;; With at least two positional arguments, the first is an injected
@@ -3961,25 +3517,21 @@ sentinel#
   ;;
   ;;    #> my### a,b,[c,*xs] '(1 2 |spam|) my ; Nested unpacking.
   ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda my=__import__('types').SimpleNamespace(
-  ;;    ...           **# hissp.macros.._macro_.let
-  ;;    ...             (
-  ;;    ...              lambda _gEZHZ5K77__expr=((1),
-  ;;    ...                      (2),
-  ;;    ...                      'spam',):
+  ;;    ... ((lambda my
+  ;;    ...          =(__import__('types').SimpleNamespace (
+  ;;    ...            **# hissp.macros.._macro_.let
+  ;;    ...              ((lambda _gMQGKPN5A__expr
+  ;;    ...                       =((1),
+  ;;    ...                         (2),
+  ;;    ...                         'spam',):
   ;;    ...                 [__import__('builtins').locals()
   ;;    ...                  for (a,b,[c,*xs])
-  ;;    ...                  in [_gEZHZ5K77__expr]]  [0]
-  ;;    ...             )()):
-  ;;    ...    (my.__dict__.pop(
-  ;;    ...       '_gEZHZ5K77__expr',
-  ;;    ...       None),
-  ;;    ...     my.__dict__.pop(
-  ;;    ...       ('.0'),
-  ;;    ...       None),
-  ;;    ...     my)  [-1]
-  ;;    ... )()
+  ;;    ...                  in [_gMQGKPN5A__expr]]  [0]) (
+  ;;    ...               )))):
+  ;;    ...   ((my.__dict__.pop ('_gMQGKPN5A__expr',None))
+  ;;    ...   ,(my.__dict__.pop (('.0'),None))
+  ;;    ...   ,my  )[-1]) (
+  ;;    ...  ))
   ;;    namespace(a=1, b=2, c='s', xs=['p', 'a', 'm'])
   ;;
   ;; Use `zap@ <zapAt_>` for augmented assignments:
@@ -3988,47 +3540,38 @@ sentinel#
   ;;
   ;;    #> my###a,b 'AB (@ (zap@ my.a iadd c='C) my)
   ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda my=__import__('types').SimpleNamespace(
-  ;;    ...           **# hissp.macros.._macro_.let
-  ;;    ...             (lambda _gH2ASYXGG__expr='AB':
+  ;;    ... ((lambda my
+  ;;    ...          =(__import__('types').SimpleNamespace (
+  ;;    ...            **# hissp.macros.._macro_.let
+  ;;    ...              ((lambda _gJ7SDUY3Y__expr='AB':
   ;;    ...                 [__import__('builtins').locals()
   ;;    ...                  for (a,b)
-  ;;    ...                  in [_gH2ASYXGG__expr]]  [0]
-  ;;    ...             )()):
-  ;;    ...    (my.__dict__.pop(
-  ;;    ...       '_gH2ASYXGG__expr',
-  ;;    ...       None),
-  ;;    ...     my.__dict__.pop(
-  ;;    ...       ('.0'),
-  ;;    ...       None),
-  ;;    ...     # At_
-  ;;    ...     (lambda *xs: [*xs])(
-  ;;    ...       # zapAt_
-  ;;    ...       # hissp.macros.._macro_.setAt_
-  ;;    ...       # hissp.macros.._macro_.let
-  ;;    ...       (
-  ;;    ...        lambda _gE2CNKVL4__value=iadd(
-  ;;    ...                 my.a,
-  ;;    ...                 # hissp.macros.._macro_.setAt_
-  ;;    ...                 # hissp.macros.._macro_.let
-  ;;    ...                 (lambda _gE2CNKVL4__value='C':
-  ;;    ...                    (# hissp.macros.._macro_.define
-  ;;    ...                     __import__('builtins').setattr(
-  ;;    ...                       my,
-  ;;    ...                       'c',
-  ;;    ...                       _gE2CNKVL4__value),
-  ;;    ...                     _gE2CNKVL4__value)  [-1]
-  ;;    ...                 )()):
-  ;;    ...          (# hissp.macros.._macro_.define
-  ;;    ...           __import__('builtins').setattr(
-  ;;    ...             my,
-  ;;    ...             'a',
-  ;;    ...             _gE2CNKVL4__value),
-  ;;    ...           _gE2CNKVL4__value)  [-1]
-  ;;    ...       )(),
-  ;;    ...       my))  [-1]
-  ;;    ... )()
+  ;;    ...                  in [_gJ7SDUY3Y__expr]]  [0]) (
+  ;;    ...               )))):
+  ;;    ...   ((my.__dict__.pop ('_gJ7SDUY3Y__expr',None))
+  ;;    ...   ,(my.__dict__.pop (('.0'),None))
+  ;;    ...   ,# At_
+  ;;    ...    ((lambda *xs:
+  ;;    ...       [*xs]) (
+  ;;    ...     # zapAt_
+  ;;    ...     # hissp.macros.._macro_.setAt_
+  ;;    ...     # hissp.macros.._macro_.let
+  ;;    ...     ((lambda _gEMYOATZF__value
+  ;;    ...              =(iadd (
+  ;;    ...                my.a,
+  ;;    ...                # hissp.macros.._macro_.setAt_
+  ;;    ...                # hissp.macros.._macro_.let
+  ;;    ...                ((lambda _gEMYOATZF__value='C':
+  ;;    ...                  (# hissp.macros.._macro_.define
+  ;;    ...                   (__import__('builtins').setattr (my,'c',_gEMYOATZF__value))
+  ;;    ...                  ,_gEMYOATZF__value  )[-1]) (
+  ;;    ...                 )))):
+  ;;    ...       (# hissp.macros.._macro_.define
+  ;;    ...        (__import__('builtins').setattr (my,'a',_gEMYOATZF__value))
+  ;;    ...       ,_gEMYOATZF__value  )[-1]) (
+  ;;    ...      )),
+  ;;    ...     my))  )[-1]) (
+  ;;    ...  ))
   ;;    ['AC', namespace(a='AC', b='B', c='C')]
   ;;
   ;; Assignment targets need not be locals, so a scope argument is optional:
@@ -4037,49 +3580,42 @@ sentinel#
   ;;
   ;;    #> my## |globals()['spam'], spam.eggs| (|| my#my (list 'abcdefg) ||)
   ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda my=__import__('types').SimpleNamespace(
-  ;;    ...           **# hissp.macros.._macro_.let
-  ;;    ...             (
-  ;;    ...              lambda _g2MBLMLUY__expr=(
-  ;;    ...                       # hissp.macros.._macro_.let
-  ;;    ...                       (lambda my=__import__('types').SimpleNamespace(): my)(),
-  ;;    ...                       list(
-  ;;    ...                         'abcdefg'),
-  ;;    ...                       ):
+  ;;    ... ((lambda my
+  ;;    ...          =(__import__('types').SimpleNamespace (
+  ;;    ...            **# hissp.macros.._macro_.let
+  ;;    ...              ((lambda _g5BQOD5YZ__expr
+  ;;    ...                       =( (
+  ;;    ...                         # hissp.macros.._macro_.let
+  ;;    ...                         ((lambda my=(__import__('types').SimpleNamespace ()):
+  ;;    ...                            my) (
+  ;;    ...                          )),
+  ;;    ...                         (list ('abcdefg')),
+  ;;    ...                         )):
   ;;    ...                 [__import__('builtins').locals()
   ;;    ...                  for (globals()['spam'], spam.eggs)
-  ;;    ...                  in [_g2MBLMLUY__expr]]  [0]
-  ;;    ...             )()):
-  ;;    ...    (my.__dict__.pop(
-  ;;    ...       '_g2MBLMLUY__expr',
-  ;;    ...       None),
-  ;;    ...     my.__dict__.pop(
-  ;;    ...       ('.0'),
-  ;;    ...       None),
-  ;;    ...     ())  [-1]
-  ;;    ... )()
+  ;;    ...                  in [_g5BQOD5YZ__expr]]  [0]) (
+  ;;    ...               )))):
+  ;;    ...   ((my.__dict__.pop ('_g5BQOD5YZ__expr',None))
+  ;;    ...   ,(my.__dict__.pop (('.0'),None))
+  ;;    ...   ,()  )[-1]) (
+  ;;    ...  ))
   ;;    ()
   ;;
   ;;    #> my#### spam.eggs[2::2] 'XYZ tomato=spam my ; Assign a global's slice.
   ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (
-  ;;    ...  lambda my=__import__('types').SimpleNamespace(
-  ;;    ...           **# hissp.macros.._macro_.let
-  ;;    ...             (lambda _gMMP53OIO__expr='XYZ':
+  ;;    ... ((lambda my
+  ;;    ...          =(__import__('types').SimpleNamespace (
+  ;;    ...            **# hissp.macros.._macro_.let
+  ;;    ...              ((lambda _gSXVY2MY6__expr='XYZ':
   ;;    ...                 [__import__('builtins').locals()
   ;;    ...                  for (spam.eggs[2::2])
-  ;;    ...                  in [_gMMP53OIO__expr]]  [0]
-  ;;    ...             )(),
-  ;;    ...           tomato=spam):
-  ;;    ...    (my.__dict__.pop(
-  ;;    ...       '_gMMP53OIO__expr',
-  ;;    ...       None),
-  ;;    ...     my.__dict__.pop(
-  ;;    ...       ('.0'),
-  ;;    ...       None),
-  ;;    ...     my)  [-1]
-  ;;    ... )()
+  ;;    ...                  in [_gSXVY2MY6__expr]]  [0]) (
+  ;;    ...               )),
+  ;;    ...            tomato=spam)):
+  ;;    ...   ((my.__dict__.pop ('_gSXVY2MY6__expr',None))
+  ;;    ...   ,(my.__dict__.pop (('.0'),None))
+  ;;    ...   ,my  )[-1]) (
+  ;;    ...  ))
   ;;    namespace(tomato=namespace(eggs=['a', 'b', 'X', 'd', 'Y', 'f', 'Z']))
   ;;
   ;; See also:
@@ -4119,78 +3655,66 @@ sentinel#
   ;;
   ;;    #> (% 10 1  'ns (types..SimpleNamespace : a-tuple '(a b c)  spam 'eggs))
   ;;    >>> # Pcent_
-  ;;    ... (lambda x0, x1, x2, x3: {x0:x1,x2:x3})(
-  ;;    ...   (10),
-  ;;    ...   (1),
-  ;;    ...   'ns',
-  ;;    ...   __import__('types').SimpleNamespace(
-  ;;    ...     a___tuple=('a',
-  ;;    ...                'b',
-  ;;    ...                'c',),
-  ;;    ...     spam='eggs'))
+  ;;    ... ((lambda x0, x1, x2, x3:
+  ;;    ...    {x0:x1,x2:x3}) (
+  ;;    ...  (10),
+  ;;    ...  (1),
+  ;;    ...  'ns',
+  ;;    ...  (__import__('types').SimpleNamespace (
+  ;;    ...   a___tuple
+  ;;    ...   =('a',
+  ;;    ...     'b',
+  ;;    ...     'c',),
+  ;;    ...   spam='eggs'))))
   ;;    {10: 1, 'ns': namespace(a___tuple=('a', 'b', 'c'), spam='eggs')}
   ;;
   ;;    #> (define nested-data _)
   ;;    >>> # define
-  ;;    ... __import__('builtins').globals().update(
-  ;;    ...   nested___data=_)
+  ;;    ... ((__import__('builtins').globals ()).update (nested___data=_))
   ;;
   ;;    #> (destruct-> nested-data
   ;;    #..            (!#10 num  !#'ns (@#'a-tuple (!#0 a  !#1 b  !#2 c)  @#'spam spam))
   ;;    #..  (locals))
   ;;    >>> # destruct___Gt_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda num, a, b, c, spam: locals())(
-  ;;    ...   *# hissp.macros.._macro_.let
-  ;;    ...    (lambda _g275ZTQAC__data=nested___data:
-  ;;    ...        (
-  ;;    ...          # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...          # hissp.macros.._macro_._backapply
-  ;;    ...          __import__('operator').itemgetter(
-  ;;    ...            (10))(
-  ;;    ...            _g275ZTQAC__data),
-  ;;    ...          *# hissp.macros.._macro_.let
-  ;;    ...           (
-  ;;    ...            lambda _g275ZTQAC__data=# hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                   # hissp.macros.._macro_._backapply
-  ;;    ...                   __import__('operator').itemgetter(
-  ;;    ...                     'ns')(
-  ;;    ...                     _g275ZTQAC__data):
-  ;;    ...               (
-  ;;    ...                 *# hissp.macros.._macro_.let
-  ;;    ...                  (
-  ;;    ...                   lambda _g275ZTQAC__data=# hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                          # hissp.macros.._macro_._backapply
-  ;;    ...                          __import__('operator').attrgetter(
-  ;;    ...                            'a___tuple')(
-  ;;    ...                            _g275ZTQAC__data):
-  ;;    ...                      (
-  ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                        # hissp.macros.._macro_._backapply
-  ;;    ...                        __import__('operator').itemgetter(
-  ;;    ...                          (0))(
-  ;;    ...                          _g275ZTQAC__data),
-  ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                        # hissp.macros.._macro_._backapply
-  ;;    ...                        __import__('operator').itemgetter(
-  ;;    ...                          (1))(
-  ;;    ...                          _g275ZTQAC__data),
-  ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                        # hissp.macros.._macro_._backapply
-  ;;    ...                        __import__('operator').itemgetter(
-  ;;    ...                          (2))(
-  ;;    ...                          _g275ZTQAC__data),
-  ;;    ...                        )
-  ;;    ...                  )(),
+  ;;    ... ((lambda num, a, b, c, spam:
+  ;;    ...    (locals ())) (
+  ;;    ...  *# hissp.macros.._macro_.let
+  ;;    ...   ((lambda _gPM25Y3YR__data=nested___data:
+  ;;    ...      ( (
+  ;;    ...       # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...       # hissp.macros.._macro_._backapply
+  ;;    ...       ((__import__('operator').itemgetter ((10))) (_gPM25Y3YR__data)),
+  ;;    ...       *# hissp.macros.._macro_.let
+  ;;    ...        ((lambda _gPM25Y3YR__data
+  ;;    ...                 =# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                  # hissp.macros.._macro_._backapply
+  ;;    ...                  ((__import__('operator').itemgetter ('ns')) (_gPM25Y3YR__data)):
+  ;;    ...           ( (
+  ;;    ...            *# hissp.macros.._macro_.let
+  ;;    ...             ((lambda _gPM25Y3YR__data
+  ;;    ...                      =# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                       # hissp.macros.._macro_._backapply
+  ;;    ...                       ((__import__('operator').attrgetter ('a___tuple')) (_gPM25Y3YR__data)):
+  ;;    ...                ( (
   ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                 # hissp.macros.._macro_._backapply
-  ;;    ...                 __import__('operator').attrgetter(
-  ;;    ...                   'spam')(
-  ;;    ...                   _g275ZTQAC__data),
-  ;;    ...                 )
-  ;;    ...           )(),
-  ;;    ...          )
-  ;;    ...    )())
+  ;;    ...                 ((__import__('operator').itemgetter ((0))) (_gPM25Y3YR__data)),
+  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                 # hissp.macros.._macro_._backapply
+  ;;    ...                 ((__import__('operator').itemgetter ((1))) (_gPM25Y3YR__data)),
+  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                 # hissp.macros.._macro_._backapply
+  ;;    ...                 ((__import__('operator').itemgetter ((2))) (_gPM25Y3YR__data)),
+  ;;    ...                 ))) (
+  ;;    ...              )),
+  ;;    ...            # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...            # hissp.macros.._macro_._backapply
+  ;;    ...            ((__import__('operator').attrgetter ('spam')) (_gPM25Y3YR__data)),
+  ;;    ...            ))) (
+  ;;    ...         )),
+  ;;    ...       ))) (
+  ;;    ...    ))))
   ;;    {'num': 1, 'a': 'a', 'b': 'b', 'c': 'c', 'spam': 'eggs'}
   ;;
   ;; But it doesn't have to. Transforms need not be simple lookups:
@@ -4212,114 +3736,89 @@ sentinel#
   ;;    #..  (pprint..pp (locals)))
   ;;    >>> # destruct___Gt_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda ns, missing, inner, ab, abc, A, rest, two, three, _0, B, _1, D, myquux:
-  ;;    ...     __import__('pprint').pp(
-  ;;    ...       locals())
-  ;;    ... )(
-  ;;    ...   *# hissp.macros.._macro_.let
-  ;;    ...    (lambda _gU3TLRBXC__data=nested___data:
-  ;;    ...        (
-  ;;    ...          *# hissp.macros.._macro_.let
-  ;;    ...           (
-  ;;    ...            lambda _gU3TLRBXC__data=# hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                   # hissp.macros.._macro_._backapply
-  ;;    ...                   __import__('operator').itemgetter(
-  ;;    ...                     'ns')(
-  ;;    ...                     _gU3TLRBXC__data):
-  ;;    ...               (
-  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                 (
-  ;;    ...                   _gU3TLRBXC__data),
-  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                 getattr(
-  ;;    ...                   _gU3TLRBXC__data,
-  ;;    ...                   'missing',
-  ;;    ...                   ('a default for missing')),
+  ;;    ... ((lambda ns, missing, inner, ab, abc, A, rest, two, three, _0, B, _1, D, myquux:
+  ;;    ...    (__import__('pprint').pp ((locals ())))) (
+  ;;    ...  *# hissp.macros.._macro_.let
+  ;;    ...   ((lambda _gEDQY2VWL__data=nested___data:
+  ;;    ...      ( (
+  ;;    ...       *# hissp.macros.._macro_.let
+  ;;    ...        ((lambda _gEDQY2VWL__data
+  ;;    ...                 =# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                  # hissp.macros.._macro_._backapply
+  ;;    ...                  ((__import__('operator').itemgetter ('ns')) (_gEDQY2VWL__data)):
+  ;;    ...           ( (
+  ;;    ...            # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...            ( (_gEDQY2VWL__data)),
+  ;;    ...            # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...            (getattr (
+  ;;    ...             _gEDQY2VWL__data,
+  ;;    ...             'missing',
+  ;;    ...             ('a default for missing'))),
+  ;;    ...            # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...            # hissp.macros.._macro_._backapply
+  ;;    ...            ((__import__('operator').attrgetter ('spam')) (_gEDQY2VWL__data)),
+  ;;    ...            *# hissp.macros.._macro_.let
+  ;;    ...             ((lambda _gEDQY2VWL__data
+  ;;    ...                      =# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                       # hissp.macros.._macro_._backapply
+  ;;    ...                       ((__import__('operator').attrgetter ('a___tuple')) (_gEDQY2VWL__data)):
+  ;;    ...                ( (
   ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                 # hissp.macros.._macro_._backapply
-  ;;    ...                 __import__('operator').attrgetter(
-  ;;    ...                   'spam')(
-  ;;    ...                   _gU3TLRBXC__data),
+  ;;    ...                 ((lambda _gJ6AXZLKV__table:
+  ;;    ...                    (_gJ6AXZLKV__table[:-1])) (
+  ;;    ...                  _gEDQY2VWL__data)),
+  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                 # hissp.macros.._macro_._backapply
+  ;;    ...                 ((lambda _gJ6AXZLKV__table:
+  ;;    ...                    (_gJ6AXZLKV__table[:])) (
+  ;;    ...                  _gEDQY2VWL__data)),
   ;;    ...                 *# hissp.macros.._macro_.let
-  ;;    ...                  (
-  ;;    ...                   lambda _gU3TLRBXC__data=# hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                          # hissp.macros.._macro_._backapply
-  ;;    ...                          __import__('operator').attrgetter(
-  ;;    ...                            'a___tuple')(
-  ;;    ...                            _gU3TLRBXC__data):
-  ;;    ...                      (
-  ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                        # hissp.macros.._macro_._backapply
-  ;;    ...                        (lambda _gX4M4GEV6__table: (_gX4M4GEV6__table[:-1]))(
-  ;;    ...                          _gU3TLRBXC__data),
-  ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                        # hissp.macros.._macro_._backapply
-  ;;    ...                        (lambda _gX4M4GEV6__table: (_gX4M4GEV6__table[:]))(
-  ;;    ...                          _gU3TLRBXC__data),
-  ;;    ...                        *# hissp.macros.._macro_.let
-  ;;    ...                         (
-  ;;    ...                          lambda _gU3TLRBXC__data=# hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                                 iter(
-  ;;    ...                                   _gU3TLRBXC__data):
-  ;;    ...                             (
-  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                               next(
-  ;;    ...                                 _gU3TLRBXC__data),
-  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                               list(
-  ;;    ...                                 _gU3TLRBXC__data),
-  ;;    ...                               )
-  ;;    ...                         )(),
-  ;;    ...                        *# hissp.macros.._macro_.let
-  ;;    ...                         (
-  ;;    ...                          lambda _gU3TLRBXC__data=# hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                                 # Dash_Gt_
-  ;;    ...                                 dict(
-  ;;    ...                                   enumerate(
-  ;;    ...                                     _gU3TLRBXC__data)):
-  ;;    ...                             (
-  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                               _gU3TLRBXC__data.get(
-  ;;    ...                                 (2),
-  ;;    ...                                 ()),
-  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                               _gU3TLRBXC__data.get(
-  ;;    ...                                 (3),
-  ;;    ...                                 ()),
-  ;;    ...                               )
-  ;;    ...                         )(),
-  ;;    ...                        *# hissp.macros.._macro_.let
-  ;;    ...                         (
-  ;;    ...                          lambda _gU3TLRBXC__data=# hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                                 iter(
-  ;;    ...                                   _gU3TLRBXC__data):
-  ;;    ...                             (
-  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                               next(
-  ;;    ...                                 _gU3TLRBXC__data),
-  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                               next(
-  ;;    ...                                 _gU3TLRBXC__data,
-  ;;    ...                                 ':b'),
-  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                               next(
-  ;;    ...                                 _gU3TLRBXC__data),
-  ;;    ...                               # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                               next(
-  ;;    ...                                 _gU3TLRBXC__data,
-  ;;    ...                                 ':d'),
-  ;;    ...                               )
-  ;;    ...                         )(),
-  ;;    ...                        )
-  ;;    ...                  )(),
-  ;;    ...                 )
-  ;;    ...           )(),
-  ;;    ...          # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...          _gU3TLRBXC__data.get(
-  ;;    ...            'quux',
-  ;;    ...            ('default for quux')),
-  ;;    ...          )
-  ;;    ...    )())
+  ;;    ...                  ((lambda _gEDQY2VWL__data
+  ;;    ...                           =# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                            (iter (_gEDQY2VWL__data)):
+  ;;    ...                     ( (
+  ;;    ...                      # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                      (next (_gEDQY2VWL__data)),
+  ;;    ...                      # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                      (list (_gEDQY2VWL__data)),
+  ;;    ...                      ))) (
+  ;;    ...                   )),
+  ;;    ...                 *# hissp.macros.._macro_.let
+  ;;    ...                  ((lambda _gEDQY2VWL__data
+  ;;    ...                           =# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                            # Dash_Gt_
+  ;;    ...                            (dict ((enumerate (_gEDQY2VWL__data)))):
+  ;;    ...                     ( (
+  ;;    ...                      # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                      (_gEDQY2VWL__data.get ((2),())),
+  ;;    ...                      # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                      (_gEDQY2VWL__data.get ((3),())),
+  ;;    ...                      ))) (
+  ;;    ...                   )),
+  ;;    ...                 *# hissp.macros.._macro_.let
+  ;;    ...                  ((lambda _gEDQY2VWL__data
+  ;;    ...                           =# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                            (iter (_gEDQY2VWL__data)):
+  ;;    ...                     ( (
+  ;;    ...                      # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                      (next (_gEDQY2VWL__data)),
+  ;;    ...                      # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                      (next (_gEDQY2VWL__data,':b')),
+  ;;    ...                      # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                      (next (_gEDQY2VWL__data)),
+  ;;    ...                      # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                      (next (_gEDQY2VWL__data,':d')),
+  ;;    ...                      ))) (
+  ;;    ...                   )),
+  ;;    ...                 ))) (
+  ;;    ...              )),
+  ;;    ...            ))) (
+  ;;    ...         )),
+  ;;    ...       # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...       (_gEDQY2VWL__data.get ('quux',('default for quux'))),
+  ;;    ...       ))) (
+  ;;    ...    ))))
   ;;    {'ns': namespace(a___tuple=('a', 'b', 'c'), spam='eggs'),
   ;;     'missing': 'a default for missing',
   ;;     'inner': 'eggs',
@@ -4365,41 +3864,28 @@ sentinel#
   ;;    #..  (print whole spam foo))
   ;;    >>> # destruct___Gt_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda whole, spam, foo:
-  ;;    ...     print(
-  ;;    ...       whole,
-  ;;    ...       spam,
-  ;;    ...       foo)
-  ;;    ... )(
-  ;;    ...   *# hissp.macros.._macro_.let
-  ;;    ...    (
-  ;;    ...     lambda _gK53PHZRK__data=dict(
-  ;;    ...              spam=(1),
-  ;;    ...              foo=(2)):
-  ;;    ...        (
-  ;;    ...          # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...          (
-  ;;    ...            _gK53PHZRK__data),
-  ;;    ...          *# hissp.macros.._macro_.let
-  ;;    ...           (
-  ;;    ...            lambda _gK53PHZRK__data=# hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                   (
-  ;;    ...                     _gK53PHZRK__data):
-  ;;    ...               (
-  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                 # hissp.macros.._macro_._backapply
-  ;;    ...                 __import__('operator').itemgetter(
-  ;;    ...                   'spam')(
-  ;;    ...                   _gK53PHZRK__data),
-  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                 # hissp.macros.._macro_._backapply
-  ;;    ...                 __import__('operator').itemgetter(
-  ;;    ...                   'foo')(
-  ;;    ...                   _gK53PHZRK__data),
-  ;;    ...                 )
-  ;;    ...           )(),
-  ;;    ...          )
-  ;;    ...    )())
+  ;;    ... ((lambda whole, spam, foo:
+  ;;    ...    (print (whole,spam,foo))) (
+  ;;    ...  *# hissp.macros.._macro_.let
+  ;;    ...   ((lambda _gQ4QGNHSA__data=(dict (spam=(1),foo=(2))):
+  ;;    ...      ( (
+  ;;    ...       # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...       ( (_gQ4QGNHSA__data)),
+  ;;    ...       *# hissp.macros.._macro_.let
+  ;;    ...        ((lambda _gQ4QGNHSA__data
+  ;;    ...                 =# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                  ( (_gQ4QGNHSA__data)):
+  ;;    ...           ( (
+  ;;    ...            # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...            # hissp.macros.._macro_._backapply
+  ;;    ...            ((__import__('operator').itemgetter ('spam')) (_gQ4QGNHSA__data)),
+  ;;    ...            # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...            # hissp.macros.._macro_._backapply
+  ;;    ...            ((__import__('operator').itemgetter ('foo')) (_gQ4QGNHSA__data)),
+  ;;    ...            ))) (
+  ;;    ...         )),
+  ;;    ...       ))) (
+  ;;    ...    ))))
   ;;    {'spam': 1, 'foo': 2} 1 2
   ;;
   `(,@chain#(zip (map X#`!#',X names) names)))
@@ -4418,41 +3904,28 @@ sentinel#
   ;;    #..  (print whole spam foo))
   ;;    >>> # destruct___Gt_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda whole, spam, foo:
-  ;;    ...     print(
-  ;;    ...       whole,
-  ;;    ...       spam,
-  ;;    ...       foo)
-  ;;    ... )(
-  ;;    ...   *# hissp.macros.._macro_.let
-  ;;    ...    (
-  ;;    ...     lambda _g4JOGNIEV__data=__import__('types').SimpleNamespace(
-  ;;    ...              spam=(1),
-  ;;    ...              foo=(2)):
-  ;;    ...        (
-  ;;    ...          # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...          (
-  ;;    ...            _g4JOGNIEV__data),
-  ;;    ...          *# hissp.macros.._macro_.let
-  ;;    ...           (
-  ;;    ...            lambda _g4JOGNIEV__data=# hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                   (
-  ;;    ...                     _g4JOGNIEV__data):
-  ;;    ...               (
-  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                 # hissp.macros.._macro_._backapply
-  ;;    ...                 __import__('operator').attrgetter(
-  ;;    ...                   'spam')(
-  ;;    ...                   _g4JOGNIEV__data),
-  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                 # hissp.macros.._macro_._backapply
-  ;;    ...                 __import__('operator').attrgetter(
-  ;;    ...                   'foo')(
-  ;;    ...                   _g4JOGNIEV__data),
-  ;;    ...                 )
-  ;;    ...           )(),
-  ;;    ...          )
-  ;;    ...    )())
+  ;;    ... ((lambda whole, spam, foo:
+  ;;    ...    (print (whole,spam,foo))) (
+  ;;    ...  *# hissp.macros.._macro_.let
+  ;;    ...   ((lambda _gQQBWLIYZ__data=(__import__('types').SimpleNamespace (spam=(1),foo=(2))):
+  ;;    ...      ( (
+  ;;    ...       # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...       ( (_gQQBWLIYZ__data)),
+  ;;    ...       *# hissp.macros.._macro_.let
+  ;;    ...        ((lambda _gQQBWLIYZ__data
+  ;;    ...                 =# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                  ( (_gQQBWLIYZ__data)):
+  ;;    ...           ( (
+  ;;    ...            # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...            # hissp.macros.._macro_._backapply
+  ;;    ...            ((__import__('operator').attrgetter ('spam')) (_gQQBWLIYZ__data)),
+  ;;    ...            # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...            # hissp.macros.._macro_._backapply
+  ;;    ...            ((__import__('operator').attrgetter ('foo')) (_gQQBWLIYZ__data)),
+  ;;    ...            ))) (
+  ;;    ...         )),
+  ;;    ...       ))) (
+  ;;    ...    ))))
   ;;    namespace(spam=1, foo=2) 1 2
   ;;
   `(,@chain#(zip (map X#`@#',X names) names)))
@@ -4470,56 +3943,41 @@ sentinel#
   ;;    #..  (print whole abc x y))
   ;;    >>> # destruct___Gt_
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda whole, abc, x, y:
-  ;;    ...     print(
-  ;;    ...       whole,
-  ;;    ...       abc,
-  ;;    ...       x,
-  ;;    ...       y)
-  ;;    ... )(
-  ;;    ...   *# hissp.macros.._macro_.let
-  ;;    ...    (
-  ;;    ...     lambda _gFS4QYTZL__data=('ABC',
-  ;;    ...             'XYZ',):
-  ;;    ...        (
-  ;;    ...          # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...          (
-  ;;    ...            _gFS4QYTZL__data),
-  ;;    ...          *# hissp.macros.._macro_.let
-  ;;    ...           (
-  ;;    ...            lambda _gFS4QYTZL__data=# hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                   (
-  ;;    ...                     _gFS4QYTZL__data):
-  ;;    ...               (
+  ;;    ... ((lambda whole, abc, x, y:
+  ;;    ...    (print (whole,abc,x,y))) (
+  ;;    ...  *# hissp.macros.._macro_.let
+  ;;    ...   ((lambda _gPHLLIBK6__data
+  ;;    ...            =('ABC',
+  ;;    ...              'XYZ',):
+  ;;    ...      ( (
+  ;;    ...       # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...       ( (_gPHLLIBK6__data)),
+  ;;    ...       *# hissp.macros.._macro_.let
+  ;;    ...        ((lambda _gPHLLIBK6__data
+  ;;    ...                 =# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                  ( (_gPHLLIBK6__data)):
+  ;;    ...           ( (
+  ;;    ...            # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...            # hissp.macros.._macro_._backapply
+  ;;    ...            ((__import__('operator').itemgetter ((0))) (_gPHLLIBK6__data)),
+  ;;    ...            *# hissp.macros.._macro_.let
+  ;;    ...             ((lambda _gPHLLIBK6__data
+  ;;    ...                      =# hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                       # hissp.macros.._macro_._backapply
+  ;;    ...                       ((__import__('operator').itemgetter ((1))) (_gPHLLIBK6__data)):
+  ;;    ...                ( (
   ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
   ;;    ...                 # hissp.macros.._macro_._backapply
-  ;;    ...                 __import__('operator').itemgetter(
-  ;;    ...                   (0))(
-  ;;    ...                   _gFS4QYTZL__data),
-  ;;    ...                 *# hissp.macros.._macro_.let
-  ;;    ...                  (
-  ;;    ...                   lambda _gFS4QYTZL__data=# hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                          # hissp.macros.._macro_._backapply
-  ;;    ...                          __import__('operator').itemgetter(
-  ;;    ...                            (1))(
-  ;;    ...                            _gFS4QYTZL__data):
-  ;;    ...                      (
-  ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                        # hissp.macros.._macro_._backapply
-  ;;    ...                        __import__('operator').itemgetter(
-  ;;    ...                          (0))(
-  ;;    ...                          _gFS4QYTZL__data),
-  ;;    ...                        # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...                        # hissp.macros.._macro_._backapply
-  ;;    ...                        __import__('operator').itemgetter(
-  ;;    ...                          (1))(
-  ;;    ...                          _gFS4QYTZL__data),
-  ;;    ...                        )
-  ;;    ...                  )(),
-  ;;    ...                 )
-  ;;    ...           )(),
-  ;;    ...          )
-  ;;    ...    )())
+  ;;    ...                 ((__import__('operator').itemgetter ((0))) (_gPHLLIBK6__data)),
+  ;;    ...                 # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...                 # hissp.macros.._macro_._backapply
+  ;;    ...                 ((__import__('operator').itemgetter ((1))) (_gPHLLIBK6__data)),
+  ;;    ...                 ))) (
+  ;;    ...              )),
+  ;;    ...            ))) (
+  ;;    ...         )),
+  ;;    ...       ))) (
+  ;;    ...    ))))
   ;;    ('ABC', 'XYZ') ABC X Y
   ;;
   `(,@chain#(zip (map X#`!#,X (-> bindings len range))
@@ -4541,34 +3999,23 @@ sentinel#
   ;;    #..       (case x (print "default")
   ;;    #..         (0 2 |42|) (print "even")
   ;;    #..         (1 3 spam) (print "odd"))))
-  ;;    >>> any(
-  ;;    ...   # for___in
-  ;;    ...   __import__('builtins').map(
-  ;;    ...     (lambda x:
-  ;;    ...         # case
-  ;;    ...         (
-  ;;    ...           (lambda :
-  ;;    ...               print(
-  ;;    ...                 ('odd'))
-  ;;    ...           ),
-  ;;    ...           (lambda :
-  ;;    ...               print(
-  ;;    ...                 ('even'))
-  ;;    ...           ),
-  ;;    ...           (lambda :
-  ;;    ...               print(
-  ;;    ...                 ('default'))
-  ;;    ...           ),
-  ;;    ...           ).__getitem__(
-  ;;    ...           {1: 0, 3: 0, 'spam': 0, 0: 1, 2: 1, '42': 1}.get(
-  ;;    ...             x,
-  ;;    ...             (-1)))()
-  ;;    ...     ),
-  ;;    ...     ((1),
-  ;;    ...      (2),
-  ;;    ...      'spam',
-  ;;    ...      '42',
-  ;;    ...      ':eggs',)))
+  ;;    >>> (any (
+  ;;    ...  # for___in
+  ;;    ...  (__import__('builtins').map (
+  ;;    ...   (lambda x:
+  ;;    ...     # case
+  ;;    ...     ((( (
+  ;;    ...        (lambda : (print (('odd')))),
+  ;;    ...        (lambda : (print (('even')))),
+  ;;    ...        (lambda : (print (('default')))),
+  ;;    ...        )).__getitem__ (
+  ;;    ...       ({1: 0, 3: 0, 'spam': 0, 0: 1, 2: 1, '42': 1}.get (x,(-1))))) (
+  ;;    ...      ))),
+  ;;    ...   ((1),
+  ;;    ...    (2),
+  ;;    ...    'spam',
+  ;;    ...    '42',
+  ;;    ...    ':eggs',)))))
   ;;    odd
   ;;    even
   ;;    odd
@@ -4609,26 +4056,22 @@ sentinel#
   ;; .. code-block:: REPL
   ;;
   ;;    #> (op#add 5 spy##file=sys..stdout(op#mul 7 3))
-  ;;    >>> __import__('operator').add(
-  ;;    ...   (5),
-  ;;    ...   # hissp.._macro_._spy
-  ;;    ...   # hissp.macros.._macro_.let
-  ;;    ...   (
-  ;;    ...    lambda _gJTVHKNI3__e=__import__('operator').mul(
-  ;;    ...             (7),
-  ;;    ...             (3)):
-  ;;    ...      (__import__('builtins').print(
-  ;;    ...         __import__('pprint').pformat(
-  ;;    ...           ('operator..mul',
-  ;;    ...            (7),
-  ;;    ...            (3),),
-  ;;    ...           sort_dicts=(0)),
-  ;;    ...         ('=>'),
-  ;;    ...         __import__('builtins').repr(
-  ;;    ...           _gJTVHKNI3__e),
-  ;;    ...         file=__import__('sys').stdout),
-  ;;    ...       _gJTVHKNI3__e)  [-1]
-  ;;    ...   )())
+  ;;    >>> (__import__('operator').add (
+  ;;    ...  (5),
+  ;;    ...  # hissp.._macro_._spy
+  ;;    ...  # hissp.macros.._macro_.let
+  ;;    ...  ((lambda _gH45B3DXA__e=(__import__('operator').mul ((7),(3))):
+  ;;    ...    ((__import__('builtins').print (
+  ;;    ...      (__import__('pprint').pformat (
+  ;;    ...       ('operator..mul',
+  ;;    ...        (7),
+  ;;    ...        (3),),
+  ;;    ...       sort_dicts=(0))),
+  ;;    ...      ('=>'),
+  ;;    ...      (__import__('builtins').repr (_gH45B3DXA__e)),
+  ;;    ...      file=__import__('sys').stdout))
+  ;;    ...    ,_gH45B3DXA__e  )[-1]) (
+  ;;    ...   ))))
   ;;    ('operator..mul', 7, 3) => 21
   ;;    26
   ;;
@@ -4645,31 +4088,27 @@ sentinel#
   ;;
   ;;    #> time##file=sys..stdout(time..sleep .05)
   ;;    >>> # hissp.macros.._macro_.let
-  ;;    ... (lambda _g72AOZNBR__time=__import__('time').time_ns:
-  ;;    ...     # hissp.macros.._macro_.let
-  ;;    ...     (
-  ;;    ...      lambda _g72AOZNBR__start=_g72AOZNBR__time(),
-  ;;    ...             _g72AOZNBR__val=__import__('time').sleep(
-  ;;    ...               (0.05)),
-  ;;    ...             _g72AOZNBR__end=_g72AOZNBR__time():
-  ;;    ...        (__import__('builtins').print(
-  ;;    ...           ('time# ran'),
-  ;;    ...           __import__('pprint').pformat(
-  ;;    ...             ('time..sleep',
-  ;;    ...              (0.05),),
-  ;;    ...             sort_dicts=(0)),
-  ;;    ...           ('in'),
-  ;;    ...           __import__('operator').truediv(
-  ;;    ...             __import__('operator').sub(
-  ;;    ...               _g72AOZNBR__end,
-  ;;    ...               _g72AOZNBR__start),
-  ;;    ...             # Decimal('1E+6')
-  ;;    ...             __import__('pickle').loads(b'cdecimal\nDecimal\n(V1E+6\ntR.')),
-  ;;    ...           ('ms'),
-  ;;    ...           file=__import__('sys').stdout),
-  ;;    ...         _g72AOZNBR__val)  [-1]
-  ;;    ...     )()
-  ;;    ... )()
+  ;;    ... ((lambda _gMMTKEBPJ__time=__import__('time').time_ns:
+  ;;    ...    # hissp.macros.._macro_.let
+  ;;    ...    ((lambda _gMMTKEBPJ__start=(_gMMTKEBPJ__time ()),
+  ;;    ...             _gMMTKEBPJ__val=(__import__('time').sleep ((0.05))),
+  ;;    ...             _gMMTKEBPJ__end=(_gMMTKEBPJ__time ()):
+  ;;    ...      ((__import__('builtins').print (
+  ;;    ...        ('time# ran'),
+  ;;    ...        (__import__('pprint').pformat (
+  ;;    ...         ('time..sleep',
+  ;;    ...          (0.05),),
+  ;;    ...         sort_dicts=(0))),
+  ;;    ...        ('in'),
+  ;;    ...        (__import__('operator').truediv (
+  ;;    ...         (__import__('operator').sub (_gMMTKEBPJ__end,_gMMTKEBPJ__start)),
+  ;;    ...         # Decimal('1E+6')
+  ;;    ...         __import__('pickle').loads(b'cdecimal\nDecimal\n(V1E+6\ntR.'))),
+  ;;    ...        ('ms'),
+  ;;    ...        file=__import__('sys').stdout))
+  ;;    ...      ,_gMMTKEBPJ__val  )[-1]) (
+  ;;    ...     ))) (
+  ;;    ...  ))
   ;;    time# ran ('time..sleep', 0.05) in ... ms
   ;;
   ;; See also: `timeit`.
@@ -4707,22 +4146,21 @@ sentinel#
   ;;    #..  it "That's odd.")
   ;;    >>> # avow
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda it=(7):
-  ;;    ...    (# hissp.macros.._macro_.unless
-  ;;    ...     (lambda b, a: ()if b else a())(
-  ;;    ...       # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...       (lambda X: X%2 == 0)(
-  ;;    ...         it),
-  ;;    ...       (lambda :
-  ;;    ...           # hissp.macros.._macro_.throw
-  ;;    ...           # hissp.macros.._macro_.throwStar_
-  ;;    ...           (lambda g:g.close()or g.throw)(c for c in'')(
-  ;;    ...             __import__('builtins').AssertionError(
-  ;;    ...               it,
-  ;;    ...               ("That's odd.")))
-  ;;    ...       )),
-  ;;    ...     it)  [-1]
-  ;;    ... )()
+  ;;    ... ((lambda it=(7):
+  ;;    ...   (# hissp.macros.._macro_.unless
+  ;;    ...    ((lambda b, a:
+  ;;    ...       ()if b else a()) (
+  ;;    ...     # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...     ((lambda X:
+  ;;    ...        X%2 == 0) (
+  ;;    ...      it)),
+  ;;    ...     (lambda :
+  ;;    ...       # hissp.macros.._macro_.throw
+  ;;    ...       # hissp.macros.._macro_.throwStar_
+  ;;    ...       ((lambda g:g.close()or g.throw)(c for c in'') (
+  ;;    ...        (__import__('builtins').AssertionError (it,("That's odd."))))))))
+  ;;    ...   ,it  )[-1]) (
+  ;;    ...  ))
   ;;    Traceback (most recent call last):
   ;;      ...
   ;;    AssertionError: (7, "That's odd.")
@@ -4771,22 +4209,21 @@ sentinel#
   ;;    >>> # assure
   ;;    ... # hissp.macros.._macro_.avow
   ;;    ... # hissp.macros.._macro_.let
-  ;;    ... (lambda it=(7):
-  ;;    ...    (# hissp.macros.._macro_.unless
-  ;;    ...     (lambda b, a: ()if b else a())(
-  ;;    ...       # hissp.macros.._macro_.Dash_Gt_
-  ;;    ...       (lambda X: X%2 == 0)(
-  ;;    ...         it),
-  ;;    ...       (lambda :
-  ;;    ...           # hissp.macros.._macro_.throw
-  ;;    ...           # hissp.macros.._macro_.throwStar_
-  ;;    ...           (lambda g:g.close()or g.throw)(c for c in'')(
-  ;;    ...             __import__('builtins').AssertionError(
-  ;;    ...               it,
-  ;;    ...               ("That's odd.")))
-  ;;    ...       )),
-  ;;    ...     it)  [-1]
-  ;;    ... )()
+  ;;    ... ((lambda it=(7):
+  ;;    ...   (# hissp.macros.._macro_.unless
+  ;;    ...    ((lambda b, a:
+  ;;    ...       ()if b else a()) (
+  ;;    ...     # hissp.macros.._macro_.Dash_Gt_
+  ;;    ...     ((lambda X:
+  ;;    ...        X%2 == 0) (
+  ;;    ...      it)),
+  ;;    ...     (lambda :
+  ;;    ...       # hissp.macros.._macro_.throw
+  ;;    ...       # hissp.macros.._macro_.throwStar_
+  ;;    ...       ((lambda g:g.close()or g.throw)(c for c in'') (
+  ;;    ...        (__import__('builtins').AssertionError (it,("That's odd."))))))))
+  ;;    ...   ,it  )[-1]) (
+  ;;    ...  ))
   ;;    Traceback (most recent call last):
   ;;      ...
   ;;    AssertionError: (7, "That's odd.")
@@ -4801,4 +4238,4 @@ sentinel#
 
 ;;; Don't let the size of this file intimidate you!
 ;;; Most of it is documentation with long usage examples.
-;;; Only about 10% of the lines are executable source code.
+;;; Only about 10% of the lines are implementation code.

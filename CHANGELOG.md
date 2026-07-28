@@ -25,6 +25,9 @@ SPDX-License-Identifier: Apache-2.0
 
 ### Breaking
 
+`(del foo)` no longer works at the toplevel.
+Use `|del foo|` instead.
+
 `any-map` is gone. Use `for-in` instead.
 `for-in` is lazy. For the old behavior, wrap in `any`.
 `any*map` is also gone. Use `for-in` and `let`, wrapped in `any`.
@@ -150,3 +153,5 @@ but works the same.
 ### Fix
 - kwarg token escape handling [#277](https://github.com/gilch/hissp/issues/277).
 - REPL fragment continuation issue (e.g., `#> |if 1:|` errors and `#> |if 1:1|` completes now).
+- Unary operators (`not`, `|-|`, `|~|`, `|+|`) now work reliably with call syntax.
+  (Previously, the order of operations could be surprising.)

@@ -86,7 +86,7 @@ def test_ic_error():
     out, err = cmd('lissp -i -c "(define answer 42)(truediv 1 0)"', "answer\n")
     assert "Hissp abort!" in err
     assert "Traceback (most" in err
-    assert 'File "<Compiled Hissp #3 of __main__:\n1 truediv(' in err
+    assert 'File "<Compiled Hissp #3 of __main__:\n1 (truediv (' in err
     assert "ZeroDivisionError: division by zero\n" in err
     assert ">>> answer\n" in err
     assert out.count("#> ") == 2
@@ -116,7 +116,7 @@ def test_repl_atom():
 
 
 def test_repl_exit():
-    repl("(exit)\n", "#> ", ">>> exit()\n", "")
+    repl("(exit)\n", "#> ", ">>> (exit ())\n", "")
 
 
 def test_repl_unqoute_error():
@@ -254,8 +254,7 @@ def test_repl_str_continue():
         >>> b'foo bar'
         >>> b'\n\n\n'
         >>> b'\n\nx'
-        >>> b'\xff\nfoo'.decode(
-        ...   errors='ignore')
+        >>> (b'\xff\nfoo'.decode (errors='ignore'))
         """,
     )
 
@@ -323,12 +322,11 @@ def test_compile_error():
         "> #> ", "< (lambda :x)",
         "! >>> # CompileError\n",
         "! \n",
-        "! (\n",
-        "!  lambda (>   >  > >>':x'<< <  <   <)\n",
+        "! (lambda (>   >  > >>':x'<< <  <   <)\n",
         "! # Compiler.parameters() CompileError:\n",
         "! #  incomplete pair\n",
         "! :\n",
-        "!     ())\n",
+        "!   ())\n",
         "> #> ",
     )  # fmt: skip
 
@@ -336,13 +334,12 @@ def test_compile_error():
 def test_interact():
     call_response(
         "> #> ", "< (.update (globals) : x 1  y 2)\n",
-        "! >>> globals().update(\n",
-        "! ...   x=(1),\n",
-        "! ...   y=(2))\n",
+        "! >>> ((globals ()).update (x=(1),y=(2)))\n",
         "> #> ", "< (let x (42) (hissp..interact))\n",
         "! >>> # let\n",
-        "! ... (lambda x: __import__('hissp').interact())(\n",
-        "! ...   (42))\n",
+        "! ... ((lambda x:\n",
+        "! ...    (__import__('hissp').interact ())) (\n",
+        "! ...  (42)))\n",
         f"! {BANNER}",
         "> #> ", "< x\n",
         "! >>> x\n",
@@ -359,9 +356,7 @@ def test_interact():
 def test_interact_locals():
     call_response(
         "> #> ", "< (hissp..interact (dict : x 7))\n",
-        "! >>> __import__('hissp').interact(\n",
-        "! ...   dict(\n",
-        "! ...     x=(7)))\n",
+        "! >>> (__import__('hissp').interact ((dict (x=(7)))))\n",
         f"! {BANNER}",
         "> #> ", "< x\n",
         "! >>> x\n",
@@ -375,29 +370,22 @@ def test_interact_locals():
 def test_subrepl():
     call_response(
         "> #> ", "< hissp..subrepl#sys.\n",
-        "! >>> (lambda module=__import__('sys'):\n",
-        "! ...     # hissp.._macro_.unless\n",
-        "! ...     (lambda b, a: ()if b else a())(\n",
-        "! ...       __name__==module.__name__,\n",
-        "! ...       (lambda :\n",
-        "! ...          (print(\n",
-        "! ...             'Entering',\n",
-        "! ...             module.__name__),\n",
-        "! ...           __import__('hissp').interact(\n",
-        "! ...             __import__('builtins').vars(\n",
-        "! ...               module)),\n",
-        "! ...           print(\n",
-        "! ...             'back in',\n",
-        "! ...             __name__))  [-1]\n",
-        "! ...       ))\n",
-        "! ... )()\n",
+        "! >>> ((lambda module=__import__('sys'):\n",
+        "! ...    # hissp.._macro_.unless\n",
+        "! ...    ((lambda b, a:\n",
+        "! ...       ()if b else a()) (\n",
+        "! ...     __name__==module.__name__,\n",
+        "! ...     (lambda :\n",
+        "! ...      ((print ('Entering',module.__name__))\n",
+        "! ...      ,(__import__('hissp').interact ((__import__('builtins').vars (module))))\n",
+        "! ...      ,(print ('back in',__name__))  )[-1])))) (\n",
+        "! ...  ))\n",
         "> Entering sys\n",
         f"! {BANNER}",
         "> #> ", "< (operator..is_ (vars) (vars sys.))\n",
-        "! >>> __import__('operator').is_(\n",
-        "! ...   vars(),\n",
-        "! ...   vars(\n",
-        "! ...     __import__('sys')))\n",
+        "! >>> (__import__('operator').is_ (\n",
+        "! ...  (vars ()),\n",
+        "! ...  (vars (__import__('sys')))))\n",
         "> True\n",
         "> #> ",
         f"! {EXIT_MSG}",
@@ -414,40 +402,31 @@ def test_refresh():
 
         call_response(
             "> #> ", "< hissp..subrepl#__refresh.\n",
-            "! >>> (lambda module=__import__('__refresh'):\n",
-            "! ...     # hissp.._macro_.unless\n",
-            "! ...     (lambda b, a: ()if b else a())(\n",
-            "! ...       __name__==module.__name__,\n",
-            "! ...       (lambda :\n",
-            "! ...          (print(\n",
-            "! ...             'Entering',\n",
-            "! ...             module.__name__),\n",
-            "! ...           __import__('hissp').interact(\n",
-            "! ...             __import__('builtins').vars(\n",
-            "! ...               module)),\n",
-            "! ...           print(\n",
-            "! ...             'back in',\n",
-            "! ...             __name__))  [-1]\n",
-            "! ...       ))\n",
-            "! ... )()\n",
+            "! >>> ((lambda module=__import__('__refresh'):\n",
+            "! ...    # hissp.._macro_.unless\n",
+            "! ...    ((lambda b, a:\n",
+            "! ...       ()if b else a()) (\n",
+            "! ...     __name__==module.__name__,\n",
+            "! ...     (lambda :\n",
+            "! ...      ((print ('Entering',module.__name__))\n",
+            "! ...      ,(__import__('hissp').interact ((__import__('builtins').vars (module))))\n",
+            "! ...      ,(print ('back in',__name__))  )[-1])))) (\n",
+            "! ...  ))\n",
             "> Entering __refresh\n",
             f"! {BANNER}",
             "> #> ", "< foo\n",
             "! >>> foo\n",
             "> 1\n",
             "> #> ", """< (.write_text (pathlib..Path '__refresh.lissp) "|foo=2|")\n""",
-            "! >>> __import__('pathlib').Path(\n",
-            "! ...   '__refresh.lissp').write_text(\n",
-            "! ...   ('|foo=2|'))\n",
+            "! >>> ((__import__('pathlib').Path ('__refresh.lissp')).write_text (('|foo=2|')))\n",
             "> 7\n",
             "> #> ", "< hissp..refresh#:\n",
-            "! >>> (lambda name=__name__:\n",
-            "! ...    (__import__('hissp.reader',fromlist='*').transpile(\n",
-            '! ...       *name.rpartition(".")[::2]),\n',
-            "! ...     __import__('importlib').reload(\n",
-            "! ...       __import__('importlib').import_module(\n",
-            "! ...         name)))  [-1]\n",
-            "! ... )()\n",
+            "! >>> ((lambda name=__name__:\n",
+            "! ...   ((__import__('hissp.reader',fromlist='*').transpile (\n",
+            '! ...     *name.rpartition(".")[::2]))\n',
+            "! ...   ,(__import__('importlib').reload (\n",
+            "! ...     (__import__('importlib').import_module (name))))  )[-1]) (\n",
+            "! ...  ))\n",
             f"> {__refresh!r}\n",
             "> #> ", "< foo\n",
             "! >>> foo\n",
