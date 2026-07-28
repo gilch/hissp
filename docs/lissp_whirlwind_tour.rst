@@ -504,13 +504,13 @@ Lissp Whirlwind Tour
    >>> 'A'
    'A'
 
-   #> '-<>>
-   >>> 'Dash_Lt_Gt_Gt_'
-   'Dash_Lt_Gt_Gt_'
+   #> '-o>
+   >>> 'Dash_oGt_'
+   'Dash_oGt_'
 
-   #> :-<>>                                   ;doesn't represent identifier (no munge)
-   >>> ':-<>>'
-   ':-<>>'
+   #> :-o>                                   ;doesn't represent identifier (no munge)
+   >>> ':-o>'
+   ':-o>'
 
    #> :                                       ;shortest control word
    >>> ':'

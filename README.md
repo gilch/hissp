@@ -258,7 +258,7 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
 
 ((bottle..route "/") ; https://bottlepy.org
  O#(enjoin
-    (let (s (tag "script src='https://cdn.jsdelivr.net/npm/brython@3/brython{}.js'"))
+    (let s ((tag "script src='https://cdn.jsdelivr.net/npm/brython@3/brython{}.js'"))
       (enjoin (.format s ".min") (.format s "_stdlib")))
     (tag "body onload='brython()'" ; Browser Python: https://brython.info
      (script
@@ -268,8 +268,8 @@ Requires [Bottle.](https://bottlepy.org/docs/dev/)
        (attach browser..window
          : Celsius O#(-> (getf@v 'Celsius) (X#|X*1.8+32|) (set@v 'Fahrenheit))
          Fahrenheit O#(-> (getf@v 'Fahrenheit) (X#|(X-32)/1.8|) (set@v 'Celsius))))
-     (let (row (enjoin (tag "input id='{0}' onkeyup='{0}()'")
-                       (tag "label for='{0}'" "°{1}")))
+     (let (: row (enjoin (tag "input id='{0}' onkeyup='{0}()'")
+                         (tag "label for='{0}'" "°{1}"))):
        (enjoin (.format row "Fahrenheit" "F")"<br>"(.format row "Celsius" "C"))))))
 
 (bottle..run : host "localhost"  port 8080  debug True)
@@ -453,18 +453,18 @@ which includes Clojure-like persistent data structures.
            (random/randint 0 (sub HEIGHT 1))))
 
 (defun frame (state)
-  (-<>> (product (range HEIGHT) (range WIDTH))
-        (starmap #XY(complex Y X))
-        (map #X(concat (cond (contains state.snake X) "O"
-                             (eq X state.food) "@"
-                             :else " ")
-                       (if-else (eq 0 X.real) "\n" "")))
-        (.join "")))
+  (-o> (product (range HEIGHT) (range WIDTH))
+       (starmap #XY(complex Y X))
+       (map #X(concat (cond (contains state.snake X) "O"
+                            (eq X state.food) "@"
+                            :else " ")
+                      (if-else (eq 0 X.real) "\n" "")))
+       (.join "")))
 
 (defun move (state new-food arrow)
-  (let (direction (if-else (ands arrow (ne arrow (neg state.direction)))
-                    arrow state.direction))
-    (let (head (add (getitem state.snake 0) direction))
+  (let (direction) ((if-else (ands arrow (ne arrow (neg state.direction)))
+                      arrow state.direction))
+    (let (head) ((add (getitem state.snake 0) direction))
       (-> state
           (.update (if-else (eq head state.food)
                      {"score" (add 1 state.score)
@@ -474,19 +474,19 @@ which includes Clojure-like persistent data structures.
           (.transform ["snake"] #X(.appendleft X head))))))
 
 (defun lost? (state)
-  (let (head (getitem state.snake 0))
+  (let (head) ((getitem state.snake 0))
     (ors (wall? head)
          (contains (getitem state.snake (slice 1 None))
                    head))))
 
 (defun update! (state)
-  (-<>> (if-else (lost? state)
-          " GAME OVER!"
-          (prog1 "" (.after root TICK update! (move state
-                                                    (food!)
-                                                    (when arrow (.pop arrow))))))
-        (.format "Score: {}{}{}" state.score :<> (frame state))
-        (.configure label . text)))
+  (-o> (if-else (lost? state)
+         " GAME OVER!"
+         (prog1 "" (.after root TICK update! (move state
+                                                   (food!)
+                                                   (when arrow (.pop arrow))))))
+       (.format "Score: {}{}{}" state.score :o (frame state))
+       (.configure label . text)))
 
 (when (eq __name__ "__main__")
   (update! {"score" 0, "direction" 1, "snake" SNAKE, "food" (food!)})

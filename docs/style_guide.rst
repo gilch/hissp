@@ -1390,16 +1390,21 @@ as the :term:`params` when they'd each be one (non-munging) character:
      (print c b a))
 
    ;;; This goes for macro arguments directly used as params too.
+   ;;; (This argument is conventionally named "params".)
 
-   (any*map kv (.items (dict : a 1  b 2))  ;Preferred
-     (print k v))
+   (let xy (1 2)                           ;Preferred
+     (print x y))
 
-   (any*map (k v)                          ;OK
-            (.items (dict : a 1  b 2))
-     (print k v))
+   (let (x y)                              ;OK
+        (1 2)
+     (print x y))
+
+   (let (: x 1                             ;Also OK, but unrelated.
+           y 2):                           ; Preferred for longer names.
+     (print x y))
 
 Name the first method argument ``self``
-and the first classmethod argument ``cls``.
+and the first `classmethod` argument ``cls``.
 Python does not enforce this,
 but it's a very strong convention.
 
@@ -1461,7 +1466,7 @@ especially when you call :func:`iter` on a variable with otherwise the same name
 
 .. code-block:: Lissp
 
-   (let (ixs (iter xs))
+   (let (: ixs (iter xs)):
      ...)
 
 Throwaway Names
@@ -1827,8 +1832,8 @@ even in an implied group:
            :else (print "0"))))            ;Still grouped. 1 line OK--no internal ).
 
    (defun compare (xs ys)                  ;Preferred. Keep cond simple.
-     (let (lxs (len xs)
-           lys (len ys))
+     (let (: lxs (len xs)
+             lys (len ys)):
        (cond (lt lxs lys) (print "<")
              (gt lxs lys) (print ">")
              :else (print "0")))))

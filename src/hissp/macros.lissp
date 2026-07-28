@@ -103,12 +103,12 @@ See `hissp.macros`.
 
   .. code-block:: REPL
 
-     #> (any-map c 'ab
-     #..  (if-else (op#eq c 'b)                 ;ternary conditional
-     #..    (print 'Yes)
-     #..    (print 'No)))
-     >>> # any___map
-     ... __import__('builtins').any(
+     #> (any (for-in c 'ab
+     #..       (if-else (op#eq c 'b)            ;ternary conditional
+     #..         (print 'Yes)
+     #..         (print 'No))))
+     >>> any(
+     ...   # for___in
      ...   __import__('builtins').map(
      ...     (lambda c:
      ...         # if___else
@@ -130,7 +130,7 @@ See `hissp.macros`.
      Yes
      False
 
-  See also: `when`, `cond`, `any-map <any___map>`, `if_expr`.
+  See also: `when`, `cond`, `for-in <for___in>`, `if_expr`.
   "
   `((lambda ,'bca |c()if b else a()|) ; boolean, consequent, alternate
     ,test
@@ -161,18 +161,18 @@ See `hissp.macros`.
   "
   `((lambda : ,@body)))
 
-(defmacro let (pairs : :* body)
-  "Creates local variables. Pairs are implied by position.
+(defmacro let (params args : :* body)
+  "Creates local variables by immediately calling a lambda.
 
   Created locals are not in scope until the body.
 
   .. code-block:: REPL
 
-     #> (let (x 'a                              ;Create locals.
-     #..      y 'b)                             ;Any number of pairs.
+     #> (let (: x 'a                            ;Create locals from defaults.
+     #..        y 'b):                          ;A : is same as (:). (No args.)
      #..  (print x y)
-     #..  (let (x 'x
-     #..        y (op#concat x x))              ;Not in scope until body.
+     #..  (let (: x 'x
+     #..          y (op#concat x x)):           ;Not in scope until body.
      #..    (print x y))                        ;Outer variables shadowed.
      #..  (print x y))                          ;Inner went out of scope.
      >>> # let
@@ -200,40 +200,57 @@ See `hissp.macros`.
      x aa
      a b
 
-  See also: `let-call <let___call>`, `my# <myHash_>`, `locals`.
-  "
-  `((lambda (: ,@pairs)
-      ,@body)))
-
-(defmacro let-call (params pairs : :* body)
-  "``let-call`` Create parameters from call arg pairs.
+  Can destructure nested data by using args and multiple stages:
 
   .. code-block:: REPL
 
-     #> (let-call (a b : :* cs  g :?  h 'H) (:* 'ABCD  :? 'EF  g 'G)
-     #..  (print cs b a g h))
-     >>> # let___call
-     ... (
-     ...  lambda a,
-     ...         b,
-     ...         *cs,
-     ...         g,
-     ...         h='H':
-     ...     print(
-     ...       cs,
-     ...       b,
-     ...       a,
-     ...       g,
-     ...       h)
+     #> (<o- (let (abcs) (: :? 'abcdef)) ; whole thing
+     #..     (let (a b : :* cs) (: :* abcs)) ; rest (tuple packing)
+     #..     (let (: d ()  e ()  f ()) (: :* 'de)) ; defaults
+     #..     (let (g h i) (: :* 'ghi)) ; positional unpacking
+     #..     (let (: :** jkls) (: j 'J  k 'K  l 'L)) ; kwargs (dict packing)
+     #..     (let (j k l : m None  n '|N?|) (: :** jkls) ; dict unpacking with defaults
+     #..       |print(a,b,cs,abcs,d,e,f,g,h,i,j,k,l,m,n,jkls)|))
+     >>> # Lt_oDash_
+     ... # let
+     ... (lambda abcs:
+     ...     # let
+     ...     (lambda a, b, *cs:
+     ...         # let
+     ...         (
+     ...          lambda d=(),
+     ...                 e=(),
+     ...                 f=():
+     ...             # let
+     ...             (lambda g, h, i:
+     ...                 # let
+     ...                 (lambda **jkls:
+     ...                     # let
+     ...                     (
+     ...                      lambda j,
+     ...                             k,
+     ...                             l,
+     ...                             m=None,
+     ...                             n='N?':
+     ...                         print(a,b,cs,abcs,d,e,f,g,h,i,j,k,l,m,n,jkls))(
+     ...                       **jkls)
+     ...                 )(
+     ...                   j='J',
+     ...                   k='K',
+     ...                   l='L')
+     ...             )(
+     ...               *'ghi')
+     ...         )(
+     ...           *'de')
+     ...     )(
+     ...       *abcs)
      ... )(
-     ...   *'ABCD',
-     ...   'EF',
-     ...   g='G')
-     ('C', 'D', 'EF') B A G H
+     ...   'abcdef')
+     a b ('c', 'd', 'e', 'f') abcdef d e () g h i J K L None N? {'j': 'J', 'k': 'K', 'l': 'L'}
 
-  See also: `let`, `let*call <letStar_call>`, `assignment`.
+  See also: `my# <myHash_>`, `locals`, `<o- <Lt_oDash_>`, `assignment`.
   "
-  `((lambda ,params ,@body) : ,@pairs))
+  `((lambda ,params ,@body) ,@args))
 
 (defmacro fun (qualname params : maybe-docstring ()  :* body)
   "A lambda enhanced with a `qualified name` and optionally a docstring.
@@ -246,12 +263,12 @@ See `hissp.macros`.
   Used by `defmacro` and `defun`. Not recommended for otherwise
   anonymous functions due to the additional overhead.
   "
-  (let-call (name : :* _xs  top ()  doc ())
-            (:* (reversed (.split qualname '. 1))
-             :** (if-else (hissp..is_hissp_string maybe-docstring)
-                   (dict : doc `(__doc__ ,maybe-docstring))
-                   (dict : top `(,maybe-docstring))))
-    `(let ($#lambda (lambda ,params ,@top ,@body))
+  (let (name : :* _xs  top ()  doc ())
+       (: :* (reversed (.split qualname '. 1))
+        :** (if-else (hissp..is_hissp_string maybe-docstring)
+              (dict : doc `(__doc__ ,maybe-docstring))
+              (dict : top `(,maybe-docstring))))
+    `(let (: $#lambda (lambda ,params ,@top ,@body)):
        `(,@(itertools..starmap
             ,'$#lambda.__setattr__
             (.items (dict : ,@doc ; Used by help().
@@ -270,11 +287,11 @@ See `hissp.macros`.
 
   .. code-block:: REPL
 
-     #> (any-map c 'abcd
-     #..  (unless (op#eq c 'b)
-     #..    (print c)))
-     >>> # any___map
-     ... __import__('builtins').any(
+     #> (any (for-in c 'abcd
+     #..       (unless (op#eq c 'b)
+     #..         (print c))))
+     >>> any(
+     ...   # for___in
      ...   __import__('builtins').map(
      ...     (lambda c:
      ...         # unless
@@ -363,9 +380,9 @@ See `hissp.macros`.
   "
   (if-else (.startswith name ':)
     (exec '|raise SyntaxError('name cannot be a control word (try a \:)')|)
-    (let (form `(setattr (.get (globals) "_macro_")
-                         ',name
-                         (fun ,(.format "_macro_.{}" name) ,parameters ,@body)))
+    (let (: form `(setattr (.get (globals) "_macro_")
+                           ',name
+                           (fun ,(.format "_macro_.{}" name) ,parameters ,@body))):
       (if-else (operator..contains (.get hissp.compiler..ENV) '_macro_)
         form
         `(progn (.setdefault (globals) "_macro_" (type "_macro_" () |{}|))
@@ -394,7 +411,7 @@ See `hissp.macros`.
   "
   (if-else (.startswith qualname ':)
     (exec '|raise SyntaxError('qualname cannot be a control word (try a \:)')|)
-    (let-call (ns _dot attr) (:* (.rpartition qualname "."))
+    (let (ns _dot attr) (: :* (.rpartition qualname "."))
       (if-else ns
         `(setattr ,ns ',attr ,value)
         `(.update (globals) : ,qualname ,value)))))
@@ -464,7 +481,7 @@ See `hissp.macros`.
   See also: `deftypeonce`, `hissp.refresh`.
 
   "
-  `(unless ,(let-call (ns _dot attr) (:* (.rpartition qualname "."))
+  `(unless ,(let (ns _dot attr) (: :* (.rpartition qualname "."))
               (if-else ns
                 `(hasattr ,ns ',attr)
                 `(operator..contains (globals) ',attr)))
@@ -660,8 +677,8 @@ See `hissp.macros`.
   ;;
   ;; See also: `attach`, `types.new_class`, `defonce`.
   ;;
-  (let-call (name singles pairs) (:? |qualname.rpartition('.')[-1]|
-                                  :* (hissp.compiler..parse_params bases))
+  (let (name singles pairs) (: :? |qualname.rpartition('.')[-1]|
+                             :* (hissp.compiler..parse_params bases))
     `(defonce ,qualname (type ',name (|| ,@singles ||) ,(dict)
                               : ,@|(x for kv in pairs.items() for x in kv)|))))
 
@@ -751,89 +768,7 @@ See `hissp.macros`.
   "
   `(defonce ,typename (collections..namedtuple ',typename ,@args)))
 
-(defmacro let*call (pairs : :* body)
-  "``let*call`` 'let star call' Nested `let-call <let___call>`.
-
-  Can unpack nested data by using multiple stages.
-
-  .. code-block:: REPL
-
-     #> (let*call ((abcs) (:? 'abcdef) ; whole thing
-     #..           (a b : :* cs) (:* abcs) ; rest (tuple packing)
-     #..           (: d ()  e ()  f ()) (:* 'de) ; defaults
-     #..           (g h i) (:* 'ghi) ; positional unpacking
-     #..           (: :** jkls) (j 'J  k 'K  l 'L) ; kwargs (dict packing)
-     #..           (j k l : m None  n '|N?|) (:** jkls)) ; dict unpacking with defaults
-     #..  (print a b cs abcs d e f g h i j k l m n jkls))
-     >>> # letStar_call
-     ... # hissp.macros.._macro_.let___call
-     ... (lambda abcs:
-     ...     # hissp.macros..letStar_call
-     ...     # hissp.macros.._macro_.let___call
-     ...     (lambda a, b, *cs:
-     ...         # hissp.macros..letStar_call
-     ...         # hissp.macros.._macro_.let___call
-     ...         (
-     ...          lambda d=(),
-     ...                 e=(),
-     ...                 f=():
-     ...             # hissp.macros..letStar_call
-     ...             # hissp.macros.._macro_.let___call
-     ...             (lambda g, h, i:
-     ...                 # hissp.macros..letStar_call
-     ...                 # hissp.macros.._macro_.let___call
-     ...                 (lambda **jkls:
-     ...                     # hissp.macros..letStar_call
-     ...                     # hissp.macros.._macro_.let___call
-     ...                     (
-     ...                      lambda j,
-     ...                             k,
-     ...                             l,
-     ...                             m=None,
-     ...                             n='N?':
-     ...                         # hissp.macros..letStar_call
-     ...                         # hissp.macros.._macro_.progn
-     ...                         print(
-     ...                           a,
-     ...                           b,
-     ...                           cs,
-     ...                           abcs,
-     ...                           d,
-     ...                           e,
-     ...                           f,
-     ...                           g,
-     ...                           h,
-     ...                           i,
-     ...                           j,
-     ...                           k,
-     ...                           l,
-     ...                           m,
-     ...                           n,
-     ...                           jkls)
-     ...                     )(
-     ...                       **jkls)
-     ...                 )(
-     ...                   j='J',
-     ...                   k='K',
-     ...                   l='L')
-     ...             )(
-     ...               *'ghi')
-     ...         )(
-     ...           *'de')
-     ...     )(
-     ...       *abcs)
-     ... )(
-     ...   'abcdef')
-     a b ('c', 'd', 'e', 'f') abcdef d e () g h i J K L None N? {'j': 'J', 'k': 'K', 'l': 'L'}
-
-  See also: `my# <myHash_>`, `destruct-> <destruct___Gt_>`.
-  "
-  (if-else pairs
-    `(let-call ,|pairs[0]| ,|pairs[1]|
-       (let*call ,|pairs[2:]| ,@body))
-    `(progn ,@body)))
-
-;;; See also: let and let-call in Bootstrap.
+;;; See also: let (in Bootstrap).
 
 ;;;; Abbreviations
 
@@ -1070,8 +1005,8 @@ See `hissp.macros`.
   ;;    >>> 'Star_'
   ;;    'Star_'
   ;;
-  ;;    #> (H#let-call ab (:* "AB") b) ; Macro form. Compiler checks _macro_.
-  ;;    >>> # hissp..let___call
+  ;;    #> (H#let ab (: :* "AB") b) ; Macro form. Compiler checks _macro_.
+  ;;    >>> # hissp..let
   ;;    ... (lambda a, b: b)(
   ;;    ...   *('AB'))
   ;;    'B'
@@ -1192,7 +1127,7 @@ See `hissp.macros`.
   (if-else args `(,|args[-1]| ,a ,@|args[:-1]|) a))
 
 (defmacro !\# (: :* keys)
-  <#;``!#`` 'item tag'
+  <#;``!#`` 'as item'
   ;;
   ;; Mnemonic: !tem.
   ;;
@@ -1304,7 +1239,7 @@ See `hissp.macros`.
 (defmacro @\# (: decoration_or_attr None  definition None  :/ :?  :** attr)
   <#;Overloads:
   ;;
-  ;; * ``@#`` 'attribute tag' gets attribute.
+  ;; * ``@#`` 'as attribute' gets attribute.
   ;; * ``@##`` 'decorator' applies decoration to definition and reassigns.
   ;;
   ;; ----
@@ -1334,8 +1269,8 @@ See `hissp.macros`.
   ;;    ...   ((1+1j)))
   ;;    'complex'
   ;;
-  ;;    #> (let (eggs @#'upper
-  ;;    #..      spam 'intersection)
+  ;;    #> (let (: eggs @#'upper
+  ;;    #..        spam 'intersection):
   ;;    #..  ;; Various chaining techniques. Note ' and =@#.
   ;;    #..  @#__name__=@#__class__=(-> (set) @#spam @#'__doc__ eggs))
   ;;    >>> # let
@@ -1399,11 +1334,11 @@ See `hissp.macros`.
   ;;    'sPAM'
   ;;
   (if-else definition
-    (let (qualname (.__getitem__ definition 1))
+    (let (: qualname (.__getitem__ definition 1)):
       (if-else attr
         (exec "raise TypeError('@## got unexpected keyword argument(s)', attr)")
         `(define ,qualname (progn ,definition (,decoration_or_attr ,qualname)))))
-    (let-call (name : oops None) (:* (map X#`',X attr)  :? decoration_or_attr)
+    (let (name : oops None) (: :* (map X#`',X attr)  :? decoration_or_attr)
       (if-else oops
         (exec "raise TypeError('@# got unexpected keyword argument(s)', attr)")
         `(_backapply ,@(.values attr) (op#attrgetter ,name))))))
@@ -1450,7 +1385,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `operator.setitem`, `operator.delitem`, `zap! <zapBang_>`.
   ;;
-  `(let ($#value ,value)
+  `(let (: $#value ,value):
      (op#setitem ,table ,key $#value)
      $#value))
 
@@ -1499,8 +1434,8 @@ See `hissp.macros`.
   ;;
   ;; See also: `set! <setBang_>`, `zap@ <zapAt_>`, `augassign`.
   ;;
-  `(let ($#table ,table
-         $#key ,key)
+  `(let (: $#table ,table
+           $#key ,key):
      (set! $#table $#key (,f (.__getitem__ $#table $#key)
                              ,@args))))
 
@@ -1561,15 +1496,15 @@ See `hissp.macros`.
   ;; See also: `my# <myHash_>`, `set! <setBang_>`,
   ;; `zap[### <zapLsqb_Hash_>`.
   ;;
-  (let*call ((value : table None) (:* value  :? table_or_value)
-             (table) (:? (unless |table is None| `(,table))))
-    `(_backapply
-      ,@table
-      (lambda ($#table : $#value ,value)
-        ,(.format "[{v}\n for({}[{})in[{v}]][0]"
-                  '$#table
-                  (H#demunge lookup)
-                  : v '$#value)))))
+  (let (value : table None) (: :* value  :? table_or_value)
+    (let (table) (: :? (unless |table is None| `(,table)))
+      `(_backapply
+        ,@table
+        (lambda ($#table : $#value ,value)
+          ,(.format "[{v}\n for({}[{})in[{v}]][0]"
+                    '$#table
+                    (H#demunge lookup)
+                    : v '$#value))))))
 
 (defmacro zap\[\# (lookup table_or_call : :* call)
   <#;``zap[###`` 'zapsub' Injection. Augmented subscription assignment.
@@ -1636,17 +1571,17 @@ See `hissp.macros`.
   ;;    it will happen twice. Use `zap! <zapBang_>` instead or `let`.
   ;;
   ;;
-  (let*call ((call : table None) (:* call  :? table_or_call)
-             (table) (:? (unless |table is None| `(,table))))
-    `(_backapply
-      ,@table
-      (lambda ($#table)
-        (let ($#value (-> ,(.format "({}[{})" '$#table (H#demunge lookup))
-                          ,call))
-          ,(.format "[{v}\n for({}[{})in[{v}]][0]"
-                    '$#table
-                    (H#demunge lookup)
-                    : v '$#value))))))
+  (let (call : table None) (: :* call  :? table_or_call)
+    (let (table) (: :? (unless |table is None| `(,table)))
+      `(_backapply
+        ,@table
+        (lambda ($#table)
+          (let (: $#value (-> ,(.format "({}[{})" '$#table (H#demunge lookup))
+                              ,call)):
+            ,(.format "[{v}\n for({}[{})in[{v}]][0]"
+                      '$#table
+                      (H#demunge lookup)
+                      : v '$#value)))))))
 
 (defmacro set@ (qualname value)
   <#;``set@`` 'setat' Assigns an attribute, returns the value.
@@ -1710,7 +1645,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `attach`, `delattr`, `zap@ <zapAt_>`, `setattr`.
   ;;
-  `(let ($#value ,value)
+  `(let (: $#value ,value):
      (define ,qualname ,'$#value)
      $#value))
 
@@ -1809,9 +1744,9 @@ See `hissp.macros`.
   ;;
   ;; See also: `setattr`, `set@ <setAt_>`, `vars`.
   ;;
-  (let (iargs (iter args))
-    (let (args (i#takewhile X#(op#ne X ':) iargs))
-      `(let ($#target ,target)
+  (let (: iargs (iter args)):
+    (let (: args (i#takewhile X#(op#ne X ':) iargs)):
+      `(let (: $#target ,target):
          ,@(map X#`(setattr ,'$#target ',|X.split('.')[-1]| ,X) args)
          ,@(map X#`(setattr ,'$#target ',X ,(next iargs))
                 iargs)
@@ -1891,29 +1826,29 @@ See `hissp.macros`.
   ;;    ...   'de')
   ;;    ([{'a'}, 'bc'], 'de')
   ;;
-  ;; See also: `-\<>> <Dash_Lt_Gt_Gt_>`, `X# <XHash_>`,
+  ;; See also: `-o> <Dash_oGt_>`, `X# <XHash_>`,
   ;; `\!# <Bang_Hash_>`, `en# <enHash_>`.
   ;;
   (/XY# |(Y[0],X,*Y[1:],)| (map X# |X if type(X) is tuple else (X,)| forms)
                            expr))
 
-(defmacro -<>> (expr : :* forms)
-  <#;``-<>>`` 'Thread-through'.
+(defmacro -o> (expr : :* forms)
+  <#;``-o>`` 'Thread-through'.
   ;;
   ;; Converts a pipeline to function calls by recursively threading
   ;; expressions into the next form at the first point indicated with
-  ;; ``:<>``, or at the last if no ``:<>`` is found. Non-tuple forms
+  ;; ``:o``, or at the last if no ``:o`` is found. Non-tuple forms
   ;; (typically function identifiers) will be wrapped in a tuple first.
   ;; Can replace partial application in some cases.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> ((|| _macro_.-<>>)  'x 'A '(:<> b bb) '(C c cc))
+  ;;    #> ((|| _macro_.-o>)  'x 'A '(:o b bb) '(C c cc))
   ;;    >>> (
-  ;;    ...   _macro_.Dash_Lt_Gt_Gt_)(
+  ;;    ...   _macro_.Dash_oGt_)(
   ;;    ...   'x',
   ;;    ...   'A',
-  ;;    ...   (':<>',
+  ;;    ...   (':o',
   ;;    ...    'b',
   ;;    ...    'bb',),
   ;;    ...   ('C',
@@ -1921,8 +1856,8 @@ See `hissp.macros`.
   ;;    ...    'cc',))
   ;;    ('C', 'c', 'cc', (('A', 'x'), 'b', 'bb'))
   ;;
-  ;;    #> (-<>> 'a set (en#list 'bc) (en#tuple 'de :<> 'fg :<>))
-  ;;    >>> # Dash_Lt_Gt_Gt_
+  ;;    #> (-o> 'a set (en#list 'bc) (en#tuple 'de :o 'fg :o))
+  ;;    >>> # Dash_oGt_
   ;;    ... (lambda *_gJHUL5GC3__xs:
   ;;    ...     tuple(
   ;;    ...       _gJHUL5GC3__xs)
@@ -1936,17 +1871,63 @@ See `hissp.macros`.
   ;;    ...     set(
   ;;    ...       'a')),
   ;;    ...   'fg',
-  ;;    ...   ':<>')
-  ;;    ('de', ['bc', {'a'}], 'fg', ':<>')
+  ;;    ...   ':o')
+  ;;    ('de', ['bc', {'a'}], 'fg', ':o')
   ;;
   ;; See also: `-> <Dash_Gt_>`, `en# <enHash_>`.
   ;;
-  (/XY#(let (i (iter Y))
-         `(,@(i#takewhile X#(op#ne X :<>) i) ,X ,@i))
+  (/XY#(let i ((iter Y))
+         `(,@(i#takewhile X#(op#ne X :o) i) ,X ,@i))
    (map X# |X if type(X) is tuple else (X,)| forms)
    expr))
 
-;;; TODO: implement other arrange macros?
+(defmacro <o- (: :* forms)
+  <#;``<o-`` 'Backthread'. As `-o> <Dash_oGt_>`, but prefix order.
+  ;;
+  ;; Forms nested in macro bodies can stack instead.
+  ;; Commonly used for complex `for-in <for___in>` generator expressions.
+  ;; Use `let` for more locals without wrapping in an iterable first.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (<o- pprint..pp
+  ;;    #..     (let d ((dict : a 1  b 2  c 3)))
+  ;;    #..     list (for-in k d)
+  ;;    #..     list (for-in v (.values d)
+  ;;    #..            (@ k v)))
+  ;;    >>> # Lt_oDash_
+  ;;    ... __import__('pprint').pp(
+  ;;    ...   # let
+  ;;    ...   (lambda d:
+  ;;    ...       list(
+  ;;    ...         # for___in
+  ;;    ...         __import__('builtins').map(
+  ;;    ...           (lambda k:
+  ;;    ...               list(
+  ;;    ...                 # for___in
+  ;;    ...                 __import__('builtins').map(
+  ;;    ...                   (lambda v:
+  ;;    ...                       # At_
+  ;;    ...                       (lambda *xs: [*xs])(
+  ;;    ...                         k,
+  ;;    ...                         v)
+  ;;    ...                   ),
+  ;;    ...                   d.values()))
+  ;;    ...           ),
+  ;;    ...           d))
+  ;;    ...   )(
+  ;;    ...     dict(
+  ;;    ...       a=(1),
+  ;;    ...       b=(2),
+  ;;    ...       c=(3))))
+  ;;    [[['a', 1], ['a', 2], ['a', 3]],
+  ;;     [['b', 1], ['b', 2], ['b', 3]],
+  ;;     [['c', 1], ['c', 2], ['c', 3]]]
+  ;;
+  ;; See also: `when`, `unless`, `prog1`, `binding`, `if-else <if___else>`,
+  ;; `let-again <let___again>`, `destruct-> <destruct___Gt_>`.
+  ;;
+  (.-o> _macro_ : :* (reversed forms)))
 
 (define _TAO
   (lambda s (-> (.join " " (re..findall "(?m)^# (.*)~$" (s hissp.)))
@@ -1965,13 +1946,13 @@ See `hissp.macros`.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (any-map c 'abcd
-  ;;    #..  (print c)
-  ;;    #..  (when (op#eq c 'b)
-  ;;    #..    (print 'found)
-  ;;    #..    :break))
-  ;;    >>> # any___map
-  ;;    ... __import__('builtins').any(
+  ;;    #> (any (for-in c 'abcd
+  ;;    #..       (print c)
+  ;;    #..       (when (op#eq c 'b)
+  ;;    #..         (print 'found)
+  ;;    #..         :break)))
+  ;;    >>> any(
+  ;;    ...   # for___in
   ;;    ...   __import__('builtins').map(
   ;;    ...     (lambda c:
   ;;    ...        (print(
@@ -2006,13 +1987,13 @@ See `hissp.macros`.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (any-map x (@ -0.6 -0.0 42.0 math..nan)
-  ;;    #..  (cond (op#lt x 0) (print :Negative)   ;if-else cascade
-  ;;    #..        (op#eq x 0) (print :Zero)
-  ;;    #..        (op#gt x 0) (print :Positive)
-  ;;    #..        :else (print :Not-a-Number)))
-  ;;    >>> # any___map
-  ;;    ... __import__('builtins').any(
+  ;;    #> (any (for-in x (@ -0.6 -0.0 42.0 math..nan)
+  ;;    #..       (cond (op#lt x 0) (print :Negative) ;if-else cascade
+  ;;    #..             (op#eq x 0) (print :Zero)
+  ;;    #..             (op#gt x 0) (print :Positive)
+  ;;    #..             :else (print :Not-a-Number))))
+  ;;    >>> any(
+  ;;    ...   # for___in
   ;;    ...   __import__('builtins').map(
   ;;    ...     (lambda x:
   ;;    ...         # cond
@@ -2066,7 +2047,7 @@ See `hissp.macros`.
   ;;    :Not-a-Number
   ;;    False
   ;;
-  ;; See also: `if-else <if___else>`, `case`, `any-map <any___map>`, `elif`.
+  ;; See also: `if-else <if___else>`, `case`, `any`, `for-in <for___in>`, `elif`.
   ;;
   (when pairs
     `((lambda (,@(map X# |f'x{X}'| (range (X# |X+1&-2| (len pairs)))))
@@ -2077,20 +2058,21 @@ See `hissp.macros`.
       ,(!#0 pairs)
       ,@(map X#`O#,X [##1:] pairs))))
 
-(defmacro any-map (variable xs : :* body)
-  <#;``any-map`` imperative iterator ``for`` loop.
+(defmacro for-in (param xs : :* body)
+  <#;``for-in`` generator expression.
   ;;
-  ;; Bind the variable and evaluate the body for each ``x`` from ``xs``
-  ;; until any result is true (and return ``True``), or until ``xs`` is
-  ;; exhausted (and return ``False``).
+  ;; As with Python's `genexpr`, the resulting iterator is typically
+  ;; immediately passed to a callable.
+  ;;
+  ;; Pass to `any` for an imperative loop with a break.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (any-map index (range 1 11)             ;Imperative loop with break.
-  ;;    #..  (print index : end :)
-  ;;    #..  (not (op#mod index 7)))
-  ;;    >>> # any___map
-  ;;    ... __import__('builtins').any(
+  ;;    #> (any (for-in index (range 1 11)
+  ;;    #..       (print index : end :)
+  ;;    #..       (not (op#mod index 7))))
+  ;;    >>> any(
+  ;;    ...   # for___in
   ;;    ...   __import__('builtins').map(
   ;;    ...     (lambda index:
   ;;    ...        (print(
@@ -2106,52 +2088,178 @@ See `hissp.macros`.
   ;;    ...       (11))))
   ;;    1:2:3:4:5:6:7:True
   ;;
-  ;; See also: `any`, `map`, `any*map <anyStar_map>`, `for`, `break`,
-  ;; `functools.reduce`.
-  ;;
-  `(any (map (lambda (,variable)
-               ,@body)
-             ,xs)))
-
-(defmacro any*map (params xss : :* body)
-  <#;``any*map`` 'any star map' imperative iterator ``for`` loop & unpack.
-  ;;
-  ;; Bind each ``x`` to a variable and evaluate the body for each ``xs``
-  ;; from ``xss`` until any result is true (and return ``True``), or
-  ;; until ``xss`` is exhausted (and return ``False``).
+  ;; Pass to collection constructors like `dict` or `list` for comprehensions.
+  ;; Combine with `<o- <Lt_oDash_>` for complex comprehensions with multiple
+  ;; loops or conditions.
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (any*map (i c : P print  * op#mul) ; Extra locals (P and *) via default params.
-  ;;    #..         (enumerate 'abc 1) ; As any-map, but with starmap.
-  ;;    #..  (P (* i c)))
-  ;;    >>> # anyStar_map
-  ;;    ... __import__('builtins').any(
-  ;;    ...   __import__('itertools').starmap(
-  ;;    ...     (
-  ;;    ...      lambda i,
-  ;;    ...             c,
-  ;;    ...             P=print,
-  ;;    ...             Star_=__import__('operator').mul:
-  ;;    ...         P(
-  ;;    ...           Star_(
-  ;;    ...             i,
-  ;;    ...             c))
+  ;;    #> (<o- dict (for-in kv (.items (dict : a 1  b 2  c 3)))
+  ;;    #..     (let kv (: :* kv))
+  ;;    #..     (|| v k)) ; Inverts the dict.
+  ;;    >>> # Lt_oDash_
+  ;;    ... dict(
+  ;;    ...   # for___in
+  ;;    ...   __import__('builtins').map(
+  ;;    ...     (lambda kv:
+  ;;    ...         # let
+  ;;    ...         (lambda k, v:
+  ;;    ...             (
+  ;;    ...               v,
+  ;;    ...               k)
+  ;;    ...         )(
+  ;;    ...           *kv)
   ;;    ...     ),
-  ;;    ...     enumerate(
-  ;;    ...       'abc',
-  ;;    ...       (1))))
-  ;;    a
-  ;;    bb
-  ;;    ccc
-  ;;    False
+  ;;    ...     dict(
+  ;;    ...       a=(1),
+  ;;    ...       b=(2),
+  ;;    ...       c=(3)).items()))
+  ;;    {1: 'a', 2: 'b', 3: 'c'}
   ;;
-  ;; See also: `itertools.starmap`, `any-map <any___map>`,
-  ;; `let-again <let___again>`, `let*call <letStar_call>`,
-  ;; `my# <myHash_>`.
+  ;; Pass to `itertools.chain.from_iterable` to flatten a layer.
+  ;; That can be abbreviated with `chain# <chainHash_>`. Use on ``:o``
+  ;; inside a ``<o-`` context. (See also: `itertools.product`.)
   ;;
-  `(any (i#starmap (lambda ,params ,@body)
-                   ,xss)))
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (<o- list
+  ;;    #..     (let d ((dict : a 1  b 2  c 3)))
+  ;;    #..     chain#:o (for-in k d)
+  ;;    #..     (for-in v (.values d)
+  ;;    #..       (.format "{}-{}" k v)))
+  ;;    >>> # Lt_oDash_
+  ;;    ... list(
+  ;;    ...   # let
+  ;;    ...   (lambda d:
+  ;;    ...       __import__('itertools').chain.from_iterable(
+  ;;    ...         # for___in
+  ;;    ...         __import__('builtins').map(
+  ;;    ...           (lambda k:
+  ;;    ...               # for___in
+  ;;    ...               __import__('builtins').map(
+  ;;    ...                 (lambda v:
+  ;;    ...                     ('{}-{}').format(
+  ;;    ...                       k,
+  ;;    ...                       v)
+  ;;    ...                 ),
+  ;;    ...                 d.values())
+  ;;    ...           ),
+  ;;    ...           d))
+  ;;    ...   )(
+  ;;    ...     dict(
+  ;;    ...       a=(1),
+  ;;    ...       b=(2),
+  ;;    ...       c=(3))))
+  ;;    ['a-1', 'a-2', 'a-3', 'b-1', 'b-2', 'b-3', 'c-1', 'c-2', 'c-3']
+  ;;
+  ;; Combine with `when` or `unless` to skip. (They default to ``()``.)
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (<o- list
+  ;;    #..     (let d ((dict : a 1  b 2  c 3)))
+  ;;    #..     (let (: items (set (.items d))):)
+  ;;    #..     chain#:o (for-in k d)
+  ;;    #..     (unless |k=='b'|)
+  ;;    #..     chain#:o (for-in v (.values d))
+  ;;    #..     (unless (items.__contains__ (|| k v))
+  ;;    #..       ;; Wrapped so we can use chain#.
+  ;;    #..       `(,(.format "{}-{}" k v))))
+  ;;    >>> # Lt_oDash_
+  ;;    ... list(
+  ;;    ...   # let
+  ;;    ...   (lambda d:
+  ;;    ...       # let
+  ;;    ...       (
+  ;;    ...        lambda items=set(
+  ;;    ...                 d.items()):
+  ;;    ...           __import__('itertools').chain.from_iterable(
+  ;;    ...             # for___in
+  ;;    ...             __import__('builtins').map(
+  ;;    ...               (lambda k:
+  ;;    ...                   # unless
+  ;;    ...                   (lambda b, a: ()if b else a())(
+  ;;    ...                     k=='b',
+  ;;    ...                     (lambda :
+  ;;    ...                         __import__('itertools').chain.from_iterable(
+  ;;    ...                           # for___in
+  ;;    ...                           __import__('builtins').map(
+  ;;    ...                             (lambda v:
+  ;;    ...                                 # unless
+  ;;    ...                                 (lambda b, a: ()if b else a())(
+  ;;    ...                                   items.__contains__(
+  ;;    ...                                     (
+  ;;    ...                                       k,
+  ;;    ...                                       v)),
+  ;;    ...                                   (lambda :
+  ;;    ...                                       (
+  ;;    ...                                         ('{}-{}').format(
+  ;;    ...                                           k,
+  ;;    ...                                           v),
+  ;;    ...                                         )
+  ;;    ...                                   ))
+  ;;    ...                             ),
+  ;;    ...                             d.values()))
+  ;;    ...                     ))
+  ;;    ...               ),
+  ;;    ...               d))
+  ;;    ...       )()
+  ;;    ...   )(
+  ;;    ...     dict(
+  ;;    ...       a=(1),
+  ;;    ...       b=(2),
+  ;;    ...       c=(3))))
+  ;;    ['a-2', 'a-3', 'c-1', 'c-2']
+  ;;
+  ;; `itertools.takewhile` can shortcut lazy iterators,
+  ;;  perhaps based on a sentinel value.
+  ;;
+  ;; .. code-block:: REPL
+  ;;
+  ;;    #> (<o- list (i#takewhile X#X)
+  ;;    #..     (let d ((dict : a 1  b 2  c 3)))
+  ;;    #..     chain#:o (for-in k d)
+  ;;    #..     (for-in v (.values d))
+  ;;    #..     (let x ((.format "{}-{}" k v)))
+  ;;    #..     (unless |x=='b-3'| x))
+  ;;    >>> # Lt_oDash_
+  ;;    ... list(
+  ;;    ...   __import__('itertools').takewhile(
+  ;;    ...     (lambda X: X),
+  ;;    ...     # let
+  ;;    ...     (lambda d:
+  ;;    ...         __import__('itertools').chain.from_iterable(
+  ;;    ...           # for___in
+  ;;    ...           __import__('builtins').map(
+  ;;    ...             (lambda k:
+  ;;    ...                 # for___in
+  ;;    ...                 __import__('builtins').map(
+  ;;    ...                   (lambda v:
+  ;;    ...                       # let
+  ;;    ...                       (lambda x:
+  ;;    ...                           # unless
+  ;;    ...                           (lambda b, a: ()if b else a())(
+  ;;    ...                             x=='b-3',
+  ;;    ...                             (lambda : x))
+  ;;    ...                       )(
+  ;;    ...                         ('{}-{}').format(
+  ;;    ...                           k,
+  ;;    ...                           v))
+  ;;    ...                   ),
+  ;;    ...                   d.values())
+  ;;    ...             ),
+  ;;    ...             d))
+  ;;    ...     )(
+  ;;    ...       dict(
+  ;;    ...         a=(1),
+  ;;    ...         b=(2),
+  ;;    ...         c=(3)))))
+  ;;    ['a-1', 'a-2', 'a-3', 'b-1', 'b-2']
+  ;;
+  ;; See also: `map`, `for`, `break`, `zip`, `itertools`,
+  ;; `functools.reduce`, `let-again <let___again>`.
+  ;;
+  `(map (lambda (,param) ,@body) ,xs))
 
 (defmacro let-again (pairs : :* body)
   <#;``let-again`` Loop/recur with trampoline.
@@ -2172,8 +2280,7 @@ See `hissp.macros`.
   ;;    ... (lambda _gY44MBROP__stack=[None, None, ()]:
   ;;    ...     # hissp.macros.._macro_.let
   ;;    ...     (lambda again___with=_gY44MBROP__stack.append:
-  ;;    ...        (# hissp.macros.._macro_.anyStar_map
-  ;;    ...         __import__('builtins').any(
+  ;;    ...        (__import__('builtins').any(
   ;;    ...           __import__('itertools').starmap(
   ;;    ...             (
   ;;    ...              lambda x=(3),
@@ -2209,13 +2316,14 @@ See `hissp.macros`.
   ;;    1 2
   ;;    0 3
   ;;
-  ;; See also: `any*map <anyStar_map>`, `Ensue`_, `while`.
+  ;; See also: `for-in <for___in>`, `Ensue`_, `while`.
   ;;
-  `(let ($#stack .#(list '(None None ()))) ; return, sentinel, first call
-     (let (,'again-with $#stack.append)
-       (any*map (: ,@pairs) (iter $#stack.pop None)
-         (.__setitem__ $#stack 0 (progn ,@body))
-         None)
+  `(let (: $#stack .#(list '(None None ()))): ; return, sentinel, first call
+     (let (: ,'again-with $#stack.append):
+       (any (i#starmap (lambda (: ,@pairs)
+                         (.__setitem__ $#stack 0 (progn ,@body))
+                         None)
+                       (iter $#stack.pop None)))
        (!#0 $#stack))))
 
 ;; I would have named this 'and, but that's a reserved word.
@@ -2411,13 +2519,13 @@ See `hissp.macros`.
   ;;
   ;; See also: `throw`, `throw* <throwStar_>`.
   ;;
-  `(throw* (let ($#G (lambda ($#x) (if-else (isinstance $#x BaseException) $#x ($#x))))
+  `(throw* (let (: $#G (lambda ($#x) (if-else (isinstance $#x BaseException) $#x ($#x)))):
              (attach ($#G ,exception) : ,'__cause__ ($#G ,cause)))))
 
 ;;;; Side Effect
 
 ;;; see also from Bootstrap: progn
-;;; Note that any of the bundled macros with a lambda "body" argument
+;;; Note that any of the bundled macros with a lambda "*body" argument
 ;;; also sequence expressions for side effects.
 
 (defmacro prog1 (expr1 : :* body)
@@ -2468,7 +2576,7 @@ See `hissp.macros`.
   ;;
   ;; See also: `doto`.
   ;;
-  `(let ($#value1 ,expr1) ,@body $#value1))
+  `(let (: $#value1 ,expr1): ,@body $#value1))
 
 ;;;; Tags
 
@@ -2503,7 +2611,7 @@ See `hissp.macros`.
       ast..literal_eval
       (.replace "'" '|\'|)
       (.replace "\n" '|\n|)
-      (-<>> (.format "b'{}'"))
+      (-o> (.format "b'{}'"))
       ast..literal_eval))
 
 (defmacro B\# (symbol)
@@ -2538,7 +2646,7 @@ See `hissp.macros`.
   (-> symbol
       (.replace "'" '|\'|)
       (.replace "\n" '|\n|)
-      (-<>> (.format "b'{}'"))
+      (-o> (.format "b'{}'"))
       ast..literal_eval))
 
 (defmacro Q\# (numerator : denominator None)
@@ -2838,7 +2946,7 @@ See `hissp.macros`.
   ;; Let ``_sentinel`` be a unique sentinel object in a lexical scope
   ;; surrounding ``f``.
   ;;
-  `(let (,'_sentinel (object))
+  `(let (: ,'_sentinel (object)):
      ,f))
 
 (defmacro &\# (f : :* arg_funs  :** kwarg_funs)
@@ -2951,12 +3059,12 @@ See `hissp.macros`.
   ;; See also: `statistics.mean`, `-> <Dash_Gt_>`, `destruct-> <destruct___Gt_>`.
   ;;
   `(lambda (: :* $#a  :** $#kw)
-     ,(let (with-args X#(cond (op#eq `',mk#ANY X) |X[1]|
-                              ;; else if
-                              (ors (H#is_symbol X)
-                                   (H#is_node X))
-                              `(,X : :* ,'$#a  :** ,'$#kw)
-                              :else X))
+     ,(let (: with-args X#(cond (op#eq `',mk#ANY X) |X[1]|
+                                ;; else if
+                                (ors (H#is_symbol X)
+                                     (H#is_node X))
+                                `(,X : :* ,'$#a  :** ,'$#kw)
+                                :else X)):
         `(,f ,@(map with-args arg_funs)
              ,@(when kwarg_funs :)
              ,@chain#(i#starmap XY#`(,X ,(with-args Y))
@@ -2990,7 +3098,7 @@ See `hissp.macros`.
   ;;
   (when (ands xs (op#eq :* (!#-1 xs)))
      (throw (SyntaxError "trailing :*")))
-  (let (ixs (iter xs))
+  (let (: ixs (iter xs)):
     `((lambda (: :* ,'xs) |[*xs]|)
       : ,@chain#(map X#(if-else (op#eq X ":*")
                          `(,X ,(next ixs))
@@ -3021,7 +3129,7 @@ See `hissp.macros`.
   ;;
   (when (ands xs (op#eq :* (!#-1 xs)))
      (throw (SyntaxError "trailing :*")))
-  (let (ixs (iter xs))
+  (let (: ixs (iter xs)):
     `((lambda (: :* ,'xs) |{*xs}|)
       : ,@chain#(map X#(if-else (op#eq X ":*")
                          `(,X ,(next ixs))
@@ -3977,22 +4085,22 @@ sentinel#
   ;; See also:
   ;; `attach`, `set[### <setLsqb_Hash_>`, `destruct-> <destruct___Gt_>`.
   ;;
-  (let (ns (types..SimpleNamespace))
+  (let (: ns (types..SimpleNamespace)):
     (setattr ns
              'form
              X#(cond (isinstance X H#reader.Kwarg) `(set@ ,(H#munge |f"my.{X.k}"|) ,X.v)
                      (H#is_node X) `(,@(map ns.form X))
                      :else X))
     (if-else |expr is None and scope == ()|
-      `(let (,'my (types..SimpleNamespace : ,@chain#(.items kwargs)))
+      `(let (: ,'my (types..SimpleNamespace : ,@chain#(.items kwargs))):
          ,(ns.form targets_or_scope))
-      `(let (,'my (types..SimpleNamespace
-                   : :** (let ($#expr ,expr)
-                           ,(.format "[{}()\n for ({})\n in [{}]]  [0]"
-                                     (H#readerless `locals)
-                                     (H#demunge targets_or_scope)
-                                     '$#expr))
-                   ,@chain#(.items kwargs)))
+      `(let (: ,'my (types..SimpleNamespace
+                     : :** (let (: $#expr ,expr):
+                             ,(.format "[{}()\n for ({})\n in [{}]]  [0]"
+                                       (H#readerless `locals)
+                                       (H#demunge targets_or_scope)
+                                       '$#expr))
+                     ,@chain#(.items kwargs))):
          ;; PEP 709. Compatible with both versions.
          (,'my.__dict__.pop '$#expr None)
          (,'my.__dict__.pop ".0" None)
@@ -4031,7 +4139,7 @@ sentinel#
   ;;    #..            (!#10 num  !#'ns (@#'a-tuple (!#0 a  !#1 b  !#2 c)  @#'spam spam))
   ;;    #..  (locals))
   ;;    >>> # destruct___Gt_
-  ;;    ... # hissp.macros.._macro_.let___call
+  ;;    ... # hissp.macros.._macro_.let
   ;;    ... (lambda num, a, b, c, spam: locals())(
   ;;    ...   *# hissp.macros.._macro_.let
   ;;    ...    (lambda _g275ZTQAC__data=nested___data:
@@ -4103,7 +4211,7 @@ sentinel#
   ;;    #..             (.get 'quux "default for quux") myquux)
   ;;    #..  (pprint..pp (locals)))
   ;;    >>> # destruct___Gt_
-  ;;    ... # hissp.macros.._macro_.let___call
+  ;;    ... # hissp.macros.._macro_.let
   ;;    ... (lambda ns, missing, inner, ab, abc, A, rest, two, three, _0, B, _1, D, myquux:
   ;;    ...     __import__('pprint').pp(
   ;;    ...       locals())
@@ -4227,24 +4335,24 @@ sentinel#
   ;;     'D': ':d',
   ;;     'myquux': 'default for quux'}
   ;;
-  ;; See also: `let*call <letStar_call>`, `my# <myHash_>`,
+  ;; See also: `<o- <Lt_oDash_>`, `my# <myHash_>`,
   ;; `\!s# <Bang_sHash_>`, `@s# <At_sHash_>`, `pos# <posHash_>`.
   ;;
   my### names=(list) $data=`$#data
   (progn walk=(lambda (bindings)
                 `(|| : ,@chain#(i#starmap XY#(if-else (H#is_node Y)
-                                               `(:* (let (,my.$data (-> ,my.$data ,X))
+                                               `(:* (let (: ,my.$data (-> ,my.$data ,X)):
                                                       ,(my.walk Y)))
                                                (progn (.append my.names Y)
                                                       `(:? (-> ,my.$data ,X))))
                                           ;; TODO: itertools.batched on 3.12+
                                           (zip |*2*[iter(bindings)]| : strict True))
                      :? ||))
-         values=`(let (,my.$data ,data) ,(my.walk bindings))
-         `(let-call (,@my.names) (:* ,my.values) ,@body)))
+         values=`(let (: ,my.$data ,data): ,(my.walk bindings))
+         `(let (,@my.names) (: :* ,my.values) ,@body)))
 
 (defmacro !s\# (names)
-  <#;``!s#`` 'item names'
+  <#;``!s#`` 'as item names'
   ;;
   ;; `destruct-> <destruct___Gt_>` helper shorthand.
   ;; Destructures a mapping using the binding names as the keys.
@@ -4256,7 +4364,7 @@ sentinel#
   ;;    #..             || !s#(spam foo))
   ;;    #..  (print whole spam foo))
   ;;    >>> # destruct___Gt_
-  ;;    ... # hissp.macros.._macro_.let___call
+  ;;    ... # hissp.macros.._macro_.let
   ;;    ... (lambda whole, spam, foo:
   ;;    ...     print(
   ;;    ...       whole,
@@ -4297,7 +4405,7 @@ sentinel#
   `(,@chain#(zip (map X#`!#',X names) names)))
 
 (defmacro @s\# (names)
-  <#;``@s#`` 'attribute names'
+  <#;``@s#`` 'as attribute names'
   ;;
   ;; `destruct-> <destruct___Gt_>` helper shorthand.
   ;; Destructures a namespace using the binding names as the attributes.
@@ -4309,7 +4417,7 @@ sentinel#
   ;;    #..             || @s#(spam foo))
   ;;    #..  (print whole spam foo))
   ;;    >>> # destruct___Gt_
-  ;;    ... # hissp.macros.._macro_.let___call
+  ;;    ... # hissp.macros.._macro_.let
   ;;    ... (lambda whole, spam, foo:
   ;;    ...     print(
   ;;    ...       whole,
@@ -4350,7 +4458,7 @@ sentinel#
   `(,@chain#(zip (map X#`@#',X names) names)))
 
 (defmacro pos\# (bindings)
-  <#;``pos#`` 'position bindings'
+  <#;``pos#`` 'positionally'
   ;;
   ;; `destruct-> <destruct___Gt_>` helper shorthand.
   ;; Destructures a sequence using each binding form's position index.
@@ -4361,7 +4469,7 @@ sentinel#
   ;;    #..            (|| whole  || pos#(abc pos#(x y)))
   ;;    #..  (print whole abc x y))
   ;;    >>> # destruct___Gt_
-  ;;    ... # hissp.macros.._macro_.let___call
+  ;;    ... # hissp.macros.._macro_.let
   ;;    ... (lambda whole, abc, x, y:
   ;;    ...     print(
   ;;    ...       whole,
@@ -4429,12 +4537,12 @@ sentinel#
   ;;
   ;; .. code-block:: REPL
   ;;
-  ;;    #> (any-map x '(1 2 spam |42| :eggs)
-  ;;    #..  (case x (print "default")
-  ;;    #..    (0 2 |42|) (print "even")
-  ;;    #..    (1 3 spam) (print "odd")))
-  ;;    >>> # any___map
-  ;;    ... __import__('builtins').any(
+  ;;    #> (any (for-in x '(1 2 spam |42| :eggs)
+  ;;    #..       (case x (print "default")
+  ;;    #..         (0 2 |42|) (print "even")
+  ;;    #..         (1 3 spam) (print "odd"))))
+  ;;    >>> any(
+  ;;    ...   # for___in
   ;;    ...   __import__('builtins').map(
   ;;    ...     (lambda x:
   ;;    ...         # case
@@ -4472,8 +4580,8 @@ sentinel#
   ;;
   (when (op#mod (len pairs) 2)
     (throw (TypeError "incomplete pair")))
-  (let (kss [##-2::-2] pairs
-        ts [##::-2] pairs)
+  (let (: kss [##-2::-2] pairs
+          ts [##::-2] pairs):
     `((.__getitem__ (|| ,@(map X#`O#,X ts) O#,default ||)
                     (.get ,(dict chain#(i#starmap (lambda (i ks)
                                                     (map X#(@ X i) ks))
@@ -4486,7 +4594,7 @@ sentinel#
   `(ors ,x ()))
 
 (defmacro _spy (expr file)
-  `(let ($#e ,expr)
+  `(let (: $#e ,expr):
      (print (pprint..pformat ',expr : sort_dicts 0)
             "=>"
             (repr $#e)
@@ -4566,10 +4674,10 @@ sentinel#
   ;;
   ;; See also: `timeit`.
   ;;
-  `(let ($#time time..time_ns)
-     (let ($#start ($#time)
-           $#val ,expr
-           $#end ($#time))
+  `(let (: $#time time..time_ns):
+     (let (: $#start ($#time)
+             $#val ,expr
+             $#end ($#time)):
        (print "time# ran"
               (pprint..pformat ',expr : sort_dicts 0)
               "in"
@@ -4621,7 +4729,7 @@ sentinel#
   ;;
   ;; See also: `assert`, `assure`, `throw`.
   ;;
-  `(let (,'it ,expr)
+  `(let (: ,'it ,expr):
      (unless (-> ,'it ,predicate)
        (throw (AssertionError ,@args)))
      ,'it))

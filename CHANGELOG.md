@@ -20,8 +20,16 @@ SPDX-License-Identifier: Apache-2.0
 - `Q##` two-argument overload.
 - `H#compiler.delambda` and `H#compiler.dequote` for destructuring lambda and quote forms in macros.
 - Map overload for alias tags. Apply to a `(%`- form to qualify its keys.
+- Add `<o-` 'Backthread' macro to compose macros with bodies.
+- Add `for-in` macro for generator expressions.
 
 ### Breaking
+
+`any-map` is gone. Use `for-in` instead.
+`for-in` is lazy. For the old behavior, wrap in `any`.
+`any*map` is also gone. Use `for-in` and `let`, wrapped in `any`.
+
+Rename `-<>>` to `-o>`. Rename its anaphor `:<>` to `:o`.
 
 No once decorators in `deftypeonce`.
 Don't wrap the bases in a tuple.
@@ -103,21 +111,39 @@ For example, functions used as tags can be abbreviated with an alias:
 builtins..dict#((1 2)(3 4))
 ```
 
+`let` takes params then args.
+To get the old behavior,
+use defaults and empty args:
+```
+(let (x 1
+      y 2)
+  (print x y))
+;; becomes
+(let (: x 1 ; default params
+        y 2): ; A : is an empty call, like (:).
+  (print x y))
+;; or
+(let xy (1 2) ; You can use a params symbol, like lambda.
+  (print x y))
+```
+`let` can now do packing/unpacking like a call.
+
 Replace
-- `let-from` with `let-call`.
-- `let*from` with `let*call`.
+- `let-from` with `let`.
+- `let*from` with nested `let` (use `<o-`).
 - `loop-from` with `let-again`.
 
-See updated API docs. Use `(:*`-`)` for the old behavior, e.g.,
+See updated API docs. Use `(: :*`-`)` for the old behavior, e.g.,
 ```lisp
 (let-from (a b : :* cs) 'abcdefg
   (print a b cs))
 ;; becomes
-(let-call (a b : :* cs) (:* 'abcdefg)
+(let (a b : :* cs)
+     (: :* 'abcdefg)
   (print a b cs))
 ```
 
-`let-again` takes pairs like `let` instead of an initial iterable.
+`let-again` takes pairs instead of an initial iterable.
 The `recur-from` anaphor has been replaced with `again-with`,
 but works the same.
 
