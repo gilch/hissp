@@ -1,5 +1,6 @@
 # Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
+import pickle
 import textwrap
 from unittest import TestCase
 
@@ -51,6 +52,13 @@ class TestCompileGeneral(TestCase):
         # Protocol 0 raises for a __slots__ class without __getstate__,
         # but a higher protocol handles it, so compilation must not fail.
         self.assertIsInstance(eval(compiler.Compiler().pickle(Slotted())), Slotted)
+
+    def test_compile_pickle_no_protocol_works(self):
+        # No protocol can pickle a lambda, so the error from the highest
+        # protocol is re-raised and reported as usual.
+        c = compiler.Compiler()
+        self.assertIn("PicklingError", c.pickle(lambda: None))
+        self.assertIsInstance(c.error, pickle.PicklingError)
 
     def test_module_not_found(self):
         self.assertEqual(
