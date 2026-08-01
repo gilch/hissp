@@ -27,6 +27,12 @@ literals = st.recursive(
 )
 
 
+class Slotted:
+    """Protocol 0 can't pickle this, but a higher protocol can."""
+
+    __slots__ = "item"
+
+
 class TestCompileGeneral(TestCase):
     @given(
         literals
@@ -40,6 +46,11 @@ class TestCompileGeneral(TestCase):
     )
     def test_compile_pickle(self, form):
         self.assertEqual(form, eval(compiler.Compiler().pickle(form)))
+
+    def test_compile_pickle_protocol_fallback(self):
+        # Protocol 0 raises for a __slots__ class without __getstate__,
+        # but a higher protocol handles it, so compilation must not fail.
+        self.assertIsInstance(eval(compiler.Compiler().pickle(Slotted())), Slotted)
 
     def test_module_not_found(self):
         self.assertEqual(

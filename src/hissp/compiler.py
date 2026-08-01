@@ -591,7 +591,15 @@ class Compiler:
     def pickle(self, form: object) -> str:
         """Compile to `pickle.loads`. The final fallback for `atomic`."""
         protocols = 0, MAX_PROTOCOL
-        pickles = [repr(pickletools.optimize(pickle.dumps(form, p))) for p in protocols]
+        pickles = []
+        for p in protocols:
+            # A protocol that can't represent the form isn't a candidate,
+            # but a higher one still might be. E.g. protocol 0 can't pickle
+            # an object of a class defining __slots__ without __getstate__.
+            with suppress(Exception):
+                pickles.append(repr(pickletools.optimize(pickle.dumps(form, p))))
+        if not pickles:
+            pickle.dumps(form, MAX_PROTOCOL)  # Raise the relevant error.
         code = min(pickles, key=len)
         r = repr(form).replace("\n", "\n  # ")
         return f"# {r}\n__import__({pickle.__name__!r}).loads({code})"
