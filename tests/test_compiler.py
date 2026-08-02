@@ -34,6 +34,13 @@ class Slotted:
     __slots__ = "item"
 
 
+class Unpicklable:
+    """No protocol can pickle this."""
+
+    def __reduce__(self):
+        return 42
+
+
 class TestCompileGeneral(TestCase):
     @given(
         literals
@@ -54,10 +61,10 @@ class TestCompileGeneral(TestCase):
         self.assertIsInstance(eval(compiler.Compiler().pickle(Slotted())), Slotted)
 
     def test_compile_pickle_no_protocol_works(self):
-        # No protocol can pickle a lambda, so the error from the highest
+        # No protocol can pickle this, so the error from the highest
         # protocol is re-raised and reported as usual.
         c = compiler.Compiler()
-        self.assertIn("PicklingError", c.pickle(lambda: None))
+        self.assertIn("PicklingError", c.pickle(Unpicklable()))
         self.assertIsInstance(c.error, pickle.PicklingError)
 
     def test_module_not_found(self):
