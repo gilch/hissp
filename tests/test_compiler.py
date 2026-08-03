@@ -1,5 +1,6 @@
 # Copyright 2019, 2020, 2021, 2022 Matthew Egan Odendahl
 # SPDX-License-Identifier: Apache-2.0
+import pickle
 import textwrap
 from unittest import TestCase
 
@@ -27,6 +28,19 @@ literals = st.recursive(
 )
 
 
+class Slotted:
+    """Protocol 0 can't pickle this, but a higher protocol can."""
+
+    __slots__ = "item"
+
+
+class Unpicklable:
+    """No protocol can pickle this."""
+
+    def __reduce__(self):
+        return 42
+
+
 class TestCompileGeneral(TestCase):
     @given(
         literals
@@ -40,6 +54,18 @@ class TestCompileGeneral(TestCase):
     )
     def test_compile_pickle(self, form):
         self.assertEqual(form, eval(compiler.Compiler().pickle(form)))
+
+    def test_compile_pickle_protocol_fallback(self):
+        # Protocol 0 raises for a __slots__ class without __getstate__,
+        # but a higher protocol handles it, so compilation must not fail.
+        self.assertIsInstance(eval(compiler.Compiler().pickle(Slotted())), Slotted)
+
+    def test_compile_pickle_no_protocol_works(self):
+        # No protocol can pickle this, so the error from the highest
+        # protocol is re-raised and reported as usual.
+        c = compiler.Compiler()
+        self.assertIn("PicklingError", c.pickle(Unpicklable()))
+        self.assertIsInstance(c.error, pickle.PicklingError)
 
     def test_module_not_found(self):
         self.assertEqual(
