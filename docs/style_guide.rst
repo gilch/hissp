@@ -764,8 +764,7 @@ this can be done at read time instead:
    #..                   These lines
    #..                   don't interrupt
    #..                   the flow.")))
-   >>> print(
-   ...   "These lines\ndon't interrupt\nthe flow.".upper())
+   >>> (print (("These lines\ndon't interrupt\nthe flow.".upper ())))
    THESE LINES
    DON'T INTERRUPT
    THE FLOW.
@@ -785,8 +784,7 @@ Remember that `<# <Lt_Hash_>` can also make multiline strings:
    #..               ;; don't interrupt
    #..               ;; the flow.
    #..               _#/))
-   >>> print(
-   ...   "These lines\ndon't interrupt\nthe flow.".upper())
+   >>> (print (("These lines\ndon't interrupt\nthe flow.".upper ())))
    THESE LINES
    DON'T INTERRUPT
    THE FLOW.
@@ -800,9 +798,9 @@ You can avoid the doorstop in this case by using the `-><Dash_Gt_>` macro:
    #..           ;; don't interrupt
    #..           ;; the flow.
    #..           .upper))
-   >>> print(
-   ...   # Dash_Gt_
-   ...   "These lines\ndon't interrupt\nthe flow.".upper())
+   >>> (print (
+   ...  # Dash_Gt_
+   ...  ("These lines\ndon't interrupt\nthe flow.".upper ())))
    THESE LINES
    DON'T INTERRUPT
    THE FLOW.

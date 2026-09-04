@@ -109,10 +109,7 @@ and returns its Python translation as a string.
 >>> python_translation = readerless(hissp_program)
 >>> print(python_translation)
 (lambda name:
-    print(
-      'Hello',
-      name)
-)
+  (print ('Hello',name)))
 
 Python can then run this program as normal.
 
@@ -165,13 +162,10 @@ Let's use it.
 ...     ('lambda',('name')
 ...      ,('print',q('Hello'),'name',),)
 ... )
-"(lambda n, a, m, e:\n    print(\n      'Hello',\n      name)\n)"
+"(lambda n, a, m, e:\n  (print ('Hello',name)))"
 >>> print(_)  # Remember, _ is the last result that wasn't None.
 (lambda n, a, m, e:
-    print(
-      'Hello',
-      name)
-)
+  (print ('Hello',name)))
 >>> eval(_)('World')
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -212,13 +206,10 @@ with the comma this time.
 ...     ('lambda',('name',)
 ...      ,('print',q('Hello'),'name',),)
 ... )
-"(lambda name:\n    print(\n      'Hello',\n      name)\n)"
+"(lambda name:\n  (print ('Hello',name)))"
 >>> print(_)
 (lambda name:
-    print(
-      'Hello',
-      name)
-)
+  (print ('Hello',name)))
 
 That's better.
 
@@ -321,15 +312,11 @@ Here's our first Hissp program again written that way:
    #> (|lambda| (|name|)
    #..  (|print| (|quote| |Hello|) |name|))
    >>> (lambda name:
-   ...     print(
-   ...       'Hello',
-   ...       name)
-   ... )
+   ...   (print ('Hello',name)))
    <function <lambda> at 0x...>
 
    #> (|_| (|quote| |World|))
-   >>> _(
-   ...   'World')
+   >>> (_ ('World'))
    Hello World
 
 Notice that the fragments are interpreted in different ways depending on the context.
@@ -439,8 +426,7 @@ This is another way to make strings using fragments.
    'Say "Cheese!"\n☺'
 
    #> (|print| |_|)
-   >>> print(
-   ...   _)
+   >>> (print (_))
    Say "Cheese!"
    ☺
 
@@ -564,9 +550,7 @@ You can refer to variables defined in any module by using a
    <module 'operator' from '...operator.py'>
 
    #> (operator..add 40 2) ; Fully qualified identifiers include their module.
-   >>> __import__('operator').add(
-   ...   (40),
-   ...   (2))
+   >>> (__import__('operator').add ((40),(2)))
    42
 
 Notice the second dot required to access a module attribute.
@@ -626,16 +610,13 @@ as an identifier and as a string representing that identifier:
 .. code-block:: REPL
 
    #> (types..SimpleNamespace)
-   >>> __import__('types').SimpleNamespace()
+   >>> (__import__('types').SimpleNamespace ())
    namespace()
 
    #> (setattr _ ; The namespace.
    #..         '@%$! ; Compiles to a string representing an identifier.
    #..         42)
-   >>> setattr(
-   ...   _,
-   ...   'At_Pcent_Dolr_Bang_',
-   ...   (42))
+   >>> (setattr (_,'At_Pcent_Dolr_Bang_',(42)))
 
    #> _
    >>> _
@@ -792,8 +773,7 @@ Hissp can represent all of Python's parameter types this way.
    #..         ;; ** packs keyword args into a dict
    #..         :** kwargs)
    #..  42)
-   >>> (
-   ...  lambda a,
+   >>> (lambda a,
    ...         /,
    ...         b,
    ...         e=(1),
@@ -803,7 +783,7 @@ Hissp can represent all of Python's parameter types this way.
    ...         i,
    ...         j=(1),
    ...         **kwargs:
-   ...     (42))
+   ...   (42))
    <function <lambda> at ...>
 
 The parameter name goes on the left of the pairs, and the default goes on the right.
@@ -839,8 +819,7 @@ of a pair with a ``:?``.
    #..         :* args  h 4  i :?  j 1 ; kwonly
    #..         :** kwargs)
    #..  42)
-   >>> (
-   ...  lambda a,
+   >>> (lambda a,
    ...         /,
    ...         b,
    ...         e=(1),
@@ -850,7 +829,7 @@ of a pair with a ``:?``.
    ...         i,
    ...         j=(1),
    ...         **kwargs:
-   ...     (42))
+   ...   (42))
    <function <lambda> at ...>
 
 Each element before the ``:`` is implicitly paired with
@@ -870,18 +849,13 @@ respectively:
    #..  (print kwargs) ; Body expressions evaluate in order.
    #..  42) ; The last value is returned.
    >>> (lambda *args, **kwargs:
-   ...    (print(
-   ...       args),
-   ...     print(
-   ...       kwargs),
-   ...     (42))  [-1]
-   ... )
+   ...  ((print (args))
+   ...  ,(print (kwargs))
+   ...  ,(42)  )[-1])
    <function <lambda> at ...>
 
    #> (_ 1 : b :c)
-   >>> _(
-   ...   (1),
-   ...   b=':c')
+   >>> (_ ((1),b=':c'))
    (1,)
    {'b': ':c'}
    42
@@ -901,13 +875,12 @@ would make metaprogramming more difficult.)
 .. code-block:: REPL
 
    #> (lambda (: a 1  :/ :?  :* :?  b :?  c 2))
-   >>> (
-   ...  lambda a=(1),
+   >>> (lambda a=(1),
    ...         /,
    ...         *,
    ...         b,
    ...         c=(2):
-   ...     ())
+   ...   ())
    <function <lambda> at ...>
 
 The ``:`` may be omitted if there are no explicitly paired parameters.
@@ -916,11 +889,13 @@ Not having it is the same as putting it last:
 .. code-block:: REPL
 
    #> (lambda (a b c :)) ; No pairs after ':'.
-   >>> (lambda a, b, c: ())
+   >>> (lambda a, b, c:
+   ...   ())
    <function <lambda> at ...>
 
    #> (lambda (a b c)) ; The ':' was omitted.
-   >>> (lambda a, b, c: ())
+   >>> (lambda a, b, c:
+   ...   ())
    <function <lambda> at ...>
 
    #> (lambda (:)) ; Colon isn't doing anything.
@@ -941,7 +916,8 @@ even if there are no ``:?`` pairs:
 .. code-block:: REPL
 
    #> (lambda (: :** kwargs))
-   >>> (lambda **kwargs: ())
+   >>> (lambda **kwargs:
+   ...   ())
    <function <lambda> at ...>
 
 Calls
@@ -960,12 +936,7 @@ the rest are pairs, implied by position.
 .. code-block:: REPL
 
    #> (print : :? 1  :? 2  :? 3  sep ":"  end "\n.")
-   >>> print(
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   sep=(':'),
-   ...   end=('\n.'))
+   >>> (print ((1),(2),(3),sep=(':'),end=('\n.')))
    1:2:3
    .
 
@@ -988,12 +959,7 @@ For example:
 .. code-block:: REPL
 
    #> (print 1 2 3 : sep ":"  end "\n.")
-   >>> print(
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   sep=(':'),
-   ...   end=('\n.'))
+   >>> (print ((1),(2),(3),sep=(':'),end=('\n.')))
    1:2:3
    .
 
@@ -1004,18 +970,15 @@ The singles or the pairs section may be empty:
 .. code-block:: REPL
 
    #> (int :) ; Both empty.
-   >>> int()
+   >>> (int ())
    0
 
    #> (print :foo :bar :) ; No pairs.
-   >>> print(
-   ...   ':foo',
-   ...   ':bar')
+   >>> (print (':foo',':bar'))
    :foo :bar
 
    #> (print : end "X") ; No singles.
-   >>> print(
-   ...   end=('X'))
+   >>> (print (end=('X')))
    X
 
 The ``:`` is optional if the pairs section is empty:
@@ -1023,12 +986,11 @@ The ``:`` is optional if the pairs section is empty:
 .. code-block:: REPL
 
    #> (int)
-   >>> int()
+   >>> (int ())
    0
 
    #> (float "inf")
-   >>> float(
-   ...   ('inf'))
+   >>> (float (('inf')))
    inf
 
 Again, this is like lambda.
@@ -1041,14 +1003,12 @@ Use the control words ``:*`` for iterable unpacking,
 .. code-block:: REPL
 
    #> (print : :* '(1 2)  :? 3  :* '(4)  :** (dict : sep :  end "\n."))
-   >>> print(
-   ...   *((1),
-   ...     (2),),
-   ...   (3),
-   ...   *((4),),
-   ...   **dict(
-   ...       sep=':',
-   ...       end=('\n.')))
+   >>> (print (
+   ...  *((1),
+   ...    (2),),
+   ...  (3),
+   ...  *((4),),
+   ...  **(dict (sep=':',end=('\n.')))))
    1:2:3:4
    .
 
@@ -1068,7 +1028,7 @@ function name starts with a dot:
 .. code-block:: REPL
 
    #> (.conjugate 1j)
-   >>> (1j).conjugate()
+   >>> ((1j).conjugate ())
    -1j
 
 To make metaprogramming easier, the ``:`` can go before the ``<self>`` as well,
@@ -1077,7 +1037,7 @@ but must be paired with a ``:?``.
 .. code-block:: REPL
 
    #> (.conjugate : :? 1j)
-   >>> (1j).conjugate()
+   >>> ((1j).conjugate ())
    -1j
 
 Tagging Tokens
@@ -1144,8 +1104,7 @@ Here's how you could do the rest.
 .. code-block:: REPL
 
    #> (print '.#(.title "hello, world!"))
-   >>> print(
-   ...   'Hello, World!')
+   >>> (print ('Hello, World!'))
    Hello, World!
 
 Let's quote the whole form to see the intermediate Hissp.
@@ -1299,10 +1258,7 @@ Well, what *should* it compile to?
    [[], [], []]
 
    #> (.append (operator..getitem _ 0) 7)
-   >>> __import__('operator').getitem(
-   ...   _,
-   ...   (0)).append(
-   ...   (7))
+   >>> ((__import__('operator').getitem (_,(0))).append ((7)))
 
    #> _
    >>> _
@@ -1314,10 +1270,7 @@ Well, what *should* it compile to?
    [[], [], []]
 
    #> (.append (operator..getitem _ 0) 7)
-   >>> __import__('operator').getitem(
-   ...   _,
-   ...   (0)).append(
-   ...   (7))
+   >>> ((__import__('operator').getitem (_,(0))).append ((7)))
 
    #> _ ; Big win! Not the same, is it?
    >>> _
@@ -1336,7 +1289,7 @@ it has to pick one of these representations.
 It might not be the one you started with.
 
 >>> readerless(('print',0b1010,0o12,--10,1_0,5*2,+10,int(10),((((10)))),0xA,))
-'print(\n  (10),\n  (10),\n  (10),\n  (10),\n  (10),\n  (10),\n  (10),\n  (10),\n  (10))'
+'(print ((10),(10),(10),(10),(10),(10),(10),(10),(10)))'
 
 Notice that these have all compiled the same way: ``(10)``.
 There were many possible aliases in code,
@@ -1376,14 +1329,11 @@ How can the Hissp compiler generate Python code from this tuple?
 Let's see what it's doing.
 
 >>> readerless((print,1,2,3,':','sep',':'))
-"# <built-in function print>\n__import__('pickle').loads(b'c__builtin__\\nprint\\n.')(\n  (1),\n  (2),\n  (3),\n  sep=':')"
+"(# <built-in function print>\n __import__('pickle').loads(b'c__builtin__\\nprint\\n.') (\n (1),(2),(3),sep=':'))"
 >>> print(_)
-# <built-in function print>
-__import__('pickle').loads(b'c__builtin__\nprint\n.')(
-  (1),
-  (2),
-  (3),
-  sep=':')
+(# <built-in function print>
+ __import__('pickle').loads(b'c__builtin__\nprint\n.') (
+ (1),(2),(3),sep=':'))
 >>> eval(_)
 1:2:3
 
@@ -1400,12 +1350,9 @@ but if we had injected it instead,
 .. code-block:: REPL
 
    #> (.#print 1 2 3 : sep :)
-   >>> # <built-in function print>
-   ... __import__('pickle').loads(b'c__builtin__\nprint\n.')(
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   sep=':')
+   >>> (# <built-in function print>
+   ...  __import__('pickle').loads(b'c__builtin__\nprint\n.') (
+   ...  (1),(2),(3),sep=':'))
    1:2:3
 
 we get the pickle again.
@@ -1628,9 +1575,7 @@ It's a way to comment out code structurally:
 .. code-block:: REPL
 
    #> (print 1 _#"I'm not here!" 3) _#(I'm not here either.)
-   >>> print(
-   ...   (1),
-   ...   (3))
+   >>> (print ((1),(3)))
    1 3
 
 Templates
@@ -1659,13 +1604,10 @@ much like a format string:
    (1, 2, ('operator..add', 1, 2))
 
    #> `(1 2 ,(operator..add 1 2)) ; template and unquote
-   >>> (
-   ...   (1),
-   ...   (2),
-   ...   __import__('operator').add(
-   ...     (1),
-   ...     (2)),
-   ...   )
+   >>> ( (
+   ...  (1),
+   ...  (2),
+   ...  (__import__('operator').add ((1),(2)))))
    (1, 2, 3)
 
 The :term:`splicing unquote` is similar, but unpacks its result:
@@ -1673,11 +1615,7 @@ The :term:`splicing unquote` is similar, but unpacks its result:
 .. code-block:: REPL
 
    #> `(:a ,@"bcd" :e)
-   >>> (
-   ...   ':a',
-   ...   *('bcd'),
-   ...   ':e',
-   ...   )
+   >>> ( (':a',*('bcd'),':e'))
    (':a', 'b', 'c', 'd', ':e')
 
 Templates are *reader syntax*: because they're :term:`tagging token`\ s,
@@ -1698,10 +1636,8 @@ If you quote an example, you can see that intermediate step:
    ...  ':?',
    ...  ('operator..mul',
    ...   (2),
-   ...   (3),),
-   ...  ':?',
-   ...  '',)
-   ('', ':', ':?', ':a', ':*', "('bcd')", ':?', ('operator..mul', 2, 3), ':?', '')
+   ...   (3),),)
+   ('', ':', ':?', ':a', ':*', "('bcd')", ':?', ('operator..mul', 2, 3))
 
 If we format that a little more nicely,
 then it's easier to read:
@@ -1710,18 +1646,14 @@ then it's easier to read:
 ...     ('',':',
 ...      ':?',':a',
 ...      ':*',"('bcd')",
-...      ':?',('operator..mul', 2, 3),
-...      ':?','')
+...      ':?',('operator..mul', 2, 3),)
 ... )
-"(\n  ':a',\n  *('bcd'),\n  __import__('operator').mul(\n    (2),\n    (3)),\n  )"
+"( (\n ':a',\n *('bcd'),\n (__import__('operator').mul ((2),(3)))))"
 >>> print(_)
-(
-  ':a',
-  *('bcd'),
-  __import__('operator').mul(
-    (2),
-    (3)),
-  )
+( (
+ ':a',
+ *('bcd'),
+ (__import__('operator').mul ((2),(3)))))
 
 Templates are Lissp syntactic sugar based on what Hissp already has.
 
@@ -1758,10 +1690,7 @@ Within a template, the same gensym name always makes the same gensym:
 .. code-block:: REPL
 
    #> `($#hiss $#hiss)
-   >>> (
-   ...   '_gF6EQIPZY__hiss',
-   ...   '_gF6EQIPZY__hiss',
-   ...   )
+   >>> ( ('_gF6EQIPZY__hiss','_gF6EQIPZY__hiss'))
    ('_gF6EQIPZY__hiss', '_gF6EQIPZY__hiss')
 
 But each new template changes the prefix hash.
@@ -1769,10 +1698,7 @@ But each new template changes the prefix hash.
 .. code-block:: REPL
 
    #> `($#hiss $#hiss)
-   >>> (
-   ...   '_gGC3RWYPQ__hiss',
-   ...   '_gGC3RWYPQ__hiss',
-   ...   )
+   >>> ( ('_gGC3RWYPQ__hiss','_gGC3RWYPQ__hiss'))
    ('_gGC3RWYPQ__hiss', '_gGC3RWYPQ__hiss')
 
 Gensyms are mainly used to prevent accidental name collisions in generated code,
@@ -1823,8 +1749,7 @@ from a fully qualified ``_macro_`` namespace:
 
    #> (hissp.._macro_.define spam :eggs) ; qualified macro
    >>> # hissp.._macro_.define
-   ... __import__('builtins').globals().update(
-   ...   spam=':eggs')
+   ... ((__import__('builtins').globals ()).update (spam=':eggs'))
 
    #> spam
    >>> spam
@@ -1847,8 +1772,7 @@ namespace with all of the `bundled macros <hissp.macros>`:
 
    #> (define eggs :spam) ; unqualified macro
    >>> # define
-   ... __import__('builtins').globals().update(
-   ...   eggs=':spam')
+   ... ((__import__('builtins').globals ()).update (eggs=':spam'))
 
    #> eggs
    >>> eggs
@@ -1863,19 +1787,17 @@ Let's try it:
 .. code-block:: REPL
 
    #> (setattr _macro_ 'hello (lambda () '(print 'hello)))
-   >>> setattr(
-   ...   _macro_,
-   ...   'hello',
-   ...   (lambda :
-   ...       ('print',
-   ...        ('quote',
-   ...         'hello',),)
-   ...   ))
+   >>> (setattr (
+   ...  _macro_,
+   ...  'hello',
+   ...  (lambda :
+   ...    ('print',
+   ...     ('quote',
+   ...      'hello',),))))
 
    #> (hello)
    >>> # hello
-   ... print(
-   ...   'hello')
+   ... (print ('hello'))
    hello
 
 A zero-argument macro isn't that useful.
@@ -1885,25 +1807,18 @@ Let's give it one. Use a template:
 .. code-block:: REPL
 
    #> (setattr _macro_ 'greet (lambda (name) `(print 'Hello ,name)))
-   >>> setattr(
-   ...   _macro_,
-   ...   'greet',
-   ...   (lambda name:
-   ...       (
-   ...         'builtins..print',
-   ...         (
-   ...           'quote',
-   ...           '__main__..Hello',
-   ...           ),
-   ...         name,
-   ...         )
-   ...   ))
+   >>> (setattr (
+   ...  _macro_,
+   ...  'greet',
+   ...  (lambda name:
+   ...    ( (
+   ...     'builtins..print',
+   ...     ( ('quote','__main__..Hello')),
+   ...     name)))))
 
    #> (greet 'Bob)
    >>> # greet
-   ... __import__('builtins').print(
-   ...   '__main__..Hello',
-   ...   'Bob')
+   ... (__import__('builtins').print ('__main__..Hello','Bob'))
    __main__..Hello Bob
 
 Not what you expected?
@@ -1919,10 +1834,7 @@ or the current ``__name__`` (which is ``__main__`` here):
    'builtins..int'
 
    #> `(int spam)
-   >>> (
-   ...   'builtins..int',
-   ...   '__main__..spam',
-   ...   )
+   >>> ( ('builtins..int','__main__..spam'))
    ('builtins..int', '__main__..spam')
 
 :term:`Full qualification` of symbols is especially important
@@ -1957,20 +1869,10 @@ A ``_macro_`` namespace is not the same as its module.
 .. code-block:: REPL
 
    #> (setattr _macro_ 'p123 (lambda () `(p 1 2 3 : sep :)))
-   >>> setattr(
-   ...   _macro_,
-   ...   'p123',
-   ...   (lambda :
-   ...       (
-   ...         '__main__..p',
-   ...         (1),
-   ...         (2),
-   ...         (3),
-   ...         ':',
-   ...         '__main__..sep',
-   ...         ':',
-   ...         )
-   ...   ))
+   >>> (setattr (
+   ...  _macro_,
+   ...  'p123',
+   ...  (lambda : ( ('__main__..p',(1),(2),(3),':','__main__..sep',':')))))
 
 Notice the ``__main__.`` module name qualifying ``sep``,
 which looks like it's going to be a problem,
@@ -1982,8 +1884,7 @@ If we were to define a ``p`` global,
 
    #> (define p print)
    >>> # define
-   ... __import__('builtins').globals().update(
-   ...   p=print)
+   ... ((__import__('builtins').globals ()).update (p=print))
 
 Then the ``p123`` macro works.
 
@@ -1991,11 +1892,7 @@ Then the ``p123`` macro works.
 
    #> (p123)
    >>> # p123
-   ... __import__('builtins').globals()['p'](
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   sep=':')
+   ... (__import__('builtins').globals()['p'] ((1),(2),(3),sep=':'))
    1:2:3
 
 The compiler ignores qualifiers on keyword arguments
@@ -2018,24 +1915,16 @@ it will compile like a normal function call.
 .. code-block:: REPL
 
    #> (setattr _macro_ 'p (lambda (: :* args) `(print ,@args)))
-   >>> setattr(
-   ...   _macro_,
-   ...   'p',
-   ...   (lambda *args:
-   ...       (
-   ...         'builtins..print',
-   ...         *args,
-   ...         )
-   ...   ))
+   >>> (setattr (
+   ...  _macro_,
+   ...  'p',
+   ...  (lambda *args:
+   ...    ( ('builtins..print',*args)))))
 
    #> (p123)
    >>> # p123
    ... # __main__..p
-   ... __import__('builtins').print(
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   sep=':')
+   ... (__import__('builtins').print ((1),(2),(3),sep=':'))
    1:2:3
 
 Notice the compiler comments indicating *two* `macro expansion`\ s,
@@ -2049,17 +1938,11 @@ symbol. (Like a quoted symbol):
 .. code-block:: REPL
 
    #> `(float inf)
-   >>> (
-   ...   'builtins..float',
-   ...   '__main__..inf',
-   ...   )
+   >>> ( ('builtins..float','__main__..inf'))
    ('builtins..float', '__main__..inf')
 
    #> `(float ,'inf)
-   >>> (
-   ...   'builtins..float',
-   ...   'inf',
-   ...   )
+   >>> ( ('builtins..float','inf'))
    ('builtins..float', 'inf')
 
 Let's try the greet again with what we've learned about auto-qualification.
@@ -2068,25 +1951,18 @@ Note the three `special tag`\ s in a row: ``','``.
 .. code-block:: REPL
 
    #> (setattr _macro_ 'greet (lambda (name) `(print ','Hello ,name)))
-   >>> setattr(
-   ...   _macro_,
-   ...   'greet',
-   ...   (lambda name:
-   ...       (
-   ...         'builtins..print',
-   ...         (
-   ...           'quote',
-   ...           'Hello',
-   ...           ),
-   ...         name,
-   ...         )
-   ...   ))
+   >>> (setattr (
+   ...  _macro_,
+   ...  'greet',
+   ...  (lambda name:
+   ...    ( (
+   ...     'builtins..print',
+   ...     ( ('quote','Hello')),
+   ...     name)))))
 
    #> (greet 'Bob)
    >>> # greet
-   ... __import__('builtins').print(
-   ...   'Hello',
-   ...   'Bob')
+   ... (__import__('builtins').print ('Hello','Bob'))
    Hello Bob
 
 Using a symbol here is a bit sloppy.
@@ -2096,22 +1972,15 @@ a `Unicode token` might have been a better idea:
 .. code-block:: REPL
 
    #> (setattr _macro_ 'greet (lambda (name) `(print "Hello" ,name)))
-   >>> setattr(
-   ...   _macro_,
-   ...   'greet',
-   ...   (lambda name:
-   ...       (
-   ...         'builtins..print',
-   ...         "('Hello')",
-   ...         name,
-   ...         )
-   ...   ))
+   >>> (setattr (
+   ...  _macro_,
+   ...  'greet',
+   ...  (lambda name:
+   ...    ( ('builtins..print',"('Hello')",name)))))
 
    #> (greet 'Bob)
    >>> # greet
-   ... __import__('builtins').print(
-   ...   ('Hello'),
-   ...   'Bob')
+   ... (__import__('builtins').print (('Hello'),'Bob'))
    Hello Bob
 
 While the parentheses around the 'Hello' don't change the meaning of the expression in Python,
@@ -2126,51 +1995,42 @@ But there are times when a function will not do:
 .. code-block:: REPL
 
    #> (setattr _macro_ '% (lambda (: :* body) `(lambda (,'%) ,body)))
-   >>> setattr(
-   ...   _macro_,
-   ...   'Pcent_',
-   ...   (lambda *body:
-   ...       (
-   ...         'lambda',
-   ...         (
-   ...           'Pcent_',
-   ...           ),
-   ...         body,
-   ...         )
-   ...   ))
+   >>> (setattr (
+   ...  _macro_,
+   ...  'Pcent_',
+   ...  (lambda *body:
+   ...    ( (
+   ...     'lambda',
+   ...     ( ('Pcent_',)),
+   ...     body)))))
 
    #> ((lambda (%)
    #..   (print (.upper %)))                  ;This lambda expression
    #.. "q")
-   >>> (lambda Pcent_:
-   ...     print(
-   ...       Pcent_.upper())
-   ... )(
-   ...   ('q'))
+   >>> ((lambda Pcent_:
+   ...    (print ((Pcent_.upper ())))) (
+   ...  ('q')))
    Q
 
    #> ((% print (.upper %))                   ; can now be abbreviated.
    #.. "q")
-   >>> # Pcent_
-   ... (lambda Pcent_:
-   ...     print(
-   ...       Pcent_.upper())
-   ... )(
-   ...   ('q'))
+   >>> (# Pcent_
+   ...  (lambda Pcent_:
+   ...    (print ((Pcent_.upper ())))) (
+   ...  ('q')))
    Q
 
    #> (any (map (% print (.upper %) ":" %)
    #..          "abc"))
-   >>> any(
-   ...   map(
-   ...     # Pcent_
-   ...     (lambda Pcent_:
-   ...         print(
-   ...           Pcent_.upper(),
-   ...           (':'),
-   ...           Pcent_)
-   ...     ),
-   ...     ('abc')))
+   >>> (any (
+   ...  (map (
+   ...   # Pcent_
+   ...   (lambda Pcent_:
+   ...     (print (
+   ...      (Pcent_.upper ()),
+   ...      (':'),
+   ...      Pcent_))),
+   ...   ('abc')))))
    A : a
    B : b
    C : c
@@ -2315,16 +2175,13 @@ Remember our first munging example?
 .. code-block:: REPL
 
    #> (types..SimpleNamespace)
-   >>> __import__('types').SimpleNamespace()
+   >>> (__import__('types').SimpleNamespace ())
    namespace()
 
    #> (setattr _ ; The namespace.
    #..         '𝐀 ; Compiles to a string representing an identifier.
    #..         42)
-   >>> setattr(
-   ...   _,
-   ...   'A',
-   ...   (42))
+   >>> (setattr (_,'A',(42)))
 
    #> _
    >>> _

@@ -52,54 +52,49 @@ class TestReader(TestCase):
 
     def test_auto_qualification(self):
         self.assertEqual(
-            [("",
-              ":",":?",("quote","__main__..x"),
-              ":?",("quote","__main__..x"),
-              ":?",("quote","__main__..x"),
-              ":?",("",
-                    ":",":?",("quote","__main__..y"),
-                    ":?",("quote", "__main__..y"),
-                    ":?",""),
-              ":?",("",":",":?",1, ":?",("quote","__main__..z"), ":?",""),
-              ":?","")
+            [ ("",
+               ":",":?",("quote","__main__..x",),
+               ":?",("quote","__main__..x",),
+               ":?",("quote","__main__..x",),
+               ":?",("",
+                     ":",":?",("quote","__main__..y",),
+                     ":?",("quote", "__main__..y",),),
+               ":?",("",":",":?",1, ":?",("quote","__main__..z",),),)
              ],
             [*self.reader.reads("`(x x x (y y) (1 z))")],
         )  # fmt: skip
 
     def test_no_qualification(self):
         self.assertEqual(
-            [("",":",":?",("quote",".x"), ":?",""),
-             ("",":",":?",("quote","quote"), ":?",1, ":?",""),
-             ("",":",":?",("quote","lambda"), ":?",":", ":?",""),
-             ("quote","__import__"),
-             ("quote","_gABCDEFG__"),
-             ("quote","foo..bar"),
-             ("quote","foo.")],
+            [ ("",":",":?",("quote",".x",), ":?","",)
+            , ("",":",":?",("quote","quote",), ":?",1,)
+            , ("",":",":?",("quote","lambda",), ":?",":",)
+            , ("quote","__import__",)
+            , ("quote","_gABCDEFG__",)
+            , ("quote","foo..bar",)
+            , ("quote","foo.",)
+             ],
             [*self.reader.reads(
-                "`(.x) `(quote 1) `(lambda :) `__import__ `_gABCDEFG__ `foo..bar `foo."
-            )],
+                "`(.x) `(quote 1) `(lambda :) `__import__ `_gABCDEFG__ `foo..bar `foo.")],
         )  # fmt: skip
 
     def test_auto_qualify_attr(self):
         self.reader.env.update(x=SimpleNamespace(y=1), int=SimpleNamespace(float=1))
         self.assertEqual(
-            [("",":",
-              ":?",("quote","__main__..x.y"),
-              ":?",("quote","__main__..x.y"),
-              ":?",""),
-             ("",":",
-              ":?",("quote","__main__..int.x"),
-              ":?",("quote","__main__..int.float"),
-              ":?",""),
-             ("",":",":?",("quote","__main__..int"), ":?",1, ":?",""),
-             ("",":",":?",("quote","builtins..float"), ":?",1, ":?",""),
-             ("",":",
-              ":?",("quote","__main__..x"),
-              ":?",("quote","__main__..x"),
-              ":?","")],
+            [ ("",":",
+               ":?",("quote","__main__..x.y",),
+               ":?",("quote","__main__..x.y",),)
+            , ("",":",
+               ":?",("quote","__main__..int.x",),
+               ":?",("quote","__main__..int.float",),)
+            , ("",":",":?",("quote","__main__..int",), ":?",1,)
+            , ("",":",":?",("quote","builtins..float",), ":?",1,)
+            , ("",":",
+               ":?",("quote","__main__..x",),
+               ":?",("quote","__main__..x",),)
+             ],
             [*self.reader.reads(
-                "`(x.y x.y) `(int.x int.float) `(int 1) `(float 1) `(x x)"
-            )],
+                "`(x.y x.y) `(int.x int.float) `(int 1) `(float 1) `(x x)")],
         )  # fmt: skip
 
     def test_swap_ns(self):

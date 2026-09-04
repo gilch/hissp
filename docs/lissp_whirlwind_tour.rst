@@ -114,68 +114,53 @@ Lissp Whirlwind Tour
    ;;; Tuples normally compile to function calls.
 
    #> (|frozenset|)                           ;call a builtin
-   >>> frozenset()
+   >>> (frozenset ())
    frozenset()
 
    #> (|print| |1| |2| |3|)                   ;call with arguments
-   >>> print(
-   ...   1,
-   ...   2,
-   ...   3)
+   >>> (print (1,2,3))
    1 2 3
 
    #> (|print| (|set|) (|list|) (|dict|))     ;nested calls
-   >>> print(
-   ...   set(),
-   ...   list(),
-   ...   dict())
+   >>> (print (
+   ...  (set ()),
+   ...  (list ()),
+   ...  (dict ())))
    set() [] {}
 
    #> (|print| |*'abc'| |sep='-'|)            ;Python unpacking and keyword arg
-   >>> print(
-   ...   *'abc',
-   ...   sep='-')
+   >>> (print (*'abc',sep='-'))
    a-b-c
 
    #> (|'wow'.upper|)                         ;method call
-   >>> 'wow'.upper()
+   >>> ('wow'.upper ())
    'WOW'
 
 
    ;; Method calls have a special case so you can separate them.
    #> (|.upper| |'amazing'|)                  ;note the |.
-   >>> 'amazing'.upper()
+   >>> ('amazing'.upper ())
    'AMAZING'
 
 
    ;; What happens if you call an "empty name" in Python?
    #> (|| |1| |*'abc'| |3|)                   ;That's right, it makes a tuple!
-   >>> (
-   ...   1,
-   ...   *'abc',
-   ...   3)
+   >>> ( (1,*'abc',3))
    (1, 'a', 'b', 'c', 3)
 
    #> (|dict| (|| (|| |1| |2|) (|| |3| |4|))) ;Make other collections with them.
-   >>> dict(
-   ...   (
-   ...     (
-   ...       1,
-   ...       2),
-   ...     (
-   ...       3,
-   ...       4)))
+   >>> (dict (
+   ...  ( (
+   ...   ( (1,2)),
+   ...   ( (3,4))))))
    {1: 2, 3: 4}
 
    #> (|| |1|)                                ;Be careful with single arguments.
-   >>> (
-   ...   1)
+   >>> ( (1))
    1
 
    #> (|| |1| ||)                             ;Forgot the comma before. Get it?
-   >>> (
-   ...   1,
-   ...   )
+   >>> ( (1,))
    (1,)
 
 
@@ -183,41 +168,32 @@ Lissp Whirlwind Tour
 
    ;; This looks like a function call, but it's a special case.
    #> (|lambda| (|*xs|) |[*xs]|)              ;list-making lambda expression
-   >>> (lambda *xs: [*xs])
+   >>> (lambda *xs:
+   ...   [*xs])
    <function <lambda> at 0x...>
 
    #> (_ |1| |2| |3|) ; _ is previous result that wasn't None in Python shell.
-   >>> _(
-   ...   1,
-   ...   2,
-   ...   3)
+   >>> (_ (1,2,3))
    [1, 2, 3]
 
 
    #> (|lambda| (|i|) (|functools..reduce| |operator..mul| (|range| |i| |0| |-1|) |1|))
    >>> (lambda i:
-   ...     __import__('functools').reduce(
-   ...       __import__('operator').mul,
-   ...       range(
-   ...         i,
-   ...         0,
-   ...         -1),
-   ...       1)
-   ... )
+   ...   (__import__('functools').reduce (
+   ...    __import__('operator').mul,
+   ...    (range (i,0,-1)),
+   ...    1)))
    <function <lambda> at 0x...>
 
    #> (|.update| (|globals|) |factorial=_|) ; _ doesn't work in modules though
-   >>> globals().update(
-   ...   factorial=_)
+   >>> ((globals ()).update (factorial=_))
 
    #> (|factorial| |3|)
-   >>> factorial(
-   ...   3)
+   >>> (factorial (3))
    6
 
    #> (|factorial| |4|)
-   >>> factorial(
-   ...   4)
+   >>> (factorial (4))
    24
 
 
@@ -240,8 +216,7 @@ Lissp Whirlwind Tour
    ('print', '42')
 
    #> (|print| |42|)
-   >>> print(
-   ...   42)
+   >>> (print (42))
    42
 
 
@@ -440,10 +415,7 @@ Lissp Whirlwind Tour
    >>>
 
    #> (print 1 _#(I'm not here!) 2 3)
-   >>> print(
-   ...   (1),
-   ...   (2),
-   ...   (3))
+   >>> (print ((1),(2),(3)))
    1 2 3
 
 
@@ -467,9 +439,7 @@ Lissp Whirlwind Tour
 
 
    #> (fractions..Fraction 1 2)               ;Run-time call. Equivalent compiled code.
-   >>> __import__('fractions').Fraction(
-   ...   (1),
-   ...   (2))
+   >>> (__import__('fractions').Fraction ((1),(2)))
    Fraction(1, 2)
 
    #> .#(fractions..Fraction 1 2)             ;Read-time call. Equivalent read object.
@@ -484,9 +454,8 @@ Lissp Whirlwind Tour
    #..  .#"(-b + (b**2 - 4*a*c)**0.5)
    #..    /(2*a)")                            ;quadratic formula
    >>> (lambda a, b, c:
-   ...     (-b + (b**2 - 4*a*c)**0.5)
-   ...         /(2*a)
-   ... )
+   ...   (-b + (b**2 - 4*a*c)**0.5)
+   ...       /(2*a))
    <function <lambda> at 0x...>
 
 
@@ -550,55 +519,37 @@ Lissp Whirlwind Tour
    ;;;; Advanced Call Arguments
 
    #> (dict |spam="foo"| |eggs="bar"| |ham="baz"|) ; kwargs via fragment tokens
-   >>> dict(
-   ...   spam="foo",
-   ...   eggs="bar",
-   ...   ham="baz")
+   >>> (dict (spam="foo",eggs="bar",ham="baz"))
    {'spam': 'foo', 'eggs': 'bar', 'ham': 'baz'}
 
    #> (dict : spam "foo"  eggs "bar"  ham "baz") ; no || here (note the :)
-   >>> dict(
-   ...   spam=('foo'),
-   ...   eggs=('bar'),
-   ...   ham=('baz'))
+   >>> (dict (spam=('foo'),eggs=('bar'),ham=('baz')))
    {'spam': 'foo', 'eggs': 'bar', 'ham': 'baz'}
 
 
    #> (print 1 2 3 |sep="-"|)
-   >>> print(
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   sep="-")
+   >>> (print ((1),(2),(3),sep="-"))
    1-2-3
 
    #> (print : :? 1  :? 2  :? 3  sep "-")     ;:? is a positional target.
-   >>> print(
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   sep=('-'))
+   >>> (print ((1),(2),(3),sep=('-')))
    1-2-3
 
    #> (print 1 2 3 : sep "-")                 ;Args before : implicitly pair with :?.
-   >>> print(
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   sep=('-'))
+   >>> (print ((1),(2),(3),sep=('-')))
    1-2-3
 
 
    ;; Python unpacking, positional, and keyword arguments.
    #> (print 1 |*"abc"| 2 |*"xyz"| |**{"sep": "-"}| |flush=True| |**{"end": "!?\n"}|)
-   >>> print(
-   ...   (1),
-   ...   *"abc",
-   ...   (2),
-   ...   *"xyz",
-   ...   **{"sep": "-"},
-   ...   flush=True,
-   ...   **{"end": "!?\n"})
+   >>> (print (
+   ...  (1),
+   ...  *"abc",
+   ...  (2),
+   ...  *"xyz",
+   ...  **{"sep": "-"},
+   ...  flush=True,
+   ...  **{"end": "!?\n"}))
    1-a-b-c-2-x-y-z!?
 
 
@@ -610,30 +561,27 @@ Lissp Whirlwind Tour
    #..       :** |{"sep": "-"}|               ;Target :** to unpack mapping.
    #..       flush True                       ;Kwargs still allowed after :**.
    #..       :** |{"end": "!?\n"}|)           ;Multiple :** allowed too.
-   >>> print(
-   ...   (1),
-   ...   *('abc'),
-   ...   (2),
-   ...   *('xyz'),
-   ...   **{"sep": "-"},
-   ...   flush=True,
-   ...   **{"end": "!?\n"})
+   >>> (print (
+   ...  (1),
+   ...  *('abc'),
+   ...  (2),
+   ...  *('xyz'),
+   ...  **{"sep": "-"},
+   ...  flush=True,
+   ...  **{"end": "!?\n"}))
    1-a-b-c-2-x-y-z!?
 
 
    #> (print : :? "Hello, World!")
-   >>> print(
-   ...   ('Hello, World!'))
+   >>> (print (('Hello, World!')))
    Hello, World!
 
    #> (print "Hello, World!" :)               ;Same. Slid : over. Compare.
-   >>> print(
-   ...   ('Hello, World!'))
+   >>> (print (('Hello, World!')))
    Hello, World!
 
    #> (print "Hello, World!")                 ;No : is the same as putting it last!
-   >>> print(
-   ...   ('Hello, World!'))
+   >>> (print (('Hello, World!')))
    Hello, World!
 
 
@@ -643,9 +591,7 @@ Lissp Whirlwind Tour
    #> (lambda (a b |/| c d |e=1| |f=2| |*args| |h=4| i |j=1| |**kwargs|)
    #..  (print (locals)))
    >>> (lambda a, b, /, c, d, e=1, f=2, *args, h=4, i, j=1, **kwargs:
-   ...     print(
-   ...       locals())
-   ... )
+   ...   (print ((locals ()))))
    <function <lambda> at 0x...>
 
    ;; Lambda control words can do all of them.
@@ -659,8 +605,7 @@ Lissp Whirlwind Tour
    #..  (print (globals))
    #..  (print (locals))                      ;side effects
    #..  b)                                    ;last value is returned
-   >>> (
-   ...  lambda a,
+   >>> (lambda a,
    ...         b,
    ...         /,
    ...         c,
@@ -672,81 +617,78 @@ Lissp Whirlwind Tour
    ...         i,
    ...         j=(1),
    ...         **kwargs:
-   ...    (print(
-   ...       globals()),
-   ...     print(
-   ...       locals()),
-   ...     b)  [-1]
-   ... )
+   ...  ((print ((globals ())))
+   ...  ,(print ((locals ())))
+   ...  ,b  )[-1])
    <function <lambda> at 0x...>
 
 
    #> (lambda (|*xs|))                        ;star arg
-   >>> (lambda *xs: ())
+   >>> (lambda *xs:
+   ...   ())
    <function <lambda> at 0x...>
 
    #> (lambda (|*| |kw|))                     ;keyword only (note comma)
-   >>> (lambda *, kw: ())
+   >>> (lambda *, kw:
+   ...   ())
    <function <lambda> at 0x...>
 
 
    #> (lambda (: :* xs))                      ;Star arg must pair with star, as Python.
-   >>> (lambda *xs: ())
+   >>> (lambda *xs:
+   ...   ())
    <function <lambda> at 0x...>
 
    #> (lambda (: :* :?  kw :?))               ;Empty star arg, so kw is keyword only.
-   >>> (lambda *, kw: ())
+   >>> (lambda *, kw:
+   ...   ())
    <function <lambda> at 0x...>
 
    #> (lambda (:* : kw :?))                   ;Slid : right one pair. Still a kwonly.
-   >>> (lambda *, kw: ())
+   >>> (lambda *, kw:
+   ...   ())
    <function <lambda> at 0x...>
 
    #> (lambda (:* kw :))                      ;Implicit :? is the same. Compare.
-   >>> (lambda *, kw: ())
+   >>> (lambda *, kw:
+   ...   ())
    <function <lambda> at 0x...>
 
    #> (lambda (:* kw))                        ;Kwonly! Not star arg! Final : implied.
-   >>> (lambda *, kw: ())
+   >>> (lambda *, kw:
+   ...   ())
    <function <lambda> at 0x...>
 
 
    #> (lambda (a b : x None  y None))         ;Normal, then positional defaults.
-   >>> (
-   ...  lambda a,
+   >>> (lambda a,
    ...         b,
    ...         x=None,
    ...         y=None:
-   ...     ())
+   ...   ())
    <function <lambda> at 0x...>
 
    #> (lambda (:* a b : x None  y None))      ;Keyword only, then keyword defaults.
-   >>> (
-   ...  lambda *,
+   >>> (lambda *,
    ...         a,
    ...         b,
    ...         x=None,
    ...         y=None:
-   ...     ())
+   ...   ())
    <function <lambda> at 0x...>
 
 
    #> (lambda (spam eggs) eggs)               ;Simple cases look like other Lisps, but
-   >>> (lambda spam, eggs: eggs)
+   >>> (lambda spam, eggs:
+   ...   eggs)
    <function <lambda> at 0x...>
 
    #> ((lambda abc                            ; params need not actually be a tuple.
    #..   (print c b a))                       ;There are three parameters.
    #.. 3 2 1)
-   >>> (lambda a, b, c:
-   ...     print(
-   ...       c,
-   ...       b,
-   ...       a)
-   ... )(
-   ...   (3),
-   ...   (2),
-   ...   (1))
+   >>> ((lambda a, b, c:
+   ...    (print (c,b,a))) (
+   ...  (3),(2),(1)))
    1 2 3
 
 
@@ -755,14 +697,13 @@ Lissp Whirlwind Tour
    <function <lambda> at 0x...>
 
    #> (lambda : (print "oops"))               ;Thunk resembles Python.
-   >>> (lambda :
-   ...     print(
-   ...       ('oops'))
-   ... )
+   >>> (lambda : (print (('oops'))))
    <function <lambda> at 0x...>
 
    #> ((lambda :x1 x))                        ;Control words are strings are iterable.
-   >>> (lambda x=1: x)()
+   >>> ((lambda x=1:
+   ...    x) (
+   ...  ))
    1
 
 
@@ -771,22 +712,17 @@ Lissp Whirlwind Tour
    ;;; Hissp is simpler than Python. No operators! Use calls instead.
 
    #> (operator..add 40 2)
-   >>> __import__('operator').add(
-   ...   (40),
-   ...   (2))
+   >>> (__import__('operator').add ((40),(2)))
    42
 
 
    ;; We'll be reusing this one in later sections.
    #> (.update (globals) : + operator..add)   ;assignment (identifier munged)
-   >>> globals().update(
-   ...   Plus_=__import__('operator').add)
+   >>> ((globals ()).update (Plus_=__import__('operator').add))
 
 
    #> (+ 40 2)                                ;no operators (Still a function call!)
-   >>> Plus_(
-   ...   (40),
-   ...   (2))
+   >>> (Plus_ ((40),(2)))
    42
 
    #> |40+2|                                  ;always worked, of course (just Python)
@@ -799,10 +735,7 @@ Lissp Whirlwind Tour
    ;;; Hissp is simpler than Python. No control flow! Use higher-order functions instead.
 
    #> (any (map print "abc")) ; Loops!
-   >>> any(
-   ...   map(
-   ...     print,
-   ...     ('abc')))
+   >>> (any ((map (print,('abc')))))
    a
    b
    c
@@ -820,38 +753,24 @@ Lissp Whirlwind Tour
 
    ;; boolean, consequent, alternate
    #> (.update (globals) : if_else (lambda bca ((.__getitem__ (|| c a) (not b)))))
-   >>> globals().update(
-   ...   if_else=(lambda b, c, a:
-   ...               (
-   ...                 c,
-   ...                 a).__getitem__(
-   ...                 not(
-   ...                   b))()
-   ...           ))
+   >>> ((globals ()).update (
+   ...  if_else
+   ...  =(lambda b, c, a:
+   ...     ((( (c,a)).__getitem__ ((not (b)))) ()))))
 
 
    #> (any (map (lambda x (if_else |x%2|
    #..                             (lambda : (print x 'odd))
    #..                             (lambda : (print x 'even))))
    #..          (range 4))) ; Both!
-   >>> any(
-   ...   map(
-   ...     (lambda x:
-   ...         if_else(
-   ...           x%2,
-   ...           (lambda :
-   ...               print(
-   ...                 x,
-   ...                 'odd')
-   ...           ),
-   ...           (lambda :
-   ...               print(
-   ...                 x,
-   ...                 'even')
-   ...           ))
-   ...     ),
-   ...     range(
-   ...       (4))))
+   >>> (any (
+   ...  (map (
+   ...   (lambda x:
+   ...     (if_else (
+   ...      x%2,
+   ...      (lambda : (print (x,'odd'))),
+   ...      (lambda : (print (x,'even')))))),
+   ...   (range ((4)))))))
    0 even
    1 odd
    2 even
@@ -872,10 +791,7 @@ Lissp Whirlwind Tour
 
 
    #> `(print "Hi")                           ;Code as data. Seems to act like quote.
-   >>> (
-   ...   'builtins..print',
-   ...   "('Hi')",
-   ...   )
+   >>> ( ('builtins..print',"('Hi')"))
    ('builtins..print', "('Hi')")
 
    #> '`(print "Hi")                          ;But it's calling the "empty name".
@@ -886,51 +802,37 @@ Lissp Whirlwind Tour
    ...   'builtins..print',),
    ...  ':?',
    ...  ('quote',
-   ...   "('Hi')",),
-   ...  ':?',
-   ...  '',)
-   ('', ':', ':?', ('quote', 'builtins..print'), ':?', ('quote', "('Hi')"), ':?', '')
+   ...   "('Hi')",),)
+   ('', ':', ':?', ('quote', 'builtins..print'), ':?', ('quote', "('Hi')"))
 
 
    ;; UNQUOTE special tag (,) interpolates. Only valid in a template.
    #> `(print ,(.upper "Hi"))
-   >>> (
-   ...   'builtins..print',
-   ...   ('Hi').upper(),
-   ...   )
+   >>> ( (
+   ...  'builtins..print',
+   ...  (('Hi').upper ())))
    ('builtins..print', 'HI')
 
    #> `(,'foo+2 foo+2)                        ;Interpolations not auto-qualified!
-   >>> (
-   ...   'fooPlus_2',
-   ...   '__main__..fooPlus_2',
-   ...   )
+   >>> ( ('fooPlus_2','__main__..fooPlus_2'))
    ('fooPlus_2', '__main__..fooPlus_2')
 
 
    ;; SPLICE special tag (,@) interpolates and unpacks. Only valid in a tuple in a template.
    #> `(print ,@"abc")
-   >>> (
-   ...   'builtins..print',
-   ...   *('abc'),
-   ...   )
+   >>> ( ('builtins..print',*('abc')))
    ('builtins..print', 'a', 'b', 'c')
 
    #> `(print (.upper "abc"))                 ;Template quoting is recursive
-   >>> (
-   ...   'builtins..print',
-   ...   (
-   ...     '.upper',
-   ...     "('abc')",
-   ...     ),
-   ...   )
+   >>> ( (
+   ...  'builtins..print',
+   ...  ( ('.upper',"('abc')"))))
    ('builtins..print', ('.upper', "('abc')"))
 
    #> `(print ,@(.upper "abc"))               ; unless suppressed by an unquote.
-   >>> (
-   ...   'builtins..print',
-   ...   *('abc').upper(),
-   ...   )
+   >>> ( (
+   ...  'builtins..print',
+   ...  *(('abc').upper ())))
    ('builtins..print', 'A', 'B', 'C')
 
 
@@ -943,12 +845,11 @@ Lissp Whirlwind Tour
    ;;; __name__, and a count of the templates the reader has seen so far.
 
    #> `($#eggs $#spam $#bacon $#spam)
-   >>> (
-   ...   '_gA3SJUN6M__eggs',
-   ...   '_gA3SJUN6M__spam',
-   ...   '_gA3SJUN6M__bacon',
-   ...   '_gA3SJUN6M__spam',
-   ...   )
+   >>> ( (
+   ...  '_gA3SJUN6M__eggs',
+   ...  '_gA3SJUN6M__spam',
+   ...  '_gA3SJUN6M__bacon',
+   ...  '_gA3SJUN6M__spam'))
    ('_gA3SJUN6M__eggs', '_gA3SJUN6M__spam', '_gA3SJUN6M__bacon', '_gA3SJUN6M__spam')
 
    ;; Each new template increases the count, so it results in a new hash,
@@ -990,57 +891,35 @@ Lissp Whirlwind Tour
    #..        ,1
    #..        ,(+ 1 1)
    #..        ,(+ 1 2)))
-   >>> list(
-   ...   (
-   ...     *('abc'),
-   ...     (1),
-   ...     Plus_(
-   ...       (1),
-   ...       (1)),
-   ...     Plus_(
-   ...       (1),
-   ...       (2)),
-   ...     ))
+   >>> (list (
+   ...  ( (
+   ...   *('abc'),
+   ...   (1),
+   ...   (Plus_ ((1),(1))),
+   ...   (Plus_ ((1),(2)))))))
    ['a', 'b', 'c', 1, 2, 3]
 
 
    #> `(0 "a" 'b)                             ;Beware of Unicode tokens and symbols.
-   >>> (
-   ...   (0),
-   ...   "('a')",
-   ...   (
-   ...     'quote',
-   ...     '__main__..b',
-   ...     ),
-   ...   )
+   >>> ( (
+   ...  (0),
+   ...  "('a')",
+   ...  ( ('quote','__main__..b'))))
    (0, "('a')", ('quote', '__main__..b'))
 
    #> `(,0 ,"a" ,'b)                          ;Just unquote everything in data templates.
-   >>> (
-   ...   (0),
-   ...   ('a'),
-   ...   'b',
-   ...   )
+   >>> ( ((0),('a'),'b'))
    (0, 'a', 'b')
 
 
    #> (dict `((,0 ,1)
    #..        ,@(.items (dict : spam "eggs"  foo 2)) ; dict unpacking
    #..        (,3 ,4)))
-   >>> dict(
-   ...   (
-   ...     (
-   ...       (0),
-   ...       (1),
-   ...       ),
-   ...     *dict(
-   ...        spam=('eggs'),
-   ...        foo=(2)).items(),
-   ...     (
-   ...       (3),
-   ...       (4),
-   ...       ),
-   ...     ))
+   >>> (dict (
+   ...  ( (
+   ...   ( ((0),(1))),
+   ...   *((dict (spam=('eggs'),foo=(2))).items ()),
+   ...   ( ((3),(4)))))))
    {0: 1, 'spam': 'eggs', 'foo': 2, 3: 4}
 
 
@@ -1053,35 +932,28 @@ Lissp Whirlwind Tour
    #..         : assign
    #..         (lambda (key value)
    #..           `(.update (globals) : ,key ,value)))
-   >>> globals().update(
-   ...   assign=(lambda key, value:
-   ...              (
-   ...                '.update',
-   ...                (
-   ...                  'builtins..globals',
-   ...                  ),
-   ...                ':',
-   ...                key,
-   ...                value,
-   ...                )
-   ...          ))
+   >>> ((globals ()).update (
+   ...  assign
+   ...  =(lambda key, value:
+   ...     ( (
+   ...      '.update',
+   ...      ( ('builtins..globals',)),
+   ...      ':',
+   ...      key,
+   ...      value)))))
 
 
    ;; Notice the arguments to it are quoted.
    #> (assign 'SPAM '"eggs")                  ;resulting in a valid Hissp form
-   >>> assign(
-   ...   'SPAM',
-   ...   "('eggs')")
+   >>> (assign ('SPAM',"('eggs')"))
    ('.update', ('builtins..globals',), ':', 'SPAM', "('eggs')")
 
    #> (hissp.compiler..readerless _)          ;Hissp can compile it,
-   >>> __import__('hissp.compiler',fromlist='*').readerless(
-   ...   _)
-   "__import__('builtins').globals().update(\n  SPAM=('eggs'))"
+   >>> (__import__('hissp.compiler',fromlist='*').readerless (_))
+   "((__import__('builtins').globals ()).update (SPAM=('eggs')))"
 
    #> (eval _)                                ; and Python can evaluate that.
-   >>> eval(
-   ...   _)
+   >>> (eval (_))
 
    #> SPAM                                    ;'eggs'
    >>> SPAM
@@ -1102,17 +974,13 @@ Lissp Whirlwind Tour
    ;;; (the EXPANSION) at that point in the program.
 
    #> (setattr _macro_ 'assign assign)        ;we can use assign as a MACRO FUNCTION
-   >>> setattr(
-   ...   _macro_,
-   ...   'assign',
-   ...   assign)
+   >>> (setattr (_macro_,'assign',assign))
 
 
    ;; Like special forms, macro forms look like ordinary function calls.
    #> (assign SPAM "ham")                     ;This runs a metaprogram!
    >>> # assign
-   ... __import__('builtins').globals().update(
-   ...   SPAM=('ham'))
+   ... ((__import__('builtins').globals ()).update (SPAM=('ham')))
 
    #> SPAM                                    ;'ham'
    >>> SPAM
@@ -1138,10 +1006,7 @@ Lissp Whirlwind Tour
    ;;; read time, but (like ') may simply return code that runs later.
 
    #> (setattr _macro_ 'chr\# chr)            ;note \# (would be a tag token otherwise)
-   >>> setattr(
-   ...   _macro_,
-   ...   'chrHash_',
-   ...   chr)
+   >>> (setattr (_macro_,'chrHash_',chr))
 
    #> 'chr#42                                 ;note hard quote
    >>> '*'
@@ -1154,8 +1019,7 @@ Lissp Whirlwind Tour
    ;; An invocation fully qualified with _macro_ is a macro form.
    #> (hissp.._macro_.define SPAM "eggs")     ;Note SPAM is not quoted.
    >>> # hissp.._macro_.define
-   ... __import__('builtins').globals().update(
-   ...   SPAM=('eggs'))
+   ... ((__import__('builtins').globals ()).update (SPAM=('eggs')))
 
    #> SPAM                                    ;'eggs'
    >>> SPAM
@@ -1172,50 +1036,38 @@ Lissp Whirlwind Tour
    ;; Use a template to make Hissp.
    #> (define _macro_.triple (lambda x `(+ ,x (+ ,x ,x))))
    >>> # define
-   ... __import__('builtins').setattr(
-   ...   _macro_,
-   ...   'triple',
-   ...   (lambda x:
-   ...       (
-   ...         '__main__..Plus_',
-   ...         x,
-   ...         (
-   ...           '__main__..Plus_',
-   ...           x,
-   ...           x,
-   ...           ),
-   ...         )
-   ...   ))
+   ... (__import__('builtins').setattr (
+   ...  _macro_,
+   ...  'triple',
+   ...  (lambda x:
+   ...    ( (
+   ...     '__main__..Plus_',
+   ...     x,
+   ...     ( ('__main__..Plus_',x,x)))))))
 
    #> (triple 4)                              ;12
    >>> # triple
-   ... __import__('builtins').globals()['Plus_'](
-   ...   (4),
-   ...   __import__('builtins').globals()['Plus_'](
-   ...     (4),
-   ...     (4)))
+   ... (__import__('builtins').globals()['Plus_'] (
+   ...  (4),
+   ...  (__import__('builtins').globals()['Plus_'] ((4),(4)))))
    12
 
 
    #> (define loud-number (lambda x (print x) x))
    >>> # define
-   ... __import__('builtins').globals().update(
-   ...   loud___number=(lambda x:
-   ...                    (print(
-   ...                       x),
-   ...                     x)  [-1]
-   ...                 ))
+   ... ((__import__('builtins').globals ()).update (
+   ...  loud___number
+   ...  =(lambda x:
+   ...    ((print (x))
+   ...    ,x  )[-1])))
 
    #> (triple (loud-number 14))               ;Triples the *code*, not just the *value*.
    >>> # triple
-   ... __import__('builtins').globals()['Plus_'](
-   ...   loud___number(
-   ...     (14)),
-   ...   __import__('builtins').globals()['Plus_'](
-   ...     loud___number(
-   ...       (14)),
-   ...     loud___number(
-   ...       (14))))
+   ... (__import__('builtins').globals()['Plus_'] (
+   ...  (loud___number ((14))),
+   ...  (__import__('builtins').globals()['Plus_'] (
+   ...   (loud___number ((14))),
+   ...   (loud___number ((14)))))))
    14
    14
    14
@@ -1226,15 +1078,11 @@ Lissp Whirlwind Tour
    ;; We can use a lambda to make a local variable and immediately call it.
    #> ((lambda x (+ x (+ x x)))
    #.. (loud-number 14))
-   >>> (lambda x:
-   ...     Plus_(
-   ...       x,
-   ...       Plus_(
-   ...         x,
-   ...         x))
-   ... )(
-   ...   loud___number(
-   ...     (14)))
+   >>> ((lambda x:
+   ...    (Plus_ (
+   ...     x,
+   ...     (Plus_ (x,x))))) (
+   ...  (loud___number ((14)))))
    14
    42
 
@@ -1242,15 +1090,11 @@ Lissp Whirlwind Tour
    ;; Python also allows us to use a default argument up front.
    #> ((lambda (: x (loud-number 14))
    #..   (+ x (+ x x))))
-   >>> (
-   ...  lambda x=loud___number(
-   ...           (14)):
-   ...     Plus_(
-   ...       x,
-   ...       Plus_(
-   ...         x,
-   ...         x))
-   ... )()
+   >>> ((lambda x=(loud___number ((14))):
+   ...    (Plus_ (
+   ...     x,
+   ...     (Plus_ (x,x))))) (
+   ...  ))
    14
    42
 
@@ -1261,40 +1105,29 @@ Lissp Whirlwind Tour
    #..    `((lambda (: x ,expression) ; Expand to lambda call for a local.
    #..        (+ x (+ x x))))))
    >>> # define
-   ... __import__('builtins').setattr(
-   ...   _macro_,
-   ...   'oops___triple',
-   ...   (lambda expression:
-   ...       (
-   ...         (
-   ...           'lambda',
-   ...           (
-   ...             ':',
-   ...             '__main__..x',
-   ...             expression,
-   ...             ),
-   ...           (
-   ...             '__main__..Plus_',
-   ...             '__main__..x',
-   ...             (
-   ...               '__main__..Plus_',
-   ...               '__main__..x',
-   ...               '__main__..x',
-   ...               ),
-   ...             ),
-   ...           ),
-   ...         )
-   ...   ))
+   ... (__import__('builtins').setattr (
+   ...  _macro_,
+   ...  'oops___triple',
+   ...  (lambda expression:
+   ...    ( (
+   ...     ( (
+   ...      'lambda',
+   ...      ( (':','__main__..x',expression)),
+   ...      ( (
+   ...       '__main__..Plus_',
+   ...       '__main__..x',
+   ...       ( ('__main__..Plus_','__main__..x','__main__..x')))))),
+   ...     )))))
 
    #> (oops-triple 14)                        ;Oops. Templates qualify symbols!
    >>> # oops___triple
-   ... (lambda __main__..x=(14):
-   ...     __import__('builtins').globals()['Plus_'](
-   ...       __import__('builtins').globals()['x'],
-   ...       __import__('builtins').globals()['Plus_'](
-   ...         __import__('builtins').globals()['x'],
-   ...         __import__('builtins').globals()['x']))
-   ... )()
+   ... ((lambda __main__..x=(14):
+   ...    (__import__('builtins').globals()['Plus_'] (
+   ...     __import__('builtins').globals()['x'],
+   ...     (__import__('builtins').globals()['Plus_'] (
+   ...      __import__('builtins').globals()['x'],
+   ...      __import__('builtins').globals()['x']))))) (
+   ...  ))
    Traceback (most recent call last):
      ...
        (lambda __main__..x=(14):
@@ -1309,55 +1142,35 @@ Lissp Whirlwind Tour
    #..    `((lambda (: $#x ,x)
    #..        (+ $#x (+ $#x $#x))))))
    >>> # define
-   ... __import__('builtins').setattr(
-   ...   _macro_,
-   ...   'once___triple',
-   ...   (lambda x:
-   ...       (
-   ...         (
-   ...           'lambda',
-   ...           (
-   ...             ':',
-   ...             '_g5GAZYERM__x',
-   ...             x,
-   ...             ),
-   ...           (
-   ...             '__main__..Plus_',
-   ...             '_g5GAZYERM__x',
-   ...             (
-   ...               '__main__..Plus_',
-   ...               '_g5GAZYERM__x',
-   ...               '_g5GAZYERM__x',
-   ...               ),
-   ...             ),
-   ...           ),
-   ...         )
-   ...   ))
+   ... (__import__('builtins').setattr (
+   ...  _macro_,
+   ...  'once___triple',
+   ...  (lambda x:
+   ...    ( (
+   ...     ( (
+   ...      'lambda',
+   ...      ( (':','_g5GAZYERM__x',x)),
+   ...      ( (
+   ...       '__main__..Plus_',
+   ...       '_g5GAZYERM__x',
+   ...       ( ('__main__..Plus_','_g5GAZYERM__x','_g5GAZYERM__x')))))),
+   ...     )))))
+
 
    #> (once-triple (loud-number 14))
    >>> # once___triple
-   ... (
-   ...  lambda _g5GAZYERM__x=loud___number(
-   ...           (14)):
-   ...     __import__('builtins').globals()['Plus_'](
-   ...       _g5GAZYERM__x,
-   ...       __import__('builtins').globals()['Plus_'](
-   ...         _g5GAZYERM__x,
-   ...         _g5GAZYERM__x))
-   ... )()
+   ... ((lambda _g5GAZYERM__x=(loud___number ((14))):
+   ...    (__import__('builtins').globals()['Plus_'] (
+   ...     _g5GAZYERM__x,
+   ...     (__import__('builtins').globals()['Plus_'] (_g5GAZYERM__x,_g5GAZYERM__x))))) (
+   ...  ))
    14
    42
 
 
    ;; Notice the __main__. qualifier generated by this template.
    #> `(+ 1 2 3 4)
-   >>> (
-   ...   '__main__..Plus_',
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   (4),
-   ...   )
+   >>> ( ('__main__..Plus_',(1),(2),(3),(4)))
    ('__main__..Plus_', 1, 2, 3, 4)
 
 
@@ -1370,52 +1183,38 @@ Lissp Whirlwind Tour
    #..        (operator..add ,first (+ ,@args))) ; Otherwise recur.
    #..      (bool args)))) ; Bools are ints, remember?
    >>> # define
-   ... __import__('builtins').setattr(
-   ...   _macro_,
-   ...   'Plus_',
-   ...   (
-   ...    lambda first=(0),
-   ...           *args:
-   ...       (
-   ...         first,
-   ...         (
-   ...           'operator..add',
-   ...           first,
-   ...           (
-   ...             '__main__..Plus_',
-   ...             *args,
-   ...             ),
-   ...           ),
-   ...         ).__getitem__(
-   ...         bool(
-   ...           args))
-   ...   ))
+   ... (__import__('builtins').setattr (
+   ...  _macro_,
+   ...  'Plus_',
+   ...  (lambda first=(0),
+   ...          *args:
+   ...    (( (
+   ...      first,
+   ...      ( (
+   ...       'operator..add',
+   ...       first,
+   ...       ( ('__main__..Plus_',*args)))))).__getitem__ (
+   ...     (bool (args)))))))
 
    #> (+ 1 2 3 4)
    >>> # Plus_
-   ... __import__('operator').add(
-   ...   (1),
+   ... (__import__('operator').add (
+   ...  (1),
+   ...  # __main__..Plus_
+   ...  (__import__('operator').add (
+   ...   (2),
    ...   # __main__..Plus_
-   ...   __import__('operator').add(
-   ...     (2),
-   ...     # __main__..Plus_
-   ...     __import__('operator').add(
-   ...       (3),
-   ...       # __main__..Plus_
-   ...       (4))))
+   ...   (__import__('operator').add (
+   ...    (3),
+   ...    # __main__..Plus_
+   ...    (4)))))))
    10
 
 
    ;; Notice that we get a different qualifier now that the reader detects a macro
    ;; with that name: `__main__.._macro_.Plus` instead of `__main__.Plus_`.
    #> `(+ 1 2 3 4)
-   >>> (
-   ...   '__main__.._macro_.Plus_',
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   (4),
-   ...   )
+   >>> ( ('__main__.._macro_.Plus_',(1),(2),(3),(4)))
    ('__main__.._macro_.Plus_', 1, 2, 3, 4)
 
 
@@ -1428,32 +1227,19 @@ Lissp Whirlwind Tour
    #..        (* (operator..mul ,first ,second) ,@args))
    #..      (bool args))))
    >>> # define
-   ... __import__('builtins').setattr(
-   ...   _macro_,
-   ...   'Star_',
-   ...   (
-   ...    lambda first=(1),
-   ...           second=(1),
-   ...           *args:
-   ...       (
-   ...         (
-   ...           'operator..mul',
-   ...           first,
-   ...           second,
-   ...           ),
-   ...         (
-   ...           '__main__..Star_',
-   ...           (
-   ...             'operator..mul',
-   ...             first,
-   ...             second,
-   ...             ),
-   ...           *args,
-   ...           ),
-   ...         ).__getitem__(
-   ...         bool(
-   ...           args))
-   ...   ))
+   ... (__import__('builtins').setattr (
+   ...  _macro_,
+   ...  'Star_',
+   ...  (lambda first=(1),
+   ...          second=(1),
+   ...          *args:
+   ...    (( (
+   ...      ( ('operator..mul',first,second)),
+   ...      ( (
+   ...       '__main__..Star_',
+   ...       ( ('operator..mul',first,second)),
+   ...       *args)))).__getitem__ (
+   ...     (bool (args)))))))
 
 
    ;; Notice that the stacked expansion comments left by the compiler
@@ -1463,17 +1249,15 @@ Lissp Whirlwind Tour
    #> (* 1 2 3 4 5 6)
    >>> # Star_
    ... #### __main__..Star_
-   ... __import__('operator').mul(
-   ...   __import__('operator').mul(
-   ...     __import__('operator').mul(
-   ...       __import__('operator').mul(
-   ...         __import__('operator').mul(
-   ...           (1),
-   ...           (2)),
-   ...         (3)),
-   ...       (4)),
-   ...     (5)),
-   ...   (6))
+   ... (__import__('operator').mul (
+   ...  (__import__('operator').mul (
+   ...   (__import__('operator').mul (
+   ...    (__import__('operator').mul (
+   ...     (__import__('operator').mul ((1),(2))),
+   ...     (3))),
+   ...    (4))),
+   ...   (5))),
+   ...  (6)))
    720
 
 
@@ -1483,43 +1267,43 @@ Lissp Whirlwind Tour
 
    ;; Three of the helpers expand macros.
    #> (hissp..macroexpand1 '(print 1 2 3))    ;not a macro form (no change)
-   >>> __import__('hissp').macroexpand1(
-   ...   ('print',
-   ...    (1),
-   ...    (2),
-   ...    (3),))
+   >>> (__import__('hissp').macroexpand1 (
+   ...  ('print',
+   ...   (1),
+   ...   (2),
+   ...   (3),)))
    ('print', 1, 2, 3)
 
    #> (hissp..macroexpand1 '(* 1 2 3))        ;expanded (but still a macro form)
-   >>> __import__('hissp').macroexpand1(
-   ...   ('Star_',
-   ...    (1),
-   ...    (2),
-   ...    (3),))
+   >>> (__import__('hissp').macroexpand1 (
+   ...  ('Star_',
+   ...   (1),
+   ...   (2),
+   ...   (3),)))
    ('__main__..Star_', ('operator..mul', 1, 2), 3)
 
    #> (hissp..macroexpand '(* 1 2 3))         ;repeats while it's a macro form
-   >>> __import__('hissp').macroexpand(
-   ...   ('Star_',
-   ...    (1),
-   ...    (2),
-   ...    (3),))
+   >>> (__import__('hissp').macroexpand (
+   ...  ('Star_',
+   ...   (1),
+   ...   (2),
+   ...   (3),)))
    ('operator..mul', ('operator..mul', 1, 2), 3)
 
    #> (hissp..macroexpand '(+ 1 2 3))         ;but doesn't check subforms
-   >>> __import__('hissp').macroexpand(
-   ...   ('Plus_',
-   ...    (1),
-   ...    (2),
-   ...    (3),))
+   >>> (__import__('hissp').macroexpand (
+   ...  ('Plus_',
+   ...   (1),
+   ...   (2),
+   ...   (3),)))
    ('operator..add', 1, ('__main__..Plus_', 2, 3))
 
    #> (hissp..macroexpand_all '(+ 1 2 3))     ;expands all macro subforms
-   >>> __import__('hissp').macroexpand_all(
-   ...   ('Plus_',
-   ...    (1),
-   ...    (2),
-   ...    (3),))
+   >>> (__import__('hissp').macroexpand_all (
+   ...  ('Plus_',
+   ...   (1),
+   ...   (2),
+   ...   (3),)))
    ('operator..add', 1, ('operator..add', 2, 3))
 
 
@@ -1538,38 +1322,33 @@ Lissp Whirlwind Tour
    #..                                   hissp..is_hissp_string
    #..                                   hissp..is_lissp_unicode
    #..                                   hissp..is_string_literal))))))
-   >>> __import__('pprint').pp(
-   ...   list(
-   ...     __import__('itertools').starmap(
-   ...       (lambda x, y:
-   ...           (
-   ...             x,
-   ...             y.__name__)
-   ...       ),
-   ...       filter(
-   ...         (lambda x:
-   ...             x[1](
-   ...               x[0])
-   ...         ),
-   ...         __import__('itertools').product(
-   ...           (':control',
-   ...            're.',
-   ...            "('string')",
-   ...            ('quote',
-   ...             'quoted',),
-   ...            (),
-   ...            (1),
-   ...            ('quote',
-   ...             (2),),),
-   ...           (
-   ...             __import__('hissp').is_control,
-   ...             __import__('hissp').is_import,
-   ...             __import__('hissp').is_node,
-   ...             __import__('hissp').is_str,
-   ...             __import__('hissp').is_symbol,
-   ...             __import__('hissp').is_hissp_string,
-   ...             __import__('hissp').is_lissp_unicode,
-   ...             __import__('hissp').is_string_literal))))))
+   >>> (__import__('pprint').pp (
+   ...  (list (
+   ...   (__import__('itertools').starmap (
+   ...    (lambda x, y:
+   ...      ( (x,y.__name__))),
+   ...    (filter (
+   ...     (lambda x:
+   ...       (x[1] (x[0]))),
+   ...     (__import__('itertools').product (
+   ...      (':control',
+   ...       're.',
+   ...       "('string')",
+   ...       ('quote',
+   ...        'quoted',),
+   ...       (),
+   ...       (1),
+   ...       ('quote',
+   ...        (2),),),
+   ...      ( (
+   ...       __import__('hissp').is_control,
+   ...       __import__('hissp').is_import,
+   ...       __import__('hissp').is_node,
+   ...       __import__('hissp').is_str,
+   ...       __import__('hissp').is_symbol,
+   ...       __import__('hissp').is_hissp_string,
+   ...       __import__('hissp').is_lissp_unicode,
+   ...       __import__('hissp').is_string_literal))))))))))))
    [(':control', 'is_control'),
     (':control', 'is_str'),
     ('re.', 'is_import'),
@@ -1586,29 +1365,26 @@ Lissp Whirlwind Tour
 
    ;; Macros only work as invocations, not arguments!
    #> (functools..reduce * '(1 2 3 4))        ;Oops.
-   >>> __import__('functools').reduce(
-   ...   Star_,
-   ...   ((1),
-   ...    (2),
-   ...    (3),
-   ...    (4),))
+   >>> (__import__('functools').reduce (
+   ...  Star_,
+   ...  ((1),
+   ...   (2),
+   ...   (3),
+   ...   (4),)))
    Traceback (most recent call last):
      ...
    NameError: name 'Star_' is not defined
 
    #> (functools..reduce (lambda xy (* x y))  ;Invocation, not argument.
    #..                   '(1 2 3 4))
-   >>> __import__('functools').reduce(
-   ...   (lambda x, y:
-   ...       # Star_
-   ...       __import__('operator').mul(
-   ...         x,
-   ...         y)
-   ...   ),
-   ...   ((1),
-   ...    (2),
-   ...    (3),
-   ...    (4),))
+   >>> (__import__('functools').reduce (
+   ...  (lambda x, y:
+   ...    # Star_
+   ...    (__import__('operator').mul (x,y))),
+   ...  ((1),
+   ...   (2),
+   ...   (3),
+   ...   (4),)))
    24
 
 
@@ -1624,73 +1400,63 @@ Lissp Whirlwind Tour
    #..    `(lambda (,'X ,'Y)                  ;,'X instead of $#X
    #..       ,body)))
    >>> # define
-   ... __import__('builtins').setattr(
-   ...   _macro_,
-   ...   'XY',
-   ...   (lambda *body:
-   ...       (
-   ...         'lambda',
-   ...         (
-   ...           'X',
-   ...           'Y',
-   ...           ),
-   ...         body,
-   ...         )
-   ...   ))
+   ... (__import__('builtins').setattr (
+   ...  _macro_,
+   ...  'XY',
+   ...  (lambda *body:
+   ...    ( (
+   ...     'lambda',
+   ...     ( ('X','Y')),
+   ...     body)))))
 
 
    #> (functools..reduce (XY * X Y)           ;Invocation, not argument!
    #..                   '(1 2 3 4))
-   >>> __import__('functools').reduce(
-   ...   # XY
-   ...   (lambda X, Y:
-   ...       # Star_
-   ...       __import__('operator').mul(
-   ...         X,
-   ...         Y)
-   ...   ),
-   ...   ((1),
-   ...    (2),
-   ...    (3),
-   ...    (4),))
+   >>> (__import__('functools').reduce (
+   ...  # XY
+   ...  (lambda X, Y:
+   ...    # Star_
+   ...    (__import__('operator').mul (X,Y))),
+   ...  ((1),
+   ...   (2),
+   ...   (3),
+   ...   (4),)))
    24
 
    #> ((XY + Y X) "Eggs" "Spam")
-   >>> # XY
-   ... (lambda X, Y:
-   ...     # Plus_
-   ...     __import__('operator').add(
-   ...       Y,
-   ...       # __main__..Plus_
-   ...       X)
-   ... )(
-   ...   ('Eggs'),
-   ...   ('Spam'))
+   >>> (# XY
+   ...  (lambda X, Y:
+   ...    # Plus_
+   ...    (__import__('operator').add (
+   ...     Y,
+   ...     # __main__..Plus_
+   ...     X))) (
+   ...  ('Eggs'),('Spam')))
    'SpamEggs'
 
 
    ;; It's possible for a macro to shadow a global. They live in different namespaces.
    #> (+ 1 2 3 4)                             ;_macro_.+, not the global.
    >>> # Plus_
-   ... __import__('operator').add(
-   ...   (1),
+   ... (__import__('operator').add (
+   ...  (1),
+   ...  # __main__..Plus_
+   ...  (__import__('operator').add (
+   ...   (2),
    ...   # __main__..Plus_
-   ...   __import__('operator').add(
-   ...     (2),
-   ...     # __main__..Plus_
-   ...     __import__('operator').add(
-   ...       (3),
-   ...       # __main__..Plus_
-   ...       (4))))
+   ...   (__import__('operator').add (
+   ...    (3),
+   ...    # __main__..Plus_
+   ...    (4)))))))
    10
 
    #> (functools..reduce + '(1 2 3 4))        ;Global function, not the macro!
-   >>> __import__('functools').reduce(
-   ...   Plus_,
-   ...   ((1),
-   ...    (2),
-   ...    (3),
-   ...    (4),))
+   >>> (__import__('functools').reduce (
+   ...  Plus_,
+   ...  ((1),
+   ...   (2),
+   ...   (3),
+   ...   (4),)))
    10
 
 
@@ -1702,20 +1468,18 @@ Lissp Whirlwind Tour
    #..  (lambda (sep)
    #..    `(print 1 2 3 : sep ,sep)))
    >>> # define
-   ... __import__('builtins').setattr(
-   ...   _macro_,
-   ...   'p123',
-   ...   (lambda sep:
-   ...       (
-   ...         'builtins..print',
-   ...         (1),
-   ...         (2),
-   ...         (3),
-   ...         ':',
-   ...         '__main__..sep',
-   ...         sep,
-   ...         )
-   ...   ))
+   ... (__import__('builtins').setattr (
+   ...  _macro_,
+   ...  'p123',
+   ...  (lambda sep:
+   ...    ( (
+   ...     'builtins..print',
+   ...     (1),
+   ...     (2),
+   ...     (3),
+   ...     ':',
+   ...     '__main__..sep',
+   ...     sep)))))
 
 
    ;; Note the : didn't have to be quoted here, because it's in a macro
@@ -1723,11 +1487,7 @@ Lissp Whirlwind Tour
    ;; on sep, because it's a kwarg.
    #> (p123 :)
    >>> # p123
-   ... __import__('builtins').print(
-   ...   (1),
-   ...   (2),
-   ...   (3),
-   ...   sep=':')
+   ... (__import__('builtins').print ((1),(2),(3),sep=':'))
    1:2:3
 
 
@@ -1742,9 +1502,8 @@ Lissp Whirlwind Tour
    ;; Finds spam.lissp & eggs.lissp in the current package & compile to spam.py & eggs.py
    #> (.write_text (pathlib..Path "eggs.lissp")
    #..             "(print \"Hello World!\")")
-   >>> __import__('pathlib').Path(
-   ...   ('eggs.lissp')).write_text(
-   ...   ('(print "Hello World!")'))
+   >>> ((__import__('pathlib').Path (('eggs.lissp'))).write_text (
+   ...  ('(print "Hello World!")')))
    22
 
    #> (.write_text (pathlib..Path "spam.lissp")
@@ -1752,16 +1511,13 @@ Lissp Whirlwind Tour
    #..             ;; (print "Hello from spam!")
    #..             ;; (.update (globals) : x 42)
    #..             _#"<- A string from a comment. Doesn't need \" escape.")
-   >>> __import__('pathlib').Path(
-   ...   ('spam.lissp')).write_text(
-   ...   '(print "Hello from spam!")\n(.update (globals) : x 42)')
+   >>> ((__import__('pathlib').Path (('spam.lissp'))).write_text (
+   ...  '(print "Hello from spam!")\n(.update (globals) : x 42)'))
    53
 
    #> (hissp.reader..transpile __package__ 'spam 'eggs) ;Side effects on compilation.
-   >>> __import__('hissp.reader',fromlist='*').transpile(
-   ...   __package__,
-   ...   'spam',
-   ...   'eggs')
+   >>> (__import__('hissp.reader',fromlist='*').transpile (
+   ...  __package__,'spam','eggs'))
    Hello from spam!
    Hello World!
 
@@ -1775,24 +1531,21 @@ Lissp Whirlwind Tour
    <module 'eggs' from ...>
 
    #> (importlib..reload spam.)               ;Side effects again on .py reload.
-   >>> __import__('importlib').reload(
-   ...   __import__('spam'))
+   >>> (__import__('importlib').reload (__import__('spam')))
    Hello from spam!
    <module 'spam' from ...>
 
 
    #> (any (map (lambda f (os..remove f))     ;Cleanup.
    #..     '(eggs.lissp spam.lissp spam.py eggs.py)))
-   >>> any(
-   ...   map(
-   ...     (lambda f:
-   ...         __import__('os').remove(
-   ...           f)
-   ...     ),
-   ...     ('eggs.lissp',
-   ...      'spam.lissp',
-   ...      'spam.py',
-   ...      'eggs.py',)))
+   >>> (any (
+   ...  (map (
+   ...   (lambda f:
+   ...     (__import__('os').remove (f))),
+   ...   ('eggs.lissp',
+   ...    'spam.lissp',
+   ...    'spam.py',
+   ...    'eggs.py',)))))
    False
 
 

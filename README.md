@@ -83,10 +83,7 @@ which are compiled to Python code,
 >>> python_code = readerless(hissp_code)
 >>> print(python_code)
 (lambda name:
-    print(
-      'Hello',
-      name)
-)
+  (print ('Hello',name)))
 
 ```
 and evaluated by Python.
@@ -137,13 +134,11 @@ Strings also have a few special cases:
 ...
 >>> print(readerless(adv_hissp_code))
 (lambda name='world':
-   (print(
-      'Hello,'),
-    print(
-      *name.upper(),
-      sep=':',
-      file=__import__('sys').stdout))  [-1]
-)
+ ((print ('Hello,'))
+ ,(print (
+   *(name.upper ()),
+   sep=':',
+   file=__import__('sys').stdout))  )[-1])
 >>> greetier = eval(readerless(adv_hissp_code))
 >>> greetier()
 Hello,
@@ -194,18 +189,12 @@ extending that ability to custom tuple forms.
 ... )  # It finds _macro_ in the calling frame's globals.
 >>> print(expansion)
 # if_else
-branch(
-  0==1,
-  # thunk
-  (lambda :
-      print(
-        'yes')
-  ),
-  # thunk
-  (lambda :
-      print(
-        'no')
-  ))
+(branch (
+ 0==1,
+ # thunk
+ (lambda : (print ('yes'))),
+ # thunk
+ (lambda : (print ('no')))))
 >>> eval(expansion)
 no
 

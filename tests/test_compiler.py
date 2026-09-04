@@ -69,7 +69,7 @@ class TestCompileGeneral(TestCase):
 
     def test_module_not_found(self):
         self.assertEqual(
-            "__import__('bogus').foo(\n  (2))", compiler.readerless(("bogus..foo", 2))
+            "(__import__('bogus').foo ((2)))", compiler.readerless(("bogus..foo", 2))
         )
 
     @given(literals)
@@ -90,9 +90,7 @@ class TestCompileGeneral(TestCase):
             ])  # fmt: skip
         self.assertIn(
             textwrap.dedent("""\
-            __import__('operator').truediv(
-              (0),
-              (0))
+            (__import__('operator').truediv ((0),(0)))
 
             # Traceback (most recent call last):"""),
             python,
@@ -102,7 +100,6 @@ class TestCompileGeneral(TestCase):
             # ZeroDivisionError: division by zero
             #\N{SPACE}
 
-            print(
-              'oops')"""),
+            (print ('oops'))"""),
             python,
         )
